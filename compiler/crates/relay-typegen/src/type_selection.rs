@@ -137,6 +137,7 @@ pub(crate) struct TypeSelectionLinkedField {
     pub(crate) node_selections: TypeSelectionMap,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) is_result_type: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -146,6 +147,7 @@ pub(crate) struct TypeSelectionScalarField {
     pub(crate) value: AST,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) is_result_type: bool,
 }
 
 #[derive(Debug, Clone)]

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<748d236bdfe163a6942c2efcf0cafcab>>
+ * @generated SignedSource<<58762aeeff855edc7a25f98a2b63153f>>
  */
 
 mod relay_compiler_integration;
@@ -83,6 +83,13 @@ async fn error_handling_query() {
 }
 
 #[tokio::test]
+async fn fragment_alias_nested_in_inline_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/fragment_alias_nested_in_inline_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/fragment_alias_nested_in_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "fragment_alias_nested_in_inline_fragment.input", "relay_compiler_integration/fixtures/fragment_alias_nested_in_inline_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn fragment_arguments() {
     let input = include_str!("relay_compiler_integration/fixtures/fragment_arguments.input");
     let expected = include_str!("relay_compiler_integration/fixtures/fragment_arguments.expected");
@@ -129,6 +136,13 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn required_conditional_field() {
+    let input = include_str!("relay_compiler_integration/fixtures/required_conditional_field.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/required_conditional_field.expected");
+    test_fixture(transform_fixture, file!(), "required_conditional_field.input", "relay_compiler_integration/fixtures/required_conditional_field.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -230,10 +244,31 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
 }
 
 #[tokio::test]
-async fn resolver_returns_union() {
-    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union.expected");
-    test_fixture(transform_fixture, file!(), "resolver_returns_union.input", "relay_compiler_integration/fixtures/resolver_returns_union.expected", input, expected).await;
+async fn resolver_returns_union_of_cse() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_cse.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_cse.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_union_of_cse_weak() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse_weak.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_cse_weak.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_cse_weak.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_cse_weak.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_union_of_strong_resolver() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_strong_resolver.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_strong_resolver.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_strong_resolver.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_strong_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_union_of_weak_resolver() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_union_of_weak_resolver.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -311,6 +346,20 @@ async fn resolvers_schema_module_apply_to_normalization_ast() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected");
     test_fixture(transform_fixture, file!(), "resolvers_schema_module_apply_to_normalization_ast.input", "relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_null_require_bubble_to_required_parent() {
+    let input = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubble_to_required_parent.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubble_to_required_parent.expected");
+    test_fixture(transform_fixture, file!(), "semantic_null_require_bubble_to_required_parent.input", "relay_compiler_integration/fixtures/semantic_null_require_bubble_to_required_parent.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_null_require_bubbling() {
+    let input = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected");
+    test_fixture(transform_fixture, file!(), "semantic_null_require_bubbling.input", "relay_compiler_integration/fixtures/semantic_null_require_bubbling.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -434,6 +434,11 @@ export interface StoreSubscriptions {
     updatedOwners: Array<RequestDescriptor>,
     sourceOperation?: OperationDescriptor,
   ): void;
+
+  /**
+   * returns the number of subscriptions
+   */
+  size(): number;
 }
 
 /**
@@ -652,11 +657,18 @@ export type ExecuteStartLogEvent = {
   +cacheConfig: CacheConfig,
 };
 
-export type ExecuteNextLogEvent = {
-  +name: 'execute.next',
+export type ExecuteNextStartLogEvent = {
+  +name: 'execute.next.start',
   +executeId: number,
   +response: GraphQLResponse,
-  +duration: number,
+  +operation: OperationDescriptor,
+};
+
+export type ExecuteNextEndLogEvent = {
+  +name: 'execute.next.end',
+  +executeId: number,
+  +response: GraphQLResponse,
+  +operation: OperationDescriptor,
 };
 
 export type ExecuteAsyncModuleLogEvent = {
@@ -677,6 +689,16 @@ export type ExecuteCompleteLogEvent = {
   +executeId: number,
 };
 
+export type StoreDataCheckerStartEvent = {
+  +name: 'store.datachecker.start',
+  +selector: NormalizationSelector,
+};
+
+export type StoreDataCheckerEndEvent = {
+  +name: 'store.datachecker.end',
+  +selector: NormalizationSelector,
+};
+
 export type StorePublishLogEvent = {
   +name: 'store.publish',
   +source: RecordSource,
@@ -687,12 +709,30 @@ export type StoreSnapshotLogEvent = {
   +name: 'store.snapshot',
 };
 
+export type StoreLookupStartEvent = {
+  +name: 'store.lookup.start',
+  +selector: SingularReaderSelector,
+};
+
+export type StoreLookupEndEvent = {
+  +name: 'store.lookup.end',
+  +selector: SingularReaderSelector,
+};
+
 export type StoreRestoreLogEvent = {
   +name: 'store.restore',
 };
 
-export type StoreGcLogEvent = {
-  +name: 'store.gc',
+export type StoreGcStartEvent = {
+  +name: 'store.gc.start',
+};
+
+export type StoreGcInterruptedEvent = {
+  +name: 'store.gc.interrupted',
+};
+
+export type StoreGcEndEvent = {
+  +name: 'store.gc.end',
   +references: DataIDSet,
 };
 
@@ -706,6 +746,8 @@ export type StoreNotifyCompleteLogEvent = {
   +sourceOperation: ?OperationDescriptor,
   +updatedRecordIDs: DataIDSet,
   +invalidatedRecordIDs: DataIDSet,
+  +subscriptionsSize: number,
+  +updatedOwners: Array<RequestDescriptor>,
 };
 
 export type StoreNotifySubscriptionLogEvent = {
@@ -748,14 +790,21 @@ export type LogEvent =
   | NetworkCompleteLogEvent
   | NetworkUnsubscribeLogEvent
   | ExecuteStartLogEvent
-  | ExecuteNextLogEvent
+  | ExecuteNextStartLogEvent
+  | ExecuteNextEndLogEvent
   | ExecuteAsyncModuleLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent
+  | StoreDataCheckerStartEvent
+  | StoreDataCheckerEndEvent
   | StorePublishLogEvent
   | StoreSnapshotLogEvent
+  | StoreLookupStartEvent
+  | StoreLookupEndEvent
   | StoreRestoreLogEvent
-  | StoreGcLogEvent
+  | StoreGcStartEvent
+  | StoreGcInterruptedEvent
+  | StoreGcEndEvent
   | StoreNotifyStartLogEvent
   | StoreNotifyCompleteLogEvent
   | StoreNotifySubscriptionLogEvent

@@ -12,6 +12,12 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
+use schemars::gen::SchemaGenerator;
+use schemars::schema::InstanceType;
+use schemars::schema::Schema;
+use schemars::schema::SchemaObject;
+use schemars::schema::SingleOrVec;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -28,6 +34,21 @@ pub use crate::Lookup;
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 #[repr(transparent)]
 pub struct StringKey(StringId);
+
+impl JsonSchema for StringKey {
+    fn schema_name() -> std::string::String {
+        String::from("StringKey")
+    }
+
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        SchemaObject {
+            instance_type: Some(SingleOrVec::Single(Box::new(InstanceType::String))),
+            format: None,
+            ..Default::default()
+        }
+        .into()
+    }
+}
 
 pub type StringKeyMap<V> = HashMap<StringKey, V, BuildIdHasher<u32>>;
 pub type StringKeySet = HashSet<StringKey, BuildIdHasher<u32>>;

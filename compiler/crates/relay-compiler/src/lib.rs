@@ -21,7 +21,6 @@ pub mod file_source;
 mod graphql_asts;
 mod operation_persister;
 mod red_to_green;
-pub mod saved_state;
 pub mod status_reporter;
 mod utils;
 
@@ -49,6 +48,7 @@ pub use build_project::ArtifactContent;
 pub use build_project::ArtifactGeneratedTypes;
 pub use build_project::BuildProjectFailure;
 pub use build_project::SourceHashes;
+pub use config::ConfigFile;
 pub use config::ConfigFileProject;
 pub use config::FileSourceKind;
 pub use config::LocalPersistConfig;

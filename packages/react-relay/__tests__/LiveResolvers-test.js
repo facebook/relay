@@ -42,6 +42,7 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  skipIf,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -378,13 +379,16 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     return queryData.outer ?? null;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
 
-  expect(renderer.toJSON()).toEqual('0');
+  expect(renderer?.toJSON()).toEqual('0');
 
   let update;
   // Delete data putting `inner`'s fragment into a state where it's missing
@@ -476,15 +480,18 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
 
   const initialCallCount = counterNoFragmentResolver.callCount;
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
 
   expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
   // Initial render evaluates (and caches) the `counter_no_fragment` resolver.
-  expect(renderer.toJSON()).toEqual('Loading...');
+  expect(renderer?.toJSON()).toEqual('Loading...');
 
   // When the network response returns, it updates the query root, which would
   // invalidate a resolver with a fragment on Query. However,
@@ -543,12 +550,15 @@ test('Can suspend', () => {
     return fragmentData.counter_suspends_when_odd;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
-  expect(renderer.toJSON()).toEqual('0');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('0');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
@@ -612,12 +622,15 @@ test('Can suspend with resolver that uses live resolver', () => {
     return fragmentData.user_name_and_counter_suspends_when_odd;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
-  expect(renderer.toJSON()).toEqual('Alice 0');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Alice 0');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
@@ -866,124 +879,130 @@ describe('Live Resolver with Suspense and Missing Data', () => {
   });
 });
 
-test('Live Resolver with Missing Data and @required', async () => {
-  function InnerTestComponent({id}: {id: string}) {
-    const data = useLazyLoadQuery(
-      graphql`
-        query LiveResolversTest8Query($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-              resolver_that_throws
+skipIf(
+  process.env.OSS,
+  'Live Resolver with Missing Data and @required',
+  async () => {
+    function InnerTestComponent({id}: {id: string}) {
+      const data = useLazyLoadQuery(
+        graphql`
+          query LiveResolversTest8Query($id: ID!) {
+            node(id: $id) {
+              ... on User {
+                name
+                resolver_that_throws
+              }
             }
           }
-        }
-      `,
-      {id},
-      {fetchPolicy: 'store-only'},
-    );
-    return `${data.node?.name ?? 'Unknown name'}: ${
-      data.node?.resolver_that_throws ?? 'Unknown resolver_that_throws value'
-    }`;
-  }
+        `,
+        {id},
+        {fetchPolicy: 'store-only'},
+      );
+      return `${data.node?.name ?? 'Unknown name'}: ${
+        data.node?.resolver_that_throws ?? 'Unknown resolver_that_throws value'
+      }`;
+    }
 
-  function TestComponent({
-    environment,
-    ...rest
-  }: {
-    environment: RelayModernEnvironment,
-    id: string,
-  }) {
-    return (
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="Loading...">
-          <InnerTestComponent {...rest} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>
-    );
-  }
-  const relayFieldLogger = jest.fn<
-    $FlowFixMe | [RelayFieldLoggerEvent],
-    void,
-  >();
-  function createEnvironment(source: MutableRecordSource) {
-    return new RelayModernEnvironment({
-      network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
-      relayFieldLogger,
-    });
-  }
+    function TestComponent({
+      environment,
+      ...rest
+    }: {
+      environment: RelayModernEnvironment,
+      id: string,
+    }) {
+      return (
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Loading...">
+            <InnerTestComponent {...rest} />
+          </React.Suspense>
+        </RelayEnvironmentProvider>
+      );
+    }
+    const relayFieldLogger = jest.fn<
+      $FlowFixMe | [RelayFieldLoggerEvent],
+      void,
+    >();
+    function createEnvironment(source: MutableRecordSource) {
+      return new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        store: new LiveResolverStore(source),
+        relayFieldLogger,
+      });
+    }
 
-  const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      'node(id:"1")': {__ref: '1'},
-      'node(id:"2")': {__ref: '2'},
-    },
-    '1': {
-      __id: '1',
-      __typename: 'User',
-      name: 'Alice',
-      // username is missing
-      id: '1',
-    },
-    '2': {
-      __id: '2',
-      __typename: 'User',
-      name: 'Bob',
-      username: 'bob',
-      id: '2',
-    },
-  });
-  const environment = createEnvironment(source);
-
-  // First, render with missing data
-  await expect(async () => {
-    await TestRenderer.act(() => {
-      TestRenderer.create(<TestComponent environment={environment} id="1" />);
-    });
-  }).rejects.toThrow(
-    "Relay: Missing @required value at path 'username' in 'ResolverThatThrows'.",
-  );
-  expect(relayFieldLogger.mock.calls).toEqual([
-    [
-      {
-        kind: 'missing_field.throw',
-        owner: 'ResolverThatThrows',
-        fieldPath: 'username',
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
+        'node(id:"2")': {__ref: '2'},
       },
-    ],
-  ]);
-  relayFieldLogger.mockReset();
-
-  // Render with complete data
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <TestComponent environment={environment} id="2" />,
-    );
-  });
-
-  if (renderer == null) {
-    throw new Error('Renderer is expected to be defined.');
-  }
-
-  expect(relayFieldLogger.mock.calls).toEqual([
-    [
-      {
-        error: new Error(
-          'The resolver should throw earlier. It should have missing data.',
-        ),
-        fieldPath: 'node.resolver_that_throws',
-        kind: 'relay_resolver.error',
-        owner: 'LiveResolversTest8Query',
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        name: 'Alice',
+        // username is missing
+        id: '1',
       },
-    ],
-  ]);
+      '2': {
+        __id: '2',
+        __typename: 'User',
+        name: 'Bob',
+        username: 'bob',
+        id: '2',
+      },
+    });
+    const environment = createEnvironment(source);
 
-  expect(renderer.toJSON()).toEqual('Bob: Unknown resolver_that_throws value');
-});
+    // First, render with missing data
+    await expect(async () => {
+      await TestRenderer.act(() => {
+        TestRenderer.create(<TestComponent environment={environment} id="1" />);
+      });
+    }).rejects.toThrow(
+      "Relay: Missing @required value at path 'username' in 'ResolverThatThrows'.",
+    );
+    expect(relayFieldLogger.mock.calls).toEqual([
+      [
+        {
+          kind: 'missing_field.throw',
+          owner: 'ResolverThatThrows',
+          fieldPath: 'username',
+        },
+      ],
+    ]);
+    relayFieldLogger.mockReset();
+
+    // Render with complete data
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <TestComponent environment={environment} id="2" />,
+      );
+    });
+
+    if (renderer == null) {
+      throw new Error('Renderer is expected to be defined.');
+    }
+
+    expect(relayFieldLogger.mock.calls).toEqual([
+      [
+        {
+          error: new Error(
+            'The resolver should throw earlier. It should have missing data.',
+          ),
+          fieldPath: 'node.resolver_that_throws',
+          kind: 'relay_resolver.error',
+          owner: 'LiveResolversTest8Query',
+        },
+      ],
+    ]);
+
+    expect(renderer.toJSON()).toEqual(
+      'Bob: Unknown resolver_that_throws value',
+    );
+  },
+);
 
 test('apply optimistic updates to live resolver field', () => {
   let renderer;
@@ -1343,13 +1362,16 @@ test('live resolver with the edge that always suspend', () => {
     return data.live_user_resolver_always_suspend?.name;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
 
-  expect(renderer.toJSON()).toBe('Loading...');
+  expect(renderer?.toJSON()).toBe('Loading...');
 });
 
 describe('client-only fragments', () => {
@@ -1406,12 +1428,15 @@ describe('client-only fragments', () => {
         node: {id: '1', __typename: 'User'},
       },
     );
-    const renderer = TestRenderer.create(
-      <Environment environment={environment}>
-        <TestComponent id="1" />
-      </Environment>,
-    );
-    expect(renderer.toJSON()).toEqual('0');
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+    });
+    expect(renderer?.toJSON()).toEqual('0');
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
@@ -1436,12 +1461,15 @@ describe('client-only fragments', () => {
         node: {id: '1', __typename: 'User'},
       },
     );
-    const renderer = TestRenderer.create(
-      <Environment environment={environment}>
-        <TestComponent id="1" />
-      </Environment>,
-    );
-    expect(renderer.toJSON()).toEqual('0');
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+    });
+    expect(renderer?.toJSON()).toEqual('0');
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });

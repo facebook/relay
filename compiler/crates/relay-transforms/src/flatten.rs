@@ -492,11 +492,17 @@ impl FlattenTransform {
                                 if let Some(module_metadata) =
                                     ModuleMetadata::find(&node.directives)
                                 {
-                                    if flattened_module_metadata.key != module_metadata.key
+                                    let modules_differ = flattened_module_metadata.key
+                                        != module_metadata.key
                                         || flattened_module_metadata.module_name
                                             != module_metadata.module_name
                                         || flattened_module_metadata.fragment_name
-                                            != module_metadata.fragment_name
+                                            != module_metadata.fragment_name;
+
+                                    // If the modules have different keys they will materialize as different
+                                    // field names and thus willnot conflict.
+                                    if flattened_module_metadata.key == module_metadata.key
+                                        && modules_differ
                                     {
                                         let error = Diagnostic::error(
                                             ValidationMessage::ConflictingModuleSelections,

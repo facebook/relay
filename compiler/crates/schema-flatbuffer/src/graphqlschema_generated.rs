@@ -260,6 +260,7 @@ impl TypeReferenceKind {
   pub const Named: Self = Self(0);
   pub const NonNull: Self = Self(1);
   pub const List: Self = Self(2);
+  pub const Catchable: Self = Self(3);
 
   pub const ENUM_MIN: i8 = 0;
   pub const ENUM_MAX: i8 = 2;

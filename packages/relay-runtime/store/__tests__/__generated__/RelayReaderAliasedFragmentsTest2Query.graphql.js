@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f49d4bee95cf370371492f2bb49b315>>
+ * @generated SignedSource<<9717d6129a40df3904f051b6f25ab6ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,14 +50,19 @@ var node/*: ConcreteRequest*/ = {
         "selections": [
           {
             "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "RelayReaderAliasedFragmentsTest_user"
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "RelayReaderAliasedFragmentsTest_user"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
             },
-            "kind": "AliasedFragmentSpread",
-            "name": "aliased_fragment",
-            "type": "User",
-            "abstractKey": null
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "aliased_fragment"
           }
         ],
         "storageKey": null

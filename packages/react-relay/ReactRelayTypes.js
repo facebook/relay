@@ -117,14 +117,14 @@ export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
   & (<T>(T) => T),
 >;
 
-export type RelayFragmentContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
+export type RelayFragmentContainer<TComponent> = React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
 >;
 
-export type RelayPaginationContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
+export type RelayPaginationContainer<TComponent> = React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 >;
 
-export type RelayRefetchContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
+export type RelayRefetchContainer<TComponent> = React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
 >;

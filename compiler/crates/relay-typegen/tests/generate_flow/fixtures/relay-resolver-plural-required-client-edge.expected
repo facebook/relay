@@ -38,6 +38,7 @@ import userBestFriendsResolverType from "BestFriendResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendsResolverType: (
   rootKey: relayResolver_BestFriendResolverFragment_name$key,
+  args: void,
 ) => $ReadOnlyArray<?{|
   +id: DataID,
 |}>);

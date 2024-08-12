@@ -155,6 +155,21 @@ fn apply_common_transforms(
         &log_event,
         None,
     )?;
+
+    program = log_event.time("fragment_alias_directive", || {
+        fragment_alias_directive(
+            &program,
+            project_config
+                .feature_flags
+                .enable_fragment_aliases
+                .is_fully_enabled(),
+            project_config
+                .feature_flags
+                .enforce_fragment_alias_where_ambiguous
+                .is_fully_enabled(),
+        )
+    })?;
+
     program = log_event.time("relay_resolvers_abstract_types", || {
         relay_resolvers_abstract_types(&program, &project_config.feature_flags)
     })?;
@@ -250,22 +265,6 @@ fn apply_reader_transforms(
         None,
     )?;
 
-    program = log_event.time("fragment_alias_directive", || {
-        fragment_alias_directive(
-            &program,
-            project_config
-                .feature_flags
-                .enable_fragment_aliases
-                .is_fully_enabled(),
-            // NOTE: We purposefully don't run validation in this arm of the
-            // transform pipeline, and instead we expect it to run in the
-            // typegen arm. In this arm we've already run refetchable fragment
-            // transform which creates some synthentic fragment spreads that we
-            // don't want to report.
-            false,
-        )
-    })?;
-
     program = log_event.time("required_directive", || required_directive(&program))?;
 
     program = log_event.time("catch_directive", || {
@@ -360,6 +359,10 @@ fn apply_operation_transforms(
         &log_event,
         None,
     )?;
+
+    program = log_event.time("remove_aliased_inline_fragments", || {
+        remove_aliased_inline_fragments(&program)
+    });
 
     program = log_event.time("skip_updatable_queries", || {
         skip_updatable_queries(&program)

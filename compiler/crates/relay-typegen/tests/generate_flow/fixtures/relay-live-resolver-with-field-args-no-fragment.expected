@@ -24,6 +24,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
+  key: void,
   args: {|
     count: ?number,
     greeting: string,

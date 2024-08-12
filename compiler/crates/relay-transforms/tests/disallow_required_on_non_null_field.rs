@@ -32,9 +32,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             &program,
             fixture
                 .content
-                .contains("# relay:disallow_required_on_non_null_fields"),
-            fixture
-                .content
                 .contains("# relay:experimental_emit_semantic_nullability_types"),
         )
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;

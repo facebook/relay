@@ -1,0 +1,15 @@
+query aliasedFragmentInInlineFragmentQuery {
+  me {
+    ...aliasedFragmentInInlineFragment
+  }
+}
+
+fragment aliasedFragmentInInlineFragment on User {
+  ... on User {
+    ...aliasedFragmentInInlineFragmentInner @alias
+  }
+}
+
+fragment aliasedFragmentInInlineFragmentInner on User {
+  name
+}

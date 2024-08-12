@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9999601a445e2154561da251e0ca30b4>>
+ * @generated SignedSource<<b3ad5f451c81e311e6efe57ead61c409>>
  */
 
 mod fragment_alias_directive;
@@ -108,6 +108,13 @@ async fn fragment_spread_into_supertype_without_alias_suppressed() {
     let input = include_str!("fragment_alias_directive/fixtures/fragment_spread_into_supertype_without_alias_suppressed.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/fragment_spread_into_supertype_without_alias_suppressed.expected");
     test_fixture(transform_fixture, file!(), "fragment_spread_into_supertype_without_alias_suppressed.graphql", "fragment_alias_directive/fixtures/fragment_spread_into_supertype_without_alias_suppressed.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_spread_within_skip_inline_fragment_without_alias_invalid() {
+    let input = include_str!("fragment_alias_directive/fixtures/fragment_spread_within_skip_inline_fragment_without_alias.invalid.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/fragment_spread_within_skip_inline_fragment_without_alias.invalid.expected");
+    test_fixture(transform_fixture, file!(), "fragment_spread_within_skip_inline_fragment_without_alias.invalid.graphql", "fragment_alias_directive/fixtures/fragment_spread_within_skip_inline_fragment_without_alias.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

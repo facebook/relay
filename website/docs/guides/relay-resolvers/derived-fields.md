@@ -4,6 +4,9 @@ title: "Derived Fields"
 slug: /guides/relay-resolvers/derived-fields/
 description: Defining field which are a pure function of other fields
 ---
+import {FbInternalOnly, fbContent} from 'docusaurus-plugin-internaldocs-fb/internal';
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
 
 In addition to modeling client state, Relay Resolvers also allow you to define fields which are a pure function of other fields. These fields are called derived fields and can be defined on any type no matter if it's defined on the server or client.
 
@@ -20,6 +23,20 @@ For globally relevant data, resolvers have a few advantages of alternative solut
 Derived resolvers look like any other resolver except that they read GraphQL data instead of being computed from a parent model type. Derived resolvers read GraphQL data by defining a "root fragment" which is a GraphQL fragment defined on the parent type of the field.
 
 The root fragment is defined using the `@rootFragment` docblock tag followed by the name of the fragment. This tells Relay to pass the resolver function a fragment key for that fragment. The fragment data may then be read using `readFragment` imported from `relay-runtime`.
+
+<Tabs
+  groupId="resolver"
+  defaultValue="Docblock"
+  values={fbContent({
+    internal: [
+      {label: 'Docblock', value: 'Docblock'},
+      {label: 'Flow', value: 'Flow'},
+    ],
+    external: [
+      {label: 'Docblock', value: 'Docblock'},
+    ]
+  })}>
+  <TabItem value="Docblock">
 
 ```tsx
 import {readFragment} from 'relay-runtime';
@@ -38,6 +55,31 @@ export function fullName(key: UserFullNameFragment$key): string {
   return `${user.firstName} ${user.lastName}`;
 }
 ```
+  </TabItem>
+
+  <TabItem value="Flow">
+  <FbInternalOnly>
+
+```tsx
+import {readFragment} from 'relay-runtime';
+
+/**
+ * @RelayResolver
+ */
+export function fullName(key: UserFullNameFragment$key): string {
+  const user = readFragment(graphql`
+    fragment UserFullNameFragment on User {
+        firstName
+        lastName
+    }
+  `, key);
+  return `${user.firstName} ${user.lastName}`;
+}
+```
+
+  </FbInternalOnly>
+  </TabItem>
+</Tabs>
 
 :::info
 Relay will track all the values read from the fragment and automatically recompute the resolver when any of those values change.

@@ -279,27 +279,33 @@ function ManyLiveTodosComponent() {
 }
 
 test('should render empty state', () => {
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('No Items');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('No Items');
 });
 
 test('add new item to the list', () => {
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-    </EnvironmentWrapper>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
 
   TestRenderer.act(() => {
     addTodo('My first todo');
     jest.runAllImmediates();
   });
 
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -311,7 +317,7 @@ test('add new item to the list', () => {
     jest.runAllImmediates();
   });
 
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -324,16 +330,19 @@ test('add new item to the list', () => {
 });
 
 test('complete todo', () => {
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-    </EnvironmentWrapper>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
   TestRenderer.act(() => {
     addTodo('My first todo');
     jest.runAllImmediates();
   });
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -344,7 +353,7 @@ test('complete todo', () => {
     completeTodo('todo-1');
     jest.runAllImmediates();
   });
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is completed',
     'style: normal',
@@ -353,17 +362,20 @@ test('complete todo', () => {
 });
 
 test('complete todo and add one more', () => {
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-    </EnvironmentWrapper>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
   TestRenderer.act(() => {
     addTodo('My first todo');
     completeTodo('todo-1');
     jest.runAllImmediates();
   });
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is completed',
     'style: normal',
@@ -373,7 +385,7 @@ test('complete todo and add one more', () => {
     addTodo('My second todo');
     jest.runAllImmediates();
   });
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is completed',
     'style: normal',
@@ -386,23 +398,28 @@ test('complete todo and add one more', () => {
 });
 
 test('query single todo item (item is missing)', () => {
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoRootComponent todoID="todo-1" />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toBe(null);
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toBe(null);
 });
 
 test('query single todo item (item is present) and complete it', () => {
   addTodo('My first todo');
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoRootComponent todoID="todo-1" />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual([
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -412,7 +429,7 @@ test('query single todo item (item is present) and complete it', () => {
     completeTodo('todo-1');
     jest.runAllImmediates();
   });
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is completed',
     'style: normal',
@@ -422,15 +439,17 @@ test('query single todo item (item is present) and complete it', () => {
 
 test('render both list and item component', () => {
   addTodo('My first todo');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-      <TodoRootComponent todoID="todo-1" />
-    </EnvironmentWrapper>,
-  );
-
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -445,7 +464,7 @@ test('render both list and item component', () => {
     addTodo('Second todo');
     jest.runAllImmediates();
   });
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -465,7 +484,7 @@ test('render both list and item component', () => {
     completeTodo('todo-1');
     jest.runAllImmediates();
   });
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is completed',
     'style: normal',
@@ -485,15 +504,17 @@ test('removes item', () => {
   addTodo('My first todo');
   addTodo('Second todo');
   completeTodo('todo-1');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-      <TodoRootComponent todoID="todo-1" />
-    </EnvironmentWrapper>,
-  );
-
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is completed',
     'style: normal',
@@ -513,7 +534,7 @@ test('removes item', () => {
     jest.runAllImmediates();
   });
 
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'Second todo',
     'is not completed',
     'style: bold',
@@ -524,13 +545,16 @@ test('removes item', () => {
 test('renders after GC', () => {
   addTodo('My first todo');
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-    </EnvironmentWrapper>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
 
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -614,11 +638,13 @@ test('renders after GC', () => {
   });
 
   expect(() => {
-    renderer.update(
-      <EnvironmentWrapper environment={environment} key="1">
-        <TodoListComponent />
-      </EnvironmentWrapper>,
-    );
+    TestRenderer.act(() => {
+      renderer.update(
+        <EnvironmentWrapper environment={environment} key="1">
+          <TodoListComponent />
+        </EnvironmentWrapper>,
+      );
+    });
   }).not.toThrow();
 });
 
@@ -626,15 +652,17 @@ test('render with recursive resolvers (with blocked_by)', () => {
   addTodo('My first todo');
   addTodo('My second todo');
   addTodo('My 3rd todo');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootWithBlockedComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoListComponent />
-      <TodoRootWithBlockedComponent todoID="todo-1" />
-    </EnvironmentWrapper>,
-  );
-
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -654,7 +682,7 @@ test('render with recursive resolvers (with blocked_by)', () => {
     jest.runAllImmediates();
   });
 
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'My first todo',
     'is not completed',
     'style: bold',
@@ -679,14 +707,15 @@ test('rendering lists with nulls', () => {
   addTodo('Todo 1');
   addTodo('Todo 2');
   addTodo('Todo 3');
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <ManyTodosComponent todos={['todo-1', null, 'todo-2']} />
-    </EnvironmentWrapper>,
-  );
-
-  expect(renderer.toJSON()).toEqual([
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <ManyTodosComponent todos={['todo-1', null, 'todo-2']} />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual([
     'Todo 1',
     'is not completed',
     'style: bold',
@@ -696,13 +725,14 @@ test('rendering lists with nulls', () => {
     'style: bold',
     'color: color is red',
   ]);
-
-  renderer.update(
-    <EnvironmentWrapper environment={environment}>
-      <ManyTodosComponent todos={['todo-1', 'todo-2', 'todo-3']} />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual([
+  TestRenderer.act(() => {
+    renderer.update(
+      <EnvironmentWrapper environment={environment}>
+        <ManyTodosComponent todos={['todo-1', 'todo-2', 'todo-3']} />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual([
     'Todo 1',
     'is not completed',
     'style: bold',
@@ -722,14 +752,16 @@ test('rendering live list', () => {
   addTodo('Todo 1');
   addTodo('Todo 2');
   addTodo('Todo 3');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <ManyLiveTodosComponent />
+      </EnvironmentWrapper>,
+    );
+  });
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <ManyLiveTodosComponent />
-    </EnvironmentWrapper>,
-  );
-
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'Todo 1',
     'is not completed',
     'style: bold',
@@ -750,7 +782,7 @@ test('rendering live list', () => {
     jest.runAllImmediates();
   });
 
-  expect(renderer.toJSON()).toEqual([
+  expect(renderer?.toJSON()).toEqual([
     'Todo 3',
     'is not completed',
     'style: bold',

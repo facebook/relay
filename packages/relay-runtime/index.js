@@ -11,6 +11,7 @@
 
 'use strict';
 
+const {isErrorResult, isValueResult} = require('./experimental');
 const ConnectionHandler = require('./handlers/connection/ConnectionHandler');
 const ConnectionInterface = require('./handlers/connection/ConnectionInterface');
 const MutationHandlers = require('./handlers/connection/MutationHandlers');
@@ -73,7 +74,7 @@ const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayReplaySubject = require('./util/RelayReplaySubject');
-const stableCopy = require('./util/stableCopy');
+const {hasCycle, stableCopy} = require('./util/stableCopy');
 const withProvidedVariables = require('./util/withProvidedVariables');
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
@@ -239,7 +240,7 @@ export type {Local3DPayload} from './util/createPayloadFor3DField';
 export type {Direction} from './util/getPaginationVariables';
 export type {RequestIdentifier} from './util/getRequestIdentifier';
 export type {ResolverFunction} from './util/ReaderNode';
-export type {IdOf, RelayResolverValue} from './experimental';
+export type {IdOf, RelayResolverValue, Result} from './experimental';
 
 // As early as possible, check for the existence of the JavaScript globals which
 // Relay Runtime relies upon, and produce a clear message if they do not exist.
@@ -305,6 +306,8 @@ module.exports = {
     RelayModernSelector.getVariablesFromSingularFragment,
   handlePotentialSnapshotErrors,
   graphql: GraphQLTag.graphql,
+  isErrorResult: isErrorResult,
+  isValueResult: isValueResult,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,
   isSuspenseSentinel,
@@ -363,6 +366,7 @@ module.exports = {
   isScalarAndEqual: isScalarAndEqual,
   recycleNodesInto: recycleNodesInto,
   stableCopy: stableCopy,
+  hasCycle: hasCycle,
   getFragmentIdentifier: getFragmentIdentifier,
   getRefetchMetadata: getRefetchMetadata,
   getPaginationMetadata: getPaginationMetadata,

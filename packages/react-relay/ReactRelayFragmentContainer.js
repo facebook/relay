@@ -51,7 +51,7 @@ function createContainerWithFragments<
   Component: TComponent,
   fragments: FragmentMap,
 ): React.ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
+  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
 > {
   const containerName = getContainerName(Component);
 
@@ -275,7 +275,7 @@ function createContainer<
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
 ): React.AbstractComponent<
-  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
+  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
   Instance,
 > {
   // $FlowFixMe[incompatible-return]

@@ -325,7 +325,7 @@ function createContainerWithFragments<
   fragments: FragmentMap,
   connectionConfig: ConnectionConfig,
 ): React.ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 > {
   const componentName = getComponentName(Component);
   const containerName = getContainerName(Component);
@@ -942,7 +942,7 @@ function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
   fragmentSpec: GeneratedNodeMap,
   connectionConfig: ConnectionConfig,
 ): React.ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 > {
   // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(

@@ -12,12 +12,13 @@ use std::fmt::Result as FmtResult;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
 use intern::Lookup;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 use crate::Rollout;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
@@ -65,10 +66,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub compact_query_text: FeatureFlag,
 
-    /// Create normalization nodes for client edges to client objects
-    #[serde(default = "default_as_true")]
-    pub emit_normalization_nodes_for_client_edges: bool,
-
     /// Fully build the normalization AST for Resolvers
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
@@ -114,11 +111,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub disable_schema_validation: bool,
 
-    /// Disallow the `@required` directive on fields that are already non-null
-    /// in the schema.
-    #[serde(default)]
-    pub disallow_required_on_non_null_fields: bool,
-
     /// Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator
     /// in @refetchable transform
     #[serde(default)]
@@ -129,11 +121,7 @@ pub struct FeatureFlags {
     pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
 }
 
-fn default_as_true() -> bool {
-    true
-}
-
-#[derive(Debug, Deserialize, Clone, Serialize, Default)]
+#[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature

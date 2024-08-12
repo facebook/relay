@@ -19,4 +19,4 @@ const {
 
 module.exports = (createRelayContext(
   React,
-): React$Context<RelayContext | null>);
+): React.Context<RelayContext | null>);

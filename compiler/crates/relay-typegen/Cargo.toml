@@ -30,6 +30,7 @@ schema = { path = "../schema" }
 fixture-tests = { path = "../fixture-tests" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
+regex = "1.9.2"
 relay-codegen = { path = "../relay-codegen" }
 relay-test-schema = { path = "../relay-test-schema" }
 tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }

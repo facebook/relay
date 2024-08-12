@@ -5,8 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use core::panic;
+use std::path::PathBuf;
+use std::str::FromStr;
 use std::sync::Arc;
 
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::ConsoleLogger;
 use common::FeatureFlag;
 use common::FeatureFlags;
@@ -20,11 +25,11 @@ use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
-use intern::string_key::Intern;
+use regex::Regex;
 use relay_codegen::print_provided_variables;
 use relay_codegen::JsModuleFormat;
-use relay_config::CustomScalarType;
-use relay_config::CustomScalarTypeImport;
+use relay_config::CustomType;
+use relay_config::CustomTypeImport;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 use relay_test_schema::get_test_schema;
@@ -58,11 +63,40 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let mut custom_scalar_types = FnvIndexMap::default();
     custom_scalar_types.insert(
         ScalarName("JSON".intern()),
-        CustomScalarType::Path(CustomScalarTypeImport {
+        CustomType::Path(CustomTypeImport {
             name: "JSON".intern(),
             path: "TypeDefsFile".into(),
         }),
     );
+    // TODO: T195687167 This is currently duplicated in flow and TS - export this to a common place
+    let custom_error_type: Option<CustomTypeImport> = {
+        let rgx =
+            Regex::new(r"# relay:custom_error_type\s(?<name>[A-Za-z]+)\s(?<path>[A-Za-z/\.:]*)")
+                .unwrap();
+        let caps = rgx.captures(fixture.content);
+
+        match caps {
+            Some(def_caps) => {
+                // we want named captures "name" and "path" - but 0 is always the full string, so we expect 3
+                if def_caps.len() != 3 {
+                    panic!("Expected 2 matches, got {}", def_caps.len());
+                }
+
+                let name_str = def_caps.name("name").map_or("", |m| m.as_str());
+                let path_str = def_caps.name("path").map_or("", |m| m.as_str());
+
+                match name_str.is_empty() || path_str.is_empty() {
+                    true => panic!("Expected non-empty name and path"),
+                    false => Some(CustomTypeImport {
+                        name: StringKey::from_str(name_str).unwrap(),
+                        path: PathBuf::from(path_str),
+                    }),
+                }
+            }
+            None => None,
+        }
+    };
+
     let project_config = ProjectConfig {
         name: ProjectName::default(),
         js_module_format: JsModuleFormat::Haste,
@@ -75,10 +109,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             experimental_emit_semantic_nullability_types: fixture
                 .content
                 .contains("# relay:experimental_emit_semantic_nullability_types"),
+            custom_error_type,
             ..Default::default()
         },
         feature_flags: Arc::new(FeatureFlags {
             enable_fragment_aliases: FeatureFlag::Enabled,
+            enable_catch_directive_transform: FeatureFlag::Enabled,
             enable_relay_resolver_transform: true,
             ..Default::default()
         }),

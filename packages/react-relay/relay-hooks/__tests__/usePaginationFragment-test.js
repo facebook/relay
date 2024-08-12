@@ -171,8 +171,13 @@ function expectFragmentResults(
 }
 
 function resolveQuery(payload: mixed) {
-  dataSource.next(payload);
-  dataSource.complete();
+  TestRenderer.act(() => {
+    dataSource.next(payload);
+  });
+
+  TestRenderer.act(() => {
+    dataSource.complete();
+  });
 }
 
 function createFragmentRef(
@@ -736,13 +741,15 @@ describe('initial render', () => {
     ]);
 
     // Update parent record
-    environment.commitPayload(query, {
-      node: {
-        __typename: 'User',
-        id: '1',
-        // Update name
-        name: 'Alice in Wonderland',
-      },
+    TestRenderer.act(() => {
+      environment.commitPayload(query, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          // Update name
+          name: 'Alice in Wonderland',
+        },
+      });
     });
     expectFragmentResults([
       {
@@ -759,14 +766,17 @@ describe('initial render', () => {
     ]);
 
     // Update edge
-    environment.commitPayload(query, {
-      node: {
-        __typename: 'User',
-        id: 'node:1',
-        // Update name
-        name: 'name:node:1-updated',
-      },
+    TestRenderer.act(() => {
+      environment.commitPayload(query, {
+        node: {
+          __typename: 'User',
+          id: 'node:1',
+          // Update name
+          name: 'name:node:1-updated',
+        },
+      });
     });
+
     expectFragmentResults([
       {
         data: {
@@ -1743,6 +1753,7 @@ describe('pagination', () => {
       const error = new Error('Oops');
       dataSource.error(error);
 
+      TestRenderer.act(() => jest.runAllImmediates());
       // We pass the error in the callback, but do not throw during render
       // since we want to continue rendering the existing items in the
       // connection

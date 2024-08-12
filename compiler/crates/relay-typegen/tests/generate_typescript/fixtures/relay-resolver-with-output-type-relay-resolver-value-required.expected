@@ -20,7 +20,6 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-import userPopStarNameResolverType from "PopStarNameResolver";
 export type Foo_user$data = {
   readonly poppy: NonNullable<ReturnType<typeof userPopStarNameResolverType>>;
   readonly " $fragmentType": "Foo_user";

@@ -20,6 +20,7 @@ use relay_transforms::disallow_reserved_aliases;
 use relay_transforms::disallow_typename_on_root;
 use relay_transforms::validate_assignable_directive;
 use relay_transforms::validate_connections;
+use relay_transforms::validate_fragment_alias_conflict;
 use relay_transforms::validate_global_variable_names;
 use relay_transforms::validate_module_names;
 use relay_transforms::validate_no_double_underscore_alias;
@@ -35,6 +36,30 @@ use relay_transforms::validate_updatable_fragment_spread;
 
 pub type AdditionalValidations =
     Box<dyn Fn(&Program, &ProjectConfig) -> DiagnosticsResult<()> + Sync + Send>;
+
+/// Perform validations on the program schema after it has been transformed
+/// for the reader.
+pub fn validate_reader(
+    program: &Program,
+    project_config: &ProjectConfig,
+    additional_validations: &Option<AdditionalValidations>,
+) -> DiagnosticsResult<WithDiagnostics<()>> {
+    let output = try_all(vec![
+        disallow_required_on_non_null_field(
+            program,
+            project_config
+                .typegen_config
+                .experimental_emit_semantic_nullability_types,
+        ),
+        if let Some(ref validate) = additional_validations {
+            validate(program, project_config)
+        } else {
+            Ok(())
+        },
+    ]);
+
+    transform_errors(output, project_config)
+}
 
 pub fn validate(
     program: &Program,
@@ -78,17 +103,16 @@ pub fn validate(
                 .allow_required_in_mutation_response,
             project_config.feature_flags.enable_relay_resolver_mutations,
         ),
-        disallow_required_on_non_null_field(
-            program,
-            project_config
-                .feature_flags
-                .disallow_required_on_non_null_fields,
-            project_config
-                .typegen_config
-                .experimental_emit_semantic_nullability_types,
-        ),
+        validate_fragment_alias_conflict(program),
     ]);
 
+    transform_errors(output, project_config)
+}
+
+fn transform_errors(
+    output: Result<Vec<()>, Vec<common::Diagnostic>>,
+    project_config: &ProjectConfig,
+) -> Result<WithDiagnostics<()>, Vec<common::Diagnostic>> {
     match output {
         Ok(_) => Ok(WithDiagnostics {
             item: (),

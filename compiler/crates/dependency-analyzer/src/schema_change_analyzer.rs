@@ -68,6 +68,26 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
         }
     }
 
+    fn add_type_changes_from_value(&mut self, value: &Value) {
+        match value {
+            Value::Variable(variable) => self.add_type_changes(variable.type_.inner()),
+            Value::Object(object) => {
+                object
+                    .iter()
+                    .for_each(|argument| self.add_type_changes_from_argument(argument));
+            }
+            Value::List(list) => {
+                list.iter()
+                    .for_each(|value| self.add_type_changes_from_value(value));
+            }
+            Value::Constant(_) => (),
+        }
+    }
+
+    fn add_type_changes_from_argument(&mut self, argument: &Argument) {
+        self.add_type_changes_from_value(&argument.value.item);
+    }
+
     fn add_type_changes(&mut self, type_: Type) {
         match type_ {
             Type::Object(id) => {
@@ -119,7 +139,7 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
 
 impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
     const NAME: &'static str = "DependencyAnalyzerSchemaChangeDefinitionFinder";
-    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = false;
 
     fn visit_linked_field(&mut self, field: &LinkedField) {
@@ -139,6 +159,11 @@ impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
             self.add_type_changes(type_);
         }
         self.default_visit_inline_fragment(fragment);
+    }
+
+    fn visit_argument(&mut self, argument: &Argument) {
+        self.add_type_changes_from_argument(argument);
+        self.default_visit_argument(argument);
     }
 
     fn visit_scalar_field(&mut self, field: &ScalarField) {

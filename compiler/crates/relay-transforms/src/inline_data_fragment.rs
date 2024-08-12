@@ -15,6 +15,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
+use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
@@ -26,6 +27,8 @@ use graphql_ir::VariableDefinition;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use thiserror::Error;
+
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 
 lazy_static! {
     pub static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
@@ -58,6 +61,31 @@ impl<'s> InlineDataFragmentsTransform<'s> {
             parent_inline_fragments: Vec::new(),
         }
     }
+
+    fn validate_inline_spread_directives(
+        &mut self,
+        inline_directive: &Directive,
+        spread: &FragmentSpread,
+    ) {
+        if let Some(not_allowed_directive) = spread
+            .directives
+            .iter()
+            .find(|directive| directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME)
+        {
+            self.errors.push(
+                Diagnostic::error(
+                    ValidationMessage::InlineDataFragmentDirectivesNotSupported {
+                        directive_name: not_allowed_directive.name.item,
+                    },
+                    not_allowed_directive.name.location,
+                )
+                .annotate(
+                    "spread is marked as `@inline` here",
+                    inline_directive.name.location,
+                ),
+            );
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -81,25 +109,13 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             .fragment(spread.fragment.item)
             .unwrap_or_else(|| panic!("was expecting to find fragment `{}`", spread.fragment.item));
 
-        if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_none() {
-            next_fragment_spread
-        } else {
+        if let Some(inline_directive) = fragment.directives.named(*INLINE_DIRECTIVE_NAME) {
             match &next_fragment_spread {
                 Transformed::Keep => {
-                    if !spread.directives.is_empty() {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::InlineDataFragmentDirectivesNotSupported,
-                            spread.fragment.location,
-                        ));
-                    }
+                    self.validate_inline_spread_directives(inline_directive, spread);
                 }
                 Transformed::Replace(Selection::FragmentSpread(next_fragment_spread)) => {
-                    if !next_fragment_spread.directives.is_empty() {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::InlineDataFragmentDirectivesNotSupported,
-                            next_fragment_spread.fragment.location,
-                        ));
-                    }
+                    self.validate_inline_spread_directives(inline_directive, next_fragment_spread);
                 }
                 _ => {
                     panic!(
@@ -165,6 +181,8 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             };
 
             Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
+        } else {
+            next_fragment_spread
         }
     }
 }
@@ -177,6 +195,8 @@ enum ValidationMessage {
         fragment_name: FragmentDefinitionName,
     },
 
-    #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
-    InlineDataFragmentDirectivesNotSupported,
+    #[error(
+        "The directive @{directive_name} on fragment spreads for @inline fragments are not yet supported"
+    )]
+    InlineDataFragmentDirectivesNotSupported { directive_name: DirectiveName },
 }

@@ -53,8 +53,12 @@ function loadEntryPoint<
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
+      const query = queries[queryPropName];
+      if (query == null) {
+        return;
+      }
       const {environmentProviderOptions, options, parameters, variables} =
-        queries[queryPropName];
+        query;
 
       const environment = environmentProvider.getEnvironment(
         environmentProviderOptions,

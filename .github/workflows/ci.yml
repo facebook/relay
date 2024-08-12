@@ -136,11 +136,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2023-11-11
+          # Should stay in sync with tools/third-party/rustfmt/.rustfmt-version
+          toolchain: nightly-2024-07-28
           override: true
           components: rustfmt
       - name: "rustfmt"
-        run: grep -r --include "*.rs" --files-without-match "@generated" crates | xargs rustfmt --check --config="skip_children=true"
+        run: grep -r --include "*.rs" --files-without-match $'\x40generated' crates | xargs rustfmt --check --config="skip_children=true"
         working-directory: ./compiler/
 
   build-compiler:

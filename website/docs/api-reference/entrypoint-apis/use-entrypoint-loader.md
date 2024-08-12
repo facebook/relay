@@ -66,7 +66,7 @@ function EntryPointRevealer(): React.MixedElement {
 
 ### Arguments
 
-* `environmentProvider`: an object with a `getEnvironment` method that returns a relay environment.
+* `environmentProvider`: an object with a `getEnvironment` method that returns a Relay environment.
 * `EntryPoint`: the EntryPoint, usually acquired by importing a `.entrypoint.js` file.
 
 ### Flow Type Parameters

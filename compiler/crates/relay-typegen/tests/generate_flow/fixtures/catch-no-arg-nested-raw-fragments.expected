@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+query MyQuery @raw_response_type {
+  me {
+    id @catch
+    name
+    ...AnotherFragment
+  }
+}
+
+
+fragment AnotherFragment on User {
+  profilePicture(preset: LARGE) {
+      uri
+    }
+}
+==================================== OUTPUT ===================================
+import type { Result } from "relay-runtime";
+import type { AnotherFragment$fragmentType } from "AnotherFragment.graphql";
+export type MyQuery$variables = {||};
+export type MyQuery$data = {|
+  +me: ?{|
+    +id: Result<string, $ReadOnlyArray<mixed>>,
+    +name: ?string,
+    +$fragmentSpreads: AnotherFragment$fragmentType,
+  |},
+|};
+export type MyQuery$rawResponse = {|
+  +me: ?{|
+    +id: string,
+    +name: ?string,
+    +profilePicture: ?{|
+      +uri: ?string,
+    |},
+  |},
+|};
+export type MyQuery = {|
+  rawResponse: MyQuery$rawResponse,
+  response: MyQuery$data,
+  variables: MyQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type AnotherFragment$fragmentType: FragmentType;
+export type AnotherFragment$data = {|
+  +profilePicture: ?{|
+    +uri: ?string,
+  |},
+  +$fragmentType: AnotherFragment$fragmentType,
+|};
+export type AnotherFragment$key = {
+  +$data?: AnotherFragment$data,
+  +$fragmentSpreads: AnotherFragment$fragmentType,
+  ...
+};

@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# relay:experimental_emit_semantic_nullability_types
+fragment MyFragment on ClientUser @throwOnFieldError {
+  name @catch
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs, Result } from "relay-runtime";
+export type MyFragment$data = {
+  readonly name: Result<string, ReadonlyArray<unknown>>;
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

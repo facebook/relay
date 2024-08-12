@@ -18,6 +18,11 @@ pub enum ValidationMessage {
     #[error("Invalid @match selection: all selections should be fragment spreads with @module.")]
     InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
 
+    #[error(
+        "Invalid @match selection: @alias may not be applied to fragment spreads within @match."
+    )]
+    InvalidAliasWithinMatch,
+
     #[error("'{name}' should be defined on the server schema.")]
     MissingServerSchemaDefinition { name: StringKey },
 
@@ -108,7 +113,7 @@ pub enum ValidationMessage {
     InvalidMatchNoModuleSelection,
 
     #[error(
-        "@match on a field without the `supported` argument is a no-op, please remove the `@match`."
+        "@match without a `key` argument and on a field without the `supported` argument is a no-op, please remove the `@match`."
     )]
     InvalidMatchWithNoSupportedArgument,
 }

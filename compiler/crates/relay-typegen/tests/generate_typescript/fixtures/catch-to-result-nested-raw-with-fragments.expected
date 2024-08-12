@@ -1,0 +1,57 @@
+==================================== INPUT ====================================
+query FooQuery @raw_response_type {
+  me {
+    firstName @catch
+    ...FriendFragment
+  }
+}
+
+
+fragment FriendFragment on User {
+  name
+  lastName @catch
+  profilePicture2 {
+    test_enums
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs, Result } from "relay-runtime";
+export type TestEnums = "mark" | "zuck" | "%future added value";
+export type FooQuery$variables = Record<PropertyKey, never>;
+export type FooQuery$data = {
+  readonly me: {
+    readonly firstName: Result<string | null | undefined, ReadonlyArray<unknown>>;
+    readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
+  } | null | undefined;
+};
+export type FooQuery$rawResponse = {
+  readonly me: {
+    readonly firstName: string | null | undefined;
+    readonly id: string;
+    readonly lastName: string | null | undefined;
+    readonly name: string | null | undefined;
+    readonly profilePicture2: {
+      readonly test_enums: TestEnums | null | undefined;
+    } | null | undefined;
+  } | null | undefined;
+};
+export type FooQuery = {
+  rawResponse: FooQuery$rawResponse;
+  response: FooQuery$data;
+  variables: FooQuery$variables;
+};
+-------------------------------------------------------------------------------
+export type TestEnums = "mark" | "zuck" | "%future added value";
+import { FragmentRefs, Result } from "relay-runtime";
+export type FriendFragment$data = {
+  readonly lastName: Result<string | null | undefined, ReadonlyArray<unknown>>;
+  readonly name: string | null | undefined;
+  readonly profilePicture2: {
+    readonly test_enums: TestEnums | null | undefined;
+  } | null | undefined;
+  readonly " $fragmentType": "FriendFragment";
+};
+export type FriendFragment$key = {
+  readonly " $data"?: FriendFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
+};

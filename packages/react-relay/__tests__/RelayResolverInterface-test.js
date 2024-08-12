@@ -108,13 +108,15 @@ test('should read the legs of a cat', () => {
 
     return <AnimalLegsComponent animal={data.cat} />;
   }
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <CatLegsRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('4');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <CatLegsRootComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('4');
 });
 
 test('should read the legs of a fish', () => {
@@ -132,13 +134,15 @@ test('should read the legs of a fish', () => {
 
     return <AnimalLegsComponent animal={data.fish} />;
   }
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <FishLegsRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('0');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <FishLegsRootComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('0');
 });
 
 test('should read the legs of a chicken (client schema extension type)', () => {
@@ -157,12 +161,15 @@ test('should read the legs of a chicken (client schema extension type)', () => {
     return <AnimalLegsComponent animal={data.chicken} />;
   }
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <ChickenLegsRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('2');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <ChickenLegsRootComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('2');
 });
 
 function WeakAnimalColorFragmentComponent(props: {
@@ -195,12 +202,15 @@ test('should read the color of a red octopus (weak model type)', () => {
     return <WeakAnimalColorFragmentComponent animal={data.red_octopus} />;
   }
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <RedOctopusColorRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('red');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <RedOctopusColorRootComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('red');
 });
 
 function AnimalGreetingQueryComponent(props: {
@@ -256,26 +266,31 @@ describe.each([
   'resolvers can read resolver on an interface where all implementors are strong model types: %s',
   ({inputAnimalType, id}) => {
     test(`should read the greeting of a ${inputAnimalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalGreetingQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: true}}
-          />
-        </EnvironmentWrapper>,
-      );
-
-      expect(animalRenderer.toJSON()).toEqual(`Hello, ${id}!`);
+      let animalRenderer;
+      TestRenderer.act(() => {
+        animalRenderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <AnimalGreetingQueryComponent
+              request={{ofType: inputAnimalType, returnValidID: true}}
+            />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(animalRenderer?.toJSON()).toEqual(`Hello, ${id}!`);
     });
 
     test(`should return null for nonexistent ${inputAnimalType}`, () => {
-      const nullRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalGreetingQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
-          />
-        </EnvironmentWrapper>,
-      );
-      expect(nullRenderer.toJSON()).toEqual('NULL');
+      let nullRenderer;
+      TestRenderer.act(() => {
+        nullRenderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <AnimalGreetingQueryComponent
+              request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
+            />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(nullRenderer?.toJSON()).toEqual('NULL');
     });
   },
 );
@@ -293,15 +308,17 @@ describe.each([
   'resolvers can read resolver on an interface where all implementors are weak model types: %s',
   ({inputAnimalType, name}) => {
     test(`should read the greeting of a ${inputAnimalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <WeakAnimalGreetingQueryComponent
-            request={{ofType: inputAnimalType}}
-          />
-        </EnvironmentWrapper>,
-      );
-
-      expect(animalRenderer.toJSON()).toEqual(`Hello, ${name}!`);
+      let animalRenderer;
+      TestRenderer.act(() => {
+        animalRenderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <WeakAnimalGreetingQueryComponent
+              request={{ofType: inputAnimalType}}
+            />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(animalRenderer?.toJSON()).toEqual(`Hello, ${name}!`);
     });
   },
 );
@@ -335,12 +352,15 @@ describe.each([
     }
 
     test(`should read the color of a ${animalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <WeakAnimalColorQueryComponent request={{ofType: animalType}} />
-        </EnvironmentWrapper>,
-      );
-      expect(animalRenderer.toJSON()).toEqual(color);
+      let animalRenderer;
+      TestRenderer.act(() => {
+        animalRenderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <WeakAnimalColorQueryComponent request={{ofType: animalType}} />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(animalRenderer?.toJSON()).toEqual(color);
     });
   },
 );
@@ -371,19 +391,22 @@ test('resolvers can return a list of interfaces where all implementors are stron
     });
   }
 
-  const animalRenderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <AnimalsLegsQueryComponent
-        requests={[
-          {ofType: 'Fish', returnValidID: true},
-          {ofType: 'Fish', returnValidID: false}, // This should trigger a `null` value.
-          {ofType: 'Cat', returnValidID: true},
-          {ofType: 'Cat', returnValidID: false}, // This should trigger a `null` value.
-        ]}
-      />
-    </EnvironmentWrapper>,
-  );
-  expect(animalRenderer.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
+  let animalRenderer;
+  TestRenderer.act(() => {
+    animalRenderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <AnimalsLegsQueryComponent
+          requests={[
+            {ofType: 'Fish', returnValidID: true},
+            {ofType: 'Fish', returnValidID: false}, // This should trigger a `null` value.
+            {ofType: 'Cat', returnValidID: true},
+            {ofType: 'Cat', returnValidID: false}, // This should trigger a `null` value.
+          ]}
+        />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(animalRenderer?.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
 });
 
 function AnimalLegsQueryComponent(props: {
@@ -421,26 +444,31 @@ describe.each([
   'resolvers can return an interface where all implementors are strong model types: %s',
   ({inputAnimalType, expectedLegs}) => {
     test(`should read the legs of a ${inputAnimalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalLegsQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: true}}
-          />
-        </EnvironmentWrapper>,
-      );
-
-      expect(animalRenderer.toJSON()).toEqual(expectedLegs);
+      let animalRenderer;
+      TestRenderer.act(() => {
+        animalRenderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <AnimalLegsQueryComponent
+              request={{ofType: inputAnimalType, returnValidID: true}}
+            />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(animalRenderer?.toJSON()).toEqual(expectedLegs);
     });
 
     test(`should return null for nonexistent ${inputAnimalType}`, () => {
-      const nullRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalLegsQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
-          />
-        </EnvironmentWrapper>,
-      );
-      expect(nullRenderer.toJSON()).toEqual('NULL');
+      let nullRenderer;
+      TestRenderer.act(() => {
+        nullRenderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <AnimalLegsQueryComponent
+              request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
+            />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(nullRenderer?.toJSON()).toEqual('NULL');
     });
   },
 );

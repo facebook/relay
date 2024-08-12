@@ -42,6 +42,6 @@ export function hungry2(cat: CatFlowType): ?false {
 /**
  * @RelayResolver
  */
-export function hungry3(cat: CatFlowType): true {
+export function hungry3(cat: CatFlowType): ?true {
   return false;
 }

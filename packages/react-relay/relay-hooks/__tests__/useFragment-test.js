@@ -247,12 +247,16 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>
     );
-    if (existing) {
-      existing.update(elements);
-      return existing;
-    } else {
-      return TestRenderer.create(elements);
-    }
+    let ret;
+    TestRenderer.act(() => {
+      if (existing) {
+        existing.update(elements);
+        ret = existing;
+      } else {
+        ret = TestRenderer.create(elements);
+      }
+    });
+    return ret;
   };
 
   renderPluralFragment = (
@@ -270,12 +274,16 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>
     );
-    if (existing) {
-      existing.update(elements);
-      return existing;
-    } else {
-      return TestRenderer.create(elements);
-    }
+    let ret;
+    TestRenderer.act(() => {
+      if (existing) {
+        existing.update(elements);
+        ret = existing;
+      } else {
+        ret = TestRenderer.create(elements);
+      }
+    });
+    return ret;
   };
 });
 
@@ -332,11 +340,15 @@ it('should return the same data object if rendered multiple times: plural fragme
 it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
   const container = renderPluralFragment({usersRef: []});
   assertFragmentResults([]);
-  container.unmount();
+  TestRenderer.act(() => {
+    container?.unmount();
+  });
 });
 
 it('Returns null when the fragment ref is null (for plural fragments)', () => {
   const container = renderPluralFragment({usersRef: null});
   assertFragmentResults(null);
-  container.unmount();
+  TestRenderer.act(() => {
+    container?.unmount();
+  });
 });

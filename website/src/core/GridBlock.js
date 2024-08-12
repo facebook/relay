@@ -12,6 +12,12 @@ import classNames from 'classnames';
 import * as React from 'react';
 
 class GridBlock extends React.Component {
+  static defaultProps = {
+    align: 'left',
+    contents: [],
+    layout: 'twoColumn',
+  };
+
   renderBlock(origBlock) {
     const blockDefaults = {
       imageAlign: 'left',
@@ -91,11 +97,5 @@ class GridBlock extends React.Component {
     );
   }
 }
-
-GridBlock.defaultProps = {
-  align: 'left',
-  contents: [],
-  layout: 'twoColumn',
-};
 
 export default GridBlock;

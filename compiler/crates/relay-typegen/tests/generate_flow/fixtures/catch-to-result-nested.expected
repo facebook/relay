@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query FooQuery {
+  me {
+    firstName
+    lastName @catch(to: RESULT)
+  }
+}
+==================================== OUTPUT ===================================
+import type { Result } from "relay-runtime";
+export type FooQuery$variables = {||};
+export type FooQuery$data = {|
+  +me: ?{|
+    +firstName: ?string,
+    +lastName: Result<?string, $ReadOnlyArray<mixed>>,
+  |},
+|};
+export type FooQuery = {|
+  response: FooQuery$data,
+  variables: FooQuery$variables,
+|};

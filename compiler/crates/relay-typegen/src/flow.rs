@@ -8,7 +8,7 @@
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
-use intern::string_key::StringKey;
+use ::intern::string_key::StringKey;
 use itertools::Itertools;
 
 use crate::writer::FunctionTypeAssertion;
@@ -372,16 +372,21 @@ impl FlowPrinter {
         Ok(())
     }
 
-    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+    fn write_generic_type(&mut self, outer: StringKey, inner: &[AST]) -> FmtResult {
         write!(&mut self.result, "{}<", outer)?;
-        self.write(inner)?;
+        for (i, inner_type) in inner.iter().enumerate() {
+            if i > 0 {
+                write!(&mut self.result, ", ")?;
+            }
+            self.write(inner_type)?;
+        }
         write!(&mut self.result, ">")
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use intern::string_key::Intern;
+    use intern::intern;
 
     use super::*;
     use crate::writer::ExactObject;
@@ -446,7 +451,7 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "single".intern(),
+                    key: intern!("single"),
                     optional: false,
                     read_only: false,
                     value: AST::String,
@@ -460,13 +465,13 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
+                    key: intern!("foo"),
                     optional: true,
                     read_only: false,
                     value: AST::String,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
+                    key: intern!("bar"),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
@@ -485,18 +490,18 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
+                    key: intern!("foo"),
                     optional: true,
                     read_only: false,
                     value: AST::ExactObject(ExactObject::new(vec![
                         Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo".intern(),
+                            key: intern!("nested_foo"),
                             optional: true,
                             read_only: false,
                             value: AST::String,
                         }),
                         Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo2".intern(),
+                            key: intern!("nested_foo2"),
                             optional: false,
                             read_only: true,
                             value: AST::Number,
@@ -504,7 +509,7 @@ mod tests {
                     ],)),
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
+                    key: intern!("bar"),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
@@ -534,7 +539,7 @@ mod tests {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "single".intern(),
+                    key: intern!("single"),
                     optional: false,
                     read_only: false,
                     value: AST::String,
@@ -550,13 +555,13 @@ mod tests {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
+                    key: intern!("foo"),
                     optional: false,
                     read_only: false,
                     value: AST::String,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
+                    key: intern!("bar"),
                     optional: true,
                     read_only: true,
                     value: AST::Number,
@@ -576,7 +581,7 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "with_comment".intern(),
+                    key: intern!("with_comment"),
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
@@ -611,7 +616,7 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::ReturnTypeOfFunctionWithName("someFunc".intern())),
+            print_type(&AST::ReturnTypeOfFunctionWithName(intern!("someFunc"))),
             "ReturnType<typeof someFunc>".to_string()
         );
     }

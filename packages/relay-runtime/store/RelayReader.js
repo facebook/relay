@@ -13,7 +13,6 @@
 
 import type {
   ReaderActorChange,
-  ReaderAliasedFragmentSpread,
   ReaderCatchField,
   ReaderClientEdge,
   ReaderFragment,
@@ -51,7 +50,6 @@ import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
 const {
   ACTOR_CHANGE,
-  ALIASED_FRAGMENT_SPREAD,
   ALIASED_INLINE_FRAGMENT_SPREAD,
   CATCH_FIELD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
@@ -182,19 +180,7 @@ class RelayReader {
     // If this is a concrete fragment and the concrete type of the record does not
     // match, then no data is expected to be present.
     if (isDataExpectedToBePresent && abstractKey == null && record != null) {
-      const recordType = RelayModernRecord.getType(record);
-      if (
-        recordType !== node.type &&
-        // The root record type is a special `__Root` type and may not match the
-        // type on the ast, so ignore type mismatches at the root.
-        // We currently detect whether we're at the root by checking against ROOT_ID,
-        // but this does not work for mutations/subscriptions which generate unique
-        // root ids. This is acceptable in practice as we don't read data for mutations/
-        // subscriptions in a situation where we would use isMissingData to decide whether
-        // to suspend or not.
-        // TODO T96653810: Correctly detect reading from root of mutation/subscription
-        dataID !== ROOT_ID
-      ) {
+      if (!this._recordMatchesTypeCondition(record, node.type)) {
         isDataExpectedToBePresent = false;
       }
     }
@@ -211,9 +197,6 @@ class RelayReader {
       if (implementsInterface === false) {
         // Type known to not implement the interface
         isDataExpectedToBePresent = false;
-      } else if (implementsInterface == null) {
-        // Don't know if the type implements the interface or not
-        this._isMissingData = true;
       }
     }
 
@@ -495,7 +478,14 @@ class RelayReader {
           }
           break;
         case INLINE_FRAGMENT: {
-          if (this._readInlineFragment(selection, record, data) === false) {
+          const hasExpectedData = this._readInlineFragment(
+            selection,
+            record,
+            data,
+            false,
+          );
+          if (hasExpectedData === false) {
+            // We are missing @required data, so we bubble up.
             return false;
           }
           break;
@@ -511,17 +501,12 @@ class RelayReader {
         case FRAGMENT_SPREAD:
           this._createFragmentPointer(selection, record, data);
           break;
-        case ALIASED_FRAGMENT_SPREAD:
-          data[selection.name] = this._createAliasedFragmentSpread(
-            selection,
-            record,
-          );
-          break;
         case ALIASED_INLINE_FRAGMENT_SPREAD: {
           let fieldValue = this._readInlineFragment(
             selection.fragment,
             record,
             {},
+            true,
           );
           if (fieldValue === false) {
             fieldValue = null;
@@ -1169,52 +1154,20 @@ class RelayReader {
     data[MODULE_COMPONENT_KEY] = component;
   }
 
-  _createAliasedFragmentSpread(
-    namedFragmentSpread: ReaderAliasedFragmentSpread,
-    record: Record,
-  ): ?Record {
-    const {abstractKey} = namedFragmentSpread;
-    if (abstractKey == null) {
-      // concrete type refinement: only read data if the type exactly matches
-      const typeName = RelayModernRecord.getType(record);
-      if (typeName == null || typeName !== namedFragmentSpread.type) {
-        // This selection does not match the fragment spread. Do nothing.
-        return null;
-      }
-    } else {
-      const implementsInterface = this._implementsInterface(
-        record,
-        abstractKey,
-      );
-
-      if (implementsInterface === false) {
-        // Type known to not implement the interface, no data expected
-        return null;
-      } else if (implementsInterface == null) {
-        // Don't know if the type implements the interface or not
-        this._markDataAsMissing();
-        // Judgement call here. In some cases this will cause us to hide data that is actually valid.
-        return undefined;
-      }
-    }
-    const fieldData = {};
-    this._createFragmentPointer(
-      namedFragmentSpread.fragment,
-      record,
-      fieldData,
-    );
-    return RelayModernRecord.fromObject<>(fieldData);
-  }
-
   // Has three possible return values:
   // * null: The type condition did not match
   // * undefined: We are missing data
   // * false: The selection contained missing @required fields
   // * data: The successfully populated SelectorData object
+  //
+  // The `skipUnmatchedAbstractTypes` flag is used to signal if we should skip
+  // reading the contents of an inline fragment on an abstract type if we _know_
+  // the type condition does not match.
   _readInlineFragment(
     inlineFragment: ReaderInlineFragment,
     record: Record,
     data: SelectorData,
+    skipUnmatchedAbstractTypes: boolean,
   ): ?(SelectorData | false) {
     if (inlineFragment.type == null) {
       // Inline fragment without a type condition: always read data
@@ -1233,8 +1186,7 @@ class RelayReader {
     const {abstractKey} = inlineFragment;
     if (abstractKey == null) {
       // concrete type refinement: only read data if the type exactly matches
-      const typeName = RelayModernRecord.getType(record);
-      if (typeName == null || typeName !== inlineFragment.type) {
+      if (!this._recordMatchesTypeCondition(record, inlineFragment.type)) {
         // This selection does not match the fragment spread. Do nothing.
         return null;
       } else {
@@ -1254,6 +1206,10 @@ class RelayReader {
         abstractKey,
       );
 
+      if (implementsInterface === false && skipUnmatchedAbstractTypes) {
+        return null;
+      }
+
       // store flags to reset after reading
       const parentIsMissingData = this._isMissingData;
       const parentIsWithinUnmatchedTypeRefinement =
@@ -1262,9 +1218,14 @@ class RelayReader {
       this._isWithinUnmatchedTypeRefinement =
         parentIsWithinUnmatchedTypeRefinement || implementsInterface === false;
 
-      // @required is not allowed within inline fragments on abstract types, so
-      // we can ignore the `hasMissingData` result of `_traverseSelections`.
-      this._traverseSelections(inlineFragment.selections, record, data);
+      // @required is allowed within inline fragments on abstract types if they
+      // have @alias. So we must bubble up null if we have a missing @required
+      // field.
+      const hasMissingData = this._traverseSelections(
+        inlineFragment.selections,
+        record,
+        data,
+      );
 
       // Reset
       this._isWithinUnmatchedTypeRefinement =
@@ -1273,14 +1234,32 @@ class RelayReader {
       if (implementsInterface === false) {
         // Type known to not implement the interface, no data expected
         this._isMissingData = parentIsMissingData;
-        return undefined;
+        return null;
       } else if (implementsInterface == null) {
         // Don't know if the type implements the interface or not
-        this._markDataAsMissing();
-        return null;
+        return undefined;
+      } else if (hasMissingData === false) {
+        // Bubble up null due to a missing @required field
+        return false;
       }
     }
     return data;
+  }
+
+  _recordMatchesTypeCondition(record: Record, type: string): boolean {
+    const typeName = RelayModernRecord.getType(record);
+    return (
+      (typeName != null && typeName === type) ||
+      // The root record type is a special `__Root` type and may not match the
+      // type on the ast, so ignore type mismatches at the root.  We currently
+      // detect whether we're at the root by checking against ROOT_ID, but this
+      // does not work for mutations/subscriptions which generate unique root
+      // ids. This is acceptable in practice as we don't read data for
+      // mutations/subscriptions in a situation where we would use
+      // isMissingData to decide whether to suspend or not.
+      // TODO T96653810: Correctly detect reading from root of mutation/subscription
+      RelayModernRecord.getDataID(record) === ROOT_ID
+    );
   }
 
   _createFragmentPointer(
@@ -1398,6 +1377,14 @@ class RelayReader {
       typeRecord != null
         ? RelayModernRecord.getValue(typeRecord, abstractKey)
         : null;
+
+    if (implementsInterface == null) {
+      // In some cases, like a graph relationship change, we might have never
+      // fetched the `__is[AbstractType]` flag for this concrete type. In this
+      // case we need to report that we are missing data, in case that field is
+      // still in flight.
+      this._markDataAsMissing();
+    }
     // $FlowFixMe Casting record value
     return implementsInterface;
   }

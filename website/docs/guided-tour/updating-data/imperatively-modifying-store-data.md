@@ -270,6 +270,6 @@ function NameUpdater({ queryRef }: {
 * This particular example can be rewritten using `readUpdatableFragment`. However, you may prefer `readUpdatableQuery` for several reasons:
   * You do not have ready access to a fragment reference, e.g. if the call to `commitLocalUpdate` is not obviously associated with a component.
   * You do not have ready access to a fragment where we select the **parent record** of the record we wish to modify (e.g. the `Query` in this example). Due to a known type hole in Relay, **updatable fragments cannot be spread at the top level.**
-  * You wish to use variables in the updatatable fragment. Currently, updatable fragments reuse the variables that were passed to the query. This means that you cannot, for example, have an updatable fragment with fragment-local variables and call `readUpdatableFragment` multiple times, each time passing different variables.
+  * You wish to use variables in the updatable fragment. Currently, updatable fragments reuse the variables that were passed to the query. This means that you cannot, for example, have an updatable fragment with fragment-local variables and call `readUpdatableFragment` multiple times, each time passing different variables.
 
 <DocsRating />

@@ -1,0 +1,4903 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConfigFile",
+  "anyOf": [
+    {
+      "description": "Base case configuration (mostly of OSS) where the project have single schema, and single source directory",
+      "type": "object",
+      "required": [
+        "language"
+      ],
+      "properties": {
+        "$schema": {
+          "description": "The user may hard-code the JSON Schema for their version of the config.",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "artifactDirectory": {
+          "description": "A specific directory to output all artifacts to. When enabling this the babel plugin needs `artifactDirectory` set as well.",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "codegenCommand": {
+          "description": "Name of the command that runs the relay compiler",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "customErrorType": {
+          "description": "A map from GraphQL error name to import path, example: {\"name:: \"MyErrorName\", \"path\": \"../src/MyError\"}",
+          "type": [
+            "object",
+            "null"
+          ],
+          "required": [
+            "name",
+            "path"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          }
+        },
+        "customScalarTypes": {
+          "description": "A map from GraphQL scalar types to a custom JS type, example: { \"Url\": \"String\" } { \"Url\": {\"name:: \"MyURL\", \"path\": \"../src/MyUrlTypes\"} }",
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "name",
+                  "path"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "eagerEsModules": {
+          "description": "This option enables emitting es modules artifacts.",
+          "default": false,
+          "type": "boolean"
+        },
+        "enumModuleSuffix": {
+          "title": "For Flow type generation",
+          "description": "When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to \".test\" would be imported from \"Foo.test\". Note: an empty string is allowed and different from not setting the value, in the example above it would just import from \"Foo\".",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "excludes": {
+          "description": "Directories to ignore under src default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],",
+          "default": [
+            "**/node_modules/**",
+            "**/__mocks__/**",
+            "**/__generated__/**"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "experimentalEmitSemanticNullabilityTypes": {
+          "description": "EXPERIMENTAL: If your environment is configured to handles errors out of band, either via a network layer which discards responses with errors, or via enabling strict error handling in the runtime, you can enable this flag to have Relay generate non-null types for fields which are marked as semantically non-null in the schema.\n\nCurrently semantically non-null fields must be specified in your schema using the `@semanticNonNull` directive as specified in: https://github.com/apollographql/specs/pull/42",
+          "default": false,
+          "type": "boolean"
+        },
+        "featureFlags": {
+          "default": null,
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "actor_change_support": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "allow_required_in_mutation_response": {
+              "description": "@required with an action of THROW is read-time feature that is not compatible with our mutation APIs. We are in the process of removing any existing examples, but this flag is part of a process of removing any existing examples.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "allow_resolver_non_nullable_return_type": {
+              "description": "Allow non-nullable return types from resolvers.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "allow_resolvers_in_mutation_response": {
+              "description": "Relay Resolvers are a read-time feature that are not actually handled in our mutation APIs. We are in the process of removing any existing examples, but this flag is part of a process of removing any existing examples.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "compact_query_text": {
+              "description": "Print queries in compact form",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "disable_edge_type_name_validation_on_declerative_connection_directives": {
+              "description": "Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "disable_resolver_reader_ast": {
+              "description": "Mirror of `enable_resolver_normalization_ast` excludes resolver metadata from reader ast",
+              "default": false,
+              "type": "boolean"
+            },
+            "disable_schema_validation": {
+              "description": "Disable validating the composite schema (server, client schema extensions, Relay Resolvers) after its built.",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_3d_branch_arg_generation": {
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_catch_directive_transform": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "enable_fragment_aliases": {
+              "description": "Enable support for the experimental `@alias` directive on fragment spreads.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "enable_fragment_argument_transform": {
+              "description": "Add support for parsing and transforming variable definitions on fragment definitions and arguments on fragment spreads.",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_relay_resolver_mutations": {
+              "description": "Allow relay resolvers to extend the Mutation type",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_relay_resolver_transform": {
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_resolver_normalization_ast": {
+              "description": "Fully build the normalization AST for Resolvers",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_strict_custom_scalars": {
+              "description": "Perform strict validations when custom scalar types are used",
+              "default": false,
+              "type": "boolean"
+            },
+            "enforce_fragment_alias_where_ambiguous": {
+              "description": "Enforce that you must add `@alias` to a fragment if it may not match, due to type mismatch or `@skip`/`@include`",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "no_inline": {
+              "description": "For now, this also disallows fragments with variable definitions This also makes @module to opt in using @no_inline internally NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that directive.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "prefer_fetchable_in_refetch_queries": {
+              "description": "Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator in @refetchable transform",
+              "default": false,
+              "type": "boolean"
+            },
+            "relay_resolver_enable_interface_output_type": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "skip_printing_nulls": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "text_artifacts": {
+              "description": "Enable generation of text artifacts used to generate full query strings later.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "isDevVariableName": {
+          "description": "We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set This config option is here to define the name of that special variable",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "jsModuleFormat": {
+          "description": "Formatting style for generated files.",
+          "default": "commonjs",
+          "oneOf": [
+            {
+              "description": "Common JS style, e.g. `require('../path/MyModule')`",
+              "type": "string",
+              "enum": [
+                "commonjs"
+              ]
+            },
+            {
+              "description": "Facebook style, e.g. `require('MyModule')`",
+              "type": "string",
+              "enum": [
+                "haste"
+              ]
+            }
+          ]
+        },
+        "language": {
+          "description": "The desired output language, \"flow\" or \"typescript\".",
+          "type": "string",
+          "enum": [
+            "javascript",
+            "typescript",
+            "flow"
+          ]
+        },
+        "liveResolverContextType": {
+          "default": null,
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "path"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "package"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "package": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "moduleImportConfig": {
+          "description": "Configuration for @module",
+          "default": {
+            "dynamicModuleProvider": null
+          },
+          "type": "object",
+          "properties": {
+            "dynamicModuleProvider": {
+              "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime.",
+              "anyOf": [
+                {
+                  "oneOf": [
+                    {
+                      "description": "Generates a module provider using JSResource",
+                      "type": "object",
+                      "required": [
+                        "mode"
+                      ],
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "JSResource"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "description": "Generates a custom JS import, Use `<$module>` as the placeholder for the actual module. e.g. `\"() => import('<$module>')\"`",
+                      "type": "object",
+                      "required": [
+                        "mode",
+                        "statement"
+                      ],
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "Custom"
+                          ]
+                        },
+                        "statement": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "noFutureProofEnums": {
+          "description": "This option controls whether or not a catch-all entry is added to enum type definitions for values that may be added in the future. Enabling this means you will have to update your application whenever the GraphQL server schema adds new enum values to prevent it from breaking.",
+          "default": false,
+          "type": "boolean"
+        },
+        "optionalInputFields": {
+          "title": "For Flow type generation",
+          "description": "When set, generated input types will have the listed fields optional even if the schema defines them as required.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "persistConfig": {
+          "description": "Query Persist Configuration It contains URL and addition parameters that will be included with the request (think API_KEY, APP_ID, etc...)",
+          "default": null,
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "url"
+                  ],
+                  "properties": {
+                    "concurrency": {
+                      "default": null,
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint",
+                      "minimum": 0.0
+                    },
+                    "headers": {
+                      "description": "Additional headers to send",
+                      "default": {},
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "includeQueryText": {
+                      "default": false,
+                      "type": "boolean"
+                    },
+                    "params": {
+                      "description": "The document will be in a POST parameter `text`. This map can contain additional parameters to send.",
+                      "default": {},
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "url": {
+                      "description": "URL to send a POST request to to persist.",
+                      "type": "string"
+                    }
+                  },
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "file"
+                  ],
+                  "properties": {
+                    "algorithm": {
+                      "default": "MD5",
+                      "type": "string",
+                      "enum": [
+                        "MD5",
+                        "SHA1",
+                        "SHA256"
+                      ]
+                    },
+                    "file": {
+                      "type": "string"
+                    },
+                    "include_query_text": {
+                      "default": false,
+                      "type": "boolean"
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requireCustomScalarTypes": {
+          "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",
+          "default": false,
+          "type": "boolean"
+        },
+        "resolversSchemaModule": {
+          "description": "Configuration for resolvers_schema_module generation",
+          "default": null,
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "applyToNormalizationAst": {
+              "default": false,
+              "type": "boolean"
+            },
+            "path": {
+              "default": "",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "schema": {
+          "description": "Path to schema.graphql",
+          "default": "",
+          "type": "string"
+        },
+        "schemaConfig": {
+          "description": "Extra configuration for the schema itself.",
+          "default": {
+            "connectionInterface": {
+              "cursor": "cursor",
+              "edges": "edges",
+              "endCursor": "endCursor",
+              "hasNextPage": "hasNextPage",
+              "hasPreviousPage": "hasPreviousPage",
+              "node": "node",
+              "pageInfo": "pageInfo",
+              "startCursor": "startCursor"
+            },
+            "deferStreamInterface": {
+              "deferName": "defer",
+              "ifArg": "if",
+              "initialCountArg": "initialCount",
+              "labelArg": "label",
+              "streamName": "stream",
+              "useCustomizedBatchArg": "useCustomizedBatch"
+            },
+            "nodeInterfaceIdField": "id",
+            "nodeInterfaceIdVariableName": "id",
+            "nonNodeIdFields": null,
+            "unselectableDirectiveName": "unselectable"
+          },
+          "type": "object",
+          "properties": {
+            "connectionInterface": {
+              "description": "Configuration where Relay should expect some fields in the schema.",
+              "default": {
+                "cursor": "cursor",
+                "edges": "edges",
+                "endCursor": "endCursor",
+                "hasNextPage": "hasNextPage",
+                "hasPreviousPage": "hasPreviousPage",
+                "node": "node",
+                "pageInfo": "pageInfo",
+                "startCursor": "startCursor"
+              },
+              "type": "object",
+              "required": [
+                "cursor",
+                "edges",
+                "endCursor",
+                "hasNextPage",
+                "hasPreviousPage",
+                "node",
+                "pageInfo",
+                "startCursor"
+              ],
+              "properties": {
+                "cursor": {
+                  "type": "string"
+                },
+                "edges": {
+                  "type": "string"
+                },
+                "endCursor": {
+                  "type": "string"
+                },
+                "hasNextPage": {
+                  "type": "string"
+                },
+                "hasPreviousPage": {
+                  "type": "string"
+                },
+                "node": {
+                  "type": "string"
+                },
+                "pageInfo": {
+                  "type": "string"
+                },
+                "startCursor": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "deferStreamInterface": {
+              "description": "Configuration where Relay should expect some fields in the schema.",
+              "default": {
+                "deferName": "defer",
+                "ifArg": "if",
+                "initialCountArg": "initialCount",
+                "labelArg": "label",
+                "streamName": "stream",
+                "useCustomizedBatchArg": "useCustomizedBatch"
+              },
+              "type": "object",
+              "required": [
+                "deferName",
+                "ifArg",
+                "initialCountArg",
+                "labelArg",
+                "streamName",
+                "useCustomizedBatchArg"
+              ],
+              "properties": {
+                "deferName": {
+                  "description": "Wrapper struct for clarity rather than having StringKey everywhere.",
+                  "type": "string"
+                },
+                "ifArg": {
+                  "type": "string"
+                },
+                "initialCountArg": {
+                  "type": "string"
+                },
+                "labelArg": {
+                  "type": "string"
+                },
+                "streamName": {
+                  "description": "Wrapper struct for clarity rather than having StringKey everywhere.",
+                  "type": "string"
+                },
+                "useCustomizedBatchArg": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "nodeInterfaceIdField": {
+              "description": "The name of the `id` field that exists on the `Node` interface.",
+              "default": "id",
+              "type": "string"
+            },
+            "nodeInterfaceIdVariableName": {
+              "description": "The name of the variable expected by the `node` query.",
+              "default": "id",
+              "type": "string"
+            },
+            "nonNodeIdFields": {
+              "description": "Configuration of Relay's validation for `id` fields outside of the `Node` interface.",
+              "default": null,
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "allowedIdTypes": {
+                  "description": "A map of parent type names to allowed type names for fields named `id`",
+                  "default": {},
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "additionalProperties": false
+            },
+            "unselectableDirectiveName": {
+              "description": "The name of the directive indicating fields that cannot be selected",
+              "default": "unselectable",
+              "type": "string"
+            }
+          }
+        },
+        "schemaExtensions": {
+          "description": "List of directories with schema extensions.",
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "src": {
+          "description": "Root directory of application code",
+          "default": "",
+          "type": "string"
+        },
+        "typegenPhase": {
+          "description": "Added in 13.1.1 to customize Final/Compat mode in the single project config file Removed in 14.0.0",
+          "default": null
+        },
+        "typescriptExcludeUndefinedFromNullableUnion": {
+          "description": "Keep the previous compiler behavior by outputting an union of the raw type and null, and not the **correct** behavior of an union with the raw type, null and undefined.",
+          "default": false,
+          "type": "boolean"
+        },
+        "useImportTypeSyntax": {
+          "title": "For Typescript type generation",
+          "description": "Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`.",
+          "default": false,
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "description": "Relay can support multiple projects with multiple schemas and different options (output, typegen, etc...). This MultiProjectConfigFile is responsible for configuring these type of projects (complex)",
+      "type": "object",
+      "required": [
+        "projects",
+        "sources"
+      ],
+      "properties": {
+        "$schema": {
+          "description": "The user may hard-code the JSON Schema for their version of the config.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "codegenCommand": {
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "excludes": {
+          "description": "Glob patterns that should not be part of the sources even if they are in the source set directories.",
+          "default": [
+            "**/node_modules/**",
+            "**/__mocks__/**",
+            "**/__generated__/**"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "featureFlags": {
+          "default": {
+            "actor_change_support": {
+              "kind": "disabled"
+            },
+            "allow_required_in_mutation_response": {
+              "kind": "disabled"
+            },
+            "allow_resolver_non_nullable_return_type": {
+              "kind": "disabled"
+            },
+            "allow_resolvers_in_mutation_response": {
+              "kind": "disabled"
+            },
+            "compact_query_text": {
+              "kind": "disabled"
+            },
+            "disable_edge_type_name_validation_on_declerative_connection_directives": {
+              "kind": "disabled"
+            },
+            "disable_resolver_reader_ast": false,
+            "disable_schema_validation": false,
+            "enable_3d_branch_arg_generation": false,
+            "enable_catch_directive_transform": {
+              "kind": "disabled"
+            },
+            "enable_fragment_aliases": {
+              "kind": "disabled"
+            },
+            "enable_fragment_argument_transform": false,
+            "enable_relay_resolver_mutations": false,
+            "enable_relay_resolver_transform": false,
+            "enable_resolver_normalization_ast": false,
+            "enable_strict_custom_scalars": false,
+            "enforce_fragment_alias_where_ambiguous": {
+              "kind": "disabled"
+            },
+            "no_inline": {
+              "kind": "disabled"
+            },
+            "prefer_fetchable_in_refetch_queries": false,
+            "relay_resolver_enable_interface_output_type": {
+              "kind": "disabled"
+            },
+            "skip_printing_nulls": {
+              "kind": "disabled"
+            },
+            "text_artifacts": {
+              "kind": "disabled"
+            }
+          },
+          "type": "object",
+          "properties": {
+            "actor_change_support": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "allow_required_in_mutation_response": {
+              "description": "@required with an action of THROW is read-time feature that is not compatible with our mutation APIs. We are in the process of removing any existing examples, but this flag is part of a process of removing any existing examples.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "allow_resolver_non_nullable_return_type": {
+              "description": "Allow non-nullable return types from resolvers.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "allow_resolvers_in_mutation_response": {
+              "description": "Relay Resolvers are a read-time feature that are not actually handled in our mutation APIs. We are in the process of removing any existing examples, but this flag is part of a process of removing any existing examples.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "compact_query_text": {
+              "description": "Print queries in compact form",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "disable_edge_type_name_validation_on_declerative_connection_directives": {
+              "description": "Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "disable_resolver_reader_ast": {
+              "description": "Mirror of `enable_resolver_normalization_ast` excludes resolver metadata from reader ast",
+              "default": false,
+              "type": "boolean"
+            },
+            "disable_schema_validation": {
+              "description": "Disable validating the composite schema (server, client schema extensions, Relay Resolvers) after its built.",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_3d_branch_arg_generation": {
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_catch_directive_transform": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "enable_fragment_aliases": {
+              "description": "Enable support for the experimental `@alias` directive on fragment spreads.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "enable_fragment_argument_transform": {
+              "description": "Add support for parsing and transforming variable definitions on fragment definitions and arguments on fragment spreads.",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_relay_resolver_mutations": {
+              "description": "Allow relay resolvers to extend the Mutation type",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_relay_resolver_transform": {
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_resolver_normalization_ast": {
+              "description": "Fully build the normalization AST for Resolvers",
+              "default": false,
+              "type": "boolean"
+            },
+            "enable_strict_custom_scalars": {
+              "description": "Perform strict validations when custom scalar types are used",
+              "default": false,
+              "type": "boolean"
+            },
+            "enforce_fragment_alias_where_ambiguous": {
+              "description": "Enforce that you must add `@alias` to a fragment if it may not match, due to type mismatch or `@skip`/`@include`",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "no_inline": {
+              "description": "For now, this also disallows fragments with variable definitions This also makes @module to opt in using @no_inline internally NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that directive.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "prefer_fetchable_in_refetch_queries": {
+              "description": "Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator in @refetchable transform",
+              "default": false,
+              "type": "boolean"
+            },
+            "relay_resolver_enable_interface_output_type": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "skip_printing_nulls": {
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "text_artifacts": {
+              "description": "Enable generation of text artifacts used to generate full query strings later.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "generatedSources": {
+          "description": "Similar to sources but not affected by excludes.",
+          "default": {},
+          "type": "object",
+          "additionalProperties": {
+            "description": "Set of project names.",
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "null"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        "header": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isDevVariableName": {
+          "description": "Then name of the global __DEV__ variable to use in generated artifacts",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Optional name for this config, might be used for logging or custom extra artifact generator code.",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "projects": {
+          "description": "Configuration of projects to compile.",
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "language"
+            ],
+            "properties": {
+              "base": {
+                "description": "If a base project is set, the documents of that project can be referenced, but won't produce output artifacts. Extensions from the base project will be added as well and the schema of the base project should be a subset of the schema of this project.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "null"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "codegenCommand": {
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "customErrorType": {
+                "description": "A map from GraphQL error name to import path, example: {\"name:: \"MyErrorName\", \"path\": \"../src/MyError\"}",
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "required": [
+                  "name",
+                  "path"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  }
+                }
+              },
+              "customScalarTypes": {
+                "description": "A map from GraphQL scalar types to a custom JS type, example: { \"Url\": \"String\" } { \"Url\": {\"name:: \"MyURL\", \"path\": \"../src/MyUrlTypes\"} }",
+                "default": {},
+                "type": "object",
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "name",
+                        "path"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "path": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "diagnosticReportConfig": {
+                "description": "Configuration for all diagnostic reporting in the compiler",
+                "default": {
+                  "criticalLevel": "error"
+                },
+                "type": "object",
+                "required": [
+                  "criticalLevel"
+                ],
+                "properties": {
+                  "criticalLevel": {
+                    "description": "Threshold for diagnostics to be critical to the compiler's execution. All diagnostic with severities at and below this level will cause the compiler to fatally exit.",
+                    "oneOf": [
+                      {
+                        "description": "Report only errors",
+                        "type": "string",
+                        "enum": [
+                          "error"
+                        ]
+                      },
+                      {
+                        "description": "Report diagnostics up to warnings",
+                        "type": "string",
+                        "enum": [
+                          "warning"
+                        ]
+                      },
+                      {
+                        "description": "Report diagnostics up to informational diagnostics",
+                        "type": "string",
+                        "enum": [
+                          "info"
+                        ]
+                      },
+                      {
+                        "description": "Report diagnostics up to hints",
+                        "type": "string",
+                        "enum": [
+                          "hint"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              },
+              "eagerEsModules": {
+                "description": "This option enables emitting es modules artifacts.",
+                "default": false,
+                "type": "boolean"
+              },
+              "enumModuleSuffix": {
+                "title": "For Flow type generation",
+                "description": "When set, enum values are imported from a module with this suffix. For example, an enum Foo and this property set to \".test\" would be imported from \"Foo.test\". Note: an empty string is allowed and different from not setting the value, in the example above it would just import from \"Foo\".",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "experimentalEmitSemanticNullabilityTypes": {
+                "description": "EXPERIMENTAL: If your environment is configured to handles errors out of band, either via a network layer which discards responses with errors, or via enabling strict error handling in the runtime, you can enable this flag to have Relay generate non-null types for fields which are marked as semantically non-null in the schema.\n\nCurrently semantically non-null fields must be specified in your schema using the `@semanticNonNull` directive as specified in: https://github.com/apollographql/specs/pull/42",
+                "default": false,
+                "type": "boolean"
+              },
+              "extra": {
+                "description": "A placeholder for allowing extra information in the config file",
+                "default": null
+              },
+              "extraArtifactsOutput": {
+                "description": "Some projects may need to generate extra artifacts. For those, we may need to provide an additional directory to put them. By default the will use `output` *if available",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "featureFlags": {
+                "default": null,
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "actor_change_support": {
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "allow_required_in_mutation_response": {
+                    "description": "@required with an action of THROW is read-time feature that is not compatible with our mutation APIs. We are in the process of removing any existing examples, but this flag is part of a process of removing any existing examples.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "allow_resolver_non_nullable_return_type": {
+                    "description": "Allow non-nullable return types from resolvers.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "allow_resolvers_in_mutation_response": {
+                    "description": "Relay Resolvers are a read-time feature that are not actually handled in our mutation APIs. We are in the process of removing any existing examples, but this flag is part of a process of removing any existing examples.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "compact_query_text": {
+                    "description": "Print queries in compact form",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "disable_edge_type_name_validation_on_declerative_connection_directives": {
+                    "description": "Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "disable_resolver_reader_ast": {
+                    "description": "Mirror of `enable_resolver_normalization_ast` excludes resolver metadata from reader ast",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "disable_schema_validation": {
+                    "description": "Disable validating the composite schema (server, client schema extensions, Relay Resolvers) after its built.",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "enable_3d_branch_arg_generation": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "enable_catch_directive_transform": {
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "enable_fragment_aliases": {
+                    "description": "Enable support for the experimental `@alias` directive on fragment spreads.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "enable_fragment_argument_transform": {
+                    "description": "Add support for parsing and transforming variable definitions on fragment definitions and arguments on fragment spreads.",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "enable_relay_resolver_mutations": {
+                    "description": "Allow relay resolvers to extend the Mutation type",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "enable_relay_resolver_transform": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "enable_resolver_normalization_ast": {
+                    "description": "Fully build the normalization AST for Resolvers",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "enable_strict_custom_scalars": {
+                    "description": "Perform strict validations when custom scalar types are used",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "enforce_fragment_alias_where_ambiguous": {
+                    "description": "Enforce that you must add `@alias` to a fragment if it may not match, due to type mismatch or `@skip`/`@include`",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "no_inline": {
+                    "description": "For now, this also disallows fragments with variable definitions This also makes @module to opt in using @no_inline internally NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that directive.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "prefer_fetchable_in_refetch_queries": {
+                    "description": "Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator in @refetchable transform",
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "relay_resolver_enable_interface_output_type": {
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "skip_printing_nulls": {
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "text_artifacts": {
+                    "description": "Enable generation of text artifacts used to generate full query strings later.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "jsModuleFormat": {
+                "description": "Formatting style for generated files.",
+                "default": "commonjs",
+                "oneOf": [
+                  {
+                    "description": "Common JS style, e.g. `require('../path/MyModule')`",
+                    "type": "string",
+                    "enum": [
+                      "commonjs"
+                    ]
+                  },
+                  {
+                    "description": "Facebook style, e.g. `require('MyModule')`",
+                    "type": "string",
+                    "enum": [
+                      "haste"
+                    ]
+                  }
+                ]
+              },
+              "language": {
+                "description": "The desired output language, \"flow\" or \"typescript\".",
+                "type": "string",
+                "enum": [
+                  "javascript",
+                  "typescript",
+                  "flow"
+                ]
+              },
+              "liveResolverContextType": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "path"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "package"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "package": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "moduleImportConfig": {
+                "description": "Configuration for @module.",
+                "default": {
+                  "dynamicModuleProvider": null
+                },
+                "type": "object",
+                "properties": {
+                  "dynamicModuleProvider": {
+                    "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime.",
+                    "anyOf": [
+                      {
+                        "oneOf": [
+                          {
+                            "description": "Generates a module provider using JSResource",
+                            "type": "object",
+                            "required": [
+                              "mode"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "JSResource"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "description": "Generates a custom JS import, Use `<$module>` as the placeholder for the actual module. e.g. `\"() => import('<$module>')\"`",
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "statement"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "Custom"
+                                ]
+                              },
+                              "statement": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "noFutureProofEnums": {
+                "description": "This option controls whether or not a catch-all entry is added to enum type definitions for values that may be added in the future. Enabling this means you will have to update your application whenever the GraphQL server schema adds new enum values to prevent it from breaking.",
+                "default": false,
+                "type": "boolean"
+              },
+              "optionalInputFields": {
+                "title": "For Flow type generation",
+                "description": "When set, generated input types will have the listed fields optional even if the schema defines them as required.",
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "output": {
+                "description": "A project without an output directory will put the generated files in a __generated__ directory next to the input file. All files in these directories should be generated by the Relay compiler, so that the compiler can cleanup extra files.",
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "persist": {
+                "description": "If this option is set, the compiler will persist queries using this config.",
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "url"
+                        ],
+                        "properties": {
+                          "concurrency": {
+                            "default": null,
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint",
+                            "minimum": 0.0
+                          },
+                          "headers": {
+                            "description": "Additional headers to send",
+                            "default": {},
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "includeQueryText": {
+                            "default": false,
+                            "type": "boolean"
+                          },
+                          "params": {
+                            "description": "The document will be in a POST parameter `text`. This map can contain additional parameters to send.",
+                            "default": {},
+                            "type": "object",
+                            "additionalProperties": {
+                              "type": "string"
+                            }
+                          },
+                          "url": {
+                            "description": "URL to send a POST request to to persist.",
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "file"
+                        ],
+                        "properties": {
+                          "algorithm": {
+                            "default": "MD5",
+                            "type": "string",
+                            "enum": [
+                              "MD5",
+                              "SHA1",
+                              "SHA256"
+                            ]
+                          },
+                          "file": {
+                            "type": "string"
+                          },
+                          "include_query_text": {
+                            "default": false,
+                            "type": "boolean"
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "requireCustomScalarTypes": {
+                "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",
+                "default": false,
+                "type": "boolean"
+              },
+              "resolversSchemaModule": {
+                "description": "Configuration for resolvers_schema_module generation",
+                "default": null,
+                "type": [
+                  "object",
+                  "null"
+                ],
+                "properties": {
+                  "applyToNormalizationAst": {
+                    "default": false,
+                    "type": "boolean"
+                  },
+                  "path": {
+                    "default": "",
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              },
+              "rollout": {
+                "description": "A generic rollout state for larger codegen changes. The default is to pass, otherwise it should be a number between 0 and 100 as a percentage.",
+                "default": null,
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "uint8",
+                "minimum": 0.0
+              },
+              "schema": {
+                "description": "Path to the schema.graphql or a directory containing a schema broken up in multiple *.graphql files. Exactly 1 of these options needs to be defined.",
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "schemaConfig": {
+                "default": {
+                  "connectionInterface": {
+                    "cursor": "cursor",
+                    "edges": "edges",
+                    "endCursor": "endCursor",
+                    "hasNextPage": "hasNextPage",
+                    "hasPreviousPage": "hasPreviousPage",
+                    "node": "node",
+                    "pageInfo": "pageInfo",
+                    "startCursor": "startCursor"
+                  },
+                  "deferStreamInterface": {
+                    "deferName": "defer",
+                    "ifArg": "if",
+                    "initialCountArg": "initialCount",
+                    "labelArg": "label",
+                    "streamName": "stream",
+                    "useCustomizedBatchArg": "useCustomizedBatch"
+                  },
+                  "nodeInterfaceIdField": "id",
+                  "nodeInterfaceIdVariableName": "id",
+                  "nonNodeIdFields": null,
+                  "unselectableDirectiveName": "unselectable"
+                },
+                "type": "object",
+                "properties": {
+                  "connectionInterface": {
+                    "description": "Configuration where Relay should expect some fields in the schema.",
+                    "default": {
+                      "cursor": "cursor",
+                      "edges": "edges",
+                      "endCursor": "endCursor",
+                      "hasNextPage": "hasNextPage",
+                      "hasPreviousPage": "hasPreviousPage",
+                      "node": "node",
+                      "pageInfo": "pageInfo",
+                      "startCursor": "startCursor"
+                    },
+                    "type": "object",
+                    "required": [
+                      "cursor",
+                      "edges",
+                      "endCursor",
+                      "hasNextPage",
+                      "hasPreviousPage",
+                      "node",
+                      "pageInfo",
+                      "startCursor"
+                    ],
+                    "properties": {
+                      "cursor": {
+                        "type": "string"
+                      },
+                      "edges": {
+                        "type": "string"
+                      },
+                      "endCursor": {
+                        "type": "string"
+                      },
+                      "hasNextPage": {
+                        "type": "string"
+                      },
+                      "hasPreviousPage": {
+                        "type": "string"
+                      },
+                      "node": {
+                        "type": "string"
+                      },
+                      "pageInfo": {
+                        "type": "string"
+                      },
+                      "startCursor": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "deferStreamInterface": {
+                    "description": "Configuration where Relay should expect some fields in the schema.",
+                    "default": {
+                      "deferName": "defer",
+                      "ifArg": "if",
+                      "initialCountArg": "initialCount",
+                      "labelArg": "label",
+                      "streamName": "stream",
+                      "useCustomizedBatchArg": "useCustomizedBatch"
+                    },
+                    "type": "object",
+                    "required": [
+                      "deferName",
+                      "ifArg",
+                      "initialCountArg",
+                      "labelArg",
+                      "streamName",
+                      "useCustomizedBatchArg"
+                    ],
+                    "properties": {
+                      "deferName": {
+                        "description": "Wrapper struct for clarity rather than having StringKey everywhere.",
+                        "type": "string"
+                      },
+                      "ifArg": {
+                        "type": "string"
+                      },
+                      "initialCountArg": {
+                        "type": "string"
+                      },
+                      "labelArg": {
+                        "type": "string"
+                      },
+                      "streamName": {
+                        "description": "Wrapper struct for clarity rather than having StringKey everywhere.",
+                        "type": "string"
+                      },
+                      "useCustomizedBatchArg": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "nodeInterfaceIdField": {
+                    "description": "The name of the `id` field that exists on the `Node` interface.",
+                    "default": "id",
+                    "type": "string"
+                  },
+                  "nodeInterfaceIdVariableName": {
+                    "description": "The name of the variable expected by the `node` query.",
+                    "default": "id",
+                    "type": "string"
+                  },
+                  "nonNodeIdFields": {
+                    "description": "Configuration of Relay's validation for `id` fields outside of the `Node` interface.",
+                    "default": null,
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "properties": {
+                      "allowedIdTypes": {
+                        "description": "A map of parent type names to allowed type names for fields named `id`",
+                        "default": {},
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "unselectableDirectiveName": {
+                    "description": "The name of the directive indicating fields that cannot be selected",
+                    "default": "unselectable",
+                    "type": "string"
+                  }
+                }
+              },
+              "schemaDir": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "schemaExtensions": {
+                "description": "Directory containing *.graphql files with schema extensions.",
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "shardOutput": {
+                "description": "If `output` is provided and `shard_output` is `true`, shard the files by putting them under `{output_dir}/{source_relative_path}`",
+                "default": false,
+                "type": "boolean"
+              },
+              "shardStripRegex": {
+                "description": "Regex to match and strip parts of the `source_relative_path`",
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "testPathRegex": {
+                "description": "Optional regex to restrict @relay_test_operation to directories matching this regex. Defaults to no limitations.",
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "typescriptExcludeUndefinedFromNullableUnion": {
+                "description": "Keep the previous compiler behavior by outputting an union of the raw type and null, and not the **correct** behavior of an union with the raw type, null and undefined.",
+                "default": false,
+                "type": "boolean"
+              },
+              "useImportTypeSyntax": {
+                "title": "For Typescript type generation",
+                "description": "Whether to use the `import type` syntax introduced in Typescript version 3.8. This will prevent warnings from `importsNotUsedAsValues`.",
+                "default": false,
+                "type": "boolean"
+              },
+              "variableNamesComment": {
+                "description": "Generates a `// @relayVariables name1 name2` header in generated operation files",
+                "default": false,
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "root": {
+          "description": "Root directory relative to the config file. Defaults to the directory where the config is located.",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "savedStateConfig": {
+          "description": "Watchman saved state config.",
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "mergebase": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mergebase-with": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "saved-state": {
+              "description": "Holds extended clock data that includes source control aware query metadata. <https://facebook.github.io/watchman/docs/scm-query.html>",
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "commit-id": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "config": true,
+                "storage": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "sources": {
+          "description": "A mapping from directory paths (relative to the root) to a source set. If a path is a subdirectory of another path, the more specific path wins.",
+          "type": "object",
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ]
+              },
+              {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "type": "string"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

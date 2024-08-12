@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# Because there are no implementing types, "all implementing types impl Node"
-# is true, so we generated a Node refetch query.
 fragment RefetchableFragmentFoo on RefetchableInterfaceFoo
   @refetchable(queryName: "RefetchableFragmentFooQuery") {
   id
@@ -26,7 +24,7 @@ query RefetchableFragmentFooQuery(
 #     ),
 # )
  {
-  node(id: $id) {
+  fetch__RefetchableInterfaceFoo(id: $id) {
     ...RefetchableFragmentFoo
   }
 }
@@ -37,7 +35,7 @@ fragment RefetchableFragmentFoo on RefetchableInterfaceFoo @refetchable(queryNam
 #         "RefetchableFragmentFooQuery",
 #     ),
 #     path: [
-#         "node",
+#         "fetch__RefetchableInterfaceFoo",
 #     ],
 #     identifier_info: Some(
 #         RefetchableIdentifierInfo {
@@ -48,4 +46,5 @@ fragment RefetchableFragmentFoo on RefetchableInterfaceFoo @refetchable(queryNam
 # }
  {
   id
+  __token
 }

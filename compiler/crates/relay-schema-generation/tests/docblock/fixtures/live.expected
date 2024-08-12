@@ -21,7 +21,7 @@ export function Cat(id: DataID): CatFlowType {
 /**
  * @RelayResolver
  */
-export function mood(cat: CatFlowType): LiveState<string> {
+export function mood(cat: CatFlowType): LiveState<?string> {
   return {
     read: () => store.getState().counter,
     subscribe: (cb) => {
@@ -42,24 +42,15 @@ Field(
                     },
                     value: "mood",
                 },
-                type_: NonNull(
-                    NonNullTypeAnnotation {
-                        span: 443:449,
-                        type_: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 443:449,
-                                    token: Token {
-                                        span: 443:449,
-                                        kind: Identifier,
-                                    },
-                                    value: "String",
-                                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 444:450,
+                            token: Token {
+                                span: 444:450,
+                                kind: Identifier,
                             },
-                        ),
-                        exclamation: Token {
-                            span: 0:0,
-                            kind: Empty,
+                            value: "String",
                         },
                     },
                 ),
@@ -70,7 +61,7 @@ Field(
                 span: 409:413,
             },
             type_: WithLocation {
-                location: <generated>:320:323,
+                location: module.js:320:323,
                 item: "Cat",
             },
             root_fragment: None,
@@ -78,19 +69,19 @@ Field(
             semantic_non_null: None,
             live: Some(
                 UnpopulatedIrField {
-                    key_location: module.js:433:450,
+                    key_location: module.js:433:451,
                 },
             ),
             location: module.js:409:413,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "9f3118df130187c7be17ebe0dc65e441",
+                "088060a75d59266ad0547d9a0312562f",
             ),
         },
     ),
 )
 extend type Cat {
-  mood: String! @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "mood", import_path: "module.js", live: true) @resolver_source_hash(value: "9f3118df130187c7be17ebe0dc65e441")
+  mood: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "mood", import_path: "module.js", live: true) @resolver_source_hash(value: "088060a75d59266ad0547d9a0312562f")
 }
 
 
@@ -119,12 +110,12 @@ Type(
             location: module.js:320:323,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "9f3118df130187c7be17ebe0dc65e441",
+                "088060a75d59266ad0547d9a0312562f",
             ),
         },
     ),
 )
 type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "9f3118df130187c7be17ebe0dc65e441") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "088060a75d59266ad0547d9a0312562f") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

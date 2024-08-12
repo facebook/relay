@@ -38,6 +38,7 @@ import userBestFriendResolverType from "BestFriendResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendResolverType: (
   rootKey: relayResolver_BestFriendResolverFragment_name$key,
+  args: void,
 ) => LiveState<?{|
   +id: DataID,
 |}>);

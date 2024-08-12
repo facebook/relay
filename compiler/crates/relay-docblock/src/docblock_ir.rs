@@ -626,26 +626,15 @@ fn parse_fragment_definition(
         .and_then(extract_fragment_arguments)
         .transpose()?;
 
-    // Validate that the field arguments don't collide with the fragment arguments.
     if let (Some(field_arguments), Some(fragment_definition), Some(fragment_arguments)) =
         (&field_arguments, &fragment_definition, &fragment_arguments)
     {
-        for field_arg in &field_arguments.items {
-            if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
-                return Err(vec![
-                    Diagnostic::error(
-                        IrParsingErrorMessages::ConflictingArguments,
-                        Location::new(source_location, field_arg.name.span),
-                    )
-                    .annotate(
-                        "conflicts with this fragment argument",
-                        fragment_definition
-                            .location
-                            .with_span(fragment_arg.name.span),
-                    ),
-                ]);
-            }
-        }
+        validate_fragment_arguments(
+            source_location,
+            field_arguments,
+            fragment_definition.location.source_location(),
+            fragment_arguments,
+        )?;
     }
     let fragment_type_condition = fragment_definition.as_ref().map(|fragment_definition| {
         WithLocation::from_span(
@@ -655,6 +644,30 @@ fn parse_fragment_definition(
         )
     });
     Ok((fragment_type_condition, fragment_arguments))
+}
+
+// Validate that the field arguments don't collide with the fragment arguments.
+pub fn validate_fragment_arguments(
+    field_source_location: SourceLocationKey,
+    field_arguments: &List<InputValueDefinition>,
+    fragment_source_location: SourceLocationKey,
+    fragment_arguments: &[Argument],
+) -> DiagnosticsResult<()> {
+    for field_arg in &field_arguments.items {
+        if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
+            return Err(vec![
+                Diagnostic::error(
+                    IrParsingErrorMessages::ConflictingArguments,
+                    Location::new(field_source_location, field_arg.name.span),
+                )
+                .annotate(
+                    "conflicts with this fragment argument",
+                    Location::new(fragment_source_location, fragment_arg.name.span),
+                ),
+            ]);
+        }
+    }
+    Ok(())
 }
 
 pub fn assert_fragment_definition(
@@ -688,7 +701,7 @@ pub fn assert_fragment_definition(
     }
 }
 
-fn extract_fragment_arguments(
+pub fn extract_fragment_arguments(
     fragment_definition: &FragmentDefinition,
 ) -> Option<DiagnosticsResult<Vec<Argument>>> {
     fragment_definition

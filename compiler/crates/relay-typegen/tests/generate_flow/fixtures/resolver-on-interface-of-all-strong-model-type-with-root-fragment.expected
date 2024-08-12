@@ -30,6 +30,7 @@ import catDescriptionResolverType from "CatResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (catDescriptionResolverType: (
   rootKey: description_Fragment$key,
+  args: void,
 ) => ?mixed);
 declare export opaque type description_Fragment$fragmentType: FragmentType;
 export type description_Fragment$data = {|
@@ -49,6 +50,7 @@ import catDescriptionResolverType from "CatResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (catDescriptionResolverType: (
   rootKey: description_Fragment$key,
+  args: void,
 ) => ?mixed);
 declare export opaque type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$fragmentType: FragmentType;
 export type resolverOnInterfaceOfAllStrongModelTypeWithRootFragment$data = {|

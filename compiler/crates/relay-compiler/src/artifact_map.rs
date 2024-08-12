@@ -51,11 +51,9 @@ impl ArtifactMap {
             path: artifact.path,
             persisted_operation_id: match artifact.content {
                 ArtifactContent::Operation {
-                    id_and_text_hash, ..
-                } => match id_and_text_hash {
-                    Some(QueryID::Persisted { id, .. }) => Some(id),
-                    _ => None,
-                },
+                    id_and_text_hash: Some(QueryID::Persisted { id, .. }),
+                    ..
+                } => Some(id),
                 _ => None,
             },
         };

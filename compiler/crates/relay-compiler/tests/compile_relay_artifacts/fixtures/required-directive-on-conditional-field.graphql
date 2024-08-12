@@ -1,0 +1,4 @@
+fragment requiredDirectiveOnConditionalField_Foo_user on User {
+  id
+  name @required(action: THROW) @include(if: $condition)
+}

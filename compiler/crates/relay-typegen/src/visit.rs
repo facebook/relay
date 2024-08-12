@@ -17,6 +17,7 @@ use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
+use common::ObjectName;
 use docblock_shared::FRAGMENT_KEY_ARGUMENT_NAME;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
@@ -36,14 +37,16 @@ use indexmap::IndexMap;
 use indexmap::IndexSet;
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use relay_config::CustomScalarType;
-use relay_config::CustomScalarTypeImport;
+use relay_config::CustomType;
+use relay_config::CustomTypeImport;
 use relay_config::LiveResolverContextTypeInput;
 use relay_config::TypegenLanguage;
 use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
+use relay_transforms::CatchMetadataDirective;
+use relay_transforms::CatchTo;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
@@ -113,6 +116,7 @@ use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
 use crate::LIVE_STATE_TYPE;
 use crate::MODULE_COMPONENT;
 use crate::RESPONSE;
+use crate::RESULT_TYPE_NAME;
 use crate::TYPE_BOOLEAN;
 use crate::TYPE_FLOAT;
 use crate::TYPE_ID;
@@ -127,6 +131,20 @@ lazy_static! {
         DirectiveName("semanticNonNull".intern());
 }
 
+pub fn is_result_type_directive(directives: &[Directive]) -> bool {
+    match CatchMetadataDirective::find(directives) {
+        Some(catch_directive) => catch_directive.to != CatchTo::Null,
+        None => false,
+    }
+}
+
+pub fn has_explicit_catch_to_null(directives: &[Directive]) -> bool {
+    match CatchMetadataDirective::find(directives) {
+        Some(catch_directive) => catch_directive.to == CatchTo::Null,
+        None => false,
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn visit_selections(
     typegen_context: &'_ TypegenContext<'_>,
@@ -139,6 +157,7 @@ pub(crate) fn visit_selections(
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
     enclosing_linked_field_concrete_type: Option<Type>,
     is_throw_on_field_error: bool,
 ) -> Vec<TypeSelection> {
@@ -170,6 +189,7 @@ pub(crate) fn visit_selections(
                 actor_change_status,
                 custom_scalars,
                 runtime_imports,
+                custom_error_import,
                 enclosing_linked_field_concrete_type,
                 is_throw_on_field_error,
             ),
@@ -201,6 +221,7 @@ pub(crate) fn visit_selections(
                             actor_change_status,
                             custom_scalars,
                             runtime_imports,
+                            custom_error_import,
                             nested_enclosing_linked_field_concrete_type,
                             is_throw_on_field_error,
                         )
@@ -251,6 +272,7 @@ pub(crate) fn visit_selections(
                 actor_change_status,
                 custom_scalars,
                 runtime_imports,
+                custom_error_import,
                 enclosing_linked_field_concrete_type,
                 is_throw_on_field_error,
             ),
@@ -306,27 +328,7 @@ fn visit_fragment_spread(
                 .is_some(),
         });
 
-        let selection = if let Some(fragment_alias_metadata) =
-            FragmentAliasMetadata::find(&fragment_spread.directives)
-        {
-            // If/when @required is supported here, we would apply that to this type reference.
-            // TODO: What about plural fragments, is that just handled by the parent?
-            let mut node_type = TypeReference::Named(fragment_alias_metadata.selection_type);
-            if fragment_alias_metadata.non_nullable {
-                node_type = TypeReference::NonNull(Box::new(node_type));
-            }
-            // We will model the types as a linked filed containing just the fragment spread.
-            TypeSelection::LinkedField(TypeSelectionLinkedField {
-                field_name_or_alias: fragment_alias_metadata.alias.item,
-                node_type,
-                node_selections: selections_to_map(vec![spread_selection].into_iter(), true),
-                conditional: false,
-                concrete_type: None,
-            })
-        } else {
-            spread_selection
-        };
-        type_selections.push(selection);
+        type_selections.push(spread_selection);
     }
 }
 
@@ -404,7 +406,7 @@ fn generate_resolver_type(
         runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
-            inner: Box::new(ast),
+            inner: vec![ast],
         }
     } else {
         ast
@@ -739,6 +741,7 @@ fn relay_resolver_field_type(
         } else {
             inner_value
         };
+
         if required || field_type.is_non_null() {
             AST::NonNullable(Box::new(inner_value))
         } else {
@@ -800,6 +803,7 @@ fn visit_relay_resolver(
         value: resolver_type,
         conditional: false,
         concrete_type: None,
+        is_result_type: false,
     }));
 }
 
@@ -816,6 +820,7 @@ fn visit_client_edge(
     actor_change_status: &mut ActorChangeStatus,
     imported_resolvers: &mut ImportedResolvers,
     runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
     enclosing_linked_field_concrete_type: Option<Type>,
     is_throw_on_field_error: bool,
 ) {
@@ -860,6 +865,7 @@ fn visit_client_edge(
         actor_change_status,
         custom_scalars,
         runtime_imports,
+        custom_error_import,
         enclosing_linked_field_concrete_type,
         is_throw_on_field_error,
     );
@@ -879,6 +885,7 @@ fn visit_inline_fragment(
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
     enclosing_linked_field_concrete_type: Option<Type>,
     is_throw_on_field_error: bool,
 ) {
@@ -893,6 +900,7 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            is_result_type: false,
         }));
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: *MODULE_COMPONENT,
@@ -900,6 +908,7 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            is_result_type: false,
         }));
         type_selections.push(TypeSelection::InlineFragment(TypeSelectionInlineFragment {
             fragment_name: name,
@@ -923,6 +932,7 @@ fn visit_inline_fragment(
             actor_change_status,
             custom_scalars,
             runtime_imports,
+            custom_error_import,
             enclosing_linked_field_concrete_type,
             is_throw_on_field_error,
         );
@@ -939,6 +949,7 @@ fn visit_inline_fragment(
             actor_change_status,
             imported_resolvers,
             runtime_imports,
+            custom_error_import,
             enclosing_linked_field_concrete_type,
             is_throw_on_field_error,
         );
@@ -954,6 +965,7 @@ fn visit_inline_fragment(
             actor_change_status,
             custom_scalars,
             runtime_imports,
+            custom_error_import,
             enclosing_linked_field_concrete_type,
             inline_fragment
                 .directives
@@ -971,14 +983,20 @@ fn visit_inline_fragment(
             }
 
             // With @required, null might bubble up to this synthetic field, so we need to apply that nullability here.
-            node_type =
-                apply_required_directive_nullability(&node_type, &inline_fragment.directives);
+            // coerce_to_nullable is false because @catch can't be on inline fragment anyway. Note catchable is also false.
+            node_type = apply_required_directive_nullability(
+                &node_type,
+                &inline_fragment.directives,
+                false,
+            );
             vec![TypeSelection::LinkedField(TypeSelectionLinkedField {
                 field_name_or_alias: fragment_alias_metadata.alias.item,
                 node_type,
                 node_selections: selections_to_map(inline_selections.into_iter(), true),
                 conditional: false,
                 concrete_type: None,
+                // @catch cannot be used directly on an inline fragment.
+                is_result_type: false,
             })]
         } else {
             // If the inline fragment is on an abstract type, its selections must be
@@ -1017,6 +1035,7 @@ fn visit_actor_change(
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
     enclosing_linked_field_concrete_type: Option<Type>,
     is_throw_on_field_error: bool,
 ) {
@@ -1047,6 +1066,7 @@ fn visit_actor_change(
         actor_change_status,
         custom_scalars,
         runtime_imports,
+        custom_error_import,
         enclosing_linked_field_concrete_type,
         is_throw_on_field_error,
     );
@@ -1065,10 +1085,13 @@ fn visit_actor_change(
                 encountered_enums,
                 encountered_fragments,
                 custom_scalars,
+                runtime_imports,
+                custom_error_import,
             ),
         )))),
         conditional: false,
         concrete_type: None,
+        is_result_type: false,
     }));
 }
 
@@ -1158,9 +1181,15 @@ fn gen_visit_linked_field(
     };
     let selections = visit_selections_fn(&linked_field.selections);
 
+    let coerce_to_nullable = has_explicit_catch_to_null(&linked_field.directives);
+
     let node_type = match is_throw_on_field_error {
-        true => apply_directive_nullability(field, &linked_field.directives),
-        false => apply_required_directive_nullability(&field.type_, &linked_field.directives),
+        true => apply_directive_nullability(field, &linked_field.directives, coerce_to_nullable),
+        false => apply_required_directive_nullability(
+            &field.type_,
+            &linked_field.directives,
+            coerce_to_nullable,
+        ),
     };
 
     type_selections.push(TypeSelection::LinkedField(TypeSelectionLinkedField {
@@ -1169,6 +1198,7 @@ fn gen_visit_linked_field(
         node_selections: selections_to_map(selections.into_iter(), true),
         conditional: false,
         concrete_type: None,
+        is_result_type: is_result_type_directive(&linked_field.directives),
     }));
 }
 
@@ -1188,10 +1218,18 @@ fn visit_scalar_field(
     } else {
         schema_name
     };
+
+    let coerce_to_nullable = has_explicit_catch_to_null(&scalar_field.directives);
+
     let field_type = match is_throw_on_field_error {
-        true => apply_directive_nullability(field, &scalar_field.directives),
-        false => apply_required_directive_nullability(&field.type_, &scalar_field.directives),
+        true => apply_directive_nullability(field, &scalar_field.directives, coerce_to_nullable),
+        false => apply_required_directive_nullability(
+            &field.type_,
+            &scalar_field.directives,
+            coerce_to_nullable,
+        ),
     };
+
     let special_field = ScalarFieldSpecialSchemaField::from_schema_name(
         schema_name,
         &typegen_context.project_config.schema_config,
@@ -1218,18 +1256,22 @@ fn visit_scalar_field(
                 )),
                 conditional: false,
                 concrete_type: None,
+                is_result_type: is_result_type_directive(&scalar_field.directives),
             }));
         }
     }
 
+    let ast = transform_type_reference_into_ast(&field_type, |type_| {
+        expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+    });
+
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
         special_field,
-        value: transform_type_reference_into_ast(&field_type, |type_| {
-            expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
-        }),
+        value: ast,
         conditional: false,
         concrete_type: None,
+        is_result_type: is_result_type_directive(&scalar_field.directives),
     }));
 }
 
@@ -1246,6 +1288,7 @@ fn visit_condition(
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
     runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
     enclosing_linked_field_concrete_type: Option<Type>,
     is_throw_on_field_error: bool,
 ) {
@@ -1260,6 +1303,7 @@ fn visit_condition(
         actor_change_status,
         custom_scalars,
         runtime_imports,
+        custom_error_import,
         enclosing_linked_field_concrete_type,
         is_throw_on_field_error,
     );
@@ -1280,6 +1324,8 @@ pub(crate) fn get_data_type(
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
 ) -> AST {
     let mut data_type = selections_to_babel(
         typegen_context,
@@ -1289,6 +1335,8 @@ pub(crate) fn get_data_type(
         encountered_enums,
         encountered_fragments,
         custom_scalars,
+        runtime_imports,
+        custom_error_import,
     );
     if emit_optional_type {
         data_type = AST::Nullable(Box::new(data_type))
@@ -1299,6 +1347,7 @@ pub(crate) fn get_data_type(
     data_type
 }
 
+#[allow(clippy::too_many_arguments)]
 fn selections_to_babel(
     typegen_context: &'_ TypegenContext<'_>,
     selections: impl Iterator<Item = TypeSelection>,
@@ -1307,6 +1356,8 @@ fn selections_to_babel(
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
 ) -> AST {
     // A map of "key" to TypeSelection. The key can be thought of as the field name or alias
     // for scalar/linked fields. See [TypeSelection::get_string_key] for the key's behavior
@@ -1348,6 +1399,8 @@ fn selections_to_babel(
             mask_status,
             fragment_type_name,
             custom_scalars,
+            runtime_imports,
+            custom_error_import,
         )
     } else {
         get_merged_object_with_optional_fields(
@@ -1359,6 +1412,8 @@ fn selections_to_babel(
             mask_status,
             fragment_type_name,
             custom_scalars,
+            runtime_imports,
+            custom_error_import,
         )
     }
 }
@@ -1375,6 +1430,8 @@ fn get_merged_object_with_optional_fields(
     mask_status: MaskStatus,
     fragment_type_name: Option<StringKey>,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
 ) -> AST {
     let mut selection_map = selections_to_map(hashmap_into_values(base_fields), false);
     for concrete_type_selections in hashmap_into_values(by_concrete_type) {
@@ -1403,6 +1460,8 @@ fn get_merged_object_with_optional_fields(
                         encountered_enums,
                         encountered_fragments,
                         custom_scalars,
+                        runtime_imports,
+                        custom_error_import,
                     );
                 }
             }
@@ -1418,6 +1477,8 @@ fn get_merged_object_with_optional_fields(
                         encountered_enums,
                         encountered_fragments,
                         custom_scalars,
+                        runtime_imports,
+                        custom_error_import,
                     );
                 }
             }
@@ -1430,6 +1491,8 @@ fn get_merged_object_with_optional_fields(
                 encountered_enums,
                 encountered_fragments,
                 custom_scalars,
+                runtime_imports,
+                custom_error_import,
             )
         })
         .collect::<Vec<_>>();
@@ -1462,6 +1525,8 @@ fn get_discriminated_union_ast(
     mask_status: MaskStatus,
     fragment_type_name: Option<StringKey>,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
 ) -> AST {
     let mut types: Vec<Vec<Prop>> = Vec::new();
     let mut typename_aliases = IndexSet::new();
@@ -1482,6 +1547,8 @@ fn get_discriminated_union_ast(
                         encountered_enums,
                         encountered_fragments,
                         custom_scalars,
+                        runtime_imports,
+                        custom_error_import,
                     )
                 })
                 .collect(),
@@ -1691,6 +1758,49 @@ fn append_local_3d_payload(
     }
 }
 
+fn make_custom_error_import(
+    typegen_context: &'_ TypegenContext<'_>,
+    custom_error_type: &mut Option<CustomTypeImport>,
+) -> Result<(), std::fmt::Error> {
+    let current_error_type = typegen_context
+        .project_config
+        .typegen_config
+        .custom_error_type
+        .clone();
+    if custom_error_type.is_some() && *custom_error_type != current_error_type {
+        panic!(
+            "Custom error type is not consistent across fragments. This indicates a bug in Relay. current_error_type: {:?}, custom_error_type: {:?}",
+            current_error_type, custom_error_type
+        );
+    } else if custom_error_type.is_some() && *custom_error_type == current_error_type {
+        return Ok(());
+    }
+    custom_error_type.clone_from(
+        &typegen_context
+            .project_config
+            .typegen_config
+            .custom_error_type,
+    );
+    Ok(())
+}
+fn make_result_type(typegen_context: &'_ TypegenContext<'_>, value: AST) -> AST {
+    let maybe_custom_error = &typegen_context
+        .project_config
+        .typegen_config
+        .custom_error_type;
+
+    let error_type = match maybe_custom_error {
+        Some(custom_error) => AST::RawType(custom_error.name),
+        None => AST::Mixed,
+    };
+
+    AST::GenericType {
+        outer: *RESULT_TYPE_NAME,
+        inner: vec![value, AST::ReadOnlyArray(Box::new(error_type))],
+    }
+}
+
+#[allow(clippy::too_many_arguments)]
 fn make_prop(
     typegen_context: &'_ TypegenContext<'_>,
     type_selection: TypeSelection,
@@ -1699,6 +1809,8 @@ fn make_prop(
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
+    custom_error_import: &mut Option<CustomTypeImport>,
 ) -> Prop {
     let optional = type_selection.is_conditional();
     if typegen_context.generating_updatable_types && optional {
@@ -1727,7 +1839,10 @@ fn make_prop(
                     encountered_enums,
                     encountered_fragments,
                     custom_scalars,
+                    runtime_imports,
+                    custom_error_import,
                 );
+
                 let getter_return_value =
                     transform_type_reference_into_ast(&linked_field.node_type, |type_| {
                         return_ast_in_object_case(
@@ -1815,16 +1930,30 @@ fn make_prop(
                     encountered_enums,
                     encountered_fragments,
                     custom_scalars,
+                    runtime_imports,
+                    custom_error_import,
                 );
-                let value = transform_type_reference_into_ast(&linked_field.node_type, |type_| {
-                    return_ast_in_object_case(
-                        typegen_context,
-                        encountered_enums,
-                        custom_scalars,
-                        object_props,
-                        type_,
-                    )
-                });
+                let mut value =
+                    transform_type_reference_into_ast(&linked_field.node_type, |type_| {
+                        return_ast_in_object_case(
+                            typegen_context,
+                            encountered_enums,
+                            custom_scalars,
+                            object_props,
+                            type_,
+                        )
+                    });
+
+                if linked_field.is_result_type {
+                    value = make_result_type(typegen_context, value);
+                    runtime_imports.result_type = true;
+                    match make_custom_error_import(typegen_context, custom_error_import) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            panic!("Error while generating custom error type: {}", e);
+                        }
+                    }
+                }
 
                 Prop::KeyValuePair(KeyValuePairProp {
                     key,
@@ -1854,9 +1983,22 @@ fn make_prop(
                     })
                 }
             } else {
+                let mut value = scalar_field.value;
+
+                if scalar_field.is_result_type {
+                    value = make_result_type(typegen_context, value);
+                    runtime_imports.result_type = true;
+                    match make_custom_error_import(typegen_context, custom_error_import) {
+                        Ok(_) => {}
+                        Err(e) => {
+                            panic!("Error while generating custom error type: {}", e);
+                        }
+                    }
+                }
+
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: scalar_field.field_name_or_alias,
-                    value: scalar_field.value,
+                    value,
                     optional,
                     // all fields outside of updatable operations are read-only, and within updatable operations,
                     // all special fields are read only
@@ -2037,8 +2179,8 @@ fn transform_graphql_scalar_type(
         .get(&scalar_name.item)
     {
         match custom_scalar {
-            CustomScalarType::Name(custom_scalar) => AST::RawType(*custom_scalar),
-            CustomScalarType::Path(CustomScalarTypeImport { name, path }) => {
+            CustomType::Name(custom_scalar) => AST::RawType(*custom_scalar),
+            CustomType::Path(CustomTypeImport { name, path }) => {
                 custom_scalars.insert((*name, path.clone()));
 
                 AST::RawType(*name)
@@ -2462,6 +2604,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                is_result_type: false,
             }));
         }
         if let Some(refs) = updatable_fragment_spreads.take() {
@@ -2472,6 +2615,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                is_result_type: false,
             }));
         }
         None
@@ -2481,16 +2625,19 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
 fn apply_directive_nullability(
     field: &Field,
     schema_field_directives: &[Directive],
+    coerce_to_nullable: bool,
 ) -> TypeReference<Type> {
-    match field.directives.named(*SEMANTIC_NON_NULL_DIRECTIVE) {
+    let field_type = match field.directives.named(*SEMANTIC_NON_NULL_DIRECTIVE) {
         Some(_) => field.semantic_type(),
-        None => apply_required_directive_nullability(&field.type_, schema_field_directives),
-    }
+        None => field.type_.clone(),
+    };
+    apply_required_directive_nullability(&field_type, schema_field_directives, coerce_to_nullable)
 }
 
 fn apply_required_directive_nullability(
     field_type: &TypeReference<Type>,
     schema_field_directives: &[Directive],
+    coerce_to_nullable: bool,
 ) -> TypeReference<Type> {
     // We apply bubbling before the field's own @required directive (which may
     // negate the effects of bubbling) because we need handle the case where
@@ -2500,9 +2647,15 @@ fn apply_required_directive_nullability(
         Some(_) => field_type.with_nullable_item_type(),
         None => field_type.clone(),
     };
-    match schema_field_directives.named(RequiredMetadataDirective::directive_name()) {
-        Some(_) => bubbled_type.non_null(),
-        None => bubbled_type,
+    // When putting a match for coerce_to_nullable in the match below - both branches had nullable_type()
+    // so the entire match doesn't have to run
+    if coerce_to_nullable {
+        bubbled_type.nullable_type().clone()
+    } else {
+        match schema_field_directives.named(RequiredMetadataDirective::directive_name()) {
+            Some(_) => bubbled_type.non_null(),
+            None => bubbled_type,
+        }
     }
 }
 
@@ -2569,17 +2722,18 @@ fn create_edge_to_return_type_ast(
         optional: false,
     })];
     if inner_type.is_abstract_type() && schema.is_extension_type(*inner_type) {
-        // Note: there is currently no way to create a resolver that returns an abstract
-        // client type, so this branch will not be hit until we enable that feature.
-        let interface_id = inner_type.get_interface_id().expect(
-            "Only interfaces are supported here. This indicates a bug in the Relay compiler.",
-        );
-        let valid_typenames = schema
-            .interface(interface_id)
-            .implementing_objects
-            .iter()
-            .map(|id| schema.object(*id).name.item)
-            .collect::<Vec<_>>();
+        let get_object_names = |members: &Vec<ObjectID>| {
+            members
+                .iter()
+                .map(|id| schema.object(*id).name.item)
+                .collect::<Vec<_>>()
+        };
+        let mut valid_typenames: Vec<ObjectName> = match inner_type {
+            Type::Interface(id) => get_object_names(&schema.interface(*id).implementing_objects),
+            Type::Union(id) => get_object_names(&schema.union(*id).members),
+            _ => panic!("Unexpected abstract type"),
+        };
+        valid_typenames.sort();
 
         fields.push(Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_TYPENAME,

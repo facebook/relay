@@ -20,7 +20,7 @@ export function Cat(id: DataID): CatFlowType {
 /**
  * @RelayResolver
  */
-export function mood(cat: CatFlowType): LiveState<string> {
+export function mood(cat: CatFlowType): LiveState<?string> {
   return {
     read: () => store.getState().counter,
     subscribe: (cb) => {

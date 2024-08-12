@@ -1,0 +1,46 @@
+==================================== INPUT ====================================
+query Q1($test_enum: TestEnum) {
+  me {
+    ...F1 @arguments(test: $test_enum)
+    ...F2
+  }
+}
+
+fragment F1 on User @argumentDefinitions(
+  test: {type: "TestEnum"}
+) {
+  test_object_name(test: $test_enum)
+}
+
+fragment F2 on User {
+  name
+}
+
+query QUnrelated {
+  me {
+    ...F2
+    ...F3
+  }
+}
+
+fragment F3 on User {
+  alternate_name
+}
+
+%extensions%
+# Enum: TestEnum
+
+enum TestEnum {
+    A
+    B
+}
+
+extend type User {
+  test_object_name(test: TestEnum): String
+}
+==================================== OUTPUT ===================================
+Fragment: F1
+
+Fragment: F2
+
+Operation: Q1

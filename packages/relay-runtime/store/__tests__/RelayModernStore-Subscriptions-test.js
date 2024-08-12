@@ -677,6 +677,11 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
+        expect(logEvents).toMatchObject([
+          {name: 'store.lookup.start'},
+          {name: 'store.lookup.end'},
+        ]);
+        logEvents.length = 0;
         const callback = jest.fn((nextSnapshot: Snapshot) => {
           logEvents.push({
             kind: 'test_only_callback',
@@ -701,6 +706,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(logEvents).toEqual([
           {
             name: 'store.notify.start',
+            sourceOperation: undefined,
           },
           // callbacks occur after notify.start...
           {
@@ -717,6 +723,8 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'store.notify.complete',
             updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
+            updatedOwners: [owner.request],
+            subscriptionsSize: 1,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
@@ -740,6 +748,11 @@ function cloneEventWithSets(event: LogEvent) {
             owner.request,
           );
           const snapshot = store.lookup(selector);
+          expect(logEvents).toMatchObject([
+            {name: 'store.lookup.start'},
+            {name: 'store.lookup.end'},
+          ]);
+          logEvents.length = 0;
           const callback = jest.fn((nextSnapshot: Snapshot) => {
             logEvents.push({
               kind: 'test_only_callback',
@@ -802,6 +815,8 @@ function cloneEventWithSets(event: LogEvent) {
               sourceOperation: owner,
               updatedRecordIDs: new Set(['client:1']),
               invalidatedRecordIDs: new Set(),
+              updatedOwners: [owner.request],
+              subscriptionsSize: 1,
             },
           ]);
           expect(callback).toBeCalledTimes(1);

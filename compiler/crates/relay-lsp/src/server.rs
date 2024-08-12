@@ -45,12 +45,15 @@ use lsp_types::request::Completion;
 use lsp_types::request::GotoDefinition;
 use lsp_types::request::HoverRequest;
 use lsp_types::request::InlayHintRequest;
+use lsp_types::request::PrepareRenameRequest;
 use lsp_types::request::References;
+use lsp_types::request::Rename;
 use lsp_types::request::ResolveCompletionItem;
 use lsp_types::request::Shutdown;
 use lsp_types::CodeActionProviderCapability;
 use lsp_types::CompletionOptions;
 use lsp_types::InitializeParams;
+use lsp_types::RenameOptions;
 use lsp_types::ServerCapabilities;
 use lsp_types::TextDocumentSyncCapability;
 use lsp_types::TextDocumentSyncKind;
@@ -78,6 +81,8 @@ use crate::inlay_hints::on_inlay_hint_request;
 use crate::lsp_process_error::LSPProcessResult;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::references::on_references;
+use crate::rename::on_prepare_rename;
+use crate::rename::on_rename;
 use crate::resolved_types_at_location::on_get_resolved_types_at_location;
 use crate::resolved_types_at_location::ResolvedTypesAtLocation;
 use crate::search_schema_items::on_search_schema_items;
@@ -110,7 +115,12 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
             },
             ..Default::default()
         }),
-
+        rename_provider: Some(lsp_types::OneOf::Right(RenameOptions {
+            prepare_provider: Some(true),
+            work_done_progress_options: WorkDoneProgressOptions {
+                work_done_progress: None,
+            },
+        })),
         hover_provider: Some(lsp_types::HoverProviderCapability::Simple(true)),
         definition_provider: Some(lsp_types::OneOf::Left(true)),
         references_provider: Some(lsp_types::OneOf::Left(true)),
@@ -149,7 +159,7 @@ pub async fn run<
     );
 
     let task_processor = LSPTaskProcessor;
-    let task_queue = TaskQueue::new(Arc::new(task_processor));
+    let mut task_queue = TaskQueue::new(Arc::new(task_processor));
     let task_scheduler = task_queue.get_scheduler();
 
     config.artifact_writer = Box::new(NoopArtifactWriter);
@@ -186,6 +196,12 @@ fn next_task(
     }
 }
 
+static NOTIFCATIONS_MUTATING_LSP_STATE: [&str; 3] = [
+    "textDocument/didOpen",
+    "textDocument/didChange",
+    "textDocument/didClose",
+];
+
 struct LSPTaskProcessor;
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
@@ -203,6 +219,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Task::InboundMessage(Message::Response(_)) => {
                 // TODO: handle response from the client -> cancel message, etc
             }
+        }
+    }
+
+    fn is_serial_task(&self, task: &Task) -> bool {
+        match task {
+            Task::InboundMessage(Message::Notification(notification)) => {
+                NOTIFCATIONS_MUTATING_LSP_STATE.contains(&notification.method.as_str())
+            }
+            _ => false,
         }
     }
 }
@@ -244,6 +269,8 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
             .on_request_sync::<FindFieldUsages>(on_find_field_usages)?
             .on_request_sync::<InlayHintRequest>(on_inlay_hint_request)?
+            .on_request_sync::<Rename>(on_rename)?
+            .on_request_sync::<PrepareRenameRequest>(on_prepare_rename)?
             .request();
 
         // If we have gotten here, we have not handled the request

@@ -16,7 +16,6 @@ use common::DiagnosticsResult;
 use common::Location;
 use common::NamedItem;
 use common::PointerAddress;
-use common::WithLocation;
 use dashmap::DashMap;
 use dashmap::DashSet;
 use errors::par_try_map;
@@ -26,8 +25,6 @@ use graphql_ir::Argument;
 use graphql_ir::Field as IRField;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
-use graphql_ir::FragmentSpread;
-use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
@@ -56,20 +53,18 @@ pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
 }
 
 #[derive(Clone, PartialEq, Debug)]
-enum NamedSelection<'s> {
+enum Field<'s> {
     LinkedField(&'s LinkedField),
     ScalarField(&'s ScalarField),
-    AliasedFragmentSpread(&'s FragmentSpread, WithLocation<StringKey>),
-    AliasedInlineFragment(&'s InlineFragment, WithLocation<StringKey>),
 }
 
-type NamedSelections<'s> = HashMap<StringKey, Vec<NamedSelection<'s>>, intern::BuildIdHasher<u32>>;
+type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>, intern::BuildIdHasher<u32>>;
 
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     project_config: &'s ProjectConfig,
-    fragment_cache: DashMap<StringKey, Arc<NamedSelections<'s>>, intern::BuildIdHasher<u32>>,
-    fields_cache: DashMap<PointerAddress, Arc<NamedSelections<'s>>>,
+    fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
+    fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
     further_optimization: bool,
     verified_fields_pair: DashSet<(PointerAddress, PointerAddress, bool)>,
     _behavior: PhantomData<TBehavior>,
@@ -158,10 +153,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         Ok(())
     }
 
-    fn validate_selections(
-        &self,
-        selections: &'s [Selection],
-    ) -> DiagnosticsResult<NamedSelections<'s>> {
+    fn validate_selections(&self, selections: &'s [Selection]) -> DiagnosticsResult<Fields<'s>> {
         let mut fields = Default::default();
         validate_map(selections, |selection| {
             self.validate_selection(&mut fields, selection)
@@ -171,7 +163,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
     fn validate_selection(
         &self,
-        fields: &mut NamedSelections<'s>,
+        fields: &mut Fields<'s>,
         selection: &'s Selection,
     ) -> DiagnosticsResult<()> {
         match selection {
@@ -180,15 +172,15 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                     return Ok(());
                 }
                 self.validate_linked_field_selections(field)?;
-                let field = NamedSelection::LinkedField(field.as_ref());
-                self.validate_and_insert_named_selection(fields, &field, false)
+                let field = Field::LinkedField(field.as_ref());
+                self.validate_and_insert_field_selection(fields, &field, false)
             }
             Selection::ScalarField(field) => {
                 if !self.should_validate_selection(field.definition.item) {
                     return Ok(());
                 }
-                let field = NamedSelection::ScalarField(field.as_ref());
-                self.validate_and_insert_named_selection(fields, &field, false)
+                let field = Field::ScalarField(field.as_ref());
+                self.validate_and_insert_field_selection(fields, &field, false)
             }
             Selection::Condition(condition) => {
                 let new_fields = self.validate_selections(&condition.selections)?;
@@ -196,33 +188,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
             Selection::InlineFragment(fragment) => {
                 let new_fields = self.validate_selections(&fragment.selections)?;
-                if self
-                    .project_config
-                    .feature_flags
-                    .enable_fragment_aliases
-                    .is_fully_enabled()
-                {
-                    if let Some(alias) = fragment.alias(&self.program.schema)? {
-                        let field = NamedSelection::AliasedInlineFragment(fragment, alias);
-                        self.validate_and_insert_named_selection(fields, &field, false)?;
-                    }
-                }
                 self.validate_and_merge_fields(fields, &new_fields, false)
             }
             Selection::FragmentSpread(spread) => {
                 let fragment = self.program.fragment(spread.fragment.item).unwrap();
                 let new_fields = self.validate_and_collect_fragment(fragment)?;
-                if self
-                    .project_config
-                    .feature_flags
-                    .enable_fragment_aliases
-                    .is_fully_enabled()
-                {
-                    if let Some(alias) = spread.alias()? {
-                        let field = NamedSelection::AliasedFragmentSpread(spread, alias);
-                        self.validate_and_insert_named_selection(fields, &field, false)?;
-                    }
-                }
                 self.validate_and_merge_fields(fields, &new_fields, false)
             }
         }
@@ -243,7 +213,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_and_collect_fragment(
         &self,
         fragment: &'s FragmentDefinition,
-    ) -> DiagnosticsResult<Arc<NamedSelections<'s>>> {
+    ) -> DiagnosticsResult<Arc<Fields<'s>>> {
         if let Some(cached) = self.fragment_cache.get(&fragment.name.item.0) {
             return Ok(Arc::clone(&cached));
         }
@@ -256,7 +226,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_linked_field_selections(
         &self,
         field: &'s LinkedField,
-    ) -> DiagnosticsResult<Arc<NamedSelections<'s>>> {
+    ) -> DiagnosticsResult<Arc<Fields<'s>>> {
         let key = PointerAddress::new(field);
         if let Some(fields) = self.fields_cache.get(&key) {
             return Ok(Arc::clone(&fields));
@@ -268,35 +238,32 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
     fn validate_and_merge_fields(
         &self,
-        left: &mut NamedSelections<'s>,
-        right: &NamedSelections<'s>,
+        left: &mut Fields<'s>,
+        right: &Fields<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
         validate_map(right.values().flatten(), |field| {
-            self.validate_and_insert_named_selection(left, field, parent_fields_mutually_exclusive)
+            self.validate_and_insert_field_selection(left, field, parent_fields_mutually_exclusive)
         })
     }
 
-    fn validate_and_insert_named_selection(
+    fn validate_and_insert_field_selection(
         &self,
-        named_selections: &mut NamedSelections<'s>,
-        named_selection: &NamedSelection<'s>,
+        fields: &mut Fields<'s>,
+        field: &Field<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
-        let key = named_selection.get_response_key(&self.program.schema);
-        if !named_selections.contains_key(&key) {
-            named_selections
-                .entry(key)
-                .or_default()
-                .push(named_selection.clone());
+        let key = field.get_response_key(&self.program.schema);
+        if !fields.contains_key(&key) {
+            fields.entry(key).or_default().push(field.clone());
             return Ok(());
         }
 
         let mut errors = vec![];
-        let addr1 = named_selection.pointer_address();
+        let addr1 = field.pointer_address();
 
-        for existing_named_selection in named_selections.get(&key).unwrap() {
-            if named_selection == existing_named_selection {
+        for existing_field in fields.get(&key).unwrap() {
+            if field == existing_field {
                 return if errors.is_empty() {
                     Ok(())
                 } else {
@@ -304,7 +271,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 };
             }
 
-            let addr2 = existing_named_selection.pointer_address();
+            let addr2 = existing_field.pointer_address();
             if self.further_optimization
                 && self.verified_fields_pair.contains(&(
                     addr1,
@@ -315,23 +282,8 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 continue;
             }
 
-            let l_named_definition =
-                existing_named_selection.get_field_definition(&self.program.schema);
-            let r_named_definition = named_selection.get_field_definition(&self.program.schema);
-
-            let (l_definition, r_definition) = match (l_named_definition, r_named_definition) {
-                (NameDefinition::Field(l), NameDefinition::Field(r)) => (l, r),
-                _ => {
-                    errors.push(
-                        Diagnostic::error(
-                            ValidationMessage::AmbiguousFragmentAlias { response_key: key },
-                            existing_named_selection.loc(),
-                        )
-                        .annotate("the other field", named_selection.loc()),
-                    );
-                    continue;
-                }
-            };
+            let l_definition = existing_field.get_field_definition(&self.program.schema);
+            let r_definition = field.get_field_definition(&self.program.schema);
 
             let is_parent_fields_mutually_exclusive = || {
                 parent_fields_mutually_exclusive
@@ -342,8 +294,8 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                         )
             };
 
-            match (existing_named_selection, &named_selection) {
-                (NamedSelection::LinkedField(l), NamedSelection::LinkedField(r)) => {
+            match (existing_field, &field) {
+                (Field::LinkedField(l), Field::LinkedField(r)) => {
                     let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
                     if !fields_mutually_exclusive {
                         if let Err(err) = self.validate_same_field(
@@ -389,7 +341,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                         );
                     }
                 }
-                (NamedSelection::ScalarField(l), NamedSelection::ScalarField(r)) => {
+                (Field::ScalarField(l), Field::ScalarField(r)) => {
                     if !is_parent_fields_mutually_exclusive() {
                         if let Err(err) = self.validate_same_field(
                             key,
@@ -440,7 +392,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                             },
                             existing_field.loc(),
                         )
-                        .annotate("the other field", named_selection.loc()),
+                        .annotate("the other field", field.loc()),
                     );
                 }
             }
@@ -453,10 +405,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
         }
         if errors.is_empty() {
-            named_selections
-                .entry(key)
-                .or_default()
-                .push(named_selection.clone());
+            fields.entry(key).or_default().push(field.clone());
             Ok(())
         } else {
             Err(errors)
@@ -572,49 +521,32 @@ fn has_same_type_reference_wrapping(l: &TypeReference<Type>, r: &TypeReference<T
     }
 }
 
-enum NameDefinition<'s> {
-    Field(&'s schema::definitions::Field),
-    Fragment,
-}
-
-impl<'s> NamedSelection<'s> {
+impl<'s> Field<'s> {
     fn get_response_key(&self, schema: &SDLSchema) -> StringKey {
         match self {
-            NamedSelection::LinkedField(f) => f.alias_or_name(schema),
-            NamedSelection::ScalarField(f) => f.alias_or_name(schema),
-            NamedSelection::AliasedFragmentSpread(_, alias) => alias.item,
-            NamedSelection::AliasedInlineFragment(_, alias) => alias.item,
+            Field::LinkedField(f) => f.alias_or_name(schema),
+            Field::ScalarField(f) => f.alias_or_name(schema),
         }
     }
 
-    fn get_field_definition(&self, schema: &'s SDLSchema) -> NameDefinition<'s> {
+    fn get_field_definition(&self, schema: &'s SDLSchema) -> &'s schema::definitions::Field {
         match self {
-            NamedSelection::LinkedField(f) => {
-                NameDefinition::Field(schema.field(f.definition.item))
-            }
-            NamedSelection::ScalarField(f) => {
-                NameDefinition::Field(schema.field(f.definition.item))
-            }
-            NamedSelection::AliasedFragmentSpread(_spread, _) => NameDefinition::Fragment,
-            NamedSelection::AliasedInlineFragment(_fragment, _) => NameDefinition::Fragment,
+            Field::LinkedField(f) => schema.field(f.definition.item),
+            Field::ScalarField(f) => schema.field(f.definition.item),
         }
     }
 
     fn loc(&self) -> Location {
         match self {
-            NamedSelection::LinkedField(f) => f.alias_or_name_location(),
-            NamedSelection::ScalarField(f) => f.alias_or_name_location(),
-            NamedSelection::AliasedFragmentSpread(_, alias) => alias.location,
-            NamedSelection::AliasedInlineFragment(_, alias) => alias.location,
+            Field::LinkedField(f) => f.definition.location,
+            Field::ScalarField(f) => f.definition.location,
         }
     }
 
     fn pointer_address(&self) -> PointerAddress {
         match self {
-            NamedSelection::LinkedField(f) => PointerAddress::new(&f.definition),
-            NamedSelection::ScalarField(f) => PointerAddress::new(&f.definition),
-            NamedSelection::AliasedFragmentSpread(spread, _) => PointerAddress::new(spread),
-            NamedSelection::AliasedInlineFragment(fragment, _) => PointerAddress::new(fragment),
+            Field::LinkedField(f) => PointerAddress::new(&f.definition),
+            Field::ScalarField(f) => PointerAddress::new(&f.definition),
         }
     }
 }
@@ -689,11 +621,6 @@ mod ignoring_type_and_location {
 )]
 #[serde(tag = "type")]
 enum ValidationMessage {
-    #[error(
-        "Fragment alias '{response_key}' is ambiguous. It conflicts with another named selection"
-    )]
-    AmbiguousFragmentAlias { response_key: StringKey },
-
     #[error(
         "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"
     )]

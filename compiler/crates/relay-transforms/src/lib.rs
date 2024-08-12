@@ -133,6 +133,7 @@ pub use defer_stream::StreamDirective;
 pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
 pub use fragment_alias_directive::fragment_alias_directive;
+pub use fragment_alias_directive::remove_aliased_inline_fragments;
 pub use fragment_alias_directive::FragmentAliasMetadata;
 pub use generate_data_driven_dependency_metadata::generate_data_driven_dependency_metadata;
 pub use generate_data_driven_dependency_metadata::RelayDataDrivenDependencyMetadata;

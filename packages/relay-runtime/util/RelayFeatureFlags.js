@@ -50,6 +50,8 @@ export type FeatureFlags = {
 
   // Temporary flag to enable a gradual rollout of the fix for T185969900
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: boolean,
+
+  ENABLE_CYLE_DETECTION_IN_VARIABLES: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -73,6 +75,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: false,
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
+  ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
 };
 
 module.exports = RelayFeatureFlags;

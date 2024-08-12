@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a462cf5b6b402f99514438fe2a6c56fe>>
+ * @generated SignedSource<<d4e65b5354b1c9ee178a587546e6d0ef>>
  */
 
 mod compile_relay_artifacts;
@@ -115,6 +115,13 @@ async fn alias_same_as_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/alias-same-as-name.expected");
     test_fixture(transform_fixture, file!(), "alias-same-as-name.graphql", "compile_relay_artifacts/fixtures/alias-same-as-name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn aliased_fragment_in_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/aliased_fragment_in_inline_fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/aliased_fragment_in_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "aliased_fragment_in_inline_fragment.graphql", "compile_relay_artifacts/fixtures/aliased_fragment_in_inline_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -594,6 +601,13 @@ async fn fragment_alias_on_inline_fragment_does_not_get_flattened() {
 }
 
 #[tokio::test]
+async fn fragment_alias_with_inline() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias-with-inline.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias-with-inline.expected");
+    test_fixture(transform_fixture, file!(), "fragment-alias-with-inline.graphql", "compile_relay_artifacts/fixtures/fragment-alias-with-inline.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn fragment_arg_passed_to_resolver_rutime_arg() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-arg-passed-to-resolver-rutime-arg.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-arg-passed-to-resolver-rutime-arg.expected");
@@ -734,6 +748,13 @@ async fn inline_fragment_on_abstract_client_type_nested_in_resolver_client_edge(
 }
 
 #[tokio::test]
+async fn invalid_alias_on_match_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/invalid-alias-on-match-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/invalid-alias-on-match-fragment.expected");
+    test_fixture(transform_fixture, file!(), "invalid-alias-on-match-fragment.graphql", "compile_relay_artifacts/fixtures/invalid-alias-on-match-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn kitchen_sink() {
     let input = include_str!("compile_relay_artifacts/fixtures/kitchen-sink.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/kitchen-sink.expected");
@@ -797,10 +818,17 @@ async fn module_overlap_across_documents() {
 }
 
 #[tokio::test]
-async fn module_overlap_within_document_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected");
-    test_fixture(transform_fixture, file!(), "module-overlap-within-document.invalid.graphql", "compile_relay_artifacts/fixtures/module-overlap-within-document.invalid.expected", input, expected).await;
+async fn module_overlap_within_document() {
+    let input = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/module-overlap-within-document.expected");
+    test_fixture(transform_fixture, file!(), "module-overlap-within-document.graphql", "compile_relay_artifacts/fixtures/module-overlap-within-document.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn module_with_alias() {
+    let input = include_str!("compile_relay_artifacts/fixtures/module-with-alias.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/module-with-alias.expected");
+    test_fixture(transform_fixture, file!(), "module-with-alias.graphql", "compile_relay_artifacts/fixtures/module-with-alias.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -822,6 +850,20 @@ async fn multiple_conditions() {
     let input = include_str!("compile_relay_artifacts/fixtures/multiple_conditions.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/multiple_conditions.expected");
     test_fixture(transform_fixture, file!(), "multiple_conditions.graphql", "compile_relay_artifacts/fixtures/multiple_conditions.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_module_with_alias() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-alias.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-alias.expected");
+    test_fixture(transform_fixture, file!(), "multiple-module-with-alias.graphql", "compile_relay_artifacts/fixtures/multiple-module-with-alias.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_module_with_aliased_inline_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-aliased-inline-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-module-with-aliased-inline-fragment.expected");
+    test_fixture(transform_fixture, file!(), "multiple-module-with-aliased-inline-fragment.graphql", "compile_relay_artifacts/fixtures/multiple-module-with-aliased-inline-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -1508,6 +1550,13 @@ async fn required_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/required-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required-directive.expected");
     test_fixture(transform_fixture, file!(), "required-directive.graphql", "compile_relay_artifacts/fixtures/required-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn required_directive_on_conditional_field() {
+    let input = include_str!("compile_relay_artifacts/fixtures/required-directive-on-conditional-field.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/required-directive-on-conditional-field.expected");
+    test_fixture(transform_fixture, file!(), "required-directive-on-conditional-field.graphql", "compile_relay_artifacts/fixtures/required-directive-on-conditional-field.expected", input, expected).await;
 }
 
 #[tokio::test]

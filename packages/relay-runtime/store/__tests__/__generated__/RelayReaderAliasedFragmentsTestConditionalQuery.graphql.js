@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ec07330c468377765e92ef1cd2634b12>>
+ * @generated SignedSource<<9bbb9b738ba1d0ecee039582795af39b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,14 +65,19 @@ return {
             "selections": [
               {
                 "fragment": {
-                  "args": null,
-                  "kind": "FragmentSpread",
-                  "name": "RelayReaderAliasedFragmentsTestConditionalFragment"
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "RelayReaderAliasedFragmentsTestConditionalFragment"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
                 },
-                "kind": "AliasedFragmentSpread",
-                "name": "aliased_fragment",
-                "type": "User",
-                "abstractKey": null
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "aliased_fragment"
               }
             ]
           }

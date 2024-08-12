@@ -37,27 +37,29 @@ Strong(
                 },
             },
         ),
-        entity_type: GenericTypeAnnotation(
-            GenericTypeAnnotation {
-                id: Identifier(
-                    Identifier {
-                        name: "User",
-                        binding: None,
-                        type_annotation: None,
-                        loc: None,
-                        range: SourceRange {
-                            start: 231,
-                            end: 235,
+        entity_type: Some(
+            GenericTypeAnnotation(
+                GenericTypeAnnotation {
+                    id: Identifier(
+                        Identifier {
+                            name: "User",
+                            binding: None,
+                            type_annotation: None,
+                            loc: None,
+                            range: SourceRange {
+                                start: 231,
+                                end: 235,
+                            },
                         },
+                    ),
+                    type_parameters: None,
+                    loc: None,
+                    range: SourceRange {
+                        start: 231,
+                        end: 235,
                     },
-                ),
-                type_parameters: None,
-                loc: None,
-                range: SourceRange {
-                    start: 231,
-                    end: 235,
                 },
-            },
+            ),
         ),
         arguments: Some(
             ObjectTypeAnnotation(

@@ -56,6 +56,188 @@ fragment RelayMockPayloadGeneratorTest_fragment61_yuQoQ on User {
 }
 `;
 
+exports[`allows skipping abstract inline fragment for @alias all data mocked 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isNamed": true,
+      "name": "<mock-value-for-field-\\"name\\">",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not FeedUnit 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isNamed": true,
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not Named 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not Named nor FeedUnit 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not Named, using null 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias string for __isNamed still includes it 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isNamed": true,
+      "name": "<mock-value-for-field-\\"name\\">",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
+    }
+  }
+}
+`;
+
 exports[`check context in the mock resolver 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest11Query {

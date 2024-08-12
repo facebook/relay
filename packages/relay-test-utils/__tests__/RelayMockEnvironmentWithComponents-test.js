@@ -71,7 +71,13 @@ describe('ReactRelayTestMocker with Containers', () => {
         />
       );
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
     });
 
@@ -100,16 +106,20 @@ describe('ReactRelayTestMocker with Containers', () => {
       }).not.toThrow();
 
       // Make sure request was issued
-      environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generate(operation),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.resolveMostRecentOperation(operation =>
+          MockPayloadGenerator.generate(operation),
+        );
+      });
 
       // Should render some data
       expect(testComponentTree).toMatchSnapshot();
     });
 
     it('should reject query', () => {
-      environment.mock.rejectMostRecentOperation(new Error('Uh-oh'));
+      ReactTestRenderer.act(() => {
+        environment.mock.rejectMostRecentOperation(new Error('Uh-oh'));
+      });
 
       const errorMessage = testComponentTree.root.find(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
@@ -123,10 +133,12 @@ describe('ReactRelayTestMocker with Containers', () => {
     });
 
     it('should reject query with function', () => {
-      environment.mock.rejectMostRecentOperation(
-        operation =>
-          new Error(`Uh-oh: ${operation.request.node.fragment.name}`),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.rejectMostRecentOperation(
+          operation =>
+            new Error(`Uh-oh: ${operation.request.node.fragment.name}`),
+        );
+      });
 
       const errorMessage = testComponentTree.root.find(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
@@ -216,27 +228,37 @@ describe('ReactRelayTestMocker with Containers', () => {
         />
       );
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
     });
 
     it('should render data', () => {
-      environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generate(operation),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.resolveMostRecentOperation(operation =>
+          MockPayloadGenerator.generate(operation),
+        );
+      });
       expect(testComponentTree).toMatchSnapshot();
     });
 
     it('should render data with mock resolvers', () => {
-      environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generate(operation, {
-          Image() {
-            return {
-              uri: 'http://test.com/image-url',
-            };
-          },
-        }),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.resolveMostRecentOperation(operation =>
+          MockPayloadGenerator.generate(operation, {
+            Image() {
+              return {
+                uri: 'http://test.com/image-url',
+              };
+            },
+          }),
+        );
+      });
       const image = testComponentTree.root.find(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
         // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
@@ -362,7 +384,13 @@ describe('ReactRelayTestMocker with Containers', () => {
         />
       );
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
     });
 
@@ -586,21 +614,29 @@ describe('ReactRelayTestMocker with Containers', () => {
         />
       );
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
     });
 
     it('should refetch query', () => {
-      environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generate(operation, {
-          Page() {
-            return {
-              id: 'my-page-id',
-              name: 'PHL',
-            };
-          },
-        }),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.resolveMostRecentOperation(operation =>
+          MockPayloadGenerator.generate(operation, {
+            Page() {
+              return {
+                id: 'my-page-id',
+                name: 'PHL',
+              };
+            },
+          }),
+        );
+      });
       // Make sure we're rendered correct hometown
       expect(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
@@ -638,18 +674,20 @@ describe('ReactRelayTestMocker with Containers', () => {
       expect(operation.request.variables).toEqual({id: 'my-page-id'});
 
       // Resolve refetch query
-      environment.mock.resolve(
-        operation,
-        MockPayloadGenerator.generate(operation, {
-          Node() {
-            return {
-              __typename: 'Page',
-              id: 'my-page-id',
-              name: 'SFO',
-            };
-          },
-        }),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(
+          operation,
+          MockPayloadGenerator.generate(operation, {
+            Node() {
+              return {
+                __typename: 'Page',
+                id: 'my-page-id',
+                name: 'SFO',
+              };
+            },
+          }),
+        );
+      });
       expect(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
         // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
@@ -775,7 +813,13 @@ describe('ReactRelayTestMocker with Containers', () => {
         );
       };
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
       ReactTestRenderer.act(() => {
         environment.mock.resolveMostRecentOperation(operation =>
@@ -909,20 +953,28 @@ describe('ReactRelayTestMocker with Containers', () => {
         />
       );
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
     });
 
     it('should resolve operation with handle fields', () => {
-      environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generate(operation, {
-          Actor() {
-            return {
-              name: 'Carol',
-            };
-          },
-        }),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.resolveMostRecentOperation(operation =>
+          MockPayloadGenerator.generate(operation, {
+            Actor() {
+              return {
+                name: 'Carol',
+              };
+            },
+          }),
+        );
+      });
       expect(
         testComponentTree.root.find(
           // In www, this is differently typed (via react-test-renderer.js.flow) than in
@@ -1029,21 +1081,28 @@ describe('ReactRelayTestMocker with Containers', () => {
         );
       };
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
-
-      environment.mock.resolveMostRecentOperation(operation =>
-        MockPayloadGenerator.generate(operation, {
-          ID() {
-            return operation.request.variables.id;
-          },
-          Feedback() {
-            return {
-              doesViewerLike: false,
-            };
-          },
-        }),
-      );
+      ReactTestRenderer.act(() => {
+        environment.mock.resolveMostRecentOperation(operation =>
+          MockPayloadGenerator.generate(operation, {
+            ID() {
+              return operation.request.variables.id;
+            },
+            Feedback() {
+              return {
+                doesViewerLike: false,
+              };
+            },
+          }),
+        );
+      });
     });
 
     it('should resolve subscription', () => {
@@ -1148,7 +1207,13 @@ describe('ReactRelayTestMocker with Containers', () => {
         </>
       );
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
     });
 
@@ -1163,24 +1228,26 @@ describe('ReactRelayTestMocker with Containers', () => {
           operation.fragment.node.name ===
           'RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery',
       );
-      environment.mock.resolve(
-        userQuery,
-        MockPayloadGenerator.generate(userQuery, {
-          Node: () => ({
-            id: userQuery.request.variables.userId,
-            name: 'Alice',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(
+          userQuery,
+          MockPayloadGenerator.generate(userQuery, {
+            Node: () => ({
+              id: userQuery.request.variables.userId,
+              name: 'Alice',
+            }),
           }),
-        }),
-      );
-      environment.mock.resolve(
-        pageQuery,
-        MockPayloadGenerator.generate(pageQuery, {
-          Node: () => ({
-            id: pageQuery.request.variables.pageId,
-            name: 'My Page',
+        );
+        environment.mock.resolve(
+          pageQuery,
+          MockPayloadGenerator.generate(pageQuery, {
+            Node: () => ({
+              id: pageQuery.request.variables.pageId,
+              name: 'My Page',
+            }),
           }),
-        }),
-      );
+        );
+      });
       expect(
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
         // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
@@ -1239,7 +1306,13 @@ describe('ReactRelayTestMocker with Containers', () => {
       );
       let testComponentTree;
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
       expect(testComponentTree).toMatchSnapshot(
         'should render component with the data',
@@ -1250,7 +1323,13 @@ describe('ReactRelayTestMocker with Containers', () => {
       environment.mock.queueOperationResolver(() => new Error('Uh-oh'));
       let testComponentTree;
       ReactTestRenderer.act(() => {
-        testComponentTree = ReactTestRenderer.create(<TestComponent />);
+        testComponentTree = ReactTestRenderer.create(
+          <TestComponent />,
+          // $FlowFixMe[prop-missing]
+          {
+            unstable_isConcurrent: true,
+          },
+        );
       });
       expect(testComponentTree).toMatchSnapshot(
         'should render component with the error',

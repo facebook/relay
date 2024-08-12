@@ -292,6 +292,7 @@ dependencies = [
  "lsp-types",
  "md-5",
  "rayon",
+ "schemars",
  "serde",
  "serde_json",
  "typetag",
@@ -484,6 +485,12 @@ name = "dunce"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56ce8c6da7551ec6c462cbaf3bfbc75131ebbfa1c944aeaa9dab51ca1c5f0c3b"
+
+[[package]]
+name = "dyn-clone"
+version = "1.0.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d6ef0072f8a535281e4876be788938b528e9a1d43900b82c2569af7da799125"
 
 [[package]]
 name = "either"
@@ -1035,6 +1042,7 @@ dependencies = [
  "once_cell",
  "parking_lot",
  "rand",
+ "schemars",
  "serde",
  "serde_bytes",
  "serde_derive",
@@ -1167,9 +1175,9 @@ dependencies = [
 
 [[package]]
 name = "log"
-version = "0.4.20"
+version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
+checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 dependencies = [
  "value-bag",
 ]
@@ -1719,6 +1727,7 @@ dependencies = [
  "relay-codegen",
  "relay-config",
  "relay-docblock",
+ "relay-saved-state-loader",
  "relay-schema",
  "relay-test-schema",
  "relay-transforms",
@@ -1727,6 +1736,7 @@ dependencies = [
  "schema",
  "schema-diff",
  "schema-validate-lib",
+ "schemars",
  "serde",
  "serde_bser",
  "serde_json",
@@ -1774,6 +1784,7 @@ dependencies = [
  "intern",
  "pathdiff",
  "regex",
+ "schemars",
  "serde",
  "serde_json",
  "strum",
@@ -1824,6 +1835,7 @@ dependencies = [
  "graphql-watchman",
  "intern",
  "itertools 0.11.0",
+ "lazy_static",
  "log",
  "lsp-server",
  "lsp-types",
@@ -1842,6 +1854,14 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+]
+
+[[package]]
+name = "relay-saved-state-loader"
+version = "0.0.0"
+dependencies = [
+ "async-trait",
+ "serde_bser",
 ]
 
 [[package]]
@@ -1913,6 +1933,7 @@ dependencies = [
  "intern",
  "itertools 0.11.0",
  "lazy_static",
+ "regex",
  "relay-codegen",
  "relay-config",
  "relay-schema",
@@ -2086,6 +2107,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "schemars"
+version = "0.8.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09c024468a378b7e36765cd36702b7a90cc3cba11654f6685c8f233408e89e92"
+dependencies = [
+ "dyn-clone",
+ "indexmap 2.2.6",
+ "schemars_derive",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "schemars_derive"
+version = "0.8.21"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1eee588578aff73f856ab961cd2f79e36bc45d7ded33a7562adba4667aecc0e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "serde_derive_internals",
+ "syn 2.0.48",
+]
+
+[[package]]
 name = "scoped-tls"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2156,6 +2202,17 @@ name = "serde_derive"
 version = "1.0.196"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "33c85360c95e7d137454dc81d9a4ed2b8efd8fbe19cee57357b32b9771fccb67"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.48",
+]
+
+[[package]]
+name = "serde_derive_internals"
+version = "0.29.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "18d26a20a969b9e3fdf2fc2d9f21eda6c40e2de84c9408bb5d3b05d499aae711"
 dependencies = [
  "proc-macro2",
  "quote",

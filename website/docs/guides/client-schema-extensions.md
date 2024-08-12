@@ -30,8 +30,8 @@ The Relay Compiler fully supports client-side extensions of the schema, which al
 ## Extending the server schema
 
 To extend the server schema, create a new `.graphql` file inside your `--src` directory.
-Let's call it `./src/clientSchema.graphql`. 
-This file needs to be in a folder referenced in the `"schemaExtensions"` of your relay config.  
+Let's call it `./src/clientSchema.graphql`.
+This file needs to be in a folder referenced in the `"schemaExtensions"` of your Relay config.
 
 This schema describes what local data can be queried on the client.
 It can even be used to extend an existing server schema.

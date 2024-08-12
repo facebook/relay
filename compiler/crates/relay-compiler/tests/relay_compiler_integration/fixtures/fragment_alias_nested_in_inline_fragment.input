@@ -1,0 +1,35 @@
+//- foo.js
+graphql`
+  query fooQuery {
+     me {
+        ...foo
+     }
+  }`;
+
+graphql`
+  fragment foo on User {
+   ... on User {
+     ...fooInner @alias
+   }
+  }`;
+
+graphql`
+  fragment fooInner on User {
+     name
+  }`;
+
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "featureFlags": {
+      "enable_fragment_aliases": {
+         "kind": "enabled"
+      }
+   }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

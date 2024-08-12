@@ -20,7 +20,7 @@ export function Cat(id: DataID): CatFlowType {
 /**
  * @RelayResolver
  */
-export function name(cat: CatFlowType): string {
+export function name(cat: CatFlowType): ?string {
   return "cat";
 }
 
@@ -28,6 +28,6 @@ export function name(cat: CatFlowType): string {
 /**
  * @RelayResolver is_hungry
  */
-export function hungry(cat: CatFlowType): number {
+export function hungry(cat: CatFlowType): ?number {
   return 5;
 }

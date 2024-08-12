@@ -6,7 +6,6 @@
  */
 
 use common::Diagnostic;
-use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Directive;
@@ -22,9 +21,7 @@ use crate::CatchTo;
 
 #[derive(Clone, Copy)]
 pub struct CatchMetadata {
-    pub to: CatchTo,
-    pub directive_location: Location,
-    pub to_location: Location,
+    pub to: Option<CatchTo>,
 }
 
 #[allow(dead_code)]
@@ -34,19 +31,10 @@ pub trait CatchableField {
     fn catch_metadata(&self) -> Result<Option<CatchMetadata>, Diagnostic> {
         if let Some(catch_directive) = self.directives().named(*CATCH_DIRECTIVE_NAME) {
             let maybe_to_arg = catch_directive.arguments.named(*TO_ARGUMENT);
-            let to_arg = match maybe_to_arg {
-                Some(arg) => WithLocation::new(
-                    catch_directive.name.location,
-                    CatchTo::from(arg.value.item.expect_constant().unwrap_enum()),
-                ),
-                None => WithLocation::new(catch_directive.name.location, CatchTo::Result),
-            };
+            let to_arg = maybe_to_arg
+                .map(|to_arg| CatchTo::from(to_arg.value.item.expect_constant().unwrap_enum()));
 
-            Ok(Some(CatchMetadata {
-                to: to_arg.item,
-                to_location: to_arg.location,
-                directive_location: catch_directive.name.location,
-            }))
+            Ok(Some(CatchMetadata { to: to_arg }))
         } else {
             Ok(None)
         }

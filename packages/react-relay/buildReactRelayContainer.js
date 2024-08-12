@@ -28,15 +28,15 @@ const {getFragment} = require('relay-runtime');
 const {useContext} = React;
 
 type ContainerCreator = (
-  Component: React$ComponentType<any>,
+  Component: React.ComponentType<any>,
   fragments: FragmentMap,
-) => React$ComponentType<any>;
+) => React.ComponentType<any>;
 
 /**
  * Helper to create the Relay HOCs with ref forwarding, setting the displayName
  * and reading the React context.
  */
-function buildReactRelayContainer<TBase: React$ComponentType<any>>(
+function buildReactRelayContainer<TBase: React.ComponentType<any>>(
   ComponentClass: TBase,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
@@ -55,8 +55,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   function ForwardRef(
     props: any,
     ref:
-      | ((null | React$ElementRef<TBase>) => mixed)
-      | {-current: null | React$ElementRef<TBase>, ...},
+      | ((null | React.ElementRef<TBase>) => mixed)
+      | {-current: null | React.ElementRef<TBase>, ...},
   ) {
     // $FlowFixMe[react-rule-hook]
     const context = useContext(ReactRelayContext);

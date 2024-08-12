@@ -173,11 +173,13 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
     });
 
     it('fetches the new variables', () => {
@@ -243,18 +245,20 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
 
       refetch(variables, null, jest.fn());
       expect(render.mock.calls.length).toBe(0);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-            username: 'zuck',
-            profile_picture: {
-              uri: 'zuck2',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Zuck',
+              username: 'zuck',
+              profile_picture: {
+                uri: 'zuck2',
+              },
             },
           },
-        },
+        });
       });
 
       // Passed down owner should contain render vars and not just fetch vars
@@ -325,18 +329,20 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
 
       refetch(fetchVariables, renderVariables, jest.fn());
       expect(render.mock.calls.length).toBe(0);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-            username: 'zuck',
-            profile_picture: {
-              uri: 'zuck4',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Zuck',
+              username: 'zuck',
+              profile_picture: {
+                uri: 'zuck4',
+              },
             },
           },
-        },
+        });
       });
 
       // Passed down owner should contain render vars and not just fetch vars
@@ -384,11 +390,13 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
 
       const fetchVariables = jest.fn();
       refetch(fetchVariables);
@@ -415,18 +423,20 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       // original context while pending refetch
       expect(relayContext.environment).toBe(environment);
 
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
-            username: 'zuck',
-            profile_picture: {
-              uri: 'zuck2',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Zuck',
+              username: 'zuck',
+              profile_picture: {
+                uri: 'zuck2',
+              },
             },
           },
-        },
+        });
       });
 
       // new context after successful refetch

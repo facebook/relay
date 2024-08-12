@@ -9,6 +9,9 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::sync::Arc;
 
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use ::intern::Lookup;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -41,9 +44,6 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use indexmap::IndexSet;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::Lookup;
 use relay_config::DeferStreamInterface;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
@@ -53,11 +53,13 @@ use schema::Type;
 use schema::TypeReference;
 
 use super::validation_message::ValidationMessage;
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
 use crate::no_inline::validate_required_no_inline_directive;
 use crate::util::get_normalization_operation_name;
+use crate::FragmentAliasMetadata;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
@@ -113,6 +115,7 @@ pub struct MatchTransform<'program, 'flag> {
     match_directive_key_argument: Option<StringKey>,
     errors: Vec<Diagnostic>,
     path: Vec<Path>,
+    alias_path: Vec<StringKey>,
     matches_for_path: MatchesForPath,
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
@@ -139,6 +142,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             match_directive_key_argument: None,
             errors: Vec::new(),
             path: Default::default(),
+            alias_path: Default::default(),
             matches_for_path: Default::default(),
             enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
             no_inline_flag: &feature_flags.no_inline,
@@ -159,6 +163,17 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 selection_location,
             )
             .annotate("in @match directive", match_location),
+        )
+    }
+
+    fn push_alias_within_match_selection_err(
+        &mut self,
+        match_location: Location,
+        alias_location: Location,
+    ) {
+        self.errors.push(
+            Diagnostic::error(ValidationMessage::InvalidAliasWithinMatch, alias_location)
+                .annotate("in @match directive", match_location),
         )
     }
 
@@ -321,20 +336,22 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 ));
             }
 
-            // no other directives are allowed
-            if spread.directives.len() != 1
-                && !(spread.directives.len() == 2
-                    && spread
-                        .directives
-                        .named(self.defer_stream_interface.defer_name)
-                        .is_some())
-            {
+            let invalid_directive = spread.directives.iter().find(|directive| {
                 // allow @defer and @module in typegen transforms
+                // allow @alias in the common transform, it will be moved to its
+                // own parent inline fragment in a later transform.
+                directive.name.item != MATCH_CONSTANTS.module_directive_name
+                    && directive.name.item != self.defer_stream_interface.defer_name
+                    && directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME
+            });
+
+            // no other directives are allowed
+            if let Some(invalid_directive) = invalid_directive {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithAdditionalDirectives {
                         spread_name: spread.fragment.item,
                     },
-                    spread.directives[1].name.location,
+                    invalid_directive.name.location,
                 ));
             }
 
@@ -363,9 +380,20 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             let parent_name = self.path.last();
             // self.match_directive_key_argument is the value passed to @match(key: "...") that we
             // most recently encountered while traversing the operation, or the document name
-            let match_directive_key_argument = self
+            let mut match_directive_key_argument = self
                 .match_directive_key_argument
                 .unwrap_or_else(|| self.document_name.into());
+
+            if !self.alias_path.is_empty() {
+                let alias_path_str = self
+                    .alias_path
+                    .iter()
+                    .map(|alias| alias.lookup())
+                    .collect::<Vec<&str>>()
+                    .join("_");
+                match_directive_key_argument =
+                    format!("{}_{}", match_directive_key_argument, alias_path_str).intern();
+            }
 
             // If this is the first time we are encountering @module at this path, also ensure
             // that we have not previously encountered another @module associated with the same
@@ -618,9 +646,13 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let field_definition = self.program.schema.field(field.definition.item);
         let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
         if let Some(arg) = key_arg {
-            let str = arg.value.item.expect_constant().unwrap_string();
+            let maybe_valid_str = arg
+                .value
+                .item
+                .get_string_literal()
+                .filter(|str| str.lookup().starts_with(self.document_name.lookup()));
 
-            if str.lookup().starts_with(self.document_name.lookup()) {
+            if let Some(str) = maybe_valid_str {
                 self.match_directive_key_argument = Some(str);
             } else {
                 return Err(Diagnostic::error(
@@ -648,6 +680,13 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             .named(MATCH_CONSTANTS.supported_arg);
         match supported_arg_definition {
             None => {
+                // `@match` can be used to add the `supported` argument as a field argument,
+                // but it can also be used to supply a `key` argument for places
+                // where there are multiple selections with `@module` in the same document.
+                //
+                // If the directive does not have a `key` argument, and is not on a field with a
+                // `supported` argument, then it is is not doing anything and is
+                // therefore an error.
                 if key_arg.is_none() {
                     return Err(Diagnostic::error(
                         ValidationMessage::InvalidMatchWithNoSupportedArgument,
@@ -716,16 +755,17 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let mut seen_types = IndexSet::with_hasher(FnvBuildHasher::default());
         for selection in &field.selections {
             match selection {
-                Selection::FragmentSpread(field) => {
-                    let has_directive_with_module = field.directives.iter().any(|directive| {
-                        directive.name.item == MATCH_CONSTANTS.module_directive_name
-                    });
+                Selection::FragmentSpread(spread) => {
+                    let has_directive_with_module = spread
+                        .directives
+                        .named(MATCH_CONSTANTS.module_directive_name)
+                        .is_some();
                     if has_directive_with_module {
-                        let fragment = self.program.fragment(field.fragment.item).unwrap();
+                        let fragment = self.program.fragment(spread.fragment.item).unwrap();
                         seen_types.insert(fragment.type_condition);
                     } else {
                         self.push_fragment_spread_with_module_selection_err(
-                            field.fragment.location,
+                            spread.fragment.location,
                             match_directive.name.location,
                         );
                     }
@@ -743,11 +783,26 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                         field.definition.location,
                         match_directive.name.location,
                     ),
-                // TODO: no location on InlineFragment and Condition yet
-                _ => self.push_fragment_spread_with_module_selection_err(
-                    field.definition.location,
-                    match_directive.name.location,
-                ),
+                Selection::InlineFragment(inline_fragment) => {
+                    if let Some(alias_metadata) =
+                        FragmentAliasMetadata::find(&inline_fragment.directives)
+                    {
+                        self.push_alias_within_match_selection_err(
+                            match_directive.name.location,
+                            alias_metadata.alias.location,
+                        )
+                    } else {
+                        self.push_fragment_spread_with_module_selection_err(
+                            inline_fragment.spread_location,
+                            match_directive.name.location,
+                        )
+                    }
+                }
+                Selection::Condition(condition) => self
+                    .push_fragment_spread_with_module_selection_err(
+                        condition.location,
+                        match_directive.name.location,
+                    ),
             }
         }
         if seen_types.is_empty() {
@@ -841,7 +896,15 @@ impl Transformer for MatchTransform<'_, '_> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        if let Some(type_) = fragment.type_condition {
+        let maybe_alias_metadata = FragmentAliasMetadata::find(&fragment.directives);
+        if let Some(alias_metadata) = maybe_alias_metadata {
+            self.alias_path.push(alias_metadata.alias.item);
+            self.path.push(Path {
+                location: alias_metadata.alias.location,
+                item: alias_metadata.alias.item,
+            });
+        }
+        let transformed = if let Some(type_) = fragment.type_condition {
             let previous_parent_type = self.parent_type;
             self.parent_type = type_;
             let result = self.default_transform_inline_fragment(fragment);
@@ -849,7 +912,13 @@ impl Transformer for MatchTransform<'_, '_> {
             result
         } else {
             self.default_transform_inline_fragment(fragment)
+        };
+        if maybe_alias_metadata.is_some() {
+            self.alias_path.pop();
+            self.path.pop();
         }
+
+        transformed
     }
 
     // Validate `js` field

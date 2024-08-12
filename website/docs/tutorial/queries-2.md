@@ -16,7 +16,7 @@ In this section we’ll add a hovercard to `PosterByline` so that you can see mo
 <details>
 <summary>Deep dive: When to use a secondary query</summary>
 
-We've mentioned before that Relay is designed to help you fetch all of your data requirements for an entire screen up-front. But we can generalize this and say that it's a *user interaction* that should have at most one query. Navigating to another screen is just one common type of user intecation.
+We've mentioned before that Relay is designed to help you fetch all of your data requirements for an entire screen up-front. But we can generalize this and say that it's a *user interaction* that should have at most one query. Navigating to another screen is just one common type of user interaction.
 
 Within a screen, some interactions may disclose additional data from what was shown initially. If an interaction is performed relatively rarely, but needs a significant amount of additional data, it can be smart to fetch that additional data in a second query, performed when the interaction happens, rather than up-front when the screen is first loaded. This makes that initial load faster and less expensive.
 
@@ -39,7 +39,7 @@ export default function PosterByline({ poster }: Props): React.ReactElement {
   return (
     <div className="byline">
       <Image image={data.profilePicture} width={60} height={60} className="byline__image" />
-      <div className="byline__name" ref={hoverRef}>{data.name}</div>
+      <div className="byline__name">{data.name}</div>
     </div>
   );
 }
@@ -212,7 +212,7 @@ At this point, the hovercard should show the appropriate information for each po
 
 If you use the Network inspector in your browser, you should be able to find that the variable value is being passed alongside the query:
 
-![Network request inspcetor showing variable being set to the server](/img/docs/tutorial/network-request-with-variables.png)
+![Network request inspector showing variable being sent to the server](/img/docs/tutorial/network-request-with-variables.png)
 
 You may also notice that this request is made only the first time you hover over a particular poster. Relay caches the results of the query and re-uses them after that, until eventually removing the cached data if it hasn’t been used recently.
 
@@ -234,7 +234,7 @@ You might be wondering why GraphQL even has the concept of variables, instead of
 
 ## Preloaded Queries
 
-This example app is very simple, so performance isn't an issue. (In fact, the server is artifically slowed down in order to make loading states perceptible.) However, one of Relay's main concerns is to make performance as fast as possible in real apps.
+This example app is very simple, so performance isn't an issue. (In fact, the server is artificially slowed down in order to make loading states perceptible.) However, one of Relay's main concerns is to make performance as fast as possible in real apps.
 
 Right now, the hovercard uses the `useLazyLoadQuery` hook, which fetches the query when the component is rendered. That means the timeline looks something like this:
 
@@ -268,7 +268,7 @@ export default function PosterDetailsHovercardContents({
     PosterDetailsHovercardContentsQuery,
     {posterID},
   );
-  return <PosterDetailsHovercardContentsBody data={data.node} />;
+  return <PosterDetailsHovercardContentsBody poster={data.node} />;
 }
 ```
 

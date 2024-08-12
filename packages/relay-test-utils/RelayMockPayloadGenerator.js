@@ -378,6 +378,15 @@ class RelayMockPayloadGenerator {
         case INLINE_FRAGMENT: {
           const {abstractKey} = selection;
           if (abstractKey != null) {
+            // Allow mocking of this inline fragment to be skipped by including
+            // a field like "__isNamed: false" in the mock data (e.g. to write
+            // tests for queries that use @alias).
+            const shouldMockFragment =
+              defaultValues?.[abstractKey] === undefined ||
+              !!defaultValues?.[abstractKey];
+            if (!shouldMockFragment) {
+              break;
+            }
             if (mockData != null) {
               mockData[abstractKey] = true;
             }

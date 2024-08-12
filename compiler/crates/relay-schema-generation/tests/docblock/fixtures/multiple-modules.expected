@@ -24,7 +24,7 @@ import type CatFlowType from 'Cat';
 /**
  * @RelayResolver
  */
-export function name(cat: CatFlowType): string {
+export function name(cat: CatFlowType): ?string {
   return "cat";
 }
 
@@ -33,7 +33,7 @@ export function name(cat: CatFlowType): string {
 /**
  * @RelayResolver is_hungry
  */
-export function hungry(cat: CatFlowType): number {
+export function hungry(cat: CatFlowType): ?number {
   return 5;
 }
 
@@ -55,17 +55,17 @@ import type DogFlowType from 'Dog.flow';
 /**
  * @RelayResolver
  */
-export function name(dog: DogFlowType): string {
+export function name(dog: DogFlowType): ?string {
   return "dog";
 }
 ==================================== OUTPUT ===================================
 
 
-✖︎ Can't find flow type definition for `CatFlowType`. Expected the type to be imported from another module, or exported from the current module
+✖︎ Can't find Flow type definition for `CatFlowType`. Expected the type to be imported from another module, or exported from the current module
 
   Cat-hungry.js:5:29
     4 │  */
-    5 │ export function hungry(cat: CatFlowType): number {
+    5 │ export function hungry(cat: CatFlowType): ?number {
       │                             ^^^^^^^^^^^
     6 │   return 5;
 
@@ -74,7 +74,7 @@ export function name(dog: DogFlowType): string {
 
   Dog-name.js:7:27
     6 │  */
-    7 │ export function name(dog: DogFlowType): string {
+    7 │ export function name(dog: DogFlowType): ?string {
       │                           ^^^^^^^^^^^
     8 │   return "dog";
 

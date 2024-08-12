@@ -63,7 +63,7 @@ const ContactsListFragment = graphql`
 `;
 ```
 
-As it happens, the `contacts` field accepts a `search` argument that filters the list. You can try it out by changing `contacts` in this fragment to `contacts(search: "S")`. If you refresh the page, you should see only those contacts that have the letter S in them.
+As it happens, the `contacts` field accepts a `search` argument that filters the list. You can try it out by changing `contacts` in this fragment to `contacts(search: "S")`. If you run `npm run relay` and refresh the page, you should see only those contacts that have the letter S in them.
 
 Our goal, then, will be to hook up a search input so that, when the input changes, we refetch *just this fragment* with a new value for that `search` argument.
 

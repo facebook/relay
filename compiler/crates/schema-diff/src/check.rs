@@ -142,11 +142,14 @@ impl SchemaChange {
                             needs_incremental_build
                                 .insert(IncrementalBuildSchemaChange::Enum(name));
                         }
+                        DefinitionChange::UnionChanged { name, .. }
+                        | DefinitionChange::UnionRemoved(name) => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::Union(name));
+                        }
 
                         // unsafe changes
-                        DefinitionChange::UnionChanged { .. }
-                        | DefinitionChange::UnionRemoved(_)
-                        | DefinitionChange::ScalarRemoved(_)
+                        DefinitionChange::ScalarRemoved(_)
                         | DefinitionChange::InputObjectChanged { .. }
                         | DefinitionChange::InputObjectRemoved(_)
                         | DefinitionChange::InterfaceRemoved(_)

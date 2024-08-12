@@ -26,7 +26,6 @@ import type {Variables} from '../util/RelayRuntimeTypes';
 const {getArgumentValues} = require('../store/RelayStoreUtils');
 const {
   ACTOR_CHANGE,
-  ALIASED_FRAGMENT_SPREAD,
   ALIASED_INLINE_FRAGMENT_SPREAD,
   CATCH_FIELD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
@@ -196,7 +195,6 @@ function updateProxyFromSelections<TData>(
         break;
       case CONDITION:
       case ACTOR_CHANGE:
-      case ALIASED_FRAGMENT_SPREAD:
       case INLINE_DATA_FRAGMENT_SPREAD:
       case ALIASED_INLINE_FRAGMENT_SPREAD:
       case CLIENT_EDGE_TO_CLIENT_OBJECT:

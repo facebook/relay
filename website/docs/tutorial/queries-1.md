@@ -69,21 +69,21 @@ const NewsfeedQuery = graphql`
 
 Let’s break this down:
 
-* To embed GraphQL within JavaScript, we put a string literal <span class="color1">marked with the <code>graphql``</code> tag</span>. This tag allows the Relay compiler to find and compile the GraphQL within a JavaScript codebase.
-* Our GraphQL string consists of a <span class="color2">query declaration</span> with the keyword `query` and then a query name. Note that the query name **must** begin with the module name (in this case <code>Newsfeed</code>).
+* To embed GraphQL within JavaScript, we put a string literal <span className="color1">marked with the <code>graphql``</code> tag</span>. This tag allows the Relay compiler to find and compile the GraphQL within a JavaScript codebase.
+* Our GraphQL string consists of a <span className="color2">query declaration</span> with the keyword `query` and then a query name. Note that the query name **must** begin with the module name (in this case <code>Newsfeed</code>).
 * Inside the query declaration are *fields*, which specify what information to query for*:*
-    * Some fields are *<span class="color3">scalar fields</span>* that retrieve a string, number, or other unit of information.
-    * Other fields are *<span class="color4">edges</span>* that let us traverse from one node in the graph to another. When a field is an edge, it’s followed by another block `{ }` containing fields for the node at the other end of the edge. Here, the `poster` field is an edge that goes from a Story to a Person who posted it. Once we’ve traversed to the Person, we can include fields about the Person such as their `name`.
+    * Some fields are *<span className="color3">scalar fields</span>* that retrieve a string, number, or other unit of information.
+    * Other fields are *<span className="color4">edges</span>* that let us traverse from one node in the graph to another. When a field is an edge, it’s followed by another block `{ }` containing fields for the node at the other end of the edge. Here, the `poster` field is an edge that goes from a Story to a Person who posted it. Once we’ve traversed to the Person, we can include fields about the Person such as their `name`.
 
 This illustrates the part of the graph that this query is asking for:
 
 ![Parts of the GraphQL query](/img/docs/tutorial/query-breakdown.png)
 
 Now that we’ve defined the query, we need to do two things.
-1. Run relay compiler so that it knows about the new Graphql query. [npm run relay.]
+1. Run the Relay compiler so that it knows about the new Graphql query. [npm run relay.]
 2. Modify our React component to fetch it and to use the data returned by the server.
 
-If you open package.json you will find the script `relay` is hooked up to run the relay-compiler. This is what npm run relay does. Once the compiler successfully updates/generated the new compiled query you will be able to find it in the __generated__ folder under src/components/ as NewsfeedQuery.graphql.ts. This project comes with precomputed fragments, so unless you do this step, you will not get the desired results.
+If you open package.json you will find the script `relay` is hooked up to run the Relay compiler. This is what `npm run relay` does. Once the compiler successfully updates/generated the new compiled query you will be able to find it in the __generated__ folder under src/components/ as NewsfeedQuery.graphql.ts. This project comes with precomputed fragments, so unless you do this step, you will not get the desired results.
 
 Next, turn back to the `Newsfeed` component and start by deleting the placeholder data. Then, replace it with this:
 
@@ -139,7 +139,7 @@ At this point, you should see a story fetched from the server:
 ![Screenshot](/img/docs/tutorial/queries-basic-screenshot.png)
 
 :::note
-The server's responses are artifically slowed down to make loading states perceptible, which will come in handy when we add more interactivity to the app. If you want to remove the delay, open `server/index.js` and remove the call to `sleep()`.
+The server's responses are artificially slowed down to make loading states perceptible, which will come in handy when we add more interactivity to the app. If you want to remove the delay, open `server/index.js` and remove the call to `sleep()`.
 :::
 
 The `useLazyLoadQuery` hook fetches the data when the component is first rendered. Relay also has APIs for pre-fetching the data before your app has even loaded — these are covered later. In any case, Relay uses Suspense to show a loading indicator until the data is available.

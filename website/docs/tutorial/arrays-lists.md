@@ -42,7 +42,7 @@ To show multiple stories on our newsfeed, we just need to modify `Newsfeed.tsx` 
 
 ### Step 1 — Select a list in the fragment
 
-Open `Newsfeed.tsx` and find `NewsfeedQuery`. Replace `topStory` with `topStories`.
+Open `Newsfeed.tsx` and find `NewsfeedQuery`. Replace `topStory` with `topStories`, and run `npm run relay`.
 
 ```
 const NewsfeedQuery = graphql`

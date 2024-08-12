@@ -1,0 +1,313 @@
+==================================== INPUT ====================================
+query multipleModuleWithAliasQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      nameRenderer {
+        # Same fragment with different modules on different aliases
+        ...multipleModuleWithAliasFragment_propName
+          @module(name: "FooMarkdownUserNameRenderer.react")
+          @alias(as: "a")
+        ...multipleModuleWithAliasFragment_propName
+          @module(name: "BarMarkdownUserNameRenderer.react")
+          @alias(as: "b")
+      }
+    }
+  }
+}
+
+fragment multipleModuleWithAliasFragment_propName on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "multipleModuleWithAliasFragment_propName$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "multipleModuleWithAliasQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "fragment": {
+                      "kind": "InlineFragment",
+                      "selections": [
+                        {
+                          "args": null,
+                          "documentName": "multipleModuleWithAliasQuery_a",
+                          "fragmentName": "multipleModuleWithAliasFragment_propName",
+                          "fragmentPropName": "propName",
+                          "kind": "ModuleImport"
+                        }
+                      ],
+                      "type": "MarkdownUserNameRenderer",
+                      "abstractKey": null
+                    },
+                    "kind": "AliasedInlineFragmentSpread",
+                    "name": "a"
+                  },
+                  {
+                    "fragment": {
+                      "kind": "InlineFragment",
+                      "selections": [
+                        {
+                          "args": null,
+                          "documentName": "multipleModuleWithAliasQuery_b",
+                          "fragmentName": "multipleModuleWithAliasFragment_propName",
+                          "fragmentPropName": "propName",
+                          "kind": "ModuleImport"
+                        }
+                      ],
+                      "type": "MarkdownUserNameRenderer",
+                      "abstractKey": null
+                    },
+                    "kind": "AliasedInlineFragmentSpread",
+                    "name": "b"
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "multipleModuleWithAliasQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "multipleModuleWithAliasQuery_a",
+                        "fragmentName": "multipleModuleWithAliasFragment_propName",
+                        "fragmentPropName": "propName",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "11373bb7119bf6182de28b5246bb4f8b",
+    "id": null,
+    "metadata": {},
+    "name": "multipleModuleWithAliasQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query multipleModuleWithAliasQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ... on User {
+      nameRenderer {
+        __typename
+        ... on MarkdownUserNameRenderer {
+          ...multipleModuleWithAliasFragment_propName
+          __module_operation_multipleModuleWithAliasQuery_a: js(module: "multipleModuleWithAliasFragment_propName$normalization.graphql", id: "multipleModuleWithAliasQuery.node.nameRenderer.a", branch: "MarkdownUserNameRenderer")
+          __module_component_multipleModuleWithAliasQuery_a: js(module: "FooMarkdownUserNameRenderer.react", id: "multipleModuleWithAliasQuery.node.nameRenderer.a", branch: "MarkdownUserNameRenderer")
+          __module_operation_multipleModuleWithAliasQuery_b: js(module: "multipleModuleWithAliasFragment_propName$normalization.graphql", id: "multipleModuleWithAliasQuery.node.nameRenderer.b", branch: "MarkdownUserNameRenderer")
+          __module_component_multipleModuleWithAliasQuery_b: js(module: "BarMarkdownUserNameRenderer.react", id: "multipleModuleWithAliasQuery.node.nameRenderer.b", branch: "MarkdownUserNameRenderer")
+        }
+      }
+    }
+    id
+  }
+}
+
+fragment multipleModuleWithAliasFragment_propName on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "multipleModuleWithAliasFragment_propName",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}

@@ -72,6 +72,7 @@ lazy_static! {
     static ref TYPE_STRING: ScalarName = ScalarName("String".intern());
     static ref VARIABLES: StringKey = "variables".intern();
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
+    static ref RESULT_TYPE_NAME: StringKey = "Result".intern();
     static ref LIVE_STATE_TYPE: StringKey = "LiveState".intern();
 }
 

@@ -8,6 +8,9 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
+use std::fmt;
+use std::path::Path;
+
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::Diagnostic;
@@ -18,40 +21,76 @@ use hermes_estree::ImportDeclarationSpecifier;
 use hermes_estree::Visitor;
 use hermes_estree::_Literal;
 use rustc_hash::FxHashMap;
-use rustc_hash::FxHashSet;
+use serde::Serialize;
 
 use crate::to_location;
-use crate::JSImportType;
-use crate::ModuleResolutionKey;
 use crate::SchemaGenerationError;
-pub type Imports = FxHashMap<StringKey, (ModuleResolutionKey, Location)>;
+pub type JSModules = FxHashMap<StringKey, ModuleResolutionKey>;
 pub struct ImportExportVisitor {
-    imports: Imports,
-    exports: FxHashSet<StringKey>,
+    imports: JSModules,
+    exports: JSModules,
     errors: Vec<Diagnostic>,
     location: SourceLocationKey,
+    current_module_name: StringKey,
+}
+pub struct ModuleResolution {
+    imports: JSModules,
+    exports: JSModules,
+}
+
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash, Copy, Serialize)]
+pub enum JSImportType {
+    Default,
+    Named(StringKey),
+    // Note that namespace imports cannot be used for resolver types. Anything namespace
+    // imported should be a "Named" import instead
+    Namespace(Location),
+}
+
+impl fmt::Display for JSImportType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            JSImportType::Default => write!(f, "default"),
+            JSImportType::Namespace(_) => write!(f, "namespace"),
+            JSImportType::Named(key) => write!(f, "{}", key),
+        }
+    }
+}
+
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Hash)]
+pub struct ModuleResolutionKey {
+    pub module_name: StringKey,
+    pub import_type: JSImportType,
 }
 
 impl ImportExportVisitor {
-    pub fn new(location: SourceLocationKey) -> Self {
+    pub fn new(source_module_path: &str) -> Self {
         Self {
-            location,
+            location: SourceLocationKey::standalone(source_module_path),
             imports: Default::default(),
             exports: Default::default(),
             errors: vec![],
+            current_module_name: Path::new(source_module_path)
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .intern(),
         }
     }
 
-    /// Returns imports: a map of local name => module key, and exports: names
-    pub fn get_all(
+    /// Returns a ModuleResolution that can be used to lookup module imports/exports
+    pub fn get_module_resolution(
         mut self,
         ast: &'_ hermes_estree::Program,
-    ) -> DiagnosticsResult<(Imports, FxHashSet<StringKey>)> {
-        self.visit_program(&ast);
+    ) -> DiagnosticsResult<ModuleResolution> {
+        self.visit_program(ast);
         if !self.errors.is_empty() {
             Err(self.errors)
         } else {
-            Ok((self.imports, self.exports))
+            Ok(ModuleResolution {
+                imports: self.imports,
+                exports: self.exports,
+            })
         }
     }
 }
@@ -74,33 +113,27 @@ impl Visitor<'_> for ImportExportVisitor {
             .extend(ast.specifiers.iter().map(|specifier| match specifier {
                 ImportDeclarationSpecifier::ImportDefaultSpecifier(node) => (
                     (&node.local.name).intern(),
-                    (
-                        ModuleResolutionKey {
-                            module_name: source,
-                            import_type: JSImportType::Default,
-                        },
-                        to_location(self.location, &node.local),
-                    ),
+                    ModuleResolutionKey {
+                        module_name: source,
+                        import_type: JSImportType::Default,
+                    },
                 ),
                 ImportDeclarationSpecifier::ImportSpecifier(node) => (
                     (&node.local.name).intern(),
-                    (
-                        ModuleResolutionKey {
-                            module_name: source,
-                            import_type: JSImportType::Named((&node.imported.name).intern()),
-                        },
-                        to_location(self.location, &node.local),
-                    ),
+                    ModuleResolutionKey {
+                        module_name: source,
+                        import_type: JSImportType::Named((&node.imported.name).intern()),
+                    },
                 ),
                 ImportDeclarationSpecifier::ImportNamespaceSpecifier(node) => (
                     (&node.local.name).intern(),
-                    (
-                        ModuleResolutionKey {
-                            module_name: source,
-                            import_type: JSImportType::Namespace,
-                        },
-                        to_location(self.location, &node.local),
-                    ),
+                    ModuleResolutionKey {
+                        module_name: source,
+                        import_type: JSImportType::Namespace(to_location(
+                            self.location,
+                            &node.local,
+                        )),
+                    },
                 ),
             }));
     }
@@ -108,7 +141,19 @@ impl Visitor<'_> for ImportExportVisitor {
     fn visit_export_named_declaration(&mut self, ast: &'_ hermes_estree::ExportNamedDeclaration) {
         if let Some(hermes_estree::Declaration::TypeAlias(node)) = &ast.declaration {
             let name = (&node.id.name).intern();
-            self.exports.insert(name);
+            self.exports.insert(
+                name,
+                ModuleResolutionKey {
+                    module_name: self.current_module_name,
+                    import_type: JSImportType::Named(name),
+                },
+            );
         }
+    }
+}
+
+impl ModuleResolution {
+    pub fn get(&self, name: StringKey) -> Option<&ModuleResolutionKey> {
+        self.imports.get(&name).or_else(|| self.exports.get(&name))
     }
 }

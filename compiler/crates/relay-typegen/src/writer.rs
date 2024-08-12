@@ -24,6 +24,7 @@ use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_TYPENAME;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[allow(clippy::upper_case_acronyms)]
 pub enum AST {
     Union(SortedASTList),
     ReadOnlyArray(Box<AST>),
@@ -52,7 +53,7 @@ pub enum AST {
     AssertFunctionType(FunctionTypeAssertion),
     GenericType {
         outer: StringKey,
-        inner: Box<AST>,
+        inner: Vec<AST>,
     },
     PropertyType {
         type_: Box<AST>,

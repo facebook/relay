@@ -8,7 +8,7 @@
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-use crate::JSImportType;
+use crate::find_resolver_imports::JSImportType;
 
 #[derive(
     Clone,
@@ -23,7 +23,7 @@ use crate::JSImportType;
 )]
 pub enum SchemaGenerationError {
     #[error(
-        "Can't find flow type definition for `{name}`. Expected the type to be imported from another module, or exported from the current module"
+        "Can't find Flow type definition for `{name}`. Expected the type to be imported from another module, or exported from the current module"
     )]
     ExpectedFlowDefinitionForType { name: StringKey },
     #[error("Expected import source to be a string literal")]
@@ -55,14 +55,12 @@ pub enum SchemaGenerationError {
         module_name: StringKey,
     },
     #[error("Not yet implemented")]
-    TODO,
+    Todo,
 
     #[error("Expected the function name to exist")]
     MissingFunctionName,
     #[error("Expected the function return type to exist")]
     MissingReturnType,
-    #[error("Expected to have at least one function parameter")]
-    MissingFunctionParam,
     #[error("Expected Relay Resolver function param to include type annotation")]
     MissingParamType,
     #[error("Cannot use a LiveState that is also optional")]
@@ -81,4 +79,23 @@ pub enum SchemaGenerationError {
         "A nullable strong type is provided, please make the type non-nullable. The type can't be nullable in the runtime."
     )]
     UnexpectedNullableStrongType,
+    #[error("Unable to find module resolution due to previous errors for source file: {path}.")]
+    UnexpectedFailedToFindModuleResolution { path: &'static str },
+
+    #[error(
+        "Returning a strong object directly in a resolver is not allowed. Please return the `id` of the strong object, and use `IdOf<'{typename}'>` as the Flow return type."
+    )]
+    StrongReturnTypeNotAllowed { typename: StringKey },
+    #[error(
+        "Multiple custom scalar types found to map to `{flow_type}`. This is an error when using client side resolvers as the Flow type must map to a single GraphQL custom scalar."
+    )]
+    DuplicateCustomScalars { flow_type: StringKey },
+
+    #[error(
+        "Duplicate GraphQL type definitions found for flow type `{import_type}` from `{module_name}`, please make sure each GraphQL type maps to a unique flow type."
+    )]
+    DuplicateTypeDefinitions {
+        module_name: StringKey,
+        import_type: JSImportType,
+    },
 }

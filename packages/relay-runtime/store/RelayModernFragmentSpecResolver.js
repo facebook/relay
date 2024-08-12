@@ -456,6 +456,7 @@ class SelectorListResolver {
     const {selectors} = selector;
     while (this._resolvers.length > selectors.length) {
       const resolver = this._resolvers.pop();
+      // $FlowFixMe[incompatible-use]
       resolver.dispose();
     }
     for (let ii = 0; ii < selectors.length; ii++) {

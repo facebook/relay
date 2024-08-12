@@ -36,9 +36,17 @@ const environment = new Environment({
 // ... create your Relay context with your environment
 ```
 
+<FbInternalOnly>
+
+## Enable new Flow based RelayResolver syntax
+To opt-in the new syntax in a file, add `//relay:enable-new-relay-resolver` to the file
+
+To convert files to the new syntax, run codemode: `flow-runner codemod relay/migrateResolver <path>`. The codemod doesn't support all cases, so you might need to modify some files manually after it runs.
+</FbInternalOnly>
+
 ## Compiler
 
-You must enable the `"enable_relay_resolver_transform"` feature flag in your relay compiler config:
+You must enable the `"enable_relay_resolver_transform"` feature flag in your Relay compiler config:
 
 
 ```json title="relay.config.json"

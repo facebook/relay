@@ -14,7 +14,7 @@
 import type {RequestParameters} from './RelayConcreteNode';
 import type {Variables} from './RelayRuntimeTypes';
 
-const stableCopy = require('./stableCopy');
+const {stableCopy} = require('./stableCopy');
 const invariant = require('invariant');
 
 export type RequestIdentifier = string;

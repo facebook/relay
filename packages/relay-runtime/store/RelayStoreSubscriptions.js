@@ -219,6 +219,10 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       return snapshot.selector.owner;
     }
   }
+
+  size(): number {
+    return this._subscriptions.size;
+  }
 }
 
 module.exports = RelayStoreSubscriptions;

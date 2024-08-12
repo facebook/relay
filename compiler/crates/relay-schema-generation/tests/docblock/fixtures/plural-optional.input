@@ -30,6 +30,6 @@ export function name(cat: CatFlowType): ?string {
 /**
  * @RelayResolver
  */
-export function names(cat: CatFlowType): Array<?string> {
+export function names(cat: CatFlowType): ?Array<?string> {
   return 5;
 }

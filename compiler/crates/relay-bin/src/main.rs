@@ -99,10 +99,6 @@ struct CompileCommand {
     /// writing to disk
     #[clap(long)]
     validate: bool,
-
-    /// Skip the check for presence of source control `git status` etc.
-    #[clap(long)]
-    no_source_control: bool
 }
 
 #[derive(Parser)]
@@ -282,7 +278,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         config.artifact_writer = Box::<ArtifactValidationWriter>::default();
     }
 
-    if !command.no_source_control {
+    if config.no_source_control == false {
         config.artifact_writer = Box::new(ArtifactFileWriter::new(
             source_control_for_root(&config.root_dir),
             config.root_dir.clone()

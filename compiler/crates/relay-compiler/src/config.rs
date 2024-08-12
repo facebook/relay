@@ -70,7 +70,6 @@ use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 use crate::GraphQLAsts;
@@ -193,6 +192,9 @@ pub struct Config {
 
     /// A function to determine if full file source should be extracted instead of docblock
     pub should_extract_full_source: Option<ShouldExtractFullSource>,
+
+    /// Opt out of source control checks/integration.
+    pub no_source_control: bool,
 }
 
 pub enum FileSourceKind {
@@ -462,6 +464,7 @@ impl Config {
             has_schema_change_incremental_build: false,
             custom_extract_relay_resolvers: None,
             should_extract_full_source: None,
+            no_source_control: config_file.no_source_control.unwrap_or(false),
         };
 
         let mut validation_errors = Vec::new();
@@ -708,6 +711,9 @@ pub struct MultiProjectConfigFile {
 
     /// Then name of the global __DEV__ variable to use in generated artifacts
     is_dev_variable_name: Option<String>,
+
+    /// Opt out of source control checks/integration.
+    no_source_control: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
@@ -773,6 +779,10 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+
+    /// Opt out of source control checks/integration.
+    #[serde(default)]
+    pub no_source_control: Option<bool>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -795,6 +805,7 @@ impl Default for SingleProjectConfigFile {
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
+            no_source_control: Some(false)
         }
     }
 }
@@ -905,6 +916,7 @@ impl SingleProjectConfigFile {
             excludes: self.excludes,
             is_dev_variable_name: self.is_dev_variable_name,
             codegen_command: self.codegen_command,
+            no_source_control: self.no_source_control,
             ..Default::default()
         })
     }

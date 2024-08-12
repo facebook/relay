@@ -102,7 +102,7 @@ jobs:
       - name: "Check disk usage (including . files)"
         run: du -sh .[^.]* *
       - name: "Fetch cargo dependencies"
-        run: cargo fetch
+        run: cargo fetch --manifest-path=compiler/Cargo.toml
       - name: "Check free disk space"
         run: df -h
       - name: "Run tests"

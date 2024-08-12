@@ -16,9 +16,12 @@
  *
  * Returns a weak ClientObject or null depending upon the argument.
  */
-function client_object(args: {
-  return_null: boolean,
-}): {description: string} | null {
+function client_object(
+  _: void,
+  args: {
+    return_null: boolean,
+  },
+): {description: string} | null {
   if (args.return_null) {
     return null;
   }

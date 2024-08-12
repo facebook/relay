@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<30aff183aa754716b7491388977376dd>>
+ * @generated SignedSource<<67c8ce203887f828d28955943e1bc08a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserReadsClientEdgeResolver$key } from "./../resolvers/__generated__/UserReadsClientEdgeResolver.graphql";
 import {reads_client_edge as userReadsClientEdgeResolverType} from "../resolvers/UserReadsClientEdgeResolver.js";
+import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userReadsClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userReadsClientEdgeResolverType: (
   rootKey: UserReadsClientEdgeResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {||};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {|

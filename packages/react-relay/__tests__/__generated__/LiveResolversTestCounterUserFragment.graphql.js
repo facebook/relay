@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a6450066d750625871ce087e05326bd>>
+ * @generated SignedSource<<d679bad11180920f62d84cac087f990b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // Type assertion validating that `userCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCounterSuspendsWhenOddResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type LiveResolversTestCounterUserFragment$fragmentType: FragmentType;

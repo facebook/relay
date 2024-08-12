@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<561812d844d668bece7b9e1cd3a83dca>>
+ * @generated SignedSource<<671e6e899b92d44d1134424713f0a182>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ import type { TestLiveResolverContextType } from "../../../../mutations/__tests_
 // Type assertion validating that `queryCounterThrowsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterThrowsWhenOddResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 export type LiveResolversTestHandlesErrorOnUpdateQuery$variables = {||};

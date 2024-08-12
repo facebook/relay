@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ad0e42c11ae67dc4e54f727018a79633>>
+ * @generated SignedSource<<4e49bc6ae169b5e71a1a51fa54466aee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // Type assertion validating that `queryTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodosResolverType: (
-  _: void,
+  key: void,
   args: {|
     first: ?number,
     last: ?number,

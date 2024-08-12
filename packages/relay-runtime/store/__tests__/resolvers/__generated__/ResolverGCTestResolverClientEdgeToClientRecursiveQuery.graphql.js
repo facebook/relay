@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc01b78edf091a7e75b03c3eb47e5460>>
+ * @generated SignedSource<<21be23ef0fafa55cdc5187975acc7868>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,16 +23,21 @@ import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameRes
 import type { AstrologicalSignOppositeResolver$key } from "./AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -41,6 +46,8 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstr
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?{|
   +id: DataID,
 |});

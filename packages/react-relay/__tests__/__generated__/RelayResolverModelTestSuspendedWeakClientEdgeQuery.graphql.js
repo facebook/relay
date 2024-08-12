@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da923ea957fd4f068e325ac21f56a7ba>>
+ * @generated SignedSource<<d6a7bcbea6f453b89d50ebb8f32742cb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,12 +22,15 @@ import type { LiveState, DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType: (
+  key: void,
   args: {|
     todoID: string,
   |},
+  context: TestLiveResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -39,14 +42,14 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
   args: {|
     prefix: string,
   |},
+  context: TestLiveResolverContextType,
 ) => ?string);
 import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
-import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `todoModelFancyDescriptionSuspendsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionSuspendsResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";

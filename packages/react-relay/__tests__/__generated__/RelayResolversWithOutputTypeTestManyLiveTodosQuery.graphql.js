@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bc030664d4f895fc0d37449b83a35f2a>>
+ * @generated SignedSource<<a54c199f36581249897cf8003a8b1966>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,8 +25,8 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // Type assertion validating that `queryManyLiveTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryManyLiveTodosResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?$ReadOnlyArray<?Query__many_live_todos$normalization>>);
 import type { Query__many_live_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_live_todos$normalization.graphql";

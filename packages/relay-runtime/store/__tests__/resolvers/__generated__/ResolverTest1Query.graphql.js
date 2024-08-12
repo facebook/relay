@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<369388c2b96cc113bdd0bae64d5699e3>>
+ * @generated SignedSource<<2dbb835a19867e92fbbe3a603222397e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
 import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 export type ResolverTest1Query$variables = {||};
 export type ResolverTest1Query$data = {|

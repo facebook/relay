@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b2c57ffef5073c5c2b42ef4d6229c410>>
+ * @generated SignedSource<<f8db99cadc7286d9566d1bb7e836d644>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserRequiredNameResolver$key } from "./../resolvers/__generated__/UserRequiredNameResolver.graphql";
 import {required_name as userRequiredNameResolverType} from "../resolvers/UserRequiredNameResolver.js";
+import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userRequiredNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userRequiredNameResolverType: (
   rootKey: UserRequiredNameResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 export type RelayReaderResolverTestRequiredQuery$variables = {||};
 export type RelayReaderResolverTestRequiredQuery$data = {|

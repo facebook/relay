@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<998e48aa0caad3542a13a6011a8c3c9f>>
+ * @generated SignedSource<<d54a5a4081cac5ad6022a9530f1049bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,14 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import {edge_to_plural_models_some_throw as queryEdgeToPluralModelsSomeThrowResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryEdgeToPluralModelsSomeThrowResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToPluralModelsSomeThrowResolverType: () => ?$ReadOnlyArray<?{|
+(queryEdgeToPluralModelsSomeThrowResolverType: (
+  key: void,
+  args: void,
+  context: TestLiveResolverContextType,
+) => ?$ReadOnlyArray<?{|
   +id: DataID,
 |}>);
 export type RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query$variables = {||};

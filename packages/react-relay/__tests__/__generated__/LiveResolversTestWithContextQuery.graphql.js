@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<46b2a9026eacc415683e25e0b6787a8e>>
+ * @generated SignedSource<<92712f04d3f0ffd562ea6873141d81d5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // Type assertion validating that `queryHelloWorldWithContextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloWorldWithContextResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?string>);
 export type LiveResolversTestWithContextQuery$variables = {||};

@@ -29,9 +29,12 @@ function greeting(instance: IWeakAnimal): string {
  *
  * @RelayResolver Query.weak_animal(request: WeakAnimalRequest!): IWeakAnimal
  */
-function weak_animal(args: {
-  request: {ofType: string},
-}): Query__weak_animal$normalization {
+function weak_animal(
+  _: void,
+  args: {
+    request: {ofType: string},
+  },
+): Query__weak_animal$normalization {
   switch (args.request.ofType) {
     case 'RedOctopus':
       return {
@@ -57,9 +60,12 @@ function weak_animal(args: {
  *
  * @RelayResolver Query.weak_animals(requests: [WeakAnimalRequest!]!): [IWeakAnimal]
  */
-function weak_animals(args: {
-  requests: $ReadOnlyArray<{ofType: string}>,
-}): Array<Query__weak_animal$normalization> {
+function weak_animals(
+  _: void,
+  args: {
+    requests: $ReadOnlyArray<{ofType: string}>,
+  },
+): Array<Query__weak_animal$normalization> {
   return args.requests.map(request => {
     return weak_animal({request});
   });

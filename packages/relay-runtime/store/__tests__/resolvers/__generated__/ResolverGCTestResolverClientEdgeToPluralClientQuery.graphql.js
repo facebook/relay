@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2c6ea0d0c8b520149edec78ffb8050df>>
+ * @generated SignedSource<<0ee63bb8210f3be483bd4285d5890c62>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { QueryAllAstrologicalSignsResolver$key } from "./QueryAllAstrologicalSignsResolver.graphql";
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../QueryAllAstrologicalSignsResolver.js";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
   rootKey: QueryAllAstrologicalSignsResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?$ReadOnlyArray<{|
   +id: DataID,
 |}>);

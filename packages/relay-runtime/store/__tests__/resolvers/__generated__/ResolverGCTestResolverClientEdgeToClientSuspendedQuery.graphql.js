@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<35579e3cfed180e395e305116576a63f>>
+ * @generated SignedSource<<950764a7b5e05c8b6918819aa3d5b6d1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,18 +21,20 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState, DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 import {virgo_suspends_when_counter_is_odd as queryVirgoSuspendsWhenCounterIsOddResolverType} from "../QueryVirgoLiveSuspendsWhenOddResolver.js";
-import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryVirgoSuspendsWhenCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryVirgoSuspendsWhenCounterIsOddResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?{|
   +id: DataID,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9fe98e9b83fbd827f850f1e30deb73bd>>
+ * @generated SignedSource<<c5850cf740b2b080cd1a9c8b59e86c0a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,12 +22,15 @@ import type { DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType: (
+  key: void,
   args: {|
     todoID: string,
   |},
+  context: TestLiveResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -39,12 +42,15 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
   args: {|
     prefix: string,
   |},
+  context: TestLiveResolverContextType,
 ) => ?string);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?TodoDescription);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestFieldWithArgumentsQuery$variables = {|

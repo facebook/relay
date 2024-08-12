@@ -16,9 +16,12 @@ import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
 /**
  * @RelayResolver Query.todo_model(todoID: ID!): TodoModel
  */
-function todo_model(args: {
-  todoID: string,
-}): ConcreteClientEdgeResolverReturnType<> {
+function todo_model(
+  _: void,
+  args: {
+    todoID: string,
+  },
+): ConcreteClientEdgeResolverReturnType<> {
   return {id: args.todoID};
 }
 

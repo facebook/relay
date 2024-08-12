@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ca2f242cacca3be6caf5ff7e639f105c>>
+ * @generated SignedSource<<159e0aa4a9c5e8a078e6f02260dc196a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,12 +20,15 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import {hello_user as queryHelloUserResolverType} from "../../../relay-runtime/store/__tests__/resolvers/HelloUserResolver.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryHelloUserResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloUserResolverType: (
+  key: void,
   args: {|
     id: string,
   |},
+  context: TestLiveResolverContextType,
 ) => ?{|
   +id: DataID,
 |});

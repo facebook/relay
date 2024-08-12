@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bf8471fc2221fd18b37fec7bfaf41669>>
+ * @generated SignedSource<<3e1ef24f2a68b9e90db0f6afaae44a05>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolverType: (
   rootKey: CounterSuspendsWhenOdd$key,
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type LiveResolversTest5Fragment$fragmentType: FragmentType;

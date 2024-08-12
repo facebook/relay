@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6bc595877d1cd625bd058722ceddc943>>
+ * @generated SignedSource<<699bfcfd1c73dadacd706657b483a5ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestLiveResolverContextType } from "../../../mutations/__tests__/T
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 export type RelayReferenceMarkerTestResolverWithFragmentDependencyQuery$variables = {||};

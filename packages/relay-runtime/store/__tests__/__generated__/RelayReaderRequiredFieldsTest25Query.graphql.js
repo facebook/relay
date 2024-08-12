@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86902294f3e87ef8874799bbffd9a469>>
+ * @generated SignedSource<<9fb88039b31a0edeaf99577b81f672dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,12 +19,15 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import {client_object as userClientObjectResolverType} from "../resolvers/UserClientEdgeClientObjectResolver.js";
+import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientObjectResolverType: (
+  key: void,
   args: {|
     return_null: boolean,
   |},
+  context: TestLiveResolverContextType,
 ) => ?User__client_object$normalization);
 import type { User__client_object$normalization } from "./../resolvers/__generated__/User__client_object$normalization.graphql";
 export type RelayReaderRequiredFieldsTest25Query$variables = {||};

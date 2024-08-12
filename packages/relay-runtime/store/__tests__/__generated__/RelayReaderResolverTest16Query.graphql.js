@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<66ea8d74a2400604765a13c448a7fd07>>
+ * @generated SignedSource<<6aa14cb8c0046276361ff19cc316f570>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,6 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserProfilePictureResolver$key } from "./../resolvers/__generated__/UserProfilePictureResolver.graphql";
 import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolverType} from "../resolvers/UserProfilePictureResolver.js";
+import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleResolverType: (
@@ -27,6 +28,7 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
   args: {|
     scale: ?number,
   |},
+  context: TestLiveResolverContextType,
 ) => ?string);
 export type RelayReaderResolverTest16Query$variables = {|
   scale: number,

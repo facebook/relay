@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9ae3d9fb138363a3b1b1424a3e460aec>>
+ * @generated SignedSource<<eed05dacd72ff98eeb71bbe5af5b9325>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,22 +23,29 @@ import type { TodoModel____relay_model_instance$data } from "./../../../relay-ru
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionColorResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?mixed);
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?TodoDescription);
 declare export opaque type RelayResolverModelTestFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestFragment$data = {|

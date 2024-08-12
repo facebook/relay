@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<edca95f340972085206d6a9f32e28f4d>>
+ * @generated SignedSource<<8693450614b2a94446639e8f47869995>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,12 +21,15 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { TodoModelCapitalizedIDLegacy$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModelCapitalizedIDLegacy.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType: (
+  key: void,
   args: {|
     todoID: string,
   |},
+  context: TestLiveResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -35,6 +38,8 @@ import {capitalized_id_legacy as todoModelCapitalizedIdLegacyResolverType} from 
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelCapitalizedIdLegacyResolverType: (
   rootKey: TodoModelCapitalizedIDLegacy$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 export type RelayResolverModelTestFieldWithRootFragmentLegacyQuery$variables = {|
   id: string,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<60733524045b7557f96d427d5ba67f87>>
+ * @generated SignedSource<<0e0ec4cfa62cf0831ca973b42bd1b9f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,9 +19,14 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import {example_client_object as queryExampleClientObjectResolverType} from "../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryExampleClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryExampleClientObjectResolverType: () => ?Query__example_client_object$normalization);
+(queryExampleClientObjectResolverType: (
+  key: void,
+  args: void,
+  context: TestLiveResolverContextType,
+) => ?Query__example_client_object$normalization);
 import type { Query__example_client_object$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql";
 export type ExampleWithOutputTypeTestQuery$variables = {||};
 export type ExampleWithOutputTypeTestQuery$data = {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e089922dbab564b81af5e26cc44f9a9c>>
+ * @generated SignedSource<<0b79b55f826be98837be922e0265151b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,6 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserCustomGreetingResolver$key } from "./../resolvers/__generated__/UserCustomGreetingResolver.graphql";
 import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/UserCustomGreetingResolver.js";
+import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userCustomGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCustomGreetingResolverType: (
@@ -27,6 +28,7 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
   args: {|
     salutation: string,
   |},
+  context: TestLiveResolverContextType,
 ) => ?string);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,

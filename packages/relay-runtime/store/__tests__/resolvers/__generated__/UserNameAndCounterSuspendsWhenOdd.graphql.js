@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f2979812fd9b9932043740c50d6803ad>>
+ * @generated SignedSource<<f91ff09f8023193e22c8914844136164>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestLiveResolverContextType } from "../../../../mutations/__tests_
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolverType: (
   rootKey: CounterSuspendsWhenOdd$key,
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 declare export opaque type UserNameAndCounterSuspendsWhenOdd$fragmentType: FragmentType;

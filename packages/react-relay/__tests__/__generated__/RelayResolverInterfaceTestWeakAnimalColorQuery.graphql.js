@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<13ecc0c25db33887559a2d0b0ff5bd5e>>
+ * @generated SignedSource<<9727f82c26fb7cc54c31ebf605d7711a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,12 +20,15 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType } from "./RelayResolverInterfaceTestWeakAnimalColorFragment.graphql";
 import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
+import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryWeakAnimalResolverType: (
+  key: void,
   args: {|
     request: WeakAnimalRequest,
   |},
+  context: TestLiveResolverContextType,
 ) => ?Query__weak_animal$normalization);
 import type { Query__weak_animal$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql";
 export type WeakAnimalRequest = {|

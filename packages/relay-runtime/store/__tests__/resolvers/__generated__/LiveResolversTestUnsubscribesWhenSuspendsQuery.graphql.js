@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14d1c1a17b3c1ad00bc2e63fc9cfc2a6>>
+ * @generated SignedSource<<ac000fc6d8d1d9e7e2daba433b63191c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,15 +26,15 @@ import type { TestLiveResolverContextType } from "../../../../mutations/__tests_
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolverType: (
   rootKey: LiveExternalGreetingFragment$key,
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?string>);
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserSuspendsWhenOddResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?{|
   +id: DataID,

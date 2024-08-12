@@ -34,7 +34,10 @@ function greeting(model: ?IAnimalType): ?string {
  *
  * @RelayResolver Query.animal(request: AnimalRequest!): IAnimal
  */
-function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
+function animal(
+  _: void,
+  args: {request: {ofType: string, returnValidID: boolean}},
+): {
   __typename: IAnimalTypeNames,
   id: DataID,
 } {
@@ -57,9 +60,12 @@ function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
  *
  * @RelayResolver Query.animals(requests: [AnimalRequest!]!): [IAnimal]
  */
-function animals(args: {
-  requests: $ReadOnlyArray<{ofType: string, returnValidID: boolean}>,
-}): Array<{
+function animals(
+  _: void,
+  args: {
+    requests: $ReadOnlyArray<{ofType: string, returnValidID: boolean}>,
+  },
+): Array<{
   __typename: IAnimalTypeNames,
   id: DataID,
 }> {

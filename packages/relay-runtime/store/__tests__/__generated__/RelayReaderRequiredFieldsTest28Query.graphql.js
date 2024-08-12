@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<944eedc1d2a58deb3f95bf024ff15e98>>
+ * @generated SignedSource<<bcec99a939b621b444235fc1a2cba049>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ import type { TestLiveResolverContextType } from "../../../mutations/__tests__/T
 // Type assertion validating that `queryLiveUserResolverAlwaysSuspendResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserResolverAlwaysSuspendResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?{|
   +id: DataID,

@@ -16,7 +16,7 @@
  *
  * Say `Hello ${world}!`
  */
-function hello(args: {world: string}): string {
+function hello(_: void, args: {world: string}): string {
   return `Hello, ${args.world}!`;
 }
 

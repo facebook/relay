@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2aee7e8676a5f81ff8a5b60e90a8287a>>
+ * @generated SignedSource<<3b1b7091a37c4ec1996a0b254a58caa1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestLiveResolverContextType } from "../../../../mutations/__tests_
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelRelayModelInstanceResolverType: (
   id: TodoModel__id$data['id'],
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<mixed>);
 declare export opaque type TodoModel____relay_model_instance$fragmentType: FragmentType;

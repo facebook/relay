@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da89f55764b09275c5e44a5e1cb7b4ef>>
+ * @generated SignedSource<<1209ccbb60ba6aefcc6d9a6202d7d889>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestLiveResolverContextType } from "../../../../mutations/__tests_
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoSelfResolverType: (
   rootKey: TodoSelfResolverFragment$key,
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?mixed>);
 declare export opaque type TodoTextResolverFragment$fragmentType: FragmentType;

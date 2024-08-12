@@ -18,9 +18,12 @@ import type {ConcreteClientEdgeResolverReturnType} from 'relay-runtime';
  *
  * This should return the User
  */
-function hello_user(args: {
-  id: string,
-}): ConcreteClientEdgeResolverReturnType<> {
+function hello_user(
+  _: void,
+  args: {
+    id: string,
+  },
+): ConcreteClientEdgeResolverReturnType<> {
   return {id: args.id};
 }
 

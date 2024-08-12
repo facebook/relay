@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ae4c2557fdfd1cd179852dceb47c4777>>
+ * @generated SignedSource<<6b248399a63a5d490b8480cf958156bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryPingResolverType: (
   rootKey: LivePingPongResolver$key,
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?string>);
 export type LiveResolversTest4Query$variables = {||};

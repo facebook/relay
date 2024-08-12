@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8535bc80e6460ba97eae388fc017dbed>>
+ * @generated SignedSource<<88bf88caba7872fc70eca1a15acf503f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ import type { TestLiveResolverContextType } from "../../../../mutations/__tests_
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterNoFragmentResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 export type ResolverGCTestWithoutFragmentQuery$variables = {||};

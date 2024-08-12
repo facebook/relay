@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e59ce861903f53ce38de3a610bca91f9>>
+ * @generated SignedSource<<f9c8f39c6d424a6306c7b33a33d2af08>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // Type assertion validating that `queryLiveTodoDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveTodoDescriptionResolverType: (
-  _: void,
+  key: void,
   args: {|
     todoID: string,
   |},
@@ -36,7 +36,7 @@ import {live_color as todoDescriptionLiveColorResolverType} from "../../../relay
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionLiveColorResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?mixed>);
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
@@ -44,6 +44,8 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?string);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestWeakLiveColorFieldQuery$variables = {|

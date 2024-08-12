@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<084478a42918e37aabf6f3535c970f4b>>
+ * @generated SignedSource<<f1946a30f3e1a4d94befcbdfbd1d8b87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoDescription____relay_model_instance$data } from "./TodoDescription____relay_model_instance.graphql";
 import type { FragmentType } from "relay-runtime";
 import {color as todoDescriptionColorResolverType} from "../TodoDescription.js";
+import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionColorResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?mixed);
 declare export opaque type TodoDescription_text_style$fragmentType: FragmentType;
 export type TodoDescription_text_style$data = {|

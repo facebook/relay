@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<99fda8499ec290ac6be8aff8703f737d>>
+ * @generated SignedSource<<c5e5b5c334ce8961b3936c7afa6bc6cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserConstantDependentResolver$key } from "./../resolvers/__generated__/UserConstantDependentResolver.graphql";
 import {constant_dependent as userConstantDependentResolverType} from "../resolvers/UserConstantDependentResolver.js";
+import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
 // Type assertion validating that `userConstantDependentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userConstantDependentResolverType: (
   rootKey: UserConstantDependentResolver$key,
+  args: void,
+  context: TestLiveResolverContextType,
 ) => ?number);
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|

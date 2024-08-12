@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9df04a8623b2897b59c2883f87c48f36>>
+ * @generated SignedSource<<56b64d6a7eabe5812621b5fac20cc0fb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,15 +24,15 @@ import type { TestLiveResolverContextType } from "../../../../mutations/__tests_
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterNoFragmentResolverType: (
-  _: void,
-  _: void,
+  key: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolverType} from "../LiveCounterNoFragmentWithArg.js";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterNoFragmentWithArgResolverType: (
-  _: void,
+  key: void,
   args: {|
     prefix: string,
   |},

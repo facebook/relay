@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<29a52451138880be18d8d960b17a7483>>
+ * @generated SignedSource<<ed79a755db84ada513fe733655b5fa07>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestLiveResolverContextType } from "../../../relay-runtime/mutatio
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
-  _: void,
+  args: void,
   context: TestLiveResolverContextType,
 ) => LiveState<?number>);
 export type LiveResolversTestOptimisticUpdateQuery$variables = {||};

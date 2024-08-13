@@ -70,6 +70,7 @@ use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
 use crate::errors::Result;
+use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 use crate::GraphQLAsts;
@@ -192,9 +193,6 @@ pub struct Config {
 
     /// A function to determine if full file source should be extracted instead of docblock
     pub should_extract_full_source: Option<ShouldExtractFullSource>,
-
-    /// Opt out of source control checks/integration.
-    pub no_source_control: bool,
 }
 
 pub enum FileSourceKind {
@@ -430,7 +428,13 @@ impl Config {
 
         let config = Self {
             name: config_file.name,
-            artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
+            artifact_writer: Box::new(ArtifactFileWriter::new(
+                match config_file.no_source_control {
+                    Some(true) => None,
+                    _ => source_control_for_root(&root_dir),
+                },
+                root_dir.clone(),
+            )),
             status_reporter: Box::new(ConsoleStatusReporter::new(
                 root_dir.clone(),
                 is_multi_project,
@@ -464,7 +468,6 @@ impl Config {
             has_schema_change_incremental_build: false,
             custom_extract_relay_resolvers: None,
             should_extract_full_source: None,
-            no_source_control: config_file.no_source_control.unwrap_or(false),
         };
 
         let mut validation_errors = Vec::new();
@@ -805,7 +808,7 @@ impl Default for SingleProjectConfigFile {
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
-            no_source_control: Some(false)
+            no_source_control: Some(false),
         }
     }
 }

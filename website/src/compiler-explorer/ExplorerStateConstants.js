@@ -86,12 +86,6 @@ export const FEATURE_FLAGS = [
     kind: 'enum',
     default: false,
   },
-  {
-    key: 'disallow_required_on_non_null_fields',
-    label: 'Disallow Required on Non-Null Fields',
-    kind: 'bool',
-    default: false,
-  },
 ];
 
 export const DEFAULT_STATE = {

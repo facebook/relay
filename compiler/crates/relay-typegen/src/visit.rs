@@ -639,12 +639,10 @@ fn import_relay_resolver_function_type(
                 &PathBuf::from(&context_import.path),
             ),
         }),
-        Some(ResolverContextTypeInput::Package(context_import)) => {
-            Some(LiveResolverContextType {
-                name: context_import.name,
-                import_path: context_import.package,
-            })
-        }
+        Some(ResolverContextTypeInput::Package(context_import)) => Some(LiveResolverContextType {
+            name: context_import.name,
+            import_path: context_import.package,
+        }),
         None => None,
     };
 

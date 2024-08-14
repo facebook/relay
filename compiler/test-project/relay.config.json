@@ -1,5 +1,4 @@
 {
-  "$schema": "../relay-compiler-config-schema.json",
   "root": "../..",
   "header": [
     "Copyright (c) Meta Platforms, Inc. and affiliates.",

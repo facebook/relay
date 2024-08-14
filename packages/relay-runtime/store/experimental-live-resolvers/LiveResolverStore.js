@@ -18,7 +18,6 @@ import type {GetDataID, NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
   CheckOptions,
   DataIDSet,
-  ResolverContext,
   LogFunction,
   MutableRecordSource,
   OperationAvailability,
@@ -26,6 +25,7 @@ import type {
   OperationLoader,
   RecordSource,
   RequestDescriptor,
+  ResolverContext,
   Scheduler,
   SingularReaderSelector,
   Snapshot,

@@ -59,7 +59,7 @@ RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
 
 Once enabled, you can add `@throwOnFieldError` to your fragments to indicate that the client should throw an error if any field errors are encountered when the fragment is read.
 
-In the below example, Relay's generated TypeScript of Flow types for `user.name` will be non-nullable.
+In the below example, Relay's generated TypeScript or Flow types for `user.name` will be non-nullable.
 
 :::caution
 If Relay receives a field error for `user.name`, `useFragment` will throw an error. For this reason, it's important to ensure that you are have adequate [React error boundaries](../guided-tour/rendering/error-states.md) in place to catch these errors.

@@ -21,7 +21,7 @@ One of GraphQL's strengths is its field-granular error handling which can dramat
 
 [Semantic Nullability](https://github.com/graphql/graphql-wg/discussions/1410) is an early GraphQL spec proposal that aims to decouple error handling and nullability in the GraphQL spec to enable maximum resiliency while still exposing the "semantic nullability", (the nullability of the actual resolver function/method on the server) of the field to the client.
 
-The proposal works by allowing the schema to specify a new type of nullability of "null only on error". If a client sees this type, _and_ the client has some scheme for handling field errors out-of-band, it may treat the field that is exposed to user code as non-nullable.
+The proposal works by allowing the schema to specify a new type of nullability of "null only on error". If a client sees this type, _and_ the client has some strategy for handling field errors out-of-band, it may treat the field that is exposed to user code as non-nullable.
 
 The full spec change will likely require adding additional syntax to GraphQL's schema definition language, but in the meantime, various GraphQL servers and clients have collaborated on a temporary directive [`@semanticNonNull`](https://specs.apollo.dev/nullability/v0.2/) that can be used to experiment with this idea.
 

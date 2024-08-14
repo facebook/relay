@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ac000fc6d8d1d9e7e2daba433b63191c>>
+ * @generated SignedSource<<a7d39ab1e3ead6e388e3c6908b2c0007>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState, DataID } from "relay-runtime";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
 import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
-import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolverType: (
   rootKey: LiveExternalGreetingFragment$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => LiveState<?string>);
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
@@ -35,7 +35,7 @@ import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType}
 (queryLiveUserSuspendsWhenOddResolverType: (
   key: void,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => LiveState<?{|
   +id: DataID,
 |}>);

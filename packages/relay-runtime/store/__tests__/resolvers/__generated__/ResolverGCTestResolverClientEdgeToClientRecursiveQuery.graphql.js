@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<21be23ef0fafa55cdc5187975acc7868>>
+ * @generated SignedSource<<b5352e3799ffad01bfde6e88018d850d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,13 @@ import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameRes
 import type { AstrologicalSignOppositeResolver$key } from "./AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
-import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?string);
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
@@ -37,7 +37,7 @@ import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalS
 (astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -47,7 +47,7 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstr
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});

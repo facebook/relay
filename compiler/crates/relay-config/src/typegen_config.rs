@@ -62,19 +62,19 @@ pub struct CustomTypeImport {
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(untagged)]
-pub enum LiveResolverContextTypeInput {
-    Path(LiveResolverContextTypeInputPath),
-    Package(LiveResolverContextTypeInputPackage),
+pub enum ResolverContextTypeInput {
+    Path(ResolverContextTypeInputPath),
+    Package(ResolverContextTypeInputPackage),
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
-pub struct LiveResolverContextTypeInputPath {
+pub struct ResolverContextTypeInputPath {
     pub name: StringKey,
     pub path: PathBuf,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
-pub struct LiveResolverContextTypeInputPackage {
+pub struct ResolverContextTypeInputPackage {
     pub name: StringKey,
     pub package: StringKey,
 }
@@ -151,7 +151,7 @@ pub struct TypegenConfig {
 
     // Indicates the type to import and use as the context for live resolvers.
     #[serde(default)]
-    pub live_resolver_context_type: Option<LiveResolverContextTypeInput>,
+    pub resolver_context_type: Option<ResolverContextTypeInput>,
 }
 
 impl Default for TypegenConfig {
@@ -168,7 +168,7 @@ impl Default for TypegenConfig {
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             experimental_emit_semantic_nullability_types: Default::default(),
             custom_error_type: None,
-            live_resolver_context_type: Default::default(),
+            resolver_context_type: Default::default(),
         }
     }
 }

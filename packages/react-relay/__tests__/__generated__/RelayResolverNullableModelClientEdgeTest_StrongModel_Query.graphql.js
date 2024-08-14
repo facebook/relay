@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<408affdc6e352532b43b96ee00883ea4>>
+ * @generated SignedSource<<ecc1b379e8422a5151c7e2c86badacbf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { StrongModel____relay_model_instance$data } from "./StrongModel____relay_model_instance.graphql";
 import {edge_to_strong_model_does_not_exist as queryEdgeToStrongModelDoesNotExistResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
-import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToStrongModelDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryEdgeToStrongModelDoesNotExistResolverType: (
   key: void,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -37,7 +37,7 @@ import {name as strongModelNameResolverType} from "../RelayResolverNullableModel
 (strongModelNameResolverType: (
   __relay_model_instance: StrongModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data = {|

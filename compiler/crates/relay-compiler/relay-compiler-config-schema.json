@@ -1313,48 +1313,6 @@
             "flow"
           ]
         },
-        "liveResolverContextType": {
-          "default": null,
-          "anyOf": [
-            {
-              "anyOf": [
-                {
-                  "type": "object",
-                  "required": [
-                    "name",
-                    "path"
-                  ],
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "path": {
-                      "type": "string"
-                    }
-                  }
-                },
-                {
-                  "type": "object",
-                  "required": [
-                    "name",
-                    "package"
-                  ],
-                  "properties": {
-                    "name": {
-                      "type": "string"
-                    },
-                    "package": {
-                      "type": "string"
-                    }
-                  }
-                }
-              ]
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
         "moduleImportConfig": {
           "description": "Configuration for @module",
           "default": {
@@ -1509,6 +1467,48 @@
           "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",
           "default": false,
           "type": "boolean"
+        },
+        "resolverContextType": {
+          "default": null,
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "path"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "path": {
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "package"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "package": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "resolversSchemaModule": {
           "description": "Configuration for resolvers_schema_module generation",
@@ -4362,48 +4362,6 @@
                   "flow"
                 ]
               },
-              "liveResolverContextType": {
-                "default": null,
-                "anyOf": [
-                  {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "required": [
-                          "name",
-                          "path"
-                        ],
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "path": {
-                            "type": "string"
-                          }
-                        }
-                      },
-                      {
-                        "type": "object",
-                        "required": [
-                          "name",
-                          "package"
-                        ],
-                        "properties": {
-                          "name": {
-                            "type": "string"
-                          },
-                          "package": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              },
               "moduleImportConfig": {
                 "description": "Configuration for @module.",
                 "default": {
@@ -4565,6 +4523,48 @@
                 "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",
                 "default": false,
                 "type": "boolean"
+              },
+              "resolverContextType": {
+                "default": null,
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "path"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "path": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "package"
+                        ],
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "package": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "resolversSchemaModule": {
                 "description": "Configuration for resolvers_schema_module generation",

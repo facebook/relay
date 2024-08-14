@@ -39,7 +39,7 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
-use relay_config::LiveResolverContextTypeInput;
+use relay_config::ResolverContextTypeInput;
 use relay_config::TypegenLanguage;
 use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
@@ -628,9 +628,9 @@ fn import_relay_resolver_function_type(
     let context_import = match &typegen_context
         .project_config
         .typegen_config
-        .live_resolver_context_type
+        .resolver_context_type
     {
-        Some(LiveResolverContextTypeInput::Path(context_import)) => Some(LiveResolverContextType {
+        Some(ResolverContextTypeInput::Path(context_import)) => Some(LiveResolverContextType {
             name: context_import.name,
             import_path: typegen_context.project_config.js_module_import_identifier(
                 &typegen_context
@@ -639,7 +639,7 @@ fn import_relay_resolver_function_type(
                 &PathBuf::from(&context_import.path),
             ),
         }),
-        Some(LiveResolverContextTypeInput::Package(context_import)) => {
+        Some(ResolverContextTypeInput::Package(context_import)) => {
             Some(LiveResolverContextType {
                 name: context_import.name,
                 import_path: context_import.package,

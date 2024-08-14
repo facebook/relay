@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<467de3c446671c2f6edadbdbdfd961a7>>
+ * @generated SignedSource<<25c3c2089e62abda4b66d6be0947e878>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { Fish__id$data } from "./Fish__id.graphql";
 import type { FragmentType } from "relay-runtime";
 import {Fish as fishRelayModelInstanceResolverType} from "../FishResolvers.js";
-import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `fishRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (fishRelayModelInstanceResolverType: (
   id: Fish__id$data['id'],
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => mixed);
 declare export opaque type Fish____relay_model_instance$fragmentType: FragmentType;
 export type Fish____relay_model_instance$data = {|

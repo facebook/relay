@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4f62ccaa340fdf7b8a47712d4a50c25d>>
+ * @generated SignedSource<<b4055d4c4dc09cf698f86171544467ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { WeakModel____relay_model_instance$data } from "./WeakModel____relay_model_instance.graphql";
 import {edge_to_null_weak_model as queryEdgeToNullWeakModelResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
-import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToNullWeakModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryEdgeToNullWeakModelResolverType: (
   key: void,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?WeakModel);
 import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
 // Type assertion validating that `weakModelFirstNameResolverType` resolver is correctly implemented.
@@ -34,7 +34,7 @@ import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNull
 (weakModelFirstNameResolverType: (
   __relay_model_instance: WeakModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?string);
 import type { WeakModel } from "../RelayResolverNullableModelClientEdge-test.js";
 export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {||};

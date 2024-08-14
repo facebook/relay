@@ -12,11 +12,11 @@ In order to pass a service, or other values to be shared with all resolvers, the
 
 ## Setup
 
-In order to pass context to live resolvers, pass a `liveResolverContext` argument to the initialization of `LiveResolverStore` before creating the environment:
+In order to pass context to live resolvers, pass a `resolverContext` argument to the initialization of `LiveResolverStore` before creating the environment:
 
 ```js
 const store = new LiveResolverStore(source, {
-  liveResolverContext: {
+  resolverContext: {
     store: customStore,
   },
 });
@@ -93,13 +93,13 @@ export function counter(
 
 ## Type Checking
 
-In order to ensure that the resolver is implemented with the correct types, pass a `liveResolverContextType` in the project config. This parameter expects a type name and a `path` to import from:
+In order to ensure that the resolver is implemented with the correct types, pass a `resolverContextType` in the project config. This parameter expects a type name and a `path` to import from:
 
 ```json
 {
     "name": "project",
     "language": "flow",
-    "liveResolverContextType": { 
+    "resolverContextType": { 
         "name": "IResolverContextType", 
         "path": "path/to/file/IResolverContextType" 
     }
@@ -112,7 +112,7 @@ To import from a package, use the following syntax for a `package` import:
 {
     "name": "project",
     "language": "flow",
-    "liveResolverContextType": { 
+    "resolverContextType": { 
         "name": "IResolverContextType", 
         "package": "@package/name" 
     }

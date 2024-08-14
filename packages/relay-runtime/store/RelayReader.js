@@ -33,7 +33,6 @@ import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
   ErrorResponseFields,
-  LiveResolverContext,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
   MissingRequiredFields,
@@ -41,6 +40,7 @@ import type {
   RecordSource,
   RelayResolverErrors,
   RequestDescriptor,
+  ResolverContext,
   SelectorData,
   SingularReaderSelector,
   Snapshot,
@@ -100,13 +100,13 @@ function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
   resolverCache?: ResolverCache,
-  liveResolverContext?: LiveResolverContext,
+  resolverContext?: ResolverContext,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
     resolverCache ?? new NoopResolverCache(),
-    liveResolverContext,
+    resolverContext,
   );
   return reader.read();
 }
@@ -131,13 +131,13 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
-  _liveResolverContext: ?LiveResolverContext;
+  _resolverContext: ?ResolverContext;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
-    liveResolverContext: ?LiveResolverContext,
+    resolverContext: ?ResolverContext,
   ) {
     this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
       ? [...selector.clientEdgeTraversalPath]
@@ -157,7 +157,7 @@ class RelayReader {
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
-    this._liveResolverContext = liveResolverContext;
+    this._resolverContext = resolverContext;
   }
 
   read(): Snapshot {
@@ -697,7 +697,7 @@ class RelayReader {
             field,
             this._variables,
             key,
-            this._liveResolverContext,
+            this._resolverContext,
           );
           return {resolverResult, snapshot, error: resolverError};
         });
@@ -706,7 +706,7 @@ class RelayReader {
           field,
           this._variables,
           null,
-          this._liveResolverContext,
+          this._resolverContext,
         );
         return {resolverResult, snapshot: undefined, error: resolverError};
       }
@@ -1401,7 +1401,7 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
-  liveResolverContext: ?LiveResolverContext,
+  resolverContext: ?ResolverContext,
 ): [mixed, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
@@ -1427,7 +1427,7 @@ function getResolverValue(
 
     resolverFunctionArgs.push(args);
 
-    resolverFunctionArgs.push(liveResolverContext);
+    resolverFunctionArgs.push(resolverContext);
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {

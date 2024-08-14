@@ -18,7 +18,7 @@ import type {GetDataID, NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
   CheckOptions,
   DataIDSet,
-  LiveResolverContext,
+  ResolverContext,
   LogFunction,
   MutableRecordSource,
   OperationAvailability,
@@ -112,7 +112,7 @@ class LiveResolverStore implements Store {
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
   _shouldProcessClientComponents: boolean;
-  _liveResolverContext: ?LiveResolverContext;
+  _resolverContext: ?ResolverContext;
 
   constructor(
     source: MutableRecordSource,
@@ -126,7 +126,7 @@ class LiveResolverStore implements Store {
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
       treatMissingFieldsAsNull?: ?boolean,
-      liveResolverContext?: LiveResolverContext,
+      resolverContext?: ResolverContext,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -170,7 +170,7 @@ class LiveResolverStore implements Store {
     this._actorIdentifier = options?.actorIdentifier;
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents ?? false;
-    this._liveResolverContext = options?.liveResolverContext;
+    this._resolverContext = options?.resolverContext;
 
     initializeRecordSource(this._recordSource);
   }
@@ -360,7 +360,7 @@ class LiveResolverStore implements Store {
       source,
       selector,
       this._resolverCache,
-      this._liveResolverContext || undefined,
+      this._resolverContext || undefined,
     );
     if (__DEV__) {
       deepFreeze(snapshot);

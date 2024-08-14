@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b98cd59e51f23ea28ea368c8dd23c8cb>>
+ * @generated SignedSource<<f6068017885551bde32980fef7fa3f87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { Cat__id$data } from "./Cat__id.graphql";
 import type { FragmentType } from "relay-runtime";
 import {Cat as catRelayModelInstanceResolverType} from "../CatResolvers.js";
-import type { TestLiveResolverContextType } from "../../../../mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `catRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (catRelayModelInstanceResolverType: (
   id: Cat__id$data['id'],
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => mixed);
 declare export opaque type Cat____relay_model_instance$fragmentType: FragmentType;
 export type Cat____relay_model_instance$data = {|

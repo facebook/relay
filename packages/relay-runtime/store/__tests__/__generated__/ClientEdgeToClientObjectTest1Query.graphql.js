@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<676053e074980420be3e403a706210e4>>
+ * @generated SignedSource<<af97330cfc29ffa49accfc4bf3fe6b04>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,13 +24,13 @@ import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generate
 import type { AstrologicalSignOppositeResolver$key } from "./../resolvers/__generated__/AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
 import {house as astrologicalSignHouseResolverType} from "../resolvers/AstrologicalSignHouseResolver.js";
-import type { TestLiveResolverContextType } from "../../../mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignHouseResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignHouseResolverType: (
   rootKey: AstrologicalSignHouseResolver$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?number);
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
@@ -38,7 +38,7 @@ import {name as astrologicalSignNameResolverType} from "../resolvers/Astrologica
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?string);
 import {opposite as astrologicalSignOppositeResolverType} from "../resolvers/AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
@@ -46,7 +46,7 @@ import {opposite as astrologicalSignOppositeResolverType} from "../resolvers/Ast
 (astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -56,7 +56,7 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../resolver
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<17c33e3f42bb76d84a2d6aa36ac8da0d>>
+ * @generated SignedSource<<d32bfa81dbd20685e052ea7468e06941>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,14 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { PurpleOctopus____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql";
 import type { RedOctopus____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql";
 import {greeting as iWeakAnimalGreetingResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
-import type { TestLiveResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `iWeakAnimalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (iWeakAnimalGreetingResolverType: (
   model: PurpleOctopus____relay_model_instance$data['__relay_model_instance'] | RedOctopus____relay_model_instance$data['__relay_model_instance'],
   key: void,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?string);
 import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
@@ -38,7 +38,7 @@ import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime
   args: {|
     request: WeakAnimalRequest,
   |},
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => ?Query__weak_animal$normalization);
 import type { Query__weak_animal$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql";
 export type WeakAnimalRequest = {|

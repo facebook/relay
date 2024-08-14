@@ -1381,7 +1381,7 @@ export type LiveState<+T> = {
 
 /**
  * Context that will be provided to live resolvers if
- * `liveResolverContext` is set on the Relay Store.
+ * `resolverContext` is set on the Relay Store.
  * This context will be passed as the third argument to the live resolver
  */
-export type LiveResolverContext = Object;
+export type ResolverContext = Object;

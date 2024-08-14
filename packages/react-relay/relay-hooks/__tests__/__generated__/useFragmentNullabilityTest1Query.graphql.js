@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<024139233905ea4218d9a999bbea25aa>>
+ * @generated SignedSource<<aae7d261aa04ede66005b20d7ed75a32>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,13 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import {field_that_throws as queryFieldThatThrowsResolverType} from "../useFragment_nullability-test.js";
-import type { TestLiveResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestLiveResolverContextType";
+import type { TestResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFieldThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryFieldThatThrowsResolverType: (
   key: void,
   args: void,
-  context: TestLiveResolverContextType,
+  context: TestResolverContextType,
 ) => number);
 export type useFragmentNullabilityTest1Query$variables = {||};
 export type useFragmentNullabilityTest1Query$data = {|

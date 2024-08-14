@@ -188,7 +188,7 @@ pub(crate) fn write_operation_type_exports_section(
     if custom_error_import.is_some() {
         write_import_custom_type(custom_error_import, writer)?;
     }
-    // TODO: Add proper support for Resolver type generation in typescript
+    // TODO: Add proper support for Resolver type generation in typescript: https://github.com/facebook/relay/issues/4772
     if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow {
         write_relay_resolver_imports(imported_resolvers, writer)?;
     }
@@ -467,7 +467,7 @@ pub(crate) fn write_fragment_type_exports_section(
 
     runtime_imports.write_runtime_imports(writer)?;
 
-    // TODO: Add proper support for Resolver type generation in typescript
+    // TODO: Add proper support for Resolver type generation in typescript: https://github.com/facebook/relay/issues/4772
     if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow {
         write_relay_resolver_imports(imported_resolvers, writer)?;
     }

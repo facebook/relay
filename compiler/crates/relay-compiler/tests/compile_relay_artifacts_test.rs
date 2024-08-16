@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d4e65b5354b1c9ee178a587546e6d0ef>>
+ * @generated SignedSource<<aa446f69f97b6829196525d5a8694612>>
  */
 
 mod compile_relay_artifacts;
@@ -206,6 +206,20 @@ async fn circular_no_inline_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/circular-no-inline-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/circular-no-inline-fragment.expected");
     test_fixture(transform_fixture, file!(), "circular-no-inline-fragment.graphql", "compile_relay_artifacts/fixtures/circular-no-inline-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_3d_resolvers_enabled_client_3d_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-3D-resolvers-enabled-client-3D-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-3D-resolvers-enabled-client-3D-fragment.expected");
+    test_fixture(transform_fixture, file!(), "client-3D-resolvers-enabled-client-3D-fragment.graphql", "compile_relay_artifacts/fixtures/client-3D-resolvers-enabled-client-3D-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_3d_resolvers_enabled_server_3d_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-3D-resolvers-enabled-server-3D-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-3D-resolvers-enabled-server-3D-fragment.expected");
+    test_fixture(transform_fixture, file!(), "client-3D-resolvers-enabled-server-3D-fragment.graphql", "compile_relay_artifacts/fixtures/client-3D-resolvers-enabled-server-3D-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

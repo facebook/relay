@@ -97,10 +97,6 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if let Some(module_metadata) = self.inline_module_metadata(fragment) {
-            let parent_type = fragment
-                .type_condition
-                .expect("Expect the module import inline fragment to have a type");
-
             // We do not need to to write normalization files for base fragments.
             // This is because when we process the base project, the normalization fragment will
             // be written, and we do not want to emit multiple normalization fragments with
@@ -108,9 +104,17 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
             if self
                 .base_fragment_names
                 .contains(&module_metadata.fragment_name)
+                // We do not need to generate normalization files for fragments that are
+                // resolved entirely by read time resolver models on the client side when 
+                // client 3D support for read time resolvers is enabled.
+                || module_metadata.read_time_resolvers
             {
                 return self.default_transform_inline_fragment(fragment);
             }
+
+            let parent_type = fragment
+                .type_condition
+                .expect("Expect the module import inline fragment to have a type");
 
             let normalization_name =
                 get_normalization_operation_name(module_metadata.fragment_name.0).intern();

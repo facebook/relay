@@ -2229,26 +2229,48 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             fragment_prop_name: Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
             kind: Primitive::String(CODEGEN_CONSTANTS.module_import),
         };
-        if CodegenVariant::Normalization == self.variant {
-            if let Some(dynamic_module_provider) = self
-                .project_config
-                .module_import_config
-                .dynamic_module_provider
-            {
-                module_import.push(ObjectEntry {
-                    key: CODEGEN_CONSTANTS.component_module_provider,
-                    value: Primitive::DynamicImport {
-                        provider: dynamic_module_provider,
-                        module: module_metadata.module_name,
-                    },
-                });
-                module_import.push(ObjectEntry {
-                    key: CODEGEN_CONSTANTS.operation_module_provider,
-                    value: Primitive::DynamicImport {
-                        provider: dynamic_module_provider,
-                        module: get_fragment_filename(fragment_name),
-                    },
-                });
+        match self.variant {
+            CodegenVariant::Reader => {
+                if module_metadata.read_time_resolvers {
+                    if let Some(dynamic_module_provider) = self
+                        .project_config
+                        .module_import_config
+                        .dynamic_module_provider
+                    {
+                        module_import.push(ObjectEntry {
+                            key: CODEGEN_CONSTANTS.component_module_provider,
+                            value: Primitive::DynamicImport {
+                                provider: dynamic_module_provider,
+                                module: module_metadata.module_name,
+                            },
+                        });
+                    }
+                }
+            }
+            CodegenVariant::Normalization => {
+                if module_metadata.read_time_resolvers {
+                    return vec![];
+                }
+                if let Some(dynamic_module_provider) = self
+                    .project_config
+                    .module_import_config
+                    .dynamic_module_provider
+                {
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.component_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: dynamic_module_provider,
+                            module: module_metadata.module_name,
+                        },
+                    });
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.operation_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: dynamic_module_provider,
+                            module: get_fragment_filename(fragment_name),
+                        },
+                    });
+                }
             }
         }
         let selection = Primitive::Key(self.object(module_import));

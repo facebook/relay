@@ -25,6 +25,7 @@ fragment ActorsRendererFragment on Node {
       #             "ActorsRendererFragment",
       #         ),
       #     ),
+      #     read_time_resolvers: false,
       #     fragment_name: FragmentDefinitionName(
       #         "PlainUserNameRenderer_name",
       #     ),

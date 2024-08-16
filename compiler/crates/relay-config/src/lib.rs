@@ -27,6 +27,7 @@ pub use diagnostic_report_config::DiagnosticReportConfig;
 pub use js_module_format::JsModuleFormat;
 pub use module_import_config::DynamicModuleProvider;
 pub use module_import_config::ModuleImportConfig;
+pub use module_import_config::Surface;
 pub use non_node_id_fields_config::NonNodeIdFieldsConfig;
 pub use project_config::ExtraArtifactsConfig;
 pub use project_config::LocalPersistAlgorithm;

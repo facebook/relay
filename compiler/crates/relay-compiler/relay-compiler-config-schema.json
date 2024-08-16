@@ -1316,7 +1316,8 @@
         "moduleImportConfig": {
           "description": "Configuration for @module",
           "default": {
-            "dynamicModuleProvider": null
+            "dynamicModuleProvider": null,
+            "surface": null
           },
           "type": "object",
           "properties": {
@@ -1364,6 +1365,17 @@
                 {
                   "type": "null"
                 }
+              ]
+            },
+            "surface": {
+              "description": "Defines the surface upon which @module is enabled.",
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "resolvers",
+                "all"
               ]
             }
           },
@@ -4323,7 +4335,8 @@
               "moduleImportConfig": {
                 "description": "Configuration for @module.",
                 "default": {
-                  "dynamicModuleProvider": null
+                  "dynamicModuleProvider": null,
+                  "surface": null
                 },
                 "type": "object",
                 "properties": {
@@ -4371,6 +4384,17 @@
                       {
                         "type": "null"
                       }
+                    ]
+                  },
+                  "surface": {
+                    "description": "Defines the surface upon which @module is enabled.",
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "resolvers",
+                      "all"
                     ]
                   }
                 },

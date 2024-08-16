@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on Persona {
+  id
+  basicUser {
+    ...ClientUser_Fragment @module(name: "ClientUser.react")
+  }
+}
+
+fragment ClientUser_Fragment on BasicUser {
+  name
+  address
+}
+
+%extensions%
+type Persona {
+  id: ID!
+  basicUser: BasicUser
+}
+
+type BasicUser @__RelayResolverModel {
+  id: ID!
+  name: String
+  address: String
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "ClientUserResolver", fragment_name: "ClientUser__id", inject_fragment_data: "id")
+}
+==================================== ERROR ====================================
+✖︎ @module was used on a fragment with a concrete parent type: 'BasicUser'. The parent type should be an interface or union.
+
+  client-3D-module-on-concrete-parent-type.invalid.graphql:5:8
+    4 │   basicUser {
+    5 │     ...ClientUser_Fragment @module(name: "ClientUser.react")
+      │        ^^^^^^^^^^^^^^^^^^^
+    6 │   }

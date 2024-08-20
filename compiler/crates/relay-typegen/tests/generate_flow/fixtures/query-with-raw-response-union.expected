@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+query ExampleQuery @raw_response_type {
+  maybeNode {
+    __typename
+    ... on NonNode {
+      name
+    }
+    ... on Story {
+      body {
+        text
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = {||};
+export type ExampleQuery$data = {|
+  +maybeNode: ?({|
+    +__typename: "NonNode",
+    +name: ?string,
+  |} | {|
+    +__typename: "Story",
+    +body: ?{|
+      +text: ?string,
+    |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
+|};
+export type ExampleQuery$rawResponse = {|
+  +maybeNode: ?({|
+    +__typename: "FakeNode",
+    +__isNode: "FakeNode",
+    +id: string,
+  |} | {|
+    +__typename: "NonNode",
+    +__isNode: "NonNode",
+    +id: string,
+    +name: ?string,
+  |} | {|
+    +__typename: "Story",
+    +__isNode: "Story",
+    +body: ?{|
+      +text: ?string,
+    |},
+    +id: string,
+  |} | {|
+    +__typename: string,
+    +__isNode: string,
+    +id: string,
+  |}),
+|};
+export type ExampleQuery = {|
+  rawResponse: ExampleQuery$rawResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
+|};

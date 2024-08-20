@@ -32,12 +32,9 @@ export type ExampleQuery$data = {
 export type ExampleQuery$rawResponse = {
   readonly maybeNode: {
     readonly __typename: "FakeNode";
-    readonly __isNode: "FakeNode";
     readonly id: string;
   } | {
     readonly __typename: "NonNode";
-    readonly __isNode: "NonNode";
-    readonly id: string;
     readonly name: string | null | undefined;
   } | {
     readonly __typename: "Story";
@@ -48,8 +45,8 @@ export type ExampleQuery$rawResponse = {
     readonly id: string;
   } | {
     readonly __typename: string;
-    readonly __isNode: string;
-    readonly id: string;
+    readonly __isNode?: string;
+    readonly id?: string;
   } | null | undefined;
 };
 export type ExampleQuery = {

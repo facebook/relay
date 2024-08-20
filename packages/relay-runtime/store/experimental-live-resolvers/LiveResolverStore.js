@@ -360,7 +360,7 @@ class LiveResolverStore implements Store {
       source,
       selector,
       this._resolverCache,
-      this._resolverContext || undefined,
+      this._resolverContext,
     );
     if (__DEV__) {
       deepFreeze(snapshot);

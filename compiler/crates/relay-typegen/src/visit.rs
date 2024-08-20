@@ -90,8 +90,8 @@ use crate::typegen_state::ImportedResolver;
 use crate::typegen_state::ImportedResolverName;
 use crate::typegen_state::ImportedResolvers;
 use crate::typegen_state::InputObjectTypes;
-use crate::typegen_state::LiveResolverContextType;
 use crate::typegen_state::MatchFields;
+use crate::typegen_state::ResolverContextType;
 use crate::typegen_state::RuntimeImports;
 use crate::write::CustomScalarsImports;
 use crate::writer::ExactObject;
@@ -344,7 +344,7 @@ fn generate_resolver_type(
     resolver_function_name: StringKey,
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
-    context_import: Option<LiveResolverContextType>,
+    context_import: Option<ResolverContextType>,
 ) -> AST {
     // For the purposes of function type assertion, we always use the semantic type.
     let schema_field = resolver_metadata.field(typegen_context.schema);
@@ -479,7 +479,7 @@ fn get_resolver_arguments(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut std::collections::HashSet<(StringKey, PathBuf)>,
     schema_field: &Field,
-    context_import: Option<LiveResolverContextType>,
+    context_import: Option<ResolverContextType>,
 ) -> Vec<KeyValuePairProp> {
     let void_type = match typegen_context.project_config.typegen_config.language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => AST::RawType(intern!("void")),
@@ -630,7 +630,7 @@ fn import_relay_resolver_function_type(
         .typegen_config
         .resolver_context_type
     {
-        Some(ResolverContextTypeInput::Path(context_import)) => Some(LiveResolverContextType {
+        Some(ResolverContextTypeInput::Path(context_import)) => Some(ResolverContextType {
             name: context_import.name,
             import_path: typegen_context.project_config.js_module_import_identifier(
                 &typegen_context
@@ -639,7 +639,7 @@ fn import_relay_resolver_function_type(
                 &PathBuf::from(&context_import.path),
             ),
         }),
-        Some(ResolverContextTypeInput::Package(context_import)) => Some(LiveResolverContextType {
+        Some(ResolverContextTypeInput::Package(context_import)) => Some(ResolverContextType {
             name: context_import.name,
             import_path: context_import.package,
         }),

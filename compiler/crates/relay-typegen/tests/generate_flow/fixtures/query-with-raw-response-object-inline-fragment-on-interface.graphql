@@ -1,0 +1,9 @@
+query ExampleQuery @raw_response_type {
+  story {
+    __typename
+    url
+    ... on Node {
+      id
+    }
+  }
+}

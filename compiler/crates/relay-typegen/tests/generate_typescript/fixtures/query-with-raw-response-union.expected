@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+query ExampleQuery @raw_response_type {
+  maybeNode {
+    __typename
+    ... on NonNode {
+      name
+    }
+    ... on Story {
+      body {
+        text
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type ExampleQuery$variables = Record<PropertyKey, never>;
+export type ExampleQuery$data = {
+  readonly maybeNode: {
+    readonly __typename: "NonNode";
+    readonly name: string | null | undefined;
+  } | {
+    readonly __typename: "Story";
+    readonly body: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+  } | {
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    readonly __typename: "%other";
+  } | null | undefined;
+};
+export type ExampleQuery$rawResponse = {
+  readonly maybeNode: {
+    readonly __typename: "FakeNode";
+    readonly __isNode: "FakeNode";
+    readonly id: string;
+  } | {
+    readonly __typename: "NonNode";
+    readonly __isNode: "NonNode";
+    readonly id: string;
+    readonly name: string | null | undefined;
+  } | {
+    readonly __typename: "Story";
+    readonly __isNode: "Story";
+    readonly body: {
+      readonly text: string | null | undefined;
+    } | null | undefined;
+    readonly id: string;
+  } | {
+    readonly __typename: string;
+    readonly __isNode: string;
+    readonly id: string;
+  } | null | undefined;
+};
+export type ExampleQuery = {
+  rawResponse: ExampleQuery$rawResponse;
+  response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
+};

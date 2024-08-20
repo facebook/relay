@@ -8,7 +8,7 @@ import {FbInternalOnly, fbContent} from 'docusaurus-plugin-internaldocs-fb/inter
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-In order to pass a service, or other values to be shared with all resolvers, the `LiveResolverStore` provides a means of passing context. This gets passed to the third argument of all resolvers (live and non-live).
+In order to pass a service, or other values to be shared with all resolvers, the `LiveResolverStore` provides a means of passing context. This gets passed to the third argument of all resolvers (live and non-live). This context argument analogous to the [context argument](https://graphql.org/learn/execution/#root-fields--resolvers) used on the server which usually holds things like the database connection.
 
 ## Setup
 
@@ -26,22 +26,22 @@ const store = new LiveResolverStore(source, {
 
 <Tabs
   groupId="resolver"
-  defaultValue="Docblock"
+  defaultValue="JavaScript"
   values={fbContent({
     internal: [
-      {label: 'Docblock', value: 'Docblock'},
+      {label: 'JavaScript', value: 'JavaScript'},
       {label: 'Flow', value: 'Flow'},
     ],
     external: [
-      {label: 'Docblock', value: 'Docblock'},
+      {label: 'JavaScript', value: 'JavaScript'},
         {label: 'Flow', value: 'Flow'},
     ]
   })}>
-  <TabItem value="Docblock">
+  <TabItem value="JavaScript">
 
 The third argument in a resolver will contain the context type which contains the value passed into the store on initialization.
 
-```tsx
+```js
 import type { LiveState } from 'relay-runtime';
 
 /**
@@ -49,10 +49,10 @@ import type { LiveState } from 'relay-runtime';
  * @live
  */
 export function counter(
-  _key: undefined, 
-  _args: undefined, 
-  context: IResolverContextType
-): LiveState<number> {
+  _key,
+  _args, 
+  context
+) {
   return {
     read: () => context.store.getState().counter,
     subscribe: (callback) => {
@@ -66,27 +66,7 @@ export function counter(
 
   <TabItem value="Flow">
 
-The third argument in a resolver will contain the context type which contains the value passed into the store on initialization.
-
-```tsx
-import type { LiveState } from 'relay-runtime';
-
-/**
- * @RelayResolver
- */
-export function counter(
-  _key: void, 
-  _args: void, 
-  context: IResolverContextType
-): LiveState<number> {
-  return {
-    read: () => context.store.getState().counter,
-    subscribe: (callback) => {
-      return context.store.subscribe(callback);
-    },
-  };
-}
-```
+Flow syntax is not currently supported in Flow
 
   </TabItem>
 </Tabs>

@@ -149,7 +149,7 @@ pub struct TypegenConfig {
     /// {"name:: "MyErrorName", "path": "../src/MyError"}
     pub custom_error_type: Option<CustomTypeImport>,
 
-    // Indicates the type to import and use as the context for live resolvers.
+    /// Indicates the type to import and use as the context for live resolvers.
     #[serde(default)]
     pub resolver_context_type: Option<ResolverContextTypeInput>,
 }

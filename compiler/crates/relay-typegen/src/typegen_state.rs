@@ -136,11 +136,11 @@ pub(crate) struct ImportedResolver {
     pub resolver_name: ImportedResolverName,
     pub resolver_type: AST,
     pub import_path: StringKey,
-    pub context_import: Option<LiveResolverContextType>,
+    pub context_import: Option<ResolverContextType>,
 }
 
 #[derive(Clone, Copy)]
-pub(crate) struct LiveResolverContextType {
+pub(crate) struct ResolverContextType {
     pub name: StringKey,
     pub import_path: StringKey,
 }

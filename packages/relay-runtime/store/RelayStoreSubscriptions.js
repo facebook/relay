@@ -176,7 +176,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
             source,
             snapshot.selector,
             this._resolverCache,
-            this._resolverContext || undefined,
+            this._resolverContext,
           )
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);

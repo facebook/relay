@@ -1,0 +1,13 @@
+query ExampleQuery @raw_response_type {
+  maybeNode {
+    __typename
+    ... on NonNode {
+      name
+    }
+    ... on Story {
+      body {
+        text
+      }
+    }
+  }
+}

@@ -72,7 +72,7 @@ pub enum ResolverContextTypeInput {
 pub struct ResolverContextTypeInputPath {
     /// The name under which the type is exported from the module
     pub name: StringKey,
-    /// The path to the module
+    /// The path to the module relative to the project root
     pub path: PathBuf,
 }
 

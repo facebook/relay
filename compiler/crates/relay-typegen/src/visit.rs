@@ -543,7 +543,7 @@ fn get_resolver_arguments(
         }
     } else {
         resolver_arguments.push(KeyValuePairProp {
-            key: "key".intern(),
+            key: intern!("key"),
             value: AST::RawType(intern!("void")),
             read_only: true,
             optional: false,

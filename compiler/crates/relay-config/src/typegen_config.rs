@@ -67,15 +67,21 @@ pub enum ResolverContextTypeInput {
     Package(ResolverContextTypeInputPackage),
 }
 
+/// Specifies how Relay can import the Resolver context type from a path
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 pub struct ResolverContextTypeInputPath {
+    /// The name under which the type is exported from the module
     pub name: StringKey,
+    /// The path to the module
     pub path: PathBuf,
 }
 
+/// Specifies how Relay can import the Resolver context type from a named package
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 pub struct ResolverContextTypeInputPackage {
+    /// The name under which the type is exported from the package
     pub name: StringKey,
+    /// The name of the package
     pub package: StringKey,
 }
 

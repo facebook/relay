@@ -11,12 +11,14 @@ use graphql_test_helpers::apply_transform_for_test;
 use relay_config::DeferStreamInterface;
 use relay_config::DynamicModuleProvider;
 use relay_config::ModuleImportConfig;
+use relay_config::Surface;
 use relay_transforms::transform_match;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let flags = FeatureFlags::default();
     let module_import_config = ModuleImportConfig {
         dynamic_module_provider: Some(DynamicModuleProvider::JSResource),
+        surface: Some(Surface::Resolvers),
     };
     let defer_stream_interface = DeferStreamInterface::default();
     apply_transform_for_test(fixture, |program| {

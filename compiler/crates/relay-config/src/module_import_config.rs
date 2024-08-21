@@ -18,6 +18,8 @@ pub struct ModuleImportConfig {
     /// `ModuleImport` node in ASTs, used for dynamically loading
     /// components at runtime.
     pub dynamic_module_provider: Option<DynamicModuleProvider>,
+    /// Defines the surface upon which @module is enabled.
+    pub surface: Option<Surface>,
 }
 
 #[derive(
@@ -38,4 +40,22 @@ pub enum DynamicModuleProvider {
     /// Generates a custom JS import, Use `<$module>` as the placeholder
     /// for the actual module. e.g. `"() => import('<$module>')"`
     Custom { statement: StringKey },
+}
+
+#[derive(
+    Debug,
+    Deserialize,
+    Serialize,
+    Eq,
+    Clone,
+    Copy,
+    PartialEq,
+    Hash,
+    JsonSchema,
+    strum::Display
+)]
+#[serde(rename_all = "camelCase")]
+pub enum Surface {
+    Resolvers,
+    All,
 }

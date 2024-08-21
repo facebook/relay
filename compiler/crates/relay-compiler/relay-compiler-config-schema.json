@@ -1487,7 +1487,7 @@
                       "type": "string"
                     },
                     "path": {
-                      "description": "The path to the module",
+                      "description": "The path to the module relative to the project root",
                       "type": "string"
                     }
                   }
@@ -4550,7 +4550,7 @@
                             "type": "string"
                           },
                           "path": {
-                            "description": "The path to the module",
+                            "description": "The path to the module relative to the project root",
                             "type": "string"
                           }
                         }

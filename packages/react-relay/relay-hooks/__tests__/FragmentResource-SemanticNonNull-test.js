@@ -12,11 +12,7 @@
 'use strict';
 
 import {getFragmentResourceForEnvironment} from '../legacy/FragmentResource';
-import {
-  RelayFeatureFlags,
-  createOperationDescriptor,
-  graphql,
-} from 'relay-runtime';
+import {createOperationDescriptor, graphql} from 'relay-runtime';
 import RelayNetwork from 'relay-runtime/network/RelayNetwork';
 import RelayModernEnvironment from 'relay-runtime/store/RelayModernEnvironment';
 import RelayModernStore from 'relay-runtime/store/RelayModernStore';
@@ -28,8 +24,6 @@ let query;
 let FragmentResource;
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
-
   const source = RelayRecordSource.create({
     'client:root': {
       __id: 'client:root',

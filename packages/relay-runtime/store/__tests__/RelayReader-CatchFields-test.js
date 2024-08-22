@@ -22,12 +22,9 @@ const RelayReaderCatchFieldsTest2Query = require('./__mocks__/RelayReaderCatchFi
 describe('RelayReader @catch', () => {
   describe('when catch is enabled', () => {
     beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
       RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = true;
     });
 
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
     const wasCatchEnabled =
       RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE;
     it('if scalar has @catch(to: NULL) - scalar value should be null, and nothing should throw or catch', () => {
@@ -173,21 +170,15 @@ describe('RelayReader @catch', () => {
       ]);
     });
     afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
-
       RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE =
         wasCatchEnabled;
     });
   });
   describe('when catch is disabled', () => {
     beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
       RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
     });
 
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
     const wasCatchEnabled =
       RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE;
     it('if scalar has @catch(to: NULL) - scalar value should be null, and nothing should throw or catch', () => {
@@ -358,12 +349,8 @@ describe('RelayReader @catch', () => {
       expect(errorResponseFields).toBeNull();
     });
     afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
-
       RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE =
         wasCatchEnabled;
     });
   });
 });
-// RelayReaderCatchFieldsTest3Query

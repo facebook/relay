@@ -53,7 +53,6 @@ function handleFieldErrors(
 ) {
   for (const fieldError of errorResponseFields) {
     const {path, owner, error} = fieldError;
-
     environment.relayFieldLogger({
       kind: 'relay_field_payload.error',
       owner: owner,
@@ -115,11 +114,10 @@ function handlePotentialSnapshotErrors(
   if (relayResolverErrors.length > 0) {
     handleResolverErrors(environment, relayResolverErrors, throwOnFieldError);
   }
-
-  if (
-    (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING || throwOnFieldError) &&
-    errorResponseFields != null
-  ) {
+  /* inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
+   * which is why this still should run in any case there's errors.
+   */
+  if (errorResponseFields != null) {
     handleFieldErrors(environment, errorResponseFields, throwOnFieldError);
   }
 

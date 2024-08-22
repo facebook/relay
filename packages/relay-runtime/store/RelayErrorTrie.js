@@ -13,8 +13,6 @@
 
 import type {PayloadError} from '../network/RelayNetworkTypes';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-
 // $FlowFixMe[recursive-definition]
 const SELF: Self = Symbol('$SELF');
 
@@ -61,9 +59,7 @@ function buildErrorTrie(
   if (errors == null) {
     return null;
   }
-  if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
-    return null;
-  }
+
   const trie: $NonMaybeType<RelayErrorTrie> = new Map();
   // eslint-disable-next-line no-unused-vars
   ERRORS: for (const {path, locations: _, ...error} of errors) {

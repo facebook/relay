@@ -12,7 +12,6 @@
 'use strict';
 
 import handlePotentialSnapshotErrors from '../handlePotentialSnapshotErrors';
-import RelayFeatureFlags from '../RelayFeatureFlags';
 import {createMockEnvironment} from 'relay-test-utils-internal';
 
 describe('handlePotentialSnapshotErrors', () => {
@@ -22,7 +21,6 @@ describe('handlePotentialSnapshotErrors', () => {
   beforeEach(() => {
     relayFieldLogger = jest.fn();
     environment = createMockEnvironment({relayFieldLogger});
-    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = false; // default
   });
 
   it('should not throw in default case', () => {
@@ -69,31 +67,41 @@ describe('handlePotentialSnapshotErrors', () => {
   });
 
   describe('field error handling', () => {
-    it('does nothing when explicit error handling disabled', () => {
-      handlePotentialSnapshotErrors(
-        environment,
-        null,
-        [],
-        [
-          {
-            owner: 'testOwner',
-            path: 'testPath',
-            error: {
-              message: 'testMessage',
-              path: ['testPath'],
-              severity: 'CRITICAL',
+    it("only logs but doesn't throw when explicit error handling disabled", () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          null,
+          [],
+          [
+            {
+              owner: 'testOwner',
+              path: 'testPath',
+              error: {
+                message: 'testMessage',
+                path: ['testPath'],
+                severity: 'CRITICAL',
+              },
             },
-          },
-        ],
-        false /* throwOnFieldError */,
-      );
+          ],
+          false /* throwOnFieldError */,
+        );
+      }).not.toThrow();
 
-      expect(relayFieldLogger).not.toHaveBeenCalled();
+      expect(relayFieldLogger).toHaveBeenCalledTimes(1);
+      expect(relayFieldLogger).toHaveBeenCalledWith({
+        error: {
+          message: 'testMessage',
+          path: ['testPath'],
+          severity: 'CRITICAL',
+        },
+        fieldPath: 'testPath',
+        kind: 'relay_field_payload.error',
+        owner: 'testOwner',
+      });
     });
 
-    it('logs when ENABLE_FIELD_ERROR_HANDLING enabled', () => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
-
+    it('logs', () => {
       handlePotentialSnapshotErrors(
         environment,
         null,

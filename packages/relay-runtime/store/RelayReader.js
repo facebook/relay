@@ -217,10 +217,6 @@ class RelayReader {
   }
 
   _maybeAddErrorResponseFields(record: Record, storageKey: string): void {
-    if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
-      return;
-    }
-
     const errors = RelayModernRecord.getErrors(record, storageKey);
 
     if (errors == null) {

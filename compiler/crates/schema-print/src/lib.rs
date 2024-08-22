@@ -10,5 +10,7 @@
 #![deny(clippy::all)]
 
 mod print_schema;
+mod printer;
 
 pub use print_schema::*;
+pub use printer::*;

@@ -31,9 +31,12 @@ if (__DEV__) {
       return;
     }
     formattersInstalled = true;
+    // $FlowFixMe[incompatible-call] D61394600
     if (window.devtoolsFormatters == null) {
+      // $FlowFixMe[incompatible-call]D61394600
       window.devtoolsFormatters = [];
     }
+    // $FlowFixMe[incompatible-use] D61394600
     if (!Array.isArray(window.devtoolsFormatters)) {
       return;
     }
@@ -43,6 +46,7 @@ if (__DEV__) {
         'Developer Tools settings, tab "Preferences" under the "Console" ' +
         'section.',
     );
+    // $FlowFixMe[incompatible-use] D61394600
     window.devtoolsFormatters.push(...createFormatters());
   };
 

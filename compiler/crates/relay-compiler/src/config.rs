@@ -429,7 +429,10 @@ impl Config {
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(
-                source_control_for_root(&root_dir),
+                match config_file.no_source_control {
+                    Some(true) => None,
+                    _ => source_control_for_root(&root_dir),
+                },
                 root_dir.clone(),
             )),
             status_reporter: Box::new(ConsoleStatusReporter::new(
@@ -711,6 +714,9 @@ pub struct MultiProjectConfigFile {
 
     /// Then name of the global __DEV__ variable to use in generated artifacts
     is_dev_variable_name: Option<String>,
+
+    /// Opt out of source control checks/integration.
+    no_source_control: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
@@ -776,6 +782,10 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+
+    /// Opt out of source control checks/integration.
+    #[serde(default)]
+    pub no_source_control: Option<bool>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -798,6 +808,7 @@ impl Default for SingleProjectConfigFile {
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
+            no_source_control: Some(false),
         }
     }
 }
@@ -908,6 +919,7 @@ impl SingleProjectConfigFile {
             excludes: self.excludes,
             is_dev_variable_name: self.is_dev_variable_name,
             codegen_command: self.codegen_command,
+            no_source_control: self.no_source_control,
             ..Default::default()
         })
     }

@@ -1386,6 +1386,14 @@
           "default": false,
           "type": "boolean"
         },
+        "noSourceControl": {
+          "description": "Opt out of source control checks/integration.",
+          "default": null,
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "optionalInputFields": {
           "title": "For Flow type generation",
           "description": "When set, generated input types will have the listed fields optional even if the schema defines them as required.",
@@ -2978,6 +2986,13 @@
           "default": null,
           "type": [
             "string",
+            "null"
+          ]
+        },
+        "noSourceControl": {
+          "description": "Opt out of source control checks/integration.",
+          "type": [
+            "boolean",
             "null"
           ]
         },

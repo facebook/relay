@@ -177,6 +177,14 @@ fragment MyFragment on User @throwOnFieldError {
 
 In this example, the `@throwOnFieldError` directive is added to the MyFragment fragment. If any of the fields in this fragment (in this case, id and name) have a field error, the Relay runtime will throw an exception at the time the fragment is read.
 
+__Read more about Relay's experimental support for [Semantic Nullability](../../guides/semantic-nullability.md).__
+
+## `@semanticNonNull` (experimental)
+
+This directive currently requires that the `experimentalEmitSemanticNullabilityTypes` config be enabled for your project. The `@semanticNonNull` directive can be added to fields in your schema to indicate that the field is non-nullable in the semantic sense, but that the client should still be prepared to handle errors.
+
+__Read more about Relay's experimental support for [Semantic Nullability](../../guides/semantic-nullability.md).__
+
 ## `@alias`
 
 `@alias` is a directive that allows you to give a fragment spread or inline fragment an alias, similar to a field alias. This is useful when you want to conditionally include a fragment and check if it was fetched, or otherwise group data together.

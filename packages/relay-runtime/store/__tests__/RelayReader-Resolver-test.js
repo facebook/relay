@@ -165,7 +165,6 @@ describe.each([
 
   describe('Relay resolver - Field Error Handling', () => {
     it('propagates errors from the resolver up to the reader', () => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -206,44 +205,6 @@ describe.each([
           path: 'me.lastName',
         },
       ]);
-    });
-
-    it("doesn't propagate errors from the resolver up to the reader when flag is disabled", () => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = false;
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-          __errors: {
-            lastName: [
-              {
-                message: 'There was an error!',
-                path: ['me', 'lastName'],
-              },
-            ],
-          },
-        },
-      });
-
-      const FooQuery = graphql`
-        query RelayReaderResolverTestFieldError1Query {
-          me {
-            lastName
-          }
-        }
-      `;
-
-      const operation = createOperationDescriptor(FooQuery, {});
-      const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-      const {errorResponseFields} = store.lookup(operation.fragment);
-      expect(errorResponseFields).toEqual(null);
     });
   });
 

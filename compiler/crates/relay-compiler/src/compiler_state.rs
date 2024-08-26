@@ -80,6 +80,10 @@ impl ProjectSet {
         existing_names.push(project_name);
     }
 
+    pub fn extend_iter(&mut self, other: impl Iterator<Item = ProjectName>) {
+        self.0.extend(other);
+    }
+
     pub fn iter(&self) -> slice::Iter<'_, ProjectName> {
         self.0.iter()
     }

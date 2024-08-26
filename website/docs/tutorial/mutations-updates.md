@@ -71,7 +71,7 @@ export default function Story({story}: Props) {
 }
 ```
 
-Now let’s take a look at `StoryLikeButton.js`. Currently, it is a button that doesn’t do anything, along with a like count.
+Now let’s take a look at `StoryLikeButton.tsx`. Currently, it is a button that doesn’t do anything, along with a like count.
 
 ![Like button](/img/docs/tutorial/mutations-like-button.png)
 
@@ -447,7 +447,7 @@ We should now see a composer at the top of the comments section:
 
 ![Comments composer screenshot](/img/docs/tutorial/mutations-comments-composer-screenshot.png)
 
-Now take a look inside `StoryCommentsComposer.js`:
+Now take a look inside `StoryCommentsComposer.tsx`:
 
 ```
 function StoryCommentsComposer({story}) {

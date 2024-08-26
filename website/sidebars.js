@@ -71,6 +71,7 @@ const Guides = {
   'Error Handling': [
     'guides/required-directive',
     'guided-tour/rendering/error-states',
+    'guides/semantic-nullability',
   ],
   'Updating Data': [
     'guided-tour/list-data/updating-connections',

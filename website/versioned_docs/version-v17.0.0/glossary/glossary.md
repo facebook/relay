@@ -447,6 +447,20 @@ graphql`...`
 
 in your code. These are pre-processed, and replaced at build time with a [GraphlQLTaggedNode](#graphqltaggednode) containing an [AST](#ast) representation of the contents of the literal.
 
+## @live
+
+A docblock tag that can be added to mark a Relay resolver as live. To learn more, refer to the [live fields section](https://relay.dev/docs/guides/relay-resolvers/live-fields/) of the Relay resolver documentation.
+
+<FbInternalOnly>
+
+## @live_query
+A directive used on GraphQL queries that enables data updates to be delivered over time without any custom server-side code. This directive provides a more efficient and maintainable alternative to polling (running the same query over and over again).
+
+Live queries are a feature of GraphQL within Meta and supported by the [Real-Time GraphQL team](https://www.internalfb.com/omh/view/real_time_graphql/oncall_profile). To learn more about GraphQL live queries, refer to the [GraphQL Live Queries wiki](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Overview/).
+
+You can learn more about how to use @live_query with Relay on Web with server-polling [here](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Live_Queries_for_Relay/) and client-polling [here](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Live_Queries_for_Relay_(Client_Polling)/).
+</FbInternalOnly>
+
 ## Lookup
 
 One of the main methods exposed by the Relay store. Using a [reader selector](#reader-selector), traverses the data in the store and returns a [snapshot](#snapshot), which contains the data being read, as well as information about whether data is missing and other pieces of information. Also exposed via the Relay environment.

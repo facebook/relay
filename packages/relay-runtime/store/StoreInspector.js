@@ -31,9 +31,9 @@ if (__DEV__) {
       return;
     }
     formattersInstalled = true;
-    // $FlowFixMe[incompatible-call] D61394600
+    // $FlowFixMe[incompatible-use] D61394600
     if (window.devtoolsFormatters == null) {
-      // $FlowFixMe[incompatible-call]D61394600
+      // $FlowFixMe[incompatible-use] D61394600
       window.devtoolsFormatters = [];
     }
     // $FlowFixMe[incompatible-use] D61394600

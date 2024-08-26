@@ -546,19 +546,22 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                             Ok(TypeReference::Named(type_))
                         }
                     }
-                    None => Err(vec![Diagnostic::error_with_data(
-                        ValidationMessageWithData::UnknownType {
-                            type_name: named_type.name.value,
-                            suggestions: if is_for_input {
-                                self.suggestions
-                                    .input_type_suggestions(named_type.name.value)
-                            } else {
-                                self.suggestions
-                                    .output_type_suggestions(named_type.name.value)
+                    None => Err(vec![
+                        Diagnostic::error_with_data(
+                            ValidationMessageWithData::UnknownType {
+                                type_name: named_type.name.value,
+                                suggestions: if is_for_input {
+                                    self.suggestions
+                                        .input_type_suggestions(named_type.name.value)
+                                } else {
+                                    self.suggestions
+                                        .output_type_suggestions(named_type.name.value)
+                                },
                             },
-                        },
-                        self.location.with_span(named_type.name.span),
-                    )]),
+                            self.location.with_span(named_type.name.span),
+                        )
+                        .metadata_for_machine("unknown_type", named_type.name.value.lookup()),
+                    ]),
                 }
             }
             graphql_syntax::TypeAnnotation::NonNull(non_null) => {
@@ -929,13 +932,18 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         }
                     },
                     None => {
-                        return Err(vec![Diagnostic::error_with_data(
-                            ValidationMessageWithData::UnknownType {
-                                type_name,
-                                suggestions: self.suggestions.output_type_suggestions(type_name),
-                            },
-                            self.location.with_span(span),
-                        )]);
+                        return Err(vec![
+                            Diagnostic::error_with_data(
+                                ValidationMessageWithData::UnknownType {
+                                    type_name,
+                                    suggestions: self
+                                        .suggestions
+                                        .output_type_suggestions(type_name),
+                                },
+                                self.location.with_span(span),
+                            )
+                            .metadata_for_machine("unknown_type", type_name.lookup()),
+                        ]);
                     }
                 }
             }

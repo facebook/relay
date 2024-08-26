@@ -80,6 +80,8 @@ use crate::hover::on_hover;
 use crate::inlay_hints::on_inlay_hint_request;
 use crate::lsp_process_error::LSPProcessResult;
 use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::print_operation::on_print_operation;
+use crate::print_operation::PrintOperation;
 use crate::references::on_references;
 use crate::rename::on_prepare_rename;
 use crate::rename::on_rename;
@@ -258,6 +260,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<GetSourceLocationOfTypeDefinition>(
                 on_get_source_location_of_type_definition,
             )?
+            .on_request_sync::<PrintOperation>(on_print_operation)?
             .on_request_sync::<HoverRequest>(on_hover)?
             .on_request_sync::<GotoDefinition>(on_goto_definition)?
             .on_request_sync::<References>(on_references)?

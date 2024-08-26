@@ -46,11 +46,9 @@ export function handleCopyOperation(context: RelayExtensionContext): void {
 
   context.client.sendRequest(request, params).then(response => {
     env.clipboard.writeText(response.operationText).then(() => {
-      const message = response.operationName
-        ? `Copied operation "${response.operationName}" to clipboard`
-        : 'Copied operation to clipboard';
-
-      window.showInformationMessage(message);
+      window.showInformationMessage(
+        `Copied operation "${response.operationName}" to clipboard`,
+      );
     });
   });
 }

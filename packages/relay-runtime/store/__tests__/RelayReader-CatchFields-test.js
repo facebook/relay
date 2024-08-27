@@ -110,6 +110,135 @@ describe('RelayReader @catch', () => {
       ]);
     });
 
+    it('if scalar has catch to RESULT - but no error, response should reflect', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          lastName: 'Big Bird',
+        },
+      });
+
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest09Query {
+          me {
+            lastName @catch(to: RESULT)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
+      const {data, errorResponseFields} = read(source, operation.fragment);
+      expect(data).toEqual({
+        me: {
+          lastName: {
+            ok: true,
+            value: 'Big Bird',
+          },
+        },
+      });
+
+      expect(errorResponseFields).toBeNull();
+    });
+
+    it('if linked has catch to RESULT - but no error, response should reflect', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          lastName: 'Big Bird',
+        },
+      });
+
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest010Query {
+          me @catch {
+            lastName
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
+      const {data, errorResponseFields} = read(source, operation.fragment);
+      expect(data).toEqual({
+        me: {
+          ok: true,
+          value: {
+            lastName: 'Big Bird',
+          },
+        },
+      });
+
+      expect(errorResponseFields).toBeNull();
+    });
+
+    it('if linked has catch to RESULT - with error, response should reflect', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          lastName: null,
+          __errors: {
+            lastName: [
+              {
+                message: 'There was an error!',
+                path: ['me', 'lastName'],
+              },
+            ],
+          },
+        },
+      });
+
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest07Query {
+          me @catch {
+            lastName
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
+      const {data, errorResponseFields} = read(source, operation.fragment);
+      expect(data).toEqual({
+        me: {
+          ok: false,
+          errors: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      });
+
+      expect(errorResponseFields).toEqual([
+        {
+          path: 'me.lastName',
+          to: 'RESULT',
+          error: {
+            message: 'There was an error!',
+            path: ['me', 'lastName'],
+          },
+          owner: 'RelayReaderCatchFieldsTest07Query',
+        },
+      ]);
+    });
+
     it('if scalar has catch to RESULT with nested required', () => {
       const source = RelayRecordSource.create({
         'client:root': {
@@ -193,7 +322,7 @@ describe('RelayReader @catch', () => {
       expect(data).toEqual({me: {lastName: null}});
     });
 
-    it('if scalar has @catch(to: RESULT) - scalar value should provide the value as a CatchField object', () => {
+    it('if scalar has @catch(to: RESULT) - scalar value should still return null because catch is disabled', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -239,6 +368,56 @@ describe('RelayReader @catch', () => {
             path: ['me', 'lastName'],
           },
           owner: 'RelayReaderCatchFieldsTest04Query',
+        },
+      ]);
+    });
+
+    it('if linked has @catch(to: RESULT) - linked value should still return null because catch is disabled', () => {
+      const source = RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          me: {__ref: '1'},
+        },
+        '1': {
+          __id: '1',
+          id: '1',
+          __typename: 'User',
+          lastName: null,
+          __errors: {
+            lastName: [
+              {
+                message: 'There was an error!',
+                path: ['me', 'lastName'],
+              },
+            ],
+          },
+        },
+      });
+
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest08Query {
+          me @catch {
+            lastName
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
+      const {data, errorResponseFields} = read(source, operation.fragment);
+      expect(data).toEqual({
+        me: {
+          lastName: null,
+        },
+      });
+
+      expect(errorResponseFields).toEqual([
+        {
+          path: 'me.lastName',
+          error: {
+            message: 'There was an error!',
+            path: ['me', 'lastName'],
+          },
+          owner: 'RelayReaderCatchFieldsTest08Query',
         },
       ]);
     });

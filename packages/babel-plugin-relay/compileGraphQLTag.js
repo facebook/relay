@@ -18,8 +18,8 @@ import type {
   OperationDefinitionNode,
 } from 'graphql';
 
+const printGraphQL = require('./printGraphQL.js');
 const crypto = require('crypto');
-const {print} = require('graphql');
 const {
   dirname,
   join: joinPath,
@@ -125,7 +125,7 @@ function createNode(
 
   const hash = crypto
     .createHash('md5')
-    .update(print(graphqlDefinition), 'utf8')
+    .update(printGraphQL(graphqlDefinition), 'utf8')
     .digest('hex');
 
   let topScope = path.scope;

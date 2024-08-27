@@ -16,13 +16,17 @@
     "url": "https://github.com/facebook/relay.git",
     "directory": "packages/babel-plugin-relay"
   },
+  "peerDependencies": {
+    "@babel/core": "^7.0.0",
+    "graphql": "^15.0.0 || ^16.0.0"
+  },
   "dependencies": {
     "babel-plugin-macros": "^2.0.0",
-    "cosmiconfig": "^5.0.5",
-    "graphql": "15.3.0"
+    "cosmiconfig": "^5.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "graphql": "^16.8.1",
     "prettier": "2.8.8",
     "prettier-plugin-hermes-parser": "0.23.1"
   }

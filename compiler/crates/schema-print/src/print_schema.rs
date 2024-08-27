@@ -12,11 +12,17 @@ use fnv::FnvHashMap;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use itertools::Itertools;
+use rayon::iter::IntoParallelIterator;
+use rayon::iter::ParallelIterator;
 use schema::*;
 
+use crate::generate_shard_map;
+use crate::generate_typed_shard_map;
 use crate::has_schema_definition_types;
 use crate::is_schema_of_common_name;
 use crate::Printer;
+use crate::ShardPrinter;
+use crate::TypedShardPrinter;
 use crate::DEAULT_SHARD_COUNT;
 
 pub fn print(schema: &SDLSchema) -> String {
@@ -60,6 +66,8 @@ pub fn print_types(schema: &SDLSchema) -> String {
 }
 
 /// Returns a sharded GraphQL SDLSchema
+///
+/// Prints shards in sequence. No parallelism is used.
 ///
 /// # Arguments
 ///
@@ -108,6 +116,73 @@ pub fn print_types_directives_as_shards(
     shards
 }
 
+/**
+ * Prints a sharded GraphQL SDLSchema in parallel
+ */
+pub fn print_types_directives_as_shards_in_parallel(
+    schema: &SDLSchema,
+    shard_count: usize,
+    type_shard_count_map: FnvHashMap<StringKey, usize>,
+) -> FnvHashMap<usize, String> {
+    let typeshard_count: usize = type_shard_count_map.values().sum();
+    let base_shard_count = shard_count - typeshard_count;
+    let shard_map = generate_shard_map(
+        schema,
+        base_shard_count,
+        type_shard_count_map.keys().copied().collect(),
+    );
+    let typed_shard_map = generate_typed_shard_map(schema, type_shard_count_map);
+
+    // Base shards
+    let mut shards = shard_map
+        .into_par_iter()
+        .map(|(shard_key, shard)| {
+            let printer = ShardPrinter::new(schema, shard);
+            // Print directives
+            let content = if shard_key == 0 {
+                printer.print_shard_with_directives()
+            } else {
+                printer.print_shard()
+            };
+            (shard_key, content)
+        })
+        .collect::<FnvHashMap<usize, String>>();
+
+    // Typed shards (e.g. Query, Mutation, etc)
+    let mut typed_shards = typed_shard_map
+        .into_par_iter()
+        .map(|(type_name, shard_map)| {
+            let type_shard_count = shard_map.len();
+            let typed_shard = shard_map
+                .into_par_iter()
+                .map(|(shard_key, fields)| {
+                    let printer = TypedShardPrinter::new(
+                        schema,
+                        type_name,
+                        fields,
+                        shard_key == 0,
+                        shard_key == type_shard_count - 1,
+                    );
+                    (shard_key, printer.print_shard())
+                })
+                .collect();
+            (type_name, typed_shard)
+        })
+        .collect::<FnvHashMap<StringKey, FnvHashMap<usize, String>>>();
+
+    // Drain typed_shards into shards
+    typed_shards
+        .iter_mut()
+        .sorted_by_key(|(k, _)| k.lookup())
+        .for_each(|(_type_name, type_shards)| {
+            let curr_shard_count = shards.len();
+            type_shards.drain().for_each(|(shard_key, type_shard)| {
+                shards.insert(curr_shard_count + shard_key, type_shard);
+            });
+        });
+    shards
+}
+
 pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_type(schema, &mut result, type_).unwrap();
@@ -135,7 +210,7 @@ fn write_directive(
 
 fn write_types(schema: &SDLSchema, result: &mut Vec<String>) -> FmtResult {
     let mut printer = Printer::new(schema, result);
-    printer.print_types()
+    printer.print_all_types()
 }
 
 fn write_types_as_shards<'a>(
@@ -145,7 +220,7 @@ fn write_types_as_shards<'a>(
     type_shards: &'a mut FnvHashMap<StringKey, Vec<String>>,
 ) -> FmtResult {
     let mut printer = Printer::new_with_shards(schema, shards, shard_count, Some(type_shards));
-    printer.print_types()
+    printer.print_all_types()
 }
 
 fn write_type(schema: &SDLSchema, result: &mut Vec<String>, type_: Type) -> FmtResult {

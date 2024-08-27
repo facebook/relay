@@ -1,9 +1,13 @@
-use std::collections::hash_map::DefaultHasher;
+/*
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 use std::collections::BTreeMap;
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
-use std::hash::Hash;
-use std::hash::Hasher;
 
 use fnv::FnvHashMap;
 use intern::string_key::Intern;
@@ -12,9 +16,11 @@ use intern::Lookup;
 use itertools::Itertools;
 use schema::*;
 
+use crate::calculate_hash;
+
 pub const DEAULT_SHARD_COUNT: usize = 1;
 
-pub(crate) struct Printer<'schema, 'writer> {
+pub struct Printer<'schema, 'writer> {
     schema: &'schema SDLSchema,
     // Each writer here represents a shard
     writers: &'writer mut Vec<String>,
@@ -111,10 +117,17 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    pub fn print_types(&mut self) -> FmtResult {
+    pub fn print_all_types(&mut self) -> FmtResult {
         let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
         for (_key, value) in ordered_type_map.iter() {
             self.print_type(**value)?;
+        }
+        Ok(())
+    }
+
+    pub fn print_types(&mut self, types_to_print: &[(StringKey, Type)]) -> FmtResult {
+        for (_key, value) in types_to_print.iter() {
+            self.print_type(*value)?;
         }
         Ok(())
     }
@@ -195,7 +208,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_fields(&mut self, fields: &[FieldID], type_name: impl Lookup) -> FmtResult {
+    pub fn print_fields(&mut self, fields: &[FieldID], type_name: impl Lookup) -> FmtResult {
         if fields.is_empty() {
             return Ok(());
         }
@@ -216,6 +229,26 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         }
         self.update_writer_index_for_all_field_end(typename);
         write!(self.writer(), "}}")
+    }
+
+    // Prints a set of fields indented by 2 spaces
+    // Does not handle writing the type definition and open/closing brackets
+    pub fn print_fields_without_brackets(&mut self, fields: &[FieldID]) -> FmtResult {
+        if fields.is_empty() {
+            return Ok(());
+        }
+        for field_id in fields {
+            let field = &self.schema.field(*field_id);
+            self.print_space()?;
+            self.print_space()?;
+            write!(self.writer(), "{}", field.name.item)?;
+            self.print_args(&field.arguments)?;
+            let type_string = self.schema.get_type_string(&field.type_);
+            write!(self.writer(), ": {}", type_string)?;
+            self.print_directive_values(&field.directives)?;
+            self.print_new_line()?;
+        }
+        Ok(())
     }
 
     fn print_args(&mut self, args: &ArgumentDefinitions) -> FmtResult {
@@ -311,7 +344,15 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         Ok(())
     }
 
-    fn print_definition_end(&mut self) -> FmtResult {
+    pub fn print_type_declaration(&mut self, type_name: StringKey) -> FmtResult {
+        writeln!(self.writer(), "type {} {{", type_name)
+    }
+
+    pub fn print_definition_closure(&mut self) -> FmtResult {
+        write!(self.writer(), "}}")
+    }
+
+    pub fn print_definition_end(&mut self) -> FmtResult {
         self.print_new_line()?;
         self.print_new_line()
     }
@@ -380,10 +421,4 @@ pub fn has_schema_definition_types(schema: &SDLSchema) -> bool {
     schema.query_type().is_some()
         || schema.mutation_type().is_some()
         || schema.subscription_type().is_some()
-}
-
-pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
-    let mut s = DefaultHasher::new();
-    t.hash(&mut s);
-    s.finish()
 }

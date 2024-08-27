@@ -23,7 +23,10 @@
         "packages/relay-test-utils-internal/schema-extensions"
       ],
       "customScalarTypes": {
-        "OpaqueScalarType": {"name": "OpaqueScalarType", "path": "../OpaqueScalarType"}
+        "OpaqueScalarType": {
+          "name": "OpaqueScalarType",
+          "path": "../OpaqueScalarType"
+        }
       },
       "jsModuleFormat": "commonjs",
       "schemaConfig": {
@@ -44,6 +47,9 @@
       },
       "featureFlags": {
         "enable_relay_resolver_transform": true,
+        "enable_catch_directive_transform": {
+          "kind": "enabled"
+        },
         "no_inline": {
           "kind": "enabled"
         },
@@ -53,7 +59,9 @@
         "enable_fragment_aliases": {
           "kind": "enabled"
         },
-        "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+        "relay_resolver_enable_interface_output_type": {
+          "kind": "enabled"
+        }
       },
       "language": "flow",
       "experimentalEmitSemanticNullabilityTypes": true

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @oncall relay
+ *
+ * @generated SignedSource<<45a84adb624f559c67638cecbd93867c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,15 +18,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type RelayReaderCatchFieldsTest0Query$variables = {||};
-export type RelayReaderCatchFieldsTest0Query$data = {|
-  +me: {|
+import type { Result } from "relay-runtime";
+export type RelayReaderCatchFieldsTest02Query$variables = {||};
+export type RelayReaderCatchFieldsTest02Query$data = {|
+  +me: Result<?{|
     +lastName: string,
-  |},
+  |}, $ReadOnlyArray<mixed>>,
 |};
-export type RelayReaderCatchFieldsTest0Query = {|
-  response: RelayReaderCatchFieldsTest0Query$data,
-  variables: RelayReaderCatchFieldsTest0Query$variables,
+export type RelayReaderCatchFieldsTest02Query = {|
+  response: RelayReaderCatchFieldsTest02Query$data,
+  variables: RelayReaderCatchFieldsTest02Query$variables,
 |};
 */
 
@@ -41,9 +44,11 @@ return {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayReaderCatchFieldsTest0Query",
+    "name": "RelayReaderCatchFieldsTest02Query",
     "selections": [
       {
+        "kind": "CatchField",
+        "field": {
           "alias": null,
           "args": null,
           "concreteType": "User",
@@ -52,14 +57,17 @@ return {
           "plural": false,
           "selections": [
             {
-              "kind": "CatchField",
+              "kind": "RequiredField",
               "field": (v0/*: any*/),
-              "to": "NULL",
+              "action": "THROW",
               "path": "me.lastName"
             }
           ],
-          "storageKey": null,
+          "storageKey": null
         },
+        "to": "RESULT",
+        "path": "me"
+      }
     ],
     "type": "Query",
     "abstractKey": null
@@ -68,7 +76,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderCatchFieldsTest0Query",
+    "name": "RelayReaderCatchFieldsTest02Query",
     "selections": [
       {
         "alias": null,
@@ -92,21 +100,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "8cd69a31b3db9176dc76e43d3a795c6f",
+    "cacheID": "34e1af5d2d4ea68ba0882c4841c9c623",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderCatchFieldsTest0Query",
+    "name": "RelayReaderCatchFieldsTest02Query",
     "operationKind": "query",
-    "text": "query RelayReaderCatchFieldsTest0Query {\n  me {\n    lastName\n    id\n  }\n}\n"
+    "text": "query RelayReaderCatchFieldsTest02Query {\n  me {\n    lastName\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "87b6ffdc922687a788965139fef7a707";
+  (node/*: any*/).hash = "d8f6e5100562fac101a44e03c6403848";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  RelayReaderCatchFieldsTest0Query$variables,
-  RelayReaderCatchFieldsTest0Query$data,
+  RelayReaderCatchFieldsTest02Query$variables,
+  RelayReaderCatchFieldsTest02Query$data,
 >*/);

@@ -8,16 +8,13 @@
  * @format
  * @oncall relay
  */
-
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const RelayReaderCatchFieldsTest0Query = require('./__mocks__/RelayReaderCatchFieldsTest0Query.graphql.js');
-const RelayReaderCatchFieldsTest1Query = require('./__mocks__/RelayReaderCatchFieldsTest1Query.graphql.js');
-const RelayReaderCatchFieldsTest2Query = require('./__mocks__/RelayReaderCatchFieldsTest2Query.graphql.js');
 
 describe('RelayReader @catch', () => {
   describe('when catch is enabled', () => {
@@ -42,18 +39,14 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest0Query {
-      //     me {
-      //       lastName @catch(to: NULL)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest0Query,
-        {id: '1'},
-      );
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest00Query {
+          me {
+            lastName @catch(to: NULL)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
       const {data} = read(source, operation.fragment);
       expect(data).toEqual({me: {lastName: null}});
     });
@@ -81,18 +74,14 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me {
-      //       lastName @catch(to: RESULT)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest1Query,
-        {id: '1'},
-      );
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest01Query {
+          me {
+            lastName @catch(to: RESULT)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
       const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         me: {
@@ -116,7 +105,7 @@ describe('RelayReader @catch', () => {
             message: 'There was an error!',
             path: ['me', 'lastName'],
           },
-          owner: 'RelayReaderCatchFieldsTest1Query',
+          owner: 'RelayReaderCatchFieldsTest01Query',
         },
       ]);
     });
@@ -136,18 +125,14 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me @catch {
-      //       lastName @required(action: THROW)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest2Query,
-        {id: '1'},
-      );
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest02Query {
+          me @catch {
+            lastName @required(action: THROW)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
       const {data, errorResponseFields, missingRequiredFields} = read(
         source,
         operation.fragment,
@@ -159,11 +144,11 @@ describe('RelayReader @catch', () => {
       expect(missingRequiredFields).toBeNull();
       expect(errorResponseFields).toEqual([
         {
-          owner: 'RelayReaderCatchFieldsTest2Query',
+          owner: 'RelayReaderCatchFieldsTest02Query',
           path: 'me.lastName',
           error: {
             message:
-              "Relay: Missing @required value at path 'me.lastName' in 'RelayReaderCatchFieldsTest2Query'.",
+              "Relay: Missing @required value at path 'me.lastName' in 'RelayReaderCatchFieldsTest02Query'.",
           },
           to: 'RESULT',
         },
@@ -196,18 +181,14 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest0Query {
-      //     me {
-      //       lastName @catch(to: NULL)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest0Query,
-        {id: '1'},
-      );
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest03Query {
+          me {
+            lastName @catch(to: NULL)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
       const {data} = read(source, operation.fragment);
       expect(data).toEqual({me: {lastName: null}});
     });
@@ -235,18 +216,14 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me {
-      //       lastName @catch(to: RESULT)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest1Query,
-        {id: '1'},
-      );
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest04Query {
+          me {
+            lastName @catch(to: RESULT)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
       const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         me: {
@@ -261,7 +238,7 @@ describe('RelayReader @catch', () => {
             message: 'There was an error!',
             path: ['me', 'lastName'],
           },
-          owner: 'RelayReaderCatchFieldsTest1Query',
+          owner: 'RelayReaderCatchFieldsTest04Query',
         },
       ]);
     });
@@ -281,18 +258,14 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me @catch {
-      //       lastName @required(action: THROW)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest2Query,
-        {id: '1'},
-      );
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest05Query {
+          me @catch {
+            lastName @required(action: THROW)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
       const {data, errorResponseFields, missingRequiredFields} = read(
         source,
         operation.fragment,
@@ -302,7 +275,10 @@ describe('RelayReader @catch', () => {
       });
       expect(missingRequiredFields).toEqual({
         action: 'THROW',
-        field: {owner: 'RelayReaderCatchFieldsTest2Query', path: 'me.lastName'},
+        field: {
+          owner: 'RelayReaderCatchFieldsTest05Query',
+          path: 'me.lastName',
+        },
       });
       expect(errorResponseFields).toBeNull();
     });
@@ -322,18 +298,14 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me @catch {
-      //       lastName @required(action: THROW)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest2Query,
-        {id: '1'},
-      );
+      const FooQuery = graphql`
+        query RelayReaderCatchFieldsTest06Query {
+          me @catch {
+            lastName @required(action: THROW)
+          }
+        }
+      `;
+      const operation = createOperationDescriptor(FooQuery, {id: '1'});
       const {data, errorResponseFields, missingRequiredFields} = read(
         source,
         operation.fragment,
@@ -344,7 +316,10 @@ describe('RelayReader @catch', () => {
 
       expect(missingRequiredFields).toEqual({
         action: 'THROW',
-        field: {owner: 'RelayReaderCatchFieldsTest2Query', path: 'me.lastName'},
+        field: {
+          owner: 'RelayReaderCatchFieldsTest06Query',
+          path: 'me.lastName',
+        },
       });
       expect(errorResponseFields).toBeNull();
     });

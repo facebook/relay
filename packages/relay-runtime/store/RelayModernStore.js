@@ -76,6 +76,7 @@ const DEFAULT_RELEASE_BUFFER_SIZE = 10;
  * is also enforced in development mode by freezing all records passed to a store.
  */
 class RelayModernStore implements Store {
+  _loader: ?(module: mixed) => React.AbstractComponent<mixed>;
   _currentWriteEpoch: number;
   _gcHoldCounter: number;
   _gcReleaseBufferSize: number;
@@ -116,6 +117,7 @@ class RelayModernStore implements Store {
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
+      loader: (module: mixed) => React.AbstractComponent<mixed>,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -141,6 +143,7 @@ class RelayModernStore implements Store {
     this.__log = options?.log ?? null;
     this._queryCacheExpirationTime = options?.queryCacheExpirationTime;
     this._operationLoader = options?.operationLoader ?? null;
+    this._loader = options?.loader;
     this._optimisticSource = null;
     this._recordSource = source;
     this._releaseBuffer = [];
@@ -305,7 +308,12 @@ class RelayModernStore implements Store {
       });
     }
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector, this._resolverCache);
+    const snapshot = RelayReader.read(
+      source,
+      selector,
+      this._resolverCache,
+      this._loader,
+    );
     if (__DEV__) {
       deepFreeze(snapshot);
     }

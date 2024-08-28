@@ -47,6 +47,7 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
+const React = require('react');
 const {
   ACTOR_CHANGE,
   ALIASED_INLINE_FRAGMENT_SPREAD,
@@ -99,11 +100,13 @@ function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
   resolverCache?: ResolverCache,
+  loader: (module: mixed) => React.AbstractComponent<mixed>,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
     resolverCache ?? new NoopResolverCache(),
+    loader,
   );
   return reader.read();
 }
@@ -128,12 +131,15 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
+  _loader: (module: mixed) => React.AbstractComponent<mixed>;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
+    loader: (module: mixed) => React.AbstractComponent<mixed>,
   ) {
+    this._loader = loader;
     this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
       ? [...selector.clientEdgeTraversalPath]
       : [];
@@ -501,11 +507,18 @@ class RelayReader {
           if (fieldValue === false) {
             fieldValue = null;
           }
-          data[selection.name] = fieldValue;
+          if (fieldValue != null && typeof fieldValue.module === 'function') {
+            data[selection.name] = fieldValue.module;
+          } else {
+            data[selection.name] = fieldValue;
+          }
           break;
         }
         case MODULE_IMPORT:
           this._readModuleImport(selection, record, data);
+          break;
+        case 'AutoBindModuleImport':
+          this._readAutoBindModuleImport(selection, record, data);
           break;
         case INLINE_DATA_FRAGMENT_SPREAD:
           this._createInlineDataOrResolverFragmentPointer(
@@ -1102,6 +1115,47 @@ class RelayReader {
     });
     data[fieldName] = linkedArray;
     return linkedArray;
+  }
+
+  _readAutoBindModuleImport(
+    moduleImport: ReaderModuleImport,
+    record: Record,
+    data: SelectorData,
+  ) {
+    // Determine the component module from the store: if the field is missing
+    // it means we don't know what component to render the match with.
+    const componentKey = getModuleComponentKey(moduleImport.documentName);
+    const component = RelayModernRecord.getValue(record, componentKey);
+    if (component == null) {
+      if (component === undefined) {
+        this._markDataAsMissing();
+      }
+      return;
+    }
+
+    // Otherwise, read the fragment and module associated to the concrete
+    // type, and put that data with the result:
+    // - For the matched fragment, create the relevant fragment pointer and add
+    //   the expected fragmentPropName
+    // - For the matched module, create a reference to the module
+    const fragmentKey = {};
+    this._createFragmentPointer(
+      {
+        kind: 'FragmentSpread',
+        name: moduleImport.fragmentName,
+        args: moduleImport.args,
+      },
+      record,
+      fragmentKey,
+    );
+    data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
+    data[MODULE_COMPONENT_KEY] = component;
+
+    data['module'] = props => {
+      const newProps = {...props, [moduleImport.fragmentPropName]: fragmentKey};
+      const Component = this._loader(component);
+      return <Component {...newProps} />;
+    };
   }
 
   /**

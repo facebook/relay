@@ -19,6 +19,9 @@ export function handleCopyOperation(context: RelayExtensionContext): void {
       semver.prerelease(binaryVersion) != null;
 
     if (!isSupportedCompilerVersion) {
+      window.showWarningMessage(
+        'Unsupported relay-compiler version. Requires >17.0.0',
+      );
       return;
     }
   }

@@ -325,6 +325,45 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         Ok(())
     }
 
+    fn validate_synced_schema_source(&self, url: &Url) -> LSPRuntimeResult<()> {
+        let schema_source = self.synced_schema_sources.get(url).ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!("Expected schema source for URL {}", url))
+        })?;
+        let project_name = self.extract_project_name_from_url(url)?;
+        let project_config = self
+            .config
+            .projects
+            .get(&ProjectName::from(project_name))
+            .unwrap();
+
+        if project_config.feature_flags.disable_schema_validation {
+            return Ok(());
+        }
+
+        let source_location_key = SourceLocationKey::standalone(url.as_ref());
+
+        let mut diagnostics = vec![];
+        let text_source = schema_source.text_source();
+        let result = graphql_syntax::parse_schema_document(&text_source.text, source_location_key);
+
+        match result {
+            // In the future you could run additional validations based on the new schema document here
+            Ok(_) => (),
+            Err(raw_diagnostics) => {
+                diagnostics.extend(raw_diagnostics.iter().map(|diagnostic| {
+                    // TODO: The very last character is problematic for some reason
+                    self.diagnostic_reporter
+                        .convert_diagnostic(text_source, diagnostic)
+                }));
+            }
+        }
+
+        self.diagnostic_reporter
+            .update_quick_diagnostics_for_url(url, diagnostics);
+
+        Ok(())
+    }
+
     fn preload_documentation(&self) {
         for project_config in self.config.enabled_projects() {
             self.get_schema_documentation(&project_config.name.to_string());
@@ -355,8 +394,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .insert(url.clone(), graphql_source);
     }
 
+    fn process_synced_schema_sources(&self, uri: &Url, graphql_source: GraphQLSource) {
+        self.insert_synced_schema_source(uri, graphql_source);
+        self.schedule_task(Task::ValidateSchemaSource(uri.clone()));
+    }
+
     fn remove_synced_schema_source(&self, url: &Url) {
         self.synced_schema_sources.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
     }
 
     fn initialize_lsp_state_resources(&self, project_name: StringKey) {
@@ -540,7 +586,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         match file_group {
             FileGroup::Schema { project_set: _ } | FileGroup::Extension { project_set: _ } => {
                 self.initialize_lsp_state_resources(project_name);
-                self.insert_synced_schema_source(uri, GraphQLSource::new(text, 0, 0));
+                self.process_synced_schema_sources(uri, GraphQLSource::new(text, 0, 0));
 
                 Ok(())
             }
@@ -567,7 +613,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         match file_group {
             FileGroup::Schema { project_set: _ } | FileGroup::Extension { project_set: _ } => {
-                self.insert_synced_schema_source(uri, GraphQLSource::new(text, 0, 0));
+                self.process_synced_schema_sources(uri, GraphQLSource::new(text, 0, 0));
 
                 Ok(())
             }
@@ -631,8 +677,9 @@ pub fn build_ir_for_lsp(
 
 #[derive(Debug)]
 pub enum Task {
+    ValidateSyncedDocuments,
     ValidateSyncedSource(Url),
-    ValidateSyncedSources,
+    ValidateSchemaSource(Url),
 }
 
 pub(crate) fn handle_lsp_state_tasks<
@@ -643,13 +690,20 @@ pub(crate) fn handle_lsp_state_tasks<
     task: Task,
 ) {
     match task {
-        Task::ValidateSyncedSource(url) => {
-            state.validate_synced_js_sources(&url).ok();
-        }
-        Task::ValidateSyncedSources => {
+        Task::ValidateSyncedDocuments => {
             for item in &state.synced_javascript_sources {
                 state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
             }
+
+            for item in &state.synced_schema_sources {
+                state.schedule_task(Task::ValidateSchemaSource(item.key().clone()));
+            }
+        }
+        Task::ValidateSyncedSource(url) => {
+            state.validate_synced_js_sources(&url).ok();
+        }
+        Task::ValidateSchemaSource(url) => {
+            state.validate_synced_schema_source(&url).ok();
         }
     }
 }

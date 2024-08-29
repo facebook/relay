@@ -79,7 +79,7 @@ impl Request for GraphQLExecuteQuery {
 /// This function will return the program that contains only operation
 /// and all referenced fragments.
 /// We can use it to print the full query text
-fn get_operation_only_program(
+pub fn get_operation_only_program(
     operation: Arc<OperationDefinition>,
     fragments: Vec<Arc<FragmentDefinition>>,
     program: &Program,

@@ -57,6 +57,7 @@ use tokio::sync::Notify;
 use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::graphql_tools::get_operation_only_program;
 use crate::graphql_tools::get_query_text;
 use crate::location::transform_relay_location_to_lsp_location_with_cache;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -602,9 +603,16 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let program = self.get_program(project_name)?;
 
+        let operation_only_program = program
+            .operation(operation_name)
+            .and_then(|operation| {
+                get_operation_only_program(Arc::clone(&operation), vec![], &program)
+            })
+            .ok_or(LSPRuntimeError::ExpectedError)?;
+
         let programs = apply_transforms(
             project_config,
-            Arc::new(program),
+            Arc::new(operation_only_program),
             Default::default(),
             Arc::clone(&self.perf_logger),
             None,

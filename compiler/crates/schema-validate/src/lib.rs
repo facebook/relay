@@ -201,7 +201,7 @@ impl<'schema> ValidationContext<'schema> {
         // Must define one or more fields.
         if fields.is_empty() {
             self.report_diagnostic(Diagnostic::error(
-                SchemaValidationError::TypeWithNoFields,
+                SchemaValidationError::TypeWithNoFields(type_name),
                 self.get_type_definition_location(self.schema.get_type(type_name).unwrap()),
             ));
         }
@@ -323,7 +323,7 @@ impl<'schema> ValidationContext<'schema> {
         let input_object = self.schema.input_object(id);
         if input_object.fields.is_empty() {
             self.report_diagnostic(Diagnostic::error(
-                SchemaValidationError::TypeWithNoFields,
+                SchemaValidationError::TypeWithNoFields(input_object.name.item.0),
                 input_object.name.location,
             ));
         }

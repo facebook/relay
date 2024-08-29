@@ -32,8 +32,8 @@ pub enum SchemaValidationError {
     #[error("Duplicate argument '{0}' found on field/directive '{1}'.")]
     DuplicateArgument(ArgumentName, StringKey),
 
-    #[error("Type must define one or more fields.")]
-    TypeWithNoFields,
+    #[error("The type '{0}' must define one or more fields.")]
+    TypeWithNoFields(StringKey),
 
     #[error("The type of '{0}.{1}' must be Output Type but got {2}.")]
     InvalidFieldType(StringKey, StringKey, String),

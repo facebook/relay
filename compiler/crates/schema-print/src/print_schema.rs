@@ -136,7 +136,8 @@ pub fn print_types_directives_as_shards_in_parallel(
     // Base shards
     let mut shards = shard_map
         .into_par_iter()
-        .map(|(shard_key, shard)| {
+        .map(|(shard_key, mut shard)| {
+            shard.sort_by_key(|(type_name, _type)| type_name.lookup());
             let printer = ShardPrinter::new(schema, shard);
             // Print directives
             let content = if shard_key == 0 {

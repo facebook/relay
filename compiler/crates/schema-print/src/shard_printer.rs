@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::BTreeMap;
-
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use intern::string_key::StringKey;
@@ -100,10 +98,8 @@ pub fn generate_shard_map(
     shard_count: usize,
     types_to_print: FnvHashSet<StringKey>,
 ) -> FnvHashMap<usize, Vec<(StringKey, Type)>> {
-    // Sort to ensure deterministic output
-    let ordered_type_map = schema.get_type_map().collect::<BTreeMap<_, _>>();
-    ordered_type_map
-        .into_iter()
+    schema
+        .get_type_map()
         .map(|(type_name, type_)| {
             (
                 calculate_hash(&type_name.lookup()) as usize % shard_count,

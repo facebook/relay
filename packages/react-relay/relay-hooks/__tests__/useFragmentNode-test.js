@@ -24,7 +24,8 @@ import type {OperationDescriptor} from 'relay-runtime';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
-const useFragmentInternal = require('../useFragmentInternal');
+const useFragmentInternal_CURRENT = require('../useFragmentInternal_CURRENT');
+const useFragmentInternal_EXPERIMENTAL = require('../useFragmentInternal_EXPERIMENTAL');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -92,7 +93,7 @@ type ReturnType<TFragmentData: mixed> = {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-hook useFragmentNode_NEW<TFragmentData: mixed>(
+hook useFragmentNode_CURRENT<TFragmentData: mixed>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -105,7 +106,28 @@ hook useFragmentNode_NEW<TFragmentData: mixed>(
   key: any,
   displayName: string,
 ): ReturnType<TFragmentData> {
-  const data = useFragmentInternal(fragment, key, displayName);
+  const data = useFragmentInternal_CURRENT(fragment, key, displayName);
+  return {
+    // $FlowFixMe[incompatible-return]
+    data,
+    disableStoreUpdates: () => {},
+    enableStoreUpdates: () => {},
+  };
+}
+hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
+  fragment:
+    | Fragment<
+        useFragmentNodeTestUserFragment$fragmentType,
+        useFragmentNodeTestUserFragment$data,
+      >
+    | Fragment<
+        useFragmentNodeTestUsersFragment$fragmentType,
+        useFragmentNodeTestUsersFragment$data,
+      >,
+  key: any,
+  displayName: string,
+): ReturnType<TFragmentData> {
+  const data = useFragmentInternal_EXPERIMENTAL(fragment, key, displayName);
   return {
     // $FlowFixMe[incompatible-return]
     data,
@@ -115,13 +137,15 @@ hook useFragmentNode_NEW<TFragmentData: mixed>(
 }
 
 describe.each([
-  ['New', useFragmentNode_NEW],
+  ['Experimental', useFragmentNode_EXPERIMENTAL],
+  ['Current', useFragmentNode_CURRENT],
   ['Legacy', useFragmentNode_LEGACY],
 ])(
   'useFragmentNode / useFragment (%s)',
   (_hookName, useFragmentNodeOriginal) => {
     const isUsingNewImplementation =
-      useFragmentNodeOriginal === useFragmentNode_NEW;
+      useFragmentNodeOriginal === useFragmentNode_CURRENT ||
+      useFragmentNodeOriginal === useFragmentNode_EXPERIMENTAL;
     let environment;
     let disableStoreUpdates;
     let enableStoreUpdates;

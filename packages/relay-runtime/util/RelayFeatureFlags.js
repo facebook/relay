@@ -51,6 +51,9 @@ export type FeatureFlags = {
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: boolean,
 
   ENABLE_CYLE_DETECTION_IN_VARIABLES: boolean,
+
+  // Temporary flag to experiment with new useFragmentInternal implementation
+  ENABLE_USE_FRAGMENT_EXPERIMENTAL: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -74,6 +77,7 @@ const RelayFeatureFlags: FeatureFlags = {
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
+  ENABLE_USE_FRAGMENT_EXPERIMENTAL: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -1,3 +1,9 @@
+query client3DResolversEnabledServer3DFragment_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...client3DResolversEnabledServer3DFragment_NameRendererFragment
+  }
+}
+
 fragment client3DResolversEnabledServer3DFragment_NameRendererFragment on User {
   id
   nameRenderer @match {

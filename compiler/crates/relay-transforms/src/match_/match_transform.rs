@@ -373,7 +373,8 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     Ok(false)
                 }?;
             let needs_js_fields = self.module_import_config.dynamic_module_provider.is_none()
-                && !uses_read_time_resolvers;
+                || (self.module_import_config.surface == Some(Surface::Resolvers)
+                    && !uses_read_time_resolvers);
 
             if needs_js_fields {
                 self.validate_js_module_type(spread.fragment.location)?;

@@ -39,6 +39,7 @@ use md5::Digest;
 use md5::Md5;
 use relay_config::JsModuleFormat;
 use relay_config::ProjectConfig;
+use relay_config::Surface;
 use relay_transforms::extract_connection_metadata_from_directive;
 use relay_transforms::extract_handle_field_directives;
 use relay_transforms::extract_values_from_handle_field_directive;
@@ -2256,20 +2257,25 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .module_import_config
                     .dynamic_module_provider
                 {
-                    module_import.push(ObjectEntry {
-                        key: CODEGEN_CONSTANTS.component_module_provider,
-                        value: Primitive::DynamicImport {
-                            provider: dynamic_module_provider,
-                            module: module_metadata.module_name,
-                        },
-                    });
-                    module_import.push(ObjectEntry {
-                        key: CODEGEN_CONSTANTS.operation_module_provider,
-                        value: Primitive::DynamicImport {
-                            provider: dynamic_module_provider,
-                            module: get_fragment_filename(fragment_name),
-                        },
-                    });
+                    match self.project_config.module_import_config.surface {
+                        None | Some(Surface::All) => {
+                            module_import.push(ObjectEntry {
+                                key: CODEGEN_CONSTANTS.component_module_provider,
+                                value: Primitive::DynamicImport {
+                                    provider: dynamic_module_provider,
+                                    module: module_metadata.module_name,
+                                },
+                            });
+                            module_import.push(ObjectEntry {
+                                key: CODEGEN_CONSTANTS.operation_module_provider,
+                                value: Primitive::DynamicImport {
+                                    provider: dynamic_module_provider,
+                                    module: get_fragment_filename(fragment_name),
+                                },
+                            });
+                        }
+                        Some(Surface::Resolvers) => {}
+                    }
                 }
             }
         }

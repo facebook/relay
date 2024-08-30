@@ -166,6 +166,8 @@ fragment ServerFragment on User {
       # }
        {
         ...PlainUserNameRenderer_name
+        __module_operation_ServerFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "ServerFragment.nameRenderer")
+        __module_component_ServerFragment: js(module: "PlainUserNameRenderer.react", id: "ServerFragment.nameRenderer")
       }
     }
     ... on MarkdownUserNameRenderer {
@@ -189,6 +191,8 @@ fragment ServerFragment on User {
       # }
        {
         ...MarkdownUserNameRenderer_name
+        __module_operation_ServerFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "ServerFragment.nameRenderer")
+        __module_component_ServerFragment: js(module: "MarkdownUserNameRenderer.react", id: "ServerFragment.nameRenderer")
       }
     }
   }

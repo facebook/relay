@@ -53,6 +53,8 @@ fragment NameRendererFragment on User {
       # }
        {
         ...PlainUserNameRenderer_name
+        __module_operation_NameRendererFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+        __module_component_NameRendererFragment: js(module: "PlainUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
       }
     }
     ... on MarkdownUserNameRenderer {
@@ -76,6 +78,8 @@ fragment NameRendererFragment on User {
       # }
        {
         ...MarkdownUserNameRenderer_name
+        __module_operation_NameRendererFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "NameRendererFragment.nameRenderer")
+        __module_component_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "NameRendererFragment.nameRenderer")
       }
     }
   }

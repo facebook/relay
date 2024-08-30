@@ -21,6 +21,7 @@ const variables = {
 };
 
 fetchQuery(environment, query, variables)
+  .toPromise()
   .then(data => {
     // access the graphql response
   });

@@ -45,7 +45,7 @@ export type LoadQueryOptions = {
   +__nameForWarning?: ?string,
 };
 
-export type PreloadableConcreteRequest<TQuery: OperationType> = {
+export type PreloadableConcreteRequest<+TQuery: OperationType> = {
   kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
   // Note: the phantom type parameter here helps ensures that the
@@ -53,20 +53,20 @@ export type PreloadableConcreteRequest<TQuery: OperationType> = {
   // We also need to add usage of this generic here,
   // becuase not using the generic in the definition makes it
   // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
-  __phantom__?: ?TQuery,
+  +__phantom__?: ?TQuery,
 };
 
 export type EnvironmentProviderOptions = {+[string]: mixed, ...};
 
 export type PreloadedQuery<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > =
   | PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions>
   | PreloadedQueryInner<TQuery, TEnvironmentProviderOptions>;
 
 export type PreloadedQueryInner_DEPRECATED<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   +kind: 'PreloadedQuery_DEPRECATED',
@@ -83,7 +83,7 @@ export type PreloadedQueryInner_DEPRECATED<
 };
 
 export type PreloadedQueryInner<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   // Releases query data and cancels network request if still in flight
@@ -236,7 +236,7 @@ export type EntryPointElementConfig<
     : empty;
 
 export type ThinQueryParams<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions,
 > = $ReadOnly<{
   environmentProviderOptions?: ?TEnvironmentProviderOptions,

@@ -200,11 +200,7 @@ export type PreloadProps<
     +[K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
   },
   extraProps?: TExtraProps,
-  // $FlowFixMe[deprecated-type]
-  queries?: $ObjMap<
-    TPreloadedQueries,
-    ExtractQueryTypeHelper<TEnvironmentProviderOptions>,
-  >,
+  queries?: ExtractQueryTypes<TEnvironmentProviderOptions, TPreloadedQueries>,
 }>;
 
 // Return type of `loadEntryPoint(...)`
@@ -257,25 +253,23 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-type ExtractQueryType<
-  TEnvironmentProviderOptions,
-  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQuery: ?PreloadedQuery<any>,
-> = TPreloadedQuery extends null | void
-  ? TPreloadedQuery
-  : TPreloadedQuery extends PreloadedQuery<infer TQuery extends OperationType>
-    ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
-    : empty;
-
 export type ExtractQueryTypes<
   TEnvironmentProviderOptions,
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  PreloadedQueries: {+[string]: PreloadedQuery<any>},
+  PreloadedQueries: {+[string]: PreloadedQuery<any>} | void,
 > = {
-  [K in keyof PreloadedQueries]: ExtractQueryType<
-    TEnvironmentProviderOptions,
-    PreloadedQueries[K],
-  >,
+  // We need to match both cases without using distributive conditional types,
+  // because PreloadedQuery's TQuery parameter is almost phantom, and breaking
+  // up the union type would cause us to lose track of TQuery.
+  [K in keyof PreloadedQueries]: PreloadedQueries[K] extends PreloadedQuery<
+    infer TQuery extends OperationType,
+  >
+    ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
+    : PreloadedQueries[K] extends PreloadedQuery<
+          infer TQuery extends OperationType,
+        > | void
+      ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | void
+      : empty,
 };
 
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =

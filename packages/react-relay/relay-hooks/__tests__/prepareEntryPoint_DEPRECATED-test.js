@@ -82,6 +82,7 @@ test('it should preload entry point with queries', () => {
     {
       getEnvironment: () => env,
     },
+    // $FlowFixMe[incompatible-call]
     entryPoint,
     {id: 'my-id'},
   );
@@ -260,6 +261,7 @@ test('with `getEnvironment` function', () => {
     {
       getEnvironment,
     },
+    // $FlowFixMe[incompatible-call]
     entryPoint,
     {id: 'my-id'},
   );

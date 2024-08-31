@@ -256,6 +256,27 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
+type ExtractQueryType<
+  TEnvironmentProviderOptions,
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQuery: ?PreloadedQuery<any>,
+> = TPreloadedQuery extends null | void
+  ? TPreloadedQuery
+  : TPreloadedQuery extends PreloadedQuery<infer TQuery extends OperationType>
+    ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
+    : empty;
+
+export type ExtractQueryTypes<
+  TEnvironmentProviderOptions,
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  PreloadedQueries: {+[string]: PreloadedQuery<any>},
+> = {
+  [K in keyof PreloadedQueries]: ExtractQueryType<
+    TEnvironmentProviderOptions,
+    PreloadedQueries[K],
+  >,
+};
+
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,

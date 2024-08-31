@@ -81,7 +81,7 @@ test('it should preload entry point with queries', () => {
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -120,7 +120,7 @@ test('it should ignore handle null/undefined queries', () => {
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -173,7 +173,7 @@ test('it should unwrap an entry point wrapping a module with default exports', (
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -220,7 +220,7 @@ test('it should return the module from an entry point that just returns the modu
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -294,7 +294,7 @@ describe('with respect to loadQuery', () => {
       root: (new FakeJSResource(null): $FlowFixMe),
     };
 
-    loadEntryPoint<_, {...}, {...}, {...}, mixed, $FlowFixMe, _>(
+    loadEntryPoint<_, {}, {...}, {...}, mixed, $FlowFixMe, _>(
       {
         getEnvironment: () => env,
       },
@@ -338,7 +338,7 @@ describe('with respect to loadQuery', () => {
 
     const preloadedEntryPoint = loadEntryPoint<
       _,
-      {...},
+      {},
       {...},
       {...},
       mixed,
@@ -405,7 +405,7 @@ test('it should preload entry point with nested entry points', () => {
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -497,7 +497,7 @@ test('it should preload entry point with both queries and nested entry points', 
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -591,7 +591,7 @@ test('it should dispose nested entry points', () => {
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -650,7 +650,7 @@ test('with `getEnvironment` function', () => {
   const getEnvironment = jest.fn(() => env);
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,

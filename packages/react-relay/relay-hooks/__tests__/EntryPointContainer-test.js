@@ -156,7 +156,7 @@ afterAll(() => {
 it('suspends while the query and component are pending', () => {
   entryPointReference = loadEntryPoint<
     {id: string},
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -215,7 +215,7 @@ it('suspends while the query and component are pending', () => {
 it('suspends then updates when the query and component load', () => {
   entryPointReference = loadEntryPoint<
     {id: string},
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -301,7 +301,7 @@ it('renders synchronously when the component has already loaded and the data arr
   nestedEntryPointResource.resolve((Component: any));
   entryPointReference = loadEntryPoint<
     {id: string},
-    {...},
+    {},
     {...},
     {...},
     mixed,

@@ -183,11 +183,11 @@ it('does not dispose the entry point before the new component tree unsuspends in
     function ComponentWithHook() {
       [, entryPointLoaderCallback] = useEntryPointLoader<
         {...},
-        {...},
+        {},
         {...},
         {...},
         mixed,
-        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        EntryPointComponent<{}, {...}, {...}, mixed>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       return null;
@@ -292,11 +292,11 @@ it('disposes entry point references associated with previous suspensions when mu
     function Inner({promise}: {promise: ?Promise<any>}) {
       [, entryPointLoaderCallback] = useEntryPointLoader<
         {...},
-        {...},
+        {},
         {...},
         {...},
         mixed,
-        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        EntryPointComponent<{}, {...}, {...}, mixed>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       if (
@@ -396,11 +396,11 @@ it('disposes entry point references associated with subsequent suspensions when 
     function Inner({promise}: {promise: ?Promise<any>}) {
       [, entryPointLoaderCallback] = useEntryPointLoader<
         {...},
-        {...},
+        {},
         {...},
         {...},
         mixed,
-        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        EntryPointComponent<{}, {...}, {...}, mixed>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       if (

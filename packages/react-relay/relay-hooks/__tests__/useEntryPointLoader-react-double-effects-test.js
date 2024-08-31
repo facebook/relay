@@ -166,7 +166,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // $FlowFixMe[underconstrained-implicit-instantiation]
       const [entryPointRef] = useEntryPointLoader<
         _,
-        {...},
+        {},
         {...},
         {...},
         mixed,
@@ -325,7 +325,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -444,7 +444,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       it('forces a re-render and refetches when policy is store-or-network', () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -566,7 +566,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -696,7 +696,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -794,7 +794,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     it('forces a re-render and refetches when policy is network-only', () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
-        {...},
+        {},
         {...},
         {...},
         mixed,
@@ -937,7 +937,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     it('forces a re-render and does not refetch when policy is store-or-network', () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
-        {...},
+        {},
         {...},
         {...},
         mixed,

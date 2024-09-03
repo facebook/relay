@@ -18,6 +18,9 @@
     "@rushstack/node-core-library": "^5.7.0",
     "cosmiconfig": "^5.0.5"
   },
+  "directories": {
+    "": "./"
+  },
   "main": "index.js",
   "types": "index.d.ts"
 }

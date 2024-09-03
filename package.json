@@ -49,7 +49,7 @@
     "eslint": "^8.57.0",
     "eslint-config-fbjs": "4.0.0",
     "mock-fs": "^5.2.0",
-    "json-schema-to-typescript": "^15.0.2",
+    "json-schema-to-typescript": "^13.0.0",
     "eslint-plugin-babel": "5.3.1",
     "eslint-plugin-ft-flow": "2.0.1",
     "eslint-plugin-import": "^2.26.0",

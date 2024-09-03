@@ -1,0 +1,23 @@
+{
+  "name": "relay-config",
+  "description": "A utility library for loading and saving Relay compiler config files.",
+  "version": "17.0.0",
+  "keywords": [
+    "graphql",
+    "relay"
+  ],
+  "license": "MIT",
+  "homepage": "https://relay.dev",
+  "bugs": "https://github.com/facebook/relay/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facebook/relay.git",
+    "directory": "packages/relay-config"
+  },
+  "dependencies": {
+    "@rushstack/node-core-library": "^5.7.0",
+    "cosmiconfig": "^5.0.5"
+  },
+  "main": "index.js",
+  "types": "index.d.ts"
+}

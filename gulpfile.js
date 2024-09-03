@@ -36,7 +36,9 @@ const babel = require('gulp-babel');
 const header = require('gulp-header');
 const rename = require('gulp-rename');
 const gulpUtil = require('gulp-util');
+const jsonSchemaToTypescript = require('json-schema-to-typescript');
 const path = require('path');
+const stream = require('stream');
 const webpack = require('webpack');
 const webpackStream = require('webpack-stream');
 
@@ -211,7 +213,62 @@ const builds = [
       },
     ],
   },
+  {
+    package: 'relay-config',
+    exports: {
+      index: 'index.js',
+    },
+    bundles: [
+      {
+        entry: 'index.js',
+        output: 'relay-config',
+        libraryName: 'RelayConfig',
+        libraryTarget: 'commonjs2',
+        target: 'node',
+        noMinify: true, // Note: uglify can't yet handle modern JS
+      },
+    ],
+  },
 ];
+
+const relayConfig = gulp.parallel(
+  function copyCompilerConfigSchema() {
+    return gulp
+      .src(['relay-compiler-config-schema.json'], {
+        cwd: path.join('compiler/crates/relay-compiler'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-config')));
+  },
+  function copyTypescriptTypes() {
+    return gulp
+      .src(['index.d.ts'], {
+        cwd: path.join(PACKAGES, 'relay-config'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-config')));
+  },
+  function generateConfigTypescriptTypes() {
+    return gulp
+      .src(['relay-compiler-config-schema.json'], {
+        cwd: path.join('compiler/crates/relay-compiler'),
+      })
+      .pipe(
+        new stream.Transform({
+          objectMode: true,
+          transform(file, _, callback) {
+            jsonSchemaToTypescript
+              .compile(JSON.parse(file.contents.toString()))
+              .then(data => {
+                file.contents = Buffer.from(data);
+                callback(null, file);
+              })
+              .catch(error => callback(error, null));
+          },
+        }),
+      )
+      .pipe(rename('RelayConfig.d.ts'))
+      .pipe(gulp.dest(path.join(DIST, 'relay-config')));
+  },
+);
 
 const modules = gulp.parallel(
   ...builds.map(
@@ -225,6 +282,7 @@ const modules = gulp.parallel(
           .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
       },
   ),
+  relayConfig,
 );
 
 const flowDefs = gulp.parallel(

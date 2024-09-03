@@ -49,15 +49,11 @@ type User {
 }
 ```
 
-In your runtime code, near where you configure your Relay Environment, enable the appropriate feature flags.
+Once you've added the directive to your schema, you can add `@throwOnFieldError` to your fragment and queries to indicate that the client should throw an error if any field errors are encountered when the fragment is read.
 
-```js
-import { RelayFeatureFlags } from "relay-runtime";
-// @ts-ignore DefinitelyTyped is missing this
-RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
-```
-
-Once enabled, you can add `@throwOnFieldError` to your fragments to indicate that the client should throw an error if any field errors are encountered when the fragment is read.
+:::note
+Be sure to add [React error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) to your app above any componets that are using `@throwOnFieldError`.
+:::
 
 In the below example, Relay's generated TypeScript or Flow types for `user.name` will be non-nullable.
 

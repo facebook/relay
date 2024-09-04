@@ -105,14 +105,15 @@ impl<'s> Transformer for ValidateOperationVariables<'s> {
                                 defined_type: schema.get_type_string(&definition.type_),
                                 used_type: schema.get_type_string(&variable_usage.type_),
                             },
-                            definition.name.location,
+                            variable_usage.name.location,
                         )
                         .annotate(
                             format!(
-                                "Variable is used as '{}'",
-                                schema.get_type_string(&variable_usage.type_)
+                                "Variable `${}` is defined as '{}'",
+                                definition.name.item,
+                                schema.get_type_string(&definition.type_)
                             ),
-                            variable_usage.name.location,
+                            definition.name.location,
                         ),
                     );
                 }

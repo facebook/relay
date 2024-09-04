@@ -18,7 +18,7 @@ mutation LikeMutationReverse($feedbackId: ID! $userID: String!) {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Variable was defined as type 'String!' but used where a variable of type 'ID!' is expected.
+✖︎ Variable of type 'String!' cannot be used where 'ID!' is expected.
 
   complex-object-with-invalid-fields.invalid.graphql:4:13
     3 │   feedbackLikeStrict(input: {
@@ -26,11 +26,27 @@ mutation LikeMutationReverse($feedbackId: ID! $userID: String!) {
       │             ^^^^^^^
     5 │     feedbackId: $feedbackId
 
+  ℹ︎ Variable `$userID` is defined as 'String!'
 
-✖︎ Variable was defined as type 'String!' but used where a variable of type 'ID!' is expected.
+  complex-object-with-invalid-fields.invalid.graphql:2:40
+    1 │ # expected-to-throw
+    2 │ mutation LikeMutation($feedbackId: ID! $userID: String!) {
+      │                                        ^^^^^^^
+    3 │   feedbackLikeStrict(input: {
+
+
+✖︎ Variable of type 'String!' cannot be used where 'ID!' is expected.
 
   complex-object-with-invalid-fields.invalid.graphql:14:13
    13 │     feedbackId: $feedbackId
    14 │     userID: $userID
       │             ^^^^^^^
    15 │   }) {
+
+  ℹ︎ Variable `$userID` is defined as 'String!'
+
+  complex-object-with-invalid-fields.invalid.graphql:11:47
+   10 │ 
+   11 │ mutation LikeMutationReverse($feedbackId: ID! $userID: String!) {
+      │                                               ^^^^^^^
+   12 │   feedbackLikeStrict(input: {

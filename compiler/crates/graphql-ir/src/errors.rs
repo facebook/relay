@@ -133,9 +133,7 @@ pub enum ValidationMessage {
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
     NonNullableVariableHasDefaultValue { variable_name: VariableName },
 
-    #[error(
-        "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
-    )]
+    #[error("Variable of type '{defined_type}' cannot be used where '{used_type}' is expected.")]
     InvalidVariableUsage {
         defined_type: String,
         used_type: String,

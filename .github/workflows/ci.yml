@@ -95,7 +95,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.72.0
+          toolchain: 1.76.0
           override: true
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
@@ -118,7 +118,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.72.0
+          toolchain: 1.76.0
           override: true
       - name: "Update fixture tests"
         run: ./scripts/update-fixtures.sh
@@ -178,7 +178,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.72.0
+          toolchain: 1.76.0
           override: true
           target: ${{ matrix.target.target }}
       - uses: actions/setup-node@v2

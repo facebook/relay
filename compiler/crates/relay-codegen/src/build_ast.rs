@@ -99,6 +99,8 @@ use crate::object;
 lazy_static! {
     pub static ref THROW_ON_FIELD_ERROR_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("throwOnFieldError".intern());
+    pub static ref EXEC_TIME_RESOLVERS: DirectiveName =
+        DirectiveName("exec_time_resolvers".intern());
 }
 
 pub fn build_request_params_ast_key(
@@ -360,8 +362,21 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         self.ast_builder.intern(Ast::Array(array))
     }
 
+    fn use_exec_time_resolvers(&self, context: &ContextualMetadata) -> bool {
+        let feature_flags = &self.project_config.feature_flags;
+        feature_flags.enable_resolver_normalization_ast
+            || (feature_flags.enable_exec_time_resolvers_directive
+                && context.has_exec_time_resolvers_directive)
+    }
+
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
-        let mut context = ContextualMetadata::default();
+        let mut context = ContextualMetadata {
+            has_client_edges: false,
+            has_exec_time_resolvers_directive: operation
+                .directives
+                .named(*EXEC_TIME_RESOLVERS)
+                .is_some(),
+        };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
@@ -714,6 +729,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 self.build_inline_fragment(context, inline_fragment);
 
                             vec![self.build_normalization_relay_resolver(
+                                context,
                                 resolver_metadata,
                                 Some(fragment_primitive),
                             )]
@@ -745,7 +761,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         CodegenVariant::Normalization => vec![self.build_type_discriminator(field)],
                     }
                 } else {
-                    self.build_scalar_field_and_handles(field)
+                    self.build_scalar_field_and_handles(context, field)
                 }
             }
         }
@@ -762,13 +778,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_scalar_backed_resolver_field(
         &mut self,
+        context: &mut ContextualMetadata,
         field: &ScalarField,
         resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
         let resolver_primitive = match self.variant {
             CodegenVariant::Reader => self.build_reader_relay_resolver(resolver_metadata, None),
             CodegenVariant::Normalization => {
-                self.build_normalization_relay_resolver(resolver_metadata, None)
+                self.build_normalization_relay_resolver(context, resolver_metadata, None)
             }
         };
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
@@ -786,6 +803,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     // key for the resolver itself in the cache.
     fn build_normalization_relay_resolver(
         &mut self,
+        context: &mut ContextualMetadata,
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
     ) -> Primitive {
@@ -796,11 +814,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .is_some_and(|config| config.apply_to_normalization_ast)
         {
             self.build_normalization_relay_resolver_execution_time_for_worker(resolver_metadata)
-        } else if self
-            .project_config
-            .feature_flags
-            .enable_resolver_normalization_ast
-        {
+        } else if self.use_exec_time_resolvers(context) {
             self.build_normalization_relay_resolver_execution_time(resolver_metadata)
         } else {
             self.build_normalization_relay_resolver_read_time(resolver_metadata, inline_fragment)
@@ -962,7 +976,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }))
     }
 
-    fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
+    fn build_scalar_field_and_handles(
+        &mut self,
+        context: &mut ContextualMetadata,
+        field: &ScalarField,
+    ) -> Vec<Primitive> {
         if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
             if self.variant == CodegenVariant::Reader
                 && self
@@ -972,7 +990,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             {
                 return vec![self.build_scalar_field(field)];
             }
-            return vec![self.build_scalar_backed_resolver_field(field, resolver_metadata)];
+            return vec![self.build_scalar_backed_resolver_field(
+                context,
+                field,
+                resolver_metadata,
+            )];
         }
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
@@ -1730,7 +1752,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             }
             Selection::ScalarField(field) => {
                 if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
-                    self.build_scalar_backed_resolver_field(field, resolver_metadata)
+                    self.build_scalar_backed_resolver_field(context, field, resolver_metadata)
                 } else {
                     panic!(
                         "Expected field backing a Client Edge to be a Relay Resolver. {:?}",
@@ -1853,11 +1875,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             )
                         }
                         CodegenVariant::Normalization => {
-                            if self
-                                .project_config
-                                .feature_flags
-                                .enable_resolver_normalization_ast
-                            {
+                            if self.use_exec_time_resolvers(context) {
                                 self.build_client_edge_with_enabled_resolver_normalization_ast(
                                     context,
                                     client_edge_metadata,
@@ -2573,4 +2591,5 @@ pub fn md5(data: &str) -> String {
 #[derive(Default)]
 struct ContextualMetadata {
     has_client_edges: bool,
+    has_exec_time_resolvers_directive: bool,
 }

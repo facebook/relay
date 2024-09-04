@@ -70,6 +70,12 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
 
+    /// Allow per-query opt in to normalization AST for Resolvers with exec_time_resolvers
+    /// directive. In contrast to enable_resolver_normalization_ast, if this is true, a
+    /// normalization AST can be generated for a query using the @exec_time_resolvers directive
+    #[serde(default)]
+    pub enable_exec_time_resolvers_directive: bool,
+
     /// Allow relay resolvers to extend the Mutation type
     #[serde(default)]
     pub enable_relay_resolver_mutations: bool,

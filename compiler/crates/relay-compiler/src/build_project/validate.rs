@@ -26,6 +26,7 @@ use relay_transforms::validate_module_names;
 use relay_transforms::validate_no_double_underscore_alias;
 use relay_transforms::validate_no_inline_fragments_with_raw_response_type;
 use relay_transforms::validate_no_unselectable_selections;
+use relay_transforms::validate_operation_variables;
 use relay_transforms::validate_relay_directives;
 use relay_transforms::validate_resolver_fragments;
 use relay_transforms::validate_static_args;
@@ -33,6 +34,7 @@ use relay_transforms::validate_unused_fragment_variables;
 use relay_transforms::validate_unused_variables;
 use relay_transforms::validate_updatable_directive;
 use relay_transforms::validate_updatable_fragment_spread;
+use relay_transforms::ValidateVariablesOptions;
 
 pub type AdditionalValidations =
     Box<dyn Fn(&Program, &ProjectConfig) -> DiagnosticsResult<()> + Sync + Send>;
@@ -67,6 +69,7 @@ pub fn validate(
     additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<WithDiagnostics<()>> {
     let output = try_all(vec![
+        validate_variables(project_config, program),
         disallow_reserved_aliases(program, &project_config.schema_config),
         validate_no_unselectable_selections(program, &project_config.schema_config),
         validate_no_double_underscore_alias(program),
@@ -107,6 +110,27 @@ pub fn validate(
     ]);
 
     transform_errors(output, project_config)
+}
+
+fn validate_variables(
+    project_config: &ProjectConfig,
+    program: &Program,
+) -> Result<(), Vec<common::Diagnostic>> {
+    if project_config
+        .feature_flags
+        .disable_full_argument_type_validation
+        .is_fully_enabled()
+    {
+        Ok(())
+    } else {
+        validate_operation_variables(
+            program,
+            ValidateVariablesOptions {
+                remove_unused_variables: false,
+            },
+        )
+        .map(|_| ())
+    }
 }
 
 fn transform_errors(

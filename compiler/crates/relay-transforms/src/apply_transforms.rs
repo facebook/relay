@@ -14,7 +14,6 @@ use common::PerfLogger;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use relay_config::ProjectConfig;
-use validate_operation_variables::ValidateVariablesOptions;
 
 use super::*;
 use crate::apply_custom_transforms::apply_after_custom_transforms;
@@ -621,12 +620,7 @@ fn apply_operation_text_transforms(
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
-        validate_operation_variables(
-            &program,
-            ValidateVariablesOptions {
-                remove_unused_variables: true,
-            },
-        )
+        validate_operation_variables(&program)
     })?;
     program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)

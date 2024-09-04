@@ -125,22 +125,6 @@ pub struct FeatureFlags {
     /// Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.
     #[serde(default)]
     pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
-
-    /// Disable full GraphQL argument type validation. Historically, we only applied argument type
-    /// validation to the query that was actually going to be persisted and sent
-    /// to the server. This meant that we didn't typecheck arguments passed to
-    /// Relay Resolvers or Client Schema Extensions.
-    ///
-    /// We also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for
-    /// defining fragment arguments which were not typechecked.
-    ///
-    /// We no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck
-    /// both client and server arguments. This flag allows you to opt out of
-    /// this new behavior to enable gradual adoption of the new validations.
-    ///
-    /// This flag will be removed in a future version of Relay.
-    #[serde(default)]
-    pub disable_full_argument_type_validation: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

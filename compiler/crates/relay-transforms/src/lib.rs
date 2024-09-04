@@ -210,7 +210,6 @@ pub use util::get_fragment_filename;
 pub use util::get_normalization_operation_name;
 pub use util::remove_directive;
 pub use validate_operation_variables::validate_operation_variables;
-pub use validate_operation_variables::ValidateVariablesOptions;
 pub use validations::*;
 
 pub use crate::errors::ValidationMessage;

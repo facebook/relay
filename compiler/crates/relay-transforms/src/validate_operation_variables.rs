@@ -17,10 +17,6 @@ use schema::Schema;
 
 use crate::root_variables::InferVariablesVisitor;
 
-pub struct ValidateVariablesOptions {
-    pub remove_unused_variables: bool,
-}
-
 /// Transform that validates/updates operation variable definitions:
 /// - Removes unused variable definitions. Variables can become dynamically unused due to
 ///   fragment-local variables, so it's convenient to automatically remove unused variables
@@ -33,11 +29,8 @@ pub struct ValidateVariablesOptions {
 /// - Incompatible variable types: whether to fix (update type), error, or ignore
 /// - Unused variables: whether to fix (remove), error, or ignore
 /// - Missing variables: whether to fix (add variable), error, or ignore
-pub fn validate_operation_variables(
-    program: &Program,
-    options: ValidateVariablesOptions,
-) -> DiagnosticsResult<Program> {
-    let mut transform = ValidateOperationVariables::new(program, options);
+pub fn validate_operation_variables(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = ValidateOperationVariables::new(program);
     let program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -52,16 +45,14 @@ pub struct ValidateOperationVariables<'s> {
     errors: Vec<Diagnostic>,
     program: &'s Program,
     visitor: InferVariablesVisitor<'s>,
-    options: ValidateVariablesOptions,
 }
 
 impl<'s> ValidateOperationVariables<'s> {
-    fn new(program: &'s Program, options: ValidateVariablesOptions) -> Self {
+    fn new(program: &'s Program) -> Self {
         Self {
             errors: Default::default(),
             program,
             visitor: InferVariablesVisitor::new(program),
-            options,
         }
     }
 }
@@ -131,7 +122,7 @@ impl<'s> Transformer for ValidateOperationVariables<'s> {
             }
         }
 
-        if has_unused_variable && self.options.remove_unused_variables {
+        if has_unused_variable {
             let next_variables = operation
                 .variable_definitions
                 .iter()

@@ -7,9 +7,9 @@ description: Limitations of Relay Resolvers
 
 Relay Resolvers are do have some limitations. Here we will collect a list of known limitations and provide alternatives where possible.
 
-## No context or info arguments
+## No info argument
 
-In a full GraphQL implementation, resolvers would have access to a `context` and `info` argument. These arguments are not available in Relay Resolvers today. Supporting context is something we would like to do in the future, but have not yet implemented.
+In a full GraphQL implementation, resolvers would have access to an `info` argument. This argument is not available in Relay Resolvers today.
 
 ## No support for abstract types
 

@@ -60,6 +60,31 @@ pub struct CustomTypeImport {
     pub path: PathBuf,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[serde(untagged)]
+pub enum ResolverContextTypeInput {
+    Path(ResolverContextTypeInputPath),
+    Package(ResolverContextTypeInputPackage),
+}
+
+/// Specifies how Relay can import the Resolver context type from a path
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+pub struct ResolverContextTypeInputPath {
+    /// The name under which the type is exported from the module
+    pub name: StringKey,
+    /// The path to the module relative to the project root
+    pub path: PathBuf,
+}
+
+/// Specifies how Relay can import the Resolver context type from a named package
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
+pub struct ResolverContextTypeInputPackage {
+    /// The name under which the type is exported from the package
+    pub name: StringKey,
+    /// The name of the package
+    pub package: StringKey,
+}
+
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
@@ -129,6 +154,10 @@ pub struct TypegenConfig {
     /// A map from GraphQL error name to import path, example:
     /// {"name:: "MyErrorName", "path": "../src/MyError"}
     pub custom_error_type: Option<CustomTypeImport>,
+
+    /// Indicates the type to import and use as the context for live resolvers.
+    #[serde(default)]
+    pub resolver_context_type: Option<ResolverContextTypeInput>,
 }
 
 impl Default for TypegenConfig {
@@ -145,6 +174,7 @@ impl Default for TypegenConfig {
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             experimental_emit_semantic_nullability_types: Default::default(),
             custom_error_type: None,
+            resolver_context_type: Default::default(),
         }
     }
 }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<83df13c334d14559d2e8bc4c2cfa660d>>
+ * @generated SignedSource<<9d339ec2dd6244541ac1a4c374aac165>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,12 +21,14 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { RelayResolverInterfaceTestAnimalLegsFragment$fragmentType } from "./RelayResolverInterfaceTestAnimalLegsFragment.graphql";
 import {animals as queryAnimalsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryAnimalsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAnimalsResolverType: (
   args: {|
     requests: $ReadOnlyArray<AnimalRequest>,
   |},
+  context: TestResolverContextType,
 ) => ?$ReadOnlyArray<?{|
   +__typename: "Cat" | "Chicken" | "Fish",
   +id: DataID,

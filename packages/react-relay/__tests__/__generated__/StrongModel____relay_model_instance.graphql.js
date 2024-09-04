@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c5d632e9655b03baf5b566251e7b947>>
+ * @generated SignedSource<<6c5d33e4d39a223e0f74de3fb1be82ba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { StrongModel__id$data } from "./StrongModel__id.graphql";
 import type { FragmentType } from "relay-runtime";
 import {StrongModel as strongModelRelayModelInstanceResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `strongModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (strongModelRelayModelInstanceResolverType: (
   id: StrongModel__id$data['id'],
+  args: void,
+  context: TestResolverContextType,
 ) => mixed);
 declare export opaque type StrongModel____relay_model_instance$fragmentType: FragmentType;
 export type StrongModel____relay_model_instance$data = {|

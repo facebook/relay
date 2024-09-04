@@ -64,7 +64,8 @@
         }
       },
       "language": "flow",
-      "experimentalEmitSemanticNullabilityTypes": true
+      "experimentalEmitSemanticNullabilityTypes": true,
+      "resolverContextType": { "name": "TestResolverContextType", "path": "packages/relay-runtime/mutations/__tests__/TestResolverContextType" }
     }
   },
   "isDevVariableName": "__DEV__"

@@ -1488,6 +1488,55 @@
           "default": false,
           "type": "boolean"
         },
+        "resolverContextType": {
+          "description": "Indicates the type to import and use as the context for live resolvers.",
+          "default": null,
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "description": "Specifies how Relay can import the Resolver context type from a path",
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "path"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "The name under which the type is exported from the module",
+                      "type": "string"
+                    },
+                    "path": {
+                      "description": "The path to the module relative to the project root",
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "description": "Specifies how Relay can import the Resolver context type from a named package",
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "package"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "The name under which the type is exported from the package",
+                      "type": "string"
+                    },
+                    "package": {
+                      "description": "The name of the package",
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "resolversSchemaModule": {
           "description": "Configuration for resolvers_schema_module generation",
           "default": null,
@@ -4520,6 +4569,55 @@
                 "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",
                 "default": false,
                 "type": "boolean"
+              },
+              "resolverContextType": {
+                "description": "Indicates the type to import and use as the context for live resolvers.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "description": "Specifies how Relay can import the Resolver context type from a path",
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "path"
+                        ],
+                        "properties": {
+                          "name": {
+                            "description": "The name under which the type is exported from the module",
+                            "type": "string"
+                          },
+                          "path": {
+                            "description": "The path to the module relative to the project root",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "description": "Specifies how Relay can import the Resolver context type from a named package",
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "package"
+                        ],
+                        "properties": {
+                          "name": {
+                            "description": "The name under which the type is exported from the package",
+                            "type": "string"
+                          },
+                          "package": {
+                            "description": "The name of the package",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "resolversSchemaModule": {
                 "description": "Configuration for resolvers_schema_module generation",

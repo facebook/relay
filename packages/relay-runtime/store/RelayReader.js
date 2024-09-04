@@ -40,6 +40,7 @@ import type {
   RecordSource,
   RelayResolverErrors,
   RequestDescriptor,
+  ResolverContext,
   SelectorData,
   SingularReaderSelector,
   Snapshot,
@@ -99,11 +100,13 @@ function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
   resolverCache?: ResolverCache,
+  resolverContext?: ResolverContext,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
     resolverCache ?? new NoopResolverCache(),
+    resolverContext,
   );
   return reader.read();
 }
@@ -128,11 +131,13 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
+  _resolverContext: ?ResolverContext;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
+    resolverContext: ?ResolverContext,
   ) {
     this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
       ? [...selector.clientEdgeTraversalPath]
@@ -152,6 +157,7 @@ class RelayReader {
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
+    this._resolverContext = resolverContext;
   }
 
   read(): Snapshot {
@@ -687,6 +693,7 @@ class RelayReader {
             field,
             this._variables,
             key,
+            this._resolverContext,
           );
           return {resolverResult, snapshot, error: resolverError};
         });
@@ -695,6 +702,7 @@ class RelayReader {
           field,
           this._variables,
           null,
+          this._resolverContext,
         );
         return {resolverResult, snapshot: undefined, error: resolverError};
       }
@@ -1389,6 +1397,7 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
+  resolverContext: ?ResolverContext,
 ): [mixed, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
@@ -1398,6 +1407,7 @@ function getResolverValue(
 
   let resolverResult = null;
   let resolverError = null;
+
   try {
     const resolverFunctionArgs = [];
     if (field.fragment != null) {
@@ -1408,6 +1418,8 @@ function getResolverValue(
       : undefined;
 
     resolverFunctionArgs.push(args);
+
+    resolverFunctionArgs.push(resolverContext);
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {

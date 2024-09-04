@@ -13,7 +13,6 @@ type ClientUser {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-import clientUserNameResolverType from "bar";
 export type MyFragment$data = {
   readonly name: NonNullable<ReturnType<typeof clientUserNameResolverType>>;
   readonly " $fragmentType": "MyFragment";

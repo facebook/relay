@@ -39,6 +39,7 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
+use relay_config::ResolverContextTypeInput;
 use relay_config::TypegenLanguage;
 use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
@@ -90,6 +91,7 @@ use crate::typegen_state::ImportedResolverName;
 use crate::typegen_state::ImportedResolvers;
 use crate::typegen_state::InputObjectTypes;
 use crate::typegen_state::MatchFields;
+use crate::typegen_state::ResolverContextType;
 use crate::typegen_state::RuntimeImports;
 use crate::write::CustomScalarsImports;
 use crate::writer::ExactObject;
@@ -342,6 +344,7 @@ fn generate_resolver_type(
     resolver_function_name: StringKey,
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
+    context_import: Option<ResolverContextType>,
 ) -> AST {
     // For the purposes of function type assertion, we always use the semantic type.
     let schema_field = resolver_metadata.field(typegen_context.schema);
@@ -356,6 +359,7 @@ fn generate_resolver_type(
         encountered_enums,
         custom_scalars,
         schema_field,
+        context_import,
     );
 
     let inner_ast = match &resolver_metadata.output_type_info {
@@ -396,7 +400,7 @@ fn generate_resolver_type(
         typegen_context.project_config.typegen_config.language,
         TypegenLanguage::TypeScript
     ) {
-        // TODO: Add proper support for Resolver type generation in typescript
+        // TODO: Add proper support for Resolver type generation in typescript: https://github.com/facebook/relay/issues/4772
         AST::Any
     } else if resolver_metadata.live {
         runtime_imports.resolver_live_state_type = true;
@@ -475,7 +479,13 @@ fn get_resolver_arguments(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut std::collections::HashSet<(StringKey, PathBuf)>,
     schema_field: &Field,
+    context_import: Option<ResolverContextType>,
 ) -> Vec<KeyValuePairProp> {
+    let void_type = match typegen_context.project_config.typegen_config.language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => AST::RawType(intern!("void")),
+        TypegenLanguage::TypeScript => AST::RawType(intern!("undefined")),
+    };
+
     let mut resolver_arguments = vec![];
     if let Some(Type::Interface(interface_id)) = schema_field.parent_type {
         let interface = typegen_context.schema.interface(interface_id);
@@ -525,7 +535,7 @@ fn get_resolver_arguments(
                 .0
                 .insert(EncounteredFragment::Key(fragment_name));
             resolver_arguments.push(KeyValuePairProp {
-                key: "rootKey".intern(),
+                key: intern!("rootKey"),
                 value: AST::RawType(format!("{fragment_name}$key").intern()),
                 read_only: false,
                 optional: false,
@@ -548,14 +558,32 @@ fn get_resolver_arguments(
             ),
         }));
     }
+
     if !args.is_empty() {
         resolver_arguments.push(KeyValuePairProp {
-            key: "args".intern(),
+            key: intern!("args"),
             value: AST::ExactObject(ExactObject::new(args)),
             read_only: true,
             optional: false,
         });
+    } else if context_import.is_some() {
+        resolver_arguments.push(KeyValuePairProp {
+            key: intern!("args"),
+            value: void_type,
+            read_only: true,
+            optional: false,
+        });
     }
+
+    if let Some(context_import) = context_import {
+        resolver_arguments.push(KeyValuePairProp {
+            key: intern!("context"),
+            value: AST::RawType(context_import.name),
+            read_only: true,
+            optional: false,
+        });
+    }
+
     resolver_arguments
 }
 
@@ -590,6 +618,27 @@ fn import_relay_resolver_function_type(
         &PathBuf::from(resolver_metadata.import_path.lookup()),
     );
 
+    let context_import = match &typegen_context
+        .project_config
+        .typegen_config
+        .resolver_context_type
+    {
+        Some(ResolverContextTypeInput::Path(context_import)) => Some(ResolverContextType {
+            name: context_import.name,
+            import_path: typegen_context.project_config.js_module_import_identifier(
+                &typegen_context
+                    .project_config
+                    .artifact_path_for_definition(typegen_context.definition_source_location),
+                &PathBuf::from(&context_import.path),
+            ),
+        }),
+        Some(ResolverContextTypeInput::Package(context_import)) => Some(ResolverContextType {
+            name: context_import.name,
+            import_path: context_import.package,
+        }),
+        None => None,
+    };
+
     let imported_resolver = ImportedResolver {
         resolver_name,
         resolver_type: generate_resolver_type(
@@ -603,8 +652,10 @@ fn import_relay_resolver_function_type(
             local_resolver_name,
             fragment_name,
             resolver_metadata,
+            context_import,
         ),
         import_path,
+        context_import,
     };
 
     imported_resolvers

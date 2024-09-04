@@ -41,5 +41,6 @@ pub use project_name::ProjectName;
 pub use resolvers_schema_module_config::ResolversSchemaModuleConfig;
 pub use typegen_config::CustomType;
 pub use typegen_config::CustomTypeImport;
+pub use typegen_config::ResolverContextTypeInput;
 pub use typegen_config::TypegenConfig;
 pub use typegen_config::TypegenLanguage;

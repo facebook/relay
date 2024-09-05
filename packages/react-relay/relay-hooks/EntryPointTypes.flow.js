@@ -239,6 +239,7 @@ export type ThinQueryParams<
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
   options?: ?PreloadOptions,
   parameters: PreloadableConcreteRequest<TQuery>,
+  // $FlowFixMe[incompatible-use]
   variables: TQuery['variables'],
 }>;
 
@@ -253,23 +254,29 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
+// We need to match both cases without using distributive conditional types,
+// because PreloadedQuery's TQuery parameter is almost phantom, and breaking
+// up the union type would cause us to lose track of TQuery.
+type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
+  // $FlowFixMe[incompatible-type-arg]
+  +t: PreloadedQuery<infer TQuery>,
+]
+  ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
+  : [+t: T] extends [
+        +t: PreloadedQuery<infer TQuery extends OperationType> | void,
+      ]
+    ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | void
+    : empty;
+
 export type ExtractQueryTypes<
   TEnvironmentProviderOptions,
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
   PreloadedQueries: {+[string]: PreloadedQuery<any>} | void,
 > = {
-  // We need to match both cases without using distributive conditional types,
-  // because PreloadedQuery's TQuery parameter is almost phantom, and breaking
-  // up the union type would cause us to lose track of TQuery.
-  [K in keyof PreloadedQueries]: PreloadedQueries[K] extends PreloadedQuery<
-    infer TQuery extends OperationType,
-  >
-    ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
-    : PreloadedQueries[K] extends PreloadedQuery<
-          infer TQuery extends OperationType,
-        > | void
-      ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | void
-      : empty,
+  [K in keyof PreloadedQueries]: ExtractThinQueryParams<
+    PreloadedQueries[K],
+    TEnvironmentProviderOptions,
+  >,
 };
 
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =

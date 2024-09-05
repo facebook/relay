@@ -95,6 +95,11 @@ export type PluralReaderSelector = {
   +selectors: $ReadOnlyArray<SingularReaderSelector>,
 };
 
+export type FieldErrorType =
+  | 'MISSING_DATA'
+  | 'MISSING_REQUIRED'
+  | 'PAYLOAD_ERROR';
+
 export type RequestDescriptor = {
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
@@ -120,6 +125,7 @@ type FieldLocation = {
 type ErrorFieldLocation = {
   ...FieldLocation,
   error: TRelayFieldError,
+  type: FieldErrorType,
   to?: CatchFieldTo,
 };
 

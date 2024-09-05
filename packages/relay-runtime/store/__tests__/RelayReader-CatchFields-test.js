@@ -153,6 +153,7 @@ describe('RelayReader @catch', () => {
             path: ['me', 'lastName'],
           },
           owner: 'RelayReaderCatchFieldsTestSiblingErrorQuery',
+          type: 'PAYLOAD_ERROR',
         },
       ]);
     });
@@ -536,6 +537,7 @@ describe('RelayReader @catch', () => {
             path: ['me', 'lastName'],
           },
           owner: 'RelayReaderCatchFieldsTest04Query',
+          type: 'PAYLOAD_ERROR',
         },
       ]);
     });
@@ -586,6 +588,7 @@ describe('RelayReader @catch', () => {
             path: ['me', 'lastName'],
           },
           owner: 'RelayReaderCatchFieldsTest08Query',
+          type: 'PAYLOAD_ERROR',
         },
       ]);
     });

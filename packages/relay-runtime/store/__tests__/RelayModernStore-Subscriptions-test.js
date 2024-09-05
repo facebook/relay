@@ -372,6 +372,7 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: false,
+          errorResponseFields: null,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -416,6 +417,17 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: true,
+          errorResponseFields: [
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              },
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+              type: 'MISSING_DATA',
+              path: '',
+            },
+          ],
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
       });
@@ -454,6 +466,17 @@ function cloneEventWithSets(event: LogEvent) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          errorResponseFields: [
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              },
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+              type: 'MISSING_DATA',
+              path: '',
+            },
+          ],
           missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(['842472']),

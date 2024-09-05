@@ -61,6 +61,7 @@ function handleFieldErrors(
     });
   }
 
+  // when a user adds the throwOnFieldError flag, they opt into also throwing on missing fields.
   if (
     RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT ||
     throwOnFieldError
@@ -111,18 +112,23 @@ function handlePotentialSnapshotErrors(
   errorResponseFields: ?ErrorResponseFields,
   throwOnFieldError: boolean,
 ) {
+  const onlyHasMissingDataErrors = Boolean(
+    errorResponseFields?.every(field => field.type === 'MISSING_DATA'),
+  );
+
   if (relayResolverErrors.length > 0) {
     handleResolverErrors(environment, relayResolverErrors, throwOnFieldError);
-  }
-  /* inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
-   * which is why this still should run in any case there's errors.
-   */
-  if (errorResponseFields != null) {
-    handleFieldErrors(environment, errorResponseFields, throwOnFieldError);
   }
 
   if (missingRequiredFields != null) {
     handleMissingRequiredFields(environment, missingRequiredFields);
+  }
+
+  /* inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
+   * which is why this still should run in any case there's errors.
+   */
+  if (errorResponseFields != null && !onlyHasMissingDataErrors) {
+    handleFieldErrors(environment, errorResponseFields, throwOnFieldError);
   }
 }
 

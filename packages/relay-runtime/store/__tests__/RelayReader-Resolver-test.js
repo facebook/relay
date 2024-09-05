@@ -202,6 +202,7 @@ describe.each([
         {
           error: {message: 'There was an error!', path: ['me', 'lastName']},
           owner: 'RelayReaderResolverTestFieldErrorQuery',
+          type: 'PAYLOAD_ERROR',
           path: 'me.lastName',
         },
       ]);

@@ -45,6 +45,70 @@ describe('handlePotentialSnapshotErrors', () => {
       );
     });
 
+    it('throws required even when missingData exists in errors array', () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          {
+            action: 'THROW',
+            field: {owner: 'testOwner', path: 'testPath'},
+          },
+          [],
+          [
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              },
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+              type: 'MISSING_DATA',
+              path: '',
+            },
+          ],
+          false /* throwOnFieldError */,
+        );
+      }).toThrowError(
+        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+      );
+    });
+
+    it('throws required even when missingData exists in errors array', () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          {
+            action: 'THROW',
+            field: {owner: 'testOwner', path: 'testPath'},
+          },
+          [],
+          [
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              },
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+              type: 'MISSING_DATA',
+              path: '',
+            },
+            {
+              owner: 'testOwner',
+              path: 'testPath',
+              error: {
+                message: 'testMessage',
+                path: ['testPath'],
+                severity: 'CRITICAL',
+              },
+              type: 'PAYLOAD_ERROR',
+            },
+          ],
+          false /* throwOnFieldError */,
+        );
+      }).toThrowError(
+        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+      );
+    });
+
     it('logs', () => {
       handlePotentialSnapshotErrors(
         environment,
@@ -67,6 +131,27 @@ describe('handlePotentialSnapshotErrors', () => {
   });
 
   describe('field error handling', () => {
+    it("doesn't throw even when MISSING_DATA exists in errors array", () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          null,
+          [],
+          [
+            {
+              owner: '',
+              path: '',
+              type: 'MISSING_DATA',
+              error: {
+                message: 'Relay: Missing data for one or more fields',
+              },
+            },
+          ],
+          false /* throwOnFieldError */,
+        );
+      }).not.toThrow();
+    });
+
     it("only logs but doesn't throw when explicit error handling disabled", () => {
       expect(() => {
         handlePotentialSnapshotErrors(
@@ -82,6 +167,7 @@ describe('handlePotentialSnapshotErrors', () => {
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
+              type: 'PAYLOAD_ERROR',
             },
           ],
           false /* throwOnFieldError */,
@@ -115,6 +201,7 @@ describe('handlePotentialSnapshotErrors', () => {
               path: ['testPath'],
               severity: 'CRITICAL',
             },
+            type: 'PAYLOAD_ERROR',
           },
         ],
         false /* throwOnFieldError */,
@@ -148,6 +235,7 @@ describe('handlePotentialSnapshotErrors', () => {
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
+              type: 'PAYLOAD_ERROR',
             },
           ],
           true /* throwOnFieldError */,

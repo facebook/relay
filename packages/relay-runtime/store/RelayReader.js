@@ -237,13 +237,39 @@ class RelayReader {
       this._errorResponseFields.push({
         owner,
         path: (error.path ?? []).join('.'),
+        type: 'PAYLOAD_ERROR',
         error,
       });
     }
   }
 
   _markDataAsMissing(): void {
+    // We want to mark multiple missing_data - but not duplicate ones.
+    const alreadyInErrors = Boolean(
+      this._errorResponseFields?.some(
+        err => err.owner === this._fragmentName && err.type === 'MISSING_DATA',
+      ),
+    );
+
+    if (!alreadyInErrors) {
+      if (this._errorResponseFields == null) {
+        this._errorResponseFields = [];
+      }
+      this._errorResponseFields.push({
+        owner: this._fragmentName,
+        // we will add the path later
+        path: '',
+        type: 'MISSING_DATA',
+        error: {
+          message:
+            'Relay: Missing data for one or more fields in ' +
+            this._fragmentName,
+        },
+      });
+    }
+
     this._isMissingData = true;
+
     if (this._clientEdgeTraversalPath.length) {
       const top =
         this._clientEdgeTraversalPath[this._clientEdgeTraversalPath.length - 1];

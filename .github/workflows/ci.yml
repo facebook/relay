@@ -210,7 +210,7 @@ jobs:
       - name: Build project
         working-directory: compiler
         run: ${{ matrix.target.cross && 'cross' || 'cargo' }} build --release --target ${{ matrix.target.target }} ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target.artifact-name }}
           path: compiler/target/${{ matrix.target.target }}/release/${{ matrix.target.build-name }}

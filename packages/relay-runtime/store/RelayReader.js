@@ -324,13 +324,12 @@ class RelayReader {
     }
   }
 
-  _handleCatchFieldValue(
+  _handleCatchToResult(
     selection: ReaderCatchField,
     record: Record,
     data: SelectorData,
     value: mixed,
   ) {
-    const {to} = selection;
     const field = selection.field?.backingField ?? selection.field;
     const fieldName = field?.alias ?? field?.name;
 
@@ -341,56 +340,23 @@ class RelayReader {
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
-    if (this._errorResponseFields != null) {
-      for (let i = 0; i < this._errorResponseFields.length; i++) {
-        // if it's a @catch - it can only be NULL or RESULT. So we always add the "to" from the CatchField.
-        this._errorResponseFields[i].to = to;
-      }
-    }
-    // If we have a nested @required(THROW)  that will throw,
-    // we want to catch that error and provide it, and remove the original error
+    let errors = this._errorResponseFields?.map(error => error.error);
+
+    // If we have a nested @required(THROW) that will throw,
+    // we want to catch that error and provide it
     if (this._missingRequiredFields?.action === 'THROW') {
-      if (this._missingRequiredFields?.field == null) {
-        return;
-      }
-
-      // We want to catch nested @required THROWs
-      if (this._errorResponseFields == null) {
-        this._errorResponseFields = [];
-      }
-
       const {owner, path} = this._missingRequiredFields.field;
-      this._errorResponseFields.push({
-        owner,
-        path,
-        error: {
-          message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-        },
-        to,
-      });
-
-      // remove missing required because we're providing it in catch instead.
-      this._missingRequiredFields = null;
-
-      return;
-    }
-
-    if (this._errorResponseFields != null) {
-      const errors = this._errorResponseFields.map(error => error.error);
-
-      data[fieldName] = {
-        ok: false,
-        errors,
+      const missingFieldError = {
+        message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
       };
-      return;
+      if (errors == null) {
+        errors = [missingFieldError];
+      } else {
+        errors.push(missingFieldError);
+      }
     }
 
-    data[fieldName] = {
-      ok: true,
-      value,
-    };
-
-    // we do nothing if to is 'NULL'
+    data[fieldName] = errors != null ? {ok: false, errors} : {ok: true, value};
   }
 
   _handleRequiredFieldValue(
@@ -429,25 +395,39 @@ class RelayReader {
             return false;
           }
           break;
-        case CATCH_FIELD:
+        case CATCH_FIELD: {
+          if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
+            this._readClientSideDirectiveField(selection, record, data);
+            break;
+          }
+          const previousResponseFields = this._errorResponseFields;
+          const previousMissingRequiredFields = this._missingRequiredFields;
+
+          this._errorResponseFields = null;
+          this._missingRequiredFields = null;
+
           const catchFieldValue = this._readClientSideDirectiveField(
             selection,
             record,
             data,
           );
-          if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
-            /* NULL is old behavior. do nothing. */
-            if (selection.to != 'NULL') {
-              /* @catch(to: RESULT) is the default */
-              this._handleCatchFieldValue(
-                selection,
-                record,
-                data,
-                catchFieldValue,
-              );
-            }
+
+          if (selection.to === 'RESULT') {
+            this._handleCatchToResult(selection, record, data, catchFieldValue);
+          }
+
+          const childrenMissingRequiredFields = this._missingRequiredFields;
+
+          this._errorResponseFields = previousResponseFields;
+          this._missingRequiredFields = previousMissingRequiredFields;
+
+          // If we encountered non-throwing @required fields, in the children,
+          // we want to preserve those errors in the snapshot.
+          if (childrenMissingRequiredFields?.action === 'LOG') {
+            this._addMissingRequiredFields(childrenMissingRequiredFields);
           }
           break;
+        }
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -868,7 +848,9 @@ class RelayReader {
             const modelResolver = modelResolvers[concreteType];
             invariant(
               modelResolver !== undefined,
-              `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
+              `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(
+                modelResolvers,
+              ).join(', ')} but got \`${concreteType}\`.`,
             );
             const model = this._readResolverFieldImpl(modelResolver, id);
             return model != null ? id : null;
@@ -926,7 +908,9 @@ class RelayReader {
         const modelResolver = modelResolvers[concreteType];
         invariant(
           modelResolver !== undefined,
-          `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
+          `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(
+            modelResolvers,
+          ).join(', ')} but got \`${concreteType}\`.`,
         );
         const model = this._readResolverFieldImpl(modelResolver, storeID);
         if (model == null) {

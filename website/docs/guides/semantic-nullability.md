@@ -27,7 +27,7 @@ The full spec change will likely require adding additional syntax to GraphQL's s
 
 In short, you can add `@semanticNonNull` to a field in your schema to indicate that the field is non-nullable in the semantic sense, but that the client should still be prepared to handle errors.
 
-Relay will look for `@semanticNonNull` directives in your schema and generate non-nullable Flow/TypeScript types for those fields if you enable client-side error handling for your query or fragment by addin the [`@throwOnFieldError`](../api-reference/graphql/graphql-directives.md#throwonfielderror-experimental) directive.
+Relay will look for `@semanticNonNull` directives in your schema and generate non-nullable Flow/TypeScript types for those fields if you enable client-side error handling for your query or fragment by adding the [`@throwOnFieldError`](./throw-on-field-error-directive.md) directive.
 
 If your server will never return `null` for a user's name, except in the case of errors, for example because it's resolver is typed as non-nullable, you can then apply `@semanticNonNull` to that field in your schema.
 
@@ -42,7 +42,7 @@ type User {
 Once you've added the directive to your schema, you can add `@throwOnFieldError` to your fragment and queries to indicate that the client should throw an error if any field errors are encountered when the fragment is read.
 
 :::note
-Be sure to add [React error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) to your app above any componets that are using `@throwOnFieldError`.
+Be sure to add [React error boundaries](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) to your app above any components that are using `@throwOnFieldError`.
 :::
 
 In the below example, Relay's generated TypeScript or Flow types for `user.name` will be non-nullable.

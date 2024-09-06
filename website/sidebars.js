@@ -70,6 +70,8 @@ const Guides = {
   ],
   'Error Handling': [
     'guides/required-directive',
+    'guides/catch-directive',
+    'guides/throw-on-field-error-directive',
     'guided-tour/rendering/error-states',
     'guides/semantic-nullability',
   ],

@@ -49,8 +49,10 @@ type QueryType<T> =
         variables: V,
         response: D,
         rawResponse?: $NonMaybeType<RR>,
-      } // $FlowFixMe[deprecated-type]
-    : $Call<<T>(PreloadableConcreteRequest<T>) => T, T>;
+      }
+    : [+t: T] extends [+t: PreloadableConcreteRequest<infer V>]
+      ? V
+      : empty;
 
 declare function loadQuery<
   T,

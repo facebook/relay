@@ -30,7 +30,6 @@ import type {
 } from './RelayStoreTypes';
 
 const getOperation = require('../util/getOperation');
-const RelayConcreteNode = require('../util/RelayConcreteNode');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
 const {getLocalVariables} = require('./RelayConcreteVariables');
@@ -39,25 +38,6 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
-const {
-  ACTOR_CHANGE,
-  CONDITION,
-  CLIENT_COMPONENT,
-  CLIENT_EXTENSION,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  MODULE_IMPORT,
-  LINKED_HANDLE,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-  RELAY_RESOLVER,
-  RELAY_LIVE_RESOLVER,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-} = RelayConcreteNode;
 const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
 function mark(
@@ -136,18 +116,18 @@ class RelayReferenceMarker {
     selections.forEach(selection => {
       /* eslint-disable no-fallthrough */
       switch (selection.kind) {
-        case ACTOR_CHANGE:
+        case 'ActorChange':
           // TODO: T89695151 Support multi-actor record sources in RelayReferenceMarker.js
           this._traverseLink(selection.linkedField, record);
           break;
-        case LINKED_FIELD:
+        case 'LinkedField':
           if (selection.plural) {
             this._traversePluralLink(selection, record);
           } else {
             this._traverseLink(selection, record);
           }
           break;
-        case CONDITION:
+        case 'Condition':
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),
           );
@@ -155,7 +135,7 @@ class RelayReferenceMarker {
             this._traverseSelections(selection.selections, record);
           }
           break;
-        case INLINE_FRAGMENT:
+        case 'InlineFragment':
           if (selection.abstractKey == null) {
             const typeName = RelayModernRecord.getType(record);
             if (
@@ -179,7 +159,7 @@ class RelayReferenceMarker {
             this._traverseSelections(selection.selections, record);
           }
           break;
-        case FRAGMENT_SPREAD:
+        case 'FragmentSpread':
           const prevVariables = this._variables;
           this._variables = getLocalVariables(
             this._variables,
@@ -189,7 +169,7 @@ class RelayReferenceMarker {
           this._traverseSelections(selection.fragment.selections, record);
           this._variables = prevVariables;
           break;
-        case LINKED_HANDLE:
+        case 'LinkedHandle':
           // The selections for a "handle" field are the same as those of the
           // original linked field where the handle was applied. Reference marking
           // therefore requires traversing the original field selections against
@@ -210,38 +190,38 @@ class RelayReferenceMarker {
             this._traverseLink(handleField, record);
           }
           break;
-        case DEFER:
-        case STREAM:
+        case 'Defer':
+        case 'Stream':
           this._traverseSelections(selection.selections, record);
           break;
-        case SCALAR_FIELD:
-        case SCALAR_HANDLE:
+        case 'ScalarField':
+        case 'ScalarHandle':
           break;
-        case TYPE_DISCRIMINATOR: {
+        case 'TypeDiscriminator': {
           const typeName = RelayModernRecord.getType(record);
           const typeID = generateTypeID(typeName);
           this._references.add(typeID);
           break;
         }
-        case MODULE_IMPORT:
+        case 'ModuleImport':
           this._traverseModuleImport(selection, record);
           break;
-        case CLIENT_EXTENSION:
+        case 'ClientExtension':
           this._traverseSelections(selection.selections, record);
           break;
-        case CLIENT_COMPONENT:
+        case 'ClientComponent':
           if (this._shouldProcessClientComponents === false) {
             break;
           }
           this._traverseSelections(selection.fragment.selections, record);
           break;
-        case RELAY_RESOLVER:
+        case 'RelayResolver':
           this._traverseResolverField(selection, record);
           break;
-        case RELAY_LIVE_RESOLVER:
+        case 'RelayLiveResolver':
           this._traverseResolverField(selection, record);
           break;
-        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+        case 'ClientEdgeToClientObject':
           this._traverseClientEdgeToClientObject(selection, record);
           break;
         default:

@@ -48,26 +48,6 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
-const {
-  ACTOR_CHANGE,
-  ALIASED_INLINE_FRAGMENT_SPREAD,
-  CATCH_FIELD,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  CLIENT_EDGE_TO_SERVER_OBJECT,
-  CLIENT_EXTENSION,
-  CONDITION,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_DATA_FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  MODULE_IMPORT,
-  RELAY_LIVE_RESOLVER,
-  RELAY_RESOLVER,
-  REQUIRED_FIELD,
-  SCALAR_FIELD,
-  STREAM,
-} = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {
   isSuspenseSentinel,
@@ -411,7 +391,7 @@ class RelayReader {
       const selection = selections[i];
 
       switch (selection.kind) {
-        case REQUIRED_FIELD:
+        case 'RequiredField':
           const requiredFieldValue = this._readClientSideDirectiveField(
             selection,
             record,
@@ -421,7 +401,7 @@ class RelayReader {
             return false;
           }
           break;
-        case CATCH_FIELD: {
+        case 'CatchField': {
           if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
             this._readClientSideDirectiveField(selection, record, data);
             break;
@@ -454,17 +434,17 @@ class RelayReader {
           }
           break;
         }
-        case SCALAR_FIELD:
+        case 'ScalarField':
           this._readScalar(selection, record, data);
           break;
-        case LINKED_FIELD:
+        case 'LinkedField':
           if (selection.plural) {
             this._readPluralLink(selection, record, data);
           } else {
             this._readLink(selection, record, data);
           }
           break;
-        case CONDITION:
+        case 'Condition':
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),
           );
@@ -479,7 +459,7 @@ class RelayReader {
             }
           }
           break;
-        case INLINE_FRAGMENT: {
+        case 'InlineFragment': {
           const hasExpectedData = this._readInlineFragment(
             selection,
             record,
@@ -492,18 +472,18 @@ class RelayReader {
           }
           break;
         }
-        case RELAY_LIVE_RESOLVER:
-        case RELAY_RESOLVER: {
+        case 'RelayLiveResolver':
+        case 'RelayResolver': {
           if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
             throw new Error('Relay Resolver fields are not yet supported.');
           }
           this._readResolverField(selection, record, data);
           break;
         }
-        case FRAGMENT_SPREAD:
+        case 'FragmentSpread':
           this._createFragmentPointer(selection, record, data);
           break;
-        case ALIASED_INLINE_FRAGMENT_SPREAD: {
+        case 'AliasedInlineFragmentSpread': {
           let fieldValue = this._readInlineFragment(
             selection.fragment,
             record,
@@ -516,18 +496,18 @@ class RelayReader {
           data[selection.name] = fieldValue;
           break;
         }
-        case MODULE_IMPORT:
+        case 'ModuleImport':
           this._readModuleImport(selection, record, data);
           break;
-        case INLINE_DATA_FRAGMENT_SPREAD:
+        case 'InlineDataFragmentSpread':
           this._createInlineDataOrResolverFragmentPointer(
             selection,
             record,
             data,
           );
           break;
-        case DEFER:
-        case CLIENT_EXTENSION: {
+        case 'Defer':
+        case 'ClientExtension': {
           const isMissingData = this._isMissingData;
           const alreadyMissingClientEdges = this._missingClientEdges.length;
           this._clientEdgeTraversalPath.push(null);
@@ -549,7 +529,7 @@ class RelayReader {
           }
           break;
         }
-        case STREAM: {
+        case 'Stream': {
           const hasExpectedData = this._traverseSelections(
             selection.selections,
             record,
@@ -560,11 +540,11 @@ class RelayReader {
           }
           break;
         }
-        case ACTOR_CHANGE:
+        case 'ActorChange':
           this._readActorChange(selection, record, data);
           break;
-        case CLIENT_EDGE_TO_CLIENT_OBJECT:
-        case CLIENT_EDGE_TO_SERVER_OBJECT:
+        case 'ClientEdgeToClientObject':
+        case 'ClientEdgeToServerObject':
           this._readClientEdge(selection, record, data);
           break;
         default:
@@ -585,26 +565,26 @@ class RelayReader {
     data: SelectorData,
   ): ?mixed {
     switch (selection.field.kind) {
-      case SCALAR_FIELD:
+      case 'ScalarField':
         return this._readScalar(selection.field, record, data);
-      case LINKED_FIELD:
+      case 'LinkedField':
         if (selection.field.plural) {
           return this._readPluralLink(selection.field, record, data);
         } else {
           return this._readLink(selection.field, record, data);
         }
-      case RELAY_RESOLVER:
+      case 'RelayResolver':
         if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
-      case RELAY_LIVE_RESOLVER:
+      case 'RelayLiveResolver':
         if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
-      case CLIENT_EDGE_TO_CLIENT_OBJECT:
-      case CLIENT_EDGE_TO_SERVER_OBJECT:
+      case 'ClientEdgeToClientObject':
+      case 'ClientEdgeToServerObject':
         if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
@@ -852,7 +832,7 @@ class RelayReader {
       );
       let storeIDs: $ReadOnlyArray<DataID>;
       invariant(
-        field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT,
+        field.kind === 'ClientEdgeToClientObject',
         'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
       );
       if (field.backingField.normalizationInfo == null) {
@@ -903,7 +883,7 @@ class RelayReader {
       const concreteType =
         field.concreteType ?? clientEdgeResolverResponse.__typename;
       let traversalPathSegment: ClientEdgeTraversalInfo | null;
-      if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+      if (field.kind === 'ClientEdgeToClientObject') {
         if (field.backingField.normalizationInfo == null) {
           invariant(
             typeof concreteType === 'string',

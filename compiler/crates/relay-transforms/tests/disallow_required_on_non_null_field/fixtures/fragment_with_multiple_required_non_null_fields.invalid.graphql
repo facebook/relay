@@ -1,5 +1,4 @@
 # expected-to-throw
-# relay:experimental_emit_semantic_nullability_types
 fragment MyFragment on User @throwOnFieldError {
   some_field @required(action: THROW)
   some_other_field @required(action: THROW)

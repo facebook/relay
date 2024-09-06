@@ -45,12 +45,7 @@ pub fn validate_reader(
     additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<WithDiagnostics<()>> {
     let output = try_all(vec![
-        disallow_required_on_non_null_field(
-            program,
-            project_config
-                .typegen_config
-                .experimental_emit_semantic_nullability_types,
-        ),
+        disallow_required_on_non_null_field(program),
         if let Some(ref validate) = additional_validations {
             validate(program, project_config)
         } else {

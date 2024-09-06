@@ -160,9 +160,9 @@ fragment TodoApp_app on App {
 
 See also [the @required guide](../../guides/required-directive/).
 
-## `@throwOnFieldError` (experimental)
+## `@throwOnFieldError`
 
-This directive currently requires that the `experimentalEmitSemanticNullabilityTypes` config be enabled for your project. The `@throwOnFieldError` directive can be added to fragments and queries. When this directive is used, the Relay runtime will throw an exception if a field with a field error is encountered while reading the fragment or query.
+The `@throwOnFieldError` directive can be added to fragments and queries. When this directive is used, the Relay runtime will throw an exception if a field with a field error is encountered while reading the fragment or query, or if Relay is missing data due to a [graph relationship change](../../debugging/why-null/#graph-relationship-change).
 
 In addition to causing the Relay runtime to throw an exception if a field error is encountered, the `@throwOnFieldError` directive also enables generation of non-null Flow types for fields that have the `@semanticNonNull` directive in the schema. This means that if a field has the `@semanticNonNull` directive, the generated Flow type for that field will be non-nullable; if an error were to occur while reading that field, the thrown exception will prevent your application from receiving a null value.
 
@@ -179,9 +179,9 @@ In this example, the `@throwOnFieldError` directive is added to the MyFragment f
 
 __Read more about Relay's experimental support for [Semantic Nullability](../../guides/semantic-nullability.md).__
 
-## `@semanticNonNull` (experimental)
+## `@semanticNonNull`
 
-This directive currently requires that the `experimentalEmitSemanticNullabilityTypes` config be enabled for your project. The `@semanticNonNull` directive can be added to fields in your schema to indicate that the field is non-nullable in the semantic sense, but that the client should still be prepared to handle errors.
+The `@semanticNonNull` directive can be added to fields in your schema to indicate that the field is non-nullable in the semantic sense, but that the client should still be prepared to handle errors.
 
 __Read more about Relay's experimental support for [Semantic Nullability](../../guides/semantic-nullability.md).__
 

@@ -532,11 +532,6 @@ pub enum ValidationMessage {
     RequiredInMutation,
 
     #[error(
-        "Unexpected `@throwOnFieldError` directive. The `@throwOnFieldError` directive is not supported unless experimental_emit_semantic_nullability_types is enabled."
-    )]
-    ThrowOnFieldErrorNotEnabled,
-
-    #[error(
         "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."
     )]
     ResolverInMutation,

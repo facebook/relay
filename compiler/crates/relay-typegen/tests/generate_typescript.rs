@@ -106,9 +106,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             use_import_type_syntax: fixture
                 .content
                 .contains("# typegen_config.use_import_type_syntax = true"),
-            experimental_emit_semantic_nullability_types: fixture
-                .content
-                .contains("# relay:experimental_emit_semantic_nullability_types"),
             custom_error_type,
             ..Default::default()
         },

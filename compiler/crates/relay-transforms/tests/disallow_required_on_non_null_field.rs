@@ -28,13 +28,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let ir = build(&schema, &ast.definitions)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-        disallow_required_on_non_null_field(
-            &program,
-            fixture
-                .content
-                .contains("# relay:experimental_emit_semantic_nullability_types"),
-        )
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+        disallow_required_on_non_null_field(&program)
+            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         Ok("OK".to_owned())
     } else {

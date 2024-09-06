@@ -1,6 +1,5 @@
 ==================================== INPUT ====================================
 # expected-to-throw
-# relay:experimental_emit_semantic_nullability_types
 fragment MyFragment on User @throwOnFieldError {
   some_field @required(action: THROW)
   some_other_field @required(action: THROW)
@@ -19,35 +18,35 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
 
-  fragment_with_multiple_required_non_null_fields.invalid.graphql:4:14
-    3 │ fragment MyFragment on User @throwOnFieldError {
-    4 │   some_field @required(action: THROW)
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:3:14
+    2 │ fragment MyFragment on User @throwOnFieldError {
+    3 │   some_field @required(action: THROW)
       │              ^^^^^^^^^
-    5 │   some_other_field @required(action: THROW)
+    4 │   some_other_field @required(action: THROW)
 
 
 ✖︎ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
 
-  fragment_with_multiple_required_non_null_fields.invalid.graphql:5:20
-    4 │   some_field @required(action: THROW)
-    5 │   some_other_field @required(action: THROW)
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:4:20
+    3 │   some_field @required(action: THROW)
+    4 │   some_other_field @required(action: THROW)
       │                    ^^^^^^^^^
-    6 │   best_friend {
+    5 │   best_friend {
 
 
 ✖︎ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
 
-  fragment_with_multiple_required_non_null_fields.invalid.graphql:7:16
-    6 │   best_friend {
-    7 │     some_field @required(action: THROW)
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:6:16
+    5 │   best_friend {
+    6 │     some_field @required(action: THROW)
       │                ^^^^^^^^^
-    8 │     some_other_field @required(action: THROW)
+    7 │     some_other_field @required(action: THROW)
 
 
 ✖︎ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
 
-  fragment_with_multiple_required_non_null_fields.invalid.graphql:8:22
-    7 │     some_field @required(action: THROW)
-    8 │     some_other_field @required(action: THROW)
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:7:22
+    6 │     some_field @required(action: THROW)
+    7 │     some_other_field @required(action: THROW)
       │                      ^^^^^^^^^
-    9 │   }
+    8 │   }

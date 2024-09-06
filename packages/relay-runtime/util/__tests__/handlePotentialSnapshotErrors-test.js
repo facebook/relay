@@ -24,7 +24,9 @@ describe('handlePotentialSnapshotErrors', () => {
   });
 
   it('should not throw in default case', () => {
-    handlePotentialSnapshotErrors(environment, null, [], null, false);
+    expect(() => {
+      handlePotentialSnapshotErrors(environment, null, [], null, false);
+    }).not.toThrow();
   });
 
   describe('missing required field handling', () => {
@@ -130,6 +132,92 @@ describe('handlePotentialSnapshotErrors', () => {
     });
   });
 
+  describe('isMissingData field handling', () => {
+    it('throws on throwOnFieldError true', () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          null,
+          [],
+          [
+            {
+              owner: '',
+              path: '',
+              type: 'MISSING_DATA',
+              error: {
+                message: `Relay: Missing data for one or more fields`,
+              },
+            },
+          ],
+          true /* throwOnFieldError */,
+        );
+      }).toThrowError(/^Relay: Missing data for one or more fields/);
+
+      expect(relayFieldLogger).toHaveBeenCalledTimes(1);
+      expect(relayFieldLogger).toHaveBeenCalledWith({
+        fieldPath: '',
+        kind: 'missing_expected_data.throw',
+        owner: '',
+      });
+    });
+
+    it("logs missing data but doesn't throw when throwOnFieldError is false", () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          null,
+          [],
+          [
+            {
+              owner: '',
+              path: '',
+              type: 'MISSING_DATA',
+              error: {
+                message: 'Relay: Missing data for one or more fields',
+              },
+            },
+          ],
+          false /* throwOnFieldError */,
+        );
+      }).not.toThrow();
+
+      expect(relayFieldLogger).toHaveBeenCalledTimes(1);
+      expect(relayFieldLogger).toHaveBeenCalledWith({
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner: '',
+      });
+    });
+
+    it("logs missing data but doesn't throw when throwOnFieldError is false", () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          null,
+          [],
+          [
+            {
+              owner: '',
+              path: '',
+              type: 'MISSING_DATA',
+              error: {
+                message: 'Relay: Missing data for one or more fields',
+              },
+            },
+          ],
+          false /* throwOnFieldError */,
+        );
+      }).not.toThrow();
+
+      expect(relayFieldLogger).toHaveBeenCalledTimes(1);
+      expect(relayFieldLogger).toHaveBeenCalledWith({
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner: '',
+      });
+    });
+  });
+
   describe('field error handling', () => {
     it("doesn't throw even when MISSING_DATA exists in errors array", () => {
       expect(() => {
@@ -162,12 +250,12 @@ describe('handlePotentialSnapshotErrors', () => {
             {
               owner: 'testOwner',
               path: 'testPath',
+              type: 'PAYLOAD_ERROR',
               error: {
                 message: 'testMessage',
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
-              type: 'PAYLOAD_ERROR',
             },
           ],
           false /* throwOnFieldError */,
@@ -184,6 +272,54 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
+      });
+    });
+
+    it("only logs twice but doesn't throw when explicit error handling disabled - and missing data", () => {
+      expect(() => {
+        handlePotentialSnapshotErrors(
+          environment,
+          null,
+          [],
+          [
+            {
+              owner: 'testOwner',
+              path: 'testPath',
+              type: 'PAYLOAD_ERROR',
+              error: {
+                message: 'testMessage',
+                path: ['testPath'],
+                severity: 'CRITICAL',
+              },
+            },
+            {
+              owner: '',
+              path: '',
+              type: 'MISSING_DATA',
+              error: {
+                message: 'Relay: Missing data for one or more fields',
+              },
+            },
+          ],
+          false /* throwOnFieldError */,
+        );
+      }).not.toThrow();
+
+      expect(relayFieldLogger).toHaveBeenCalledTimes(2);
+      expect(relayFieldLogger).toHaveBeenCalledWith({
+        error: {
+          message: 'testMessage',
+          path: ['testPath'],
+          severity: 'CRITICAL',
+        },
+        fieldPath: 'testPath',
+        kind: 'relay_field_payload.error',
+        owner: 'testOwner',
+      });
+      expect(relayFieldLogger).toHaveBeenCalledWith({
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner: '',
       });
     });
 
@@ -222,6 +358,7 @@ describe('handlePotentialSnapshotErrors', () => {
 
     it('throws when throwOnFieldError enabled', () => {
       expect(() => {
+        // in this case, the MISSING_DATA error is thrown *with* the others
         handlePotentialSnapshotErrors(
           environment,
           null,
@@ -230,12 +367,21 @@ describe('handlePotentialSnapshotErrors', () => {
             {
               owner: 'testOwner',
               path: 'testPath',
+              type: 'PAYLOAD_ERROR',
               error: {
                 message: 'testMessage',
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
-              type: 'PAYLOAD_ERROR',
+            },
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              },
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+              type: 'MISSING_DATA',
+              path: '',
             },
           ],
           true /* throwOnFieldError */,
@@ -244,7 +390,7 @@ describe('handlePotentialSnapshotErrors', () => {
         /^Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors/,
       );
 
-      expect(relayFieldLogger).toHaveBeenCalledTimes(1);
+      expect(relayFieldLogger).toHaveBeenCalledTimes(2);
       expect(relayFieldLogger).toHaveBeenCalledWith({
         error: {
           message: 'testMessage',
@@ -254,6 +400,12 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
+      });
+
+      expect(relayFieldLogger).toHaveBeenCalledWith({
+        fieldPath: '',
+        kind: 'missing_expected_data.throw',
+        owner: '',
       });
     });
   });

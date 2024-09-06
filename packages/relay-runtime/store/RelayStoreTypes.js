@@ -1250,6 +1250,16 @@ export type MissingFieldHandler =
 
 export type RelayFieldLoggerEvent =
   | {
+      +kind: 'missing_expected_data.log',
+      +owner: string,
+      +fieldPath: string,
+    }
+  | {
+      +kind: 'missing_expected_data.throw',
+      +owner: string,
+      +fieldPath: string,
+    }
+  | {
       +kind: 'missing_field.log',
       +owner: string,
       +fieldPath: string,

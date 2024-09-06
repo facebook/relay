@@ -230,27 +230,27 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Download artifact relay-bin-linux-x64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: relay-bin-linux-x64
           path: artifacts/linux-x64
       - name: Download artifact relay-bin-linux-arm64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: relay-bin-linux-arm64
           path: artifacts/linux-arm64
       - name: Download artifact relay-bin-macos-x64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: relay-bin-macos-x64
           path: artifacts/macos-x64
       - name: Download artifact relay-bin-macos-arm64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: relay-bin-macos-arm64
           path: artifacts/macos-arm64
       - name: Download artifact relay-bin-win-x64
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: relay-bin-win-x64
           path: artifacts/win-x64

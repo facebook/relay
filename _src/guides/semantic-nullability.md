@@ -27,17 +27,7 @@ The full spec change will likely require adding additional syntax to GraphQL's s
 
 In short, you can add `@semanticNonNull` to a field in your schema to indicate that the field is non-nullable in the semantic sense, but that the client should still be prepared to handle errors.
 
-## Enabling Semantic Nullability in Relay
-
-To try out Semantic Nullability in Relay, you can enable the `experimentalEmitSemanticNullabilityTypes` option in your Relay compiler config file. With this flag enabled, Relay will look for `@semanticNonNull` directives in your schema and generate non-nullable Flow/TypeScript types for those fields if you enable client-side error handling using the [`@throwOnFieldError`](../api-reference/graphql/graphql-directives.md#throwonfielderror-experimental) directive.
-
-```json title="relay.config.json"
-{
-  "language": "typescript",
-  "schema": "./schema.graphql",
-  "experimentalEmitSemanticNullabilityTypes": true
-}
-```
+Relay will look for `@semanticNonNull` directives in your schema and generate non-nullable Flow/TypeScript types for those fields if you enable client-side error handling for your query or fragment by addin the [`@throwOnFieldError`](../api-reference/graphql/graphql-directives.md#throwonfielderror-experimental) directive.
 
 If your server will never return `null` for a user's name, except in the case of errors, for example because it's resolver is typed as non-nullable, you can then apply `@semanticNonNull` to that field in your schema.
 

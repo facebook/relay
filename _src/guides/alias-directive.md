@@ -9,10 +9,6 @@ keywords:
 - fragment
 ---
 
-:::warning
-`@alias` is an experimental feature. To try it out, you will need the latest `@main` release of Relay, and to enable the `enable_fragment_aliases` compiler feature flag in your compiler config.
-:::
-
 The `@alias` directive allows you to expose a spread fragment — either a named fragment spread or an inline fragment — as a named field within your selection. This allows Relay to provide additional type safety in the case where your fragment’s type may not match the parent selection.
 
 :::info

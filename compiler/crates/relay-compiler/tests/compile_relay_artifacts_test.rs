@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa446f69f97b6829196525d5a8694612>>
+ * @generated SignedSource<<a990b1cc8c6c1cdceef8602343de947f>>
  */
 
 mod compile_relay_artifacts;
@@ -2047,6 +2047,13 @@ async fn updatable_fragment_spread_with_variables() {
     let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-variables.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-variables.expected");
     test_fixture(transform_fixture, file!(), "updatable-fragment-spread-with-variables.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-variables.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn validate_array_arguments_usage_in_fragments_with_client_edge_reads() {
+    let input = include_str!("compile_relay_artifacts/fixtures/validate-array-arguments-usage-in-fragments-with-client-edge-reads.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/validate-array-arguments-usage-in-fragments-with-client-edge-reads.expected");
+    test_fixture(transform_fixture, file!(), "validate-array-arguments-usage-in-fragments-with-client-edge-reads.graphql", "compile_relay_artifacts/fixtures/validate-array-arguments-usage-in-fragments-with-client-edge-reads.expected", input, expected).await;
 }
 
 #[tokio::test]

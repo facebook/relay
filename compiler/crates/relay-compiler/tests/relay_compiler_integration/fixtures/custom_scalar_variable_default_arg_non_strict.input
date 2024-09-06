@@ -1,6 +1,6 @@
 //- foo.js
 
-graphql`query fooCustomScalarLiteralArgQuery($arg: CustomScalarType! = "foobar", $arg_server: CustomServerScalarType! = "bazquux") {
+graphql`query fooCustomScalarLiteralArgQuery($arg: CustomScalarType = "foobar", $arg_server: CustomServerScalarType = "bazquux") {
     extension_field(custom_scalar_arg: "a_string") {
         __typename
     }

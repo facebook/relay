@@ -626,6 +626,92 @@
                 }
               ]
             },
+            "disable_full_argument_type_validation": {
+              "description": "Disable full GraphQL argument type validation. Historically, we only applied argument type validation to the query that was actually going to be persisted and sent to the server. This meant that we didn't typecheck arguments passed to Relay Resolvers or Client Schema Extensions.\n\nWe also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for defining fragment arguments which were not typechecked.\n\nWe no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck both client and server arguments. This flag allows you to opt out of this new behavior to enable gradual adoption of the new validations.\n\nThis flag will be removed in a future version of Relay.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
             "disable_resolver_reader_ast": {
               "description": "Mirror of `enable_resolver_normalization_ast` excludes resolver metadata from reader ast",
               "default": false,
@@ -1633,6 +1719,9 @@
             "disable_edge_type_name_validation_on_declerative_connection_directives": {
               "kind": "disabled"
             },
+            "disable_full_argument_type_validation": {
+              "kind": "disabled"
+            },
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
             "enable_3d_branch_arg_generation": false,
@@ -2092,6 +2181,92 @@
             },
             "disable_edge_type_name_validation_on_declerative_connection_directives": {
               "description": "Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "disable_full_argument_type_validation": {
+              "description": "Disable full GraphQL argument type validation. Historically, we only applied argument type validation to the query that was actually going to be persisted and sent to the server. This meant that we didn't typecheck arguments passed to Relay Resolvers or Client Schema Extensions.\n\nWe also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for defining fragment arguments which were not typechecked.\n\nWe no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck both client and server arguments. This flag allows you to opt out of this new behavior to enable gradual adoption of the new validations.\n\nThis flag will be removed in a future version of Relay.",
               "default": {
                 "kind": "disabled"
               },
@@ -3291,6 +3466,92 @@
                   },
                   "disable_edge_type_name_validation_on_declerative_connection_directives": {
                     "description": "Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "disable_full_argument_type_validation": {
+                    "description": "Disable full GraphQL argument type validation. Historically, we only applied argument type validation to the query that was actually going to be persisted and sent to the server. This meant that we didn't typecheck arguments passed to Relay Resolvers or Client Schema Extensions.\n\nWe also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for defining fragment arguments which were not typechecked.\n\nWe no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck both client and server arguments. This flag allows you to opt out of this new behavior to enable gradual adoption of the new validations.\n\nThis flag will be removed in a future version of Relay.",
                     "default": {
                       "kind": "disabled"
                     },

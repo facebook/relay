@@ -54,9 +54,6 @@
       },
       "featureFlags": {
         "enable_relay_resolver_transform": true,
-        "enable_catch_directive_transform": {
-          "kind": "enabled"
-        },
         "no_inline": {
           "kind": "enabled"
         },

@@ -139,9 +139,6 @@ pub enum ValidationMessage {
     #[error("Invalid directive combination. @alias may not be combined with other directives.")]
     FragmentAliasIncompatibleDirective,
 
-    #[error("Unexpected directive @catch. @catch is not yet implemented.")]
-    CatchDirectiveNotImplemented,
-
     #[error("Unexpected directive `@alias`. `@alias` is not currently enabled in this location.")]
     FragmentAliasDirectiveDisabled,
 

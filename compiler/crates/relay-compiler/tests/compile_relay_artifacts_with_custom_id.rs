@@ -87,7 +87,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
-        enable_catch_directive_transform: FeatureFlag::Disabled,
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,

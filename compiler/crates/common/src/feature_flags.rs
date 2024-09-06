@@ -25,9 +25,6 @@ pub struct FeatureFlags {
     pub enable_relay_resolver_transform: bool,
 
     #[serde(default)]
-    pub enable_catch_directive_transform: FeatureFlag,
-
-    #[serde(default)]
     // Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,
 

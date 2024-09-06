@@ -14,7 +14,10 @@
 const React = require('react');
 const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
+const {RelayFeatureFlags} = require('relay-runtime');
 const {graphql} = require('relay-runtime');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {createMockEnvironment} = require('relay-test-utils');
 const {
   disallowConsoleErrors,
@@ -23,6 +26,15 @@ const {
 
 disallowWarnings();
 disallowConsoleErrors();
+
+beforeEach(() => {
+  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+});
+
+afterEach(() => {
+  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+});
+
 it('should catch a server field error', () => {
   const environment = createMockEnvironment();
   function TestComponent() {
@@ -110,4 +122,50 @@ it('should catch a @required(action: THROW) error', () => {
     jest.runAllImmediates();
   });
   expect(renderer?.toJSON()).toBe('Error');
+});
+
+it('should catch Relay Resolver errors', () => {
+  const environment = createMockEnvironment({
+    store: new LiveResolverStore(new RelayRecordSource()),
+  });
+  function TestComponent() {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading">
+          <InnerComponent />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function InnerComponent() {
+    const data = useLazyLoadQuery(
+      graphql`
+        query CatchTestResolverErrorThrowQuery @throwOnFieldError {
+          me @catch {
+            always_throws
+          }
+        }
+      `,
+      {},
+    );
+    return data.me.ok
+      ? data.me.value?.always_throws
+      : JSON.stringify(data.me.errors);
+  }
+
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(<TestComponent />);
+  });
+
+  TestRenderer.act(() => {
+    environment.mock.resolveMostRecentOperation(() => {
+      return {data: {me: {id: '1', __typename: 'User'}}};
+    });
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toBe(
+    '[{"message":"Relay: Error in resolver for field at me.always_throws in CatchTestResolverErrorThrowQuery"}]',
+  );
 });

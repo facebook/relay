@@ -348,6 +348,18 @@ class RelayReader {
 
     let errors = this._errorResponseFields?.map(error => error.error);
 
+    if (this._resolverErrors.length > 0) {
+      if (errors == null) {
+        errors = [];
+      }
+      for (let i = 0; i < this._resolverErrors.length; i++) {
+        const resolverError = this._resolverErrors[i];
+        errors.push({
+          message: `Relay: Error in resolver for field at ${resolverError.field.path} in ${resolverError.field.owner}`,
+        });
+      }
+    }
+
     // If we have a nested @required(THROW) that will throw,
     // we want to catch that error and provide it
     if (this._missingRequiredFields?.action === 'THROW') {
@@ -404,9 +416,11 @@ class RelayReader {
         case 'CatchField': {
           const previousResponseFields = this._errorResponseFields;
           const previousMissingRequiredFields = this._missingRequiredFields;
+          const previousResolverErrors = this._resolverErrors;
 
           this._errorResponseFields = null;
           this._missingRequiredFields = null;
+          this._resolverErrors = [];
 
           const catchFieldValue = this._readClientSideDirectiveField(
             selection,
@@ -420,6 +434,7 @@ class RelayReader {
 
           const childrenMissingRequiredFields = this._missingRequiredFields;
 
+          this._resolverErrors = previousResolverErrors;
           this._errorResponseFields = previousResponseFields;
           this._missingRequiredFields = previousMissingRequiredFields;
 

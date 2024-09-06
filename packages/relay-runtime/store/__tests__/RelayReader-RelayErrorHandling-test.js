@@ -16,12 +16,6 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const {RelayFeatureFlags} = require('relay-runtime');
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = false;
-});
 
 describe('RelayReader error fields', () => {
   it('adds the errors to errorResponseFields', () => {
@@ -71,8 +65,6 @@ describe('RelayReader error fields', () => {
   });
 
   it('adds the errors to errorResponseFields including missingData - without @catch', () => {
-    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = true;
-    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = true;
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -132,7 +124,6 @@ describe('RelayReader error fields', () => {
   });
 
   it('adds the errors to errorResponseFields including missingData - with @catch', () => {
-    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = true;
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',

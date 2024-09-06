@@ -402,10 +402,6 @@ class RelayReader {
           }
           break;
         case 'CatchField': {
-          if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
-            this._readClientSideDirectiveField(selection, record, data);
-            break;
-          }
           const previousResponseFields = this._errorResponseFields;
           const previousMissingRequiredFields = this._missingRequiredFields;
 
@@ -432,6 +428,7 @@ class RelayReader {
           if (childrenMissingRequiredFields?.action === 'LOG') {
             this._addMissingRequiredFields(childrenMissingRequiredFields);
           }
+
           break;
         }
         case 'ScalarField':

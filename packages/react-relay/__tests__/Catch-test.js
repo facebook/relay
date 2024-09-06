@@ -14,7 +14,7 @@
 const React = require('react');
 const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
-const {RelayFeatureFlags, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 const {
   disallowConsoleErrors,
@@ -23,15 +23,6 @@ const {
 
 disallowWarnings();
 disallowConsoleErrors();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
-});
-
 it('should catch a server field error', () => {
   const environment = createMockEnvironment();
   function TestComponent() {

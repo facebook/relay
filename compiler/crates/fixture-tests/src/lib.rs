@@ -189,11 +189,19 @@ pub fn assert_file_contains(actual: &str, expected_file_path: PathBuf, expected:
 
 pub fn workspace_root() -> PathBuf {
     if let Ok(cargo) = std::env::var("CARGO") {
-        let stdout = Command::new(cargo)
+        let output_result = Command::new(cargo)
             .args(["locate-project", "--workspace", "--message-format=plain"])
-            .output()
-            .unwrap()
-            .stdout;
+            .output();
+        let stdout = match output_result {
+            Ok(output) => output.stdout,
+            Err(err) => {
+                panic!(
+                    "Failed to locate project from within {:?}: {:?}",
+                    std::env::current_dir(),
+                    err
+                )
+            }
+        };
         let workspace_cargo_toml = PathBuf::from(&std::str::from_utf8(&stdout).unwrap().trim());
         workspace_cargo_toml.parent().unwrap().to_path_buf()
     } else {

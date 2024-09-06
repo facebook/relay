@@ -50,10 +50,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
 
-    /// Enable support for the experimental `@alias` directive on fragment spreads.
-    #[serde(default)]
-    pub enable_fragment_aliases: FeatureFlag,
-
     /// Enforce that you must add `@alias` to a fragment if it may not match,
     /// due to type mismatch or `@skip`/`@include`
     #[serde(default)]

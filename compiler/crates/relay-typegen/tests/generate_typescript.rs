@@ -13,7 +13,6 @@ use std::sync::Arc;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::ConsoleLogger;
-use common::FeatureFlag;
 use common::FeatureFlags;
 use common::ScalarName;
 use common::SourceLocationKey;
@@ -110,7 +109,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             ..Default::default()
         },
         feature_flags: Arc::new(FeatureFlags {
-            enable_fragment_aliases: FeatureFlag::Enabled,
             enable_relay_resolver_transform: true,
             ..Default::default()
         }),

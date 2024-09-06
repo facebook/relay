@@ -71,7 +71,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         enable_relay_resolver_transform: true,
         relay_resolver_enable_interface_output_type: FeatureFlag::Enabled,
         actor_change_support: FeatureFlag::Enabled,
-        enable_fragment_aliases: FeatureFlag::Enabled,
         ..Default::default()
     };
     let ir = build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags)

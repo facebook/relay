@@ -110,7 +110,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         skip_printing_nulls: FeatureFlag::Disabled,
-        enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
         relay_resolver_enable_interface_output_type: if fixture
             .content

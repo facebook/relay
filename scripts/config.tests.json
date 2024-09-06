@@ -29,6 +29,13 @@
         }
       },
       "jsModuleFormat": "commonjs",
+      "moduleImportConfig": {
+        "dynamicModuleProvider": {
+          "mode": "Custom",
+          "statement": "() => require('./.<$module>')"
+        },
+        "surface": "resolvers"
+      },
       "schemaConfig": {
         "nonNodeIdFields": {
           "allowedIdTypes": {

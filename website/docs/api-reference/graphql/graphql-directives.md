@@ -14,10 +14,13 @@ keywords:
   - provider
 ---
 
-import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
+import DocsRating from '@site/src/core/DocsRating'; import {FbInternalOnly,
+OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
-Relay uses directives to add additional information to GraphQL documents, which are used by the [Relay compiler](../../guides/compiler/) to generate the appropriate runtime artifacts. These directives only appear in your application code and are removed from requests sent to your GraphQL server.
+Relay uses directives to add additional information to GraphQL documents, which
+are used by the [Relay compiler](../../guides/compiler/) to generate the
+appropriate runtime artifacts. These directives only appear in your application
+code and are removed from requests sent to your GraphQL server.
 
 <OssOnly>
 **Note:** The Relay compiler will maintain any directives supported by your server (such as `@include` or `@skip`) so they remain part of the request to the GraphQL server and won't alter generated runtime artifacts.
@@ -28,7 +31,8 @@ Relay uses directives to add additional information to GraphQL documents, which 
 
 ## `@arguments`
 
-`@arguments` is a directive used to pass arguments to a fragment that was defined using [`@argumentDefinitions`](#argumentdefinitions). For example:
+`@arguments` is a directive used to pass arguments to a fragment that was
+defined using [`@argumentDefinitions`](#argumentdefinitions). For example:
 
 ```graphql
 query TodoListQuery($userID: ID) {
@@ -38,34 +42,45 @@ query TodoListQuery($userID: ID) {
 
 ## `@argumentDefinitions`
 
-`@argumentDefinitions` is a directive used to specify arguments taken by a fragment. For example:
+`@argumentDefinitions` is a directive used to specify arguments taken by a
+fragment. For example:
 
 ```graphql
-fragment TodoList_list on TodoList @argumentDefinitions(
-  count: {type: "Int", defaultValue: 10},  # Optional argument
-  userID: {type: "ID"},                    # Required argument
+fragment TodoList_list on TodoList
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 10} # Optional argument
+  userID: {type: "ID"} # Required argument
 ) {
   title
-  todoItems(userID: $userID, first: $count) {  # Use fragment arguments here as variables
+  todoItems(userID: $userID, first: $count) {
+    # Use fragment arguments here as variables
     ...TodoItem_item
   }
 }
 ```
 
 ### Provided Variables
-A provided variable is a special fragment variable whose value is supplied by a specified provider function at runtime. This simplifies supplying device attributes, user experiment flags, and other runtime constants to graphql fragments.
+
+A provided variable is a special fragment variable whose value is supplied by a
+specified provider function at runtime. This simplifies supplying device
+attributes, user experiment flags, and other runtime constants to graphql
+fragments.
 
 To add a provided variable:
-- add an argument with `provider: "[JSModule].relayprovider"` to `@argumentDefinitions`
-- ensure that `[JSModule].relayprovider.js` exists and exports a `get()` function
-  -  `get` should return the same value on every call for a given run.
+
+- add an argument with `provider: "[JSModule].relayprovider"` to
+  `@argumentDefinitions`
+- ensure that `[JSModule].relayprovider.js` exists and exports a `get()`
+  function
+  - `get` should return the same value on every call for a given run.
+
 ```graphql
 fragment TodoItem_item on TodoList
 @argumentDefinitions(
   include_timestamp: {
-    type: "Boolean!",
+    type: "Boolean!"
     provider: "Todo_ShouldIncludeTimestamp.relayprovider"
-  },
+  }
 ) {
   timestamp @include(if: $include_timestamp)
   text
@@ -81,44 +96,78 @@ export default {
   },
 };
 ```
+
 Notes:
 
 <FbInternalOnly>
 
-- Even though fragments declare provided variables in `argumentDefinitions`, their parent cannot pass provided variables through `@arguments`.
+- Even though fragments declare provided variables in `argumentDefinitions`,
+  their parent cannot pass provided variables through `@arguments`.
 - An argument definition cannot specify both a provider and a defaultValue.
-- If the modified fragment is included in operations that use hack preloaders (`@preloadable(hackPreloader: true)`), you will need to manually add provided variables when calling `RelayPreloader::gen`.
-    - Hack's typechecker will fail with `The field __relay_internal__pv__[JsModule] is missing.`
-    - We strongly encourage switching to [Entrypoints](../../guides/entrypoints/using-entrypoints/) if possible.
+- If the modified fragment is included in operations that use hack preloaders
+  (`@preloadable(hackPreloader: true)`), you will need to manually add provided
+  variables when calling `RelayPreloader::gen`.
+  - Hack's typechecker will fail with
+    `The field __relay_internal__pv__[JsModule] is missing.`
+  - We strongly encourage switching to
+    [Entrypoints](../../guides/entrypoints/using-entrypoints/) if possible.
 - _Unstable / subject to change_
-  - Relay transforms provided variables to operation root variables and renames them to `__relay_internal__pv__[JsModule]`.
+  - Relay transforms provided variables to operation root variables and renames
+    them to `__relay_internal__pv__[JsModule]`.
     - Only relevant if you are debugging a query that uses provided variables.
 
 </FbInternalOnly>
 
 <OssOnly>
 
-- Even though fragments declare provided variables in `argumentDefinitions`, their parent cannot pass provided variables through `@arguments`.
+- Even though fragments declare provided variables in `argumentDefinitions`,
+  their parent cannot pass provided variables through `@arguments`.
 - An argument definition cannot specify both a provider and a defaultValue.
 - _Unstable / subject to change_
-  - Relay transforms provided variables to operation root variables and renames them to `__relay_internal__pv__[JsModule]`.
+  - Relay transforms provided variables to operation root variables and renames
+    them to `__relay_internal__pv__[JsModule]`.
     - Only relevant if you are debugging a query that uses provided variables.
 
 </OssOnly>
 
+## `@catch`
+
+`@catch` is a directive you can add to fields in your Relay queries to declare
+how field-level exceptions are handled in runtime.
+
+See also [the @catch guide](../../guides/catch-directive/).
+
 ## `@connection(key: String!, filters: [String])`
 
-With `usePaginationFragment`, Relay expects connection fields to be annotated with a `@connection` directive. For more detailed information and an example, check out the [docs on `usePaginationFragment`](../../guided-tour/list-data/rendering-connections).
+With `usePaginationFragment`, Relay expects connection fields to be annotated
+with a `@connection` directive. For more detailed information and an example,
+check out the
+[docs on `usePaginationFragment`](../../guided-tour/list-data/rendering-connections).
 
 ## `@refetchable(queryName: String!, directives: [String], preferFetchable: Boolean)`
 
-With `useRefetchableFragment` and `usePaginationFragment`, Relay expects a `@refetchable` directive. The `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are declared on `Viewer` or `Query` types, or on a type that implements `Node` (i.e. a type that has an id). The `@refetchable` directive will autogenerate a query with the specified `queryName`. This will also generate Flow types for the query, available to import from the generated file: `<queryName>.graphql.js`. For more detailed information and examples, check out the docs on [`useRefetchableFragment`](../use-refetchable-fragment/) or [`usePaginationFragment`](../use-pagination-fragment/).
+With `useRefetchableFragment` and `usePaginationFragment`, Relay expects a
+`@refetchable` directive. The `@refetchable` directive can only be added to
+fragments that are "refetchable", that is, on fragments that are declared on
+`Viewer` or `Query` types, or on a type that implements `Node` (i.e. a type that
+has an id). The `@refetchable` directive will autogenerate a query with the
+specified `queryName`. This will also generate Flow types for the query,
+available to import from the generated file: `<queryName>.graphql.js`. For more
+detailed information and examples, check out the docs on
+[`useRefetchableFragment`](../use-refetchable-fragment/) or
+[`usePaginationFragment`](../use-pagination-fragment/).
 
-Optionally, you can pass in a list of directives to add to the autogenerated query. For example, this can be used to add the `@relay_test_operation` directive for [testing](../../guides/testing-relay-components):
+Optionally, you can pass in a list of directives to add to the autogenerated
+query. For example, this can be used to add the `@relay_test_operation`
+directive for [testing](../../guides/testing-relay-components):
 
 [Optional] `preferFetchable: Boolean`
 
-This argument tells the Relay compiler to prefer generating `fetch_MyType(): MyType` queries for types that implement the `Node` interface. This is useful for schemas that have adopted the `@strong` and `@fetchable` server annotations for types. You can directly fetch concrete objects without needing to refine `Node` interface to a specific type.
+This argument tells the Relay compiler to prefer generating
+`fetch_MyType(): MyType` queries for types that implement the `Node` interface.
+This is useful for schemas that have adopted the `@strong` and `@fetchable`
+server annotations for types. You can directly fetch concrete objects without
+needing to refine `Node` interface to a specific type.
 
 ```javascript
 graphql`
@@ -129,12 +178,18 @@ graphql`
   ) {
     ...
   }
-`
+`;
 ```
 
 ## `@relay(plural: Boolean)`
 
-When defining a fragment for use with a Fragment container, you can use the `@relay(plural: true)` directive to indicate that container expects the prop for that fragment to be a list of items instead of a single item. A query or parent that spreads a `@relay(plural: true)` fragment should do so within a plural field (ie a field backed by a [GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null). For example:
+When defining a fragment for use with a Fragment container, you can use the
+`@relay(plural: true)` directive to indicate that container expects the prop for
+that fragment to be a list of items instead of a single item. A query or parent
+that spreads a `@relay(plural: true)` fragment should do so within a plural
+field (ie a field backed by a
+[GraphQL list](http://graphql.org/learn/schema/#lists-and-non-null). For
+example:
 
 ```javascript
 // Plural fragment definition
@@ -156,17 +211,29 @@ fragment TodoApp_app on App {
 
 ## `@required`
 
-`@required` is a directive you can add to fields in your Relay queries to declare how null values should be handled at runtime.
+`@required` is a directive you can add to fields in your Relay queries to
+declare how null values should be handled at runtime.
 
 See also [the @required guide](../../guides/required-directive/).
 
 ## `@throwOnFieldError`
 
-The `@throwOnFieldError` directive can be added to fragments and queries. When this directive is used, the Relay runtime will throw an exception if a field with a field error is encountered while reading the fragment or query, or if Relay is missing data due to a [graph relationship change](../../debugging/why-null/#graph-relationship-change).
+The `@throwOnFieldError` directive can be added to fragments and queries. When
+this directive is used, the Relay runtime will throw an exception if a field
+with a field error is encountered while reading the fragment or query, or if
+Relay is missing data due to a
+[graph relationship change](../../debugging/why-null/#graph-relationship-change).
 
-In addition to causing the Relay runtime to throw an exception if a field error is encountered, the `@throwOnFieldError` directive also enables generation of non-null Flow types for fields that have the `@semanticNonNull` directive in the schema. This means that if a field has the `@semanticNonNull` directive, the generated Flow type for that field will be non-nullable; if an error were to occur while reading that field, the thrown exception will prevent your application from receiving a null value.
+In addition to causing the Relay runtime to throw an exception if a field error
+is encountered, the `@throwOnFieldError` directive also enables generation of
+non-null Flow types for fields that have the `@semanticNonNull` directive in the
+schema. This means that if a field has the `@semanticNonNull` directive, the
+generated Flow type for that field will be non-nullable; if an error were to
+occur while reading that field, the thrown exception will prevent your
+application from receiving a null value.
 
-To use the `@throwOnFieldError` directive, add it to a fragment or query in your Relay code. For example:
+To use the `@throwOnFieldError` directive, add it to a fragment or query in your
+Relay code. For example:
 
 ```
 fragment MyFragment on User @throwOnFieldError {
@@ -175,21 +242,34 @@ fragment MyFragment on User @throwOnFieldError {
 }
 ```
 
-In this example, the `@throwOnFieldError` directive is added to the MyFragment fragment. If any of the fields in this fragment (in this case, id and name) have a field error, the Relay runtime will throw an exception at the time the fragment is read.
+In this example, the `@throwOnFieldError` directive is added to the MyFragment
+fragment. If any of the fields in this fragment (in this case, id and name) have
+a field error, the Relay runtime will throw an exception at the time the
+fragment is read.
 
-__Read more about Relay's experimental support for [Semantic Nullability](../../guides/semantic-nullability.md).__
+**Read more about Relay's experimental support for
+[Semantic Nullability](../../guides/semantic-nullability.md).**
 
 ## `@semanticNonNull`
 
-The `@semanticNonNull` directive can be added to fields in your schema to indicate that the field is non-nullable in the semantic sense, but that the client should still be prepared to handle errors.
+The `@semanticNonNull` directive can be added to fields in your schema to
+indicate that the field is non-nullable in the semantic sense, but that the
+client should still be prepared to handle errors.
 
-__Read more about Relay's experimental support for [Semantic Nullability](../../guides/semantic-nullability.md).__
+**Read more about Relay's experimental support for
+[Semantic Nullability](../../guides/semantic-nullability.md).**
 
 ## `@alias`
 
-`@alias` is a directive that allows you to give a fragment spread or inline fragment an alias, similar to a field alias. This is useful when you want to conditionally include a fragment and check if it was fetched, or otherwise group data together.
+`@alias` is a directive that allows you to give a fragment spread or inline
+fragment an alias, similar to a field alias. This is useful when you want to
+conditionally include a fragment and check if it was fetched, or otherwise group
+data together.
 
-For fragment spreads, the alias will default to the fragment name. For inline fragments, the alias will default to the type name. If you wish to supply your own name, or you have an inline fragment without any type condition, you can specify the alias using the `as` argument.
+For fragment spreads, the alias will default to the fragment name. For inline
+fragments, the alias will default to the type name. If you wish to supply your
+own name, or you have an inline fragment without any type condition, you can
+specify the alias using the `as` argument.
 
 ```graphql
 fragment MyFragment on User {
@@ -203,28 +283,37 @@ See also [the @alias guide](../../guides/alias-directive/).
 
 ## `@inline`
 
-The hooks APIs that Relay exposes allow you to read data from the store only during the render phase. In order to read data from outside of the render phase (or from outside of React), Relay exposes the `@inline` directive. The data from a fragment annotated with `@inline` can be read using `readInlineData`.
+The hooks APIs that Relay exposes allow you to read data from the store only
+during the render phase. In order to read data from outside of the render phase
+(or from outside of React), Relay exposes the `@inline` directive. The data from
+a fragment annotated with `@inline` can be read using `readInlineData`.
 
-In the example below, the function `processItemData` is called from a React component. It requires an item object with a specific set of fields. All React components that use this function should spread the `processItemData_item` fragment to ensure all of the correct item data is loaded for this function.
+In the example below, the function `processItemData` is called from a React
+component. It requires an item object with a specific set of fields. All React
+components that use this function should spread the `processItemData_item`
+fragment to ensure all of the correct item data is loaded for this function.
 
 ```javascript
 import {graphql, readInlineData} from 'react-relay';
 
 // non-React function called from React
 function processItemData(itemRef) {
-  const item = readInlineData(graphql`
-    fragment processItemData_item on Item @inline {
-      title
-      price
-      creator {
-        name
+  const item = readInlineData(
+    graphql`
+      fragment processItemData_item on Item @inline {
+        title
+        price
+        creator {
+          name
+        }
       }
-    }
-  `, itemRef);
+    `,
+    itemRef,
+  );
   sendToThirdPartyApi({
     title: item.title,
     price: item.price,
-    creatorName: item.creator.name
+    creatorName: item.creator.name,
   });
 }
 ```
@@ -242,28 +331,38 @@ export default function MyComponent({item}) {
         title
       }
     `,
-    item
+    item,
   );
 
-  return (
-    <button onClick={handleClick}>Process {item.title}</button>
-  );
+  return <button onClick={handleClick}>Process {item.title}</button>;
 }
 ```
 
 ## `@relay(mask: Boolean)`
 
- It is not recommended to use `@relay(mask: false)`. Please instead consider using the `@inline` fragment.
+It is not recommended to use `@relay(mask: false)`. Please instead consider
+using the `@inline` fragment.
 
-`@relay(mask: false)` can be used to prevent data masking; when including a fragment and annotating it with `@relay(mask: false)`, its data will be available directly to the parent instead of being masked for a different container.
+`@relay(mask: false)` can be used to prevent data masking; when including a
+fragment and annotating it with `@relay(mask: false)`, its data will be
+available directly to the parent instead of being masked for a different
+container.
 
-Applied to a fragment definition, `@relay(mask: false)` changes the generated Flow types to be better usable when the fragment is included with the same directive. The Flow types will no longer be exact objects and no longer contain internal marker fields.
+Applied to a fragment definition, `@relay(mask: false)` changes the generated
+Flow types to be better usable when the fragment is included with the same
+directive. The Flow types will no longer be exact objects and no longer contain
+internal marker fields.
 
-This may be helpful to reduce redundant fragments when dealing with nested or recursive data within a single Component.
+This may be helpful to reduce redundant fragments when dealing with nested or
+recursive data within a single Component.
 
-Keep in mind that it is typically considered an **anti-pattern** to create a single fragment shared across many containers. Abusing this directive could result in over-fetching in your application.
+Keep in mind that it is typically considered an **anti-pattern** to create a
+single fragment shared across many containers. Abusing this directive could
+result in over-fetching in your application.
 
-In the example below, the `user` prop will include the data for `id` and `name` fields wherever `...Component_internUser` is included, instead of Relay's normal behavior to mask those fields:
+In the example below, the `user` prop will include the data for `id` and `name`
+fields wherever `...Component_internUser` is included, instead of Relay's normal
+behavior to mask those fields:
 
 ```javascript
 graphql`
@@ -276,9 +375,14 @@ graphql`
 
 ## `@waterfall`
 
-With [Relay Resolvers](../../guides/relay-resolvers/introduction.md) it's possible to create client-defined edges in the graph which point to server types. When reading these edge fields, Relay is forced to lazily fetch the server data for the edge. This will force Relay to make a second request to the server to fetch the data for the edge.
+With [Relay Resolvers](../../guides/relay-resolvers/introduction.md) it's
+possible to create client-defined edges in the graph which point to server
+types. When reading these edge fields, Relay is forced to lazily fetch the
+server data for the edge. This will force Relay to make a second request to the
+server to fetch the data for the edge.
 
-To highlight this tradeoff both in the editor and during code review, the Relay compiler expects all reads of these fields to be annotated as `@waterfall`.
+To highlight this tradeoff both in the editor and during code review, the Relay
+compiler expects all reads of these fields to be annotated as `@waterfall`.
 
 ```graphql
 fragment EditPost on DraftPost {
@@ -288,6 +392,7 @@ fragment EditPost on DraftPost {
 }
 ```
 
-See the [Return Type](../../guides/relay-resolvers/return-types.md#server-types) portion of the Relay Resolvers guide for more information.
+See the [Return Type](../../guides/relay-resolvers/return-types.md#server-types)
+portion of the Relay Resolvers guide for more information.
 
 <DocsRating />

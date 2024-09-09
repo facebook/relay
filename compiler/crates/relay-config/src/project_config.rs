@@ -10,7 +10,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::path::MAIN_SEPARATOR;
 use std::sync::Arc;
-use std::usize;
 
 use common::DirectiveName;
 use common::FeatureFlags;
@@ -19,6 +18,7 @@ use common::SourceLocationKey;
 use common::WithLocation;
 use fmt::Debug;
 use fnv::FnvBuildHasher;
+use globset::GlobSet;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -232,6 +232,7 @@ pub struct ProjectConfig {
     pub base: Option<ProjectName>,
     pub extra_artifacts_output: Option<PathBuf>,
     pub extra_artifacts_config: Option<ExtraArtifactsConfig>,
+    pub excludes_extensions: Option<GlobSet>,
     pub output: Option<PathBuf>,
     pub shard_output: bool,
     pub shard_strip_regex: Option<Regex>,
@@ -261,6 +262,7 @@ impl Default for ProjectConfig {
             base: None,
             extra_artifacts_output: None,
             extra_artifacts_config: None,
+            excludes_extensions: None,
             output: None,
             shard_output: false,
             shard_strip_regex: None,
@@ -290,6 +292,7 @@ impl Debug for ProjectConfig {
             base,
             extra_artifacts_output,
             extra_artifacts_config,
+            excludes_extensions,
             output,
             shard_output,
             shard_strip_regex,
@@ -316,6 +319,7 @@ impl Debug for ProjectConfig {
             .field("output", output)
             .field("extra_artifacts_config", extra_artifacts_config)
             .field("extra_artifacts_output", extra_artifacts_output)
+            .field("excludes_extensions", excludes_extensions)
             .field("shard_output", shard_output)
             .field("shard_strip_regex", shard_strip_regex)
             .field("schema_extensions", schema_extensions)

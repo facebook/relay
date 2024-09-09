@@ -380,7 +380,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn process_synced_js_sources(&self, uri: &Url, sources: Vec<JavaScriptSourceFeature>) {
         self.insert_synced_js_sources(uri, sources);
-        self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
+        self.schedule_task(Task::SyncedSource(uri.clone()));
     }
 
     fn remove_synced_js_sources(&self, url: &Url) {
@@ -396,7 +396,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn process_synced_schema_sources(&self, uri: &Url, graphql_source: GraphQLSource) {
         self.insert_synced_schema_source(uri, graphql_source);
-        self.schedule_task(Task::ValidateSchemaSource(uri.clone()));
+        self.schedule_task(Task::SchemaSource(uri.clone()));
     }
 
     fn remove_synced_schema_source(&self, url: &Url) {
@@ -531,7 +531,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
-        let file_group = get_file_group_from_uri(&self.file_categorizer, url, &self.root_dir)?;
+        let file_group =
+            get_file_group_from_uri(&self.file_categorizer, url, &self.root_dir, &self.config)?;
 
         get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
@@ -575,7 +576,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
-        let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
+        let file_group =
+            get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
         let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
                 "Could not determine project name for \"{}\": {}",
@@ -609,7 +611,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_changed(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
-        let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
+        let file_group =
+            get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
 
         match file_group {
             FileGroup::Schema { project_set: _ } | FileGroup::Extension { project_set: _ } => {
@@ -677,9 +680,9 @@ pub fn build_ir_for_lsp(
 
 #[derive(Debug)]
 pub enum Task {
-    ValidateSyncedDocuments,
-    ValidateSyncedSource(Url),
-    ValidateSchemaSource(Url),
+    SyncedDocuments,
+    SyncedSource(Url),
+    SchemaSource(Url),
 }
 
 pub(crate) fn handle_lsp_state_tasks<
@@ -690,19 +693,19 @@ pub(crate) fn handle_lsp_state_tasks<
     task: Task,
 ) {
     match task {
-        Task::ValidateSyncedDocuments => {
+        Task::SyncedDocuments => {
             for item in &state.synced_javascript_sources {
-                state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
+                state.schedule_task(Task::SyncedSource(item.key().clone()));
             }
 
             for item in &state.synced_schema_sources {
-                state.schedule_task(Task::ValidateSchemaSource(item.key().clone()));
+                state.schedule_task(Task::SchemaSource(item.key().clone()));
             }
         }
-        Task::ValidateSyncedSource(url) => {
+        Task::SyncedSource(url) => {
             state.validate_synced_js_sources(&url).ok();
         }
-        Task::ValidateSchemaSource(url) => {
+        Task::SchemaSource(url) => {
             state.validate_synced_schema_source(&url).ok();
         }
     }

@@ -3017,6 +3017,16 @@
                   "null"
                 ]
               },
+              "excludesExtensions": {
+                "description": "Some projects may need to exclude files with certain extensions.",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
               "extra": {
                 "description": "A placeholder for allowing extra information in the config file",
                 "default": null

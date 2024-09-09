@@ -21,6 +21,8 @@ use common::ScalarName;
 use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
+use globset::Glob;
+use globset::GlobSetBuilder;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use indexmap::IndexMap;
@@ -385,6 +387,17 @@ impl Config {
                         }],
                     })?;
 
+                let excludes_extensions_set =
+                    config_file_project
+                        .excludes_extensions
+                        .map(move |extensions| {
+                            let mut builder = GlobSetBuilder::new();
+                            for ext in extensions {
+                                builder.add(Glob::new(&ext).unwrap());
+                            }
+                            builder.build().unwrap()
+                        });
+
                 let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
@@ -392,6 +405,7 @@ impl Config {
                     schema_extensions: config_file_project.schema_extensions,
                     extra_artifacts_config: None,
                     extra: config_file_project.extra,
+                    excludes_extensions: excludes_extensions_set,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
@@ -993,6 +1007,9 @@ pub struct ConfigFileProject {
     /// need to provide an additional directory to put them.
     /// By default the will use `output` *if available
     extra_artifacts_output: Option<PathBuf>,
+
+    /// Some projects may need to exclude files with certain extensions.
+    excludes_extensions: Option<Vec<String>>,
 
     /// If `output` is provided and `shard_output` is `true`, shard the files
     /// by putting them under `{output_dir}/{source_relative_path}`

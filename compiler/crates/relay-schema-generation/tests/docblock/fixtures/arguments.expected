@@ -1,0 +1,309 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type Page from 'Page';
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+ export type ClientPage = Page;
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {}
+
+/**
+ * @RelayResolver
+ */
+export function favorite_page(cat: CatFlowType, args: {id: number}): ?ClientPage {}
+
+/**
+ * @RelayResolver
+ */
+export function all_pages(cat: CatFlowType, args: {limit: ?number}): ?Array<ClientPage> {}
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 436:449,
+                    token: Token {
+                        span: 436:449,
+                        kind: Identifier,
+                    },
+                    value: "favorite_page",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 299:309,
+                            token: Token {
+                                span: 299:309,
+                                kind: Identifier,
+                            },
+                            value: "ClientPage",
+                        },
+                    },
+                ),
+                arguments: Some(
+                    List {
+                        span: 474:486,
+                        start: Token {
+                            span: 474:475,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 475:477,
+                                    token: Token {
+                                        span: 475:477,
+                                        kind: Identifier,
+                                    },
+                                    value: "id",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 479:485,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 479:485,
+                                                    token: Token {
+                                                        span: 479:485,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "Float",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 0:0,
+                                            kind: Empty,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                span: 475:485,
+                            },
+                        ],
+                        end: Token {
+                            span: 485:486,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 436:449,
+            },
+            type_: WithLocation {
+                location: module.js:361:364,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:436:449,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "9eb0075d1ca5f38ce3ae8a364b4fb1be",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  favorite_page(id: Float!): ClientPage @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "favorite_page", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be")
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 547:556,
+                    token: Token {
+                        span: 547:556,
+                        kind: Identifier,
+                    },
+                    value: "all_pages",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 601:618,
+                        open: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        type_: NonNull(
+                            NonNullTypeAnnotation {
+                                span: 607:617,
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 299:309,
+                                            token: Token {
+                                                span: 299:309,
+                                                kind: Identifier,
+                                            },
+                                            value: "ClientPage",
+                                        },
+                                    },
+                                ),
+                                exclamation: Token {
+                                    span: 0:0,
+                                    kind: Empty,
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                    },
+                ),
+                arguments: Some(
+                    List {
+                        span: 581:597,
+                        start: Token {
+                            span: 581:582,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 582:587,
+                                    token: Token {
+                                        span: 582:587,
+                                        kind: Identifier,
+                                    },
+                                    value: "limit",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 590:596,
+                                            token: Token {
+                                                span: 590:596,
+                                                kind: Identifier,
+                                            },
+                                            value: "Float",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                span: 582:596,
+                            },
+                        ],
+                        end: Token {
+                            span: 596:597,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 547:556,
+            },
+            type_: WithLocation {
+                location: module.js:361:364,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:547:556,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "9eb0075d1ca5f38ce3ae8a364b4fb1be",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  all_pages(limit: Float): [ClientPage!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "all_pages", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 361:364,
+                token: Token {
+                    span: 361:364,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:361:364,
+            root_fragment: WithLocation {
+                location: module.js:361:364,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:361:364,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "9eb0075d1ca5f38ce3ae8a364b4fb1be",
+            ),
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 299:309,
+                token: Token {
+                    span: 299:309,
+                    kind: Identifier,
+                },
+                value: "ClientPage",
+            },
+            rhs_location: module.js:299:309,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: module.js:299:309,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "9eb0075d1ca5f38ce3ae8a364b4fb1be",
+            ),
+        },
+    ),
+)
+scalar ClientPageModel @__RelayCustomScalar(path: "module.js", export_name: "ClientPage")
+
+
+type ClientPage @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: ClientPageModel! @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

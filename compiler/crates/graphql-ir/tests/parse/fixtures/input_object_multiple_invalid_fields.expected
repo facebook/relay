@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+mutation TestMutation($someBool: Boolean) {
+  feedbackLikeStrict(
+    input: {userID: $someBool, feedbackId: $someBool, description: $someBool}
+  ) {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable of type 'Boolean' cannot be used where 'ID!' is expected.
+
+  input_object_multiple_invalid_fields.graphql:5:21
+    4 │   feedbackLikeStrict(
+    5 │     input: {userID: $someBool, feedbackId: $someBool, description: $someBool}
+      │                     ^^^^^^^^^
+    6 │   ) {
+
+  ℹ︎ Variable `$someBool` is defined as 'Boolean'
+
+  input_object_multiple_invalid_fields.graphql:3:23
+    2 │ 
+    3 │ mutation TestMutation($someBool: Boolean) {
+      │                       ^^^^^^^^^
+    4 │   feedbackLikeStrict(
+
+
+✖︎ Variable of type 'Boolean' cannot be used where 'ID!' is expected.
+
+  input_object_multiple_invalid_fields.graphql:5:44
+    4 │   feedbackLikeStrict(
+    5 │     input: {userID: $someBool, feedbackId: $someBool, description: $someBool}
+      │                                            ^^^^^^^^^
+    6 │   ) {
+
+  ℹ︎ Variable `$someBool` is defined as 'Boolean'
+
+  input_object_multiple_invalid_fields.graphql:3:23
+    2 │ 
+    3 │ mutation TestMutation($someBool: Boolean) {
+      │                       ^^^^^^^^^
+    4 │   feedbackLikeStrict(
+
+
+✖︎ Variable of type 'Boolean' cannot be used where 'String' is expected.
+
+  input_object_multiple_invalid_fields.graphql:5:68
+    4 │   feedbackLikeStrict(
+    5 │     input: {userID: $someBool, feedbackId: $someBool, description: $someBool}
+      │                                                                    ^^^^^^^^^
+    6 │   ) {
+
+  ℹ︎ Variable `$someBool` is defined as 'Boolean'
+
+  input_object_multiple_invalid_fields.graphql:3:23
+    2 │ 
+    3 │ mutation TestMutation($someBool: Boolean) {
+      │                       ^^^^^^^^^
+    4 │   feedbackLikeStrict(

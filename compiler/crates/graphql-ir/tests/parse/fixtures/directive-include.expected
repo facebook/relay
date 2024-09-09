@@ -38,7 +38,7 @@ fragment Foo on User {
                     directives: [],
                 },
             ],
-            type_condition: Object(69),
+            type_condition: Object(70),
             directives: [],
             selections: [
                 Condition {
@@ -47,7 +47,7 @@ fragment Foo on User {
                             alias: None,
                             definition: WithLocation {
                                 location: directive-include.graphql:34:36,
-                                item: FieldID(460),
+                                item: FieldID(462),
                             },
                             arguments: [],
                             directives: [],
@@ -75,7 +75,7 @@ fragment Foo on User {
                     selections: [
                         InlineFragment {
                             type_condition: Some(
-                                Object(69),
+                                Object(70),
                             ),
                             directives: [],
                             selections: [
@@ -83,7 +83,7 @@ fragment Foo on User {
                                     alias: None,
                                     definition: WithLocation {
                                         location: directive-include.graphql:97:106,
-                                        item: FieldID(457),
+                                        item: FieldID(459),
                                     },
                                     arguments: [],
                                     directives: [],
@@ -154,14 +154,14 @@ fragment Foo on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(69),
+            type_condition: Object(70),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
                         location: directive-include.graphql:168:170,
-                        item: FieldID(460),
+                        item: FieldID(462),
                     },
                     arguments: [],
                     directives: [],

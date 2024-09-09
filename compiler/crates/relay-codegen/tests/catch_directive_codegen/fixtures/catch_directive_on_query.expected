@@ -1,0 +1,45 @@
+==================================== INPUT ====================================
+query Foo {
+  me {
+    id
+    name @catch
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "kind": "CatchField",
+          "field": {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          "to": "RESULT",
+          "path": "me.name"
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

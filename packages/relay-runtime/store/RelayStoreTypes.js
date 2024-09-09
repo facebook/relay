@@ -10,18 +10,16 @@
  */
 
 'use strict';
-
 import type {
   ActorIdentifier,
   IActorEnvironment,
 } from '../multi-actor-environment';
 import type {
   GraphQLResponse,
+  GraphQLResponseWithData,
   INetwork,
   PayloadData,
   PayloadError,
-  ReactFlightServerError,
-  ReactFlightServerTree,
   UploadableMap,
 } from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
@@ -34,6 +32,7 @@ import type {
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
 import type {
+  CatchFieldTo,
   ReaderClientEdgeToServerObject,
   ReaderFragment,
   ReaderLinkedField,
@@ -51,28 +50,26 @@ import type {
   UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
+import type {TRelayFieldError} from './RelayErrorTrie';
+import type {
+  Record as RelayModernRecord,
+  RecordJSON,
+} from './RelayModernRecord';
 import type {InvalidationState} from './RelayModernStore';
 import type RelayOperationTracker from './RelayOperationTracker';
 import type {RecordState} from './RelayRecordState';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
 
 export opaque type FragmentType = empty;
 export type OperationTracker = RelayOperationTracker;
+
+export type Record = RelayModernRecord;
 
 export type MutationParameters = {
   +response: {...},
   +variables: {...},
   +rawResponse?: {...},
 };
-
-/*
- * An individual cached graph object.
- */
-export type Record = {[key: string]: mixed, ...};
-
-/**
- * A collection of records keyed by id.
- */
-export type RecordObjectMap = {[DataID]: ?Record};
 
 export type FragmentMap = {[key: string]: ReaderFragment, ...};
 
@@ -98,6 +95,11 @@ export type PluralReaderSelector = {
   +selectors: $ReadOnlyArray<SingularReaderSelector>,
 };
 
+export type FieldErrorType =
+  | 'MISSING_DATA'
+  | 'MISSING_REQUIRED'
+  | 'PAYLOAD_ERROR';
+
 export type RequestDescriptor = {
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
@@ -120,10 +122,19 @@ type FieldLocation = {
   owner: string,
 };
 
+type ErrorFieldLocation = {
+  ...FieldLocation,
+  error: TRelayFieldError,
+  type: FieldErrorType,
+  to?: CatchFieldTo,
+};
+
 export type MissingRequiredFields = $ReadOnly<
   | {action: 'THROW', field: FieldLocation}
   | {action: 'LOG', fields: Array<FieldLocation>},
 >;
+
+export type ErrorResponseFields = Array<ErrorFieldLocation>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -162,6 +173,7 @@ export type Snapshot = {
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
   +relayResolverErrors: RelayResolverErrors,
+  +errorResponseFields: ?ErrorResponseFields,
 };
 
 /**
@@ -251,8 +263,13 @@ export interface RecordSource {
   getStatus(dataID: DataID): RecordState;
   has(dataID: DataID): boolean;
   size(): number;
-  toJSON(): {[DataID]: ?Record, ...};
+  toJSON(): RecordSourceJSON;
 }
+
+/**
+ * A collection of records keyed by id.
+ */
+export type RecordSourceJSON = {[DataID]: ?RecordJSON};
 
 /**
  * A read/write interface for accessing and updating graph data.
@@ -423,6 +440,11 @@ export interface StoreSubscriptions {
     updatedOwners: Array<RequestDescriptor>,
     sourceOperation?: OperationDescriptor,
   ): void;
+
+  /**
+   * returns the number of subscriptions
+   */
+  size(): number;
 }
 
 /**
@@ -463,7 +485,7 @@ export interface RecordProxy {
     args?: ?Variables,
   ): RecordProxy;
   setLinkedRecords(
-    records: Array<?RecordProxy>,
+    records: $ReadOnlyArray<?RecordProxy>,
     name: string,
     args?: ?Variables,
   ): RecordProxy;
@@ -534,164 +556,268 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
   invalidateStore(): void;
 }
 
+export type SuspenseFragmentLogEvent = {
+  +name: 'suspense.fragment',
+  +data: mixed,
+  +fragment: ReaderFragment,
+  +isRelayHooks: boolean,
+  +isMissingData: boolean,
+  +isPromiseCached: boolean,
+  +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+};
+
+export type SuspenseQueryLogEvent = {
+  +name: 'suspense.query',
+  +fetchPolicy: string,
+  +isPromiseCached: boolean,
+  +operation: OperationDescriptor,
+  +queryAvailability: ?OperationAvailability,
+  +renderPolicy: RenderPolicy,
+};
+
+export type QueryResourceFetchLogEvent = {
+  +name: 'queryresource.fetch',
+  // ID of this query resource request and will be the same
+  // if there is an associated queryresource.retain event.
+  +resourceID: number,
+  +operation: OperationDescriptor,
+  // value from ProfilerContext
+  +profilerContext: mixed,
+  // FetchPolicy from Relay Hooks
+  +fetchPolicy: string,
+  // RenderPolicy from Relay Hooks
+  +renderPolicy: RenderPolicy,
+  +queryAvailability: OperationAvailability,
+  +shouldFetch: boolean,
+};
+
+export type QueryResourceRetainLogEvent = {
+  +name: 'queryresource.retain',
+  +resourceID: number,
+  // value from ProfilerContext
+  +profilerContext: mixed,
+};
+
+export type FragmentResourceMissingDataLogEvent = {
+  // Indicates FragmentResource is going to return a result that is missing
+  // data.
+  +name: 'fragmentresource.missing_data',
+  +data: mixed,
+  +fragment: ReaderFragment,
+  +isRelayHooks: boolean,
+  // Are we reading this result from the fragment resource cache?
+  +cached: boolean,
+};
+
+export type PendingOperationFoundLogEvent = {
+  // Indicates getPendingOperationForFragment identified a pending operation.
+  // Useful for measuring how frequently RelayOperationTracker identifies a
+  // related operation on which to suspend.
+  +name: 'pendingoperation.found',
+  +fragment: ReaderFragment,
+  +fragmentOwner: RequestDescriptor,
+  +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+};
+
+export type NetworkInfoLogEvent = {
+  +name: 'network.info',
+  +networkRequestId: number,
+  +info: mixed,
+};
+
+export type NetworkStartLogEvent = {
+  +name: 'network.start',
+  +networkRequestId: number,
+  +params: RequestParameters,
+  +variables: Variables,
+  +cacheConfig: CacheConfig,
+};
+
+export type NetworkNextLogEvent = {
+  +name: 'network.next',
+  +networkRequestId: number,
+  +response: GraphQLResponse,
+};
+
+export type NetworkErrorLogEvent = {
+  +name: 'network.error',
+  +networkRequestId: number,
+  +error: Error,
+};
+
+export type NetworkCompleteLogEvent = {
+  +name: 'network.complete',
+  +networkRequestId: number,
+};
+
+export type NetworkUnsubscribeLogEvent = {
+  +name: 'network.unsubscribe',
+  +networkRequestId: number,
+};
+
+export type ExecuteStartLogEvent = {
+  +name: 'execute.start',
+  +executeId: number,
+  +params: RequestParameters,
+  +variables: Variables,
+  +cacheConfig: CacheConfig,
+};
+
+export type ExecuteNextStartLogEvent = {
+  +name: 'execute.next.start',
+  +executeId: number,
+  +response: GraphQLResponse,
+  +operation: OperationDescriptor,
+};
+
+export type ExecuteNextEndLogEvent = {
+  +name: 'execute.next.end',
+  +executeId: number,
+  +response: GraphQLResponse,
+  +operation: OperationDescriptor,
+};
+
+export type ExecuteAsyncModuleLogEvent = {
+  +name: 'execute.async.module',
+  +executeId: number,
+  +operationName: string,
+  +duration: number,
+};
+
+export type ExecuteErrorLogEvent = {
+  +name: 'execute.error',
+  +executeId: number,
+  +error: Error,
+};
+
+export type ExecuteCompleteLogEvent = {
+  +name: 'execute.complete',
+  +executeId: number,
+};
+
+export type StoreDataCheckerStartEvent = {
+  +name: 'store.datachecker.start',
+  +selector: NormalizationSelector,
+};
+
+export type StoreDataCheckerEndEvent = {
+  +name: 'store.datachecker.end',
+  +selector: NormalizationSelector,
+};
+
+export type StorePublishLogEvent = {
+  +name: 'store.publish',
+  +source: RecordSource,
+  +optimistic: boolean,
+};
+
+export type StoreSnapshotLogEvent = {
+  +name: 'store.snapshot',
+};
+
+export type StoreLookupStartEvent = {
+  +name: 'store.lookup.start',
+  +selector: SingularReaderSelector,
+};
+
+export type StoreLookupEndEvent = {
+  +name: 'store.lookup.end',
+  +selector: SingularReaderSelector,
+};
+
+export type StoreRestoreLogEvent = {
+  +name: 'store.restore',
+};
+
+export type StoreGcStartEvent = {
+  +name: 'store.gc.start',
+};
+
+export type StoreGcInterruptedEvent = {
+  +name: 'store.gc.interrupted',
+};
+
+export type StoreGcEndEvent = {
+  +name: 'store.gc.end',
+  +references: DataIDSet,
+};
+
+export type StoreNotifyStartLogEvent = {
+  +name: 'store.notify.start',
+  +sourceOperation: ?OperationDescriptor,
+};
+
+export type StoreNotifyCompleteLogEvent = {
+  +name: 'store.notify.complete',
+  +sourceOperation: ?OperationDescriptor,
+  +updatedRecordIDs: DataIDSet,
+  +invalidatedRecordIDs: DataIDSet,
+  +subscriptionsSize: number,
+  +updatedOwners: Array<RequestDescriptor>,
+};
+
+export type StoreNotifySubscriptionLogEvent = {
+  +name: 'store.notify.subscription',
+  +sourceOperation: ?OperationDescriptor,
+  +snapshot: Snapshot,
+  +nextSnapshot: Snapshot,
+};
+
+export type EntrypointRootConsumeLogEvent = {
+  +name: 'entrypoint.root.consume',
+  +profilerContext: mixed,
+  +rootModuleID: string,
+};
+
+export type LiveResolverBatchStartLogEvent = {
+  +name: 'liveresolver.batch.start',
+};
+
+export type LiveResolverBatchEndLogEvent = {
+  +name: 'liveresolver.batch.end',
+};
+
+export type UseFragmentSubscriptionMissedUpdates = {
+  +name: 'useFragment.subscription.missedUpdates',
+  +hasDataChanges: boolean,
+};
+
 export type LogEvent =
-  | {
-      +name: 'suspense.fragment',
-      +data: mixed,
-      +fragment: ReaderFragment,
-      +isRelayHooks: boolean,
-      +isMissingData: boolean,
-      +isPromiseCached: boolean,
-      +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-    }
-  | {
-      +name: 'suspense.query',
-      +fetchPolicy: string,
-      +isPromiseCached: boolean,
-      +operation: OperationDescriptor,
-      +queryAvailability: ?OperationAvailability,
-      +renderPolicy: RenderPolicy,
-    }
-  | {
-      +name: 'queryresource.fetch',
-      // ID of this query resource request and will be the same
-      // if there is an associated queryresource.retain event.
-      +resourceID: number,
-      +operation: OperationDescriptor,
-      // value from ProfilerContext
-      +profilerContext: mixed,
-      // FetchPolicy from Relay Hooks
-      +fetchPolicy: string,
-      // RenderPolicy from Relay Hooks
-      +renderPolicy: RenderPolicy,
-      +queryAvailability: OperationAvailability,
-      +shouldFetch: boolean,
-    }
-  | {
-      +name: 'queryresource.retain',
-      +resourceID: number,
-      // value from ProfilerContext
-      +profilerContext: mixed,
-    }
-  | {
-      // Indicates FragmentResource is going to return a result that is missing
-      // data.
-      +name: 'fragmentresource.missing_data',
-      +data: mixed,
-      +fragment: ReaderFragment,
-      +isRelayHooks: boolean,
-      // Are we reading this result from the fragment resource cache?
-      +cached: boolean,
-    }
-  | {
-      // Indicates getPendingOperationForFragment identified a pending operation.
-      // Useful for measuring how frequently RelayOperationTracker identifies a
-      // related operation on which to suspend.
-      +name: 'pendingoperation.found',
-      +fragment: ReaderFragment,
-      +fragmentOwner: RequestDescriptor,
-      +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-    }
-  | {
-      +name: 'network.info',
-      +networkRequestId: number,
-      +info: mixed,
-    }
-  | {
-      +name: 'network.start',
-      +networkRequestId: number,
-      +params: RequestParameters,
-      +variables: Variables,
-      +cacheConfig: CacheConfig,
-    }
-  | {
-      +name: 'network.next',
-      +networkRequestId: number,
-      +response: GraphQLResponse,
-    }
-  | {
-      +name: 'network.error',
-      +networkRequestId: number,
-      +error: Error,
-    }
-  | {
-      +name: 'network.complete',
-      +networkRequestId: number,
-    }
-  | {
-      +name: 'network.unsubscribe',
-      +networkRequestId: number,
-    }
-  | {
-      +name: 'execute.start',
-      +executeId: number,
-      +params: RequestParameters,
-      +variables: Variables,
-      +cacheConfig: CacheConfig,
-    }
-  | {
-      +name: 'execute.next',
-      +executeId: number,
-      +response: GraphQLResponse,
-      +duration: number,
-    }
-  | {
-      +name: 'execute.async.module',
-      +executeId: number,
-      +operationName: string,
-      +duration: number,
-    }
-  | {
-      +name: 'execute.flight.payload_deserialize',
-      +executeId: number,
-      +operationName: string,
-      +duration: number,
-    }
-  | {
-      +name: 'execute.error',
-      +executeId: number,
-      +error: Error,
-    }
-  | {
-      +name: 'execute.complete',
-      +executeId: number,
-    }
-  | {
-      +name: 'store.publish',
-      +source: RecordSource,
-      +optimistic: boolean,
-    }
-  | {
-      +name: 'store.snapshot',
-    }
-  | {
-      +name: 'store.restore',
-    }
-  | {
-      +name: 'store.gc',
-      +references: DataIDSet,
-    }
-  | {
-      +name: 'store.notify.start',
-      +sourceOperation: ?OperationDescriptor,
-    }
-  | {
-      +name: 'store.notify.complete',
-      +sourceOperation: ?OperationDescriptor,
-      +updatedRecordIDs: DataIDSet,
-      +invalidatedRecordIDs: DataIDSet,
-    }
-  | {
-      +name: 'store.notify.subscription',
-      +sourceOperation: ?OperationDescriptor,
-      +snapshot: Snapshot,
-      +nextSnapshot: Snapshot,
-    }
-  | {
-      +name: 'entrypoint.root.consume',
-      +profilerContext: mixed,
-      +rootModuleID: string,
-    };
+  | SuspenseFragmentLogEvent
+  | SuspenseQueryLogEvent
+  | QueryResourceFetchLogEvent
+  | QueryResourceRetainLogEvent
+  | FragmentResourceMissingDataLogEvent
+  | PendingOperationFoundLogEvent
+  | NetworkInfoLogEvent
+  | NetworkStartLogEvent
+  | NetworkNextLogEvent
+  | NetworkErrorLogEvent
+  | NetworkCompleteLogEvent
+  | NetworkUnsubscribeLogEvent
+  | ExecuteStartLogEvent
+  | ExecuteNextStartLogEvent
+  | ExecuteNextEndLogEvent
+  | ExecuteAsyncModuleLogEvent
+  | ExecuteErrorLogEvent
+  | ExecuteCompleteLogEvent
+  | StoreDataCheckerStartEvent
+  | StoreDataCheckerEndEvent
+  | StorePublishLogEvent
+  | StoreSnapshotLogEvent
+  | StoreLookupStartEvent
+  | StoreLookupEndEvent
+  | StoreRestoreLogEvent
+  | StoreGcStartEvent
+  | StoreGcInterruptedEvent
+  | StoreGcEndEvent
+  | StoreNotifyStartLogEvent
+  | StoreNotifyCompleteLogEvent
+  | StoreNotifySubscriptionLogEvent
+  | EntrypointRootConsumeLogEvent
+  | LiveResolverBatchStartLogEvent
+  | LiveResolverBatchEndLogEvent
+  | UseFragmentSubscriptionMissedUpdates;
 
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;
@@ -888,7 +1014,7 @@ export interface IEnvironment {
    * Called by Relay when it encounters a missing field that has been annotated
    * with `@required(action: LOG)`.
    */
-  requiredFieldLogger: RequiredFieldLogger;
+  relayFieldLogger: RelayFieldLogger;
 }
 
 /**
@@ -912,10 +1038,10 @@ export type DataIDSet = Set<DataID>;
  * A function that updates a store (via a proxy) given the results of a "handle"
  * field payload.
  */
-export type Handler = {
+export type Handler = $ReadOnly<{
   update: (store: RecordSourceProxy, fieldPayload: HandleFieldPayload) => void,
   ...
-};
+}>;
 
 /**
  * A payload that is used to initialize or update a "handle" field with
@@ -939,7 +1065,7 @@ export type HandleFieldPayload = {
 
 /**
  * A payload that represents data necessary to process the results of an object
- * with a `@module` fragment spread, or a Flight field's:
+ * with a `@module` fragment spread:
  *
  * ## @module Fragment Spread
  * - args: Local arguments from the parent
@@ -954,20 +1080,6 @@ export type HandleFieldPayload = {
  * which can in turn be used to normalize and publish the data. The dataID and
  * typeName can also be used to construct a root record for normalization.
  *
- * ## Flight fields
- * In Flight, data for additional components rendered by the requested server
- * component are included in the response returned by a Flight compliant server.
- *
- * - data: Data used by additional components rendered by the server component
- *     being requested.
- * - dataID: For Flight fields, this should always be ROOT_ID. This is because
- *     the query data isn't relative to the parent record–it's root data.
- * - operationReference: The query's module that will be later used by an
- *     operation loader.
- * - variables: The query's variables.
- * - typeName: For Flight fields, this should always be ROOT_TYPE. This is
- *     because the query data isn't relative to the parent record–it's
- *     root data.
  */
 export type ModuleImportPayload = {
   +kind: 'ModuleImportPayload',
@@ -1036,6 +1148,13 @@ export type StreamPlaceholder = {
   +actorIdentifier: ?ActorIdentifier,
 };
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
+
+export type NormalizeResponseFunction = (
+  response: GraphQLResponseWithData,
+  selector: NormalizationSelector,
+  typeName: string,
+  options: NormalizationOptions,
+) => RelayResponsePayload;
 
 /**
  * A user-supplied object to load a generated operation (SplitOperation or
@@ -1129,11 +1248,17 @@ export type MissingFieldHandler =
       ) => ?Array<?DataID>,
     };
 
-/**
- * A handler for events related to @required fields. Currently reports missing
- * fields with either `action: LOG` or `action: THROW`.
- */
-export type RequiredFieldLogger = (
+export type RelayFieldLoggerEvent =
+  | {
+      +kind: 'missing_expected_data.log',
+      +owner: string,
+      +fieldPath: string,
+    }
+  | {
+      +kind: 'missing_expected_data.throw',
+      +owner: string,
+      +fieldPath: string,
+    }
   | {
       +kind: 'missing_field.log',
       +owner: string,
@@ -1149,8 +1274,19 @@ export type RequiredFieldLogger = (
       +owner: string,
       +fieldPath: string,
       +error: Error,
-    },
-) => void;
+    }
+  | {
+      +kind: 'relay_field_payload.error',
+      +owner: string,
+      +fieldPath: string,
+      +error: TRelayFieldError,
+    };
+
+/**
+ * A handler for events related to @required fields. Currently reports missing
+ * fields with either `action: LOG` or `action: THROW`.
+ */
+export type RelayFieldLogger = (event: RelayFieldLoggerEvent) => void;
 
 /**
  * The results of normalizing a query.
@@ -1229,35 +1365,6 @@ export interface PublishQueue {
 }
 
 /**
- * ReactFlightDOMRelayClient processes a ReactFlightServerTree into a
- * ReactFlightClientResponse object. readRoot() can suspend.
- */
-export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
-
-export type ReactFlightReachableExecutableDefinitions = {
-  +module: mixed,
-  +variables: Variables,
-};
-
-/**
- * A user-supplied function that takes a ReactFlightServerTree
- * (after successful execution on the server), and deserializes it into a
- * ReactFlightClientResponse object.
- */
-export type ReactFlightPayloadDeserializer = (
-  tree: ReactFlightServerTree,
-) => ReactFlightClientResponse;
-
-/**
- * An optionally user-supplied function that handles errors returned by the
- * server's JS runtime while executing a React Server Component.
- */
-export type ReactFlightServerErrorHandler = (
-  status: string,
-  errors: Array<ReactFlightServerError>,
-) => void;
-
-/**
  * The return type of a client edge resolver pointing to a concrete type.
  * T can be overridden to be more specific than a DataID, e.g. if the IDs
  * can only come from a given set.
@@ -1265,3 +1372,32 @@ export type ReactFlightServerErrorHandler = (
 export type ConcreteClientEdgeResolverReturnType<T = any> = {
   +id: T & DataID,
 };
+
+/**
+ * The return type of a Live Resolver. Models an external value which can
+ * be read lazily and which might change over time. The subscribe method
+ * returns a callback which should be called when the value _may_ have changed.
+ *
+ * While over-notification (subscription notifications when the read value has
+ * not actually changed) is suported, for performance reasons, it is recommended
+ * that the provider of the LiveState value confirms that the value has indeed
+ * change before notifying Relay of the change.
+ */
+export type LiveState<+T> = {
+  /**
+   * Returns the current value of the live state.
+   */
+  read(): T,
+  /**
+   * Subscribes to changes in the live state. The state provider should
+   * call the callback when the value of the live state changes.
+   */
+  subscribe(cb: () => void): () => void,
+};
+
+/**
+ * Context that will be provided to live resolvers if
+ * `resolverContext` is set on the Relay Store.
+ * This context will be passed as the third argument to the live resolver
+ */
+export type ResolverContext = mixed;

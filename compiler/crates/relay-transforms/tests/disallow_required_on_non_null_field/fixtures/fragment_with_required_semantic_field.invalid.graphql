@@ -1,0 +1,9 @@
+# expected-to-throw
+fragment MyFragment on User @throwOnFieldError {
+  some_field @required(action: THROW)
+}
+
+# %extensions%
+extend type User {
+  some_field: Int @semanticNonNull
+}

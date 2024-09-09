@@ -23,10 +23,9 @@ import type {
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
   RecordSource,
   RequestDescriptor,
+  ResolverContext,
   Scheduler,
   SingularReaderSelector,
   Snapshot,
@@ -47,17 +46,18 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayReader = require('../RelayReader');
 const RelayReferenceMarker = require('../RelayReferenceMarker');
-const RelayStoreReactFlightUtils = require('../RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('../RelayStoreSubscriptions');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
-const {LiveResolverCache, getUpdatedDataIDs} = require('./LiveResolverCache');
+const {
+  LiveResolverCache,
+  RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+  getUpdatedDataIDs,
+} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
-export type LiveState<+T> = {
-  read(): T,
-  subscribe(cb: () => void): () => void,
-};
+// Provided for backward compatibility. Prefer using the version exported from 'relay-runtime'.
+export type {LiveState} from '../RelayStoreTypes';
 
 // HACK
 // The type of Store is defined using an opaque type that only RelayModernStore
@@ -111,9 +111,8 @@ class LiveResolverStore implements Store {
   _updatedRecordIDs: DataIDSet;
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
-  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
-  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
   _shouldProcessClientComponents: boolean;
+  _resolverContext: ?ResolverContext;
 
   constructor(
     source: MutableRecordSource,
@@ -125,10 +124,9 @@ class LiveResolverStore implements Store {
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
       queryCacheExpirationTime?: ?number,
-      reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
-      reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
       shouldProcessClientComponents?: ?boolean,
       treatMissingFieldsAsNull?: ?boolean,
+      resolverContext?: ResolverContext,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -170,12 +168,9 @@ class LiveResolverStore implements Store {
     this._updatedRecordIDs = new Set();
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
     this._actorIdentifier = options?.actorIdentifier;
-    this._reactFlightPayloadDeserializer =
-      options?.reactFlightPayloadDeserializer;
-    this._reactFlightServerErrorHandler =
-      options?.reactFlightServerErrorHandler;
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents ?? false;
+    this._resolverContext = options?.resolverContext;
 
     initializeRecordSource(this._recordSource);
   }
@@ -212,7 +207,16 @@ class LiveResolverStore implements Store {
    * fluxStore.dispatch = wrapped;
    */
   batchLiveStateUpdates(callback: () => void) {
-    this._resolverCache.batchLiveStateUpdates(callback);
+    if (this.__log != null) {
+      this.__log({name: 'liveresolver.batch.start'});
+    }
+    try {
+      this._resolverCache.batchLiveStateUpdates(callback);
+    } finally {
+      if (this.__log != null) {
+        this.__log({name: 'liveresolver.batch.end'});
+      }
+    }
   }
 
   check(
@@ -265,6 +269,7 @@ class LiveResolverStore implements Store {
       this._operationLoader,
       this._getDataID,
       this._shouldProcessClientComponents,
+      this.__log,
     );
 
     return getAvailabilityStatus(
@@ -311,6 +316,7 @@ class LiveResolverStore implements Store {
           // buffer have a refCount of 0.
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
+            // $FlowFixMe[incompatible-call]
             this._roots.delete(_id);
             this.scheduleGC();
           }
@@ -342,12 +348,29 @@ class LiveResolverStore implements Store {
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {
+    const log = this.__log;
+    if (log != null) {
+      log({
+        name: 'store.lookup.start',
+        selector,
+      });
+    }
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector, this._resolverCache);
+    const snapshot = RelayReader.read(
+      source,
+      selector,
+      this._resolverCache,
+      this._resolverContext,
+    );
     if (__DEV__) {
       deepFreeze(snapshot);
     }
-
+    if (log != null) {
+      log({
+        name: 'store.lookup.end',
+        selector,
+      });
+    }
     return snapshot;
   }
 
@@ -392,17 +415,6 @@ class LiveResolverStore implements Store {
         invalidateStore === true,
       );
     });
-    if (log != null) {
-      log({
-        name: 'store.notify.complete',
-        sourceOperation,
-        updatedRecordIDs: this._updatedRecordIDs,
-        invalidatedRecordIDs: this._invalidatedRecordIDs,
-      });
-    }
-
-    this._updatedRecordIDs.clear();
-    this._invalidatedRecordIDs.clear();
 
     // If a source operation was provided (indicating the operation
     // that produced this update to the store), record the current epoch
@@ -435,6 +447,20 @@ class LiveResolverStore implements Store {
         this._roots.set(id, temporaryRootEntry);
       }
     }
+
+    if (log != null) {
+      log({
+        name: 'store.notify.complete',
+        sourceOperation,
+        updatedRecordIDs: this._updatedRecordIDs,
+        invalidatedRecordIDs: this._invalidatedRecordIDs,
+        subscriptionsSize: this._storeSubscriptions.size(),
+        updatedOwners,
+      });
+    }
+
+    this._updatedRecordIDs.clear();
+    this._invalidatedRecordIDs.clear();
 
     return updatedOwners;
   }
@@ -667,7 +693,13 @@ class LiveResolverStore implements Store {
 
   *_collect(): Generator<void, void, void> {
     /* eslint-disable no-labels */
+    const log = this.__log;
     top: while (true) {
+      if (log != null) {
+        log({
+          name: 'store.gc.start',
+        });
+      }
       const startEpoch = this._currentWriteEpoch;
       const references = new Set<DataID>();
 
@@ -686,16 +718,13 @@ class LiveResolverStore implements Store {
 
         // If the store was updated, restart
         if (startEpoch !== this._currentWriteEpoch) {
+          if (log != null) {
+            log({
+              name: 'store.gc.interrupted',
+            });
+          }
           continue top;
         }
-      }
-
-      const log = this.__log;
-      if (log != null) {
-        log({
-          name: 'store.gc',
-          references,
-        });
       }
 
       // Sweep records without references
@@ -708,9 +737,26 @@ class LiveResolverStore implements Store {
         for (let ii = 0; ii < storeIDs.length; ii++) {
           const dataID = storeIDs[ii];
           if (!references.has(dataID)) {
+            const record = this._recordSource.get(dataID);
+            if (record != null) {
+              const maybeResolverSubscription = RelayModernRecord.getValue(
+                record,
+                RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+              );
+              if (maybeResolverSubscription != null) {
+                // $FlowFixMe - this value if it is not null, it is a function
+                maybeResolverSubscription();
+              }
+            }
             this._recordSource.remove(dataID);
           }
         }
+      }
+      if (log != null) {
+        log({
+          name: 'store.gc.end',
+          references,
+        });
       }
       return;
     }
@@ -724,8 +770,6 @@ class LiveResolverStore implements Store {
       path,
       getDataID: this._getDataID,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-      reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,
     };
@@ -821,15 +865,7 @@ function updateTargetFromSource(
       }
     }
     if (sourceRecord && targetRecord) {
-      // ReactFlightClientResponses are lazy and only materialize when readRoot
-      // is called when we read the field, so if the record is a Flight field
-      // we always use the new record's data regardless of whether
-      // it actually changed. Let React take care of reconciliation instead.
-      const nextRecord =
-        RelayModernRecord.getType(targetRecord) ===
-        RelayStoreReactFlightUtils.REACT_FLIGHT_TYPE_NAME
-          ? sourceRecord
-          : RelayModernRecord.update(targetRecord, sourceRecord);
+      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {

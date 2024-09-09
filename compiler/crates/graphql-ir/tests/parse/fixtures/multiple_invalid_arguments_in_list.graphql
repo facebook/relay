@@ -1,0 +1,7 @@
+# expected-to-throw
+
+query TestQuery($someBool: Boolean, $someOtherBool: Boolean) {
+  nodes(ids: [$someBool, $someOtherBool]) {
+    __typename
+  }
+}

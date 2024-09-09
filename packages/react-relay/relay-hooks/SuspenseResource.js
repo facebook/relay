@@ -13,7 +13,7 @@
 
 import type {Disposable, IEnvironment} from 'relay-runtime';
 
-const invariant = require('invariant');
+const warning = require('warning');
 
 const TEMPORARY_RETAIN_DURATION_MS = 5 * 60 * 1000;
 
@@ -38,13 +38,16 @@ class SuspenseResource {
         dispose: () => {
           this._retainCount = Math.max(0, this._retainCount - 1);
           if (this._retainCount === 0) {
-            invariant(
-              this._retainDisposable != null,
-              'Relay: Expected disposable to release query to be defined.' +
-                "If you're seeing this, this is likely a bug in Relay.",
-            );
-            this._retainDisposable.dispose();
-            this._retainDisposable = null;
+            if (this._retainDisposable != null) {
+              this._retainDisposable.dispose();
+              this._retainDisposable = null;
+            } else {
+              warning(
+                false,
+                'Relay: Expected disposable to release query to be defined.' +
+                  "If you're seeing this, this is likely a bug in Relay.",
+              );
+            }
           }
         },
       };

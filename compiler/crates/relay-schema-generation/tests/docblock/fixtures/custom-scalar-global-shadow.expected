@@ -1,0 +1,150 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+import type CatFlowType from 'Cat';
+import type {CustomGlobalID} from 'GlobalIDShadow'
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function server_id(cat: CatFlowType): ?CustomGlobalID {
+  return '';
+}
+
+//- GlobalIDShadow.js
+
+/**
+ * @RelayResolver
+ */
+export type CustomGlobalID = string;
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 412:421,
+                    token: Token {
+                        span: 412:421,
+                        kind: Identifier,
+                    },
+                    value: "server_id",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 39:53,
+                            token: Token {
+                                span: 39:53,
+                                kind: Identifier,
+                            },
+                            value: "CustomGlobalID",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 412:421,
+            },
+            type_: WithLocation {
+                location: Cat.js:323:326,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat.js:412:421,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "b34abe1ebe87f22729175fd53c228fc1",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  server_id: CustomGlobalID @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "server_id", import_path: "Cat.js") @resolver_source_hash(value: "b34abe1ebe87f22729175fd53c228fc1")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 323:326,
+                token: Token {
+                    span: 323:326,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: Cat.js:323:326,
+            root_fragment: WithLocation {
+                location: Cat.js:323:326,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: Cat.js:323:326,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "b34abe1ebe87f22729175fd53c228fc1",
+            ),
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "b34abe1ebe87f22729175fd53c228fc1") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 39:53,
+                token: Token {
+                    span: 39:53,
+                    kind: Identifier,
+                },
+                value: "CustomGlobalID",
+            },
+            rhs_location: GlobalIDShadow.js:39:53,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: GlobalIDShadow.js:39:53,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "d7e18bcffccd6fe925d211512f60bc73",
+            ),
+        },
+    ),
+)
+scalar CustomGlobalIDModel @__RelayCustomScalar(path: "GlobalIDShadow.js", export_name: "CustomGlobalID")
+
+
+type CustomGlobalID @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: CustomGlobalIDModel! @resolver_source_hash(value: "d7e18bcffccd6fe925d211512f60bc73") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

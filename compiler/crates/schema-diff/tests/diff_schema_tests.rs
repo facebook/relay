@@ -6,7 +6,10 @@
  */
 
 use intern::string_key::Intern;
+use rustc_hash::FxHashSet;
 use schema::build_schema;
+use schema_diff::check::IncrementalBuildSchemaChange;
+use schema_diff::check::SchemaChangeSafety;
 use schema_diff::definitions::*;
 use schema_diff::*;
 
@@ -16,10 +19,10 @@ fn diff(current: &str, previous: &str) -> SchemaChange {
     change
 }
 
-fn is_safe(current: &str, previous: &str) -> bool {
+fn get_safety(current: &str, previous: &str) -> SchemaChangeSafety {
     let schema = build_schema(current).unwrap();
     let change = detect_changes(&[current], &[previous]);
-    change.is_safe(&schema, &Default::default())
+    change.get_safety(&schema, &Default::default())
 }
 
 #[test]
@@ -727,8 +730,9 @@ fn test_change_type_enum_union() {
 
 #[test]
 fn test_add_object_without_id() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -736,18 +740,21 @@ fn test_add_object_without_id() {
                 key: String
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_change_object_interface() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A implements B {
                 key: String
             }
@@ -755,7 +762,7 @@ fn test_change_object_interface() {
                 id: ID!
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
@@ -763,13 +770,18 @@ fn test_change_object_interface() {
                 id: ID!
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern())
+        ]))
+    )
 }
 
 #[test]
 fn test_add_object_with_id_node_interface() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -781,7 +793,7 @@ fn test_add_object_with_id_node_interface() {
                 id: ID!
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
@@ -789,56 +801,72 @@ fn test_add_object_with_id_node_interface() {
                 id: ID!
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_object_special_field_added() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
                 foo: String # regular field is okay
             }
         #",
-        r"
+            r"
             type A {
                 key: String
             }
         #",
-    ));
-    assert!(!is_safe(
-        r"
+        ),
+        SchemaChangeSafety::Safe
+    );
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
                 id: String # id field is breaking
             }
         #",
-        r"
+            r"
             type A {
                 key: String
             }
         #",
-    ));
-    assert!(!is_safe(
-        r"
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern())
+        ]))
+    );
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
                 js: String # js field is breaking
             }
         #",
-        r"
+            r"
             type A {
                 key: String
             }
         #",
-    ));
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern())
+        ]))
+    );
 }
 
 #[test]
 fn test_add_type_with_id_actor_interface() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -850,7 +878,7 @@ fn test_add_type_with_id_actor_interface() {
                 name: String
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
@@ -858,64 +886,80 @@ fn test_add_type_with_id_actor_interface() {
                 name: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Unsafe
+    )
 }
 
 #[test]
 fn test_add_optional_field_arg() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key(a: ID): String
             }
 
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_add_required_field_arg() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key(a: ID!): String
             }
 
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern())
+        ]))
+    )
 }
 
 #[test]
 fn test_remove_field_arg() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
 
             #",
-        r"
+            r"
             type A {
                 key(a: ID): String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern())
+        ]))
+    )
 }
 
 #[test]
 fn test_add_safe_types() {
-    assert!(is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -935,18 +979,21 @@ fn test_add_safe_types() {
             }
             scalar Mark
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Safe
+    )
 }
 
 #[test]
 fn test_unimplemented_changes() {
-    assert!(!is_safe(
-        r"
+    assert_eq!(
+        get_safety(
+            r"
             type A {
                 key: String
             }
@@ -954,12 +1001,443 @@ fn test_unimplemented_changes() {
                 name: String
             }
             #",
-        r"
+            r"
             type A {
                 key: String
             }
             #"
-    ))
+        ),
+        SchemaChangeSafety::Unsafe
+    )
+}
+
+#[test]
+fn test_add_enum() {
+    assert_eq!(
+        get_safety(
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+         }
+         enum B {
+            OTHER
+         }
+         #",
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+         }
+         #",
+        ),
+        SchemaChangeSafety::Safe
+    );
+}
+
+#[test]
+fn test_enums_safe_with_incremental_build_changes() {
+    // Change enum
+    assert_eq!(
+        get_safety(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+         }
+         #",
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Enum("A".intern())
+        ]))
+    );
+
+    // Add enum value
+    assert_eq!(
+        get_safety(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+         }
+         #",
+            r"
+         enum A {
+             OK
+             NOT_OK
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Enum("A".intern())
+        ]))
+    );
+
+    // Delete enum
+    assert_eq!(
+        get_safety(
+            r"
+         enum B {
+             OTHER
+         }
+         #",
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+         }
+         enum B {
+             OTHER
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Enum("A".intern())
+        ]))
+    );
+}
+
+#[test]
+fn test_unions_safe_with_incremental_build_changes() {
+    // Remove object in union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+         }
+         #",
+            r"
+            union U = A | B | C
+            type A {
+               A1: String
+            }
+            type B {
+               B1: String
+            }
+            type C {
+               C1: String
+            }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Union("U".intern()),
+        ]))
+    );
+
+    // Add object to union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B | C
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+         }
+         #",
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Union("U".intern()),
+        ]))
+    );
+
+    // Change object in union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         #",
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+            B2: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("B".intern()),
+            IncrementalBuildSchemaChange::Union("U".intern()),
+        ]))
+    );
+
+    // Non-union objects don't affect the union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+         }
+         #",
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+            C2: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("C".intern()),
+        ]))
+    );
+}
+
+#[test]
+fn test_interfaces_safe_with_incremental_build_changes() {
+    // Changing interfaces on an object without an id doesn't rebuild interfaces
+    assert_eq!(
+        get_safety(
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            A1: String
+            x: String
+         }
+         #",
+            r"
+         type A {
+            A1: String
+            x: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern()),
+        ]))
+    );
+    // Changing interfaces on an object with an id rebuilds the interface
+    assert_eq!(
+        get_safety(
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            id: ID!
+            x: String
+         }
+         #",
+            r"
+         interface I {
+            x: String
+         }
+         type A {
+            id: ID!
+            x: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern()),
+            IncrementalBuildSchemaChange::Interface("I".intern()),
+        ]))
+    );
+    assert_eq!(
+        get_safety(
+            r"
+         interface I {
+            x: String
+         }
+         type A {
+            id: ID!
+            x: String
+         }
+         #",
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            id: ID!
+            x: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern()),
+            IncrementalBuildSchemaChange::Interface("I".intern()),
+        ]))
+    );
+    // Rebuild the correct interfaces
+    assert_eq!(
+        get_safety(
+            r"
+         interface I {
+            x: String
+         }
+         interface I2 {
+            y: String
+         }
+         interface I3 {
+            z: String
+         }
+         type A implements I & I2 {
+            id: ID!
+            x: String
+            y: String
+         }
+         #",
+            r"
+         interface I {
+            x: String
+         }
+         interface I2 {
+            y: String
+         }
+         interface I3 {
+            z: String
+         }
+         type A implements I {
+            id: ID!
+            x: String
+            y: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern()),
+            IncrementalBuildSchemaChange::Interface("I".intern()),
+            IncrementalBuildSchemaChange::Interface("I2".intern()),
+        ]))
+    );
+    // Adding an id to an object with interfaces rebuilds the interface
+    assert_eq!(
+        get_safety(
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            id: ID!
+            x: String
+         }
+         #",
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            x: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern()),
+            IncrementalBuildSchemaChange::Interface("I".intern()),
+        ]))
+    );
+    // Adding an id and interface together rebuilds the interface
+    assert_eq!(
+        get_safety(
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            id: ID!
+            x: String
+         }
+         #",
+            r"
+         interface I {
+            x: String
+         }
+         type A {
+            x: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern()),
+            IncrementalBuildSchemaChange::Interface("I".intern()),
+        ]))
+    );
+    // Editing an id on an object with an interface rebuilds the interface
+    // Note: this is treated as an id add + remove by the compiler
+    assert_eq!(
+        get_safety(
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            id: ID!
+            x: String
+         }
+         #",
+            r"
+         interface I {
+            x: String
+         }
+         type A implements I {
+            id: String
+            x: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Object("A".intern()),
+            IncrementalBuildSchemaChange::Interface("I".intern()),
+        ]))
+    );
 }
 
 fn sort_change(change: &mut SchemaChange) {

@@ -11,7 +11,6 @@
 
 'use strict';
 
-import type React from 'React';
 import type {
   $RelayProps,
   RelayPaginationProp,

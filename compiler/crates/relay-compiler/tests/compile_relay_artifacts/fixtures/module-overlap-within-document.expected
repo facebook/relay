@@ -1,0 +1,496 @@
+==================================== INPUT ====================================
+query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...moduleOverlapWithinDocument_FooNameRendererFragment
+    ...moduleOverlapWithinDocument_BarNameRendererFragment
+  }
+}
+
+fragment moduleOverlapWithinDocument_FooNameRendererFragment on User {
+  id
+  nameRenderer {
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      @module(name: "FooMarkdownUserNameRenderer.react")
+    ...moduleOverlapWithinDocument_PlainUserNameRenderer_name
+      @module(name: "FooPlainUserNameRenderer.react")
+  }
+}
+
+fragment moduleOverlapWithinDocument_BarNameRendererFragment on User {
+  # same field alias as above and using standalone @module, so this should
+  # flatten with the above selections even though the supported types are
+  # different
+  nameRenderer {
+    ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      @module(name: "BarMarkdownUserNameRenderer.react")
+  }
+}
+
+fragment moduleOverlapWithinDocument_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "moduleOverlapWithinDocument_MultipleNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "moduleOverlapWithinDocument_FooNameRendererFragment"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "moduleOverlapWithinDocument_BarNameRendererFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "moduleOverlapWithinDocument_MultipleNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "moduleOverlapWithinDocument_FooNameRendererFragment",
+                        "fragmentName": "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "moduleOverlapWithinDocument_FooNameRendererFragment",
+                        "fragmentName": "moduleOverlapWithinDocument_PlainUserNameRenderer_name",
+                        "fragmentPropName": "PlainUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "6ee3482f34b46bcb529463d8deb06441",
+    "id": null,
+    "metadata": {},
+    "name": "moduleOverlapWithinDocument_MultipleNameRendererQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query moduleOverlapWithinDocument_MultipleNameRendererQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...moduleOverlapWithinDocument_FooNameRendererFragment
+    ...moduleOverlapWithinDocument_BarNameRendererFragment
+    id
+  }
+}
+
+fragment moduleOverlapWithinDocument_BarNameRendererFragment on User {
+  nameRenderer {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      __module_operation_moduleOverlapWithinDocument_BarNameRendererFragment: js(module: "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapWithinDocument_BarNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_moduleOverlapWithinDocument_BarNameRendererFragment: js(module: "BarMarkdownUserNameRenderer.react", id: "moduleOverlapWithinDocument_BarNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+  }
+}
+
+fragment moduleOverlapWithinDocument_FooNameRendererFragment on User {
+  id
+  nameRenderer {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...moduleOverlapWithinDocument_MarkdownUserNameRenderer_name
+      __module_operation_moduleOverlapWithinDocument_FooNameRendererFragment: js(module: "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name$normalization.graphql", id: "moduleOverlapWithinDocument_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_moduleOverlapWithinDocument_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "moduleOverlapWithinDocument_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+    ... on PlainUserNameRenderer {
+      ...moduleOverlapWithinDocument_PlainUserNameRenderer_name
+      __module_operation_moduleOverlapWithinDocument_FooNameRendererFragment: js(module: "moduleOverlapWithinDocument_PlainUserNameRenderer_name$normalization.graphql", id: "moduleOverlapWithinDocument_FooNameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
+      __module_component_moduleOverlapWithinDocument_FooNameRendererFragment: js(module: "FooPlainUserNameRenderer.react", id: "moduleOverlapWithinDocument_FooNameRendererFragment.nameRenderer", branch: "PlainUserNameRenderer")
+    }
+  }
+}
+
+fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+fragment moduleOverlapWithinDocument_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
+  }
+}
+
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "moduleOverlapWithinDocument_PlainUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "moduleOverlapWithinDocument_BarNameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "moduleOverlapWithinDocument_BarNameRendererFragment",
+              "fragmentName": "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "moduleOverlapWithinDocument_FooNameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "moduleOverlapWithinDocument_FooNameRendererFragment",
+              "fragmentName": "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "moduleOverlapWithinDocument_FooNameRendererFragment",
+              "fragmentName": "moduleOverlapWithinDocument_PlainUserNameRenderer_name",
+              "fragmentPropName": "PlainUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "PlainUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "moduleOverlapWithinDocument_PlainUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}

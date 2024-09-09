@@ -25,6 +25,7 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
+use super::RelayResolverMetadata;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 
 pub type VariableMap = HashMap<VariableName, Variable>;
@@ -211,6 +212,21 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
     const NAME: &'static str = "VariablesVisitor";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
+
+    fn visit_directive(&mut self, directive: &graphql_ir::Directive) {
+        if directive.name.item == RelayResolverMetadata::directive_name() {
+            if let Some(relay_resolver_metadata) = RelayResolverMetadata::from(directive) {
+                for arg in relay_resolver_metadata.field_arguments.iter() {
+                    if let Value::Variable(var) = &arg.value.item {
+                        if self.is_root_variable(var.name.item) {
+                            self.record_root_variable_usage(&var.name, &var.type_);
+                        }
+                    }
+                }
+            }
+        }
+        self.default_visit_directive(directive);
+    }
 
     fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {
         self.visit_directives(&spread.directives);

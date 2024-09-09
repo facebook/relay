@@ -71,6 +71,10 @@ impl TextSource {
         Range::new(start_position, end_position)
     }
 
+    /**
+     * Converts span, which is the relative indices of characters within this text source,
+     * into the equivalent line and character number range.
+     */
     pub fn to_span_range(&self, span: Span) -> lsp_types::Range {
         let start = span.start as usize;
         let end = span.end as usize;
@@ -109,6 +113,13 @@ impl TextSource {
                 character += 1;
             }
         }
+
+        if start_position != lsp_types::Position::default()
+            && end_position == lsp_types::Position::default()
+        {
+            end_position = lsp_types::Position::new(line as u32, character as u32);
+        }
+
         lsp_types::Range::new(start_position, end_position)
     }
 }

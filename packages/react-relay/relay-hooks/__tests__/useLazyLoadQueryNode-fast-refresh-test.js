@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
   OperationDescriptor,
@@ -28,7 +29,7 @@ const {
 const {createMockEnvironment} = require('relay-test-utils');
 
 function expectToBeRendered(
-  renderFn: JestMockFn<Array<mixed>, any & React$Node>,
+  renderFn: JestMockFn<Array<mixed>, any & React.Node>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers
@@ -111,6 +112,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
   });
 
   it('force a refetch in fast refresh', () => {
+    // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function (props: {variables: {id: string}}) {
@@ -125,15 +127,18 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     };
     ReactRefreshRuntime.register(V1, 'Renderer');
 
-    const instance = ReactTestRenderer.create(
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="Fallback">
-          <V1 variables={variables} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Fallback">
+            <V1 variables={variables} />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+      );
+    });
 
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance?.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -177,7 +182,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     // It should start a new fetch in fast refresh
     expectToHaveFetched(environment, query, {});
     expect(renderFn).toBeCalledTimes(1);
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance?.toJSON()).toEqual('Fallback');
     // It should render with the result of the new fetch
     ReactTestRenderer.act(() =>
       environment.mock.resolve(gqlQuery, {
@@ -190,6 +195,6 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
         },
       }),
     );
-    expect(instance.toJSON()).toEqual('Bob');
+    expect(instance?.toJSON()).toEqual('Bob');
   });
 });

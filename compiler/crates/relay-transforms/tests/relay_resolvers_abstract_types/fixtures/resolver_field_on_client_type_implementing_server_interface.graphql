@@ -1,0 +1,18 @@
+# relay-resolver-enable-interface-output-type
+
+fragment resolverFieldOnClientTypeImplementingServerInterfaceFragment on FeedUnit {
+    tracking
+}
+
+# %extensions%
+
+type NewsStory implements FeedUnit {
+    # Interface fields
+    actor: Actor
+    actorCount: Int
+    feedback: Feedback
+    id: ID!
+    message: Text
+    tracking: String @relay_resolver(import_path: "TrackingResolver", live: true)
+    actor_key: ID!
+}

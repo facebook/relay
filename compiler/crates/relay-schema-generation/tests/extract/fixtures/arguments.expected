@@ -1,0 +1,133 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//extract
+function favorite_page(user: User, args: {id: ID}): Page {}
+==================================== OUTPUT ===================================
+Strong(
+    FieldData {
+        field_name: WithLocation {
+            location: <generated>:211:224,
+            item: "favorite_page",
+        },
+        return_type: GenericTypeAnnotation(
+            GenericTypeAnnotation {
+                id: Identifier(
+                    Identifier {
+                        name: "Page",
+                        binding: None,
+                        type_annotation: None,
+                        loc: None,
+                        range: SourceRange {
+                            start: 254,
+                            end: 258,
+                        },
+                    },
+                ),
+                type_parameters: None,
+                loc: None,
+                range: SourceRange {
+                    start: 254,
+                    end: 258,
+                },
+            },
+        ),
+        entity_type: Some(
+            GenericTypeAnnotation(
+                GenericTypeAnnotation {
+                    id: Identifier(
+                        Identifier {
+                            name: "User",
+                            binding: None,
+                            type_annotation: None,
+                            loc: None,
+                            range: SourceRange {
+                                start: 231,
+                                end: 235,
+                            },
+                        },
+                    ),
+                    type_parameters: None,
+                    loc: None,
+                    range: SourceRange {
+                        start: 231,
+                        end: 235,
+                    },
+                },
+            ),
+        ),
+        arguments: Some(
+            ObjectTypeAnnotation(
+                ObjectTypeAnnotation {
+                    properties: [
+                        ObjectTypeProperty(
+                            ObjectTypeProperty {
+                                key: Identifier(
+                                    Identifier {
+                                        name: "id",
+                                        binding: None,
+                                        type_annotation: None,
+                                        loc: None,
+                                        range: SourceRange {
+                                            start: 244,
+                                            end: 246,
+                                        },
+                                    },
+                                ),
+                                value: GenericTypeAnnotation(
+                                    GenericTypeAnnotation {
+                                        id: Identifier(
+                                            Identifier {
+                                                name: "ID",
+                                                binding: None,
+                                                type_annotation: None,
+                                                loc: None,
+                                                range: SourceRange {
+                                                    start: 248,
+                                                    end: 250,
+                                                },
+                                            },
+                                        ),
+                                        type_parameters: None,
+                                        loc: None,
+                                        range: SourceRange {
+                                            start: 248,
+                                            end: 250,
+                                        },
+                                    },
+                                ),
+                                method: false,
+                                optional: false,
+                                is_static: false,
+                                proto: false,
+                                variance: None,
+                                kind: Init,
+                                loc: None,
+                                range: SourceRange {
+                                    start: 244,
+                                    end: 250,
+                                },
+                            },
+                        ),
+                    ],
+                    indexers: [],
+                    call_properties: [],
+                    internal_slots: [],
+                    inexact: false,
+                    exact: false,
+                    loc: None,
+                    range: SourceRange {
+                        start: 243,
+                        end: 251,
+                    },
+                },
+            ),
+        ),
+        is_live: None,
+    },
+)

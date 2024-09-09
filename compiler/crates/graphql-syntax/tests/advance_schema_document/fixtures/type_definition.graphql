@@ -1,0 +1,14 @@
+type Basic
+
+type Photo {
+  url: String
+}
+
+type User implements Actor & Node @strong(field_name: "id") {
+  id: ID!
+  name(language: Language): String!
+}
+
+type OnlyInterfaces implements
+  & Actor
+  & Node

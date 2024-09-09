@@ -75,7 +75,7 @@ function createContainerWithFragments<
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
 ): React.ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
+  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
 > {
   const containerName = getContainerName(Component);
 
@@ -144,7 +144,7 @@ function createContainerWithFragments<
     static getDerivedStateFromProps(
       nextProps: ContainerProps,
       prevState: ContainerState,
-    ): $Shape<ContainerState> | null {
+    ): Partial<ContainerState> | null {
       // Any props change could impact the query, so we mirror props in state.
       // This is an unusual pattern, but necessary for this container usecase.
       const {prevProps} = prevState;
@@ -491,7 +491,7 @@ function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
   fragmentSpec: GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
 ): React.ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
+  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
 > {
   // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(

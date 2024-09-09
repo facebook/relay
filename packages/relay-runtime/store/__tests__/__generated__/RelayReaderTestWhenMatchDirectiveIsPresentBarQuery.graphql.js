@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f1bcdf0a1e22017badae47bcb933efd5>>
+ * @generated SignedSource<<d7cf555ef548e0575c61d139482c059a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -87,10 +87,7 @@ var node/*: ConcreteRequest*/ = {
               {
                 "kind": "Literal",
                 "name": "supported",
-                "value": [
-                  "PlainUserNameRenderer",
-                  "MarkdownUserNameRenderer"
-                ]
+                "value": "34hjiS"
               }
             ],
             "concreteType": null,
@@ -134,7 +131,7 @@ var node/*: ConcreteRequest*/ = {
                 "abstractKey": null
               }
             ],
-            "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+            "storageKey": "nameRenderer(supported:\"34hjiS\")"
           }
         ],
         "storageKey": null

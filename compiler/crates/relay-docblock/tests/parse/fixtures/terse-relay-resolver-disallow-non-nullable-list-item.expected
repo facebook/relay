@@ -1,0 +1,89 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver User.mandatory_greeting: [String!]
+ * Non-nullable
+ */
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 25:43,
+                    token: Token {
+                        span: 25:43,
+                        kind: Identifier,
+                    },
+                    value: "mandatory_greeting",
+                },
+                type_: List(
+                    ListTypeAnnotation {
+                        span: 45:54,
+                        open: Token {
+                            span: 45:46,
+                            kind: OpenBracket,
+                        },
+                        type_: NonNull(
+                            NonNullTypeAnnotation {
+                                span: 46:53,
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 46:52,
+                                            token: Token {
+                                                span: 46:52,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                exclamation: Token {
+                                    span: 52:53,
+                                    kind: Exclamation,
+                                },
+                            },
+                        ),
+                        close: Token {
+                            span: 53:54,
+                            kind: CloseBracket,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 58:70,
+                            kind: Empty,
+                        },
+                        value: "Non-nullable",
+                    },
+                ),
+                hack_source: None,
+                span: 25:54,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/terse-relay-resolver-disallow-non-nullable-list-item.js:20:24,
+                item: "User",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: /path/to/test/fixture/terse-relay-resolver-disallow-non-nullable-list-item.js:0:71,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "12e28b8739ff3ab018186a28de3ca726",
+            ),
+        },
+    ),
+)

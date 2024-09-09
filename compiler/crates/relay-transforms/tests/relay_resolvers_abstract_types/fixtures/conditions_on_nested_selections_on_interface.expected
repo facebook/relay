@@ -1,0 +1,84 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
+    name @include(if: $has_owner)
+    description @include(if: $has_owner)
+    favorite_toy {
+        brand @include(if: $happy_cat)
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+    favorite_toy: Toy
+    name: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    favorite_toy: Toy
+    name: String
+}
+
+type Persian implements Cat {
+    description: String
+    favorite_toy: Toy
+    name: String
+}
+
+interface Toy {
+    brand: String
+}
+
+type Yarn implements Toy {
+    brand: String @relay_resolver(import_path: "YarnResolver")
+}
+
+type Ball implements Toy {
+    brand: String
+}
+==================================== OUTPUT ===================================
+fragment conditionsOnNestedSelectionsOnInterfaceFragment on Cat {
+  name @include(if: $has_owner)
+  ... on Tabby @include(if: $has_owner) {
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(529),
+    #     import_path: "TabbyResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+  }
+  ... on Persian @include(if: $has_owner) {
+    description
+  }
+  favorite_toy {
+    ... on Yarn @include(if: $happy_cat) {
+      __id @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(536),
+      #     import_path: "YarnResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "favorite_toy.brand",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: Legacy,
+      #     fragment_data_injection_mode: None,
+      # }
+      
+    }
+    ... on Ball @include(if: $happy_cat) {
+      brand
+    }
+  }
+}

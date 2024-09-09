@@ -9,7 +9,7 @@ query QueryWithFragmentWithStream($id: ID!, $initialCount: Int) {
 fragment FeedbackFragment on Feedback {
   id
   actors @stream(label: "StreamedActorsLabel") {
-    # invalid: missing initial_count
+    # invalid: missing initialCount
     name
   }
 }

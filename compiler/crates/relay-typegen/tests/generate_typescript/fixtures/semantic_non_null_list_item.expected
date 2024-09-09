@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment MyFragment on ClientUser @throwOnFieldError {
+  favorite_numbers
+}
+
+%extensions%
+
+type ClientUser {
+  favorite_numbers: [Int] @semanticNonNull(levels: [1])
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MyFragment$data = {
+  readonly favorite_numbers: ReadonlyArray<number> | null | undefined;
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

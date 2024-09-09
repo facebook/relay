@@ -6,6 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_verbose_syntax
+
 /**
  * @RelayResolver
  *
@@ -22,64 +24,72 @@ graphql`
   }
 `
 ==================================== OUTPUT ===================================
-RelayResolver(
-    RelayResolverIr {
-        field: FieldDefinitionStub {
-            name: Identifier {
-                span: 53:66,
-                token: Token {
+Field(
+    LegacyVerboseResolver(
+        LegacyVerboseResolverIr {
+            field: FieldDefinitionStub {
+                name: Identifier {
                     span: 53:66,
-                    kind: Identifier,
+                    token: Token {
+                        span: 53:66,
+                        kind: Identifier,
+                    },
+                    value: "favorite_page",
                 },
-                value: "favorite_page",
+                arguments: None,
             },
-            arguments: None,
-        },
-        on: Type(
-            PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:27:33,
-                value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:34:38,
-                    item: "User",
+            on: Type(
+                PopulatedIrField {
+                    key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:27:33,
+                    value: WithLocation {
+                        location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:34:38,
+                        item: "User",
+                    },
                 },
-            },
-        ),
-        root_fragment: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:100:114,
-                item: FragmentDefinitionName(
-                    "myRootFragment",
-                ),
-            },
-        ),
-        output_type: Some(
-            EdgeTo(
+            ),
+            root_fragment: Some(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:78:82,
-                    item: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 78:82,
-                                token: Token {
-                                    span: 78:82,
-                                    kind: Identifier,
-                                },
-                                value: "Page",
-                            },
-                        },
+                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:100:114,
+                    item: FragmentDefinitionName(
+                        "myRootFragment",
                     ),
                 },
             ),
-        ),
-        description: None,
-        deprecated: Some(
-            IrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:119:129,
-                value: None,
-            },
-        ),
-        live: None,
-        location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
-        fragment_arguments: None,
-    },
+            output_type: Some(
+                EdgeTo(
+                    WithLocation {
+                        location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:78:82,
+                        item: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 78:82,
+                                    token: Token {
+                                        span: 78:82,
+                                        kind: Identifier,
+                                    },
+                                    value: "Page",
+                                },
+                            },
+                        ),
+                    },
+                ),
+            ),
+            description: None,
+            hack_source: None,
+            deprecated: Some(
+                UnpopulatedIrField(
+                    UnpopulatedIrField {
+                        key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:119:129,
+                    },
+                ),
+            ),
+            semantic_non_null: None,
+            live: None,
+            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "eb46fd9d0828f318bc5613bca9e67e42",
+            ),
+        },
+    ),
 )

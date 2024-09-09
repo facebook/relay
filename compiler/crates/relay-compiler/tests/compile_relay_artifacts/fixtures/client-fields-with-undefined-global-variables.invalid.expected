@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query clientFieldsWithUndefinedGlobalVariablesQuery($id: ID!) {
+  node(id: $id) {
+    ...clientFieldsWithUndefinedGlobalVariables_user
+  }
+}
+
+fragment clientFieldsWithUndefinedGlobalVariables_user on User {
+  pop_star_name(scale: $scale)
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(scale: Float!): String
+}
+==================================== ERROR ====================================
+✖︎ Operation 'clientFieldsWithUndefinedGlobalVariablesQuery' references undefined variable: '$scale'.
+
+  client-fields-with-undefined-global-variables.invalid.graphql:10:24
+    9 │ fragment clientFieldsWithUndefinedGlobalVariables_user on User {
+   10 │   pop_star_name(scale: $scale)
+      │                        ^^^^^^
+   11 │ }

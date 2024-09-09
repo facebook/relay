@@ -28,8 +28,8 @@ fragment AnotherRecursiveFragment on Image {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type AnotherRecursiveFragment$data = {
-  readonly height: number | null;
-  readonly uri: string | null;
+  readonly height: number | null | undefined;
+  readonly uri: string | null | undefined;
   readonly " $fragmentType": "AnotherRecursiveFragment";
 };
 export type AnotherRecursiveFragment$key = {
@@ -39,8 +39,8 @@ export type AnotherRecursiveFragment$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type PhotoFragment$data = {
-  readonly uri: string | null;
-  readonly width: number | null;
+  readonly uri: string | null | undefined;
+  readonly width: number | null | undefined;
   readonly " $fragmentType": "PhotoFragment";
 };
 export type PhotoFragment$key = {
@@ -50,8 +50,8 @@ export type PhotoFragment$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type RecursiveFragment$data = {
-  readonly uri: string | null;
-  readonly width: number | null;
+  readonly uri: string | null | undefined;
+  readonly width: number | null | undefined;
 };
 export type RecursiveFragment$key = {
   readonly " $data"?: RecursiveFragment$data;
@@ -61,11 +61,11 @@ export type RecursiveFragment$key = {
 import { FragmentRefs } from "relay-runtime";
 export type UserProfile$data = {
   readonly profilePicture: {
-    readonly height: number | null;
-    readonly uri: string | null;
-    readonly width: number | null;
+    readonly height: number | null | undefined;
+    readonly uri: string | null | undefined;
+    readonly width: number | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"PhotoFragment">;
-  } | null;
+  } | null | undefined;
   readonly " $fragmentType": "UserProfile";
 };
 export type UserProfile$key = {

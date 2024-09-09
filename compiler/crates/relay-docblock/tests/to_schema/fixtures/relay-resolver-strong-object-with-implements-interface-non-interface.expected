@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver ClientUser implements User
+ */
+
+// %extensions%
+
+graphql`
+
+interface IFoo {
+  id: ID
+}
+`
+==================================== ERROR ====================================
+✖︎ Expected an interface type for name 'User', got an object.
+
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-non-interface.js:2:41
+    1 │ *
+    2 │  * @RelayResolver ClientUser implements User
+      │                                         ^^^^
+    3 │  
+
+  ℹ︎ the other type is defined here
+
+  <generated>:1:1
+Internal error: Unable to print source, start index (19518) out of range.

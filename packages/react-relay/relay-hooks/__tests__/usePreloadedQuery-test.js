@@ -11,14 +11,15 @@
 
 'use strict';
 
-import type {Sink} from '../../../relay-runtime/network/RelayObservable';
+import type {PreloadableConcreteRequest} from '../EntryPointTypes.flow';
+import type {usePreloadedQueryTestQuery} from './__generated__/usePreloadedQueryTestQuery.graphql';
+import type {Sink} from 'relay-runtime';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-const usePreloadedQuery_REACT_CACHE = require('../react-cache/usePreloadedQuery_REACT_CACHE');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const usePreloadedQuery_LEGACY = require('../usePreloadedQuery');
+const usePreloadedQuery = require('../usePreloadedQuery');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {
@@ -27,11 +28,11 @@ const {
   Observable,
   PreloadableQueryRegistry,
   RecordSource,
-  RelayFeatureFlags,
   Store,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {skipIf} = require('relay-test-utils-internal');
 const warning = require('warning');
 
 jest.mock('warning');
@@ -51,10 +52,11 @@ const query = graphql`
 const ID = '12345';
 (query.params: $FlowFixMe).id = ID;
 
-const preloadableConcreteRequest = {
-  kind: 'PreloadableConcreteRequest',
-  params: query.params,
-};
+const preloadableConcreteRequest: PreloadableConcreteRequest<usePreloadedQueryTestQuery> =
+  {
+    kind: 'PreloadableConcreteRequest',
+    params: query.params,
+  };
 
 const response = {
   data: {
@@ -113,28 +115,7 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-describe.each([
-  ['React Cache', usePreloadedQuery_REACT_CACHE],
-  ['Legacy', usePreloadedQuery_LEGACY],
-])('usePreloadedQuery (%s)', (_hookName, usePreloadedQuery) => {
-  const usingReactCache = usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
-  // Our open-source build is still on React 17, so we need to skip these tests there:
-  if (usingReactCache) {
-    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
-    if (React.unstable_getCacheForType === undefined) {
-      return;
-    }
-  }
-  let originalReactCacheFeatureFlag;
-  beforeEach(() => {
-    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-    RelayFeatureFlags.USE_REACT_CACHE =
-      usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-  });
-
+describe('usePreloadedQuery', () => {
   beforeEach(() => {
     dataSource = undefined;
     // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
@@ -559,13 +540,9 @@ describe.each([
 
     describe('if loadQuery is passed a preloadableConcreteRequest which is not available synchronously', () => {
       it('does not suspend while the query is pending until the query AST and network response are available', () => {
-        const prefetched = loadQuery<any, _>(
-          environment,
-          preloadableConcreteRequest,
-          {
-            id: '4',
-          },
-        );
+        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
+          id: '4',
+        });
         let data;
         function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
@@ -606,36 +583,35 @@ describe.each([
       });
 
       it('does not suspend while the query is pending until the network response and the query AST are available', () => {
-        const prefetched = loadQuery<any, _>(
-          environment,
-          preloadableConcreteRequest,
-          {
-            id: '4',
-          },
-        );
+        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
+          id: '4',
+        });
         let data;
         function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
-        const renderer = TestRenderer.create(
-          <RelayEnvironmentProvider environment={environment}>
-            <React.Suspense fallback="Fallback">
-              <Component prefetched={prefetched} />
-            </React.Suspense>
-          </RelayEnvironmentProvider>,
-        );
+        let renderer;
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <RelayEnvironmentProvider environment={environment}>
+              <React.Suspense fallback="Fallback">
+                <Component prefetched={prefetched} />
+              </React.Suspense>
+            </RelayEnvironmentProvider>,
+          );
+        });
         // When the query AST is not available, we are unable to detect the promise
         // for that query in flight.
         // This isn't really a problem in practice because by the time the component
         // renders the ast /must/ have already been downloaded
         // TODO(T85673186): Detect raw network requests in flight to suspend on.
         PreloadableQueryRegistry.set(ID, query);
-        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(renderer?.toJSON()).toEqual('MISSING NAME');
         expect(data).toEqual({node: undefined});
 
         TestRenderer.act(() => jest.runAllImmediates());
-        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(renderer?.toJSON()).toEqual('MISSING NAME');
         expect(data).toEqual({node: undefined});
 
         expect(dataSource).toBeDefined();
@@ -643,7 +619,7 @@ describe.each([
           dataSource.next(response);
         }
         TestRenderer.act(() => jest.runAllImmediates());
-        expect(renderer.toJSON()).toEqual('Zuck');
+        expect(renderer?.toJSON()).toEqual('Zuck');
         expect(data).toEqual({
           node: {
             id: '4',
@@ -653,13 +629,9 @@ describe.each([
       });
 
       it('renders synchronously if the query has already completed', () => {
-        const prefetched = loadQuery<any, _>(
-          environment,
-          preloadableConcreteRequest,
-          {
-            id: '4',
-          },
-        );
+        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
+          id: '4',
+        });
         let data;
         PreloadableQueryRegistry.set(ID, query);
         expect(dataSource).toBeDefined();
@@ -672,15 +644,18 @@ describe.each([
           data = usePreloadedQuery(query, props.prefetched);
           return data.node?.name;
         }
-        const renderer = TestRenderer.create(
-          <RelayEnvironmentProvider environment={environment}>
-            <React.Suspense fallback="Fallback">
-              <Component prefetched={prefetched} />
-            </React.Suspense>
-          </RelayEnvironmentProvider>,
-        );
+        let renderer;
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <RelayEnvironmentProvider environment={environment}>
+              <React.Suspense fallback="Fallback">
+                <Component prefetched={prefetched} />
+              </React.Suspense>
+            </RelayEnvironmentProvider>,
+          );
+        });
 
-        expect(renderer.toJSON()).toEqual('Zuck');
+        expect(renderer?.toJSON()).toEqual('Zuck');
         expect(data).toEqual({
           node: {
             id: '4',
@@ -690,13 +665,9 @@ describe.each([
       });
 
       it('renders an error synchronously if the query has already errored', () => {
-        const prefetched = loadQuery<any, _>(
-          environment,
-          preloadableConcreteRequest,
-          {
-            id: '4',
-          },
-        );
+        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
+          id: '4',
+        });
         let data;
         PreloadableQueryRegistry.set(ID, query);
         expect(dataSource).toBeDefined();
@@ -709,24 +680,27 @@ describe.each([
           data = usePreloadedQuery(query, props.prefetched);
           return data.node?.name;
         }
-        const renderer = TestRenderer.create(
-          <RelayEnvironmentProvider environment={environment}>
-            <ErrorBoundary fallback="Error Boundary">
-              <React.Suspense fallback="Fallback">
-                <Component prefetched={prefetched} />
-              </React.Suspense>
-            </ErrorBoundary>
-          </RelayEnvironmentProvider>,
-        );
+        let renderer;
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <RelayEnvironmentProvider environment={environment}>
+              <ErrorBoundary fallback="Error Boundary">
+                <React.Suspense fallback="Fallback">
+                  <Component prefetched={prefetched} />
+                </React.Suspense>
+              </ErrorBoundary>
+            </RelayEnvironmentProvider>,
+          );
+        });
 
-        expect(renderer.toJSON()).toEqual('Error Boundary');
+        expect(renderer?.toJSON()).toEqual('Error Boundary');
       });
     });
 
     describe('when loadQuery is passed a query AST', () => {
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
         it('should synchronously render successfully', () => {
-          const prefetched = loadQuery<any, _>(environment, query, {
+          const prefetched = loadQuery(environment, query, {
             id: '4',
           });
           let data;
@@ -740,15 +714,18 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Fallback">
-                <Component prefetched={prefetched} />
-              </React.Suspense>
-            </RelayEnvironmentProvider>,
-          );
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <React.Suspense fallback="Fallback">
+                  <Component prefetched={prefetched} />
+                </React.Suspense>
+              </RelayEnvironmentProvider>,
+            );
+          });
 
-          expect(renderer.toJSON()).toEqual('Zuck');
+          expect(renderer?.toJSON()).toEqual('Zuck');
           expect(data).toEqual({
             node: {
               id: '4',
@@ -757,7 +734,7 @@ describe.each([
           });
         });
         it('should synchronously render errors', () => {
-          const prefetched = loadQuery<any, _>(environment, query, {
+          const prefetched = loadQuery(environment, query, {
             id: '4',
           });
           let data;
@@ -771,23 +748,26 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <ErrorBoundary fallback="Error Boundary">
-                <React.Suspense fallback="Fallback">
-                  <Component prefetched={prefetched} />
-                </React.Suspense>
-              </ErrorBoundary>
-            </RelayEnvironmentProvider>,
-          );
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <ErrorBoundary fallback="Error Boundary">
+                  <React.Suspense fallback="Fallback">
+                    <Component prefetched={prefetched} />
+                  </React.Suspense>
+                </ErrorBoundary>
+              </RelayEnvironmentProvider>,
+            );
+          });
 
-          expect(renderer.toJSON()).toEqual('Error Boundary');
+          expect(renderer?.toJSON()).toEqual('Error Boundary');
         });
       });
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
         it('should suspend, and then render', () => {
-          const prefetched = loadQuery<any, _>(environment, query, {
+          const prefetched = loadQuery(environment, query, {
             id: '4',
           });
           let data;
@@ -797,14 +777,17 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Fallback">
-                <Component prefetched={prefetched} />
-              </React.Suspense>
-            </RelayEnvironmentProvider>,
-          );
-          expect(renderer.toJSON()).toEqual('Fallback');
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <React.Suspense fallback="Fallback">
+                  <Component prefetched={prefetched} />
+                </React.Suspense>
+              </RelayEnvironmentProvider>,
+            );
+          });
+          expect(renderer?.toJSON()).toEqual('Fallback');
           expect(data).toBe(undefined);
 
           if (dataSource) {
@@ -812,7 +795,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          expect(renderer.toJSON()).toEqual('Zuck');
+          expect(renderer?.toJSON()).toEqual('Zuck');
           expect(data).toEqual({
             node: {
               id: '4',
@@ -821,7 +804,7 @@ describe.each([
           });
         });
         it('should suspend, then render and error', () => {
-          const prefetched = loadQuery<any, _>(environment, query, {
+          const prefetched = loadQuery(environment, query, {
             id: '4',
           });
           let data;
@@ -831,16 +814,20 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <ErrorBoundary fallback="Error Boundary">
-                <React.Suspense fallback="Fallback">
-                  <Component prefetched={prefetched} />
-                </React.Suspense>
-              </ErrorBoundary>
-            </RelayEnvironmentProvider>,
-          );
-          expect(renderer.toJSON()).toEqual('Fallback');
+
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <ErrorBoundary fallback="Error Boundary">
+                  <React.Suspense fallback="Fallback">
+                    <Component prefetched={prefetched} />
+                  </React.Suspense>
+                </ErrorBoundary>
+              </RelayEnvironmentProvider>,
+            );
+          });
+          expect(renderer?.toJSON()).toEqual('Fallback');
           expect(data).toBe(undefined);
 
           if (dataSource) {
@@ -848,7 +835,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          expect(renderer.toJSON()).toEqual('Error Boundary');
+          expect(renderer?.toJSON()).toEqual('Error Boundary');
         });
       });
     });
@@ -864,7 +851,7 @@ describe.each([
       });
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
         it('should synchronously render successfully', () => {
-          const prefetched = loadQuery<any, _>(
+          const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
             {
@@ -882,15 +869,18 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Fallback">
-                <Component prefetched={prefetched} />
-              </React.Suspense>
-            </RelayEnvironmentProvider>,
-          );
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <React.Suspense fallback="Fallback">
+                  <Component prefetched={prefetched} />
+                </React.Suspense>
+              </RelayEnvironmentProvider>,
+            );
+          });
 
-          expect(renderer.toJSON()).toEqual('Zuck');
+          expect(renderer?.toJSON()).toEqual('Zuck');
           expect(data).toEqual({
             node: {
               id: '4',
@@ -899,7 +889,7 @@ describe.each([
           });
         });
         it('should synchronously render errors', () => {
-          const prefetched = loadQuery<any, _>(
+          const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
             {
@@ -917,23 +907,26 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <ErrorBoundary fallback="Error Boundary">
-                <React.Suspense fallback="Fallback">
-                  <Component prefetched={prefetched} />
-                </React.Suspense>
-              </ErrorBoundary>
-            </RelayEnvironmentProvider>,
-          );
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <ErrorBoundary fallback="Error Boundary">
+                  <React.Suspense fallback="Fallback">
+                    <Component prefetched={prefetched} />
+                  </React.Suspense>
+                </ErrorBoundary>
+              </RelayEnvironmentProvider>,
+            );
+          });
 
-          expect(renderer.toJSON()).toEqual('Error Boundary');
+          expect(renderer?.toJSON()).toEqual('Error Boundary');
         });
       });
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
         it('should suspend, and then render', () => {
-          const prefetched = loadQuery<any, _>(
+          const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
             {
@@ -947,14 +940,17 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Fallback">
-                <Component prefetched={prefetched} />
-              </React.Suspense>
-            </RelayEnvironmentProvider>,
-          );
-          expect(renderer.toJSON()).toEqual('Fallback');
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <React.Suspense fallback="Fallback">
+                  <Component prefetched={prefetched} />
+                </React.Suspense>
+              </RelayEnvironmentProvider>,
+            );
+          });
+          expect(renderer?.toJSON()).toEqual('Fallback');
           expect(data).toBe(undefined);
 
           if (dataSource) {
@@ -962,7 +958,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          expect(renderer.toJSON()).toEqual('Zuck');
+          expect(renderer?.toJSON()).toEqual('Zuck');
           expect(data).toEqual({
             node: {
               id: '4',
@@ -971,7 +967,7 @@ describe.each([
           });
         });
         it('should suspend, then render and error', () => {
-          const prefetched = loadQuery<any, _>(
+          const prefetched = loadQuery(
             environment,
             preloadableConcreteRequest,
             {
@@ -985,16 +981,19 @@ describe.each([
             data = usePreloadedQuery(query, props.prefetched);
             return data.node?.name;
           }
-          const renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <ErrorBoundary fallback="Error Boundary">
-                <React.Suspense fallback="Fallback">
-                  <Component prefetched={prefetched} />
-                </React.Suspense>
-              </ErrorBoundary>
-            </RelayEnvironmentProvider>,
-          );
-          expect(renderer.toJSON()).toEqual('Fallback');
+          let renderer;
+          TestRenderer.act(() => {
+            renderer = TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <ErrorBoundary fallback="Error Boundary">
+                  <React.Suspense fallback="Fallback">
+                    <Component prefetched={prefetched} />
+                  </React.Suspense>
+                </ErrorBoundary>
+              </RelayEnvironmentProvider>,
+            );
+          });
+          expect(renderer?.toJSON()).toEqual('Fallback');
           expect(data).toBe(undefined);
 
           if (dataSource) {
@@ -1002,7 +1001,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          expect(renderer.toJSON()).toEqual('Error Boundary');
+          expect(renderer?.toJSON()).toEqual('Error Boundary');
         });
       });
     });
@@ -1022,13 +1021,9 @@ describe.each([
           network: Network.create(altFetch),
           store: new Store(new RecordSource()),
         });
-        const prefetched = loadQuery<any, _>(
-          environment,
-          preloadableConcreteRequest,
-          {
-            id: '4',
-          },
-        );
+        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
+          id: '4',
+        });
         let data;
         expect(dataSource).toBeDefined();
         if (dataSource) {
@@ -1041,15 +1036,18 @@ describe.each([
           data = usePreloadedQuery(query, props.prefetched);
           return data.node?.name;
         }
-        const renderer = TestRenderer.create(
-          <RelayEnvironmentProvider environment={altEnvironment}>
-            <React.Suspense fallback="Fallback">
-              <Component prefetched={prefetched} />
-            </React.Suspense>
-          </RelayEnvironmentProvider>,
-        );
+        let renderer;
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <RelayEnvironmentProvider environment={altEnvironment}>
+              <React.Suspense fallback="Fallback">
+                <Component prefetched={prefetched} />
+              </React.Suspense>
+            </RelayEnvironmentProvider>,
+          );
+        });
 
-        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(renderer?.toJSON()).toEqual('Fallback');
         expect(altFetch).toHaveBeenCalledTimes(1);
         expect(altDataSource).toBeDefined();
         if (altDataSource) {
@@ -1057,57 +1055,65 @@ describe.each([
         }
 
         TestRenderer.act(() => jest.runAllImmediates());
-        expect(renderer.toJSON()).toEqual('Zuck');
+        expect(renderer?.toJSON()).toEqual('Zuck');
       });
     });
 
     describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
-      it('warns that the preloadedQuery has already been disposed', () => {
-        const expectWarningMessage = expect.stringMatching(
-          /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
-        );
-        const prefetched = loadQuery<any, _>(
-          environment,
-          preloadableConcreteRequest,
-          {},
-        );
-
-        function Component(props: any) {
-          const data = usePreloadedQuery(query, props.prefetched);
-          return data?.node?.name ?? 'MISSING NAME';
-        }
-
-        const render = () => {
-          TestRenderer.create(
-            <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Fallback">
-                <Component prefetched={prefetched} />
-              </React.Suspense>
-            </RelayEnvironmentProvider>,
+      skipIf(
+        process.env.OSS,
+        'warns that the preloadedQuery has already been disposed',
+        () => {
+          const expectWarningMessage = expect.stringMatching(
+            /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
           );
-          TestRenderer.act(() => jest.runAllImmediates());
-        };
+          const prefetched = loadQuery(
+            environment,
+            preloadableConcreteRequest,
+            {
+              id: '1',
+            },
+          );
 
-        render();
-        expect(warning).toBeCalledTimes(2);
-        expect(warning).toHaveBeenLastCalledWith(
-          true, // invariant holds
-          expectWarningMessage,
-        );
+          function Component(props: any) {
+            const data = usePreloadedQuery(query, props.prefetched);
+            return data?.node?.name ?? 'MISSING NAME';
+          }
 
-        prefetched.dispose();
-        render();
-        expect(warning).toBeCalledTimes(3);
-        expect(warning).toHaveBeenLastCalledWith(
-          false, // invariant broken
-          expectWarningMessage,
-        );
-      });
+          const render = () => {
+            TestRenderer.act(() => {
+              TestRenderer.create(
+                <RelayEnvironmentProvider environment={environment}>
+                  <React.Suspense fallback="Fallback">
+                    <Component prefetched={prefetched} />
+                  </React.Suspense>
+                </RelayEnvironmentProvider>,
+              );
+              jest.runAllImmediates();
+            });
+          };
+
+          render();
+          expect(warning).toBeCalledTimes(2);
+          expect(warning).toHaveBeenLastCalledWith(
+            true, // invariant holds
+            expectWarningMessage,
+          );
+
+          prefetched.dispose();
+          render();
+          expect(warning).toBeCalledTimes(3);
+          expect(warning).toHaveBeenLastCalledWith(
+            false, // invariant broken
+            expectWarningMessage,
+          );
+        },
+      );
     });
 
     describe('refetching', () => {
       it('renders updated data correctly when refetching same query and variables', () => {
-        const loadedFirst = loadQuery<any, _>(
+        const loadedFirst = loadQuery(
           environment,
           preloadableConcreteRequest,
           {
@@ -1119,7 +1125,7 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          data = usePreloadedQuery(query, props.prefetched);
+          data = usePreloadedQuery<any, any>(query, props.prefetched);
           return data.node?.name;
         }
         const renderer = TestRenderer.create(
@@ -1155,7 +1161,7 @@ describe.each([
         // Refetch
         data = undefined;
         dataSource = undefined;
-        const loadedSecond = loadQuery<any, _>(
+        const loadedSecond = loadQuery(
           environment,
           preloadableConcreteRequest,
           {
@@ -1208,7 +1214,7 @@ describe.each([
       });
 
       it('renders updated data correctly when refetching different variables', () => {
-        const loadedFirst = loadQuery<any, _>(
+        const loadedFirst = loadQuery(
           environment,
           preloadableConcreteRequest,
           {
@@ -1220,7 +1226,7 @@ describe.each([
         );
         let data;
         function Component(props: any) {
-          data = usePreloadedQuery(query, props.prefetched);
+          data = usePreloadedQuery<any, any>(query, props.prefetched);
           return data.node?.name;
         }
         const renderer = TestRenderer.create(
@@ -1256,7 +1262,7 @@ describe.each([
         // Refetch
         data = undefined;
         dataSource = undefined;
-        const loadedSecond = loadQuery<any, _>(
+        const loadedSecond = loadQuery(
           environment,
           preloadableConcreteRequest,
           {

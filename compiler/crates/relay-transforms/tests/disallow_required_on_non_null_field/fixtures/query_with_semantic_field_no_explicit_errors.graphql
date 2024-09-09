@@ -1,0 +1,8 @@
+query MyQuery {
+  some_field
+}
+
+# %extensions%
+extend type Query {
+  some_field: Int @semanticNonNull
+}

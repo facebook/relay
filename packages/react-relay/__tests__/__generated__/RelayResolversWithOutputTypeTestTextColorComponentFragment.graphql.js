@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da22b374622841fbb18b01980ba527d4>>
+ * @generated SignedSource<<d65bbb7edf946523a4870e922cc8de6d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,17 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoTextColorResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoTextColorResolverFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 import {human_readable_color as todoTextColorHumanReadableColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoTextColorResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoTextColorHumanReadableColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoTextColorHumanReadableColorResolverType: (
   rootKey: TodoTextColorResolverFragment$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?string);
 declare export opaque type RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestTextColorComponentFragment$data = {|
-  +human_readable_color: ?$Call<<R>((...empty[]) => R) => R, typeof todoTextColorHumanReadableColorResolverType>,
+  +human_readable_color: ?string,
   +$fragmentType: RelayResolversWithOutputTypeTestTextColorComponentFragment$fragmentType,
 |};
 export type RelayResolversWithOutputTypeTestTextColorComponentFragment$key = {

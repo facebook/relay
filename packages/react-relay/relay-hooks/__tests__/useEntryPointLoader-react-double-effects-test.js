@@ -142,13 +142,14 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function (props: any) {
+    QueryComponent = function TestQueryComponent(props: any) {
       const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
       );
 
       const name = result?.node?.name ?? 'Empty';
+      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         queryRenderLogs.push(`commit: ${name}`);
         return () => {
@@ -161,11 +162,11 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function (props: any) {
+    LoaderComponent = function TestLoaderComponent(props: any) {
       // $FlowFixMe[underconstrained-implicit-instantiation]
       const [entryPointRef] = useEntryPointLoader<
         _,
-        {...},
+        {},
         {...},
         {...},
         mixed,
@@ -185,6 +186,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       } else {
         entryPointRefId = entryPointRef.queries.TestQuery?.id ?? 'Unknown';
       }
+      // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         loaderRenderLogs.push(`commit: ${entryPointRefId}`);
         return () => {
@@ -323,7 +325,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       it('forces a re-render and refetches when policy is network-only', () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -442,7 +444,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       it('forces a re-render and refetches when policy is store-or-network', () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -564,7 +566,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -694,7 +696,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
-          {...},
+          {},
           {...},
           {...},
           mixed,
@@ -792,7 +794,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     it('forces a re-render and refetches when policy is network-only', () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
-        {...},
+        {},
         {...},
         {...},
         mixed,
@@ -935,7 +937,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     it('forces a re-render and does not refetch when policy is store-or-network', () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
-        {...},
+        {},
         {...},
         {...},
         mixed,

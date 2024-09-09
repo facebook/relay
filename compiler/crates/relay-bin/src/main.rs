@@ -15,20 +15,25 @@ use clap::ArgEnum;
 use clap::Parser;
 use common::ConsoleLogger;
 use intern::string_key::Intern;
-use intern::Lookup;
 use log::error;
 use log::info;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
+use relay_compiler::config::ConfigFile;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
 use relay_compiler::PersistConfig;
+use relay_compiler::ProjectName;
 use relay_compiler::RemotePersister;
 use relay_lsp::start_language_server;
 use relay_lsp::DummyExtraDataProvider;
+use relay_lsp::FieldDefinitionSourceInfo;
+use relay_lsp::FieldSchemaInfo;
+use relay_lsp::LSPExtraDataProvider;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentationLoader;
 use simplelog::ColorChoice;
@@ -108,12 +113,22 @@ struct LspCommand {
     /// Verbosity level
     #[clap(long, arg_enum, default_value = "quiet-with-errors")]
     output: OutputKind,
+
+    /// Script to be called to lookup the actual definition of a GraphQL entity for
+    /// implementation-first GraphQL schemas.
+    #[clap(long)]
+    locate_command: Option<String>,
 }
+
+#[derive(Parser)]
+#[clap(about = "Print the Json Schema definition for the Relay compiler config.")]
+struct ConfigJsonSchemaCommand {}
 
 #[derive(clap::Subcommand)]
 enum Commands {
     Compiler(CompileCommand),
     Lsp(LspCommand),
+    ConfigJsonSchema(ConfigJsonSchemaCommand),
 }
 
 #[derive(ArgEnum, Clone, Copy)]
@@ -170,14 +185,15 @@ async fn main() {
     let result = match command {
         Commands::Compiler(command) => handle_compiler_command(command).await,
         Commands::Lsp(command) => handle_lsp_command(command).await,
+        Commands::ConfigJsonSchema(_) => {
+            println!("{}", ConfigFile::json_schema());
+            Ok(())
+        }
     };
 
-    match result {
-        Ok(_) => info!("Done."),
-        Err(err) => {
-            error!("{}", err);
-            std::process::exit(1);
-        }
+    if let Err(err) = result {
+        error!("{}", err);
+        std::process::exit(1);
     }
 }
 
@@ -217,7 +233,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
         project_config.enabled = false;
     }
     for selected_project in projects {
-        let selected_project = selected_project.intern();
+        let selected_project = ProjectName::from(selected_project.intern());
 
         if let Some(project_config) = config.projects.get_mut(&selected_project) {
             project_config.enabled = true;
@@ -229,7 +245,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
                     config
                         .projects
                         .keys()
-                        .map(|name| name.lookup())
+                        .map(|name| name.to_string())
                         .collect::<Vec<_>>()
                         .join(", ")
                 ),
@@ -237,7 +253,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
         }
     }
 
-    return Ok(());
+    Ok(())
 }
 
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
@@ -257,7 +273,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     set_project_flag(&mut config, command.projects)?;
 
     if command.validate {
-        config.artifact_writer = Box::new(ArtifactValidationWriter::default());
+        config.artifact_writer = Box::<ArtifactValidationWriter>::default();
     }
 
     config.create_operation_persister = Some(Box::new(|project_config| {
@@ -288,6 +304,8 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
         );
     }
 
+    config.generate_extra_artifacts = Some(Box::new(default_generate_extra_artifacts_fn));
+
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 
     if command.watch {
@@ -303,7 +321,61 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
             })?;
     }
 
+    info!("Done.");
     Ok(())
+}
+
+struct ExtraDataProvider {
+    locate_command: String,
+}
+
+impl ExtraDataProvider {
+    pub fn new(locate_command: String) -> ExtraDataProvider {
+        ExtraDataProvider { locate_command }
+    }
+}
+
+impl LSPExtraDataProvider for ExtraDataProvider {
+    fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
+        vec![]
+    }
+
+    fn resolve_field_definition(
+        &self,
+        project_name: String,
+        parent_type: String,
+        field_info: Option<FieldSchemaInfo>,
+    ) -> Result<Option<FieldDefinitionSourceInfo>, String> {
+        let entity_name = match field_info {
+            Some(field_info) => format!("{}.{}", parent_type, field_info.name),
+            None => parent_type,
+        };
+        let result = Command::new(&self.locate_command)
+            .arg(project_name)
+            .arg(entity_name)
+            .output()
+            .map_err(|e| format!("Failed to run locate command: {}", e))?;
+
+        let result = String::from_utf8(result.stdout).expect("Failed to parse output");
+
+        // Parse file_path:line_number:column_number
+        let result_trimmed = result.trim();
+        let result = result_trimmed.split(':').collect::<Vec<_>>();
+        if result.len() != 3 {
+            return Err(format!(
+                "Result '{}' did not match expected format. Please return 'file_path:line_number:column_number'",
+                result_trimmed
+            ));
+        }
+        let file_path = result[0];
+        let line_number = result[1].parse::<u64>().unwrap() - 1;
+
+        Ok(Some(FieldDefinitionSourceInfo {
+            file_path: file_path.to_string(),
+            line_number,
+            is_local: true,
+        }))
+    }
 }
 
 async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
@@ -311,17 +383,20 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 
     let config = get_config(command.config)?;
 
+    let extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync> =
+        match command.locate_command {
+            Some(locate_command) => Box::new(ExtraDataProvider::new(locate_command)),
+            None => Box::new(DummyExtraDataProvider::new()),
+        };
+
     let perf_logger = Arc::new(ConsoleLogger);
-    let extra_data_provider = Box::new(DummyExtraDataProvider::new());
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
-    let js_language_server = None;
 
     start_language_server(
         config,
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
-        js_language_server,
     )
     .await
     .map_err(|err| Error::LSPError {

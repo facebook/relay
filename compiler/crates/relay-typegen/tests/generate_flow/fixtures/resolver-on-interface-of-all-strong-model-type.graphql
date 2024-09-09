@@ -1,0 +1,22 @@
+fragment resolverOnInterfaceOfAllStrongModelTypeFragment on Cat {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    id: ID!
+    description: String @relay_resolver(import_path: "CatResolver")
+}
+
+type Tabby implements Cat {
+    id: ID!
+    description: String
+    __relay_model_instance: RelayResolverValue @relay_resolver(fragment_name: "Tabby__id", import_path: "TabbyResolver", inject_fragment_data: "id")
+}
+
+type Persian implements Cat {
+    id: ID!
+    description: String
+    __relay_model_instance: RelayResolverValue @relay_resolver(fragment_name: "Persian__id", import_path: "PersianResolver", inject_fragment_data: "id")
+}

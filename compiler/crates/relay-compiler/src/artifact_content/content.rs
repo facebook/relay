@@ -14,15 +14,10 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
-use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
-use relay_codegen::TopLevelStatement;
-use relay_codegen::CODEGEN_CONSTANTS;
 use relay_transforms::is_operation_preloadable;
-use relay_transforms::ReactFlightLocalComponentsMetadata;
-use relay_transforms::RelayClientComponentMetadata;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_typegen::generate_fragment_type_exports_section;
@@ -43,6 +38,115 @@ use super::content_section::DocblockSection;
 use super::content_section::GenericSection;
 use crate::config::Config;
 use crate::config::ProjectConfig;
+
+pub fn generate_preloadable_query_parameters(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+    normalization_operation: &OperationDefinition,
+    query_id: &QueryID,
+) -> Result<Vec<u8>, FmtError> {
+    let mut request_parameters = build_request_params(normalization_operation);
+    let cloned_query_id = Some(query_id.clone());
+    request_parameters.id = &cloned_query_id;
+
+    let mut content_sections = ContentSections::default();
+
+    // -- Begin Docblock Section --
+    let extra_annotations = match query_id {
+        QueryID::Persisted { text_hash, .. } => vec![format!("@relayHash {}", text_hash)],
+        _ => vec![],
+    };
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        extra_annotations,
+    )?));
+    // -- End Docblock Section --
+
+    // -- Begin Disable Lint Section --
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Use Strict Section --
+
+    // -- Begin Metadata Annotations Section --
+    let mut section = CommentAnnotationsSection::default();
+    if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
+        writeln!(section, "@relayRequestID {}", id)?;
+    }
+    content_sections.push(ContentSection::CommentAnnotations(section));
+    // -- End Metadata Annotations Section --
+
+    // -- Begin Types Section --
+    let mut section = GenericSection::default();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "/*::")?;
+    }
+
+    write_import_type_from(
+        project_config,
+        &mut section,
+        "PreloadableConcreteRequest",
+        "relay-runtime",
+    )?;
+    write_import_type_from(
+        project_config,
+        &mut section,
+        &normalization_operation.name.item.0.to_string(),
+        &format!("./{}.graphql", normalization_operation.name.item.0),
+    )?;
+
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "*/")?;
+    }
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Types Section --
+
+    // -- Begin Query Node Section --
+    let preloadable_request = printer.print_preloadable_request(
+        schema,
+        request_parameters,
+        normalization_operation,
+        &mut Default::default(),
+    );
+    let mut section = GenericSection::default();
+
+    let node_type = format!(
+        "PreloadableConcreteRequest<{}>",
+        normalization_operation.name.item.0
+    );
+
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        &node_type,
+        &preloadable_request,
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Query Node Section --
+
+    // -- Begin Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(
+        &project_config.typegen_config,
+        &mut section,
+        "node",
+        Some(node_type),
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Export Section --
+
+    content_sections.into_signed_bytes()
+}
 
 #[allow(clippy::too_many_arguments)]
 pub fn generate_updatable_query(
@@ -89,8 +193,11 @@ pub fn generate_updatable_query(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types =
-        ArtifactGeneratedTypes::from_updatable_query(typegen_operation, skip_types);
+    let generated_types = ArtifactGeneratedTypes::from_updatable_query(
+        typegen_operation,
+        skip_types,
+        project_config.typegen_config.language,
+    );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -113,6 +220,7 @@ pub fn generate_updatable_query(
                 schema,
                 project_config,
                 fragment_locations,
+                None, // TODO: Add/investigrate support for provided variables in updatable queries
             )
         )?;
     }
@@ -178,11 +286,20 @@ pub fn generate_operation(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
+
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
+        if project_config
+            .persist
+            .as_ref()
+            .map_or(false, |config| config.include_query_text())
+        {
+            request_parameters.text.clone_from(text);
+        }
     } else {
-        request_parameters.text = text.clone();
-    };
+        request_parameters.text.clone_from(text);
+    }
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
@@ -195,14 +312,14 @@ pub fn generate_operation(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let v = match id_and_text_hash {
+    let extra_annotations = match id_and_text_hash {
         Some(QueryID::Persisted { text_hash, .. }) => vec![format!("@relayHash {}", text_hash)],
         _ => vec![],
     };
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
-        v,
+        extra_annotations,
     )?));
     // -- End Docblock Section --
 
@@ -235,16 +352,6 @@ pub fn generate_operation(
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
     }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&operation_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
-    }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
 
@@ -254,6 +361,7 @@ pub fn generate_operation(
         typegen_operation,
         skip_types,
         request_parameters.is_client_request(),
+        project_config.typegen_config.language,
     );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -268,6 +376,8 @@ pub fn generate_operation(
     )?;
 
     if !skip_types {
+        let maybe_provided_variables =
+            printer.print_provided_variables(schema, normalization_operation);
         write!(
             section,
             "{}",
@@ -277,6 +387,7 @@ pub fn generate_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                maybe_provided_variables,
             )
         )?;
     }
@@ -287,27 +398,8 @@ pub fn generate_operation(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
-    // -- Begin Top Level Statements Section --
-    let mut section = GenericSection::default();
     let mut top_level_statements = Default::default();
-    if let Some(provided_variables) =
-        printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
-    {
-        let mut provided_variable_text = String::new();
-        write_variable_value_with_type(
-            &project_config.typegen_config.language,
-            &mut provided_variable_text,
-            CODEGEN_CONSTANTS.provided_variables_definition.lookup(),
-            relay_typegen::PROVIDED_VARIABLE_TYPE,
-            &provided_variables,
-        )
-        .unwrap();
-        top_level_statements.insert(
-            CODEGEN_CONSTANTS.provided_variables_definition.to_string(),
-            TopLevelStatement::VariableDefinition(provided_variable_text),
-        );
-    }
-
+    // -- Begin Query Node Section --
     let request = printer.print_request(
         schema,
         normalization_operation,
@@ -316,11 +408,12 @@ pub fn generate_operation(
         &mut top_level_statements,
     );
 
+    // -- Begin Top Level Statements Section --
+    let mut section: GenericSection = GenericSection::default();
     write!(section, "{}", &top_level_statements)?;
     content_sections.push(ContentSection::Generic(section));
     // -- End Top Level Statements Section --
 
-    // -- Begin Query Node Section --
     let mut section = GenericSection::default();
     write_variable_value_with_type(
         &project_config.typegen_config.language,
@@ -348,26 +441,38 @@ pub fn generate_operation(
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         match project_config.typegen_config.language {
             TypegenLanguage::Flow => {
-                writeln!(
-                    section,
-                    "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
-                )?;
+                if project_config.typegen_config.eager_es_modules {
+                    writeln!(
+                        section,
+                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
+                    )?;
+                    writeln!(
+                        section,
+                        "PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                    )?;
+                } else {
+                    writeln!(
+                        section,
+                        "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);",
+                    )?;
+                }
             }
-            TypegenLanguage::JavaScript => {
-                writeln!(
-                    section,
-                    "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);",
-                )?;
-            }
-            TypegenLanguage::TypeScript => {
-                writeln!(
-                    section,
-                    "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
-                )?;
-                writeln!(
-                    section,
-                    "PreloadableQueryRegistry.set(node.params.id, node);",
-                )?;
+            TypegenLanguage::JavaScript | TypegenLanguage::TypeScript => {
+                if project_config.typegen_config.eager_es_modules {
+                    writeln!(
+                        section,
+                        "import {{ PreloadableQueryRegistry }} from 'relay-runtime';",
+                    )?;
+                    writeln!(
+                        section,
+                        "PreloadableQueryRegistry.set(node.params.id, node);",
+                    )?;
+                } else {
+                    writeln!(
+                        section,
+                        "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);",
+                    )?;
+                }
             }
         }
     }
@@ -522,7 +627,7 @@ pub fn generate_fragment(
             project_config,
             schema,
             typegen_fragment,
-            skip_types,
+            source_hash,
             fragment_locations,
         )
     } else {
@@ -581,22 +686,16 @@ fn generate_read_only_fragment(
     {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
     }
-    if let Some(flight_metadata) =
-        ReactFlightLocalComponentsMetadata::find(&reader_fragment.directives)
-    {
-        write_react_flight_server_annotation(&mut section, flight_metadata)?;
-    }
-    let relay_client_component_metadata =
-        RelayClientComponentMetadata::find(&reader_fragment.directives);
-    if let Some(relay_client_component_metadata) = relay_client_component_metadata {
-        write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
-    }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types = ArtifactGeneratedTypes::from_fragment(typegen_fragment, skip_types);
+    let generated_types = ArtifactGeneratedTypes::from_fragment(
+        typegen_fragment,
+        skip_types,
+        project_config.typegen_config.language,
+    );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -617,7 +716,7 @@ fn generate_read_only_fragment(
                 typegen_fragment,
                 schema,
                 project_config,
-                fragment_locations
+                fragment_locations,
             )
         )?;
     }
@@ -681,7 +780,7 @@ fn generate_assignable_fragment(
     project_config: &ProjectConfig,
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
-    skip_types: bool,
+    source_hash: Option<&String>,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
@@ -712,18 +811,16 @@ fn generate_assignable_fragment(
         writeln!(section, "/*::")?;
     }
 
-    if !skip_types {
-        write!(
-            section,
-            "{}",
-            generate_fragment_type_exports_section(
-                typegen_fragment,
-                schema,
-                project_config,
-                fragment_locations
-            )
-        )?;
-    }
+    write!(
+        section,
+        "{}",
+        generate_fragment_type_exports_section(
+            typegen_fragment,
+            schema,
+            project_config,
+            fragment_locations,
+        )
+    )?;
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "*/")?;
@@ -731,12 +828,43 @@ fn generate_assignable_fragment(
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
+    // -- Begin Fragment Node Section --
+    let mut section = GenericSection::default();
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "node",
+        "any",
+        "{}",
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Section --
+
+    // -- Begin Fragment Node Hash Section --
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
+    // -- End Fragment Node Hash Section --
+
+    // -- Begin Fragment Node Export Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(&project_config.typegen_config, &mut section, "node", None)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Fragment Node Export Section --
+
     // -- Begin Export Section --
     let mut section = GenericSection::default();
     // Assignable fragments should never be passed to useFragment, and thus, we
     // don't need to emit a reader fragment.
     // Instead, we only need a named validator export, i.e.
-    // module.exports.validator = ...
+    // module.exports.validate = ...
     let named_validator_export = generate_named_validator_export(
         typegen_fragment,
         schema,
@@ -818,7 +946,7 @@ fn write_import_type_from(
     }
 }
 
-fn write_export_generated_node(
+pub fn write_export_generated_node(
     typegen_config: &TypegenConfig,
     section: &mut dyn Write,
     variable_node: &str,
@@ -843,7 +971,7 @@ fn write_export_generated_node(
     }
 }
 
-fn generate_docblock_section(
+pub fn generate_docblock_section(
     config: &Config,
     project_config: &ProjectConfig,
     extra_annotations: Vec<String>,
@@ -864,7 +992,12 @@ fn generate_docblock_section(
     }
     writeln!(section, "@lightSyntaxTransform")?;
     writeln!(section, "@nogrep")?;
-    if let Some(codegen_command) = &config.codegen_command {
+
+    if let Some(codegen_command) = &project_config
+        .codegen_command
+        .as_ref()
+        .or(config.codegen_command.as_ref())
+    {
         writeln!(section, "@codegen-command: {}", codegen_command)?;
     }
     Ok(section)
@@ -924,22 +1057,88 @@ fn write_data_driven_dependency_annotation(
     Ok(())
 }
 
-fn write_react_flight_server_annotation(
-    section: &mut CommentAnnotationsSection,
-    flight_local_components_metadata: &ReactFlightLocalComponentsMetadata,
-) -> FmtResult {
-    for item in &flight_local_components_metadata.components {
-        writeln!(section, "@ReactFlightServerDependency {}", item)?;
-    }
-    Ok(())
-}
+pub fn generate_resolvers_schema_module_content(
+    config: &Config,
+    project_config: &ProjectConfig,
+    printer: &mut Printer<'_>,
+    schema: &SDLSchema,
+) -> Result<Vec<u8>, FmtError> {
+    let mut content_sections = ContentSections::default();
+    // -- Begin Docblock Section --
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        vec![],
+    )?));
+    // -- End Docblock Section --
 
-fn write_react_flight_client_annotation(
-    section: &mut CommentAnnotationsSection,
-    relay_client_component_metadata: &RelayClientComponentMetadata,
-) -> FmtResult {
-    for value in &relay_client_component_metadata.split_operation_filenames {
-        writeln!(section, "@ReactFlightClientDependency {}", value)?;
+    // -- Begin Disable Lint Section --
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
+    // -- End Use Strict Section --
+
+    // -- Begin Types Section --
+    let mut section = GenericSection::default();
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "/*::")?;
     }
-    Ok(())
+    write_import_type_from(
+        project_config,
+        &mut section,
+        "SchemaResolvers",
+        "ReactiveQueryExecutor",
+    )?;
+    write_import_type_from(
+        project_config,
+        &mut section,
+        "ResolverFunction, NormalizationSplitOperation",
+        "relay-runtime",
+    )?;
+    writeln!(section)?;
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "*/")?;
+    }
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Types Section --
+
+    let mut top_level_statements = Default::default();
+    let resolvers_schema = printer.print_resolvers_schema(schema, &mut top_level_statements);
+
+    // -- Begin Top Level Statements Section --
+    let mut section: GenericSection = GenericSection::default();
+    write!(section, "{}", &top_level_statements)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Top Level Statements Section --
+
+    // -- Begin Resolvers Schema Section --
+    let mut section = GenericSection::default();
+    write_variable_value_with_type(
+        &project_config.typegen_config.language,
+        &mut section,
+        "schema_resolvers",
+        "SchemaResolvers",
+        &resolvers_schema,
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Resolvers Schema Section --
+
+    // -- Begin Exports Section --
+    let mut section = GenericSection::default();
+    write_export_generated_node(
+        &project_config.typegen_config,
+        &mut section,
+        "schema_resolvers",
+        None,
+    )?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Exports Section --
+
+    content_sections.into_signed_bytes()
 }

@@ -1,0 +1,11 @@
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query($someCondition: Boolean!) {
+  me {
+    # This might not match!
+    ...RelayReaderNamedFragmentsTest_user @skip(if: $someCondition)
+  }
+}

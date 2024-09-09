@@ -72,7 +72,11 @@ pub async fn persist(
     let client = Client::builder().build(https);
     let res = client.request(req).await?;
     let bytes = hyper::body::to_bytes(res.into_body()).await?;
-    let result: Response = serde_json::from_slice(&bytes)?;
+    let result: Response =
+        serde_json::from_slice(&bytes).map_err(|err| PersistError::DetailedResponseParseError {
+            source: err,
+            raw_response: String::from_utf8_lossy(&bytes).to_string(),
+        })?;
 
     match result {
         Response::Success { id } => Ok(id),

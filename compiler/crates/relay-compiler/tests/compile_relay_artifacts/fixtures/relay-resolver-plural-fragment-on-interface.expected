@@ -1,0 +1,167 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment relayResolverPluralFragmentOnInterfaceFragment on Cat @relay(plural: true) {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    id: ID!
+    description: String
+}
+
+type Tabby implements Cat @__RelayResolverModel {
+    id: ID!
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "TabbyResolver", fragment_name: "Tabby__id", inject_fragment_data: "id")
+}
+
+type Persian implements Cat @__RelayResolverModel {
+    id: ID!
+    description: String
+    __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "PersianResolver", fragment_name: "Persian__id", inject_fragment_data: "id")
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Persian____relay_model_instance",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "fragment": {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "Persian__id"
+      },
+      "kind": "RelayResolver",
+      "name": "__relay_model_instance",
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('Persian__id.graphql'), require('PersianResolver'), 'id', true),
+      "path": "__relay_model_instance"
+    }
+  ],
+  "type": "Persian",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Persian__id",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "Persian",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Tabby____relay_model_instance",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "fragment": {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "Tabby__id"
+      },
+      "kind": "RelayResolver",
+      "name": "__relay_model_instance",
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('Tabby__id.graphql'), require('TabbyResolver'), 'id', true),
+      "path": "__relay_model_instance"
+    }
+  ],
+  "type": "Tabby",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Tabby__id",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "Tabby",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "plural": true
+  },
+  "name": "relayResolverPluralFragmentOnInterfaceFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "fragment": null,
+              "kind": "RelayResolver",
+              "name": "description",
+              "resolverModule": require('TabbyResolver'),
+              "path": "description"
+            }
+          ],
+          "type": "Tabby",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "description",
+              "storageKey": null
+            }
+          ],
+          "type": "Persian",
+          "abstractKey": null
+        }
+      ]
+    }
+  ],
+  "type": "Cat",
+  "abstractKey": "__isCat"
+}

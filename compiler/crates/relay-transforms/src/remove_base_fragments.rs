@@ -5,13 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
+use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use lazy_static::lazy_static;
+use schema::Schema;
 
+lazy_static! {
+    pub static ref RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE: DirectiveName =
+        DirectiveName("__belongs_to_base_schema".intern());
+}
 /// This transform removes the given list of base fragments from the Program.
 /// This is useful if earlier steps need access to fragments from some base
 /// project, but we don't want to write output files for them and can skip over
@@ -25,7 +34,8 @@ pub fn remove_base_fragments(
         return program.clone();
     }
     let mut transform = StripBaseFragmentsTransform {
-        base_fragment_names: &base_fragment_names,
+        program,
+        base_fragment_names,
     };
     transform
         .transform_program(program)
@@ -33,6 +43,7 @@ pub fn remove_base_fragments(
 }
 
 struct StripBaseFragmentsTransform<'a> {
+    program: &'a Program,
     base_fragment_names: &'a FragmentDefinitionNameSet,
 }
 
@@ -55,7 +66,26 @@ impl<'a> Transformer for StripBaseFragmentsTransform<'a> {
         if self.base_fragment_names.contains(&fragment.name.item) {
             Transformed::Delete
         } else {
-            Transformed::Keep
+            // For resolvers that belong to the base schema, we don't need to generate fragments.
+            // These fragments should be generated during compilation of the base project.
+            let is_base_resolver_type =
+                fragment
+                    .type_condition
+                    .get_object_id()
+                    .is_some_and(|object_id| {
+                        let object = self.program.schema.object(object_id);
+
+                        object.is_extension
+                            && object
+                                .directives
+                                .named(*RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE)
+                                .is_some()
+                    });
+            if is_base_resolver_type {
+                Transformed::Delete
+            } else {
+                Transformed::Keep
+            }
         }
     }
 }

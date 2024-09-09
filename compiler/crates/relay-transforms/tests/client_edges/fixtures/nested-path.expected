@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+fragment Foo_user on ClientUser {
+  best_friend {
+    best_friend {
+      id
+    }
+  }
+}
+
+fragment BestFriendFragment on ClientUser {
+  id
+}
+
+# %extensions%
+
+type ClientUser {
+  id: ID
+}
+
+extend type ClientUser {
+  best_friend: ClientUser
+    @relay_resolver(
+      fragment_name: "BestFriendFragment"
+      import_path: "BestFriendResolver"
+    )
+}
+==================================== OUTPUT ===================================
+fragment BestFriendFragment on ClientUser {
+  id
+}
+
+fragment Foo_user on ClientUser {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: Some(
+  #         ObjectName(
+  #             "ClientUser",
+  #         ),
+  #     ),
+  #     unique_id: 1,
+  #     model_resolvers: [],
+  # }
+   {
+    ...BestFriendFragment @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(527),
+    #     import_path: "BestFriendResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: EdgeTo,
+    #     fragment_data_injection_mode: None,
+    # }
+    
+    best_friend {
+      ... @__ClientEdgeMetadataDirective
+      # ClientObject {
+      #     type_name: Some(
+      #         ObjectName(
+      #             "ClientUser",
+      #         ),
+      #     ),
+      #     unique_id: 0,
+      #     model_resolvers: [],
+      # }
+       {
+        ...BestFriendFragment @__RelayResolverMetadata
+        # RelayResolverMetadata {
+        #     field_id: FieldID(527),
+        #     import_path: "BestFriendResolver",
+        #     import_name: None,
+        #     field_alias: None,
+        #     field_path: "best_friend.best_friend",
+        #     field_arguments: [],
+        #     live: false,
+        #     output_type_info: EdgeTo,
+        #     fragment_data_injection_mode: None,
+        # }
+        
+        best_friend {
+          id
+        }
+      }
+    }
+  }
+}

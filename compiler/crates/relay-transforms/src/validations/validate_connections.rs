@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -294,7 +295,7 @@ impl<'s> ConnectionValidation<'s> {
         )?;
 
         let page_info_type = page_info_type.inner();
-        let page_info_sub_fields = vec![
+        let page_info_sub_fields = [
             self.connection_interface.end_cursor,
             self.connection_interface.has_next_page,
             self.connection_interface.has_previous_page,
@@ -477,23 +478,36 @@ impl<'s> ConnectionValidation<'s> {
         if let Some((arg, filters_val)) = constant_filters_arg {
             match filters_val {
                 ConstantValue::List(list_val) => {
-                    let non_string_value = list_val
-                        .iter()
-                        .find(|val| !matches!(val, ConstantValue::String(_)));
-
-                    if non_string_value.is_some() {
-                        return Err(vec![
-                            Diagnostic::error(
+                    validate_map(list_val, |filter_val| {
+                        if let ConstantValue::String(filter_val) = filter_val {
+                            if connection_field
+                                .arguments
+                                .named(ArgumentName(*filter_val))
+                                .is_none()
+                            {
+                                Err(vec![Diagnostic::error(
+                                    ValidationMessage::InvalidConnectionFiltersArgNotAnArgument {
+                                        connection_directive_name: connection_directive.name.item,
+                                        connection_field_name: connection_schema_field.name.item,
+                                        filters_arg_name: *FILTERS_ARG_NAME,
+                                        invalid_name: *filter_val,
+                                    },
+                                    arg.value.location,
+                                )])
+                            } else {
+                                Ok(())
+                            }
+                        } else {
+                            Err(vec![Diagnostic::error(
                                 ValidationMessage::InvalidConnectionFiltersArg {
                                     connection_directive_name: connection_directive.name.item,
                                     connection_field_name: connection_schema_field.name.item,
                                     filters_arg_name: *FILTERS_ARG_NAME,
                                 },
                                 arg.value.location,
-                            )
-                            .annotate("related location", connection_field.definition.location),
-                        ]);
-                    }
+                            )])
+                        }
+                    })?;
                 }
                 _ => {
                     return Err(vec![

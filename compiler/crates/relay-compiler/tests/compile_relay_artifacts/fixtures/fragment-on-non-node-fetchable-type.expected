@@ -263,7 +263,10 @@ fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory {
         "fetch__NonNodeStory"
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierField": "fetch_id"
+      "identifierInfo": {
+        "identifierField": "fetch_id",
+        "identifierQueryVariableName": "id"
+      }
     }
   },
   "name": "fragmentOnNonNodeFetchableType_RefetchableFragment",

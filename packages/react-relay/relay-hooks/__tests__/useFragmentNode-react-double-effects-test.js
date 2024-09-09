@@ -11,8 +11,8 @@
 
 'use strict';
 
+const useFragmentNode = require('../legacy/useFragmentNode');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const useFragmentNode = require('../useFragmentNode');
 const React = require('react');
 const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');
@@ -30,7 +30,7 @@ let renderSpy;
 // TODO(T83890478): enable once double invoked effects lands in xplat
 describe.skip('useFragmentNode-react-double-effects-test', () => {
   beforeEach(() => {
-    jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+    jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();

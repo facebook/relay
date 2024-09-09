@@ -1,0 +1,66 @@
+//- PersonComponent.js
+graphql`fragment PersonComponentFragment on IPerson {
+  someComplexObject
+}`
+
+//- UserTypeResolvers.js
+/**
+ * @RelayResolver User implements IPerson
+ */
+// Implementation omitted for test
+
+/**
+ * @RelayResolver User.someComplexObject: SomeComplexObject
+ */
+// Implementation omitted for test
+
+//- AdminTypeResolvers.js
+/**
+ * @RelayResolver Admin implements IPerson
+ */
+// Implementation omitted for test
+
+/**
+ * @RelayResolver Admin.someComplexObject: SomeComplexObject
+ */
+// Implementation omitted for test
+
+//- SomeComplexObjectFlowTypeModule.js
+
+export type SomeComplexObjectFlowType {
+  // ... Many fields here perhaps
+}
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "customScalarTypes": {
+    "SomeComplexObject": {
+      "name": "SomeComplexObjectFlowType",
+      "path": "SomeComplexObjectFlowTypeModule"
+    }
+  },
+  "featureFlags": {
+    "enable_relay_resolver_transform": true,
+    "enable_resolver_normalization_ast": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+scalar SomeComplexObject
+
+interface IPerson {
+  id: ID!
+  someComplexObject: SomeComplexObject
+}

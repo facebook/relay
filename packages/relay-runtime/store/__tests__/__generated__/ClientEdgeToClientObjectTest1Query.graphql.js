@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a7687f310599788d236ce2a7663c707f>>
+ * @generated SignedSource<<af97330cfc29ffa49accfc4bf3fe6b04>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,22 +24,29 @@ import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generate
 import type { AstrologicalSignOppositeResolver$key } from "./../resolvers/__generated__/AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
 import {house as astrologicalSignHouseResolverType} from "../resolvers/AstrologicalSignHouseResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignHouseResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignHouseResolverType: (
   rootKey: AstrologicalSignHouseResolver$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?number);
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?string);
 import {opposite as astrologicalSignOppositeResolverType} from "../resolvers/AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -48,6 +55,8 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../resolver
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -56,15 +65,15 @@ export type ClientEdgeToClientObjectTest1Query$data = {|
   +me: ?{|
     +astrological_sign: ?{|
       +__id: string,
-      +house: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignHouseResolverType>,
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +house: ?number,
+      +name: ?string,
       +opposite: ?{|
         +__id: string,
-        +house: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignHouseResolverType>,
-        +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+        +house: ?number,
+        +name: ?string,
         +opposite: ?{|
           +__id: string,
-          +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+          +name: ?string,
         |},
       |},
     |},
@@ -85,43 +94,19 @@ var v0 = {
   "storageKey": null
 },
 v1 = {
-  "alias": null,
   "args": null,
-  "fragment": {
-    "args": null,
-    "kind": "FragmentSpread",
-    "name": "AstrologicalSignNameResolver"
-  },
-  "kind": "RelayResolver",
-  "name": "name",
-  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
-  "path": "me.name"
+  "kind": "FragmentSpread",
+  "name": "AstrologicalSignNameResolver"
 },
 v2 = {
-  "alias": null,
   "args": null,
-  "fragment": {
-    "args": null,
-    "kind": "FragmentSpread",
-    "name": "AstrologicalSignHouseResolver"
-  },
-  "kind": "RelayResolver",
-  "name": "house",
-  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver').house,
-  "path": "me.house"
+  "kind": "FragmentSpread",
+  "name": "AstrologicalSignHouseResolver"
 },
 v3 = {
-  "alias": null,
   "args": null,
-  "fragment": {
-    "args": null,
-    "kind": "FragmentSpread",
-    "name": "AstrologicalSignOppositeResolver"
-  },
-  "kind": "RelayResolver",
-  "name": "opposite",
-  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
-  "path": "me.opposite"
+  "kind": "FragmentSpread",
+  "name": "AstrologicalSignOppositeResolver"
 },
 v4 = {
   "alias": null,
@@ -146,7 +131,7 @@ v5 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": false
+      "isOutputType": true
     }
   ],
   "type": "AstrologicalSign",
@@ -158,7 +143,7 @@ v6 = {
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
-  "isOutputType": false
+  "isOutputType": true
 },
 v7 = {
   "name": "house",
@@ -166,7 +151,7 @@ v7 = {
   "fragment": (v5/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
-  "isOutputType": false
+  "isOutputType": true
 },
 v8 = {
   "name": "opposite",
@@ -196,6 +181,7 @@ return {
           {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
+            "modelResolvers": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -218,12 +204,37 @@ return {
               "plural": false,
               "selections": [
                 (v0/*: any*/),
-                (v1/*: any*/),
-                (v2/*: any*/),
+                {
+                  "alias": null,
+                  "args": null,
+                  "fragment": (v1/*: any*/),
+                  "kind": "RelayResolver",
+                  "name": "name",
+                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+                  "path": "me.astrological_sign.name"
+                },
+                {
+                  "alias": null,
+                  "args": null,
+                  "fragment": (v2/*: any*/),
+                  "kind": "RelayResolver",
+                  "name": "house",
+                  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver').house,
+                  "path": "me.astrological_sign.house"
+                },
                 {
                   "kind": "ClientEdgeToClientObject",
                   "concreteType": "AstrologicalSign",
-                  "backingField": (v3/*: any*/),
+                  "modelResolvers": null,
+                  "backingField": {
+                    "alias": null,
+                    "args": null,
+                    "fragment": (v3/*: any*/),
+                    "kind": "RelayResolver",
+                    "name": "opposite",
+                    "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
+                    "path": "me.astrological_sign.opposite"
+                  },
                   "linkedField": {
                     "alias": null,
                     "args": null,
@@ -233,12 +244,37 @@ return {
                     "plural": false,
                     "selections": [
                       (v0/*: any*/),
-                      (v1/*: any*/),
-                      (v2/*: any*/),
+                      {
+                        "alias": null,
+                        "args": null,
+                        "fragment": (v1/*: any*/),
+                        "kind": "RelayResolver",
+                        "name": "name",
+                        "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+                        "path": "me.astrological_sign.opposite.name"
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "fragment": (v2/*: any*/),
+                        "kind": "RelayResolver",
+                        "name": "house",
+                        "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver').house,
+                        "path": "me.astrological_sign.opposite.house"
+                      },
                       {
                         "kind": "ClientEdgeToClientObject",
                         "concreteType": "AstrologicalSign",
-                        "backingField": (v3/*: any*/),
+                        "modelResolvers": null,
+                        "backingField": {
+                          "alias": null,
+                          "args": null,
+                          "fragment": (v3/*: any*/),
+                          "kind": "RelayResolver",
+                          "name": "opposite",
+                          "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
+                          "path": "me.astrological_sign.opposite.opposite"
+                        },
                         "linkedField": {
                           "alias": null,
                           "args": null,
@@ -248,7 +284,15 @@ return {
                           "plural": false,
                           "selections": [
                             (v0/*: any*/),
-                            (v1/*: any*/)
+                            {
+                              "alias": null,
+                              "args": null,
+                              "fragment": (v1/*: any*/),
+                              "kind": "RelayResolver",
+                              "name": "name",
+                              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+                              "path": "me.astrological_sign.opposite.opposite.name"
+                            }
                           ],
                           "storageKey": null
                         }

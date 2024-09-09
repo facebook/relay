@@ -7,7 +7,7 @@ type User {
 ==================================== ERROR ====================================
 ✖︎ Reference to undefined type 'Email'.
 
-  <generated>:4:12
+  invalid-type-reference.graphql:4:12
     3 │ type User {
     4 │   emails: [Email!]!
       │            ^^^^^

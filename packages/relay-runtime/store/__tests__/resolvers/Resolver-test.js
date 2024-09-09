@@ -71,7 +71,7 @@ describe('Relay Resolver', () => {
     );
 
     // $FlowFixMe[unclear-type]
-    const {data} = (environment.lookup(fragmentSelector): any);
+    const {data}: any = environment.lookup(fragmentSelector);
 
     expect(data.greeting).toEqual('Hello, Alice!'); // Resolver result
     expect(data.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
@@ -99,7 +99,7 @@ describe('Relay Resolver', () => {
     });
 
     // $FlowFixMe[unclear-type]
-    const {data} = (environment.lookup(operation.fragment): any);
+    const {data}: any = environment.lookup(operation.fragment);
 
     expect(data.me.greeting).toEqual('Hello, Alice!'); // Resolver result
     expect(data.me.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
@@ -118,5 +118,27 @@ describe('Relay Resolver', () => {
       }
     `;
     expect(clientEdgeRuntimeArtifact.operation.name).toBe('ResolverTest3Query');
+  });
+
+  it('When omitting all arguments, resolver still gets passed an `args` object.', () => {
+    const environment = createMockEnvironment();
+
+    const FooQuery = graphql`
+      query ResolverTest4Query {
+        hello_optional_world
+      }
+    `;
+
+    const request = getRequest(FooQuery);
+    const operation = createOperationDescriptor(request, {});
+
+    environment.commitPayload(operation, {});
+
+    // $FlowFixMe[unclear-type]
+    const {data, relayResolverErrors}: any = environment.lookup(
+      operation.fragment,
+    );
+    expect(relayResolverErrors).toHaveLength(0);
+    expect(data.hello_optional_world).toEqual('Hello, Default!');
   });
 });

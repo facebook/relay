@@ -24,12 +24,12 @@ import type {
   IEnvironment,
   OperationDescriptor,
   OperationType,
+  Query,
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
 
 const invariant = require('invariant');
-const React = require('react');
 const {
   __internal: {fetchQueryDeduped},
   Observable,
@@ -40,43 +40,41 @@ const {
   getRequest,
   getRequestIdentifier,
 } = require('relay-runtime');
-const warning = require('warning');
 
-let RenderDispatcher = null;
 let fetchKey = 100001;
 
-function useTrackLoadQueryInRender() {
-  if (RenderDispatcher === null) {
-    // Flow does not know of React internals (rightly so), but we need to
-    // ensure here that this function isn't called inside render.
-    RenderDispatcher =
-      // $FlowFixMe[prop-missing]
-      React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
-        ?.ReactCurrentDispatcher?.current;
-  }
-}
+type QueryType<T> =
+  T extends Query<infer V, infer D, infer RR>
+    ? {
+        variables: V,
+        response: D,
+        rawResponse?: $NonMaybeType<RR>,
+      }
+    : [+t: T] extends [+t: PreloadableConcreteRequest<infer V>]
+      ? V
+      : empty;
+
+declare function loadQuery<
+  T,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+>(
+  environment: IEnvironment,
+  preloadableRequest: T,
+  variables: QueryType<T>['variables'],
+  options?: ?LoadQueryOptions,
+  environmentProviderOptions?: ?TEnvironmentProviderOptions,
+): PreloadedQueryInner<QueryType<T>, TEnvironmentProviderOptions>;
 
 function loadQuery<
   TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 >(
   environment: IEnvironment,
-  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+  preloadableRequest: PreloadableConcreteRequest<TQuery>,
   variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
-  // This code ensures that we don't call loadQuery during render.
-  const CurrentDispatcher =
-    // $FlowFixMe[prop-missing]
-    React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
-      ?.ReactCurrentDispatcher?.current;
-  warning(
-    RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
-    'Relay: `%s` should not be called inside a React render function.',
-    options?.__nameForWarning ?? 'loadQuery',
-  );
-
   // Every time you call loadQuery, we will generate a new fetchKey.
   // This will ensure that every query reference that is created and
   // passed to usePreloadedQuery is independently evaluated,
@@ -386,5 +384,4 @@ function loadQuery<
 
 module.exports = {
   loadQuery,
-  useTrackLoadQueryInRender,
 };

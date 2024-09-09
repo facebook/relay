@@ -1,0 +1,24 @@
+query multipleModuleWithAliasedInlineFragmentQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      nameRenderer {
+        # Same fragment with different modules on different aliases
+        ... @alias(as: "a") {
+          ...multipleModuleWithAliasedInlineFragmentFragment_propName
+            @module(name: "FooMarkdownUserNameRenderer.react")
+        }
+        ... @alias(as: "b") {
+          ...multipleModuleWithAliasedInlineFragmentFragment_propName
+            @module(name: "BarMarkdownUserNameRenderer.react")
+        }
+      }
+    }
+  }
+}
+
+fragment multipleModuleWithAliasedInlineFragmentFragment_propName on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

@@ -1,0 +1,14 @@
+fragment fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  global_id
+  ... on User {
+    name
+    ...fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture
+  }
+}
+
+fragment fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}

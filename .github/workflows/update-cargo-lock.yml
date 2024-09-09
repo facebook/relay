@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.64.0
+          toolchain: 1.76.0
           override: true
       - name: cargo check
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml

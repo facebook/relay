@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+type Basic
+
+type Photo {
+  url: String
+}
+
+type User implements Actor & Node @strong(field_name: "id") {
+  id: ID!
+  name(language: Language): String!
+}
+
+type OnlyInterfaces implements
+  & Actor
+  & Node
+==================================== OUTPUT ===================================
+[
+    "type Basic\n\n",
+    "type Photo {\n  url: String\n}\n\n",
+    "type User implements Actor & Node @strong(field_name: \"id\") {\n  id: ID!\n  name(language: Language): String!\n}\n\n",
+    "type OnlyInterfaces implements\n  & Actor\n  & Node\n",
+]

@@ -23,7 +23,7 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
+const {loadQuery} = require('./loadQuery');
 const useIsMountedRef = require('./useIsMountedRef');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const {useCallback, useEffect, useRef, useState} = require('react');
@@ -82,9 +82,6 @@ type UseQueryLoaderHookReturnType<
   () => void,
 ];
 
-type ExtractVariablesType = <T>({+variables: T, ...}) => T;
-type ExtractResponseType = <T>({+response: T, ...}) => T;
-
 declare function useQueryLoader<
   TVariables: Variables,
   TData,
@@ -109,16 +106,9 @@ declare function useQueryLoader<
 declare function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: PreloadableConcreteRequest<TQuery>,
   initialQueryReference?: ?PreloadedQuery<TQuery>,
-): UseQueryLoaderHookReturnType<
-  $Call<ExtractVariablesType, TQuery>,
-  $Call<ExtractResponseType, TQuery>,
->;
+): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
 
-function useQueryLoader<
-  TVariables: Variables,
-  TData,
-  TRawResponse: ?{...} = void,
->(
+hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
@@ -156,7 +146,6 @@ function useQueryLoader<
     initialQueryReference ?? initialNullQueryReferenceState;
 
   const environment = useRelayEnvironment();
-  useTrackLoadQueryInRender();
 
   const isMountedRef = useIsMountedRef();
   const undisposedQueryReferencesRef = useRef<
@@ -178,6 +167,7 @@ function useQueryLoader<
     // necessary here
     // TODO(T78446637): Handle disposal of managed query references in
     // components that were never mounted after rendering
+    // $FlowFixMe[react-rule-unsafe-ref]
     undisposedQueryReferencesRef.current.add(initialQueryReferenceInternal);
     setPreviousInitialQueryReference(initialQueryReferenceInternal);
     setQueryReference(initialQueryReferenceInternal);
@@ -201,7 +191,7 @@ function useQueryLoader<
             }
           : options;
       if (isMountedRef.current) {
-        const updatedQueryReference = loadQuery<QueryType>(
+        const updatedQueryReference = loadQuery(
           options?.__environment ?? environment,
           preloadableRequest,
           variables,

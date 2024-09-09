@@ -1,0 +1,6 @@
+query MyQuery {
+  me @catch {
+    id
+    name
+  }
+}

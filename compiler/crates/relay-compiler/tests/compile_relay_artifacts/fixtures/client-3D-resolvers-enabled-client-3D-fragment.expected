@@ -1,0 +1,378 @@
+==================================== INPUT ====================================
+query client3DResolversEnabledClient3DFragment_clientSideQuery {
+  persona {
+    id
+    basicUser {
+      ...client3DResolversEnabledClient3DFragment_ClientUserFragment @module(name: "ClientUser.react")
+      ...client3DResolversEnabledClient3DFragment_SpecialUserFragment @module(name: "SpecialUser.react")
+    }
+  }
+}
+
+fragment client3DResolversEnabledClient3DFragment_ClientUserFragment on ClientUser {
+  id
+  data
+}
+
+fragment client3DResolversEnabledClient3DFragment_SpecialUserFragment on SpecialUser {
+  id
+  data
+}
+
+%extensions%
+interface BasicUser {
+  data: String
+}
+
+type Persona {
+  id: ID!
+  basicUser: BasicUser
+}
+
+extend type Query {
+  persona: Persona
+}
+
+type ClientUser implements BasicUser @__RelayResolverModel {
+  id: ID!
+  data: String
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "ClientUserResolver", fragment_name: "ClientUser__id", inject_fragment_data: "id")
+}
+
+type SpecialUser implements BasicUser @__RelayResolverModel {
+  id: ID!
+  data: String
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "SpecialUserResolver", fragment_name: "SpecialUser__id", inject_fragment_data: "id")
+}
+
+%project_config%
+{
+  "moduleImportConfig": {
+    "dynamicModuleProvider": {
+      "mode": "JSResource"
+    },
+    "surface": "resolvers"
+  },
+  "language": "flow"
+}
+==================================== OUTPUT ===================================
+import JSResource from 'JSResource';
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "client3DResolversEnabledClient3DFragment_clientSideQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Persona",
+            "kind": "LinkedField",
+            "name": "persona",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "basicUser",
+                "plural": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "client3DResolversEnabledClient3DFragment_clientSideQuery",
+                        "fragmentName": "client3DResolversEnabledClient3DFragment_ClientUserFragment",
+                        "fragmentPropName": "ClientUserFragment",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => JSResource('m#ClientUser.react')
+                      }
+                    ],
+                    "type": "ClientUser",
+                    "abstractKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "client3DResolversEnabledClient3DFragment_clientSideQuery",
+                        "fragmentName": "client3DResolversEnabledClient3DFragment_SpecialUserFragment",
+                        "fragmentPropName": "SpecialUserFragment",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => JSResource('m#SpecialUser.react')
+                      }
+                    ],
+                    "type": "SpecialUser",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "client3DResolversEnabledClient3DFragment_clientSideQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Persona",
+            "kind": "LinkedField",
+            "name": "persona",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "basicUser",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "ClientUser",
+                    "abstractKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "SpecialUser",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "b43f5f3ae3be82c4958db2536519ae57",
+    "id": null,
+    "metadata": {},
+    "name": "client3DResolversEnabledClient3DFragment_clientSideQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientUser____relay_model_instance",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "fragment": {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "ClientUser__id"
+      },
+      "kind": "RelayResolver",
+      "name": "__relay_model_instance",
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ClientUser__id.graphql'), require('./../ClientUserResolver'), 'id', true),
+      "path": "__relay_model_instance"
+    }
+  ],
+  "type": "ClientUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientUser__id",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "SpecialUser____relay_model_instance",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "fragment": {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "SpecialUser__id"
+      },
+      "kind": "RelayResolver",
+      "name": "__relay_model_instance",
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./SpecialUser__id.graphql'), require('./../SpecialUserResolver'), 'id', true),
+      "path": "__relay_model_instance"
+    }
+  ],
+  "type": "SpecialUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "SpecialUser__id",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "SpecialUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "client3DResolversEnabledClient3DFragment_ClientUserFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "data",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "client3DResolversEnabledClient3DFragment_SpecialUserFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "data",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "SpecialUser",
+  "abstractKey": null
+}

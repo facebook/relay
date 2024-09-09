@@ -82,9 +82,7 @@ describe('ReactRelayFragmentContainer', () => {
   }
 
   beforeEach(() => {
-    jest.mock('scheduler', () => {
-      return jest.requireActual('scheduler/unstable_mock');
-    });
+    jest.mock('scheduler', () => require('./mockScheduler'));
     environment = createMockEnvironment();
     UserQuery = graphql`
       query ReactRelayFragmentContainerTestUserQuery($id: ID!) {
@@ -119,7 +117,10 @@ describe('ReactRelayFragmentContainer', () => {
       user: UserFragment,
     };
 
-    TestComponent = render;
+    TestComponent = ({ref, ...props}) => {
+      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
+      return render(props);
+    };
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayFragmentContainer.createContainer(
       TestComponent,
@@ -198,10 +199,12 @@ describe('ReactRelayFragmentContainer', () => {
     expectToWarn(
       'createFragmentSpecResolver: Expected prop `user` to be supplied to `Relay(TestComponent)`, but got `undefined`. Pass an explicit `null` if this is intentional.',
       () => {
-        ReactTestRenderer.create(
-          <ContextSetter environment={environment}>
-            <TestContainer bar={1} foo="foo" />
-          </ContextSetter>,
+        ReactTestRenderer.act(() =>
+          ReactTestRenderer.create(
+            <ContextSetter environment={environment}>
+              <TestContainer bar={1} foo="foo" />
+            </ContextSetter>,
+          ),
         );
       },
     );
@@ -219,10 +222,12 @@ describe('ReactRelayFragmentContainer', () => {
   });
 
   it('passes through null props', () => {
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={null} />
-      </ContextSetter>,
+    ReactTestRenderer.act(() =>
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={null} />
+        </ContextSetter>,
+      ),
     );
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -240,10 +245,12 @@ describe('ReactRelayFragmentContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    ReactTestRenderer.act(() =>
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      ),
     );
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -264,6 +271,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Zuck',
       },
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -282,27 +290,31 @@ describe('ReactRelayFragmentContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    ReactTestRenderer.act(() =>
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      ),
     );
     const callback = environment.subscribe.mock.calls[0][1];
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    callback({
-      dataID: '4',
-      node: UserFragment,
-      variables: {cond: true},
-      data: {
-        id: '4',
-        name: 'Mark', // !== 'Zuck'
-      },
-      seenRecords: {},
-      relayResolverErrors: [],
-    });
+    ReactTestRenderer.act(() =>
+      callback({
+        dataID: '4',
+        node: UserFragment,
+        variables: {cond: true},
+        data: {
+          id: '4',
+          name: 'Mark', // !== 'Zuck'
+        },
+        seenRecords: {},
+        relayResolverErrors: [],
+      }),
+    );
 
     // No need to resolve props or resubscribe
     expect(environment.lookup).not.toBeCalled();
@@ -323,19 +335,25 @@ describe('ReactRelayFragmentContainer', () => {
   it('resolves new props', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
     userPointer = environment.lookup(ownerUser2.fragment, ownerUser2).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        user: userPointer,
+      }),
+    );
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -357,6 +375,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -373,10 +392,14 @@ describe('ReactRelayFragmentContainer', () => {
   it('resolves new props when ids dont change', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     render.mockClear();
     environment.lookup.mockClear();
@@ -386,9 +409,11 @@ describe('ReactRelayFragmentContainer', () => {
       ownerUser1WithCondVar.fragment,
       ownerUser1WithCondVar,
     ).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        user: userPointer,
+      }),
+    );
 
     // New data & variables are passed to component
     expect(render.mock.calls.length).toBe(1);
@@ -410,6 +435,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -426,18 +452,24 @@ describe('ReactRelayFragmentContainer', () => {
   it('does not update for same props/data', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setProps({
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        user: userPointer,
+      }),
+    );
 
     expect(render).not.toBeCalled();
     expect(environment.lookup).not.toBeCalled();
@@ -449,21 +481,32 @@ describe('ReactRelayFragmentContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer
+              fn={fn}
+              nil={null}
+              scalar={scalar}
+              user={userPointer}
+            />
+          </ContextSetter>,
+        )),
     );
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setProps({
-      fn,
-      nil: null,
-      scalar,
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        fn,
+        nil: null,
+        scalar,
+        user: userPointer,
+      }),
+    );
 
     expect(render).not.toBeCalled();
     expect(environment.lookup).not.toBeCalled();
@@ -475,10 +518,14 @@ describe('ReactRelayFragmentContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
@@ -486,11 +533,14 @@ describe('ReactRelayFragmentContainer', () => {
     environment.subscribe.mockClear();
 
     const nextFn = () => null;
-    instance.getInstance().setProps({
-      fn: nextFn,
-      scalar,
-      user: userPointer,
-    });
+
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        fn: nextFn,
+        scalar,
+        user: userPointer,
+      }),
+    );
 
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -506,21 +556,27 @@ describe('ReactRelayFragmentContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setProps({
-      fn,
-      scalar: 43,
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        fn,
+        scalar: 43,
+        user: userPointer,
+      }),
+    );
 
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -534,10 +590,14 @@ describe('ReactRelayFragmentContainer', () => {
   it('always updates for non-scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer arr={[]} obj={{}} user={userPointer} />
-      </ContextSetter>,
+    let instance;
+    ReactTestRenderer.act(
+      () =>
+        (instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer arr={[]} obj={{}} user={userPointer} />
+          </ContextSetter>,
+        )),
     );
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
@@ -546,11 +606,13 @@ describe('ReactRelayFragmentContainer', () => {
 
     const nextArr = [];
     const nextObj = {};
-    instance.getInstance().setProps({
-      arr: nextArr,
-      obj: nextObj,
-      user: userPointer,
-    });
+    ReactTestRenderer.act(() =>
+      instance.getInstance().setProps({
+        arr: nextArr,
+        obj: nextObj,
+        user: userPointer,
+      }),
+    );
 
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual(initialProps);
@@ -596,18 +658,20 @@ describe('ReactRelayFragmentContainer', () => {
     let containerRef;
     let componentRef;
 
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment} variables={{}}>
-        <TestNoProxyContainer
-          user={null}
-          ref={ref => {
-            containerRef = ref;
-          }}
-          componentRef={ref => {
-            componentRef = ref;
-          }}
-        />
-      </ContextSetter>,
+    ReactTestRenderer.act(() =>
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment} variables={{}}>
+          <TestNoProxyContainer
+            user={null}
+            ref={ref => {
+              containerRef = ref;
+            }}
+            componentRef={ref => {
+              componentRef = ref;
+            }}
+          />
+        </ContextSetter>,
+      ),
     );
 
     expect(componentRef.instanceMethod('foo')).toEqual('foofoo');
@@ -631,8 +695,12 @@ describe('ReactRelayFragmentContainer', () => {
 
     const UnwrappedComponent = unwrapContainer(TestUnwrappingContainer);
 
-    const renderer = ReactTestRenderer.create(
-      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+    let renderer;
+    ReactTestRenderer.act(
+      () =>
+        (renderer = ReactTestRenderer.create(
+          <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+        )),
     );
 
     expect(renderer.toJSON()).toMatchSnapshot();
@@ -640,7 +708,7 @@ describe('ReactRelayFragmentContainer', () => {
 
   describe('concurrent mode', () => {
     function assertYieldsWereCleared(_scheduler) {
-      const actualYields = _scheduler.unstable_clearYields();
+      const actualYields = _scheduler.unstable_clearLog();
       if (actualYields.length !== 0) {
         throw new Error(
           'Log of yielded values is not empty. ' +
@@ -653,7 +721,7 @@ describe('ReactRelayFragmentContainer', () => {
       const Scheduler = require('scheduler');
       assertYieldsWereCleared(Scheduler);
       Scheduler.unstable_flushAllWithoutAsserting();
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields).toEqual(expectedYields);
     }
 
@@ -661,14 +729,14 @@ describe('ReactRelayFragmentContainer', () => {
       const Scheduler = require('scheduler');
       assertYieldsWereCleared(Scheduler);
       Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields).toEqual(expectedYields);
     }
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
       const YieldChild = props => {
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}) => {
@@ -701,11 +769,14 @@ describe('ReactRelayFragmentContainer', () => {
           // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {
             unstable_isConcurrent: true,
-            unstable_concurrentUpdatesByDefault: true,
           },
         );
         // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Zuck']);
+        expectSchedulerToFlushAndYieldThrough([
+          'Hey user,',
+          'Zuck',
+          ['with id ', '4', '!'],
+        ]);
 
         // In Concurrent mode component gets rendered even if not committed
         // so we reset our mock here
@@ -723,7 +794,6 @@ describe('ReactRelayFragmentContainer', () => {
 
         // Assert the component renders the updated data
         expectSchedulerToFlushAndYield([
-          ['with id ', '4', '!'],
           'Hey user,',
           'Zuck mid-render update',
           ['with id ', '4', '!'],

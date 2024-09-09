@@ -8,26 +8,35 @@
 
 /**
  * @RelayResolver ClientUser
-*/
+ */
 ==================================== OUTPUT ===================================
-StrongObjectResolver(
-    StrongObjectIr {
-        type_: PopulatedIrField {
-            key_location: /path/to/test/fixture/relay-resolver-strong-object.js:6:19,
-            value: WithLocation {
-                location: /path/to/test/fixture/relay-resolver-strong-object.js:20:30,
-                item: "ClientUser",
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 20:30,
+                token: Token {
+                    span: 20:30,
+                    kind: Identifier,
+                },
+                value: "ClientUser",
             },
-        },
-        root_fragment: WithLocation {
-            location: <generated>:0:0,
-            item: FragmentDefinitionName(
-                "ClientUser__id",
+            rhs_location: /path/to/test/fixture/relay-resolver-strong-object.js:20:30,
+            root_fragment: WithLocation {
+                location: <generated>:0:0,
+                item: FragmentDefinitionName(
+                    "ClientUser__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: /path/to/test/fixture/relay-resolver-strong-object.js:0:31,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "b1c8ae1937aed7425f5a87a4762ad83d",
             ),
         },
-        description: None,
-        deprecated: None,
-        live: None,
-        location: /path/to/test/fixture/relay-resolver-strong-object.js:0:30,
-    },
+    ),
 )

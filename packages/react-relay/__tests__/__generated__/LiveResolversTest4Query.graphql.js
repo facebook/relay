@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<68b5ecdb85b95668183936789164933a>>
+ * @generated SignedSource<<92a23a8a19aaccfe9a40069c40ae5dd1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,17 +18,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { LivePingPongResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LivePingPongResolver.graphql";
 import {ping as queryPingResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryPingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryPingResolverType: (
   rootKey: LivePingPongResolver$key,
-) => LiveState<mixed>);
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?string>);
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|
-  +ping: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryPingResolverType>["read"]>,
+  +ping: ?string,
 |};
 export type LiveResolversTest4Query = {|
   response: LiveResolversTest4Query$data,
@@ -108,7 +111,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       }
     ]
   },

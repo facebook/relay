@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver ClientUser implements Node
+ */
+==================================== ERROR ====================================
+✖︎ The interface `Node` is not defined in a client schema extension. Resolver types that implement interfaces can only implement client-defined interfaces.
+
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-server-interface.invalid.js:2:19
+    1 │ *
+    2 │  * @RelayResolver ClientUser implements Node
+      │                   ^^^^^^^^^^
+    3 │

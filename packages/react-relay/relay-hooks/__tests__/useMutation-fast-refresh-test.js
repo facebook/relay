@@ -42,7 +42,7 @@ describe('useLazyLoadQueryNode', () => {
 
   const variables = {
     input: {
-      commentId: '<id>',
+      feedbackId: '<id>',
     },
   };
   beforeEach(() => {
@@ -77,25 +77,26 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   it('force a refetch in fast refresh', () => {
+    // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;
     const V1 = function (props: {}) {
-      const [commitFn, isMutationInFlight] = useMutation<any>(
-        CommentCreateMutation,
-      );
+      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     };
     ReactRefreshRuntime.register(V1, 'Renderer');
 
-    ReactTestRenderer.create(
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="Fallback">
-          <V1 />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Fallback">
+            <V1 />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+      );
+    });
     expect(isInFlightFn).toBeCalledTimes(1);
     expect(isInFlightFn).toBeCalledWith(false);
 
@@ -117,9 +118,7 @@ describe('useLazyLoadQueryNode', () => {
 
     // Trigger a fast fresh
     function V2(props: any) {
-      const [commitFn, isMutationInFlight] = useMutation<any>(
-        CommentCreateMutation,
-      );
+      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     }

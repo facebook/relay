@@ -45,7 +45,6 @@ const RelayModernRecord = require('./RelayModernRecord');
 const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayReader = require('./RelayReader');
 const RelayReferenceMarker = require('./RelayReferenceMarker');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
@@ -219,6 +218,7 @@ class RelayModernStore implements Store {
       this._operationLoader,
       this._getDataID,
       this._shouldProcessClientComponents,
+      this.__log,
     );
 
     return getAvailabilityStatus(
@@ -265,6 +265,7 @@ class RelayModernStore implements Store {
           // buffer have a refCount of 0.
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
+            // $FlowFixMe[incompatible-call]
             this._roots.delete(_id);
             this.scheduleGC();
           }
@@ -296,10 +297,23 @@ class RelayModernStore implements Store {
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {
+    const log = this.__log;
+    if (log != null) {
+      log({
+        name: 'store.lookup.start',
+        selector,
+      });
+    }
     const source = this.getSource();
     const snapshot = RelayReader.read(source, selector, this._resolverCache);
     if (__DEV__) {
       deepFreeze(snapshot);
+    }
+    if (log != null) {
+      log({
+        name: 'store.lookup.end',
+        selector,
+      });
     }
     return snapshot;
   }
@@ -346,17 +360,6 @@ class RelayModernStore implements Store {
         invalidateStore === true,
       );
     });
-    if (log != null) {
-      log({
-        name: 'store.notify.complete',
-        sourceOperation,
-        updatedRecordIDs: this._updatedRecordIDs,
-        invalidatedRecordIDs: this._invalidatedRecordIDs,
-      });
-    }
-
-    this._updatedRecordIDs.clear();
-    this._invalidatedRecordIDs.clear();
 
     // If a source operation was provided (indicating the operation
     // that produced this update to the store), record the current epoch
@@ -389,6 +392,20 @@ class RelayModernStore implements Store {
         this._roots.set(id, temporaryRootEntry);
       }
     }
+
+    if (log != null) {
+      log({
+        name: 'store.notify.complete',
+        sourceOperation,
+        updatedRecordIDs: this._updatedRecordIDs,
+        invalidatedRecordIDs: this._invalidatedRecordIDs,
+        subscriptionsSize: this._storeSubscriptions.size(),
+        updatedOwners,
+      });
+    }
+
+    this._updatedRecordIDs.clear();
+    this._invalidatedRecordIDs.clear();
 
     return updatedOwners;
   }
@@ -600,7 +617,13 @@ class RelayModernStore implements Store {
 
   *_collect(): Generator<void, void, void> {
     /* eslint-disable no-labels */
+    const log = this.__log;
     top: while (true) {
+      if (log != null) {
+        log({
+          name: 'store.gc.start',
+        });
+      }
       const startEpoch = this._currentWriteEpoch;
       const references = new Set<DataID>();
 
@@ -619,16 +642,13 @@ class RelayModernStore implements Store {
 
         // If the store was updated, restart
         if (startEpoch !== this._currentWriteEpoch) {
+          if (log != null) {
+            log({
+              name: 'store.gc.interrupted',
+            });
+          }
           continue top;
         }
-      }
-
-      const log = this.__log;
-      if (log != null) {
-        log({
-          name: 'store.gc',
-          references,
-        });
       }
 
       // Sweep records without references
@@ -644,6 +664,12 @@ class RelayModernStore implements Store {
             this._recordSource.remove(dataID);
           }
         }
+      }
+      if (log != null) {
+        log({
+          name: 'store.gc.end',
+          references,
+        });
       }
       return;
     }
@@ -729,15 +755,7 @@ function updateTargetFromSource(
       }
     }
     if (sourceRecord && targetRecord) {
-      // ReactFlightClientResponses are lazy and only materialize when readRoot
-      // is called when we read the field, so if the record is a Flight field
-      // we always use the new record's data regardless of whether
-      // it actually changed. Let React take care of reconciliation instead.
-      const nextRecord =
-        RelayModernRecord.getType(targetRecord) ===
-        RelayStoreReactFlightUtils.REACT_FLIGHT_TYPE_NAME
-          ? sourceRecord
-          : RelayModernRecord.update(targetRecord, sourceRecord);
+      const nextRecord = RelayModernRecord.update(targetRecord, sourceRecord);
       if (nextRecord !== targetRecord) {
         // Prevent mutation of a record from outside the store.
         if (__DEV__) {

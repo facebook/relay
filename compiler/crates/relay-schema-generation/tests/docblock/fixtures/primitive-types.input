@@ -1,0 +1,47 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function ages(cat: CatFlowType): ?number {
+  return 2;
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function hungry1(cat: CatFlowType): ?boolean {
+  return false;
+}
+
+/**
+ * @RelayResolver
+ */
+export function hungry2(cat: CatFlowType): ?false {
+  return false;
+}
+
+/**
+ * @RelayResolver
+ */
+export function hungry3(cat: CatFlowType): ?true {
+  return false;
+}

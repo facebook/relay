@@ -11,29 +11,35 @@
 
 'use strict';
 
+import type {MockResolvers} from '../RelayMockPayloadGenerator';
+import type {RelayMockEnvironmentTestWithDeferFragment_user$key} from './__generated__/RelayMockEnvironmentTestWithDeferFragment_user.graphql';
+
 const preloadQuery = require('../../react-relay/relay-hooks/preloadQuery_DEPRECATED');
 const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnvironmentProvider');
+const useFragment = require('../../react-relay/relay-hooks/useFragment');
+const useLazyLoadQuery = require('../../react-relay/relay-hooks/useLazyLoadQuery');
 const usePreloadedQuery = require('../../react-relay/relay-hooks/usePreloadedQuery');
+const invariant = require('invariant');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
+const {act} = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
 const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
 
-const query = graphql`
-  query RelayMockEnvironmentTestQuery($id: ID!) {
-    node(id: $id) {
-      id
-      ... on User {
-        name
+describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
+  const query = graphql`
+    query RelayMockEnvironmentTestQuery($id: ID!) {
+      node(id: $id) {
+        id
+        ... on User {
+          name
+        }
       }
     }
-  }
-`;
-
-describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
+  `;
   let prefetched;
   let mockEnvironment;
 
@@ -69,13 +75,22 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
       data = usePreloadedQuery(query, props.prefetched);
       return data.node?.name;
     }
-    const renderer = TestRenderer.create(
-      <RelayEnvironmentProvider environment={mockEnvironment}>
-        <React.Suspense fallback="Fallback">
-          <Component prefetched={prefetched} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <RelayEnvironmentProvider environment={mockEnvironment}>
+          <React.Suspense fallback="Fallback">
+            <Component prefetched={prefetched} />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+        // $FlowFixMe[prop-missing]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
+    invariant(renderer != null, 'should have been rendered');
+
     if (condition === SUSPENDED) {
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBeUndefined();
@@ -128,5 +143,98 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
       callRegisterOperation();
       renderAndAssert(SUSPENDED);
     });
+  });
+});
+
+describe('when generating multiple payloads for deferred data', () => {
+  const query = graphql`
+    query RelayMockEnvironmentTestWithDeferQuery($id: ID!) {
+      node(id: $id) {
+        id
+        ... on User {
+          ...RelayMockEnvironmentTestWithDeferFragment_user @defer
+        }
+      }
+    }
+  `;
+
+  const fragment = graphql`
+    fragment RelayMockEnvironmentTestWithDeferFragment_user on User {
+      name
+    }
+  `;
+
+  const render = () => {
+    const mockEnvironment = createMockEnvironment();
+    const variables = {id: '4'};
+
+    function Component(props: {}) {
+      const data = useLazyLoadQuery(query, variables);
+      return (
+        <>
+          {data.node?.id}
+          {data.node && <DeferredComponent user={data.node} />}
+        </>
+      );
+    }
+    function DeferredComponent(props: {
+      user: RelayMockEnvironmentTestWithDeferFragment_user$key,
+    }) {
+      const data = useFragment(fragment, props.user);
+      return data?.name;
+    }
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <RelayEnvironmentProvider environment={mockEnvironment}>
+          <React.Suspense fallback="Fallback">
+            <Component />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+        // $FlowFixMe[prop-missing]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
+    invariant(renderer != null, 'should have been rendered');
+
+    const isSuspended = () => renderer.toJSON() === 'Fallback';
+
+    const generateData = (resolvers: MockResolvers) => {
+      const operation = mockEnvironment.mock.getMostRecentOperation();
+      const mockData = MockPayloadGenerator.generateWithDefer(
+        operation,
+        resolvers,
+        {generateDeferredPayload: true},
+      );
+      mockEnvironment.mock.resolve(operation, mockData);
+
+      act(() => jest.runAllTimers());
+    };
+
+    return {
+      generateData,
+      renderer,
+      isSuspended,
+    };
+  };
+
+  it('renders the initial and deferred payloads', () => {
+    const {renderer, isSuspended, generateData} = render();
+
+    expect(isSuspended()).toEqual(true);
+
+    generateData({
+      ID() {
+        return '4';
+      },
+      String() {
+        return 'Zuck';
+      },
+    });
+
+    expect(isSuspended()).toEqual(false);
+    expect(renderer.toJSON()).toEqual(['4', 'Zuck']);
   });
 });

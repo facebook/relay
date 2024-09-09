@@ -12,9 +12,7 @@
 'use strict';
 
 /**
- * @RelayResolver
- * @fieldName hello(world: String!)
- * @onType Query
+ * @RelayResolver Query.hello(world: String!): String
  *
  * Say `Hello ${world}!`
  */

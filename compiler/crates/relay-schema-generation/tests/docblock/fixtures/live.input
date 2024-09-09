@@ -1,0 +1,30 @@
+//- module.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import type CatFlowType from 'Cat';
+import type { LiveState } from 'relay-runtime';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function mood(cat: CatFlowType): LiveState<?string> {
+  return {
+    read: () => store.getState().counter,
+    subscribe: (cb) => {
+      return store.subscribe(cb);
+    },
+  };
+}

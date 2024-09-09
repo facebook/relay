@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+fragment MyFragment on User {
+  address @catch(to: RESULT) {
+    street
+  }
+}
+==================================== OUTPUT ===================================
+fragment MyFragment on User {
+  address @catch(to: RESULT) @__CatchMetadataDirective
+  # CatchMetadataDirective {
+  #     to: Result,
+  #     path: "address",
+  # }
+   {
+    street
+  }
+}

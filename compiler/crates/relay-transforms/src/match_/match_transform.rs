@@ -5,10 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::sync::Arc;
 
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use ::intern::Lookup;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -17,6 +21,7 @@ use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use graphql_ir::associated_data_impl;
@@ -41,31 +46,39 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use indexmap::IndexSet;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::Lookup;
+use relay_config::DeferStreamInterface;
 use relay_config::ModuleImportConfig;
+use relay_config::Surface;
 use schema::FieldID;
+use schema::InterfaceID;
 use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::UnionID;
 
 use super::validation_message::ValidationMessage;
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
+use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
 use crate::no_inline::validate_required_no_inline_directive;
 use crate::util::get_normalization_operation_name;
+use crate::FragmentAliasMetadata;
+use crate::INLINE_DIRECTIVE_NAME;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
     program: &Program,
     feature_flags: &FeatureFlags,
     module_import_config: ModuleImportConfig,
+    defer_stream_interface: DeferStreamInterface,
 ) -> DiagnosticsResult<Program> {
-    let mut transformer = MatchTransform::new(program, feature_flags, module_import_config);
+    let mut transformer = MatchTransform::new(
+        program,
+        feature_flags,
+        module_import_config,
+        defer_stream_interface,
+    );
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
         Ok(next_program.replace_or_else(|| program.clone()))
@@ -107,12 +120,18 @@ pub struct MatchTransform<'program, 'flag> {
     match_directive_key_argument: Option<StringKey>,
     errors: Vec<Diagnostic>,
     path: Vec<Path>,
+    alias_path: Vec<StringKey>,
     matches_for_path: MatchesForPath,
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
     no_inline_fragments: FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     module_import_config: ModuleImportConfig,
+    defer_stream_interface: DeferStreamInterface,
+    // Cache interface IDs of parent interfaces of @module fragments that have Relay Resolver models.
+    relay_resolver_model_interfaces: HashSet<InterfaceID>,
+    // Cache union IDs of parent unions of @module fragments that have Relay Resolver models.
+    relay_resolver_model_unions: HashSet<UnionID>,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
@@ -120,6 +139,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         program: &'program Program,
         feature_flags: &'flag FeatureFlags,
         module_import_config: ModuleImportConfig,
+        defer_stream_interface: DeferStreamInterface,
     ) -> Self {
         Self {
             program,
@@ -131,11 +151,15 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             match_directive_key_argument: None,
             errors: Vec::new(),
             path: Default::default(),
+            alias_path: Default::default(),
             matches_for_path: Default::default(),
             enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
             no_inline_flag: &feature_flags.no_inline,
             no_inline_fragments: Default::default(),
             module_import_config,
+            defer_stream_interface,
+            relay_resolver_model_interfaces: HashSet::new(),
+            relay_resolver_model_unions: HashSet::new(),
         }
     }
 
@@ -150,6 +174,17 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 selection_location,
             )
             .annotate("in @match directive", match_location),
+        )
+    }
+
+    fn push_alias_within_match_selection_err(
+        &mut self,
+        match_location: Location,
+        alias_location: Location,
+    ) {
+        self.errors.push(
+            Diagnostic::error(ValidationMessage::InvalidAliasWithinMatch, alias_location)
+                .annotate("in @match directive", match_location),
         )
     }
 
@@ -312,24 +347,35 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 ));
             }
 
-            // no other directives are allowed
-            if spread.directives.len() != 1
-                && !(spread.directives.len() == 2
-                    && spread
-                        .directives
-                        .named(DEFER_STREAM_CONSTANTS.defer_name)
-                        .is_some())
-            {
+            let invalid_directive = spread.directives.iter().find(|directive| {
                 // allow @defer and @module in typegen transforms
+                // allow @alias in the common transform, it will be moved to its
+                // own parent inline fragment in a later transform.
+                directive.name.item != MATCH_CONSTANTS.module_directive_name
+                    && directive.name.item != self.defer_stream_interface.defer_name
+                    && directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME
+            });
+
+            // no other directives are allowed
+            if let Some(invalid_directive) = invalid_directive {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithAdditionalDirectives {
                         spread_name: spread.fragment.item,
                     },
-                    spread.directives[1].name.location,
+                    invalid_directive.name.location,
                 ));
             }
 
-            let needs_js_fields = self.module_import_config.dynamic_module_provider.is_none();
+            let uses_read_time_resolvers =
+                if let Some(Surface::Resolvers) = self.module_import_config.surface {
+                    has_relay_resolver_model(self, spread)
+                } else {
+                    Ok(false)
+                }?;
+            let needs_js_fields = self.module_import_config.dynamic_module_provider.is_none()
+                || (self.module_import_config.surface == Some(Surface::Resolvers)
+                    && !uses_read_time_resolvers);
+
             if needs_js_fields {
                 self.validate_js_module_type(spread.fragment.location)?;
             }
@@ -354,9 +400,20 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             let parent_name = self.path.last();
             // self.match_directive_key_argument is the value passed to @match(key: "...") that we
             // most recently encountered while traversing the operation, or the document name
-            let match_directive_key_argument = self
+            let mut match_directive_key_argument = self
                 .match_directive_key_argument
                 .unwrap_or_else(|| self.document_name.into());
+
+            if !self.alias_path.is_empty() {
+                let alias_path_str = self
+                    .alias_path
+                    .iter()
+                    .map(|alias| alias.lookup())
+                    .collect::<Vec<&str>>()
+                    .join("_");
+                match_directive_key_argument =
+                    format!("{}_{}", match_directive_key_argument, alias_path_str).intern();
+            }
 
             // If this is the first time we are encountering @module at this path, also ensure
             // that we have not previously encountered another @module associated with the same
@@ -476,7 +533,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)
-                    .or_insert_with(std::vec::Vec::new)
+                    .or_default()
                     .push(self.document_name);
             }
 
@@ -507,6 +564,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                 module_name: module_directive_name_argument,
                                 source_document_name: self.document_name,
                                 fragment_name: spread.fragment.item,
+                                read_time_resolvers: uses_read_time_resolvers,
                                 fragment_source_location: self
                                     .program
                                     .fragment(spread.fragment.item)
@@ -608,10 +666,15 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         // Validate and keep track of the module key
         let field_definition = self.program.schema.field(field.definition.item);
         let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
-        if let Some(arg) = key_arg {
-            let str = arg.value.item.expect_constant().unwrap_string();
 
-            if str.lookup().starts_with(self.document_name.lookup()) {
+        if let Some(arg) = key_arg {
+            let maybe_valid_str = arg
+                .value
+                .item
+                .get_string_literal()
+                .filter(|str| str.lookup().starts_with(self.document_name.lookup()));
+
+            if let Some(str) = maybe_valid_str {
                 self.match_directive_key_argument = Some(str);
             } else {
                 return Err(Diagnostic::error(
@@ -639,6 +702,13 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             .named(MATCH_CONSTANTS.supported_arg);
         match supported_arg_definition {
             None => {
+                // `@match` can be used to add the `supported` argument as a field argument,
+                // but it can also be used to supply a `key` argument for places
+                // where there are multiple selections with `@module` in the same document.
+                //
+                // If the directive does not have a `key` argument, and is not on a field with a
+                // `supported` argument, then it is is not doing anything and is
+                // therefore an error.
                 if key_arg.is_none() {
                     return Err(Diagnostic::error(
                         ValidationMessage::InvalidMatchWithNoSupportedArgument,
@@ -707,16 +777,17 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let mut seen_types = IndexSet::with_hasher(FnvBuildHasher::default());
         for selection in &field.selections {
             match selection {
-                Selection::FragmentSpread(field) => {
-                    let has_directive_with_module = field.directives.iter().any(|directive| {
-                        directive.name.item == MATCH_CONSTANTS.module_directive_name
-                    });
+                Selection::FragmentSpread(spread) => {
+                    let has_directive_with_module = spread
+                        .directives
+                        .named(MATCH_CONSTANTS.module_directive_name)
+                        .is_some();
                     if has_directive_with_module {
-                        let fragment = self.program.fragment(field.fragment.item).unwrap();
+                        let fragment = self.program.fragment(spread.fragment.item).unwrap();
                         seen_types.insert(fragment.type_condition);
                     } else {
                         self.push_fragment_spread_with_module_selection_err(
-                            field.fragment.location,
+                            spread.fragment.location,
                             match_directive.name.location,
                         );
                     }
@@ -734,11 +805,26 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                         field.definition.location,
                         match_directive.name.location,
                     ),
-                // TODO: no location on InlineFragment and Condition yet
-                _ => self.push_fragment_spread_with_module_selection_err(
-                    field.definition.location,
-                    match_directive.name.location,
-                ),
+                Selection::InlineFragment(inline_fragment) => {
+                    if let Some(alias_metadata) =
+                        FragmentAliasMetadata::find(&inline_fragment.directives)
+                    {
+                        self.push_alias_within_match_selection_err(
+                            match_directive.name.location,
+                            alias_metadata.alias.location,
+                        )
+                    } else {
+                        self.push_fragment_spread_with_module_selection_err(
+                            inline_fragment.spread_location,
+                            match_directive.name.location,
+                        )
+                    }
+                }
+                Selection::Condition(condition) => self
+                    .push_fragment_spread_with_module_selection_err(
+                        condition.location,
+                        match_directive.name.location,
+                    ),
             }
         }
         if seen_types.is_empty() {
@@ -832,7 +918,15 @@ impl Transformer for MatchTransform<'_, '_> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        if let Some(type_) = fragment.type_condition {
+        let maybe_alias_metadata = FragmentAliasMetadata::find(&fragment.directives);
+        if let Some(alias_metadata) = maybe_alias_metadata {
+            self.alias_path.push(alias_metadata.alias.item);
+            self.path.push(Path {
+                location: alias_metadata.alias.location,
+                item: alias_metadata.alias.item,
+            });
+        }
+        let transformed = if let Some(type_) = fragment.type_condition {
             let previous_parent_type = self.parent_type;
             self.parent_type = type_;
             let result = self.default_transform_inline_fragment(fragment);
@@ -840,12 +934,19 @@ impl Transformer for MatchTransform<'_, '_> {
             result
         } else {
             self.default_transform_inline_fragment(fragment)
+        };
+        if maybe_alias_metadata.is_some() {
+            self.alias_path.pop();
+            self.path.pop();
         }
+
+        transformed
     }
 
     // Validate `js` field
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
+
         if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
             match self
                 .program
@@ -942,6 +1043,108 @@ fn get_module_directive_name_argument(
     })
 }
 
+fn validate_parent_type_of_fragment_with_read_time_resolver(
+    transform: &mut MatchTransform<'_, '_>,
+    spread: &FragmentSpread,
+) -> Result<bool, Diagnostic> {
+    match transform.parent_type {
+        Type::Interface(id) => {
+            if transform.relay_resolver_model_interfaces.contains(&id) {
+                return Ok(true);
+            }
+            let parent_interface = transform.program.schema.interface(id);
+
+            let all_implementing_objects_have_read_time_resolvers = parent_interface
+                .implementing_objects
+                .iter()
+                .all(|object_id| {
+                    transform
+                        .program
+                        .schema
+                        .object(*object_id)
+                        .directives
+                        .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                        .is_some()
+                });
+
+            if !all_implementing_objects_have_read_time_resolvers {
+                return Err(Diagnostic::error(
+                    ValidationMessage::MissingRelayResolverModelForInterface {
+                        spread_name: spread.fragment.item,
+                        parent_interface: transform.program.schema.interface(id).name.item,
+                    },
+                    spread.fragment.location,
+                ));
+            }
+            transform.relay_resolver_model_interfaces.insert(id);
+        }
+        Type::Union(id) => {
+            if transform.relay_resolver_model_unions.contains(&id) {
+                return Ok(true);
+            }
+            let parent_union = transform.program.schema.union(id);
+
+            let all_union_members_have_read_time_resolvers =
+                parent_union.members.iter().all(|object_id| {
+                    transform
+                        .program
+                        .schema
+                        .object(*object_id)
+                        .directives
+                        .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                        .is_some()
+                });
+
+            if !all_union_members_have_read_time_resolvers {
+                return Err(Diagnostic::error(
+                    ValidationMessage::MissingRelayResolverModelForUnion {
+                        spread_name: spread.fragment.item,
+                        parent_union: transform.program.schema.union(id).name.item,
+                    },
+                    spread.fragment.location,
+                ));
+            }
+            transform.relay_resolver_model_unions.insert(id);
+        }
+        Type::Object(id) => {
+            return Err(Diagnostic::error(
+                ValidationMessage::InvalidModuleOnConcreteParentType {
+                    object_name: transform.program.schema.object(id).name.item,
+                },
+                spread.fragment.location,
+            ));
+        }
+        Type::Enum(_) | Type::Scalar(_) | Type::InputObject(_) => {
+            panic!(
+                "Unexpected parent type {:?} for read time resolver backed fragment {:?}",
+                transform.parent_type, spread.fragment.item
+            )
+        }
+    }
+    Ok(true)
+}
+
+fn has_relay_resolver_model(
+    transform: &mut MatchTransform<'_, '_>,
+    spread: &FragmentSpread,
+) -> Result<bool, Diagnostic> {
+    if let Some(fragment_object) = transform.program.fragment(spread.fragment.item) {
+        if let Type::Object(object_id) = fragment_object.type_condition {
+            if transform
+                .program
+                .schema
+                .object(object_id)
+                .directives
+                .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                .is_some()
+            {
+                return validate_parent_type_of_fragment_with_read_time_resolver(transform, spread);
+            }
+        }
+    }
+    Ok(false)
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ModuleMetadata {
     pub location: Location,
@@ -949,6 +1152,7 @@ pub struct ModuleMetadata {
     pub module_id: StringKey,
     pub module_name: StringKey,
     pub source_document_name: ExecutableDefinitionName,
+    pub read_time_resolvers: bool,
     pub fragment_name: FragmentDefinitionName,
     pub fragment_source_location: Location,
     pub no_inline: bool,

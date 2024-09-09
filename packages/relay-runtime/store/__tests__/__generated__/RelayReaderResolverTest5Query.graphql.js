@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1731250b70734f9fc3bc978ba4db538e>>
+ * @generated SignedSource<<8575f7903ffc9f18712b2845ecd8afca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserShoutedGreetingResolver.graphql";
 import {shouted_greeting as userShoutedGreetingResolverType} from "../resolvers/UserShoutedGreetingResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userShoutedGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userShoutedGreetingResolverType: (
   rootKey: UserShoutedGreetingResolver$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?string);
 export type RelayReaderResolverTest5Query$variables = {||};
 export type RelayReaderResolverTest5Query$data = {|
   +me: ?{|
-    +shouted_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userShoutedGreetingResolverType>,
+    +shouted_greeting: ?string,
   |},
 |};
 export type RelayReaderResolverTest5Query = {|
@@ -111,7 +114,7 @@ var node/*: ConcreteRequest*/ = {
                   },
                   "kind": "RelayResolver",
                   "storageKey": null,
-                  "isOutputType": false
+                  "isOutputType": true
                 }
               ],
               "type": "User",
@@ -119,7 +122,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "alias": null,

@@ -1,0 +1,46 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  poppy: pop_star_name
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: RelayResolverValue @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type Foo_user$data = {
+  readonly poppy: ReturnType<typeof userPopStarNameResolverType> | null | undefined;
+  readonly " $fragmentType": "Foo_user";
+};
+export type Foo_user$key = {
+  readonly " $data"?: Foo_user$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Foo_user">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type PopStarNameResolverFragment_name$data = {
+  readonly address: {
+    readonly street: string | null | undefined;
+  } | null | undefined;
+  readonly name: string | null | undefined;
+  readonly parents: ReadonlyArray<{
+    readonly lastName: string | null | undefined;
+  }>;
+  readonly " $fragmentType": "PopStarNameResolverFragment_name";
+};
+export type PopStarNameResolverFragment_name$key = {
+  readonly " $data"?: PopStarNameResolverFragment_name$data;
+  readonly " $fragmentSpreads": FragmentRefs<"PopStarNameResolverFragment_name">;
+};

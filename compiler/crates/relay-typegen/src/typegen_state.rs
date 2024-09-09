@@ -25,10 +25,10 @@ use crate::writer::ExactObject;
 use crate::writer::Writer;
 use crate::writer::AST;
 use crate::KEY_DATA_ID;
-use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
 use crate::LIVE_RESOLVERS_LIVE_STATE;
 use crate::LOCAL_3D_PAYLOAD;
 use crate::RELAY_RUNTIME;
+use crate::RESULT_TYPE_NAME;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
 /// contains information about whether and how to write import types.
@@ -38,18 +38,15 @@ pub(crate) struct RuntimeImports {
     pub(crate) generic_fragment_type: bool,
     pub(crate) resolver_live_state_type: bool,
     pub(crate) data_id_type: bool,
+    pub(crate) result_type: bool,
 }
 
 impl RuntimeImports {
     pub(crate) fn write_runtime_imports(&self, writer: &mut Box<dyn Writer>) -> FmtResult {
-        if self.resolver_live_state_type {
-            writer.write_import_type(
-                &[LIVE_RESOLVERS_LIVE_STATE],
-                LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH,
-            )?;
-        }
-
         let mut runtime_import_types = vec![];
+        if self.resolver_live_state_type {
+            runtime_import_types.push(LIVE_RESOLVERS_LIVE_STATE);
+        }
         if self.generic_fragment_type {
             runtime_import_types.push(writer.get_runtime_fragment_import())
         }
@@ -58,6 +55,9 @@ impl RuntimeImports {
         }
         if self.data_id_type {
             runtime_import_types.push(KEY_DATA_ID.lookup());
+        }
+        if self.result_type {
+            runtime_import_types.push(RESULT_TYPE_NAME.lookup());
         }
         if !runtime_import_types.is_empty() {
             writer.write_import_type(&runtime_import_types, RELAY_RUNTIME)
@@ -124,8 +124,8 @@ impl FragmentLocations {
         )
     }
 
-    pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<&Location> {
-        self.0.get(fragment_name)
+    pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<Location> {
+        self.0.get(fragment_name).copied()
     }
 }
 
@@ -135,6 +135,13 @@ pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<EncounteredFragment
 pub(crate) struct ImportedResolver {
     pub resolver_name: ImportedResolverName,
     pub resolver_type: AST,
+    pub import_path: StringKey,
+    pub context_import: Option<ResolverContextType>,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) struct ResolverContextType {
+    pub name: StringKey,
     pub import_path: StringKey,
 }
 

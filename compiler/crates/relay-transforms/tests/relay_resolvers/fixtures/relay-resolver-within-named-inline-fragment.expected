@@ -19,21 +19,23 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on Node {
-  ... on User @__FragmentAliasMetadata
+  ... on User @alias(as: "aliased_fragment") @__FragmentAliasMetadata
   # FragmentAliasMetadata {
   #     alias: WithLocation {
-  #         location: relay-resolver-within-named-inline-fragment.graphql:49:51,
+  #         location: relay-resolver-within-named-inline-fragment.graphql:53:71,
   #         item: "aliased_fragment",
   #     },
   #     type_condition: Some(
-  #         Object(69),
+  #         Object(70),
   #     ),
-  #     selection_type: Object(69),
+  #     non_nullable: false,
+  #     selection_type: Object(70),
+  #     wraps_spread: false,
   # }
    {
     ...PopStarNameResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(517),
+    #     field_id: FieldID(526),
     #     import_path: "PopStarNameResolver",
     #     import_name: None,
     #     field_alias: None,

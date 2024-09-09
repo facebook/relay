@@ -88,9 +88,7 @@ describe('ReactRelayRefetchContainer', () => {
     }
   }
   beforeEach(() => {
-    jest.mock('scheduler', () => {
-      return jest.requireActual('scheduler/unstable_mock');
-    });
+    jest.mock('scheduler', () => require('./mockScheduler'));
     environment = createMockEnvironment();
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerTestUserFragment on User
@@ -128,7 +126,10 @@ describe('ReactRelayRefetchContainer', () => {
       return <ContextGetter />;
     });
     variables = {};
-    TestComponent = render;
+    TestComponent = ({ref, ...props}) => {
+      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
+      return render(props);
+    };
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayRefetchContainer.createContainer(
       TestComponent,
@@ -193,11 +194,13 @@ describe('ReactRelayRefetchContainer', () => {
     expectToWarn(
       'createFragmentSpecResolver: Expected prop `user` to be supplied to `Relay(TestComponent)`, but got `undefined`. Pass an explicit `null` if this is intentional.',
       () => {
-        ReactTestRenderer.create(
-          <ContextSetter environment={environment}>
-            <TestContainer bar={1} foo="foo" />
-          </ContextSetter>,
-        );
+        ReactTestRenderer.act(() => {
+          ReactTestRenderer.create(
+            <ContextSetter environment={environment}>
+              <TestContainer bar={1} foo="foo" />
+            </ContextSetter>,
+          );
+        });
       },
     );
     expect(render.mock.calls.length).toBe(1);
@@ -215,11 +218,13 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('passes through null props', () => {
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={null} />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={null} />
+        </ContextSetter>,
+      );
+    });
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -234,23 +239,26 @@ describe('ReactRelayRefetchContainer', () => {
   });
 
   it('passes through context', () => {
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={null} />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={null} />
+        </ContextSetter>,
+      );
+    });
     expect(relayContext.environment).toBe(environment);
   });
 
   it('resolves & subscribes fragment props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -272,6 +280,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -288,27 +297,30 @@ describe('ReactRelayRefetchContainer', () => {
   it('re-renders on subscription callback', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const callback = environment.subscribe.mock.calls[0][1];
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    callback({
-      dataID: '4',
-      node: UserFragment,
-      variables: {cond: true},
-      data: {
-        id: '4',
-        name: 'Mark', // !== 'Zuck'
-      },
-      seenRecords: {},
-      relayResolverErrors: [],
+    ReactTestRenderer.act(() => {
+      callback({
+        dataID: '4',
+        node: UserFragment,
+        variables: {cond: true},
+        data: {
+          id: '4',
+          name: 'Mark', // !== 'Zuck'
+        },
+        seenRecords: {},
+        relayResolverErrors: [],
+      });
     });
 
     // No need to resolve props or resubscribe
@@ -331,18 +343,23 @@ describe('ReactRelayRefetchContainer', () => {
   it('resolves new props', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
     userPointer = environment.lookup(ownerUser2.fragment, ownerUser2).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        user: userPointer,
+      });
     });
 
     // New data & variables are passed to component
@@ -366,6 +383,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -382,11 +400,15 @@ describe('ReactRelayRefetchContainer', () => {
   it('resolves new props when ids dont change', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
@@ -395,8 +417,10 @@ describe('ReactRelayRefetchContainer', () => {
       ownerUser1WithCondVar.fragment,
       ownerUser1WithCondVar,
     ).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        user: userPointer,
+      });
     });
 
     // New data & variables are passed to component
@@ -420,6 +444,7 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -436,11 +461,14 @@ describe('ReactRelayRefetchContainer', () => {
   it('resolves new props when ids dont change even after it has refetched', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
@@ -451,18 +479,22 @@ describe('ReactRelayRefetchContainer', () => {
       id: '4',
     };
     const fetchedVariables = {id: '4'};
-    refetch(refetchVariables, null, jest.fn());
+    ReactTestRenderer.act(() => {
+      refetch(refetchVariables, null, jest.fn());
+    });
     expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(true);
     expectToWarn(
       'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
       () => {
-        environment.mock.resolve(UserQuery, {
-          data: {
-            node: {
-              id: '4',
-              __typename: 'User',
+        ReactTestRenderer.act(() => {
+          environment.mock.resolve(UserQuery, {
+            data: {
+              node: {
+                id: '4',
+                __typename: 'User',
+              },
             },
-          },
+          });
         });
       },
     );
@@ -474,8 +506,10 @@ describe('ReactRelayRefetchContainer', () => {
       ownerUser1WithCondVar.fragment,
       ownerUser1WithCondVar,
     ).data.node;
-    instance.getInstance().setProps({
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        user: userPointer,
+      });
     });
 
     // New data & variables are passed to component
@@ -498,6 +532,7 @@ describe('ReactRelayRefetchContainer', () => {
         // Name is excluded since value of cond is now false
       },
       missingRequiredFields: null,
+      errorResponseFields: null,
       missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
@@ -515,17 +550,22 @@ describe('ReactRelayRefetchContainer', () => {
   it('does not update for same props/data', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setProps({
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        user: userPointer,
+      });
     });
 
     expect(render).not.toBeCalled();
@@ -538,20 +578,30 @@ describe('ReactRelayRefetchContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer
+            fn={fn}
+            nil={null}
+            scalar={scalar}
+            user={userPointer}
+          />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setProps({
-      fn,
-      nil: null,
-      scalar,
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        fn,
+        nil: null,
+        scalar,
+        user: userPointer,
+      });
     });
 
     expect(render).not.toBeCalled();
@@ -564,21 +614,26 @@ describe('ReactRelayRefetchContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
     const nextFn = () => null;
-    instance.getInstance().setProps({
-      fn: nextFn,
-      scalar,
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        fn: nextFn,
+        scalar,
+        user: userPointer,
+      });
     });
 
     expect(render.mock.calls.length).toBe(1);
@@ -595,20 +650,25 @@ describe('ReactRelayRefetchContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    instance.getInstance().setProps({
-      fn,
-      scalar: 43,
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        fn,
+        scalar: 43,
+        user: userPointer,
+      });
     });
 
     expect(render.mock.calls.length).toBe(1);
@@ -623,11 +683,14 @@ describe('ReactRelayRefetchContainer', () => {
   it('always updates for non-scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer arr={[]} obj={{}} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer arr={[]} obj={{}} user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
     environment.lookup.mockClear();
@@ -635,10 +698,12 @@ describe('ReactRelayRefetchContainer', () => {
 
     const nextArr = [];
     const nextObj = {};
-    instance.getInstance().setProps({
-      arr: nextArr,
-      obj: nextObj,
-      user: userPointer,
+    ReactTestRenderer.act(() => {
+      instance.getInstance().setProps({
+        arr: nextArr,
+        obj: nextObj,
+        user: userPointer,
+      });
     });
 
     expect(render.mock.calls.length).toBe(1);
@@ -664,11 +729,13 @@ describe('ReactRelayRefetchContainer', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
     });
 
     it('fetches the new variables', () => {
@@ -677,20 +744,24 @@ describe('ReactRelayRefetchContainer', () => {
         id: '4',
       };
       const fetchedVariables = {id: '4'};
-      refetch(refetchVariables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(refetchVariables, null, jest.fn());
+      });
       expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
         true,
       );
       expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
         () => {
-          environment.mock.resolve(UserQuery, {
-            data: {
-              node: {
-                id: '4',
-                __typename: 'User',
+          ReactTestRenderer.act(() => {
+            environment.mock.resolve(UserQuery, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
               },
-            },
+            });
           });
         },
       );
@@ -705,7 +776,9 @@ describe('ReactRelayRefetchContainer', () => {
       const refetchOptions = {
         fetchPolicy: 'store-or-network',
       };
-      refetch(refetchVariables, null, jest.fn(), refetchOptions);
+      ReactTestRenderer.act(() => {
+        refetch(refetchVariables, null, jest.fn(), refetchOptions);
+      });
       expect(render.mock.calls.length).toBe(2);
       expect(environment.mock.isLoading(UserQuery, refetchVariables)).toBe(
         false,
@@ -720,17 +793,21 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, callback);
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, callback);
+      });
       expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
         () => {
-          environment.mock.resolve(UserQuery, {
-            data: {
-              node: {
-                id: '4',
-                __typename: 'User',
+          ReactTestRenderer.act(() => {
+            environment.mock.resolve(UserQuery, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
               },
-            },
+            });
           });
         },
       );
@@ -748,13 +825,15 @@ describe('ReactRelayRefetchContainer', () => {
       expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
         () => {
-          environment.mock.nextValue(UserQuery, {
-            data: {
-              node: {
-                id: '4',
-                __typename: 'User',
+          ReactTestRenderer.act(() => {
+            environment.mock.nextValue(UserQuery, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
               },
-            },
+            });
           });
         },
       );
@@ -764,13 +843,15 @@ describe('ReactRelayRefetchContainer', () => {
       expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
         () => {
-          environment.mock.nextValue(UserQuery, {
-            data: {
-              node: {
-                id: '4',
-                __typename: 'User',
+          ReactTestRenderer.act(() => {
+            environment.mock.nextValue(UserQuery, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
               },
-            },
+            });
           });
         },
       );
@@ -788,7 +869,9 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, callback);
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, callback);
+      });
       const error = new Error('oops');
       environment.mock.reject(UserQuery, error);
       expect(callback.mock.calls.length).toBe(1);
@@ -811,7 +894,9 @@ describe('ReactRelayRefetchContainer', () => {
         },
       });
       const callback = jest.fn();
-      refetch(refetchVariables, null, callback);
+      ReactTestRenderer.act(() => {
+        refetch(refetchVariables, null, callback);
+      });
       expect(callback).toHaveBeenCalled();
     });
 
@@ -830,7 +915,9 @@ describe('ReactRelayRefetchContainer', () => {
           },
         },
       });
-      refetch(refetchVariables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(refetchVariables, null, jest.fn());
+      });
       expect(environment.mock.isLoading(UserQuery, fetchedVariables)).toBe(
         false,
       );
@@ -844,16 +931,20 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, jest.fn());
+      });
       expect(render.mock.calls.length).toBe(1);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            name: 'Zuck',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              name: 'Zuck',
+            },
           },
-        },
+        });
       });
       expect(render.mock.calls.length).toBe(2);
       expect(render.mock.calls[1][0].user.name).toBe(undefined);
@@ -867,9 +958,13 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, jest.fn());
+      });
       expect(render.mock.calls.length).toBe(1);
-      environment.mock.reject(UserQuery, new Error('oops'));
+      ReactTestRenderer.act(() => {
+        environment.mock.reject(UserQuery, new Error('oops'));
+      });
       expect(render.mock.calls.length).toBe(1);
     });
 
@@ -878,11 +973,15 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, jest.fn());
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
-      instance.getInstance().setProps({user: userPointer});
+      ReactTestRenderer.act(() => {
+        instance.getInstance().setProps({user: userPointer});
+      });
       expect(subscription.closed).toBe(false);
     });
 
@@ -891,11 +990,15 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, jest.fn());
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
         .data.node;
-      instance.getInstance().setProps({user: userPointer});
+      ReactTestRenderer.act(() => {
+        instance.getInstance().setProps({user: userPointer});
+      });
       expect(subscription.closed).toBe(true);
     });
 
@@ -905,23 +1008,29 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, jest.fn());
+      });
       expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
         () => {
-          environment.mock.resolve(UserQuery, {
-            data: {
-              node: {
-                id: '4',
-                __typename: 'User',
+          ReactTestRenderer.act(() => {
+            environment.mock.resolve(UserQuery, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
               },
-            },
+            });
           });
         },
       );
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
-      instance.getInstance().setProps({user: userPointer});
+      ReactTestRenderer.act(() => {
+        instance.getInstance().setProps({user: userPointer});
+      });
       expect(references.length).toBe(1);
       expect(references[0].dispose).not.toBeCalled();
     });
@@ -932,24 +1041,30 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, jest.fn());
+      });
 
       expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
         () => {
-          environment.mock.resolve(UserQuery, {
-            data: {
-              node: {
-                id: '4',
-                __typename: 'User',
+          ReactTestRenderer.act(() => {
+            environment.mock.resolve(UserQuery, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
               },
-            },
+            });
           });
         },
       );
       const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
         .data.node;
-      instance.getInstance().setProps({user: userPointer});
+      ReactTestRenderer.act(() => {
+        instance.getInstance().setProps({user: userPointer});
+      });
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
     });
@@ -960,21 +1075,27 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(variables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(variables, null, jest.fn());
+      });
       expectToWarn(
         'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
         () => {
-          environment.mock.resolve(UserQuery, {
-            data: {
-              node: {
-                id: '4',
-                __typename: 'User',
+          ReactTestRenderer.act(() => {
+            environment.mock.resolve(UserQuery, {
+              data: {
+                node: {
+                  id: '4',
+                  __typename: 'User',
+                },
               },
-            },
+            });
           });
         },
       );
-      instance.unmount();
+      ReactTestRenderer.act(() => {
+        instance.unmount();
+      });
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
     });
@@ -984,14 +1105,18 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      refetch(refetchVariables, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(refetchVariables, null, jest.fn());
+      });
       const subscription1 = environment.execute.mock.subscriptions[0];
 
       const refetchVariables2 = {
         cond: false,
         id: '11',
       };
-      refetch(refetchVariables2, null, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetch(refetchVariables2, null, jest.fn());
+      });
       const subscription2 = environment.execute.mock.subscriptions[1];
 
       expect(subscription1.closed).toBe(true);
@@ -1003,7 +1128,10 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '4',
       };
-      const disposable1 = refetch(refetchVariables, null, jest.fn());
+      let disposable1;
+      ReactTestRenderer.act(() => {
+        disposable1 = refetch(refetchVariables, null, jest.fn());
+      });
       const subscription1 = environment.execute.mock.subscriptions[0];
       expect(subscription1.closed).toBe(false);
 
@@ -1011,16 +1139,23 @@ describe('ReactRelayRefetchContainer', () => {
         cond: false,
         id: '11',
       };
-      const disposable2 = refetch(refetchVariables2, null, jest.fn());
+      let disposable2;
+      ReactTestRenderer.act(() => {
+        disposable2 = refetch(refetchVariables2, null, jest.fn());
+      });
       const subscription2 = environment.execute.mock.subscriptions[1];
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(false);
 
-      disposable1.dispose();
+      ReactTestRenderer.act(() => {
+        disposable1.dispose();
+      });
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(false);
 
-      disposable2.dispose();
+      ReactTestRenderer.act(() => {
+        disposable2.dispose();
+      });
       expect(subscription1.closed).toBe(true);
       expect(subscription2.closed).toBe(true);
     });
@@ -1045,17 +1180,25 @@ describe('ReactRelayRefetchContainer', () => {
         }
       }
 
-      instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainerWrapper />
-        </ContextSetter>,
-      );
-      jest.runOnlyPendingTimers();
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainerWrapper />
+          </ContextSetter>,
+        );
+      });
+
+      ReactTestRenderer.act(() => {
+        jest.runOnlyPendingTimers();
+      });
+
       const callback = jest.fn();
       expectToWarn(
         'ReactRelayRefetchContainer: Unexpected call of `refetch` on unmounted container `Relay(TestComponent)`. It looks like some instances of your container still trying to refetch the data but they already unmounted. Please make sure you clear all timers, intervals, async calls, etc that may trigger `refetch`.',
         () => {
-          refetch({}, null, callback);
+          ReactTestRenderer.act(() => {
+            refetch({}, null, callback);
+          });
         },
       );
       expect(callback).not.toBeCalled();
@@ -1078,16 +1221,19 @@ describe('ReactRelayRefetchContainer', () => {
 
     const UnwrappedComponent = unwrapContainer(TestUnwrappingContainer);
 
-    const renderer = ReactTestRenderer.create(
-      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
-    );
+    let renderer;
+    ReactTestRenderer.act(() => {
+      renderer = ReactTestRenderer.create(
+        <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+      );
+    });
 
     expect(renderer.toJSON()).toMatchSnapshot();
   });
 
   describe('concurrent mode', () => {
     function assertYieldsWereCleared(_scheduler) {
-      const actualYields = _scheduler.unstable_clearYields();
+      const actualYields = _scheduler.unstable_clearLog();
       if (actualYields.length !== 0) {
         throw new Error(
           'Log of yielded values is not empty. ' +
@@ -1100,7 +1246,7 @@ describe('ReactRelayRefetchContainer', () => {
       const Scheduler = require('scheduler');
       assertYieldsWereCleared(Scheduler);
       Scheduler.unstable_flushAllWithoutAsserting();
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields).toEqual(expectedYields);
     }
 
@@ -1108,14 +1254,14 @@ describe('ReactRelayRefetchContainer', () => {
       const Scheduler = require('scheduler');
       assertYieldsWereCleared(Scheduler);
       Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-      const actualYields = Scheduler.unstable_clearYields();
+      const actualYields = Scheduler.unstable_clearLog();
       expect(actualYields).toEqual(expectedYields);
     }
 
-    it('upon commit, it should pick up changes in data that happened before comitting', () => {
+    it('upon commit, it should pick up changes in data that happened before committing', () => {
       const Scheduler = require('scheduler');
       const YieldChild = props => {
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user, relay}) => {
@@ -1148,11 +1294,14 @@ describe('ReactRelayRefetchContainer', () => {
           // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
           {
             unstable_isConcurrent: true,
-            unstable_concurrentUpdatesByDefault: true,
           },
         );
         // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Zuck']);
+        expectSchedulerToFlushAndYieldThrough([
+          'Hey user,',
+          'Zuck',
+          ['with id ', '4', '!'],
+        ]);
 
         // In Concurrent mode component gets rendered even if not committed
         // so we reset our mock here
@@ -1170,7 +1319,6 @@ describe('ReactRelayRefetchContainer', () => {
 
         // Assert the component renders the updated data
         expectSchedulerToFlushAndYield([
-          ['with id ', '4', '!'],
           'Hey user,',
           'Zuck mid-render update',
           ['with id ', '4', '!'],

@@ -28,9 +28,9 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::StringKey;
+use relay_config::DeferStreamInterface;
 use thiserror::Error;
 
-use super::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::DeferDirective;
 use crate::NoInlineFragmentSpreadMetadata;
 use crate::StreamDirective;
@@ -40,10 +40,13 @@ enum ValidationMode {
     Loose,
 }
 
-pub fn skip_unreachable_node_strict(program: &Program) -> DiagnosticsResult<Program> {
+pub fn skip_unreachable_node_strict(
+    program: &Program,
+    defer_stream_interface: DeferStreamInterface,
+) -> DiagnosticsResult<Program> {
     let errors = vec![];
     let mut validation_mode = ValidationMode::Strict(errors);
-    let next_program = skip_unreachable_node(program, &mut validation_mode);
+    let next_program = skip_unreachable_node(program, &mut validation_mode, defer_stream_interface);
 
     if let ValidationMode::Strict(errors) = validation_mode {
         if !errors.is_empty() {
@@ -53,14 +56,21 @@ pub fn skip_unreachable_node_strict(program: &Program) -> DiagnosticsResult<Prog
     Ok(next_program)
 }
 
-pub fn skip_unreachable_node_loose(program: &Program) -> Program {
+pub fn skip_unreachable_node_loose(
+    program: &Program,
+    defer_stream_interface: DeferStreamInterface,
+) -> Program {
     let mut validation_mode = ValidationMode::Loose;
-    skip_unreachable_node(program, &mut validation_mode)
+    skip_unreachable_node(program, &mut validation_mode, defer_stream_interface)
 }
 
-fn skip_unreachable_node(program: &Program, validation_mode: &mut ValidationMode) -> Program {
+fn skip_unreachable_node(
+    program: &Program,
+    validation_mode: &mut ValidationMode,
+    defer_stream_interface: DeferStreamInterface,
+) -> Program {
     let mut skip_unreachable_node_transform =
-        SkipUnreachableNodeTransform::new(program, validation_mode);
+        SkipUnreachableNodeTransform::new(program, validation_mode, defer_stream_interface);
     let transformed = skip_unreachable_node_transform.transform_program(program);
 
     transformed.replace_or_else(|| program.clone())
@@ -73,6 +83,7 @@ pub struct SkipUnreachableNodeTransform<'s> {
     visited_fragments: VisitedFragments,
     program: &'s Program,
     validation_mode: &'s mut ValidationMode,
+    defer_stream_interface: DeferStreamInterface,
 }
 
 impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
@@ -213,8 +224,13 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let transformed_field = self.default_transform_linked_field(field);
-        if let Some(directive) = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name) {
-            if let Some(if_arg) = StreamDirective::from(directive).if_arg {
+        if let Some(directive) = field
+            .directives
+            .named(self.defer_stream_interface.stream_name)
+        {
+            if let Some(if_arg) =
+                StreamDirective::from(directive, &self.defer_stream_interface).if_arg
+            {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
                     let mut next_field = match transformed_field {
                         Transformed::Delete => return Transformed::Delete,
@@ -228,7 +244,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
                     Arc::make_mut(&mut next_field)
                         .directives
                         .retain(|directive| {
-                            directive.name.item != DEFER_STREAM_CONSTANTS.stream_name
+                            directive.name.item != self.defer_stream_interface.stream_name
                         });
                     assert_eq!(
                         previous_directive_len,
@@ -244,11 +260,16 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
 }
 
 impl<'s> SkipUnreachableNodeTransform<'s> {
-    fn new(program: &'s Program, validation_mode: &'s mut ValidationMode) -> Self {
+    fn new(
+        program: &'s Program,
+        validation_mode: &'s mut ValidationMode,
+        defer_stream_interface: DeferStreamInterface,
+    ) -> Self {
         Self {
             visited_fragments: Default::default(),
             program,
             validation_mode,
+            defer_stream_interface,
         }
     }
 
@@ -292,10 +313,12 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
     ) -> TransformedMulti<Selection> {
         if let Some(directive) = inline_fragment
             .directives
-            .named(DEFER_STREAM_CONSTANTS.defer_name)
+            .named(self.defer_stream_interface.defer_name)
         {
             assert!(inline_fragment.directives.len() == 1);
-            if let Some(if_arg) = DeferDirective::from(directive).if_arg {
+            if let Some(if_arg) =
+                DeferDirective::from(directive, &self.defer_stream_interface).if_arg
+            {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
                     return TransformedMulti::ReplaceMultiple(
                         self.transform_selections(&inline_fragment.selections)
@@ -338,7 +361,18 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
     }
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "After applying transforms to the {document} `{name}` selections of \

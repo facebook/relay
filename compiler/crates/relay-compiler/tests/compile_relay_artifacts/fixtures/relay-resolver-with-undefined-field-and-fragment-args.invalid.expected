@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query relayResolverWithUndefinedFieldAndFragmentArgsQuery {
+  node(id: "SOME_ID") {
+    ...relayResolverWithUndefinedFieldAndFragmentArgs_user
+  }
+}
+
+fragment relayResolverWithUndefinedFieldAndFragmentArgs_user on User {
+  pop_star_name(field_arg: $undefined_field_arg, includeName: $undefined_fragment_arg)
+}
+
+fragment relayResolverWithUndefinedFieldAndFragmentArgsFragment_name on User
+  @argumentDefinitions(includeName: {type: "Boolean!"}) {
+  __typename
+  name @include(if: $includeName)
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(field_arg: Int, includeName: Boolean!): String @relay_resolver(fragment_name: "relayResolverWithUndefinedFieldAndFragmentArgsFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== ERROR ====================================
+✖︎ Operation 'relayResolverWithUndefinedFieldAndFragmentArgsQuery' references undefined variables: '$undefined_field_arg', '$undefined_fragment_arg'.
+
+  relay-resolver-with-undefined-field-and-fragment-args.invalid.graphql:10:28
+    9 │ fragment relayResolverWithUndefinedFieldAndFragmentArgs_user on User {
+   10 │   pop_star_name(field_arg: $undefined_field_arg, includeName: $undefined_fragment_arg)
+      │                            ^^^^^^^^^^^^^^^^^^^^
+   11 │ }
+
+  ℹ︎ related location
+
+  relay-resolver-with-undefined-field-and-fragment-args.invalid.graphql:10:63
+    9 │ fragment relayResolverWithUndefinedFieldAndFragmentArgs_user on User {
+   10 │   pop_star_name(field_arg: $undefined_field_arg, includeName: $undefined_fragment_arg)
+      │                                                               ^^^^^^^^^^^^^^^^^^^^^^^
+   11 │ }

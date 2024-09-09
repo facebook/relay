@@ -23,18 +23,18 @@ import type {
 import type {OperationDescriptor} from 'relay-runtime';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const {act: internalAct} = require('../../jest-react');
-const useFragmentInternal_REACT_CACHE = require('../react-cache/useFragmentInternal_REACT_CACHE');
-const useFragmentNode_LEGACY = require('../useFragmentNode');
+const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
+const useFragmentInternal_CURRENT = require('../useFragmentInternal_CURRENT');
+const useFragmentInternal_EXPERIMENTAL = require('../useFragmentInternal_EXPERIMENTAL');
+const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-const TestRenderer = require('react-test-renderer');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   __internal: {fetchQuery},
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -50,7 +50,7 @@ disallowWarnings();
 const {useEffect, useMemo, useState} = React;
 
 function assertYieldsWereCleared(_scheduler: any) {
-  const actualYields = _scheduler.unstable_clearYields();
+  const actualYields = _scheduler.unstable_clearLog();
   if (actualYields.length !== 0) {
     throw new Error(
       'Log of yielded values is not empty. ' +
@@ -61,7 +61,7 @@ function assertYieldsWereCleared(_scheduler: any) {
 
 function expectSchedulerToHaveYielded(expectedYields: any) {
   const Scheduler = require('scheduler');
-  const actualYields = Scheduler.unstable_clearYields();
+  const actualYields = Scheduler.unstable_clearLog();
   expect(actualYields).toEqual(expectedYields);
 }
 
@@ -69,7 +69,7 @@ function flushScheduler() {
   const Scheduler = require('scheduler');
   assertYieldsWereCleared(Scheduler);
   Scheduler.unstable_flushAllWithoutAsserting();
-  return Scheduler.unstable_clearYields();
+  return Scheduler.unstable_clearLog();
 }
 
 function expectSchedulerToFlushAndYield(expectedYields: any) {
@@ -81,19 +81,19 @@ function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
   const Scheduler = require('scheduler');
   assertYieldsWereCleared(Scheduler);
   Scheduler.unstable_flushNumberOfYields(expectedYields.length);
-  const actualYields = Scheduler.unstable_clearYields();
+  const actualYields = Scheduler.unstable_clearLog();
   expect(actualYields).toEqual(expectedYields);
 }
 
 // The current tests are against useFragmentNode which as a different Flow signature
 // than the external API useFragment. I want to keep the more accurate types
-// for useFragmentInternal_REACT_CACHE, though, so this wrapper adapts it.
+// for useFragmentInternal, though, so this wrapper adapts it.
 type ReturnType<TFragmentData: mixed> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
+hook useFragmentNode_CURRENT<TFragmentData: mixed>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -106,7 +106,28 @@ function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
   key: any,
   displayName: string,
 ): ReturnType<TFragmentData> {
-  const data = useFragmentInternal_REACT_CACHE(fragment, key, displayName);
+  const data = useFragmentInternal_CURRENT(fragment, key, displayName);
+  return {
+    // $FlowFixMe[incompatible-return]
+    data,
+    disableStoreUpdates: () => {},
+    enableStoreUpdates: () => {},
+  };
+}
+hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
+  fragment:
+    | Fragment<
+        useFragmentNodeTestUserFragment$fragmentType,
+        useFragmentNodeTestUserFragment$data,
+      >
+    | Fragment<
+        useFragmentNodeTestUsersFragment$fragmentType,
+        useFragmentNodeTestUsersFragment$data,
+      >,
+  key: any,
+  displayName: string,
+): ReturnType<TFragmentData> {
+  const data = useFragmentInternal_EXPERIMENTAL(fragment, key, displayName);
   return {
     // $FlowFixMe[incompatible-return]
     data,
@@ -116,23 +137,15 @@ function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
 }
 
 describe.each([
-  ['React Cache', useFragmentNode_REACT_CACHE],
+  ['Experimental', useFragmentNode_EXPERIMENTAL],
+  ['Current', useFragmentNode_CURRENT],
   ['Legacy', useFragmentNode_LEGACY],
 ])(
   'useFragmentNode / useFragment (%s)',
   (_hookName, useFragmentNodeOriginal) => {
-    let isUsingReactCacheImplementation;
-    let originalReactCacheFeatureFlag;
-    beforeEach(() => {
-      isUsingReactCacheImplementation =
-        useFragmentNodeOriginal === useFragmentNode_REACT_CACHE;
-      originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-      RelayFeatureFlags.USE_REACT_CACHE = isUsingReactCacheImplementation;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-    });
-
+    const isUsingNewImplementation =
+      useFragmentNodeOriginal === useFragmentNode_CURRENT ||
+      useFragmentNodeOriginal === useFragmentNode_EXPERIMENTAL;
     let environment;
     let disableStoreUpdates;
     let enableStoreUpdates;
@@ -187,10 +200,6 @@ describe.each([
     function assertFragmentResults(
       expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
     ) {
-      // the issue is that the initial miss-updates-on-subscribe thing is
-      // only on the second runAllImmediates here.
-      // This ensures that useEffect runs
-      internalAct(() => jest.runAllImmediates());
       expect(commitSpy).toBeCalledTimes(expectedCalls.length);
       expectedCalls.forEach((expected, idx) => {
         const [actualData] = commitSpy.mock.calls[idx];
@@ -207,11 +216,6 @@ describe.each([
       expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
     ) {
       expect(expectedCalls.length >= 1).toBeTruthy(); // must expect at least one value
-
-      // the issue is that the initial miss-updates-on-subscribe thing is
-      // only on the second runAllImmediates here.
-      // This ensures that useEffect runs
-      internalAct(() => jest.runAllImmediates());
       expect(renderSpy).toBeCalledTimes(expectedCalls.length);
       expectedCalls.forEach((expected, idx) => {
         const [actualData] = renderSpy.mock.calls[idx];
@@ -232,19 +236,18 @@ describe.each([
           useFragmentNodeTestNestedUserFragment: {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
-        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
     beforeEach(() => {
-      jest.mock('scheduler', () => {
-        return jest.requireActual('scheduler/unstable_mock');
-      });
+      jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
       commitSpy = jest.fn<any | [any], mixed>();
       renderSpy = jest.fn<[any], mixed>();
 
       // Set up environment and base data
-      environment = createMockEnvironment();
+      ReactTestRenderer.act(() => {
+        environment = createMockEnvironment();
+      });
       graphql`
         fragment useFragmentNodeTestNestedUserFragment on User {
           username
@@ -357,7 +360,6 @@ describe.each([
                 useFragmentNodeTestUserFragment: {},
               },
               [FRAGMENT_OWNER_KEY]: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
             };
 
         setSingularOwner = _setOwner;
@@ -382,7 +384,6 @@ describe.each([
                 useFragmentNodeTestUsersFragment: {},
               },
               [FRAGMENT_OWNER_KEY]: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
             }));
 
         const [usersData] = useFragmentNode(gqlPluralFragment, usersRef);
@@ -402,37 +403,51 @@ describe.each([
         );
       };
 
-      renderSingularFragment = (args?: {
-        isConcurrent?: boolean,
+      renderSingularFragment = (props?: {
         owner?: $FlowFixMe,
         userRef?: $FlowFixMe,
+        noAct?: boolean,
         ...
       }) => {
-        const {isConcurrent = false, ...props} = args ?? {};
-        return TestRenderer.create(
-          <React.Suspense fallback="Singular Fallback">
-            <ContextProvider>
-              <SingularContainer owner={singularQuery} {...props} />
-            </ContextProvider>
-          </React.Suspense>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-          {
-            unstable_isConcurrent: isConcurrent,
-            unstable_concurrentUpdatesByDefault: true,
-          },
-        );
+        if (props?.noAct === true) {
+          return ReactTestRenderer.create(
+            <React.Suspense fallback="Singular Fallback">
+              <ContextProvider>
+                <SingularContainer owner={singularQuery} {...props} />
+              </ContextProvider>
+            </React.Suspense>,
+            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            {
+              unstable_isConcurrent: true,
+            },
+          );
+        } else {
+          let instance;
+          ReactTestRenderer.act(() => {
+            instance = ReactTestRenderer.create(
+              <React.Suspense fallback="Singular Fallback">
+                <ContextProvider>
+                  <SingularContainer owner={singularQuery} {...props} />
+                </ContextProvider>
+              </React.Suspense>,
+              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              {
+                unstable_isConcurrent: true,
+              },
+            );
+          });
+          return instance;
+        }
       };
 
       renderPluralFragment = (
-        args?: {
-          isConcurrent?: boolean,
+        props?: {
           owner?: $FlowFixMe,
           usersRef?: $FlowFixMe,
           ...
         },
         existing: any,
       ) => {
-        const {isConcurrent = false, ...props} = args ?? {};
         const elements = (
           <React.Suspense fallback="Plural Fallback">
             <ContextProvider>
@@ -444,20 +459,22 @@ describe.each([
           existing.update(elements);
           return existing;
         } else {
-          return TestRenderer.create(
-            elements,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-            {
-              unstable_isConcurrent: isConcurrent,
-              unstable_concurrentUpdatesByDefault: true,
-            },
-          );
+          let instance;
+          ReactTestRenderer.act(() => {
+            instance = ReactTestRenderer.create(
+              elements,
+              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              {
+                unstable_isConcurrent: true,
+              },
+            );
+          });
+          return instance;
         }
       };
     });
 
     afterEach(() => {
-      internalAct(() => jest.runAllImmediates());
       flushScheduler();
       environment.mockClear();
       commitSpy.mockClear();
@@ -465,7 +482,7 @@ describe.each([
     });
 
     it('should render singular fragment without error when data is available', () => {
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         renderSingularFragment();
       });
       assertFragmentResults([
@@ -530,8 +547,11 @@ describe.each([
     });
 
     it('should render plural fragment with a constant reference when plural field is empty', () => {
-      const container = renderPluralFragment({usersRef: []});
-      internalAct(() => {
+      let container;
+      ReactTestRenderer.act(() => {
+        container = renderPluralFragment({usersRef: []});
+      });
+      ReactTestRenderer.act(() => {
         renderPluralFragment({usersRef: []}, container);
       });
 
@@ -553,7 +573,7 @@ describe.each([
         },
       ]);
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         environment.commitPayload(singularQuery, {
           node: {
             __typename: 'User',
@@ -579,7 +599,7 @@ describe.each([
     });
 
     it('should preserve object identity when fragment data changes', () => {
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         renderSingularFragment();
       });
       expect(commitSpy).toBeCalledTimes(1);
@@ -592,7 +612,7 @@ describe.each([
       });
       commitSpy.mockClear();
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         environment.commitPayload(singularQuery, {
           node: {
             __typename: 'User',
@@ -640,7 +660,7 @@ describe.each([
         },
       });
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         setEnvironment(newEnvironment);
       });
 
@@ -652,7 +672,7 @@ describe.each([
       };
       assertFragmentResults([{data: expectedUser}]);
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         newEnvironment.commitPayload(singularQuery, {
           node: {
             __typename: 'User',
@@ -675,6 +695,33 @@ describe.each([
           },
         },
       ]);
+    });
+
+    it('should supsend when the environment changes and there is query in flight', () => {
+      const renderer = renderSingularFragment();
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: null,
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
+
+      const newEnvironment = createMockEnvironment();
+
+      ReactTestRenderer.act(() => {
+        // Let there be an operation in flight
+        fetchQuery(newEnvironment, singularQuery).subscribe({});
+
+        setEnvironment(newEnvironment);
+      });
+
+      // It should suspend when the environment changes and there is a query
+      // in flight.
+      expect(renderer?.toJSON()).toEqual('Singular Fallback');
     });
 
     it('should re-read and resubscribe to fragment when fragment pointers change', () => {
@@ -705,7 +752,7 @@ describe.each([
         },
       });
 
-      TestRenderer.act(() => {
+      ReactTestRenderer.act(() => {
         environment.commitUpdate(store => {
           store.delete('1');
         });
@@ -720,7 +767,7 @@ describe.each([
         // Assert that ref now points to newQuery owner
         ...createFragmentRef('200', newQuery),
       };
-      if (isUsingReactCacheImplementation) {
+      if (isUsingNewImplementation) {
         // React Cache renders twice (because it has to update state for derived data),
         // but avoids rendering with stale data on the initial update
         assertRenderBatch([{data: expectedUser}, {data: expectedUser}]);
@@ -728,7 +775,7 @@ describe.each([
         assertRenderBatch([{data: expectedUser}]);
       }
 
-      TestRenderer.act(() => {
+      ReactTestRenderer.act(() => {
         environment.commitPayload(newQuery, {
           node: {
             __typename: 'User',
@@ -783,7 +830,7 @@ describe.each([
         },
       });
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         setSingularOwner(newQuery);
       });
 
@@ -810,7 +857,7 @@ describe.each([
       });
 
       // Switch back to rendering data for ID 1
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         setSingularOwner(singularQuery);
       });
 
@@ -826,7 +873,7 @@ describe.each([
       assertFragmentResults([{data: expectedUser}]);
 
       // Assert it correctly subscribes to new data
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         environment.commitPayload(singularQuery, {
           node: {
             __typename: 'User',
@@ -856,7 +903,7 @@ describe.each([
       const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
         // When React sync runs we need to update this.
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}: any) => (
@@ -870,8 +917,139 @@ describe.each([
       // Assert initial render
       // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
-      internalAct(() => {
-        renderSingularFragment({isConcurrent: true});
+      renderSingularFragment();
+      expectSchedulerToHaveYielded([
+        'Hey user,',
+        'Alice',
+        ['with id ', '1', '!'],
+      ]);
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: null,
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
+
+      const newVariables = {...singularVariables, id: '200'};
+      const newQuery = createOperationDescriptor(
+        gqlSingularQuery,
+        newVariables,
+      );
+
+      ReactTestRenderer.act(() => {
+        environment.commitPayload(newQuery, {
+          node: {
+            __typename: 'User',
+            id: '200',
+            name: 'Foo',
+            username: 'userfoo',
+            profile_picture: null,
+          },
+        });
+      });
+
+      // Pass new fragment ref that points to new ID 200
+      setSingularOwner(newQuery);
+
+      // Flush some of the changes, but don't commit
+      expectSchedulerToFlushAndYieldThrough([
+        'Hey user,',
+        'Foo',
+        ['with id ', '200', '!'],
+      ]);
+
+      // Trigger an update for initially rendered data while second
+      // render is in progress
+      environment.commitPayload(singularQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice in Wonderland',
+          username: 'userfoo',
+          profile_picture: null,
+        },
+      });
+
+      // Assert the component renders the data from newQuery/newVariables,
+      // ignoring any updates triggered while render was in progress.
+      const expectedData = {
+        data: {
+          id: '200',
+          name: 'Foo',
+          profile_picture: null,
+          ...createFragmentRef('200', newQuery),
+        },
+      };
+
+      if (isUsingNewImplementation) {
+        // The new implementation simply finishes the render in progress.
+        expectSchedulerToFlushAndYield([]);
+        assertFragmentResults([expectedData]);
+      } else {
+        // The old implementation also does an extra re-render.
+        expectSchedulerToFlushAndYield([
+          'Hey user,',
+          'Foo',
+          ['with id ', '200', '!'],
+        ]);
+        assertFragmentResults([expectedData, expectedData]);
+      }
+      // Update latest rendered data
+      environment.commitPayload(newQuery, {
+        node: {
+          __typename: 'User',
+          id: '200',
+          // Update name
+          name: 'Foo Updated',
+          username: 'userfoo',
+          profile_picture: null,
+        },
+      });
+
+      expectSchedulerToFlushAndYield([
+        'Hey user,',
+        'Foo Updated',
+        ['with id ', '200', '!'],
+      ]);
+
+      assertFragmentResults([
+        {
+          data: {
+            id: '200',
+            // Assert name is updated
+            name: 'Foo Updated',
+            profile_picture: null,
+            ...createFragmentRef('200', newQuery),
+          },
+        },
+      ]);
+    });
+
+    it('should ignore updates to initially rendered data when fragment pointers change, but still handle updates to the new data', () => {
+      const Scheduler = require('scheduler');
+      const YieldChild = (props: any) => {
+        // NOTE the unstable_yield method will move to the static renderer.
+        // When React sync runs we need to update this.
+        Scheduler.log(props.children);
+        return props.children;
+      };
+      const YieldyUserComponent = ({user}: any) => (
+        <>
+          <YieldChild>Hey user,</YieldChild>
+          <YieldChild>{user.name}</YieldChild>
+          <YieldChild>with id {user.id}!</YieldChild>
+        </>
+      );
+
+      // Assert initial render
+      // $FlowFixMe[incompatible-type]
+      SingularRenderer = YieldyUserComponent;
+      ReactTestRenderer.act(() => {
+        renderSingularFragment();
       });
       expectSchedulerToHaveYielded([
         'Hey user,',
@@ -894,90 +1072,140 @@ describe.each([
         gqlSingularQuery,
         newVariables,
       );
-      internalAct(() => {
-        environment.commitPayload(newQuery, {
-          node: {
-            __typename: 'User',
-            id: '200',
-            name: 'Foo',
-            username: 'userfoo',
-            profile_picture: null,
-          },
-        });
+      environment.commitPayload(newQuery, {
+        node: {
+          __typename: 'User',
+          id: '200',
+          name: 'Foo',
+          username: 'userfoo',
+          profile_picture: null,
+        },
       });
 
-      internalAct(() => {
-        // Pass new fragment ref that points to new ID 200
-        setSingularOwner(newQuery);
+      // Pass new fragment ref that points to new ID 200
+      setSingularOwner(newQuery);
 
-        // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'Foo']);
+      // Flush some of the changes, but don't commit
+      expectSchedulerToFlushAndYieldThrough([
+        'Hey user,',
+        'Foo',
+        ['with id ', '200', '!'],
+      ]);
 
-        // Trigger an update for initially rendered data while second
-        // render is in progress
-        environment.commitPayload(singularQuery, {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice in Wonderland',
-            username: 'userfoo',
-            profile_picture: null,
-          },
-        });
+      // Trigger an update for initially rendered data and for the new data
+      // while second render is in progress
+      environment.commitUpdate(store => {
+        store.get('1')?.setValue('Alice in Wonderland', 'name');
+        store.get('200')?.setValue('Foo Bar', 'name');
+      });
 
-        // Assert the component renders the data from newQuery/newVariables,
-        // ignoring any updates triggered while render was in progress.
-        const expectedData = {
+      // Assert the component renders the data from newQuery/newVariables,
+      // ignoring any updates triggered while render was in progress.
+      const expectedData = {
+        data: {
+          id: '200',
+          name: 'Foo',
+          profile_picture: null,
+          ...createFragmentRef('200', newQuery),
+        },
+      };
+      expectSchedulerToFlushAndYield([
+        'Hey user,',
+        'Foo Bar',
+        ['with id ', '200', '!'],
+      ]);
+      assertFragmentResults([
+        expectedData,
+        {
           data: {
             id: '200',
-            name: 'Foo',
+            name: 'Foo Bar',
             profile_picture: null,
             ...createFragmentRef('200', newQuery),
           },
-        };
-        if (isUsingReactCacheImplementation) {
-          // The new implementation simply finishes the render in progress.
-          expectSchedulerToFlushAndYield([['with id ', '200', '!']]);
-          assertFragmentResults([expectedData]);
-        } else {
-          // The old implementation also does an extra re-render.
-          expectSchedulerToFlushAndYield([
-            ['with id ', '200', '!'],
-            'Hey user,',
-            'Foo',
-            ['with id ', '200', '!'],
-          ]);
-          assertFragmentResults([expectedData, expectedData]);
-        }
+        },
+      ]);
 
-        // Update latest rendered data
-        environment.commitPayload(newQuery, {
-          node: {
-            __typename: 'User',
+      // Update latest rendered data
+      environment.commitPayload(newQuery, {
+        node: {
+          __typename: 'User',
+          id: '200',
+          // Update name
+          name: 'Foo Updated',
+          username: 'userfoo',
+          profile_picture: null,
+        },
+      });
+      expectSchedulerToFlushAndYield([
+        'Hey user,',
+        'Foo Updated',
+        ['with id ', '200', '!'],
+      ]);
+      assertFragmentResults([
+        {
+          data: {
             id: '200',
-            // Update name
+            // Assert name is updated
             name: 'Foo Updated',
-            username: 'userfoo',
             profile_picture: null,
+            ...createFragmentRef('200', newQuery),
           },
+        },
+      ]);
+    });
+
+    it('should return the latest data when the hi-priority update happens at the same time as the low-priority store update', () => {
+      const startTransition = React.startTransition;
+      if (startTransition != null) {
+        ReactTestRenderer.act(() => {
+          renderSingularFragment();
         });
-        expectSchedulerToFlushAndYield([
-          'Hey user,',
-          'Foo Updated',
-          ['with id ', '200', '!'],
-        ]);
         assertFragmentResults([
           {
             data: {
-              id: '200',
-              // Assert name is updated
-              name: 'Foo Updated',
+              id: '1',
+              name: 'Alice',
               profile_picture: null,
-              ...createFragmentRef('200', newQuery),
+              ...createFragmentRef('1', singularQuery),
             },
           },
         ]);
-      });
+
+        ReactTestRenderer.act(() => {
+          // Trigger store update with the lower priority
+          startTransition(() => {
+            environment.commitUpdate(store => {
+              store.get('1')?.setValue('Alice Updated Name', 'name');
+            });
+          });
+        });
+
+        ReactTestRenderer.act(() => {
+          // Trigger a hi-pri update with the higher priority, that should force component to re-render
+          forceSingularUpdate();
+        });
+
+        // Assert that the component re-renders twice, both times with the latest data
+        assertFragmentResults([
+          {
+            data: {
+              id: '1',
+              name: 'Alice Updated Name',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+          {
+            data: {
+              id: '1',
+              name: 'Alice Updated Name',
+              profile_picture: null,
+              ...createFragmentRef('1', singularQuery),
+            },
+          },
+        ]);
+      }
     });
 
     it('should re-read and resubscribe to fragment when variables change', () => {
@@ -1010,7 +1238,7 @@ describe.each([
         },
       });
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         setSingularOwner(newQuery);
       });
 
@@ -1026,7 +1254,7 @@ describe.each([
       };
       assertFragmentResults([{data: expectedUser}]);
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         environment.commitPayload(newQuery, {
           node: {
             __typename: 'User',
@@ -1058,7 +1286,7 @@ describe.each([
     it('should ignore updates to initially rendered data when variables change', () => {
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}: any) => (
@@ -1072,9 +1300,7 @@ describe.each([
       // Assert initial render
       // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
-      internalAct(() => {
-        renderSingularFragment({isConcurrent: true});
-      });
+      renderSingularFragment();
       expectSchedulerToHaveYielded([
         'Hey user,',
         'no uri',
@@ -1096,102 +1322,102 @@ describe.each([
         gqlSingularQuery,
         newVariables,
       );
-      internalAct(() => {
-        environment.commitPayload(newQuery, {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice',
-            username: 'useralice',
-            profile_picture: {
-              uri: 'uri32',
-            },
+      environment.commitPayload(newQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          username: 'useralice',
+          profile_picture: {
+            uri: 'uri32',
           },
-        });
+        },
       });
 
-      internalAct(() => {
-        // Pass new fragment ref which contains newVariables
-        setSingularOwner(newQuery);
+      // Pass new fragment ref which contains newVariables
+      setSingularOwner(newQuery);
 
-        // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'uri32']);
+      // Flush some of the changes, but don't commit
+      expectSchedulerToFlushAndYieldThrough([
+        'Hey user,',
+        'uri32',
+        ['with id ', '1', '!'],
+      ]);
 
-        // Trigger an update for initially rendered data while second
-        // render is in progress
-        environment.commitPayload(singularQuery, {
-          node: {
-            __typename: 'User',
-            id: '1',
-            // Update name
-            name: 'Alice',
-            // Update profile_picture value
-            profile_picture: {
-              uri: 'uri16',
-            },
-            username: null,
+      // Trigger an update for initially rendered data while second
+      // render is in progress
+      environment.commitPayload(singularQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          // Update name
+          name: 'Alice',
+          // Update profile_picture value
+          profile_picture: {
+            uri: 'uri16',
           },
-        });
+          username: null,
+        },
+      });
 
-        // Assert the component renders the data from newQuery/newVariables,
-        // ignoring any updates triggered while render was in progress
-        const expectedData = {
-          data: {
-            id: '1',
-            name: 'Alice',
-            profile_picture: {
-              uri: 'uri32',
-            },
-            ...createFragmentRef('1', newQuery),
+      // Assert the component renders the data from newQuery/newVariables,
+      // ignoring any updates triggered while render was in progress
+      const expectedData = {
+        data: {
+          id: '1',
+          name: 'Alice',
+          profile_picture: {
+            uri: 'uri32',
           },
-        };
-        if (isUsingReactCacheImplementation) {
-          // The new implementation simply finishes the render in progress.
-          expectSchedulerToFlushAndYield([['with id ', '1', '!']]);
-          assertFragmentResults([expectedData]);
-        } else {
-          // The old implementation also does an extra re-render.
-          expectSchedulerToFlushAndYield([
-            ['with id ', '1', '!'],
-            'Hey user,',
-            'uri32',
-            ['with id ', '1', '!'],
-          ]);
-          assertFragmentResults([expectedData, expectedData]);
-        }
-
-        // Update latest rendered data
-        environment.commitPayload(newQuery, {
-          node: {
-            __typename: 'User',
-            id: '1',
-            // Update name
-            name: 'Alice latest update',
-            profile_picture: {
-              uri: 'uri32',
-            },
-            username: null,
-          },
-        });
+          ...createFragmentRef('1', newQuery),
+        },
+      };
+      if (isUsingNewImplementation) {
+        // The new implementation simply finishes the render in progress.
+        expectSchedulerToFlushAndYield([]);
+        assertFragmentResults([expectedData]);
+      } else {
+        // The old implementation also does an extra re-render.
         expectSchedulerToFlushAndYield([
           'Hey user,',
           'uri32',
           ['with id ', '1', '!'],
         ]);
-        assertFragmentResults([
-          {
-            data: {
-              id: '1',
-              // Assert name is updated
-              name: 'Alice latest update',
-              profile_picture: {
-                uri: 'uri32',
-              },
-              ...createFragmentRef('1', newQuery),
-            },
+        assertFragmentResults([expectedData, expectedData]);
+      }
+      // Update latest rendered data
+      environment.commitPayload(newQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          // Update name
+          name: 'Alice latest update',
+          profile_picture: {
+            uri: 'uri32',
           },
-        ]);
+          username: null,
+        },
       });
+
+      expectSchedulerToFlushAndYield([
+        'Hey user,',
+        'uri32',
+        ['with id ', '1', '!'],
+      ]);
+
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            // Assert name is updated
+            name: 'Alice latest update',
+            profile_picture: {
+              uri: 'uri32',
+            },
+            ...createFragmentRef('1', newQuery),
+          },
+        },
+      ]);
     });
 
     it('should NOT update if fragment refs dont change', () => {
@@ -1208,7 +1434,7 @@ describe.each([
       ]);
 
       // Force a re-render with the exact same fragment refs
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         forceSingularUpdate();
       });
 
@@ -1243,7 +1469,7 @@ describe.each([
         gqlSingularQuery,
         singularVariables,
       );
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         setSingularOwner(newOwner);
       });
 
@@ -1282,8 +1508,12 @@ describe.each([
       // Make sure query is in flight
       fetchQuery(environment, missingDataQuery).subscribe({});
 
-      const renderer = renderSingularFragment({owner: missingDataQuery});
-      expect(renderer.toJSON()).toEqual('Singular Fallback');
+      let renderer;
+      ReactTestRenderer.act(() => {
+        renderer = renderSingularFragment({owner: missingDataQuery});
+      });
+      invariant(renderer != null, 'Expected renderer to be initialized');
+      expect(renderer?.toJSON()).toEqual('Singular Fallback');
     });
 
     it('should warn if fragment reference is non-null but read-out data is null', () => {
@@ -1359,7 +1589,7 @@ describe.each([
       ]);
 
       // Commit a payload with updated name.
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         environment.commitPayload(singularDataQuery, {
           node: {
             __typename: 'User',
@@ -1387,7 +1617,7 @@ describe.each([
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
       const YieldChild = (props: any) => {
-        Scheduler.unstable_yieldValue(props.children);
+        Scheduler.log(props.children);
         return props.children;
       };
       const YieldyUserComponent = ({user}: any) => {
@@ -1403,94 +1633,100 @@ describe.each([
       // Assert initial render
       // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
-      internalAct(() => {
-        renderSingularFragment({isConcurrent: true});
 
-        // Flush some of the changes, but don't commit
-        expectSchedulerToFlushAndYieldThrough(['Hey user,', 'no uri']);
+      renderSingularFragment({noAct: true});
 
-        // Trigger an update while render is in progress
-        environment.commitPayload(singularQuery, {
-          node: {
-            __typename: 'User',
+      // Flush some of the changes, but don't commit
+      expectSchedulerToFlushAndYieldThrough([
+        'Hey user,',
+        'no uri',
+        ['with id ', '1', '!'],
+      ]);
+
+      // Trigger an update while render is in progress
+      environment.commitPayload(singularQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          // Update profile_picture value
+          profile_picture: {
+            uri: 'uri16',
+          },
+          username: null,
+        },
+      });
+
+      // Assert the component renders the updated data
+      expectSchedulerToFlushAndYield([
+        'Hey user,',
+        'uri16',
+        ['with id ', '1', '!'],
+      ]);
+
+      // We should have observed two commits: one with the original data
+      // and one with the updated data:
+      assertFragmentResults([
+        {
+          data: {
             id: '1',
             name: 'Alice',
-            // Update profile_picture value
+            profile_picture: null,
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
             profile_picture: {
               uri: 'uri16',
             },
-            username: null,
+            ...createFragmentRef('1', singularQuery),
           },
-        });
+        },
+      ]);
 
-        // Assert the component renders the updated data
-        expectSchedulerToFlushAndYield([
-          ['with id ', '1', '!'],
-          'Hey user,',
-          'uri16',
-          ['with id ', '1', '!'],
-        ]);
-
-        // We should have observed two commits: one with the original data
-        // and one with the updated data:
-        assertFragmentResults([
-          {
-            data: {
-              id: '1',
-              name: 'Alice',
-              profile_picture: null,
-              ...createFragmentRef('1', singularQuery),
-            },
+      // Update data again -- we should still be subscribed to further updates
+      environment.commitPayload(singularQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          // Update name
+          name: 'Alice latest update',
+          profile_picture: {
+            uri: 'uri16',
           },
-          {
-            data: {
-              id: '1',
-              name: 'Alice',
-              profile_picture: {
-                uri: 'uri16',
-              },
-              ...createFragmentRef('1', singularQuery),
-            },
-          },
-        ]);
-
-        // Update data again -- we should still be subscribed to further updates
-        environment.commitPayload(singularQuery, {
-          node: {
-            __typename: 'User',
+          username: null,
+        },
+      });
+      expectSchedulerToFlushAndYield([
+        'Hey user,',
+        'uri16',
+        ['with id ', '1', '!'],
+      ]);
+      assertFragmentResults([
+        {
+          data: {
             id: '1',
-            // Update name
+            // Assert name is updated
             name: 'Alice latest update',
             profile_picture: {
               uri: 'uri16',
             },
-            username: null,
+            ...createFragmentRef('1', singularQuery),
           },
-        });
-        expectSchedulerToFlushAndYield([
-          'Hey user,',
-          'uri16',
-          ['with id ', '1', '!'],
-        ]);
-        assertFragmentResults([
-          {
-            data: {
-              id: '1',
-              // Assert name is updated
-              name: 'Alice latest update',
-              profile_picture: {
-                uri: 'uri16',
-              },
-              ...createFragmentRef('1', singularQuery),
-            },
-          },
-        ]);
-      });
+        },
+      ]);
     });
 
     it('should not suspend when data goes missing due to store changes after it has committed (starting with no data missing)', () => {
-      const renderer = renderSingularFragment();
-      internalAct(() => {
+      let renderer;
+      ReactTestRenderer.act(() => {
+        renderer = renderSingularFragment();
+      });
+      invariant(renderer != null, 'Expected renderer to be initialized');
+      ReactTestRenderer.act(() => {
         // Let there be an operation in flight:
         fetchQuery(environment, singularQuery).subscribe({});
         // And let there be missing data:
@@ -1500,7 +1736,7 @@ describe.each([
       });
       // Nonetheless, once the component has mounted, it only suspends if the fragment ref changes,
       // not because of data being deleted from the store:
-      expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
+      expect(renderer?.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
     });
 
     it('should not suspend when data goes missing due to store changes after it has committed (starting with data missing already)', () => {
@@ -1524,9 +1760,13 @@ describe.each([
         },
       );
 
-      const renderer = renderPluralFragment({owner: missingDataQuery});
+      let renderer;
+      ReactTestRenderer.act(() => {
+        renderer = renderPluralFragment({owner: missingDataQuery});
+      });
+      invariant(renderer != null, 'Expected renderer to be initialized');
 
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         // Let there be an operation in flight:
         fetchQuery(environment, missingDataQuery).subscribe({});
         // And let there be missing data:
@@ -1536,7 +1776,7 @@ describe.each([
       });
       // Nonetheless, once the component has mounted, it only suspends if the fragment ref changes,
       // not because of data being deleted from the store:
-      expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
+      expect(renderer?.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
     });
 
     it('checks for missed updates, subscribing to the latest snapshot even if fragment data is unchanged', () => {
@@ -1573,7 +1813,7 @@ describe.each([
           scale: singularVariables.scale,
         });
       };
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         renderSingularFragment();
         jest.runAllTimers();
       });
@@ -1592,7 +1832,7 @@ describe.each([
 
       // Now update the new profile picture to set its uri to confirm that the component is
       // correctly subscribed to the changed profile picture relationship in the graph.
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         environment.commitUpdate((store: RecordSourceProxy) => {
           const picture = store.get('profile_picture_id');
           picture?.setValue('uri16', 'uri');
@@ -1653,7 +1893,7 @@ describe.each([
       ]);
 
       // Commit a payload with updated name.
-      internalAct(() => {
+      ReactTestRenderer.act(() => {
         environment.commitPayload(missingDataQuery, {
           nodes: [
             {
@@ -1685,7 +1925,7 @@ describe.each([
     if (useFragmentNodeOriginal === useFragmentNode_LEGACY) {
       describe('disableStoreUpdates', () => {
         it('does not listen to store updates after disableStoreUpdates is called', () => {
-          internalAct(() => {
+          ReactTestRenderer.act(() => {
             renderSingularFragment();
           });
           assertFragmentResults([
@@ -1702,7 +1942,7 @@ describe.each([
           disableStoreUpdates();
 
           // Update data in the store
-          internalAct(() =>
+          ReactTestRenderer.act(() =>
             environment.commitPayload(singularQuery, {
               node: {
                 __typename: 'User',
@@ -1715,7 +1955,7 @@ describe.each([
           );
 
           // Assert that component did not re-render
-          internalAct(() => {
+          ReactTestRenderer.act(() => {
             jest.runAllImmediates();
           });
           expect(commitSpy).toBeCalledTimes(0);
@@ -1748,12 +1988,12 @@ describe.each([
           });
 
           // Assert that component did not re-render while updates are disabled
-          internalAct(() => {
+          ReactTestRenderer.act(() => {
             jest.runAllImmediates();
           });
           expect(commitSpy).toBeCalledTimes(0);
 
-          internalAct(() => {
+          ReactTestRenderer.act(() => {
             enableStoreUpdates();
           });
 
@@ -1789,7 +2029,8 @@ describe.each([
           enableStoreUpdates();
 
           // Assert that component did not re-render after enabling updates
-          internalAct(() => jest.runAllImmediates());
+          ReactTestRenderer.act(() => jest.runAllImmediates());
+
           expect(commitSpy).toBeCalledTimes(0);
         });
 
@@ -1817,14 +2058,14 @@ describe.each([
               username: null,
             },
           });
-
-          internalAct(() => jest.runAllImmediates());
+          ReactTestRenderer.act(() => jest.runAllImmediates());
           expect(commitSpy).toBeCalledTimes(0);
 
           enableStoreUpdates();
 
           // Assert that component did not re-render after enabling updates
-          internalAct(() => jest.runAllImmediates());
+          ReactTestRenderer.act(() => jest.runAllImmediates());
+
           expect(commitSpy).toBeCalledTimes(0);
         });
       });

@@ -1,0 +1,10 @@
+# Note: No comment here enabling `experimental_emit_semantic_nullability_types`
+fragment MyFragment on ClientUser {
+  name
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}

@@ -31,9 +31,12 @@ if (__DEV__) {
       return;
     }
     formattersInstalled = true;
+    // $FlowFixMe[incompatible-use] D61394600
     if (window.devtoolsFormatters == null) {
+      // $FlowFixMe[incompatible-use] D61394600
       window.devtoolsFormatters = [];
     }
+    // $FlowFixMe[incompatible-use] D61394600
     if (!Array.isArray(window.devtoolsFormatters)) {
       return;
     }
@@ -43,6 +46,7 @@ if (__DEV__) {
         'Developer Tools settings, tab "Preferences" under the "Console" ' +
         'section.',
     );
+    // $FlowFixMe[incompatible-use] D61394600
     window.devtoolsFormatters.push(...createFormatters());
   };
 
@@ -136,9 +140,11 @@ if (__DEV__) {
       return record;
     }
     return new Proxy(
+      // $FlowFixMe: Do not assume that record is an object
       {...record},
       {
         get(target, prop) {
+          // $FlowFixMe[invalid-computed-prop]
           const value = target[prop];
           if (value == null) {
             return value;

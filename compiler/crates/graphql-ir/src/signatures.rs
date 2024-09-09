@@ -149,6 +149,7 @@ fn build_fragment_signature(
                 .location
                 .with_span(fragment.type_condition.type_.span),
         )
+        .metadata_for_machine("unknown_type", type_name.lookup())
         .into()),
     };
     let argument_definition_directives = fragment
@@ -191,7 +192,7 @@ fn build_fragment_signature(
         })
         .or_else(|| {
             argument_definition_directives
-                .get(0)
+                .first()
                 .map(|x| build_fragment_variable_definitions(schema, fragment, x))
         })
         .unwrap_or_else(|| Ok(Default::default()));

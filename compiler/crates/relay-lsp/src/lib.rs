@@ -17,13 +17,14 @@ pub mod find_field_usages;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
-pub mod js_language_server;
+mod inlay_hints;
 pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
 pub mod lsp_runtime_error;
 pub mod node_resolution_info;
 pub mod references;
+pub mod rename;
 mod resolved_types_at_location;
 mod search_schema_items;
 mod server;
@@ -38,8 +39,8 @@ use common::PerfLogger;
 use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::SchemaDocument;
 pub use hover::ContentConsumerType;
-pub use js_language_server::JSLanguageServer;
 use log::debug;
 pub use lsp_extra_data_provider::DummyExtraDataProvider;
 pub use lsp_extra_data_provider::FieldDefinitionSourceInfo;
@@ -62,8 +63,9 @@ pub use server::Schemas;
 pub use utils::position_to_offset;
 
 pub enum Feature {
-    GraphQLDocument(ExecutableDocument),
+    ExecutableDocument(ExecutableDocument),
     DocblockIr(DocblockIr),
+    SchemaDocument(SchemaDocument),
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -85,9 +87,6 @@ pub async fn start_language_server<
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-    js_language_server: Option<
-        Box<dyn JSLanguageServer<TState = LSPState<TPerfLogger, TSchemaDocumentation>>>,
-    >,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -103,7 +102,6 @@ where
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
-        js_language_server,
     )
     .await?;
     io_handles.join()?;

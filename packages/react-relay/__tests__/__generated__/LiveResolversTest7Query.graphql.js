@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<516dc929f97fad9c780c5541582feb7a>>
+ * @generated SignedSource<<1fcac115525fba26301ead3a213b084e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,9 +18,10 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
 import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType: (
@@ -28,7 +29,8 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
   args: {|
     scale: ?number,
   |},
-) => LiveState<mixed>);
+  context: TestResolverContextType,
+) => LiveState<?string>);
 export type LiveResolversTest7Query$variables = {|
   id: string,
   scale: number,
@@ -36,7 +38,7 @@ export type LiveResolversTest7Query$variables = {|
 export type LiveResolversTest7Query$data = {|
   +node: ?{|
     +name?: ?string,
-    +user_profile_picture_uri_suspends_when_the_counter_is_odd?: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType>["read"]>,
+    +user_profile_picture_uri_suspends_when_the_counter_is_odd?: ?string,
   |},
 |};
 export type LiveResolversTest7Query = {|
@@ -100,7 +102,7 @@ return {
               (v2/*: any*/),
               {
                 "alias": null,
-                "args": null,
+                "args": [],
                 "fragment": {
                   "args": (v3/*: any*/),
                   "kind": "FragmentSpread",
@@ -166,7 +168,7 @@ return {
                       },
                       "kind": "RelayResolver",
                       "storageKey": null,
-                      "isOutputType": false
+                      "isOutputType": true
                     },
                     {
                       "name": "user_profile_picture_uri_with_scale",
@@ -198,7 +200,7 @@ return {
                       },
                       "kind": "RelayResolver",
                       "storageKey": null,
-                      "isOutputType": false
+                      "isOutputType": true
                     }
                   ],
                   "type": "User",
@@ -206,7 +208,7 @@ return {
                 },
                 "kind": "RelayResolver",
                 "storageKey": null,
-                "isOutputType": false
+                "isOutputType": true
               }
             ],
             "type": "User",

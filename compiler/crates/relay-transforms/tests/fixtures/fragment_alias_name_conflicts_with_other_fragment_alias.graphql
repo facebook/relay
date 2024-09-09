@@ -1,0 +1,10 @@
+# expected-to-throw
+
+query RelayReaderNamedFragmentsTest2Query {
+  ... on Query @alias(as: "myAlias") {
+    __typename
+  }
+  ... on Query @alias(as: "myAlias") {
+    __typename
+  }
+}

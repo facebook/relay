@@ -17,13 +17,15 @@ import type {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   PreloadedEntryPoint,
+  PreloadedQuery,
 } from './EntryPointTypes.flow';
 
 const {loadQuery} = require('./loadQuery');
 
 function loadEntryPoint<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,
@@ -46,13 +48,19 @@ function loadEntryPoint<
   }
   const preloadProps = entryPoint.getPreloadProps(entryPointParams);
   const {queries, entryPoints, extraProps} = preloadProps;
-  const preloadedQueries: $Shape<TPreloadedQueries> = {};
-  const preloadedEntryPoints: $Shape<TPreloadedEntryPoints> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedQueries: Partial<TPreloadedQueries> = {};
+  // $FlowFixMe[incompatible-type]
+  const preloadedEntryPoints: Partial<TPreloadedEntryPoints> = {};
   if (queries != null) {
     const queriesPropNames = Object.keys(queries);
     queriesPropNames.forEach(queryPropName => {
+      const query = queries[queryPropName];
+      if (query == null) {
+        return;
+      }
       const {environmentProviderOptions, options, parameters, variables} =
-        queries[queryPropName];
+        query;
 
       const environment = environmentProvider.getEnvironment(
         environmentProviderOptions,
@@ -84,11 +92,11 @@ function loadEntryPoint<
         entryPointDescription;
       preloadedEntryPoints[entryPointPropName] = loadEntryPoint<
         _,
-        {...},
+        {},
         {...},
         {...},
         mixed,
-        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        EntryPointComponent<{}, {...}, {...}, mixed>,
         _,
       >(environmentProvider, nestedEntryPoint, nestedParams);
     });

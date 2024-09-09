@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver ClientUser Foo Baz Baz Abracadabra
+ */
+==================================== ERROR ====================================
+✖︎ Expected a end of file
+
+  /path/to/test/fixture/relay-resolver-strong-object-with-gibberish.invalid.js:11:30
+   10 │ *
+   11 │  * @RelayResolver ClientUser Foo Baz Baz Abracadabra
+      │                              ^^^
+   12 │

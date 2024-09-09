@@ -52,7 +52,6 @@ const loadQuery = jest.fn().mockImplementation(() => {
 
 jest.mock('../loadQuery', () => ({
   loadQuery,
-  useTrackLoadQueryInRender: () => {},
 }));
 
 describe('useQueryLoader', () => {
@@ -347,7 +346,7 @@ describe('useQueryLoader', () => {
   });
 
   beforeEach(() => {
-    jest.mock('scheduler', () => require('scheduler/unstable_mock'));
+    jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
   });
 
   afterEach(() => {
@@ -665,7 +664,10 @@ describe('useQueryLoader', () => {
       );
     }
 
-    const outerInstance = ReactTestRenderer.create(<Outer />);
+    let outerInstance;
+    ReactTestRenderer.act(() => {
+      outerInstance = ReactTestRenderer.create(<Outer />);
+    });
     expect(renderCount).toEqual(1);
     ReactTestRenderer.act(() => {
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
@@ -677,9 +679,9 @@ describe('useQueryLoader', () => {
       setShouldSuspend(true);
     });
     expect(renderCount).toEqual(2);
-    expect(outerInstance.toJSON()).toEqual('fallback');
+    expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
-    ReactTestRenderer.act(() => outerInstance.unmount());
+    ReactTestRenderer.act(() => outerInstance?.unmount());
     expect(releaseQuery).toHaveBeenCalledTimes(1);
   });
 
@@ -705,7 +707,16 @@ describe('useQueryLoader', () => {
       );
     }
 
-    const outerInstance = ReactTestRenderer.create(<Outer />);
+    let outerInstance;
+    ReactTestRenderer.act(() => {
+      outerInstance = ReactTestRenderer.create(
+        <Outer />,
+        // $FlowFixMe[prop-missing]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
     expect(renderCount).toEqual(1);
     ReactTestRenderer.act(() => {
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
@@ -713,26 +724,23 @@ describe('useQueryLoader', () => {
       queryLoaderCallback({});
     });
     expect(renderCount).toEqual(2);
-    const firstDispose = releaseQuery;
     ReactTestRenderer.act(() => {
       setShouldSuspend(true);
     });
     expect(renderCount).toEqual(2);
-    expect(firstDispose).not.toHaveBeenCalled();
-    expect(outerInstance.toJSON()).toEqual('fallback');
+    expect(releaseQuery).not.toHaveBeenCalled();
+    expect(outerInstance?.toJSON()).toEqual('fallback');
 
     ReactTestRenderer.act(() => {
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * useQueryLoader */
       queryLoaderCallback({});
     });
-    const secondDispose = releaseQuery;
-    expect(renderCount).toEqual(3);
-    expect(outerInstance.toJSON()).toEqual('fallback');
-    expect(firstDispose).toHaveBeenCalledTimes(1);
-    expect(secondDispose).not.toHaveBeenCalled();
-    ReactTestRenderer.act(() => outerInstance.unmount());
-    expect(secondDispose).toHaveBeenCalledTimes(1);
+    expect(renderCount).toEqual(2);
+    expect(outerInstance?.toJSON()).toEqual('fallback');
+    expect(releaseQuery).not.toHaveBeenCalled();
+    ReactTestRenderer.act(() => outerInstance?.unmount());
+    expect(releaseQuery).toHaveBeenCalledTimes(1);
   });
 
   it('releases all queries if the component suspends, another query is loaded and then the component unmounts', () => {
@@ -757,23 +765,32 @@ describe('useQueryLoader', () => {
       );
     }
 
-    const outerInstance = ReactTestRenderer.create(<Outer />);
+    let outerInstance;
+    ReactTestRenderer.act(() => {
+      outerInstance = ReactTestRenderer.create(
+        <Outer />,
+        // $FlowFixMe[prop-missing]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
     expect(renderCount).toEqual(1);
     ReactTestRenderer.act(() => {
       setShouldSuspend(true);
     });
     expect(renderCount).toEqual(1);
-    expect(outerInstance.toJSON()).toEqual('fallback');
+    expect(outerInstance?.toJSON()).toEqual('fallback');
     ReactTestRenderer.act(() => {
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * useQueryLoader */
       queryLoaderCallback({});
     });
 
-    expect(renderCount).toEqual(2);
-    expect(outerInstance.toJSON()).toEqual('fallback');
+    expect(renderCount).toEqual(1);
+    expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
-    ReactTestRenderer.act(() => outerInstance.unmount());
+    ReactTestRenderer.act(() => outerInstance?.unmount());
     expect(releaseQuery).toHaveBeenCalledTimes(1);
   });
 

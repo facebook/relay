@@ -22,7 +22,7 @@ See also the [`useMutation`](../use-mutation/) API and [Guide to Updating Data](
 import type {FeedbackLikeMutation} from 'FeedbackLikeMutation.graphql';
 const React = require('React');
 
-const {graphql, useMutation} = require('react-relay');
+const {graphql, commitMutation} = require('react-relay');
 
 function likeFeedback(environment: IEnvironment): Disposable {
   return commitMutation<FeedbackLikeMutation>(environment, {

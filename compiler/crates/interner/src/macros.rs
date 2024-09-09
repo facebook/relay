@@ -44,16 +44,14 @@ macro_rules! intern {
 /// let user: User = User { name };
 /// let user_key: UserKey = user.intern();
 /// ```
-///
 #[macro_export]
 macro_rules! make_intern {
     ($name:ident as $alias:ident) => {
         use lazy_static::lazy_static;
-
-        use crate::Intern;
-        use crate::InternKey;
-        use crate::InternTable;
-        use crate::RawInternKey;
+        use $crate::Intern;
+        use $crate::InternKey;
+        use $crate::InternTable;
+        use $crate::RawInternKey;
 
         lazy_static! {
             /// Global interning table for this type

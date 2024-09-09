@@ -13,6 +13,7 @@ use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use ::intern::Lookup;
+use common::DirectiveName;
 use common::InputObjectName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
@@ -22,6 +23,8 @@ use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
+use lazy_static::lazy_static;
+use relay_config::CustomTypeImport;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
 use relay_transforms::RefetchableDerivedFromMetadata;
@@ -68,27 +71,38 @@ use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_RAW_RESPONSE;
 use crate::KEY_TYPENAME;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
-use crate::PROVIDED_VARIABLE_TYPE;
 use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
 use crate::REACT_RELAY_MULTI_ACTOR;
 use crate::VALIDATOR_EXPORT_NAME;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
+lazy_static! {
+    static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
+        DirectiveName("throwOnFieldError".intern());
+}
+
 pub(crate) fn write_operation_type_exports_section(
     typegen_context: &'_ TypegenContext<'_>,
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     writer: &mut Box<dyn Writer>,
+    maybe_provided_variables_object: Option<String>,
 ) -> FmtResult {
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = RuntimeImports::default();
+    let mut custom_error_import = None;
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
     let mut imported_raw_response_types = Default::default();
+
+    let is_throw_on_field_error = typegen_operation
+        .directives
+        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
+        .is_some();
 
     let type_selections = visit_selections(
         typegen_context,
@@ -101,22 +115,28 @@ pub(crate) fn write_operation_type_exports_section(
         &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
+        &mut custom_error_import,
         None,
+        is_throw_on_field_error,
     );
+
+    let emit_optional_type = typegen_operation
+        .directives
+        .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        .is_some();
 
     let data_type = get_data_type(
         typegen_context,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
-        typegen_operation
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-            .is_some(),
+        emit_optional_type,
         false, // Query types can never be plural
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut custom_scalars,
+        &mut runtime_imports,
+        &mut custom_error_import,
     );
 
     let raw_response_type_and_match_fields =
@@ -132,6 +152,7 @@ pub(crate) fn write_operation_type_exports_section(
                 &mut runtime_imports,
                 &mut custom_scalars,
                 None,
+                is_throw_on_field_error,
             );
             Some((
                 raw_response_selections_to_babel(
@@ -164,11 +185,17 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
-    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
+    if custom_error_import.is_some() {
+        write_import_custom_type(custom_error_import, writer)?;
+    }
+    // TODO: Add proper support for Resolver type generation in typescript: https://github.com/facebook/relay/issues/4772
+    if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow {
+        write_relay_resolver_imports(imported_resolvers, writer)?;
+    }
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
-    let provided_variables_object = generate_provided_variables_type(
+    let expected_provided_variables_type = generate_provided_variables_type(
         typegen_context,
         normalization_operation,
         &mut input_object_types,
@@ -215,8 +242,17 @@ pub(crate) fn write_operation_type_exports_section(
         &query_wrapper_type.into(),
     )?;
 
-    if let Some(provided_variables) = provided_variables_object {
-        writer.write_local_type(PROVIDED_VARIABLE_TYPE, &provided_variables)?;
+    if let Some(provided_variables_type) = expected_provided_variables_type {
+        let actual_provided_variables_object = maybe_provided_variables_object.unwrap_or_else(|| {
+             panic!("Expected the provided variables object. If you see this error, it most likley a bug in the compiler.");
+     });
+
+        // Assert that expected type of provided variables matches
+        // the flow/typescript types of functions with providers.
+        writer.write_type_assertion(
+            actual_provided_variables_object.as_str(),
+            &provided_variables_type,
+        )?;
     }
 
     Ok(())
@@ -258,6 +294,11 @@ pub(crate) fn write_split_operation_type_exports_section(
     let mut runtime_imports = RuntimeImports::default();
     let mut custom_scalars = CustomScalarsImports::default();
 
+    let is_throw_on_field_error = typegen_operation
+        .directives
+        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
+        .is_some();
+
     let raw_response_selections = raw_response_visit_selections(
         typegen_context,
         &normalization_operation.selections,
@@ -268,6 +309,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut runtime_imports,
         &mut custom_scalars,
         None,
+        is_throw_on_field_error,
     );
     let raw_response_type = raw_response_selections_to_babel(
         typegen_context,
@@ -305,6 +347,11 @@ pub(crate) fn write_fragment_type_exports_section(
         .named(*ASSIGNABLE_DIRECTIVE)
         .is_some();
 
+    let is_throw_on_field_error = fragment_definition
+        .directives
+        .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
+        .is_some();
+
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
@@ -315,6 +362,7 @@ pub(crate) fn write_fragment_type_exports_section(
         generic_fragment_type: true,
         ..Default::default()
     };
+    let mut custom_error_import: Option<CustomTypeImport> = None;
     let mut imported_raw_response_types = Default::default();
 
     let mut type_selections = visit_selections(
@@ -328,7 +376,9 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
+        &mut custom_error_import,
         None,
+        is_throw_on_field_error,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
         let num_concrete_selections = type_selections
@@ -394,6 +444,8 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut custom_scalars,
+        &mut runtime_imports,
+        &mut custom_error_import,
     );
 
     write_import_actor_change_point(actor_change_status, writer)?;
@@ -414,7 +466,11 @@ pub(crate) fn write_fragment_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
-    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
+
+    // TODO: Add proper support for Resolver type generation in typescript: https://github.com/facebook/relay/issues/4772
+    if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow {
+        write_relay_resolver_imports(imported_resolvers, writer)?;
+    }
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
     let fragment_type_name = format!("{}$fragmentType", fragment_name);
@@ -444,9 +500,31 @@ pub(crate) fn write_fragment_type_exports_section(
     if !is_assignable_fragment {
         writer.write_export_type(&data_type_name, &data_type)?;
         writer.write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
+    } else if typegen_context
+        .typegen_options
+        .is_extra_artifact_branch_module
+    {
+        writer.write_export_type(&data_type_name, &data_type)?;
     }
 
     Ok(())
+}
+
+fn write_import_custom_type(
+    custom_type_import: Option<CustomTypeImport>,
+    writer: &mut Box<dyn Writer>,
+) -> FmtResult {
+    match custom_type_import {
+        Some(custom_type_import) => {
+            let names = &[custom_type_import.name.lookup()];
+            let path = &custom_type_import.path.to_str();
+            match path {
+                Some(path) => writer.write_import_type(names, path),
+                _ => Ok(()),
+            }
+        }
+        _ => Ok(()),
+    }
 }
 
 fn write_fragment_imports(
@@ -498,16 +576,15 @@ fn write_fragment_imports(
                             )
                         });
 
-                    let path_for_artifact =
-                        typegen_context.project_config.create_path_for_artifact(
-                            fragment_location.source_location(),
-                            current_referenced_fragment.to_string(),
-                        );
-
                     let fragment_import_path =
-                        typegen_context.project_config.js_module_import_path(
-                            typegen_context.definition_source_location,
-                            path_for_artifact.to_str().unwrap().intern(),
+                        typegen_context.project_config.js_module_import_identifier(
+                            &typegen_context.project_config.artifact_path_for_definition(
+                                typegen_context.definition_source_location,
+                            ),
+                            &typegen_context.project_config.create_path_for_artifact(
+                                fragment_location.source_location(),
+                                current_referenced_fragment.to_string(),
+                            ),
                         );
 
                     writer.write_import_fragment_type(
@@ -539,20 +616,14 @@ fn write_import_actor_change_point(
 }
 
 fn write_relay_resolver_imports(
-    typegen_context: &'_ TypegenContext<'_>,
     mut imported_resolvers: ImportedResolvers,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    // We don't need to import resolver modules in the type-generation
-    // they should be imported in the codegen.
-    if matches!(
-        typegen_context.project_config.typegen_config.language,
-        TypegenLanguage::TypeScript
-    ) {
-        return Ok(());
-    }
-
     imported_resolvers.0.sort_keys();
+
+    // Context import will be the same for each resolver, so this flag is used to ensure it is only written once
+    let mut live_resolver_context_import_written = false;
+
     for resolver in imported_resolvers.0.values() {
         match resolver.resolver_name {
             ImportedResolverName::Default(name) => {
@@ -566,7 +637,20 @@ fn write_relay_resolver_imports(
                 )?;
             }
         }
-        writer.write(&resolver.resolver_type)?;
+
+        if let Some(ref live_resolver_context_import) = resolver.context_import {
+            if !live_resolver_context_import_written {
+                writer.write_import_type(
+                    &[live_resolver_context_import.name.lookup()],
+                    live_resolver_context_import.import_path.lookup(),
+                )?;
+                live_resolver_context_import_written = true;
+            }
+        }
+
+        if let AST::AssertFunctionType(_) = &resolver.resolver_type {
+            writer.write(&resolver.resolver_type)?;
+        }
     }
     Ok(())
 }
@@ -594,16 +678,15 @@ fn write_split_raw_response_type_imports(
                 } else if let Some(imported_raw_response_document_location) =
                     imported_raw_response_document_location
                 {
-                    let path_for_artifact =
-                        typegen_context.project_config.create_path_for_artifact(
-                            imported_raw_response_document_location.source_location(),
-                            imported_raw_response_type.to_string(),
-                        );
-
                     let artifact_import_path =
-                        typegen_context.project_config.js_module_import_path(
-                            typegen_context.definition_source_location,
-                            path_for_artifact.to_str().unwrap().intern(),
+                        typegen_context.project_config.js_module_import_identifier(
+                            &typegen_context.project_config.artifact_path_for_definition(
+                                typegen_context.definition_source_location,
+                            ),
+                            &typegen_context.project_config.create_path_for_artifact(
+                                imported_raw_response_document_location.source_location(),
+                                imported_raw_response_type.to_string(),
+                            ),
                         );
 
                     writer.write_import_fragment_type(
@@ -632,16 +715,18 @@ fn write_enum_definitions(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let enum_ids = encountered_enums.into_sorted_vec(typegen_context.schema);
+    let maybe_suffix = &typegen_context
+        .project_config
+        .typegen_config
+        .enum_module_suffix;
     for enum_id in enum_ids {
         let enum_type = typegen_context.schema.enum_(enum_id);
-        if let Some(enum_module_suffix) = &typegen_context
-            .project_config
-            .typegen_config
-            .enum_module_suffix
-        {
+        if !enum_type.is_extension && maybe_suffix.is_some() {
+            // We can't chain `if let` statements, so we need to unwrap here.
+            let suffix = maybe_suffix.as_ref().unwrap();
             writer.write_import_type(
                 &[enum_type.name.item.lookup()],
-                &format!("{}{}", enum_type.name.item, enum_module_suffix),
+                &format!("{}{}", enum_type.name.item, suffix),
             )?;
         } else {
             let mut members: Vec<AST> = enum_type
@@ -650,11 +735,21 @@ fn write_enum_definitions(
                 .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
                 .collect();
 
-            if !typegen_context
-                .project_config
-                .typegen_config
-                .flow_typegen
-                .no_future_proof_enums
+            // Users can specify a config option to disable the inclusion of
+            // FUTURE_ENUM_VALUE in the enum union. Additionally we want to avoid
+            // emitting FUTURE_ENUM_VALUE if the enum is actually defined on the
+            // client. For example in Client Schema Extensions or (some day)
+            // Relay Resolvers.
+            //
+            // In the case of a client defined enum, we don't need to enforce
+            // the breaking change semantics dictated by the GraphQL spec
+            // because new fields added to the client schema will simply result
+            // in fixable Flow/TypeScript errors elsewhere in the codebase.
+            if !(enum_type.is_extension
+                || typegen_context
+                    .project_config
+                    .typegen_config
+                    .no_future_proof_enums)
             {
                 members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
             }
@@ -728,14 +823,14 @@ fn write_input_object_types(
 /// The types of the validator:
 ///
 /// - For fragments whose type condition is abstract:
-/// ({ __id: string, __isFragmentName: ?string, $fragmentSpreads: FragmentRefType }) =>
-///   ({ __id: string, __isFragmentName: string, $fragmentSpreads: FragmentRefType })
-///   | false
+///   ({ __id: string, __isFragmentName: ?string, $fragmentSpreads: FragmentRefType }) =>
+///     ({ __id: string, __isFragmentName: string, $fragmentSpreads: FragmentRefType })
+///     | false
 ///
 /// - For fragments whose type condition is concrete:
-/// ({ __id: string, __typename: string, $fragmentSpreads: FragmentRefType }) =>
-///   ({ __id: string, __typename: FragmentType, $fragmentSpreads: FragmentRefType })
-///   | false
+///   ({ __id: string, __typename: string, $fragmentSpreads: FragmentRefType }) =>
+///     ({ __id: string, __typename: FragmentType, $fragmentSpreads: FragmentRefType })
+///     | false
 ///
 /// Validators' runtime behavior checks for the presence of the __isFragmentName marker
 /// (for abstract fragment types) or a matching concrete type (for concrete fragment
@@ -834,13 +929,23 @@ fn write_abstract_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} != null ? (value{}: ",
+        "{} {{\n  return value.{} != null ? ",
         &close_comment,
         abstract_fragment_spread_marker.lookup(),
-        open_comment
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+
+    match language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
+    }
+
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }
@@ -907,8 +1012,8 @@ fn write_concrete_validator_function(
         AST::RawType(intern!("false")),
     ]));
 
-    let (open_comment, close_comment) = match typegen_context.project_config.typegen_config.language
-    {
+    let typegen_language = typegen_context.project_config.typegen_config.language;
+    let (open_comment, close_comment) = match typegen_language {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
         TypegenLanguage::TypeScript => ("", ""),
     };
@@ -923,14 +1028,24 @@ fn write_concrete_validator_function(
     writer.write(&return_type)?;
     write!(
         writer,
-        "{} {{\n  return value.{} === '{}' ? (value{}: ",
+        "{} {{\n  return value.{} === '{}' ? ",
         &close_comment,
         KEY_TYPENAME.lookup(),
-        concrete_typename.lookup(),
-        open_comment
+        concrete_typename.lookup()
     )?;
-    writer.write(&AST::Any)?;
-    write!(writer, "{}) : false;\n}}", &close_comment)?;
+
+    match typegen_language {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            write!(writer, "(value{}: ", &open_comment)?;
+            writer.write(&AST::Any)?;
+            write!(writer, "{}) ", &close_comment)?;
+        }
+        TypegenLanguage::TypeScript => {
+            write!(writer, "value ")?;
+        }
+    }
+
+    write!(writer, ": false;\n}}")?;
 
     Ok(())
 }

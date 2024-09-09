@@ -102,27 +102,56 @@ export type $FragmentRef<T> = {
  * `props.relay` and returns the props of the container.
  */
 // prettier-ignore
-export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
-  $Diff<Props, { relay: RelayPropT | void, ... }>,
-  & (<T: { +$fragmentType: empty, ... }>( T) =>  T)
-  & (<T: { +$fragmentType: empty, ... }>(?T) => ?T)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(                 T ) =>                  $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?                T ) => ?                $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
-  & (<T>(T) => T),
+// $FlowFixMe[extra-type-arg] xplat redux flow type error
+export type $RelayProps<Props, RelayPropT = RelayProp> = MapRelayProps<
+  $Diff<Props, {relay: RelayPropT | void, ...}>,
 >;
 
-export type RelayFragmentContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
+type MapRelayProps<Props> = {[K in keyof Props]: MapRelayProp<Props[K]>};
+type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
+  ? T
+  : [+t: T] extends [+t: ?{+$fragmentType: empty, ...}]
+    ? ?T
+    : [+t: T] extends [+t: {+$fragmentType: FragmentType, ...}]
+      ? $FragmentRef<T>
+      : [+t: T] extends [+t: ?{+$fragmentType: FragmentType, ...}]
+        ? ?$FragmentRef<$NonMaybeType<T>>
+        : [+t: T] extends [
+              +t: $ReadOnlyArray<
+                infer V extends {+$fragmentType: FragmentType, ...},
+              >,
+            ]
+          ? $ReadOnlyArray<$FragmentRef<V>>
+          : [+t: T] extends [
+                +t: ?$ReadOnlyArray<
+                  infer V extends {+$fragmentType: FragmentType, ...},
+                >,
+              ]
+            ? ?$ReadOnlyArray<$FragmentRef<V>>
+            : [+t: T] extends [
+                  +t: $ReadOnlyArray<?infer V extends {
+                    +$fragmentType: FragmentType,
+                    ...
+                  }>,
+                ]
+              ? $ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+              : [+t: T] extends [
+                    +t: ?$ReadOnlyArray<?infer V extends {
+                      +$fragmentType: FragmentType,
+                      ...
+                    }>,
+                  ]
+                ? ?$ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+                : T;
+
+export type RelayFragmentContainer<TComponent> = React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
 >;
 
-export type RelayPaginationContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
+export type RelayPaginationContainer<TComponent> = React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
 >;
 
-export type RelayRefetchContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
+export type RelayRefetchContainer<TComponent> = React.ComponentType<
+  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
 >;

@@ -152,7 +152,7 @@ describe('ActorChange with @defer', () => {
       createNetworkForActor: actorIdentifier =>
         Network.create((...args) => fetchFnForActor(...args)),
       logFn: jest.fn(),
-      requiredFieldLogger: jest.fn(),
+      relayFieldLogger: jest.fn(),
     });
     environment = multiActorEnvironment.forActor(
       getActorIdentifier('actor:1234'),
@@ -175,13 +175,16 @@ describe('ActorChange with @defer', () => {
       });
     };
 
-    const testRenderer = ReactTestRenderer.create(
-      <ComponentWrapper
-        environment={environment}
-        multiActorEnvironment={multiActorEnvironment}>
-        <MainComponent />
-      </ComponentWrapper>,
-    );
+    let testRenderer;
+    ReactTestRenderer.act(() => {
+      testRenderer = ReactTestRenderer.create(
+        <ComponentWrapper
+          environment={environment}
+          multiActorEnvironment={multiActorEnvironment}>
+          <MainComponent />
+        </ComponentWrapper>,
+      );
+    });
 
     dataSource.next({
       data: {
@@ -235,11 +238,11 @@ describe('ActorChange with @defer', () => {
         },
       },
     });
-    expect(testRenderer.toJSON()).toEqual('Loading...');
+    expect(testRenderer?.toJSON()).toEqual('Loading...');
 
     ReactTestRenderer.act(jest.runAllImmediates);
 
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'should render 2 actor cards, and empty deferred message boxes.',
     );
 
@@ -255,7 +258,7 @@ describe('ActorChange with @defer', () => {
         path: ['viewer', 'newsFeed', 'edges', 0, 'actor_node'],
       });
     });
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'should render a list of actors with the first message for Antonio',
     );
 
@@ -272,7 +275,7 @@ describe('ActorChange with @defer', () => {
       });
     });
 
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'should render all messages, for all actors',
     );
   });

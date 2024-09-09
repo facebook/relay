@@ -50,7 +50,7 @@ class BarComponent extends React.Component<{
   getNum(): number {
     return 42;
   }
-  render(): React.Element<'div'> {
+  render(): React.MixedElement {
     const reqLen = this.props.requiredProp.length;
     const optionalProp = this.props.optionalProp;
 
@@ -137,7 +137,7 @@ module.exports = {
         /** $FlowExpectedError: Bar `getNum` gives number, but `getString` assumes string  **/
         return bad ? 'not good' : ok;
       }
-      render(): React.Element<typeof Bar> {
+      render(): React.MixedElement {
         return (
           <Bar
             componentRef={(ref: empty) => {

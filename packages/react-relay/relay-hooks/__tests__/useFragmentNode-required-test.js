@@ -13,7 +13,7 @@
 import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
 import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
-const useFragmentNodeOriginal = require('../useFragmentNode');
+const useFragmentNodeOriginal = require('../legacy/useFragmentNode');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -32,7 +32,7 @@ let singularQuery;
 let renderSingularFragment;
 let renderSpy;
 
-function useFragmentNode(
+hook useFragmentNode(
   fragmentNode: ReaderFragment,
   fragmentRef: $TEMPORARY$object<{
     __fragmentOwner: RequestDescriptor,
@@ -40,7 +40,6 @@ function useFragmentNode(
       useFragmentNodeRequiredTestUserFragment: $TEMPORARY$object<{...}>,
     }>,
     __id: any,
-    __isWithinUnmatchedTypeRefinement: boolean,
   }>,
 ) {
   const result = useFragmentNodeOriginal<any>(
@@ -108,7 +107,6 @@ beforeEach(() => {
         useFragmentNodeRequiredTestUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: singularQuery.request,
-      __isWithinUnmatchedTypeRefinement: false,
     };
 
     useFragmentNode(gqlSingularFragment, userRef);
@@ -134,7 +132,9 @@ afterEach(() => {
 it('should render singular fragment without error when data is available', () => {
   // $FlowFixMe[prop-missing]
   warning.mockClear();
-  renderSingularFragment();
+  TestRenderer.act(() => {
+    renderSingularFragment();
+  });
   expect(renderSpy).toHaveBeenCalledWith(
     expect.objectContaining({
       data: {
@@ -159,7 +159,9 @@ it('should not warn on missing record when null bubbles to fragment root', () =>
   // $FlowFixMe[prop-missing]
   warning.mockClear();
 
-  renderSingularFragment();
+  TestRenderer.act(() => {
+    renderSingularFragment();
+  });
   expect(renderSpy).toHaveBeenCalledWith(
     expect.objectContaining({
       data: null,

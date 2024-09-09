@@ -31,8 +31,7 @@ export type ClientEdgeQuery_relayResolver_Query_me__best_friend = {|
   variables: ClientEdgeQuery_relayResolver_Query_me__best_friend$variables,
 |};
 -------------------------------------------------------------------------------
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { DataID } from "relay-runtime";
+import type { LiveState, DataID } from "relay-runtime";
 import type { relayResolver_BestFriendResolverFragment_name$key } from "relayResolver_BestFriendResolverFragment_name.graphql";
 import userBestFriendResolverType from "BestFriendResolver";
 // Type assertion validating that `userBestFriendResolverType` resolver is correctly implemented.

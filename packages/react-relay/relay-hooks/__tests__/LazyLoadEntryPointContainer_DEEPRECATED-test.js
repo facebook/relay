@@ -141,6 +141,8 @@ beforeEach(() => {
         queries: {
           prefetched: {
             parameters: params,
+            /* $FlowFixMe[prop-missing] Error revealed after improved builtin
+             * React utility types */
             variables: {id: entryPointParams.id},
           },
         },
@@ -151,19 +153,22 @@ beforeEach(() => {
 });
 
 it('suspends while the query and component are pending', () => {
-  const renderer = TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={{version: 0}}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={{version: 0}}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
   TestRenderer.act(() => jest.runAllImmediates());
-  expect(renderer.toJSON()).toEqual('Fallback');
+  expect(renderer?.toJSON()).toEqual('Fallback');
   expect(fetch).toBeCalledTimes(1);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
@@ -174,19 +179,22 @@ it('suspends while the component is loading', () => {
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
-  const renderer = TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={{version: 0}}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={{version: 0}}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
   TestRenderer.act(() => jest.runAllImmediates());
-  expect(renderer.toJSON()).toEqual('Fallback');
+  expect(renderer?.toJSON()).toEqual('Fallback');
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
@@ -198,19 +206,22 @@ it('suspends while the query is loading', () => {
   }
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
-  const renderer = TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={{version: 0}}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={{version: 0}}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
   TestRenderer.act(() => jest.runAllImmediates());
-  expect(renderer.toJSON()).toEqual('Fallback');
+  expect(renderer?.toJSON()).toEqual('Fallback');
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(fetch).toBeCalledTimes(1);
@@ -218,19 +229,22 @@ it('suspends while the query is loading', () => {
 
 it('suspends then updates when the query and component load', () => {
   const otherProps = {version: 0};
-  const renderer = TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={otherProps}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={otherProps}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
   TestRenderer.act(() => jest.runAllImmediates());
-  expect(renderer.toJSON()).toEqual('Fallback');
+  expect(renderer?.toJSON()).toEqual('Fallback');
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -273,18 +287,21 @@ it('renders synchronously when the query and component are already loaded', () =
   dataSource.next(response);
   dataSource.complete();
 
-  const renderer = TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={otherProps}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
-  expect(renderer.toJSON()).toEqual('Zuck');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={otherProps}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Zuck');
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -296,6 +313,7 @@ it('renders synchronously when the query and component are already loaded', () =
 it('re-renders without reloading when non-prefetch props change', () => {
   // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
+    // $FlowFixMe[react-rule-hook]
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node?.name;
   });
@@ -306,30 +324,35 @@ it('re-renders without reloading when non-prefetch props change', () => {
   dataSource.next(response);
   dataSource.complete();
 
-  const renderer = TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={{version: 0}}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
-  expect(renderer.toJSON()).toEqual('Zuck');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={{version: 0}}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Zuck');
   expect(Component).toBeCalledTimes(1);
-  renderer.update(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={{version: 1 /* different value */}}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    renderer.update(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={{version: 1 /* different value */}}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(renderer.toJSON()).toEqual('Zuck');
   expect(Component).toBeCalledTimes(2);
   expect(entryPoint.getPreloadProps).toBeCalledTimes(1);
@@ -338,6 +361,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
 it('re-renders and reloads when prefetch params change', () => {
   // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
+    // $FlowFixMe[react-rule-hook]
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node?.name;
   });
@@ -349,30 +373,35 @@ it('re-renders and reloads when prefetch params change', () => {
   dataSource.complete();
 
   const otherProps = {version: 0};
-  const renderer = TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={otherProps}
-          entryPointParams={{id: '4'}}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
-  expect(renderer.toJSON()).toEqual('Zuck');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={otherProps}
+            entryPointParams={{id: '4'}}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Zuck');
   expect(Component).toBeCalledTimes(1);
-  renderer.update(
-    <RelayEnvironmentProvider environment={environment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={otherProps}
-          entryPointParams={{id: '_4'} /* different id */}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    renderer.update(
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={otherProps}
+            entryPointParams={{id: '_4'} /* different id */}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(renderer.toJSON()).toEqual('Fallback');
   expect(Component).toBeCalledTimes(2);
   expect(entryPoint.getPreloadProps).toBeCalledTimes(2);
@@ -523,6 +552,8 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
               actorID: '5',
             },
             parameters: params,
+            /* $FlowFixMe[prop-missing] Error revealed after improved builtin
+             * React utility types */
             variables: {id: entryPointParams.id},
           },
         },
@@ -562,21 +593,23 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
   const getEnvironment = jest.fn(() => {
     return environmentForActor;
   });
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={defaultEnvironment}>
-      <React.Suspense fallback="Fallback">
-        <LazyLoadEntryPointContainer_DEPRECATED
-          entryPoint={entryPoint}
-          props={{version: 0}}
-          entryPointParams={{id: '4'}}
-          // $FlowFixMe[invalid-tuple-arity]
-          environmentProvider={{
-            getEnvironment,
-          }}
-        />
-      </React.Suspense>
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={defaultEnvironment}>
+        <React.Suspense fallback="Fallback">
+          <LazyLoadEntryPointContainer_DEPRECATED
+            entryPoint={entryPoint}
+            props={{version: 0}}
+            entryPointParams={{id: '4'}}
+            // $FlowFixMe[invalid-tuple-arity]
+            environmentProvider={{
+              getEnvironment,
+            }}
+          />
+        </React.Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
   TestRenderer.act(() => jest.runAllImmediates());
   expect(getEnvironment).toBeCalledWith({
     actorID: '5',

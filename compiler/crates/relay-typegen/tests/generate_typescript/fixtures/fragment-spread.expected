@@ -56,12 +56,12 @@ export type ConcreateTypes$data = {
     readonly " $fragmentSpreads": FragmentRefs<"PageFragment">;
   } | {
     readonly __typename: "User";
-    readonly name: string | null;
+    readonly name: string | null | undefined;
   } | {
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     readonly __typename: "%other";
-  } | null;
+  } | null | undefined;
   readonly " $fragmentType": "ConcreateTypes";
 };
 export type ConcreateTypes$key = {
@@ -72,13 +72,13 @@ export type ConcreateTypes$key = {
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread$data = {
   readonly fragAndField: {
-    readonly uri: string | null;
+    readonly uri: string | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
-  } | null;
+  } | null | undefined;
   readonly id: string;
   readonly justFrag: {
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
-  } | null;
+  } | null | undefined;
   readonly " $fragmentSpreads": FragmentRefs<"OtherFragment" | "UserFrag1" | "UserFrag2">;
   readonly " $fragmentType": "FragmentSpread";
 };

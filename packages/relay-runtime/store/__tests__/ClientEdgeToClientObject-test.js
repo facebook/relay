@@ -32,12 +32,10 @@ disallowWarnings();
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 test('Can read a deep portion of the schema that is backed by client edges to client objects.', () => {
@@ -93,7 +91,7 @@ test('Can read a deep portion of the schema that is backed by client edges to cl
   });
 
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  const {me} = (environment.lookup(operation.fragment).data: any);
+  const {me}: any = environment.lookup(operation.fragment).data;
 
   expect(me).toMatchInlineSnapshot(`
     Object {

@@ -11,17 +11,13 @@
 
 'use strict';
 
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver
- * @fieldName counter_suspends_when_odd
- * @onType User
+ * @RelayResolver User.counter_suspends_when_odd: Int
  * @live
  *
  * A Relay Resolver that returns an object implementing the External State

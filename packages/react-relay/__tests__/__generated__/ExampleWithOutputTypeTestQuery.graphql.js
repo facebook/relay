@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03326d860aa33d678191fbe7962934db>>
+ * @generated SignedSource<<c2e45eddddcf29cda64a1ad63a7e7643>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,9 +19,13 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import {example_client_object as queryExampleClientObjectResolverType} from "../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryExampleClientObjectResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryExampleClientObjectResolverType: () => ?Query__example_client_object$normalization);
+(queryExampleClientObjectResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?Query__example_client_object$normalization);
 import type { Query__example_client_object$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql";
 export type ExampleWithOutputTypeTestQuery$variables = {||};
 export type ExampleWithOutputTypeTestQuery$data = {|
@@ -66,6 +70,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "ClientObject",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -75,6 +80,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver').example_client_object,
           "path": "example_client_object",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "ClientObject",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__example_client_object$normalization.graphql')

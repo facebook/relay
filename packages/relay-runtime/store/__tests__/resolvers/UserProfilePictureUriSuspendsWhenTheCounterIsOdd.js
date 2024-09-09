@@ -12,20 +12,15 @@
 'use strict';
 
 import type {UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key} from './__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {graphql} = require('relay-runtime');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const {graphql, suspenseSentinel} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName user_profile_picture_uri_suspends_when_the_counter_is_odd
+ * @RelayResolver User.user_profile_picture_uri_suspends_when_the_counter_is_odd: String
  * @rootFragment UserProfilePictureUriSuspendsWhenTheCounterIsOdd
- * @onType User
  * @live
  *
  * This field returns the profile picture url, when the GLOBAL_STORE number is

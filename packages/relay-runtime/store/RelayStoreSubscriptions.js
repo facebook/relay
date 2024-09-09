@@ -18,6 +18,7 @@ import type {
   OperationDescriptor,
   RecordSource,
   RequestDescriptor,
+  ResolverContext,
   Snapshot,
   StoreSubscriptions,
 } from './RelayStoreTypes';
@@ -27,6 +28,7 @@ const deepFreeze = require('../util/deepFreeze');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
+const hasSignificantOverlappingIDs = require('./hasSignificantOverlappingIDs');
 const RelayReader = require('./RelayReader');
 
 type Subscription = {
@@ -40,11 +42,17 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
   __log: ?LogFunction;
   _resolverCache: ResolverCache;
+  _resolverContext: ?ResolverContext;
 
-  constructor(log?: ?LogFunction, resolverCache: ResolverCache) {
+  constructor(
+    log?: ?LogFunction,
+    resolverCache: ResolverCache,
+    resolverContext?: ResolverContext,
+  ) {
     this._subscriptions = new Set();
     this.__log = log;
     this._resolverCache = resolverCache;
+    this._resolverContext = resolverContext;
   }
 
   subscribe(
@@ -82,6 +90,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         source,
         snapshot.selector,
         this._resolverCache,
+        this._resolverContext,
       );
       const nextData = recycleNodesInto(snapshot.data, backup.data);
       (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
@@ -95,6 +104,8 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       subscription.backup = null;
       if (backup) {
         if (backup.data !== subscription.snapshot.data) {
+          // This subscription's data changed in the optimistic state. We will
+          // need to re-read.
           subscription.stale = true;
         }
         subscription.snapshot = {
@@ -106,8 +117,11 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
           relayResolverErrors: backup.relayResolverErrors,
+          errorResponseFields: backup.errorResponseFields,
         };
       } else {
+        // This subscription was created during the optimisitic state. We should
+        // re-read.
         subscription.stale = true;
       }
     });
@@ -158,7 +172,12 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     }
     let nextSnapshot: Snapshot =
       hasOverlappingUpdates || !backup
-        ? RelayReader.read(source, snapshot.selector, this._resolverCache)
+        ? RelayReader.read(
+            source,
+            snapshot.selector,
+            this._resolverCache,
+            this._resolverContext,
+          )
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
     nextSnapshot = ({
@@ -170,6 +189,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,
       relayResolverErrors: nextSnapshot.relayResolverErrors,
+      errorResponseFields: nextSnapshot.errorResponseFields,
     }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);
@@ -188,6 +208,20 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       callback(nextSnapshot);
       return snapshot.selector.owner;
     }
+    // While there were some overlapping IDs that affected this subscription,
+    // none of the read fields were actually affected.
+    if (
+      RelayFeatureFlags.ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION &&
+      (stale ||
+        hasSignificantOverlappingIDs(snapshot.seenRecords, updatedRecordIDs))
+    ) {
+      // With loose attribution enabled, we'll attribute this anyway.
+      return snapshot.selector.owner;
+    }
+  }
+
+  size(): number {
+    return this._subscriptions.size;
   }
 }
 

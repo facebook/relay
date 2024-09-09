@@ -1,0 +1,4 @@
+fragment MyFragment on Node @throwOnFieldError {
+  id
+  name
+}

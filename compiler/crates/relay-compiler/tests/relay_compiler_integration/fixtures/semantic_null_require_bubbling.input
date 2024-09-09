@@ -1,0 +1,22 @@
+//- PersonComponent.js
+graphql`fragment PersonComponentFragment on Query @throwOnFieldError {
+  some_person {
+    name @required(action: LOG)
+  }
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql"
+}
+
+//- schema.graphql
+type Query {
+  some_person: Person @semanticNonNull
+}
+
+type Person {
+  name: String
+}

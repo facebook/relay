@@ -25,6 +25,17 @@ pub enum ConstantValue {
     Object(List<ConstantArgument>),
 }
 
+macro_rules! generate_unwrap_fn {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
+        pub fn $fn_name(&$self) -> $t {
+            match $self {
+                $cv => $result,
+                other => panic!("expected constant {} but got {:#?}", stringify!($cv), other),
+            }
+        }
+    }
+}
+
 impl ConstantValue {
     pub fn span(&self) -> Span {
         match self {
@@ -44,6 +55,19 @@ impl ConstantValue {
             _ => None,
         }
     }
+
+    pub fn get_bool_literal(&self) -> Option<bool> {
+        match self {
+            ConstantValue::Boolean(BooleanNode { value, .. }) => Some(*value),
+            _ => None,
+        }
+    }
+
+    generate_unwrap_fn!(unwrap_int, self, i64, ConstantValue::Int(i) => i.value);
+    generate_unwrap_fn!(unwrap_float, self, FloatValue, ConstantValue::Float(f) => f.value);
+    generate_unwrap_fn!(unwrap_boolean, self, bool, ConstantValue::Boolean(b) => b.value);
+    generate_unwrap_fn!(unwrap_string, self, StringKey, ConstantValue::String(s) => s.value);
+    generate_unwrap_fn!(unwrap_enum, self, StringKey, ConstantValue::Enum(e) => e.value);
 }
 
 impl fmt::Display for ConstantValue {
@@ -113,9 +137,10 @@ impl fmt::Display for IntNode {
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct FloatNode {
     pub token: Token,
+    /// NOTE: we can't just store an f64 here because it doesn't implement Hash, Eq, Ord
     pub value: FloatValue,
     /// Preserve a value, as it was represented in the source
-    /// TODO: We may remove this, as we migrate from JS
+    /// NOTE: this is needed for pretty-printing the AST to ensure we don't change what was in the source
     pub source_value: StringKey,
 }
 
@@ -192,5 +217,18 @@ impl fmt::Display for FloatValue {
 impl std::convert::From<i64> for FloatValue {
     fn from(value: i64) -> Self {
         FloatValue::new(value as f64)
+    }
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct DefaultValue {
+    pub span: Span,
+    pub equals: Token,
+    pub value: ConstantValue,
+}
+
+impl fmt::Display for DefaultValue {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_fmt(format_args!("{}", self.value))
     }
 }

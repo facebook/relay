@@ -13,7 +13,7 @@ query refetchableConflictWithOperationQuery {
   }
 }
 ==================================== ERROR ====================================
-✖︎ A unique query name has to be specified in `@refetchable`, an operation `refetchableConflictWithOperationQuery` already exists.
+✖︎ The `queryName` specified in `@refetchable` must be unique, a definition with the name `refetchableConflictWithOperationQuery` already exists.
 
   refetchable_conflict_with_operation.invalid.graphql:4:27
     3 │ fragment refetchableConflictWithOperationF on Node

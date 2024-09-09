@@ -12,20 +12,17 @@
 'use strict';
 
 /**
- * @RelayResolver
- * @fieldName non_live_resolver_with_live_return_value
- * @onType Query
+ * @RelayResolver Query.non_live_resolver_with_live_return_value: String
  *
  * A non-@live resolver that returns a LiveObject
  */
-import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
-
-function non_live_resolver_with_live_return_value(): LiveState<string> {
+function non_live_resolver_with_live_return_value(): string {
+  // $FlowFixMe This is an intentionally wrong type to test what happens when you return a LiveObject from a non-@live resolver.
   return {
     read() {
       return 'Oops!';
     },
-    subscribe(cb) {
+    subscribe() {
       return () => {};
     },
   };

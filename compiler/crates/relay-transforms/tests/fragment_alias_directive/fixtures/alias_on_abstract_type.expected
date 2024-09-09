@@ -11,18 +11,22 @@ query RelayReaderNamedFragmentsTest2Query {
 ==================================== OUTPUT ===================================
 query RelayReaderNamedFragmentsTest2Query {
   node(id: "1") {
-    ...RelayReaderNamedFragmentsTest_maybe_node_interface @__FragmentAliasMetadata
+    ... on MaybeNodeInterface @__FragmentAliasMetadata
     # FragmentAliasMetadata {
     #     alias: WithLocation {
-    #         location: alias_on_abstract_type.graphql:221:223,
+    #         location: alias_on_abstract_type.graphql:225:243,
     #         item: "aliased_fragment",
     #     },
     #     type_condition: Some(
     #         Interface(0),
     #     ),
-    #     selection_type: Interface(0),
+    #     non_nullable: false,
+    #     selection_type: Interface(5),
+    #     wraps_spread: true,
     # }
-    
+     {
+      ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "aliased_fragment")
+    }
   }
 }
 

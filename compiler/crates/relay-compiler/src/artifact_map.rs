@@ -9,8 +9,10 @@ use std::path::PathBuf;
 
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
+use docblock_shared::ResolverSourceHash;
 use graphql_ir::ExecutableDefinitionName;
 use relay_codegen::QueryID;
+use relay_transforms::ArtifactSourceKeyData;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -25,7 +27,23 @@ pub struct ArtifactRecord {
 }
 /// A map from DefinitionName to output artifacts records
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
-pub struct ArtifactMap(pub DashMap<ExecutableDefinitionName, Vec<ArtifactRecord>>);
+pub struct ArtifactMap(pub DashMap<ArtifactSourceKey, Vec<ArtifactRecord>>);
+
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq, Hash)]
+pub enum ArtifactSourceKey {
+    /// Derieved from a GraphQL Executable Definition
+    ExecutableDefinition(ExecutableDefinitionName),
+    /// Derieved from a RelayResolver docblock
+    ResolverHash(ResolverSourceHash),
+    /// Derived from GraphQL Schema
+    Schema(),
+}
+
+impl From<ArtifactSourceKeyData> for ArtifactSourceKey {
+    fn from(directive: ArtifactSourceKeyData) -> Self {
+        ArtifactSourceKey::ResolverHash(directive.0)
+    }
+}
 
 impl ArtifactMap {
     pub fn insert(&self, artifact: Artifact) {
@@ -33,17 +51,15 @@ impl ArtifactMap {
             path: artifact.path,
             persisted_operation_id: match artifact.content {
                 ArtifactContent::Operation {
-                    id_and_text_hash, ..
-                } => match id_and_text_hash {
-                    Some(QueryID::Persisted { id, .. }) => Some(id),
-                    _ => None,
-                },
+                    id_and_text_hash: Some(QueryID::Persisted { id, .. }),
+                    ..
+                } => Some(id),
                 _ => None,
             },
         };
 
-        for source_definition_name in artifact.source_definition_names {
-            match self.0.entry(source_definition_name) {
+        for source_key in artifact.artifact_source_keys {
+            match self.0.entry(source_key) {
                 Entry::Occupied(mut entry) => {
                     entry.get_mut().push(artifact_tuple.clone());
                 }

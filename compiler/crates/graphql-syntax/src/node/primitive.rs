@@ -15,13 +15,13 @@ use intern::string_key::StringKey;
 
 use crate::lexer::TokenKind;
 
-#[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Token {
     pub span: Span,
     pub kind: TokenKind,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct Identifier {
     pub span: Span,
     pub token: Token,

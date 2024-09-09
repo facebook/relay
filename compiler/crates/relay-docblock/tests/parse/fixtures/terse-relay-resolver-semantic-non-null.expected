@@ -1,0 +1,118 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver User.favorite_page: Page @semanticNonNull
+ * @rootFragment myRootFragment
+ *
+ * The user's favorite page! They probably clicked something in the UI
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
+ */
+ graphql`
+ fragment myRootFragment on User {
+   name
+ }
+`
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 25:38,
+                    token: Token {
+                        span: 25:38,
+                        kind: Identifier,
+                    },
+                    value: "favorite_page",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 40:44,
+                            token: Token {
+                                span: 40:44,
+                                kind: Identifier,
+                            },
+                            value: "Page",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [
+                    ConstantDirective {
+                        span: 45:61,
+                        at: Token {
+                            span: 45:46,
+                            kind: At,
+                        },
+                        name: Identifier {
+                            span: 46:61,
+                            token: Token {
+                                span: 46:61,
+                                kind: Identifier,
+                            },
+                            value: "semanticNonNull",
+                        },
+                        arguments: None,
+                    },
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 96:387,
+                            kind: Empty,
+                        },
+                        value: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+                    },
+                ),
+                hack_source: None,
+                span: 25:61,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:20:24,
+                item: "User",
+            },
+            root_fragment: Some(
+                WithLocation {
+                    location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:79:93,
+                    item: FragmentDefinitionName(
+                        "myRootFragment",
+                    ),
+                },
+            ),
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 45:61,
+                    at: Token {
+                        span: 45:46,
+                        kind: At,
+                    },
+                    name: Identifier {
+                        span: 46:61,
+                        token: Token {
+                            span: 46:61,
+                            kind: Identifier,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: /path/to/test/fixture/terse-relay-resolver-semantic-non-null.js:0:388,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "ba2a3b6d7c4294fef33f921df3b20065",
+            ),
+        },
+    ),
+)

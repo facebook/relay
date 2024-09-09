@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query FooQuery {
+  me {
+    firstName
+    lastName @catch(to: RESULT)
+  }
+}
+==================================== OUTPUT ===================================
+import { Result } from "relay-runtime";
+export type FooQuery$variables = Record<PropertyKey, never>;
+export type FooQuery$data = {
+  readonly me: {
+    readonly firstName: string | null | undefined;
+    readonly lastName: Result<string | null | undefined, ReadonlyArray<unknown>>;
+  } | null | undefined;
+};
+export type FooQuery = {
+  response: FooQuery$data;
+  variables: FooQuery$variables;
+};

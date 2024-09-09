@@ -198,7 +198,6 @@ describe('query with fragments that use provided variables', () => {
     expect(snapshot.data).toEqual({
       node: {
         __fragmentOwner: operation.request,
-        __isWithinUnmatchedTypeRefinement: false,
         __fragments: {
           RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1: {},
         },
@@ -230,7 +229,6 @@ describe('query with fragments that use provided variables', () => {
     expect(snapshot.data).toEqual({
       node: {
         __fragmentOwner: operation.request,
-        __isWithinUnmatchedTypeRefinement: false,
         __fragments: {
           RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1: {},
           RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2: {},

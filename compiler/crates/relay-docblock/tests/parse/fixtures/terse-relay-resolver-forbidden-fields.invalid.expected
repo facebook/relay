@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver User.favorite_page: Page
@@ -29,55 +30,58 @@
  }
 `
 ==================================== ERROR ====================================
-✖︎ Unexpected docblock field `edgeTo`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+✖︎ The compiler attempted to parse this `@RelayResolver` block as a terse resolver declaration, but there were unexpected fields: @fieldName, @onType, @onInterface, @edgeTo, @outputType, and @weak.
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:12:5
+   11 │ *
+   12 │  * @RelayResolver User.favorite_page: Page
+      │     ^^^^^^^^^^^^^
+   13 │  * @rootFragment myRootFragment
+
+  ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:14:5
-   13 │  * @onType User
-   14 │  * @edgeTo User
+   13 │  * @rootFragment myRootFragment
+   14 │  * @onType User
       │     ^^^^^^
-   15 │  * @onInterface User
+   15 │  * @edgeTo User
 
-
-✖︎ Unexpected docblock field `fieldName`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
-
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:17:5
-   16 │  * @outputType User
-   17 │  * @fieldName my_field
-      │     ^^^^^^^^^
-   18 │  * @weak
-
-
-✖︎ Unexpected docblock field `onInterface`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+  ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:15:5
-   14 │  * @edgeTo User
-   15 │  * @onInterface User
-      │     ^^^^^^^^^^^
-   16 │  * @outputType User
-
-
-✖︎ Unexpected docblock field `onType`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
-
-  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:13:5
-   12 │  * @rootFragment myRootFragment
-   13 │  * @onType User
+   14 │  * @onType User
+   15 │  * @edgeTo User
       │     ^^^^^^
-   14 │  * @edgeTo User
+   16 │  * @onInterface User
 
-
-✖︎ Unexpected docblock field `outputType`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+  ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:16:5
-   15 │  * @onInterface User
-   16 │  * @outputType User
+   15 │  * @edgeTo User
+   16 │  * @onInterface User
+      │     ^^^^^^^^^^^
+   17 │  * @outputType User
+
+  ℹ︎ Unexpected field
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:17:5
+   16 │  * @onInterface User
+   17 │  * @outputType User
       │     ^^^^^^^^^^
-   17 │  * @fieldName my_field
+   18 │  * @fieldName my_field
 
-
-✖︎ Unexpected docblock field `weak`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand.
+  ℹ︎ Unexpected field
 
   /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:18:5
-   17 │  * @fieldName my_field
-   18 │  * @weak
+   17 │  * @outputType User
+   18 │  * @fieldName my_field
+      │     ^^^^^^^^^
+   19 │  * @weak
+
+  ℹ︎ Unexpected field
+
+  /path/to/test/fixture/terse-relay-resolver-forbidden-fields.invalid.js:19:5
+   18 │  * @fieldName my_field
+   19 │  * @weak
       │     ^^^^
-   19 │  *
+   20 │  *

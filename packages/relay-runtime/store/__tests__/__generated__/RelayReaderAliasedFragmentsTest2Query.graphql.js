@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1cfb508e2d0094231d72d3244e935bf8>>
+ * @generated SignedSource<<9717d6129a40df3904f051b6f25ab6ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { RelayReaderAliasedFragmentsTest_user$fragmentType } from "./RelayR
 export type RelayReaderAliasedFragmentsTest2Query$variables = {||};
 export type RelayReaderAliasedFragmentsTest2Query$data = {|
   +me: ?{|
-    +aliased_fragment: ?{|
+    +aliased_fragment: {|
       +$fragmentSpreads: RelayReaderAliasedFragmentsTest_user$fragmentType,
     |},
   |},
@@ -50,14 +50,19 @@ var node/*: ConcreteRequest*/ = {
         "selections": [
           {
             "fragment": {
-              "args": null,
-              "kind": "FragmentSpread",
-              "name": "RelayReaderAliasedFragmentsTest_user"
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "RelayReaderAliasedFragmentsTest_user"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
             },
-            "kind": "AliasedFragmentSpread",
-            "name": "aliased_fragment",
-            "type": "User",
-            "abstractKey": null
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "aliased_fragment"
           }
         ],
         "storageKey": null

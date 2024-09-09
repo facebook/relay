@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver ClientUser implements IFoo
+ */
+
+// %extensions%
+
+graphql`
+
+interface IFoo {
+  not_id: ID!
+}
+`
+==================================== ERROR ====================================
+✖︎ Expected interface `IFoo` to define an `id: ID!` field.
+
+  <generated>:2:11
+    1 │ *
+    2 │  * @RelayResolver ClientUser implements IFoo
+      │           ^^^^
+    3 │  
+
+  ℹ︎ required because the interface is implemented by a Relay Resolver type here
+
+  /path/to/test/fixture/relay-resolver-strong-object-with-implements-interface-no-id.invalid.js:2:19
+    1 │ *
+    2 │  * @RelayResolver ClientUser implements IFoo
+      │                   ^^^^^^^^^^
+    3 │

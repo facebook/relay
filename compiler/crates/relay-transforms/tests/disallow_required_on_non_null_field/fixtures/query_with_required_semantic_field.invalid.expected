@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query MyQuery @throwOnFieldError {
+  some_field @required(action: LOG)
+}
+
+# %extensions%
+extend type Query {
+  some_field: Int @semanticNonNull
+}
+==================================== ERROR ====================================
+✖︎ Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive.
+
+  query_with_required_semantic_field.invalid.graphql:3:14
+    2 │ query MyQuery @throwOnFieldError {
+    3 │   some_field @required(action: LOG)
+      │              ^^^^^^^^^
+    4 │ }

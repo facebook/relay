@@ -1,0 +1,18 @@
+fragment MyFragment on ClientUser @throwOnFieldError {
+  blob {
+    data
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  blob: Blob @semanticNonNull @relay_resolver(
+      import_path: "./foo/bar.js"
+      has_output_type: true
+    )
+}
+
+type Blob {
+  data: String
+}

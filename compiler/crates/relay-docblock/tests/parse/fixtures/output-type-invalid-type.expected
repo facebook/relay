@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -28,37 +29,10 @@ graphql`
  }
 `
 ==================================== ERROR ====================================
-✖︎ Unsupported character
+✖︎ Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `favorite_page`.
 
-  /path/to/test/fixture/output-type-invalid-type.js:15:16
-   14 │  * @fieldName favorite_page
-   15 │  * @outputType **LOL**
-      │                ^
-   16 │  * @rootFragment myRootFragment
-
-
-✖︎ Unsupported character
-
-  /path/to/test/fixture/output-type-invalid-type.js:15:17
-   14 │  * @fieldName favorite_page
-   15 │  * @outputType **LOL**
-      │                 ^
-   16 │  * @rootFragment myRootFragment
-
-
-✖︎ Unsupported character
-
-  /path/to/test/fixture/output-type-invalid-type.js:15:21
-   14 │  * @fieldName favorite_page
-   15 │  * @outputType **LOL**
-      │                     ^
-   16 │  * @rootFragment myRootFragment
-
-
-✖︎ Unsupported character
-
-  /path/to/test/fixture/output-type-invalid-type.js:15:22
-   14 │  * @fieldName favorite_page
-   15 │  * @outputType **LOL**
-      │                      ^
-   16 │  * @rootFragment myRootFragment
+  /path/to/test/fixture/output-type-invalid-type.js:16:5
+   15 │  * @fieldName favorite_page
+   16 │  * @outputType **LOL**
+      │     ^^^^^^^^^^
+   17 │  * @rootFragment myRootFragment

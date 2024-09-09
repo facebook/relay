@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
   useMutationTest1Mutation$data,
@@ -94,7 +95,7 @@ beforeEach(() => {
   }) {
     const [mutation, setMutationFn] = useState(initialMutation);
     setMutation = setMutationFn;
-    const [commitFn, isMutationInFlight] = useMutation<any>(mutation);
+    const [commitFn, isMutationInFlight] = useMutation(mutation);
     commit = (config: any) =>
       ReactTestRenderer.act(() => {
         disposable = commitFn(config);

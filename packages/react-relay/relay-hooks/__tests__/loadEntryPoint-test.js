@@ -81,7 +81,7 @@ test('it should preload entry point with queries', () => {
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -101,6 +101,42 @@ test('it should preload entry point with queries', () => {
   expect(preloadedEntryPoint.queries.myTestQuery.variables).toEqual({
     id: 'my-id',
   });
+  expect(preloadedEntryPoint.entryPoints).toEqual({});
+});
+
+test('it should ignore handle null/undefined queries', () => {
+  const env = createMockEnvironment();
+  const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
+  const entryPoint = {
+    getPreloadProps(params: {id: string}) {
+      return {
+        queries: {
+          myNullTestQuery: null,
+          myUndefinedTestQuery: undefined,
+        },
+      };
+    },
+    root: (new FakeJSResource(null): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {},
+    {...},
+    {...},
+    mixed,
+    $FlowFixMe,
+    _,
+  >(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  expect(entryPoint.root.load).toBeCalledTimes(1);
+  expect(networkSpy).toBeCalledTimes(0);
+  expect(preloadedEntryPoint.queries).toEqual({});
   expect(preloadedEntryPoint.entryPoints).toEqual({});
 });
 
@@ -137,7 +173,7 @@ test('it should unwrap an entry point wrapping a module with default exports', (
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -184,7 +220,7 @@ test('it should return the module from an entry point that just returns the modu
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -258,7 +294,7 @@ describe('with respect to loadQuery', () => {
       root: (new FakeJSResource(null): $FlowFixMe),
     };
 
-    loadEntryPoint<_, {...}, {...}, {...}, mixed, $FlowFixMe, _>(
+    loadEntryPoint<_, {}, {...}, {...}, mixed, $FlowFixMe, _>(
       {
         getEnvironment: () => env,
       },
@@ -302,7 +338,7 @@ describe('with respect to loadQuery', () => {
 
     const preloadedEntryPoint = loadEntryPoint<
       _,
-      {...},
+      {},
       {...},
       {...},
       mixed,
@@ -369,7 +405,7 @@ test('it should preload entry point with nested entry points', () => {
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -461,7 +497,7 @@ test('it should preload entry point with both queries and nested entry points', 
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -555,7 +591,7 @@ test('it should dispose nested entry points', () => {
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,
@@ -614,7 +650,7 @@ test('with `getEnvironment` function', () => {
   const getEnvironment = jest.fn(() => env);
   const preloadedEntryPoint = loadEntryPoint<
     _,
-    {...},
+    {},
     {...},
     {...},
     mixed,

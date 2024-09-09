@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment MyFragment on ClientUser @throwOnFieldError {
+  name
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull @relay_resolver(
+      import_path: "./foo/bar.js"
+    )
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MyFragment$data = {
+  readonly name: NonNullable<ReturnType<typeof clientUserNameResolverType>>;
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

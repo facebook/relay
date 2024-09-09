@@ -13,6 +13,7 @@
 const babelOptions = require('./scripts/getBabelOptions')({
   ast: false,
   plugins: [
+    'babel-plugin-syntax-hermes-parser',
     '@babel/plugin-transform-flow-strip-types',
     [
       '@babel/plugin-transform-runtime',
@@ -69,25 +70,17 @@ const buildDist = function (filename, opts, isProduction) {
   const webpackOpts = {
     externals: [/^[-/a-zA-Z0-9]+$/, /^@babel\/.+$/],
     target: opts.target,
-    node: {
-      fs: 'empty',
-      net: 'empty',
-      path: 'empty',
-      child_process: 'empty',
-      util: 'empty',
-    },
     output: {
       filename: filename,
       libraryTarget: opts.libraryTarget,
       library: opts.libraryName,
     },
     plugins: [
-      new webpackStream.webpack.DefinePlugin({
+      new webpack.DefinePlugin({
         'process.env.NODE_ENV': JSON.stringify(
           isProduction ? 'production' : 'development',
         ),
       }),
-      new webpackStream.webpack.optimize.OccurrenceOrderPlugin(),
     ],
   };
   if (isProduction && !opts.noMinify) {
@@ -364,6 +357,13 @@ const relayCompiler = gulp.parallel(
     return gulp
       .src(['README.md', 'package.json', 'cli.js', 'index.js'], {
         cwd: path.join(PACKAGES, 'relay-compiler'),
+      })
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+  },
+  function copyCompilerConfigSchema() {
+    return gulp
+      .src(['relay-compiler-config-schema.json'], {
+        cwd: path.join('compiler/crates/relay-compiler'),
       })
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },

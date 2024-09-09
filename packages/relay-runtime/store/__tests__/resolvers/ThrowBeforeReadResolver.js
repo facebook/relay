@@ -17,10 +17,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName throw_before_read
+ * @RelayResolver Query.throw_before_read: RelayResolverValue
  * @rootFragment ThrowBeforeReadResolver
- * @onType Query
  *
  * A resolver that exercises the edge case where a resolver throws before reading.
  */

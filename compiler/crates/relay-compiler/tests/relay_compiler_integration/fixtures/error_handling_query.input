@@ -1,0 +1,17 @@
+//- foo.js
+graphql`
+  query fooQuery @throwOnFieldError {
+    me {
+     name
+    }
+  }`;
+
+//- relay.config.json
+{
+  "language": "flow",
+  "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

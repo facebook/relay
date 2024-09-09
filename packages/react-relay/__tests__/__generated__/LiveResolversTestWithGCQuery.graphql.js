@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b655845da1ed599a60c8b6b27c7df4b2>>
+ * @generated SignedSource<<97bacf905cc0b47154e384233004dc8a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,17 +18,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { LiveCounterWithPossibleMissingFragmentDataResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LiveCounterWithPossibleMissingFragmentDataResolverFragment.graphql";
 import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWithPossibleMissingFragmentDataResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveCounterWithPossibleMissingFragmentDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveCounterWithPossibleMissingFragmentDataResolverType: (
   rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
-) => LiveState<mixed>);
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?number>);
 export type LiveResolversTestWithGCQuery$variables = {||};
 export type LiveResolversTestWithGCQuery$data = {|
-  +live_counter_with_possible_missing_fragment_data: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveCounterWithPossibleMissingFragmentDataResolverType>["read"]>,
+  +live_counter_with_possible_missing_fragment_data: ?number,
 |};
 export type LiveResolversTestWithGCQuery = {|
   response: LiveResolversTestWithGCQuery$data,
@@ -96,7 +99,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       }
     ]
   },

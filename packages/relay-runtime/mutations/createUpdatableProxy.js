@@ -24,27 +24,6 @@ import type {
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 const {getArgumentValues} = require('../store/RelayStoreUtils');
-const {
-  ACTOR_CHANGE,
-  ALIASED_FRAGMENT_SPREAD,
-  ALIASED_INLINE_FRAGMENT_SPREAD,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  CLIENT_EDGE_TO_SERVER_OBJECT,
-  CLIENT_EXTENSION,
-  CONDITION,
-  DEFER,
-  FLIGHT_FIELD,
-  FRAGMENT_SPREAD,
-  INLINE_DATA_FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  MODULE_IMPORT,
-  RELAY_LIVE_RESOLVER,
-  RELAY_RESOLVER,
-  REQUIRED_FIELD,
-  SCALAR_FIELD,
-  STREAM,
-} = require('../util/RelayConcreteNode');
 
 const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
@@ -83,7 +62,7 @@ function updateProxyFromSelections<TData>(
 ): void {
   for (const selection of selections) {
     switch (selection.kind) {
-      case LINKED_FIELD:
+      case 'LinkedField':
         if (selection.plural) {
           Object.defineProperty(
             mutableUpdatableProxy,
@@ -126,7 +105,7 @@ function updateProxyFromSelections<TData>(
           );
         }
         break;
-      case SCALAR_FIELD:
+      case 'ScalarField':
         const scalarFieldName = selection.alias ?? selection.name;
         Object.defineProperty(mutableUpdatableProxy, scalarFieldName, {
           get: function () {
@@ -136,11 +115,11 @@ function updateProxyFromSelections<TData>(
             );
             // Flow incorrect assumes that the return value for the get method must match
             // the set parameter.
-            let value = (updatableProxyRootRecord.getValue(
+            // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
+            let value: any = updatableProxyRootRecord.getValue(
               selection.name,
               newVariables,
-              // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-            ): any);
+            );
             if (value == null) {
               value = getScalarUsingMissingFieldHandlers(
                 selection,
@@ -169,7 +148,7 @@ function updateProxyFromSelections<TData>(
               },
         });
         break;
-      case INLINE_FRAGMENT:
+      case 'InlineFragment':
         if (updatableProxyRootRecord.getType() === selection.type) {
           updateProxyFromSelections(
             mutableUpdatableProxy,
@@ -181,7 +160,7 @@ function updateProxyFromSelections<TData>(
           );
         }
         break;
-      case CLIENT_EXTENSION:
+      case 'ClientExtension':
         updateProxyFromSelections(
           mutableUpdatableProxy,
           updatableProxyRootRecord,
@@ -191,23 +170,22 @@ function updateProxyFromSelections<TData>(
           missingFieldHandlers,
         );
         break;
-      case FRAGMENT_SPREAD:
+      case 'FragmentSpread':
         // Explicitly ignore
         break;
-      case CONDITION:
-      case ACTOR_CHANGE:
-      case ALIASED_FRAGMENT_SPREAD:
-      case INLINE_DATA_FRAGMENT_SPREAD:
-      case ALIASED_INLINE_FRAGMENT_SPREAD:
-      case CLIENT_EDGE_TO_CLIENT_OBJECT:
-      case CLIENT_EDGE_TO_SERVER_OBJECT:
-      case DEFER:
-      case FLIGHT_FIELD:
-      case MODULE_IMPORT:
-      case RELAY_LIVE_RESOLVER:
-      case REQUIRED_FIELD:
-      case STREAM:
-      case RELAY_RESOLVER:
+      case 'Condition':
+      case 'ActorChange':
+      case 'InlineDataFragmentSpread':
+      case 'AliasedInlineFragmentSpread':
+      case 'ClientEdgeToClientObject':
+      case 'ClientEdgeToServerObject':
+      case 'Defer':
+      case 'ModuleImport':
+      case 'RelayLiveResolver':
+      case 'RequiredField':
+      case 'CatchField':
+      case 'Stream':
+      case 'RelayResolver':
         // These types of reader nodes are not currently handled.
         throw new Error(
           'Encountered an unexpected ReaderSelection variant in RelayRecordSourceProxy. This indicates a bug in Relay.',

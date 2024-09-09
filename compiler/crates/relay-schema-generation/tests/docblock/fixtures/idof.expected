@@ -1,0 +1,231 @@
+==================================== INPUT ====================================
+//- module.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import type CatFlowType from 'Cat';
+import type Dog from 'Dog';
+
+import type { IdOf } from 'relay-runtime';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function friend(cat: CatFlowType): ?IdOf<"Cat"> {
+  return {id: '1'};
+}
+
+/**
+ * @RelayResolver
+ */
+export function Dog(id: DataID): Dog {
+  return {};
+}
+/**
+ * @RelayResolver
+ */
+export function neighbor(cat: CatFlowType): ?IdOf<"Dog"> {
+  return {id: '1'};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function undefined(cat: CatFlowType): ?IdOf<"Mouse"> {
+  return {id: '1'};
+}
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 433:439,
+                    token: Token {
+                        span: 433:439,
+                        kind: Identifier,
+                    },
+                    value: "friend",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 465:470,
+                            token: Token {
+                                span: 465:470,
+                                kind: Identifier,
+                            },
+                            value: "Cat",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 433:439,
+            },
+            type_: WithLocation {
+                location: module.js:344:347,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:433:439,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "08165d712e1fcab6840e997daaebf69e",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  friend: Cat @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "friend", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 619:627,
+                    token: Token {
+                        span: 619:627,
+                        kind: Identifier,
+                    },
+                    value: "neighbor",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 653:658,
+                            token: Token {
+                                span: 653:658,
+                                kind: Identifier,
+                            },
+                            value: "Dog",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 619:627,
+            },
+            type_: WithLocation {
+                location: module.js:344:347,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:619:627,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "08165d712e1fcab6840e997daaebf69e",
+            ),
+        },
+    ),
+)
+extend type Cat {
+  neighbor: Dog @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "neighbor", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 344:347,
+                token: Token {
+                    span: 344:347,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:344:347,
+            root_fragment: WithLocation {
+                location: module.js:344:347,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:344:347,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "08165d712e1fcab6840e997daaebf69e",
+            ),
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 539:542,
+                token: Token {
+                    span: 539:542,
+                    kind: Identifier,
+                },
+                value: "Dog",
+            },
+            rhs_location: module.js:539:542,
+            root_fragment: WithLocation {
+                location: module.js:539:542,
+                item: FragmentDefinitionName(
+                    "Dog__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:539:542,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "08165d712e1fcab6840e997daaebf69e",
+            ),
+        },
+    ),
+)
+type Dog @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Dog__id", import_name: "Dog", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+✖︎ Reference to undefined type 'Mouse'.
+
+  module.js:45:52
+   44 │  */
+   45 │ export function undefined(cat: CatFlowType): ?IdOf<"Mouse"> {
+      │                                                    ^^^^^^^
+   46 │   return {id: '1'};

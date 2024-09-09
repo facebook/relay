@@ -12,18 +12,13 @@
 'use strict';
 
 import type {DataID} from 'relay-runtime';
-import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+import type {LiveState} from 'relay-runtime';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {
-  suspenseSentinel,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const {suspenseSentinel} = require('relay-runtime');
 
 /**
- * @RelayResolver
- * @fieldName live_user_suspends_when_odd
- * @edgeTo User
- * @onType Query
+ * @RelayResolver Query.live_user_suspends_when_odd: User
  * @live
  */
 function live_user_suspends_when_odd(): LiveState<{|+id: DataID|}> {

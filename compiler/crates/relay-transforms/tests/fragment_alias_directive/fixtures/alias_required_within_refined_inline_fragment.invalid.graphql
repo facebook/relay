@@ -1,0 +1,15 @@
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node {
+    # Relay is not reliable in modeling this as a discriminated union in its
+    # typescript/flow types. To be safe we need the user to supply an alias.
+    ... on User {
+      # This might not match!
+      ...RelayReaderNamedFragmentsTest_user
+    }
+  }
+}

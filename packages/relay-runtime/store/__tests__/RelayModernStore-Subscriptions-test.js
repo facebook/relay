@@ -54,6 +54,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
     value.forEach(item => assertIsDeeplyFrozen(item));
   } else if (typeof value === 'object' && value !== null) {
     for (const key in value) {
+      // $FlowFixMe[invalid-computed-prop]
       assertIsDeeplyFrozen(value[key]);
     }
   }
@@ -63,6 +64,7 @@ function cloneEventWithSets(event: LogEvent) {
   const nextEvent = {};
   for (const key in event) {
     if (event.hasOwnProperty(key)) {
+      // $FlowFixMe[invalid-computed-prop]
       const val = event[key];
       if (val instanceof Set) {
         // $FlowFixMe[prop-missing]
@@ -370,6 +372,7 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: false,
+          errorResponseFields: null,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -414,6 +417,17 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: true,
+          errorResponseFields: [
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              },
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+              type: 'MISSING_DATA',
+              path: '',
+            },
+          ],
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
       });
@@ -452,6 +466,17 @@ function cloneEventWithSets(event: LogEvent) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          errorResponseFields: [
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              },
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+              type: 'MISSING_DATA',
+              path: '',
+            },
+          ],
           missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(['842472']),
@@ -621,7 +646,9 @@ function cloneEventWithSets(event: LogEvent) {
           if (!record) {
             throw new Error('Expected to find record with id client:1');
           }
-          expect(record[INVALIDATED_AT_KEY]).toEqual(1);
+          expect(
+            RelayModernRecord.getValue(record, INVALIDATED_AT_KEY),
+          ).toEqual(1);
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
 
@@ -657,7 +684,9 @@ function cloneEventWithSets(event: LogEvent) {
           if (!record) {
             throw new Error('Expected to find record with id "4"');
           }
-          expect(record[INVALIDATED_AT_KEY]).toEqual(1);
+          expect(
+            RelayModernRecord.getValue(record, INVALIDATED_AT_KEY),
+          ).toEqual(1);
           expect(store.check(owner)).toEqual({status: 'stale'});
         });
       });
@@ -671,6 +700,11 @@ function cloneEventWithSets(event: LogEvent) {
           owner.request,
         );
         const snapshot = store.lookup(selector);
+        expect(logEvents).toMatchObject([
+          {name: 'store.lookup.start'},
+          {name: 'store.lookup.end'},
+        ]);
+        logEvents.length = 0;
         const callback = jest.fn((nextSnapshot: Snapshot) => {
           logEvents.push({
             kind: 'test_only_callback',
@@ -695,6 +729,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(logEvents).toEqual([
           {
             name: 'store.notify.start',
+            sourceOperation: undefined,
           },
           // callbacks occur after notify.start...
           {
@@ -711,6 +746,8 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'store.notify.complete',
             updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
+            updatedOwners: [owner.request],
+            subscriptionsSize: 1,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
@@ -734,6 +771,11 @@ function cloneEventWithSets(event: LogEvent) {
             owner.request,
           );
           const snapshot = store.lookup(selector);
+          expect(logEvents).toMatchObject([
+            {name: 'store.lookup.start'},
+            {name: 'store.lookup.end'},
+          ]);
+          logEvents.length = 0;
           const callback = jest.fn((nextSnapshot: Snapshot) => {
             logEvents.push({
               kind: 'test_only_callback',
@@ -796,6 +838,8 @@ function cloneEventWithSets(event: LogEvent) {
               sourceOperation: owner,
               updatedRecordIDs: new Set(['client:1']),
               invalidatedRecordIDs: new Set(),
+              updatedOwners: [owner.request],
+              subscriptionsSize: 1,
             },
           ]);
           expect(callback).toBeCalledTimes(1);

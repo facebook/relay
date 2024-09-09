@@ -6,6 +6,7 @@
  */
 
 use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use std::env;
 use std::fmt;
 use std::fs::File as FsFile;
@@ -26,19 +27,22 @@ use dashmap::DashSet;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
-use graphql_ir::ExecutableDefinitionName;
-use intern::string_key::StringKey;
+use log::debug;
 use rayon::prelude::*;
+use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
+use schema_diff::check::SchemaChangeSafety;
 use schema_diff::definitions::SchemaChange;
 use schema_diff::detect_changes;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 use zstd::stream::read::Decoder as ZstdDecoder;
 use zstd::stream::write::Encoder as ZstdEncoder;
 
 use crate::artifact_map::ArtifactMap;
+use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
@@ -54,11 +58,8 @@ use crate::file_source::LocatedGraphQLSource;
 use crate::file_source::LocatedJavascriptSourceFeatures;
 use crate::file_source::SourceControlUpdateStatus;
 
-/// Name of a compiler project.
-pub type ProjectName = StringKey;
-
 /// Set of project names.
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema)]
 #[serde(from = "DeserializableProjectSet")]
 pub struct ProjectSet(Vec<ProjectName>);
 
@@ -79,7 +80,11 @@ impl ProjectSet {
         existing_names.push(project_name);
     }
 
-    pub fn iter(&self) -> slice::Iter<'_, StringKey> {
+    pub fn extend_iter(&mut self, other: impl Iterator<Item = ProjectName>) {
+        self.0.extend(other);
+    }
+
+    pub fn iter(&self) -> slice::Iter<'_, ProjectName> {
         self.0.iter()
     }
 
@@ -94,7 +99,7 @@ impl ProjectSet {
 
 impl IntoIterator for ProjectSet {
     type Item = ProjectName;
-    type IntoIter = vec::IntoIter<StringKey>;
+    type IntoIter = vec::IntoIter<ProjectName>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.0.into_iter()
@@ -119,7 +124,7 @@ impl fmt::Display for ProjectSet {
 // want our actual `ProjectSet` object to be modeled as a single Vec internally.
 // So, we provide this enum to use sede's polymorphic deserialization and then
 // tell `ProjectSet` to deserialize via this enum using `From`.
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, JsonSchema)]
 #[serde(untagged)]
 pub enum DeserializableProjectSet {
     ProjectName(ProjectName),
@@ -205,6 +210,27 @@ impl<V: Source + Clone> IncrementalSources<V> {
         sources.sort_by_key(|file_content| file_content.0);
         sources
     }
+
+    pub fn get_all_non_empty(&self) -> Vec<(&PathBuf, &V)> {
+        let mut sources: Vec<_> = if self.pending.is_empty() {
+            self.processed
+                .iter()
+                .filter(|(_, value)| !value.is_empty())
+                .collect()
+        } else {
+            self.pending
+                .iter()
+                .chain(
+                    self.processed
+                        .iter()
+                        .filter(|(key, _)| !self.pending.contains_key(*key)),
+                )
+                .filter(|(_, value)| !value.is_empty())
+                .collect()
+        };
+        sources.sort_by_key(|file_content| file_content.0);
+        sources
+    }
 }
 
 impl<V: Source> Default for IncrementalSources<V> {
@@ -218,9 +244,11 @@ impl<V: Source> Default for IncrementalSources<V> {
 
 type GraphQLSourceSet = IncrementalSourceSet<Vec<LocatedGraphQLSource>>;
 type DocblockSourceSet = IncrementalSourceSet<Vec<LocatedDocblockSource>>;
+type FullSourceSet = IncrementalSourceSet<String>;
 pub type GraphQLSources = IncrementalSources<Vec<LocatedGraphQLSource>>;
 pub type SchemaSources = IncrementalSources<String>;
 pub type DocblockSources = IncrementalSources<Vec<LocatedDocblockSource>>;
+pub type FullSources = IncrementalSources<String>;
 
 impl Source for String {
     fn is_empty(&self) -> bool {
@@ -269,6 +297,7 @@ pub struct CompilerState {
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
+    pub full_sources: FnvHashMap<ProjectName, FullSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
     #[serde(with = "clock_json_string")]
     pub clock: Option<Clock>,
@@ -281,6 +310,21 @@ pub struct CompilerState {
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
+}
+/// Used to store the intermediate results of processing a file source in parallel.
+/// Because the compiler state does not support concurrency, we process in parallel,
+/// then merge the results into the compiler state.
+enum FileSourceIntermediateResult {
+    Source(
+        ProjectSet,
+        GraphQLSourceSet,
+        DocblockSourceSet,
+        FullSourceSet,
+    ),
+    Schema(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
+    Extension(ProjectSet, FnvHashMap<PathBuf, String>, Vec<PathBuf>),
+    Generated(ProjectName, FnvHashSet<PathBuf>),
+    Ignore,
 }
 
 impl CompilerState {
@@ -300,47 +344,51 @@ impl CompilerState {
             ..Default::default()
         };
 
-        for (category, files) in categorized {
-            match category {
-                FileGroup::Source { project_set } => {
-                    let (graphql_sources, docblock_sources) = extract_sources(
-                        &project_set,
-                        files,
-                        file_source_changes,
-                        false,
-                        perf_logger,
-                    )?;
-
+        let file_source_result = process_categorized_sources(
+            categorized,
+            config,
+            file_source_changes,
+            perf_logger,
+            false,
+        )?;
+        for file_source in file_source_result {
+            match file_source {
+                FileSourceIntermediateResult::Source(
+                    project_set,
+                    graphql_sources,
+                    docblock_sources,
+                    full_sources,
+                ) => {
                     for project_name in project_set {
                         result.set_pending_source_set(project_name, &graphql_sources);
                         result.set_pending_docblock_set(project_name, &docblock_sources);
+                        result.set_pending_full_source_set(project_name, &full_sources);
                     }
                 }
-                FileGroup::Schema { project_set } => {
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut result.schemas,
-                    )?;
+                FileSourceIntermediateResult::Schema(project_set, added, removed) => {
+                    for project_name in project_set {
+                        let entry = result.schemas.entry(project_name).or_default();
+                        for source in &removed {
+                            entry.pending.insert(source.clone(), "".to_string());
+                        }
+                        entry.merge_pending_sources(&added);
+                    }
                 }
-                FileGroup::Extension { project_set } => {
-                    Self::process_schema_change(
-                        file_source_changes,
-                        files,
-                        project_set,
-                        &mut result.extensions,
-                    )?;
+                FileSourceIntermediateResult::Extension(project_set, added, removed) => {
+                    for project_name in project_set {
+                        let entry = result.extensions.entry(project_name).or_default();
+                        for source in &removed {
+                            entry.pending.insert(source.clone(), "".to_string());
+                        }
+                        entry.merge_pending_sources(&added);
+                    }
                 }
-                FileGroup::Generated { project_name } => {
-                    result.artifacts.insert(
-                        project_name,
-                        Arc::new(ArtifactMapKind::Unconnected(
-                            files.into_iter().map(|file| file.name).collect(),
-                        )),
-                    );
+                FileSourceIntermediateResult::Generated(project_name, files) => {
+                    result
+                        .artifacts
+                        .insert(project_name, Arc::new(ArtifactMapKind::Unconnected(files)));
                 }
-                FileGroup::Ignore => {}
+                FileSourceIntermediateResult::Ignore => {}
             }
         }
 
@@ -385,9 +433,13 @@ impl CompilerState {
                 .docblocks
                 .values()
                 .any(|sources| !sources.processed.is_empty())
+            || self
+                .full_sources
+                .values()
+                .any(|sources| !sources.processed.is_empty())
     }
 
-    fn is_change_safe(&self, sources: &SchemaSources, schema_config: &SchemaConfig) -> bool {
+    fn get_schema_change(&self, sources: &SchemaSources) -> SchemaChange {
         let previous = sources
             .get_old_sources()
             .into_iter()
@@ -400,10 +452,17 @@ impl CompilerState {
             .map(String::as_str)
             .collect::<Vec<_>>();
 
-        let schema_change = detect_changes(&current, &previous);
+        detect_changes(&current, &previous)
+    }
 
+    fn get_schema_change_safety(
+        &self,
+        sources: &SchemaSources,
+        schema_change: SchemaChange,
+        schema_config: &SchemaConfig,
+    ) -> SchemaChangeSafety {
         if schema_change == SchemaChange::None {
-            true
+            SchemaChangeSafety::Safe
         } else {
             let current_sources_with_location = sources
                 .get_sources_with_location()
@@ -415,49 +474,54 @@ impl CompilerState {
                 &current_sources_with_location,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
-                Ok(schema) => schema_change.is_safe(&schema, schema_config),
-                Err(_) => false,
+                Ok(schema) => schema_change.get_safety(&schema, schema_config),
+                Err(_) => SchemaChangeSafety::Unsafe,
             }
         }
     }
 
-    /// This method will detect any schema changes in the pending sources (for LSP Server, to invalidate schema cache)
-    pub fn has_schema_changes(&self) -> bool {
-        self.docblocks
-            .values()
-            .any(|sources| !sources.pending.is_empty())
-            || self
-                .extensions
-                .values()
-                .any(|sources| !sources.pending.is_empty())
-            || self
-                .schemas
-                .iter()
-                .any(|(_, sources)| !sources.pending.is_empty())
-    }
-
     /// This method is looking at the pending schema changes to see if they may be breaking (removed types, renamed field, etc)
-    pub fn has_breaking_schema_change(
+    pub fn schema_change_safety(
         &self,
-        project_name: StringKey,
+        log_event: &impl PerfLogEvent,
+        project_name: ProjectName,
         schema_config: &SchemaConfig,
-    ) -> bool {
+    ) -> SchemaChangeSafety {
         if let Some(extension) = self.extensions.get(&project_name) {
             if !extension.pending.is_empty() {
-                return true;
+                log_event.string("has_breaking_schema_change", "extension".to_owned());
+                return SchemaChangeSafety::Unsafe;
             }
         }
         if let Some(docblocks) = self.docblocks.get(&project_name) {
             if !docblocks.pending.is_empty() {
-                return true;
+                log_event.string("has_breaking_schema_change", "docblock".to_owned());
+                return SchemaChangeSafety::Unsafe;
+            }
+        }
+        if let Some(full_sources) = self.full_sources.get(&project_name) {
+            if !full_sources.pending.is_empty() {
+                log_event.string("has_breaking_schema_change", "full_source".to_owned());
+                return SchemaChangeSafety::Unsafe;
             }
         }
         if let Some(schema) = self.schemas.get(&project_name) {
-            if !(schema.pending.is_empty() || self.is_change_safe(schema, schema_config)) {
-                return true;
+            if !schema.pending.is_empty() {
+                let schema_change = self.get_schema_change(schema);
+                let schema_change_string = schema_change.to_string();
+                let schema_change_safety =
+                    self.get_schema_change_safety(schema, schema_change, schema_config);
+                match schema_change_safety {
+                    SchemaChangeSafety::Unsafe => {
+                        log_event.string("schema_change", schema_change_string);
+                        log_event.string("has_breaking_schema_change", "schema_change".to_owned());
+                    }
+                    SchemaChangeSafety::SafeWithIncrementalBuild(_) | SchemaChangeSafety::Safe => {}
+                }
+                return schema_change_safety;
             }
         }
-        false
+        SchemaChangeSafety::Safe
     }
 
     /// Merges pending changes from the file source into the compiler state.
@@ -476,21 +540,24 @@ impl CompilerState {
             let categorized = log_event.time("categorize_files_time", || {
                 categorize_files(config, &file_source_changes)
             });
-
-            for (category, files) in categorized {
-                match category {
-                    FileGroup::Source { project_set } => {
+            let file_source_result = process_categorized_sources(
+                categorized,
+                config,
+                &file_source_changes,
+                perf_logger,
+                true,
+            )?;
+            for file_source in file_source_result {
+                match file_source {
+                    FileSourceIntermediateResult::Source(
+                        project_set,
+                        graphql_sources,
+                        docblock_sources,
+                        full_sources,
+                    ) => {
                         // TODO: possible optimization to only set this if the
                         // extracted sources actually differ.
                         has_changed = true;
-
-                        let (graphql_sources, docblock_sources) = extract_sources(
-                            &project_set,
-                            files,
-                            &file_source_changes,
-                            true,
-                            perf_logger,
-                        )?;
 
                         for project_name in project_set {
                             self.graphql_sources
@@ -501,35 +568,39 @@ impl CompilerState {
                                 .entry(project_name)
                                 .or_default()
                                 .merge_pending_sources(&docblock_sources);
+                            self.full_sources
+                                .entry(project_name)
+                                .or_default()
+                                .merge_pending_sources(&full_sources);
                         }
                     }
-                    FileGroup::Schema { project_set } => {
+                    FileSourceIntermediateResult::Schema(project_set, added, removed) => {
                         has_changed = true;
-                        Self::process_schema_change(
-                            &file_source_changes,
-                            files,
-                            project_set,
-                            &mut self.schemas,
-                        )?;
+                        for project_name in project_set {
+                            let entry = self.schemas.entry(project_name).or_default();
+                            for source in &removed {
+                                entry.pending.insert(source.clone(), "".to_string());
+                            }
+                            entry.merge_pending_sources(&added);
+                        }
                     }
-                    FileGroup::Extension { project_set } => {
+                    FileSourceIntermediateResult::Extension(project_set, added, removed) => {
                         has_changed = true;
-                        Self::process_schema_change(
-                            &file_source_changes,
-                            files,
-                            project_set,
-                            &mut self.extensions,
-                        )?;
+                        for project_name in project_set {
+                            let entry = self.extensions.entry(project_name).or_default();
+                            for source in &removed {
+                                entry.pending.insert(source.clone(), "".to_string());
+                            }
+                            entry.merge_pending_sources(&added);
+                        }
                     }
-                    FileGroup::Generated { project_name } => {
+                    FileSourceIntermediateResult::Generated(project_name, files) => {
                         if should_collect_changed_artifacts {
-                            let mut dashset =
-                                DashSet::with_capacity_and_hasher(files.len(), Default::default());
-                            dashset.extend(files.into_iter().map(|f| f.name));
-                            self.dirty_artifact_paths.insert(project_name, dashset);
+                            self.dirty_artifact_paths
+                                .insert(project_name, files.into_iter().collect());
                         }
                     }
-                    FileGroup::Ignore => {}
+                    FileSourceIntermediateResult::Ignore => {}
                 }
             }
         }
@@ -550,14 +621,17 @@ impl CompilerState {
         for sources in self.docblocks.values_mut() {
             sources.commit_pending_sources();
         }
+        for sources in self.full_sources.values_mut() {
+            sources.commit_pending_sources();
+        }
         self.dirty_artifact_paths.clear();
     }
 
-    /// Calculate dirty definitions from dirty artifacts
-    pub fn get_dirty_definitions(
+    /// Calculate dirty definitions/sources from dirty artifacts
+    pub fn get_dirty_artifact_sources(
         &self,
         config: &Config,
-    ) -> FnvHashMap<ProjectName, Vec<ExecutableDefinitionName>> {
+    ) -> FnvHashMap<ProjectName, Vec<ArtifactSourceKey>> {
         if self.dirty_artifact_paths.is_empty() {
             return Default::default();
         }
@@ -576,7 +650,7 @@ impl CompilerState {
                         let mut added = false;
                         for artifact_record in artifact_records {
                             if paths.remove(&artifact_record.path).is_some() && !added {
-                                dirty_definitions.push(*definition_name);
+                                dirty_definitions.push(definition_name.clone());
                                 if paths.is_empty() {
                                     break 'outer;
                                 }
@@ -596,13 +670,35 @@ impl CompilerState {
     }
 
     pub fn serialize_to_file(&self, path: &PathBuf) -> Result<()> {
+        let zstd_level: i32 = env::var("RELAY_SAVED_STATE_ZSTD_LEVEL").map_or_else(
+            |_| 12,
+            |level| {
+                level.parse::<i32>().expect(
+                    "Expected RELAY_SAVED_STATE_ZSTD_LEVEL environment variable to be a number.",
+                )
+            },
+        );
+
         let writer = FsFile::create(path)
-            .and_then(|writer| ZstdEncoder::new(writer, 12))
+            .and_then(|writer| {
+                let mut encoder = ZstdEncoder::new(writer, zstd_level)?;
+                match u32::try_from(std::thread::available_parallelism()?.get()) {
+                    Ok(threads) => {
+                        debug!("Using {} zstd threads", threads);
+                        encoder.multithread(threads).ok();
+                    }
+                    Err(_) => {
+                        debug!("Using single-threaded zstd");
+                    }
+                }
+                Ok(encoder)
+            })
             .map_err(|err| Error::WriteFileError {
                 file: path.clone(),
                 source: err,
             })?
             .auto_finish();
+
         let writer =
             BufWriter::with_capacity(ZstdEncoder::<FsFile>::recommended_input_size(), writer);
         bincode::serialize_into(writer, self).map_err(|err| Error::SerializationError {
@@ -623,13 +719,14 @@ impl CompilerState {
             reader,
         );
 
-        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT")
-            .map(|limit| {
+        let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT").map_or_else(
+            |_| 10_u64.pow(10), /* 10GB */
+            |limit| {
                 limit.parse::<u64>().expect(
                     "Expected RELAY_SAVED_STATE_MEMORY_LIMIT environment variable to be a number.",
                 )
-            })
-            .unwrap_or_else(|_| 10_u64.pow(10) /* 10GB */);
+            },
+        );
 
         bincode::DefaultOptions::new()
             .with_fixint_encoding()
@@ -660,30 +757,13 @@ impl CompilerState {
         entry.merge_pending_sources(source_set);
     }
 
-    fn process_schema_change(
-        file_source_changes: &FileSourceResult,
-        files: Vec<File>,
-        project_set: ProjectSet,
-        source_map: &mut FnvHashMap<ProjectName, SchemaSources>,
-    ) -> Result<()> {
-        let mut removed_sources = vec![];
-        let mut added_sources = FnvHashMap::default();
-        for file in files {
-            let file_name = file.name.clone();
-            if file.exists {
-                added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
-            } else {
-                removed_sources.push(file_name);
-            }
-        }
-        for project_name in project_set {
-            let entry = source_map.entry(project_name).or_default();
-            for source in &removed_sources {
-                entry.pending.insert(source.clone(), "".to_string());
-            }
-            entry.merge_pending_sources(&added_sources);
-        }
-        Ok(())
+    fn set_pending_full_source_set(
+        &mut self,
+        project_name: ProjectName,
+        source_set: &FullSourceSet,
+    ) {
+        let entry = &mut self.full_sources.entry(project_name).or_default();
+        entry.merge_pending_sources(source_set);
     }
 
     pub fn is_source_control_update_in_progress(&self) -> bool {
@@ -697,13 +777,85 @@ impl CompilerState {
     }
 }
 
+fn process_intermediate_schema_change(
+    file_source_changes: &FileSourceResult,
+    files: Vec<File>,
+) -> Result<(FnvHashMap<PathBuf, String>, Vec<PathBuf>)> {
+    let mut removed_sources = vec![];
+    let mut added_sources = FnvHashMap::default();
+    for file in files {
+        let file_name = file.name.clone();
+        if file.exists {
+            added_sources.insert(file_name, read_file_to_string(file_source_changes, &file)?);
+        } else {
+            removed_sources.push(file_name);
+        }
+    }
+    Ok((added_sources, removed_sources))
+}
+
+fn process_categorized_sources(
+    categorized: HashMap<FileGroup, Vec<File>>,
+    config: &Config,
+    file_source_changes: &FileSourceResult,
+    perf_logger: &impl PerfLogger,
+    preserve_empty: bool,
+) -> Result<Vec<FileSourceIntermediateResult>> {
+    categorized
+        .into_par_iter()
+        .map(|(category, files)| match category {
+            FileGroup::Source { project_set } => {
+                // Slow step: reading from disk and parsing
+                let (graphql_sources, docblock_sources, full_sources) = extract_sources(
+                    &project_set,
+                    files,
+                    file_source_changes,
+                    preserve_empty,
+                    perf_logger,
+                    config,
+                )?;
+                Ok(FileSourceIntermediateResult::Source(
+                    project_set,
+                    graphql_sources,
+                    docblock_sources,
+                    full_sources,
+                ))
+            }
+            FileGroup::Schema { project_set } => {
+                let (added, removed) =
+                    process_intermediate_schema_change(file_source_changes, files)?;
+                Ok(FileSourceIntermediateResult::Schema(
+                    project_set,
+                    added,
+                    removed,
+                ))
+            }
+            FileGroup::Extension { project_set } => {
+                let (added, removed) =
+                    process_intermediate_schema_change(file_source_changes, files)?;
+                Ok(FileSourceIntermediateResult::Extension(
+                    project_set,
+                    added,
+                    removed,
+                ))
+            }
+            FileGroup::Generated { project_name } => Ok(FileSourceIntermediateResult::Generated(
+                project_name,
+                files.into_iter().map(|file: File| file.name).collect(),
+            )),
+            FileGroup::Ignore => Ok(FileSourceIntermediateResult::Ignore),
+        })
+        .collect()
+}
+
 fn extract_sources(
     project_set: &ProjectSet,
     files: Vec<File>,
     file_source_changes: &FileSourceResult,
     preserve_empty: bool,
     perf_logger: &impl PerfLogger,
-) -> Result<(GraphQLSourceSet, DocblockSourceSet)> {
+    config: &Config,
+) -> Result<(GraphQLSourceSet, DocblockSourceSet, FullSourceSet)> {
     let log_event = perf_logger.create_event("categorize");
     log_event.string("source_set_name", project_set.to_string());
     let extract_timer = log_event.start("extract_graphql_strings_from_file_time");
@@ -712,7 +864,7 @@ fn extract_sources(
         .par_iter()
         .map(|file| {
             if file.exists {
-                match extract_javascript_features_from_file(file_source_changes, file) {
+                match extract_javascript_features_from_file(file_source_changes, file, config) {
                     Ok(features) => Ok((file, features)),
                     Err(err) => Err(err),
                 }
@@ -726,6 +878,7 @@ fn extract_sources(
 
     let mut graphql_sources: GraphQLSourceSet = FnvHashMap::default();
     let mut docblock_sources: DocblockSourceSet = FnvHashMap::default();
+    let mut full_sources = FnvHashMap::default();
     for (file, features) in source_features {
         if preserve_empty || !features.graphql_sources.is_empty() {
             graphql_sources.insert(file.name.clone(), features.graphql_sources);
@@ -733,9 +886,12 @@ fn extract_sources(
         if preserve_empty || !features.docblock_sources.is_empty() {
             docblock_sources.insert(file.name.clone(), features.docblock_sources);
         }
+        if preserve_empty || !features.full_source.is_empty() {
+            full_sources.insert(file.name.clone(), features.full_source);
+        }
     }
 
-    Ok((graphql_sources, docblock_sources))
+    Ok((graphql_sources, docblock_sources, full_sources))
 }
 
 /// A module to serialize a watchman Clock value via JSON.

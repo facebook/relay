@@ -6,16 +6,18 @@ fragment Foo on Node {
 }
 ==================================== OUTPUT ===================================
 fragment Foo on Node {
-  ... on User @__FragmentAliasMetadata
+  ... on User @alias @__FragmentAliasMetadata
   # FragmentAliasMetadata {
   #     alias: WithLocation {
   #         location: default_alias_on_inline_fragment.graphql:39:45,
   #         item: "User",
   #     },
   #     type_condition: Some(
-  #         Object(69),
+  #         Object(70),
   #     ),
-  #     selection_type: Object(69),
+  #     non_nullable: false,
+  #     selection_type: Object(70),
+  #     wraps_spread: false,
   # }
    {
     name

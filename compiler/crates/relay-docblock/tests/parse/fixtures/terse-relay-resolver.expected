@@ -21,48 +21,64 @@
  }
 `
 ==================================== OUTPUT ===================================
-TerseRelayResolver(
-    TerseRelayResolverIr {
-        field: FieldDefinition {
-            name: Identifier {
-                span: 25:38,
-                token: Token {
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
                     span: 25:38,
-                    kind: Identifier,
-                },
-                value: "favorite_page",
-            },
-            type_: Named(
-                NamedTypeAnnotation {
-                    name: Identifier {
-                        span: 40:44,
-                        token: Token {
-                            span: 40:44,
-                            kind: Identifier,
-                        },
-                        value: "Page",
+                    token: Token {
+                        span: 25:38,
+                        kind: Identifier,
                     },
+                    value: "favorite_page",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 40:44,
+                            token: Token {
+                                span: 40:44,
+                                kind: Identifier,
+                            },
+                            value: "Page",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 79:370,
+                            kind: Empty,
+                        },
+                        value: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+                    },
+                ),
+                hack_source: None,
+                span: 25:44,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/terse-relay-resolver.js:20:24,
+                item: "User",
+            },
+            root_fragment: Some(
+                WithLocation {
+                    location: /path/to/test/fixture/terse-relay-resolver.js:62:76,
+                    item: FragmentDefinitionName(
+                        "myRootFragment",
+                    ),
                 },
             ),
-            arguments: None,
-            directives: [],
-            description: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: /path/to/test/fixture/terse-relay-resolver.js:0:371,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "0a9950ad1f952f5777b27604738fcf91",
+            ),
         },
-        type_: WithLocation {
-            location: /path/to/test/fixture/terse-relay-resolver.js:20:24,
-            item: "User",
-        },
-        root_fragment: Some(
-            WithLocation {
-                location: /path/to/test/fixture/terse-relay-resolver.js:62:76,
-                item: FragmentDefinitionName(
-                    "myRootFragment",
-                ),
-            },
-        ),
-        deprecated: None,
-        live: None,
-        location: /path/to/test/fixture/terse-relay-resolver.js:20:44,
-        fragment_arguments: None,
-    },
+    ),
 )

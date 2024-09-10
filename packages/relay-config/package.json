@@ -15,7 +15,7 @@
     "directory": "packages/relay-config"
   },
   "dependencies": {
-    "@rushstack/node-core-library": "^5.7.0",
+    "@rushstack/node-core-library": "^5.8.0",
     "cosmiconfig": "^5.0.5"
   },
   "directories": {

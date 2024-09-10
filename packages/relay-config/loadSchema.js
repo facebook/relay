@@ -17,6 +17,14 @@ const path = require('path');
 function loadSchema(): any {
   return JsonSchema.fromFile(
     path.join(__dirname, 'relay-compiler-config-schema.json'),
+    {
+      customFormats: {
+        uint8: {
+          type: 'number',
+          validate: data => data >= 0 && data <= 255,
+        },
+      },
+    },
   );
 }
 

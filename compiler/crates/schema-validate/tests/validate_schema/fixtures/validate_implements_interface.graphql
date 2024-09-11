@@ -59,3 +59,35 @@ type TypeC implements InterfaceF {
 type Query {
   node: Node
 }
+
+# Checks semantic nullability
+
+interface InterfaceG {
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [0, 1])
+}
+
+interface InterfaceH implements InterfaceG {
+  # Oops! some_field does not specify @semanticNonNull or non-null (!)
+  # and some_field does not specify @semanticNonNull(levels: [0, 1]) or non-null ([!]!)
+  some_field: String
+  some_list: [String]
+}
+
+interface InterfaceI implements InterfaceG {
+  # Oops! some_list is semanticNonNull but lacks the same levels as the interface.
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [1])
+}
+
+interface InterfaceJ implements InterfaceG {
+  # OK
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [0, 1])
+}
+
+interface InterfaceK implements InterfaceG {
+  # OK
+  some_field: String!
+  some_list: [String!]!
+}

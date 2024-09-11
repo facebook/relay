@@ -227,6 +227,8 @@ impl Default for SchemaConfig {
     }
 }
 
+type CustomArtifactFilePath = Box<dyn Fn(&ProjectConfig, &PathBuf) -> PathBuf + Send + Sync>;
+
 pub struct ProjectConfig {
     pub name: ProjectName,
     pub base: Option<ProjectName>,
@@ -252,6 +254,7 @@ pub struct ProjectConfig {
     pub diagnostic_report_config: DiagnosticReportConfig,
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
     pub codegen_command: Option<String>,
+    pub get_custom_path_for_artifact: Option<CustomArtifactFilePath>,
 }
 
 impl Default for ProjectConfig {
@@ -281,6 +284,7 @@ impl Default for ProjectConfig {
             diagnostic_report_config: Default::default(),
             resolvers_schema_module: Default::default(),
             codegen_command: Default::default(),
+            get_custom_path_for_artifact: None,
         }
     }
 }
@@ -312,6 +316,7 @@ impl Debug for ProjectConfig {
             diagnostic_report_config,
             resolvers_schema_module,
             codegen_command,
+            get_custom_path_for_artifact: _,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)

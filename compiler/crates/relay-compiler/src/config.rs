@@ -427,6 +427,7 @@ impl Config {
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
                     codegen_command: config_file_project.codegen_command,
+                    get_custom_path_for_artifact: None,
                 };
                 Ok((project_name, project_config))
             })

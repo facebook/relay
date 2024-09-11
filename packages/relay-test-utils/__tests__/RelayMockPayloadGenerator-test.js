@@ -1645,6 +1645,12 @@ describe('with @relay_test_operation', () => {
   });
 
   describe('with client extensions', () => {
+    graphql`
+      fragment RelayMockPayloadGeneratorTest43SubFragment on User {
+        name
+      }
+    `;
+
     const clientExtensionsQuery = graphql`
       query RelayMockPayloadGeneratorTest43Query @relay_test_operation {
         node(id: "my-id") {
@@ -1652,6 +1658,7 @@ describe('with @relay_test_operation', () => {
             id
             client_name
             client_code
+            ...RelayMockPayloadGeneratorTest43SubFragment @defer
           }
         }
       }
@@ -1665,6 +1672,13 @@ describe('with @relay_test_operation', () => {
     test('generate mock for client extensions with client generation enabled', () => {
       testGeneratedData(clientExtensionsQuery, undefined, {
         mockClientData: true,
+      });
+    });
+
+    test('generate mock for client extensions with client generation enabled and generateWithDefer enabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: true,
+        generateDeferredPayload: true,
       });
     });
   });

@@ -28,6 +28,7 @@ export type ClientEdgeQuery_MyFragment_best_friend = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs, DataID } from "relay-runtime";
+import clientUserBestFriendResolverType from "bar";
 export type MyFragment$data = {
   readonly best_friend: {
     readonly name: string | null | undefined;

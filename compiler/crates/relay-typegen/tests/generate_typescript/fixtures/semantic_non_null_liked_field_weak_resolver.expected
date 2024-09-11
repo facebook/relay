@@ -28,6 +28,7 @@ export type ClientUser__blob$normalization = {
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
+import clientUserBlobResolverType from "bar";
 export type MyFragment$data = {
   readonly blob: {
     readonly data: string | null | undefined;

@@ -642,6 +642,11 @@ class LiveResolverCache implements ResolverCache {
     return RelayModernRecord.getValue(resolverRecord, RELAY_RESOLVER_VALUE_KEY);
   }
 
+  /**
+   * Takes a set of IDs whose records have just changed and are therefore about
+   * to be notified, and mutate the set, adding the IDs of resolvers that are
+   * transitively invalidated by this update.
+   */
   invalidateDataIDs(
     updatedDataIDs: DataIDSet, // Mutated in place
   ): void {
@@ -650,6 +655,10 @@ class LiveResolverCache implements ResolverCache {
     const recordsToVisit = Array.from(updatedDataIDs);
     while (recordsToVisit.length) {
       const recordID = recordsToVisit.pop();
+      if (RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION) {
+        visited.add(recordID);
+      }
+
       // $FlowFixMe[incompatible-call]
       updatedDataIDs.add(recordID);
       // $FlowFixMe[incompatible-call]
@@ -659,6 +668,10 @@ class LiveResolverCache implements ResolverCache {
       }
       for (const fragment of fragmentSet) {
         if (!visited.has(fragment)) {
+          if (RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION) {
+            visited.add(fragment);
+          }
+
           const recordSet = this._resolverIDToRecordIDs.get(fragment);
           if (recordSet == null) {
             continue;
@@ -666,6 +679,9 @@ class LiveResolverCache implements ResolverCache {
           for (const anotherRecordID of recordSet) {
             markInvalidatedResolverRecord(anotherRecordID, recordSource);
             if (!visited.has(anotherRecordID)) {
+              if (RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION) {
+                visited.add(anotherRecordID);
+              }
               recordsToVisit.push(anotherRecordID);
             }
           }

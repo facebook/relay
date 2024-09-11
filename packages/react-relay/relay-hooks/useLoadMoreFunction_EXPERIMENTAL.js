@@ -19,20 +19,18 @@ import type {
   Observer,
   ReaderFragment,
   ReaderPaginationMetadata,
+  Subscription,
   Variables,
 } from 'relay-runtime';
 
 const getConnectionState = require('./getConnectionState');
-const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useIsMountedRef = require('./useIsMountedRef');
 const useIsOperationNodeActive = require('./useIsOperationNodeActive');
-const useLoadMoreFunction_EXPERIMENTAL = require('./useLoadMoreFunction_EXPERIMENTAL');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
-const {useCallback, useEffect, useState} = require('react');
+const {useCallback, useRef, useState} = require('react');
 const {
   __internal: {fetchQuery},
-  RelayFeatureFlags,
   createOperationDescriptor,
   getPaginationVariables,
   getRefetchMetadata,
@@ -62,20 +60,16 @@ export type UseLoadMoreFunctionArgs = {
   onReset: () => void,
 };
 
-hook useLoadMoreFunction<TVariables: Variables>(
+hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
   args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn<TVariables>, boolean, () => void] {
-  if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
-    // $FlowFixMe[react-rule-hook] - the condition is static
-    return useLoadMoreFunction_EXPERIMENTAL(args);
-  }
-  // $FlowFixMe[react-rule-hook] - the condition is static
-  return useLoadMoreFunction_CURRENT(args);
-}
-
-hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
-  args: UseLoadMoreFunctionArgs,
-): [LoadMoreFn<TVariables>, boolean, () => void] {
+): [
+  // Function to load more data
+  LoadMoreFn<TVariables>,
+  // Whether the connection has more data to load
+  boolean,
+  // Force dispose function which cancels the in-flight fetch itself, and callbacks
+  () => void,
+] {
   const {
     direction,
     fragmentNode,
@@ -90,8 +84,6 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
     onReset,
   } = args;
   const environment = useRelayEnvironment();
-  const {isFetchingRef, startFetch, disposeFetch, completeFetch} =
-    useFetchTrackingRef();
 
   const {identifierInfo} = getRefetchMetadata(
     fragmentNode,
@@ -104,7 +96,9 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
       ? fragmentData[identifierInfo.identifierField]
       : null;
 
-  const isMountedRef = useIsMountedRef();
+  const fetchStatusRef = useRef<
+    {kind: 'fetching', subscription: Subscription} | {kind: 'none'},
+  >({kind: 'none'});
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
   const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] =
     useState(fragmentIdentifier);
@@ -114,11 +108,21 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
     fragmentRef,
   );
 
+  const forceDisposeFn = useCallback(() => {
+    // $FlowFixMe[react-rule-unsafe-ref]
+    if (fetchStatusRef.current.kind === 'fetching') {
+      // $FlowFixMe[react-rule-unsafe-ref]
+      fetchStatusRef.current.subscription.unsubscribe();
+    }
+    // $FlowFixMe[react-rule-unsafe-ref]
+    fetchStatusRef.current = {kind: 'none'};
+  }, []);
+
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
   if (shouldReset) {
-    disposeFetch();
+    forceDisposeFn();
     onReset();
     setMirroredEnvironment(environment);
     setMirroredFragmentIdentifier(fragmentIdentifier);
@@ -131,13 +135,7 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
     connectionPathInFragmentData,
   );
 
-  // Dispose of pagination requests in flight when unmounting
-  useEffect(() => {
-    return () => {
-      disposeFetch();
-    };
-  }, [disposeFetch]);
-
+  const isMountedRef = useIsMountedRef();
   const loadMore = useCallback(
     (
       count: number,
@@ -167,7 +165,7 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
       if (
-        isFetchingRef.current === true ||
+        fetchStatusRef.current.kind === 'fetching' ||
         fragmentData == null ||
         isParentQueryActive
       ) {
@@ -243,21 +241,23 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
       fetchQuery(environment, paginationQuery).subscribe({
         ...observer,
         start: subscription => {
-          startFetch(subscription);
+          fetchStatusRef.current = {kind: 'fetching', subscription};
           observer.start && observer.start(subscription);
         },
         complete: () => {
-          completeFetch();
+          fetchStatusRef.current = {kind: 'none'};
           observer.complete && observer.complete();
           onComplete && onComplete(null);
         },
         error: error => {
-          completeFetch();
-          observer.error && observer.error(error);
+          fetchStatusRef.current = {kind: 'none'};
+          observer.complete && observer.complete();
           onComplete && onComplete(error);
         },
       });
-      return {dispose: disposeFetch};
+      return {
+        dispose: () => {},
+      };
     },
     // NOTE: We disable react-hooks-deps warning because all values
     // inside paginationMetadata are static
@@ -267,10 +267,6 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
       identifierValue,
       direction,
       cursor,
-      startFetch,
-      disposeFetch,
-      completeFetch,
-      isFetchingRef,
       isParentQueryActive,
       fragmentData,
       fragmentNode.name,
@@ -278,7 +274,7 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
       componentDisplayName,
     ],
   );
-  return [loadMore, hasMore, disposeFetch];
+  return [loadMore, hasMore, forceDisposeFn];
 }
 
-module.exports = useLoadMoreFunction;
+module.exports = useLoadMoreFunction_EXPERIMENTAL;

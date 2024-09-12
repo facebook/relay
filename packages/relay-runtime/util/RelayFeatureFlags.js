@@ -53,6 +53,11 @@ export type FeatureFlags = {
 
   // Temporary flag to experiment to enable compatibility with React's unstable <Activity> API
   ENABLE_ACTIVITY_COMPATIBILITY: boolean,
+
+  // Gating a fix to prevent infinite loops when invalidating Relay Resolvers.
+  // We believe the fix to be correct but don't yet have a test to validate it
+  // fixes the error, so we're gating it for now.
+  AVOID_CYCLES_IN_RESOLVER_NOTIFICATION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -76,6 +81,7 @@ const RelayFeatureFlags: FeatureFlags = {
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
   ENABLE_ACTIVITY_COMPATIBILITY: false,
+  AVOID_CYCLES_IN_RESOLVER_NOTIFICATION: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -840,12 +840,15 @@ class RelayReader {
     if (field.linkedField.plural) {
       invariant(
         Array.isArray(clientEdgeResolverResponse),
-        'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+        'Expected plural Client Edge Relay Resolver at `%s` in `%s` to return an array containing IDs or objects with shape {id}.',
+        backingField.path,
+        this._owner.identifier,
       );
       let storeIDs: $ReadOnlyArray<DataID>;
       invariant(
         field.kind === 'ClientEdgeToClientObject',
-        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+        'Unexpected Client Edge to plural server type `%s`. This should be prevented by the compiler.',
+        field.kind,
       );
       if (field.backingField.normalizationInfo == null) {
         // @edgeTo case where we need to ensure that the record has `id` field
@@ -853,9 +856,15 @@ class RelayReader {
           const concreteType = field.concreteType ?? itemResponse.__typename;
           invariant(
             typeof concreteType === 'string',
-            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+            'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
+            backingField.path,
+            this._owner.identifier,
           );
-          const localId = extractIdFromResponse(itemResponse);
+          const localId = extractIdFromResponse(
+            itemResponse,
+            backingField.path,
+            this._owner.identifier,
+          );
           const id = this._resolverCache.ensureClientRecord(
             localId,
             concreteType,
@@ -866,9 +875,11 @@ class RelayReader {
             const modelResolver = modelResolvers[concreteType];
             invariant(
               modelResolver !== undefined,
-              `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(
-                modelResolvers,
-              ).join(', ')} but got \`${concreteType}\`.`,
+              'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
+              backingField.path,
+              this._owner.identifier,
+              Object.keys(modelResolvers).join(', '),
+              concreteType,
             );
             const model = this._readResolverFieldImpl(modelResolver, id);
             return model != null ? id : null;
@@ -877,7 +888,9 @@ class RelayReader {
         });
       } else {
         // The normalization process in LiveResolverCache should take care of generating the correct ID.
-        storeIDs = clientEdgeResolverResponse.map(extractIdFromResponse);
+        storeIDs = clientEdgeResolverResponse.map(obj =>
+          extractIdFromResponse(obj, backingField.path, this._owner.identifier),
+        );
       }
       this._clientEdgeTraversalPath.push(null);
       const edgeValues = this._readLinkedIds(
@@ -890,7 +903,11 @@ class RelayReader {
       data[fieldName] = edgeValues;
       return edgeValues;
     } else {
-      const id = extractIdFromResponse(clientEdgeResolverResponse);
+      const id = extractIdFromResponse(
+        clientEdgeResolverResponse,
+        backingField.path,
+        this._owner.identifier,
+      );
       let storeID: DataID;
       const concreteType =
         field.concreteType ?? clientEdgeResolverResponse.__typename;
@@ -899,7 +916,9 @@ class RelayReader {
         if (field.backingField.normalizationInfo == null) {
           invariant(
             typeof concreteType === 'string',
-            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+            'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
+            backingField.path,
+            this._owner.identifier,
           );
           // @edgeTo case where we need to ensure that the record has `id` field
           storeID = this._resolverCache.ensureClientRecord(id, concreteType);
@@ -921,14 +940,18 @@ class RelayReader {
       if (modelResolvers != null) {
         invariant(
           typeof concreteType === 'string',
-          'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+          'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
+          backingField.path,
+          this._owner.identifier,
         );
         const modelResolver = modelResolvers[concreteType];
         invariant(
           modelResolver !== undefined,
-          `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(
-            modelResolvers,
-          ).join(', ')} but got \`${concreteType}\`.`,
+          'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
+          backingField.path,
+          this._owner.identifier,
+          Object.keys(modelResolvers).join(', '),
+          concreteType,
         );
         const model = this._readResolverFieldImpl(modelResolver, storeID);
         if (model == null) {
@@ -943,9 +966,10 @@ class RelayReader {
       const prevData = data[fieldName];
       invariant(
         prevData == null || typeof prevData === 'object',
-        'RelayReader(): Expected data for field `%s` on record `%s` ' +
+        'RelayReader(): Expected data for field at `%s` in `%s` on record `%s` ' +
           'to be an object, got `%s`.',
-        fieldName,
+        backingField.path,
+        this._owner.identifier,
         RelayModernRecord.getDataID(record),
         prevData,
       );
@@ -999,9 +1023,10 @@ class RelayReader {
     const prevData = data[fieldName];
     invariant(
       prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
+      'RelayReader(): Expected data for field `%s` at `%s` on record `%s` ' +
         'to be an object, got `%s`.',
       fieldName,
+      this._owner.identifier,
       RelayModernRecord.getDataID(record),
       prevData,
     );
@@ -1437,7 +1462,11 @@ function getResolverValue(
   return [resolverResult, resolverError];
 }
 
-function extractIdFromResponse(individualResponse: mixed): string {
+function extractIdFromResponse(
+  individualResponse: mixed,
+  path: string,
+  owner: string,
+): string {
   if (typeof individualResponse === 'string') {
     return individualResponse;
   } else if (
@@ -1449,7 +1478,9 @@ function extractIdFromResponse(individualResponse: mixed): string {
   }
   invariant(
     false,
-    'Expected object returned from an edge resolver to be a string or an object with an `id` property',
+    'Expected object returned from edge resolver to be a string or an object with an `id` property at path %s in %s,',
+    path,
+    owner,
   );
 }
 

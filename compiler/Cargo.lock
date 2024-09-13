@@ -163,6 +163,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bstr"
+version = "1.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "40723b8fb387abc38f4f4a37c09073622e41dd12327033091ef8950659e6dc0c"
+dependencies = [
+ "memchr",
+ "serde",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -734,6 +744,20 @@ name = "glob"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
+
+[[package]]
+name = "globset"
+version = "0.4.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15f1ce686646e7f1e19bf7d5533fe443a45dbfb990e00629110797578b42fb19"
+dependencies = [
+ "aho-corasick",
+ "bstr",
+ "log",
+ "regex-automata",
+ "regex-syntax 0.8.2",
+ "serde",
+]
 
 [[package]]
 name = "graphql-cli"
@@ -1707,6 +1731,7 @@ dependencies = [
  "futures 0.3.30",
  "futures-util",
  "glob",
+ "globset",
  "graphql-cli",
  "graphql-ir",
  "graphql-syntax",
@@ -1780,6 +1805,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "fnv",
+ "globset",
  "indexmap 2.2.6",
  "intern",
  "pathdiff",

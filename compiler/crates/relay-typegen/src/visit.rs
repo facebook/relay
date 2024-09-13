@@ -9,6 +9,7 @@ use std::collections::HashSet;
 use std::hash::Hash;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::vec;
 
 use ::intern::intern;
 use ::intern::string_key::Intern;
@@ -24,6 +25,7 @@ use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use graphql_ir::Condition;
+use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
@@ -56,6 +58,7 @@ use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::TypeConditionInfo;
+use relay_transforms::TypgenTypeOverride;
 use relay_transforms::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
@@ -1253,7 +1256,9 @@ fn visit_scalar_field(
     }
 
     let ast = transform_type_reference_into_ast(&field_type, |type_| {
-        expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+        override_typegen_type_directive(scalar_field, custom_scalars).unwrap_or_else(|| {
+            expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
+        })
     });
 
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
@@ -1264,6 +1269,44 @@ fn visit_scalar_field(
         concrete_type: None,
         is_result_type: is_result_type_directive(&scalar_field.directives),
     }));
+}
+
+fn override_typegen_type_directive(
+    scalar_field: &ScalarField,
+    custom_scalars: &mut CustomScalarsImports,
+) -> Option<AST> {
+    let TypgenTypeOverride {
+        name,
+        path,
+        generic_arguments,
+        is_union,
+    } = TypgenTypeOverride::get_override_from_directive(scalar_field)?;
+
+    custom_scalars.insert((name, path.clone()));
+
+    // Override without arguments
+    if generic_arguments.is_empty() {
+        return Some(AST::RawType(name));
+    }
+
+    let arguments = generic_arguments
+        .iter()
+        .filter_map(|v| match v {
+            ConstantValue::String(s) => Some(AST::StringLiteral(StringLiteral(*s))),
+            ConstantValue::Int(i) => Some(AST::RawType(format!("{}", i).intern())),
+            ConstantValue::Float(f) => Some(AST::RawType(format!("{}", f).intern())),
+            ConstantValue::Boolean(b) => Some(AST::RawType(format!("{}", b).intern())),
+            _ => panic!("Unsupported type for typegen override argument. Only String, Int, Float and Boolean are supported."),
+        })
+        .collect();
+
+    Some(AST::GenericType {
+        outer: name,
+        inner: match is_union {
+            true => vec![AST::Union(SortedASTList::new(arguments))],
+            false => arguments,
+        },
+    })
 }
 
 #[allow(clippy::too_many_arguments)]

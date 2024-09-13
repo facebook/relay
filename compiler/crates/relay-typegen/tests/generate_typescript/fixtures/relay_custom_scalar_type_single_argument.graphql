@@ -1,0 +1,26 @@
+fragment foo on ViewData {
+    usernameLabel @__RelayTypegenTypeOverride(
+      path: "@i18n/localization",
+      name: "LocalizedString",
+      generic_arguments: [
+        "name"
+      ]
+    )
+}
+
+# %extensions%
+
+extend type Query {
+  viewData: ViewData
+}
+
+type ViewData {
+  usernameLabel: String
+}
+
+scalar Argument
+directive @__RelayTypegenTypeOverride(
+  path: String!, 
+  name: String!,
+  generic_arguments: [Argument!]
+) on FIELD

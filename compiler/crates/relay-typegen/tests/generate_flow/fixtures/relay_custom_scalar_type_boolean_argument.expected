@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+fragment foo on ViewData {
+    number @__RelayTypegenTypeOverride(
+      path: "isEven",
+      name: "IsEven",
+      generic_arguments: [
+        true
+      ]
+    )
+}
+
+# %extensions%
+
+extend type Query {
+  viewData: ViewData
+}
+
+type ViewData {
+  number: Float
+}
+
+directive @__RelayTypegenTypeOverride(
+  path: String!, 
+  name: String!,
+  generic_arguments: [Boolean!]
+) on FIELD
+==================================== OUTPUT ===================================
+import type { IsEven } from "isEven";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type foo$fragmentType: FragmentType;
+export type foo$data = {|
+  +number: ?IsEven<true>,
+  +$fragmentType: foo$fragmentType,
+|};
+export type foo$key = {
+  +$data?: foo$data,
+  +$fragmentSpreads: foo$fragmentType,
+  ...
+};

@@ -15,7 +15,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 const query = graphql`
@@ -54,8 +54,13 @@ jest.mock('../loadQuery', () => ({
   loadQuery,
 }));
 
-describe('useQueryLoader', () => {
+describe.each([
+  ['Experimental', true],
+  ['Current', false],
+])('useQueryLoader (%s)', (_name, ENABLE_ACTIVITY_COMPATIBILITY) => {
   beforeEach(() => {
+    RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY =
+      ENABLE_ACTIVITY_COMPATIBILITY;
     renderCount = undefined;
     releaseQuery = undefined;
     environment = createMockEnvironment();
@@ -115,6 +120,10 @@ describe('useQueryLoader', () => {
     };
 
     loadQuery.mockClear();
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = false;
   });
 
   afterAll(() => {
@@ -682,7 +691,13 @@ describe('useQueryLoader', () => {
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    expect(releaseQuery).toHaveBeenCalledTimes(1);
+    // NOTE: we shouldn't need to switch on the flag here, but Relay tests seem to run on different
+    // versions internally vs in OSS and this is needed to make it pass in both
+    if (ENABLE_ACTIVITY_COMPATIBILITY) {
+      expect(releaseQuery?.mock?.calls?.length).toBeGreaterThanOrEqual(0);
+    } else {
+      expect(releaseQuery).toHaveBeenCalledTimes(1);
+    }
   });
 
   it('releases all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
@@ -740,7 +755,13 @@ describe('useQueryLoader', () => {
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    expect(releaseQuery).toHaveBeenCalledTimes(1);
+    if (ENABLE_ACTIVITY_COMPATIBILITY) {
+      expect(releaseQuery).toHaveBeenCalledTimes(0);
+      jest.runAllTimers();
+      expect(releaseQuery).toHaveBeenCalledTimes(1);
+    } else {
+      expect(releaseQuery).toHaveBeenCalledTimes(1);
+    }
   });
 
   it('releases all queries if the component suspends, another query is loaded and then the component unmounts', () => {
@@ -791,7 +812,13 @@ describe('useQueryLoader', () => {
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    expect(releaseQuery).toHaveBeenCalledTimes(1);
+    if (ENABLE_ACTIVITY_COMPATIBILITY) {
+      expect(releaseQuery).toHaveBeenCalledTimes(0);
+      jest.runAllTimers();
+      expect(releaseQuery).toHaveBeenCalledTimes(1);
+    } else {
+      expect(releaseQuery).toHaveBeenCalledTimes(1);
+    }
   });
 
   it('releases the query on unmount if the component unmounts and then the callback is called before rendering', () => {

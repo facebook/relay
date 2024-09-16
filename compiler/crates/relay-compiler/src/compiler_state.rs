@@ -95,6 +95,10 @@ impl ProjectSet {
     pub fn first(&self) -> Option<&ProjectName> {
         self.0.first()
     }
+
+    pub fn sort(&mut self) {
+        self.0.sort();
+    }
 }
 
 impl IntoIterator for ProjectSet {

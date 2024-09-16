@@ -47,16 +47,13 @@ function handleFieldErrors(
   shouldThrow: boolean,
 ) {
   for (const fieldError of errorResponseFields) {
-    const {path, owner, error} = fieldError;
-    if (fieldError.type === 'MISSING_DATA') {
+    if (
+      fieldError.kind === 'missing_expected_data.log' ||
+      fieldError.kind === 'missing_expected_data.throw'
+    ) {
       // _logMissingData(environment, shouldThrow);
     } else {
-      environment.relayFieldLogger({
-        kind: 'relay_field_payload.error',
-        owner: owner,
-        fieldPath: path,
-        error,
-      });
+      environment.relayFieldLogger(fieldError);
     }
   }
 
@@ -137,7 +134,11 @@ function handlePotentialSnapshotErrors(
   throwOnFieldError: boolean,
 ) {
   const onlyHasMissingDataErrors = Boolean(
-    errorResponseFields?.every(field => field.type === 'MISSING_DATA'),
+    errorResponseFields?.every(
+      field =>
+        field.kind === 'missing_expected_data.log' ||
+        field.kind === 'missing_expected_data.throw',
+    ),
   );
 
   // if isMissingData is the only error - we should throw that separately

@@ -58,13 +58,13 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
-              },
+              kind: 'missing_expected_data.log',
+              // error: {
+              //   message:
+              //     'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              // },
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+              fieldPath: '',
             },
           ],
           false /* throwOnFieldError */,
@@ -85,23 +85,24 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
-              },
+              kind: 'missing_expected_data.log',
+              // error: {
+              //   message:
+              //     'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              // },
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+              fieldPath: '',
             },
             {
+              kind: 'relay_field_payload.error',
               owner: 'testOwner',
-              path: 'testPath',
+              fieldPath: 'testPath',
               error: {
                 message: 'testMessage',
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
-              type: 'PAYLOAD_ERROR',
+              shouldThrow: false,
             },
           ],
           false /* throwOnFieldError */,
@@ -141,12 +142,12 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
+              kind: 'missing_expected_data.throw',
               owner: '',
-              path: '',
-              type: 'MISSING_DATA',
-              error: {
-                message: `Relay: Missing data for one or more fields`,
-              },
+              fieldPath: '',
+              // error: {
+              //   message: `Relay: Missing data for one or more fields`,
+              // },
             },
           ],
           true /* throwOnFieldError */,
@@ -169,12 +170,12 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
+              kind: 'missing_expected_data.log',
               owner: '',
-              path: '',
-              type: 'MISSING_DATA',
-              error: {
-                message: 'Relay: Missing data for one or more fields',
-              },
+              fieldPath: '',
+              // error: {
+              //   message: 'Relay: Missing data for one or more fields',
+              // },
             },
           ],
           false /* throwOnFieldError */,
@@ -197,12 +198,12 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
+              kind: 'missing_expected_data.log',
               owner: '',
-              path: '',
-              type: 'MISSING_DATA',
-              error: {
-                message: 'Relay: Missing data for one or more fields',
-              },
+              fieldPath: '',
+              // error: {
+              //   message: 'Relay: Missing data for one or more fields',
+              // },
             },
           ],
           false /* throwOnFieldError */,
@@ -227,12 +228,12 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
+              kind: 'missing_expected_data.log',
               owner: '',
-              path: '',
-              type: 'MISSING_DATA',
-              error: {
-                message: 'Relay: Missing data for one or more fields',
-              },
+              fieldPath: '',
+              // error: {
+              //   message: 'Relay: Missing data for one or more fields',
+              // },
             },
           ],
           false /* throwOnFieldError */,
@@ -248,14 +249,15 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
+              kind: 'relay_field_payload.error',
               owner: 'testOwner',
-              path: 'testPath',
-              type: 'PAYLOAD_ERROR',
+              fieldPath: 'testPath',
               error: {
                 message: 'testMessage',
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
+              shouldThrow: false,
             },
           ],
           false /* throwOnFieldError */,
@@ -283,22 +285,23 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
+              kind: 'relay_field_payload.error',
               owner: 'testOwner',
-              path: 'testPath',
-              type: 'PAYLOAD_ERROR',
+              fieldPath: 'testPath',
               error: {
                 message: 'testMessage',
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
+              shouldThrow: false,
             },
             {
+              kind: 'missing_expected_data.log',
               owner: '',
-              path: '',
-              type: 'MISSING_DATA',
-              error: {
-                message: 'Relay: Missing data for one or more fields',
-              },
+              fieldPath: '',
+              // error: {
+              //   message: 'Relay: Missing data for one or more fields',
+              // },
             },
           ],
           false /* throwOnFieldError */,
@@ -330,14 +333,15 @@ describe('handlePotentialSnapshotErrors', () => {
         [],
         [
           {
+            kind: 'relay_field_payload.error',
             owner: 'testOwner',
-            path: 'testPath',
+            fieldPath: 'testPath',
             error: {
               message: 'testMessage',
               path: ['testPath'],
               severity: 'CRITICAL',
             },
-            type: 'PAYLOAD_ERROR',
+            shouldThrow: false,
           },
         ],
         false /* throwOnFieldError */,
@@ -365,23 +369,24 @@ describe('handlePotentialSnapshotErrors', () => {
           [],
           [
             {
+              kind: 'relay_field_payload.error',
               owner: 'testOwner',
-              path: 'testPath',
-              type: 'PAYLOAD_ERROR',
+              fieldPath: 'testPath',
               error: {
                 message: 'testMessage',
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
+              shouldThrow: false,
             },
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
-              },
+              // error: {
+              //   message:
+              //     'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
+              // },
+              kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+              fieldPath: '',
             },
           ],
           true /* throwOnFieldError */,

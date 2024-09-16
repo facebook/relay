@@ -417,7 +417,9 @@ describe('handlePotentialSnapshotErrors', () => {
         null,
         [
           {
-            field: {owner: 'testOwner', path: 'testPath'},
+            kind: 'relay_resolver.error',
+            fieldPath: 'testPath',
+            owner: 'testOwner',
             error: Error('testError'),
           },
         ],
@@ -441,7 +443,9 @@ describe('handlePotentialSnapshotErrors', () => {
           null,
           [
             {
-              field: {owner: 'testOwner', path: 'testPath'},
+              kind: 'relay_resolver.error',
+              fieldPath: 'testPath',
+              owner: 'testOwner',
               error: Error('testError'),
             },
           ],

@@ -384,7 +384,7 @@ impl ProjectConfig {
     ) -> PathBuf {
         let source_location = definition_name.location.source_location();
         let artifact_name = definition_name.item.into();
-        if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
+        let path = if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
             let filename =
                 (extra_artifacts_config.filename_for_artifact)(source_location, artifact_name);
 
@@ -394,6 +394,19 @@ impl ProjectConfig {
                 source_location,
                 format!("{}.graphql", artifact_name),
             )
+        };
+        if self
+            .feature_flags
+            .enable_custom_artifacts_path
+            .is_enabled_for(path.to_string_lossy().to_string().intern())
+        {
+            if let Some(get_custom_path_for_artifact) = &self.get_custom_path_for_artifact {
+                get_custom_path_for_artifact(self, &path)
+            } else {
+                path
+            }
+        } else {
+            path
         }
     }
 

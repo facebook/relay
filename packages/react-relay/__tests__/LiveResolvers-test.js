@@ -1707,12 +1707,13 @@ describe.each([true, false])(
       });
 
       const data = environment.lookup(operation.fragment);
-      expect(data.relayResolverErrors).toEqual([
+      expect(data.errorResponseFields).toEqual([
         {
           kind: 'relay_resolver.error',
           owner: 'LiveResolversTest18Query',
           fieldPath: 'live_resolver_throws',
           error: new Error('What?'),
+          shouldThrow: false,
         },
       ]);
     });
@@ -1761,7 +1762,7 @@ describe.each([true, false])(
       });
 
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([]);
+      expect(snapshot.errorResponseFields).toEqual(null);
       expect(snapshot.data).toEqual({
         hello_world_with_provided_variable: 'Hello, Hello, World!!',
       });
@@ -1786,7 +1787,7 @@ describe.each([true, false])(
       });
 
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([]);
+      expect(snapshot.errorResponseFields).toEqual(null);
       expect(snapshot.data).toEqual({
         hello_world_with_context: 'Hello Hello Allemaal!!',
       });
@@ -1813,7 +1814,7 @@ describe.each([true, false])(
       });
 
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([]);
+      expect(snapshot.errorResponseFields).toEqual(null);
       expect(snapshot.data).toEqual({
         hello_world_with_context_object: 'Hello Hello Allemaal!!',
       });

@@ -500,12 +500,13 @@ describe.each([true, false])(
         {},
       );
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([
+      expect(snapshot.errorResponseFields).toEqual([
         {
           error: Error(ERROR_MESSAGE),
           owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
           fieldPath: 'edge_to_model_that_throws.__relay_model_instance',
           kind: 'relay_resolver.error',
+          shouldThrow: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -524,13 +525,14 @@ describe.each([true, false])(
         {},
       );
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([
+      expect(snapshot.errorResponseFields).toEqual([
         {
           error: Error(ERROR_MESSAGE),
           owner:
             'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
           fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
           kind: 'relay_resolver.error',
+          shouldThrow: false,
         },
         {
           error: Error(ERROR_MESSAGE),
@@ -538,6 +540,7 @@ describe.each([true, false])(
             'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
           fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
           kind: 'relay_resolver.error',
+          shouldThrow: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -556,13 +559,14 @@ describe.each([true, false])(
         {},
       );
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([
+      expect(snapshot.errorResponseFields).toEqual([
         {
           error: Error(ERROR_MESSAGE),
           owner:
             'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
           fieldPath: 'edge_to_plural_models_some_throw.__relay_model_instance',
           kind: 'relay_resolver.error',
+          shouldThrow: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;

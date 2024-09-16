@@ -128,7 +128,6 @@ function handlePotentialSnapshotErrorsForState(
     handlePotentialSnapshotErrors(
       environment,
       state.snapshot.missingRequiredFields,
-      state.snapshot.relayResolverErrors,
       state.snapshot.errorResponseFields,
       state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
@@ -137,7 +136,6 @@ function handlePotentialSnapshotErrorsForState(
       handlePotentialSnapshotErrors(
         environment,
         snapshot.missingRequiredFields,
-        snapshot.relayResolverErrors,
         snapshot.errorResponseFields,
         snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
@@ -177,7 +175,6 @@ function handleMissedUpdates(
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
       missingRequiredFields: currentSnapshot.missingRequiredFields,
-      relayResolverErrors: currentSnapshot.relayResolverErrors,
       errorResponseFields: currentSnapshot.errorResponseFields,
     };
     return [
@@ -205,7 +202,6 @@ function handleMissedUpdates(
         seenRecords: currentSnapshot.seenRecords,
         selector: currentSnapshot.selector,
         missingRequiredFields: currentSnapshot.missingRequiredFields,
-        relayResolverErrors: currentSnapshot.relayResolverErrors,
         errorResponseFields: currentSnapshot.errorResponseFields,
       };
       if (updatedData !== snapshot.data) {

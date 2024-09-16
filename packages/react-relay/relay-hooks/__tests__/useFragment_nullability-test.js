@@ -82,7 +82,7 @@ describe('useFragment_nullability-test.js', () => {
     );
     await TestRenderer.act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes('Unexpected resolver exception'),
+      String(renderer.toJSON()).includes('Unexpected response payload'),
     ).toEqual(true);
   });
 
@@ -110,7 +110,7 @@ describe('useFragment_nullability-test.js', () => {
     );
     await TestRenderer.act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes('Unexpected resolver exception'),
+      String(renderer.toJSON()).includes('Unexpected response payload'),
     ).toEqual(true);
   });
 
@@ -138,7 +138,7 @@ describe('useFragment_nullability-test.js', () => {
     );
     await TestRenderer.act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes('Unexpected resolver exception'),
+      String(renderer.toJSON()).includes('Unexpected response payload'),
     ).toEqual(false);
   });
 });

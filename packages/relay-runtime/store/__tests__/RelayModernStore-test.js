@@ -288,7 +288,6 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
-          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });
@@ -343,7 +342,6 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
-          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });
@@ -402,7 +400,6 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
-          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });

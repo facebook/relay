@@ -25,7 +25,7 @@ describe('handlePotentialSnapshotErrors', () => {
 
   it('should not throw in default case', () => {
     expect(() => {
-      handlePotentialSnapshotErrors(environment, null, [], null, false);
+      handlePotentialSnapshotErrors(environment, null, null, false);
     }).not.toThrow();
   });
 
@@ -38,7 +38,6 @@ describe('handlePotentialSnapshotErrors', () => {
             action: 'THROW',
             field: {owner: 'testOwner', path: 'testPath'},
           },
-          [],
           null,
           false /* throwOnFieldError */,
         );
@@ -55,7 +54,6 @@ describe('handlePotentialSnapshotErrors', () => {
             action: 'THROW',
             field: {owner: 'testOwner', path: 'testPath'},
           },
-          [],
           [
             {
               kind: 'missing_expected_data.log',
@@ -78,7 +76,6 @@ describe('handlePotentialSnapshotErrors', () => {
             action: 'THROW',
             field: {owner: 'testOwner', path: 'testPath'},
           },
-          [],
           [
             {
               kind: 'missing_expected_data.log',
@@ -111,7 +108,6 @@ describe('handlePotentialSnapshotErrors', () => {
           action: 'LOG',
           fields: [{owner: 'testOwner', path: 'testPath'}],
         },
-        [],
         null,
         false /* throwOnFieldError */,
       );
@@ -131,7 +127,6 @@ describe('handlePotentialSnapshotErrors', () => {
         handlePotentialSnapshotErrors(
           environment,
           null,
-          [],
           [
             {
               kind: 'missing_expected_data.throw',
@@ -158,7 +153,6 @@ describe('handlePotentialSnapshotErrors', () => {
         handlePotentialSnapshotErrors(
           environment,
           null,
-          [],
           [
             {
               kind: 'missing_expected_data.log',
@@ -183,7 +177,6 @@ describe('handlePotentialSnapshotErrors', () => {
         handlePotentialSnapshotErrors(
           environment,
           null,
-          [],
           [
             {
               kind: 'missing_expected_data.log',
@@ -210,7 +203,6 @@ describe('handlePotentialSnapshotErrors', () => {
         handlePotentialSnapshotErrors(
           environment,
           null,
-          [],
           [
             {
               kind: 'missing_expected_data.log',
@@ -228,7 +220,6 @@ describe('handlePotentialSnapshotErrors', () => {
         handlePotentialSnapshotErrors(
           environment,
           null,
-          [],
           [
             {
               kind: 'relay_field_payload.error',
@@ -265,7 +256,6 @@ describe('handlePotentialSnapshotErrors', () => {
         handlePotentialSnapshotErrors(
           environment,
           null,
-          [],
           [
             {
               kind: 'relay_field_payload.error',
@@ -311,7 +301,6 @@ describe('handlePotentialSnapshotErrors', () => {
       handlePotentialSnapshotErrors(
         environment,
         null,
-        [],
         [
           {
             kind: 'relay_field_payload.error',
@@ -348,7 +337,6 @@ describe('handlePotentialSnapshotErrors', () => {
         handlePotentialSnapshotErrors(
           environment,
           null,
-          [],
           [
             {
               kind: 'relay_field_payload.error',
@@ -407,9 +395,9 @@ describe('handlePotentialSnapshotErrors', () => {
             fieldPath: 'testPath',
             owner: 'testOwner',
             error: Error('testError'),
+            shouldThrow: false,
           },
         ],
-        null,
         false /* throwOnFieldError */,
       );
 
@@ -419,6 +407,7 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_resolver.error',
         owner: 'testOwner',
+        shouldThrow: false,
       });
     });
 
@@ -433,12 +422,14 @@ describe('handlePotentialSnapshotErrors', () => {
               fieldPath: 'testPath',
               owner: 'testOwner',
               error: Error('testError'),
+              shouldThrow: true,
             },
           ],
-          null,
           true /* throwOnFieldError */,
         );
-      }).toThrowError(/^Relay: Unexpected resolver exception/);
+      }).toThrowError(
+        /^Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors/,
+      );
 
       expect(relayFieldLogger).toHaveBeenCalledTimes(1);
       expect(relayFieldLogger).toHaveBeenCalledWith({
@@ -446,6 +437,7 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_resolver.error',
         owner: 'testOwner',
+        shouldThrow: true,
       });
     });
   });

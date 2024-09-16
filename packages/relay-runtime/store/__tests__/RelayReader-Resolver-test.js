@@ -1044,26 +1044,27 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-        const {data, relayResolverErrors} = read(
+        const {data, errorResponseFields} = read(
           source,
           operation.fragment,
           resolverCache,
         );
 
         expect(data).toEqual({me: {always_throws: null}}); // Resolver result
-        expect(relayResolverErrors).toMatchInlineSnapshot(`
+        expect(errorResponseFields).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "me.always_throws",
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest12Query",
+          "shouldThrow": false,
         },
       ]
     `);
 
         // Subsequent read should also read the same error/path
-        const {data: data2, relayResolverErrors: relayResolverErrors2} = read(
+        const {data: data2, errorResponseFields: relayResolverErrors2} = read(
           source,
           operation.fragment,
           resolverCache,
@@ -1077,6 +1078,7 @@ describe.each([true, false])(
           "fieldPath": "me.always_throws",
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest12Query",
+          "shouldThrow": false,
         },
       ]
     `);
@@ -1108,26 +1110,27 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-        const {data, relayResolverErrors} = read(
+        const {data, errorResponseFields} = read(
           source,
           operation.fragment,
           resolverCache,
         );
 
         expect(data).toEqual({me: {always_throws_transitively: null}}); // Resolver result
-        expect(relayResolverErrors).toMatchInlineSnapshot(`
+        expect(errorResponseFields).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "always_throws",
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
+          "shouldThrow": false,
         },
       ]
     `);
 
         // Subsequent read should also read the same error/path
-        const {data: data2, relayResolverErrors: relayResolverErrors2} = read(
+        const {data: data2, errorResponseFields: relayResolverErrors2} = read(
           source,
           operation.fragment,
           resolverCache,
@@ -1141,6 +1144,7 @@ describe.each([true, false])(
           "fieldPath": "always_throws",
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
+          "shouldThrow": false,
         },
       ]
     `);
@@ -1165,20 +1169,21 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {});
 
-        const {data, relayResolverErrors} = read(
+        const {data, errorResponseFields} = read(
           source,
           operation.fragment,
           resolverCache,
         );
 
         expect(data).toEqual({throw_before_read: null}); // Resolver result
-        expect(relayResolverErrors).toMatchInlineSnapshot(`
+        expect(errorResponseFields).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: Purposefully throwing before reading to exercise an edge case.],
           "fieldPath": "throw_before_read",
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest14Query",
+          "shouldThrow": false,
         },
       ]
     `);

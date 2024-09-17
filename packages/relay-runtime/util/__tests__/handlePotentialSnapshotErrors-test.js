@@ -274,6 +274,7 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
+        shouldThrow: false,
       });
     });
 
@@ -318,6 +319,7 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
+        shouldThrow: false,
       });
       // expect(relayFieldLogger).toHaveBeenCalledWith({
       //   fieldPath: '',
@@ -357,6 +359,7 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
+        shouldThrow: false,
       });
     });
 
@@ -377,7 +380,7 @@ describe('handlePotentialSnapshotErrors', () => {
                 path: ['testPath'],
                 severity: 'CRITICAL',
               },
-              shouldThrow: false,
+              shouldThrow: true,
             },
             {
               // error: {
@@ -405,6 +408,7 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: 'testPath',
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
+        shouldThrow: true,
       });
 
       // expect(relayFieldLogger).toHaveBeenCalledWith({

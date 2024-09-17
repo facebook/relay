@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {TRelayFieldError} from '../store/RelayErrorTrie';
 import type {
   ErrorResponseFields,
   IEnvironment,
@@ -61,7 +62,19 @@ function handleFieldErrors(
   if (shouldThrow) {
     throw new RelayFieldError(
       `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
-      errorResponseFields.map(({error}) => error),
+      errorResponseFields.map((event): TRelayFieldError => {
+        switch (event.kind) {
+          case 'relay_field_payload.error':
+            return event.error;
+          case 'missing_expected_data.throw':
+            return {message: 'Missing expected data'};
+          case 'missing_expected_data.log':
+            return {message: 'Missing expected data'};
+          default:
+            (event.kind: empty);
+            throw new Error('Relay: Unexpected event kind');
+        }
+      }),
     );
   }
 }

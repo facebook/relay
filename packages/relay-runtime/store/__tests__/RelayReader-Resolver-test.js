@@ -208,10 +208,11 @@ describe.each([true, false])(
           const {errorResponseFields} = store.lookup(operation.fragment);
           expect(errorResponseFields).toEqual([
             {
+              fieldPath: 'me.lastName',
+              kind: 'relay_field_payload.error',
               error: {message: 'There was an error!', path: ['me', 'lastName']},
               owner: 'RelayReaderResolverTestFieldErrorQuery',
-              type: 'PAYLOAD_ERROR',
-              path: 'me.lastName',
+              shouldThrow: false,
             },
           ]);
         });

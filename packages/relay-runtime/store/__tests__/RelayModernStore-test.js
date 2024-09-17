@@ -728,6 +728,18 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
+          errorResponseFields: [
+            {
+              owner: 'RelayModernStoreTest5Fragment',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
+            },
+            {
+              owner: 'RelayModernStoreTest5Fragment',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
+            },
+          ],
           missingRequiredFields: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
@@ -774,13 +786,14 @@ function cloneEventWithSets(event: LogEvent) {
           isMissingData: true,
           errorResponseFields: [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreTest5Fragment',
-              },
               owner: 'RelayModernStoreTest5Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
+            },
+            {
+              owner: 'RelayModernStoreTest5Fragment',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
             },
           ],
           seenRecords: new Set(['842472']),

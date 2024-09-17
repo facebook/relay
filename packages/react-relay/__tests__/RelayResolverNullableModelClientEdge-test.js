@@ -503,9 +503,9 @@ describe.each([true, false])(
       expect(snapshot.relayResolverErrors).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          kind: 'relay_resolver.error',
           owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
           fieldPath: 'edge_to_model_that_throws.__relay_model_instance',
+          kind: 'relay_resolver.error',
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -527,17 +527,17 @@ describe.each([true, false])(
       expect(snapshot.relayResolverErrors).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          kind: 'relay_resolver.error',
           owner:
             'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
           fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
         },
         {
           error: Error(ERROR_MESSAGE),
-          kind: 'relay_resolver.error',
           owner:
             'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
           fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -559,10 +559,10 @@ describe.each([true, false])(
       expect(snapshot.relayResolverErrors).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          kind: 'relay_resolver.error',
           owner:
             'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
           fieldPath: 'edge_to_plural_models_some_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;

@@ -158,6 +158,11 @@ pub struct FeatureFlags {
     /// ```
     #[serde(default)]
     pub disable_deduping_common_structures_in_artifacts: FeatureFlag,
+
+    /// Disable the generation of a more precise raw response type
+    /// for selections on abstract types.
+    #[serde(default)]
+    pub disable_more_precise_abstract_selection_raw_response_type: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

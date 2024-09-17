@@ -166,6 +166,11 @@ pub struct FeatureFlags {
     /// across a number of diffs.
     #[serde(default)]
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
+
+    /// Disable the generation of a more precise raw response type
+    /// for selections on abstract types.
+    #[serde(default)]
+    pub disable_more_precise_abstract_selection_raw_response_type: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

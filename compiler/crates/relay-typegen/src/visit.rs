@@ -30,6 +30,7 @@ use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use indexmap::map::Entry;
@@ -1120,6 +1121,7 @@ fn visit_actor_change(
 #[allow(clippy::too_many_arguments)]
 fn raw_response_visit_inline_fragment(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     type_selections: &mut Vec<TypeSelection>,
     inline_fragment: &InlineFragment,
     encountered_enums: &mut EncounteredEnums,
@@ -1133,6 +1135,7 @@ fn raw_response_visit_inline_fragment(
 ) {
     let mut selections = raw_response_visit_selections(
         typegen_context,
+        operation_name,
         &inline_fragment.selections,
         encountered_enums,
         match_fields,
@@ -1158,6 +1161,7 @@ fn raw_response_visit_inline_fragment(
         if !match_fields.0.contains_key(&fragment_name.0) {
             let match_field = raw_response_selections_to_babel(
                 typegen_context,
+                operation_name,
                 selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
                 None,
                 encountered_enums,
@@ -1658,6 +1662,7 @@ fn should_emit_discriminated_union(
 
 pub(crate) fn raw_response_selections_to_babel(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     selections: impl Iterator<Item = TypeSelection>,
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
@@ -1675,10 +1680,19 @@ pub(crate) fn raw_response_selections_to_babel(
                 .or_default()
                 .push(selection);
         } else if let Some(abstract_type) = selection.get_enclosing_abstract_type() {
-            by_abstract_type
-                .entry(abstract_type)
-                .or_default()
-                .push(selection);
+            if typegen_context
+                .project_config
+                .feature_flags
+                .disable_more_precise_abstract_selection_raw_response_type
+                .is_enabled_for(operation_name.0)
+            {
+                base_fields.push(selection);
+            } else {
+                by_abstract_type
+                    .entry(abstract_type)
+                    .or_default()
+                    .push(selection);
+            }
         } else {
             base_fields.push(selection);
         }
@@ -1733,6 +1747,7 @@ pub(crate) fn raw_response_selections_to_babel(
                     .map(|selection| {
                         raw_response_make_prop(
                             typegen_context,
+                            operation_name,
                             selection,
                             Some(concrete_type),
                             encountered_enums,
@@ -1744,6 +1759,7 @@ pub(crate) fn raw_response_selections_to_babel(
             )));
             append_local_3d_payload(
                 typegen_context,
+                operation_name,
                 &mut types,
                 &merged_selections,
                 Some(concrete_type),
@@ -1794,6 +1810,7 @@ pub(crate) fn raw_response_selections_to_babel(
                 .map(|selection| {
                     raw_response_make_prop(
                         typegen_context,
+                        operation_name,
                         selection,
                         concrete_type,
                         encountered_enums,
@@ -1805,6 +1822,7 @@ pub(crate) fn raw_response_selections_to_babel(
         )));
         append_local_3d_payload(
             typegen_context,
+            operation_name,
             &mut types,
             &base_fields,
             concrete_type,
@@ -1819,6 +1837,7 @@ pub(crate) fn raw_response_selections_to_babel(
 
 fn append_local_3d_payload(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     types: &mut Vec<AST>,
     type_selections: &[TypeSelection],
     concrete_type: Option<Type>,
@@ -1844,6 +1863,7 @@ fn append_local_3d_payload(
                     .map(|sel| {
                         raw_response_make_prop(
                             typegen_context,
+                            operation_name,
                             sel.clone(),
                             concrete_type,
                             encountered_enums,
@@ -2115,6 +2135,7 @@ fn make_prop(
 
 fn raw_response_make_prop(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     type_selection: TypeSelection,
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
@@ -2141,6 +2162,7 @@ fn raw_response_make_prop(
             };
             let object_props = raw_response_selections_to_babel(
                 typegen_context,
+                operation_name,
                 hashmap_into_values(linked_field.node_selections),
                 inner_concrete_type,
                 encountered_enums,
@@ -2318,6 +2340,7 @@ fn transform_graphql_enum_type(
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn raw_response_visit_selections(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     selections: &[Selection],
     encountered_enums: &mut EncounteredEnums,
     match_fields: &mut MatchFields,
@@ -2353,6 +2376,7 @@ pub(crate) fn raw_response_visit_selections(
             }
             Selection::InlineFragment(inline_fragment) => raw_response_visit_inline_fragment(
                 typegen_context,
+                operation_name,
                 &mut type_selections,
                 inline_fragment,
                 encountered_enums,
@@ -2395,6 +2419,7 @@ pub(crate) fn raw_response_visit_selections(
                     |selections| {
                         raw_response_visit_selections(
                             typegen_context,
+                            operation_name,
                             selections,
                             encountered_enums,
                             match_fields,
@@ -2421,6 +2446,7 @@ pub(crate) fn raw_response_visit_selections(
             Selection::Condition(condition) => {
                 type_selections.extend(raw_response_visit_selections(
                     typegen_context,
+                    operation_name,
                     &condition.selections,
                     encountered_enums,
                     match_fields,

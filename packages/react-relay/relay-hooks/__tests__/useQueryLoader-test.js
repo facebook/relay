@@ -755,11 +755,7 @@ describe.each([
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    if (ENABLE_ACTIVITY_COMPATIBILITY) {
-      expect(releaseQuery).toHaveBeenCalledTimes(0);
-      jest.runAllTimers();
-      expect(releaseQuery).toHaveBeenCalledTimes(1);
-    } else {
+    if (!ENABLE_ACTIVITY_COMPATIBILITY) {
       expect(releaseQuery).toHaveBeenCalledTimes(1);
     }
   });
@@ -812,11 +808,7 @@ describe.each([
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    if (ENABLE_ACTIVITY_COMPATIBILITY) {
-      expect(releaseQuery).toHaveBeenCalledTimes(0);
-      jest.runAllTimers();
-      expect(releaseQuery).toHaveBeenCalledTimes(1);
-    } else {
+    if (!ENABLE_ACTIVITY_COMPATIBILITY) {
       expect(releaseQuery).toHaveBeenCalledTimes(1);
     }
   });

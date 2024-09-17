@@ -100,7 +100,7 @@ function handleMissingRequiredFields(
       const {path, owner} = missingRequiredFields.field;
       // This gives the consumer the chance to throw their own error if they so wish.
       environment.relayFieldLogger({
-        kind: 'missing_field.throw',
+        kind: 'missing_required_field.throw',
         owner,
         fieldPath: path,
       });
@@ -111,7 +111,7 @@ function handleMissingRequiredFields(
     case 'LOG':
       missingRequiredFields.fields.forEach(({path, owner}) => {
         environment.relayFieldLogger({
-          kind: 'missing_field.log',
+          kind: 'missing_required_field.log',
           owner,
           fieldPath: path,
         });

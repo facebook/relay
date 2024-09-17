@@ -126,7 +126,7 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(relayFieldLogger).toHaveBeenCalledTimes(1);
       expect(relayFieldLogger).toHaveBeenCalledWith({
         fieldPath: 'testPath',
-        kind: 'missing_field.log',
+        kind: 'missing_required_field.log',
         owner: 'testOwner',
       });
     });

@@ -111,7 +111,7 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
     [
       {
         fieldPath: 'name',
-        kind: 'missing_field.log',
+        kind: 'missing_required_field.log',
         owner: 'useFragmentWithRequiredTestUserFragment',
       },
     ],

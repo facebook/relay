@@ -982,7 +982,7 @@ describe.each([true, false])(
         expect(relayFieldLogger.mock.calls).toEqual([
           [
             {
-              kind: 'missing_field.throw',
+              kind: 'missing_required_field.throw',
               owner: 'ResolverThatThrows',
               fieldPath: 'username',
             },

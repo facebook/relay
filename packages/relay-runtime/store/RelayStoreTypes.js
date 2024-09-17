@@ -1290,7 +1290,7 @@ export type RelayFieldLoggerEvent =
    * A field was marked as @required(action: LOG) but was null or missing in the
    * store.
    */
-  | {+kind: 'missing_field.log', +owner: string, +fieldPath: string}
+  | {+kind: 'missing_required_field.log', +owner: string, +fieldPath: string}
 
   /**
    * A field was marked as @required(action: THROW) but was null or missing in the
@@ -1299,7 +1299,7 @@ export type RelayFieldLoggerEvent =
    * Relay will throw immediately after logging this event. If you wish to
    * customize the error being thrown, you may throw your own error.
    */
-  | {+kind: 'missing_field.throw', +owner: string, +fieldPath: string}
+  | {+kind: 'missing_required_field.throw', +owner: string, +fieldPath: string}
 
   /**
    * A Relay Resolver that is currently being read threw a JavaScript error when

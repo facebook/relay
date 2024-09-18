@@ -503,10 +503,9 @@ describe.each([true, false])(
       expect(snapshot.relayResolverErrors).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
-            path: 'edge_to_model_that_throws.__relay_model_instance',
-          },
+          kind: 'relay_resolver.error',
+          owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
+          fieldPath: 'edge_to_model_that_throws.__relay_model_instance',
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -528,19 +527,17 @@ describe.each([true, false])(
       expect(snapshot.relayResolverErrors).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner:
-              'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-            path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-          },
+          kind: 'relay_resolver.error',
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
         },
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner:
-              'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-            path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-          },
+          kind: 'relay_resolver.error',
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -562,11 +559,10 @@ describe.each([true, false])(
       expect(snapshot.relayResolverErrors).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner:
-              'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
-            path: 'edge_to_plural_models_some_throw.__relay_model_instance',
-          },
+          kind: 'relay_resolver.error',
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_some_throw.__relay_model_instance',
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;

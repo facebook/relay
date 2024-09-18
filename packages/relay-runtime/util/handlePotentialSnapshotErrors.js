@@ -27,12 +27,7 @@ function handleResolverErrors(
   throwOnFieldError: boolean,
 ) {
   for (const resolverError of relayResolverErrors) {
-    environment.relayFieldLogger({
-      kind: 'relay_resolver.error',
-      owner: resolverError.field.owner,
-      fieldPath: resolverError.field.path,
-      error: resolverError.error,
-    });
+    environment.relayFieldLogger(resolverError);
   }
 
   if (

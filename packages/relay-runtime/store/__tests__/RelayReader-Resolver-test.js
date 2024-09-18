@@ -1007,10 +1007,9 @@ describe.each([true, false])(
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "RelayReaderResolverTest12Query",
-            "path": "me.always_throws",
-          },
+          "fieldPath": "me.always_throws",
+          "kind": "relay_resolver.error",
+          "owner": "RelayReaderResolverTest12Query",
         },
       ]
     `);
@@ -1027,10 +1026,9 @@ describe.each([true, false])(
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "RelayReaderResolverTest12Query",
-            "path": "me.always_throws",
-          },
+          "fieldPath": "me.always_throws",
+          "kind": "relay_resolver.error",
+          "owner": "RelayReaderResolverTest12Query",
         },
       ]
     `);
@@ -1073,10 +1071,9 @@ describe.each([true, false])(
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "UserAlwaysThrowsTransitivelyResolver",
-            "path": "always_throws",
-          },
+          "fieldPath": "always_throws",
+          "kind": "relay_resolver.error",
+          "owner": "UserAlwaysThrowsTransitivelyResolver",
         },
       ]
     `);
@@ -1093,10 +1090,9 @@ describe.each([true, false])(
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "UserAlwaysThrowsTransitivelyResolver",
-            "path": "always_throws",
-          },
+          "fieldPath": "always_throws",
+          "kind": "relay_resolver.error",
+          "owner": "UserAlwaysThrowsTransitivelyResolver",
         },
       ]
     `);
@@ -1132,10 +1128,9 @@ describe.each([true, false])(
       Array [
         Object {
           "error": [Error: Purposefully throwing before reading to exercise an edge case.],
-          "field": Object {
-            "owner": "RelayReaderResolverTest14Query",
-            "path": "throw_before_read",
-          },
+          "fieldPath": "throw_before_read",
+          "kind": "relay_resolver.error",
+          "owner": "RelayReaderResolverTest14Query",
         },
       ]
     `);

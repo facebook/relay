@@ -355,7 +355,7 @@ class RelayReader {
       for (let i = 0; i < this._resolverErrors.length; i++) {
         const resolverError = this._resolverErrors[i];
         errors.push({
-          message: `Relay: Error in resolver for field at ${resolverError.field.path} in ${resolverError.field.owner}`,
+          message: `Relay: Error in resolver for field at ${resolverError.fieldPath} in ${resolverError.owner}`,
         });
       }
     }
@@ -776,7 +776,9 @@ class RelayReader {
     // to be logged.
     if (resolverError) {
       this._resolverErrors.push({
-        field: {path: fieldPath, owner: this._fragmentName},
+        kind: 'relay_resolver.error',
+        fieldPath,
+        owner: this._fragmentName,
         error: resolverError,
       });
     }

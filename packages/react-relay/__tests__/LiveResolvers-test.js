@@ -1709,10 +1709,9 @@ describe.each([true, false])(
       const data = environment.lookup(operation.fragment);
       expect(data.relayResolverErrors).toEqual([
         {
-          field: {
-            owner: 'LiveResolversTest18Query',
-            path: 'live_resolver_throws',
-          },
+          kind: 'relay_resolver.error',
+          owner: 'LiveResolversTest18Query',
+          fieldPath: 'live_resolver_throws',
           error: new Error('What?'),
         },
       ]);

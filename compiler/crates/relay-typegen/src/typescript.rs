@@ -13,6 +13,8 @@ use intern::intern;
 use itertools::Itertools;
 use relay_config::TypegenConfig;
 
+use crate::writer::FunctionTypeAssertion;
+use crate::writer::KeyValuePairProp;
 use crate::writer::Prop;
 use crate::writer::SortedASTList;
 use crate::writer::SortedStringKeyList;
@@ -22,8 +24,6 @@ use crate::writer::AST;
 use crate::KEY_DATA;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
-use crate::writer::FunctionTypeAssertion;
-use crate::writer::KeyValuePairProp;
 
 pub struct TypeScriptPrinter {
     result: String,

@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.73.0 # We hit an LLVM error building Wasm on 1.72
+          toolchain: 1.76.0
           override: true
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh

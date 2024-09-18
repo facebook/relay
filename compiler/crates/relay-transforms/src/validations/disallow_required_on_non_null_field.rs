@@ -18,7 +18,6 @@ use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
-use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use lazy_static::lazy_static;
 use schema::Schema;
@@ -34,94 +33,60 @@ lazy_static! {
         DirectiveName("throwOnFieldError".intern());
 }
 
-pub fn disallow_required_on_non_null_field(
-    program: &Program,
-    is_no_required_on_non_null: bool,
-    experimental_emit_semantic_nullability_types: bool,
-) -> DiagnosticsResult<()> {
-    let mut validator = DisallowRequiredOnNonNullField::new(
-        program,
-        is_no_required_on_non_null,
-        experimental_emit_semantic_nullability_types,
-    );
+pub fn disallow_required_on_non_null_field(program: &Program) -> DiagnosticsResult<()> {
+    let mut validator = DisallowRequiredOnNonNullField::new(program);
     validator.validate_program(program)
 }
 
 struct DisallowRequiredOnNonNullField<'program> {
     program: &'program Program,
-    is_no_required_on_non_null: bool,
-    experimental_emit_semantic_nullability_types: bool,
 }
 
 impl<'program> DisallowRequiredOnNonNullField<'program> {
-    fn new(
-        program: &'program Program,
-        is_no_required_on_non_null: bool,
-        experimental_emit_semantic_nullability_types: bool,
-    ) -> Self {
-        Self {
-            program,
-            is_no_required_on_non_null,
-            experimental_emit_semantic_nullability_types,
-        }
+    fn new(program: &'program Program) -> Self {
+        Self { program }
     }
 
-    fn validate_required_field(
-        &self,
-        field: &Arc<impl Field>,
-        is_throw_on_field_error: bool,
-    ) -> DiagnosticsResult<()> {
-        if self.is_no_required_on_non_null
-            && field.directives().named(*REQUIRED_DIRECTIVE_NAME).is_some()
-            && self
-                .program
-                .schema
-                .field(field.definition().item)
-                .type_
-                .is_non_null()
+    fn validate_required_field(&self, field: &Arc<impl Field>) -> DiagnosticsResult<()> {
+        let required_directive = field.directives().named(*REQUIRED_DIRECTIVE_NAME);
+
+        if required_directive.is_none() {
+            return Ok(());
+        }
+
+        if self
+            .program
+            .schema
+            .field(field.definition().item)
+            .type_
+            .is_non_null()
         {
             // @required on a non-null (!) field is an error.
             return Err(vec![Diagnostic::error_with_data(
                 ValidationMessageWithData::RequiredOnNonNull,
-                field
-                    .directives()
-                    .named(*REQUIRED_DIRECTIVE_NAME)
-                    .unwrap()
-                    .name
-                    .location,
+                required_directive.unwrap().name.location,
             )]);
         }
 
-        if is_throw_on_field_error
-            && field.directives().named(*REQUIRED_DIRECTIVE_NAME).is_some()
-            && (self
-                .program
-                .schema
-                .field(field.definition().item)
-                .directives
-                .named(*SEMANTIC_NON_NULL_DIRECTIVE)
-                .is_some())
+        if self
+            .program
+            .schema
+            .field(field.definition().item)
+            .directives
+            .named(*SEMANTIC_NON_NULL_DIRECTIVE)
+            .is_some()
         {
             // @required on a semantically-non-null field is an error.
             return Err(vec![Diagnostic::error(
                 ValidationMessageWithData::RequiredOnSemanticNonNull,
-                field
-                    .directives()
-                    .named(*REQUIRED_DIRECTIVE_NAME)
-                    .unwrap()
-                    .name
-                    .location,
+                required_directive.unwrap().name.location,
             )]);
         }
 
         Ok(())
     }
 
-    fn validate_selection_fields(
-        &self,
-        selections: &[Selection],
-        is_throw_on_field_error: bool,
-    ) -> DiagnosticsResult<()> {
+    fn validate_selection_fields(&self, selections: &[Selection]) -> DiagnosticsResult<()> {
         try_all(selections.iter().map(|selection| match selection {
             Selection::LinkedField(linked_field) => {
                 let field_result = match linked_field
@@ -129,18 +94,15 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
                     .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
                 {
                     Some(_) => Ok(()),
-                    None => self.validate_required_field(linked_field, is_throw_on_field_error),
+                    None => self.validate_required_field(linked_field),
                 };
 
-                let selection_result = self
-                    .validate_selection_fields(&linked_field.selections, is_throw_on_field_error);
+                let selection_result = self.validate_selection_fields(&linked_field.selections);
 
                 try2(field_result, selection_result)?;
                 Ok(())
             }
-            Selection::ScalarField(scalar_field) => {
-                self.validate_required_field(scalar_field, is_throw_on_field_error)
-            }
+            Selection::ScalarField(scalar_field) => self.validate_required_field(scalar_field),
             _ => Ok(()),
         }))?;
         Ok(())
@@ -155,19 +117,11 @@ impl Validator for DisallowRequiredOnNonNullField<'_> {
         let throw_on_field_error_directive =
             fragment.directives.named(*THROW_ON_FIELD_ERROR_DIRECTIVE);
 
-        if !self.experimental_emit_semantic_nullability_types
-            && throw_on_field_error_directive.is_some()
-        {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ThrowOnFieldErrorNotEnabled,
-                throw_on_field_error_directive.unwrap().name.location,
-            )]);
+        if throw_on_field_error_directive.is_none() {
+            return Ok(());
         }
 
-        self.validate_selection_fields(
-            &fragment.selections,
-            throw_on_field_error_directive.is_some(),
-        )
+        self.validate_selection_fields(&fragment.selections)
     }
 
     fn validate_operation(
@@ -177,18 +131,10 @@ impl Validator for DisallowRequiredOnNonNullField<'_> {
         let throw_on_field_error_directive =
             operation.directives.named(*THROW_ON_FIELD_ERROR_DIRECTIVE);
 
-        if !self.experimental_emit_semantic_nullability_types
-            && throw_on_field_error_directive.is_some()
-        {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ThrowOnFieldErrorNotEnabled,
-                throw_on_field_error_directive.unwrap().name.location,
-            )]);
+        if throw_on_field_error_directive.is_none() {
+            return Ok(());
         }
 
-        self.validate_selection_fields(
-            &operation.selections,
-            throw_on_field_error_directive.is_some(),
-        )
+        self.validate_selection_fields(&operation.selections)
     }
 }

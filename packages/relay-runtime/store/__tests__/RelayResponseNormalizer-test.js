@@ -15,7 +15,6 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
 const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const defaultGetDataID = require('../defaultGetDataID');
 const {
   createOperationDescriptor,
@@ -4142,179 +4141,7 @@ describe('RelayResponseNormalizer', () => {
     });
   });
 
-  describe('when field error handling is disabled', () => {
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
-
-    beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = false;
-    });
-
-    it('ignores field errors', () => {
-      const FooQuery = graphql`
-        query RelayResponseNormalizerTest36Query($id: ID!) {
-          node(id: $id) {
-            id
-            __typename
-            ... on User {
-              firstName
-              lastName
-              friends(first: 3) {
-                edges {
-                  cursor
-                  node {
-                    firstName
-                    lastName
-                  }
-                }
-              }
-            }
-          }
-        }
-      `;
-      const payload = {
-        node: {
-          id: '1',
-          __typename: 'User',
-          firstName: 'Jerry',
-          lastName: 'Seinfeld',
-          friends: {
-            edges: [
-              {
-                cursor: 'cursor:2',
-                node: {
-                  id: '2',
-                  firstName: 'George',
-                  lastName: 'Costanza',
-                },
-              },
-              {
-                cursor: 'cursor:3',
-                node: {
-                  id: '3',
-                  firstName: null,
-                  lastName: 'Kramer',
-                },
-              },
-              {
-                cursor: 'cursor:4',
-                node: {
-                  id: '4',
-                  firstName: null,
-                  lastName: 'Newman',
-                },
-              },
-            ],
-          },
-        },
-      };
-      const errors = [
-        {
-          message: "No one knows Kramer's first name until season six!",
-          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
-        },
-        {
-          message: 'There was another error!',
-          path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
-        },
-        {
-          message: "No one knows Newman's first name!",
-          path: ['node', 'friends', 'edges', 2, 'node', 'firstName'],
-        },
-      ];
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      normalize(
-        recordSource,
-        createNormalizationSelector(FooQuery.operation, ROOT_ID, {
-          id: '1',
-          size: 32,
-        }),
-        payload,
-        defaultOptions,
-        errors,
-      );
-      const friendsID = 'client:1:friends(first:3)';
-      const edge0ID = `${friendsID}:edges:0`;
-      const edge1ID = `${friendsID}:edges:1`;
-      const edge2ID = `${friendsID}:edges:2`;
-      expect(recordSource.toJSON()).toEqual({
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          firstName: 'Jerry',
-          'friends(first:3)': {__ref: friendsID},
-          lastName: 'Seinfeld',
-        },
-        '2': {
-          __id: '2',
-          __typename: 'User',
-          firstName: 'George',
-          id: '2',
-          lastName: 'Costanza',
-        },
-        '3': {
-          __id: '3',
-          __typename: 'User',
-          firstName: null,
-          id: '3',
-          lastName: 'Kramer',
-        },
-        '4': {
-          __id: '4',
-          __typename: 'User',
-          firstName: null,
-          id: '4',
-          lastName: 'Newman',
-        },
-        [friendsID]: {
-          __id: friendsID,
-          __typename: 'FriendsConnection',
-          edges: {
-            __refs: [edge0ID, edge1ID, edge2ID],
-          },
-        },
-        [edge0ID]: {
-          __id: edge0ID,
-          __typename: 'FriendsEdge',
-          cursor: 'cursor:2',
-          node: {__ref: '2'},
-        },
-        [edge1ID]: {
-          __id: edge1ID,
-          __typename: 'FriendsEdge',
-          cursor: 'cursor:3',
-          node: {__ref: '3'},
-        },
-        [edge2ID]: {
-          __id: edge2ID,
-          __typename: 'FriendsEdge',
-          cursor: 'cursor:4',
-          node: {__ref: '4'},
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {__ref: '1'},
-        },
-      });
-    });
-
-    afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
-    });
-  });
-
   describe('when field error handling is enabled', () => {
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
-
-    beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
-    });
-
     it('normalizes queries with multiple field errors', () => {
       const FooQuery = graphql`
         query RelayResponseNormalizerTest37Query($id: ID!) {
@@ -4571,11 +4398,6 @@ describe('RelayResponseNormalizer', () => {
           'node(id:"1")': {__ref: '1'},
         },
       });
-    });
-
-    afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
     });
   });
 });

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c35d41452808724ef2c31f8dddea7315>>
+ * @generated SignedSource<<70e9fab00385e2c241115c446365700e>>
  */
 
 mod parse;
@@ -223,6 +223,13 @@ async fn fixme_fat_interface_on_union_invalid() {
 }
 
 #[tokio::test]
+async fn fragment_argument_type_mismatch_invalid() {
+    let input = include_str!("parse/fixtures/fragment-argument-type-mismatch.invalid.graphql");
+    let expected = include_str!("parse/fixtures/fragment-argument-type-mismatch.invalid.expected");
+    test_fixture(transform_fixture, file!(), "fragment-argument-type-mismatch.invalid.graphql", "parse/fixtures/fragment-argument-type-mismatch.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn fragment_spread_on_wrong_type_invalid() {
     let input = include_str!("parse/fixtures/fragment-spread-on-wrong-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/fragment-spread-on-wrong-type.invalid.expected");
@@ -433,6 +440,13 @@ async fn inline_untyped_fragment() {
 }
 
 #[tokio::test]
+async fn input_object_multiple_invalid_fields() {
+    let input = include_str!("parse/fixtures/input_object_multiple_invalid_fields.graphql");
+    let expected = include_str!("parse/fixtures/input_object_multiple_invalid_fields.expected");
+    test_fixture(transform_fixture, file!(), "input_object_multiple_invalid_fields.graphql", "parse/fixtures/input_object_multiple_invalid_fields.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn invalid_argument_type_invalid() {
     let input = include_str!("parse/fixtures/invalid-argument-type.invalid.graphql");
     let expected = include_str!("parse/fixtures/invalid-argument-type.invalid.expected");
@@ -521,6 +535,20 @@ async fn literal_object_argument_invalid() {
     let input = include_str!("parse/fixtures/literal-object-argument.invalid.graphql");
     let expected = include_str!("parse/fixtures/literal-object-argument.invalid.expected");
     test_fixture(transform_fixture, file!(), "literal-object-argument.invalid.graphql", "parse/fixtures/literal-object-argument.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_field_argument_wrong_type_invalid() {
+    let input = include_str!("parse/fixtures/multiple_field_argument_wrong_type.invalid.graphql");
+    let expected = include_str!("parse/fixtures/multiple_field_argument_wrong_type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "multiple_field_argument_wrong_type.invalid.graphql", "parse/fixtures/multiple_field_argument_wrong_type.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn multiple_invalid_arguments_in_list() {
+    let input = include_str!("parse/fixtures/multiple_invalid_arguments_in_list.graphql");
+    let expected = include_str!("parse/fixtures/multiple_invalid_arguments_in_list.expected");
+    test_fixture(transform_fixture, file!(), "multiple_invalid_arguments_in_list.graphql", "parse/fixtures/multiple_invalid_arguments_in_list.expected", input, expected).await;
 }
 
 #[tokio::test]

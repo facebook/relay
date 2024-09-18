@@ -13,7 +13,7 @@ use relay_transforms::fragment_alias_directive;
 use relay_transforms::required_directive;
 
 fn transform(program: &Program) -> DiagnosticsResult<Program> {
-    required_directive(&fragment_alias_directive(program, true, false)?)
+    required_directive(&fragment_alias_directive(program, false)?)
 }
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

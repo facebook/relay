@@ -95,6 +95,11 @@ export type PluralReaderSelector = {
   +selectors: $ReadOnlyArray<SingularReaderSelector>,
 };
 
+export type FieldErrorType =
+  | 'MISSING_DATA'
+  | 'MISSING_REQUIRED'
+  | 'PAYLOAD_ERROR';
+
 export type RequestDescriptor = {
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
@@ -120,6 +125,7 @@ type FieldLocation = {
 type ErrorFieldLocation = {
   ...FieldLocation,
   error: TRelayFieldError,
+  type: FieldErrorType,
   to?: CatchFieldTo,
 };
 
@@ -434,6 +440,11 @@ export interface StoreSubscriptions {
     updatedOwners: Array<RequestDescriptor>,
     sourceOperation?: OperationDescriptor,
   ): void;
+
+  /**
+   * returns the number of subscriptions
+   */
+  size(): number;
 }
 
 /**
@@ -741,6 +752,8 @@ export type StoreNotifyCompleteLogEvent = {
   +sourceOperation: ?OperationDescriptor,
   +updatedRecordIDs: DataIDSet,
   +invalidatedRecordIDs: DataIDSet,
+  +subscriptionsSize: number,
+  +updatedOwners: Array<RequestDescriptor>,
 };
 
 export type StoreNotifySubscriptionLogEvent = {
@@ -1236,27 +1249,93 @@ export type MissingFieldHandler =
     };
 
 export type RelayFieldLoggerEvent =
-  | {
-      +kind: 'missing_field.log',
-      +owner: string,
-      +fieldPath: string,
-    }
-  | {
-      +kind: 'missing_field.throw',
-      +owner: string,
-      +fieldPath: string,
-    }
+  /**
+   * Data which Relay expected to be in the store (because it was requested by
+   * the parent query/mutation/subscription) was missing. This can happen due
+   * to graph relationship changes observed by other queries/mutations, or
+   * imperative updates that don't provide all needed data.
+   *
+   * https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change
+   *
+   * In this case Relay will render with the referenced field as `undefined`.
+   *
+   * __NOTE__: This may break with the type contract of Relay's generated types.
+   *
+   * To turn this into a hard error for a given fragment/query, you can use
+   * `@thowOnFieldError`.
+   *
+   * https://relay.dev/docs/next/guides/throw-on-field-error-directive/
+   */
+  | {+kind: 'missing_expected_data.log', +owner: string, +fieldPath: string}
+
+  /**
+   * Data which Relay expected to be in the store (because it was requested by
+   * the parent query/mutation/subscription) was missing. This can happen due
+   * to graph relationship changes observed by other queries/mutations, or
+   * imperative updates that don't provide all needed data.
+   *
+   * https://relay.dev/docs/next/debugging/why-null/#graph-relationship-change
+   *
+   * This event is as `.throw` because the missing data was encountered in a
+   * query/fragment/mutaiton with `@throwOnFieldError` `@thowOnFieldError`.
+   *
+   * https://relay.dev/docs/next/guides/throw-on-field-error-directive/
+   *
+   * Relay will throw immediately after logging this event. If you wish to
+   * customize the error being thrown, you may throw your own error.
+   */
+  | {+kind: 'missing_expected_data.throw', +owner: string, +fieldPath: string}
+
+  /**
+   * A field was marked as @required(action: LOG) but was null or missing in the
+   * store.
+   */
+  | {+kind: 'missing_required_field.log', +owner: string, +fieldPath: string}
+
+  /**
+   * A field was marked as @required(action: THROW) but was null or missing in the
+   * store.
+   *
+   * Relay will throw immediately after logging this event. If you wish to
+   * customize the error being thrown, you may throw your own error.
+   */
+  | {+kind: 'missing_required_field.throw', +owner: string, +fieldPath: string}
+
+  /**
+   * A Relay Resolver that is currently being read threw a JavaScript error when
+   * it was last evaluated. By default, the value has been coerced to null and
+   * passed to the product code.
+   *
+   * If `@throwOnFieldError` was used on the parent query/fragment/mutation, you
+   * will also recieve a TODO
+   */
   | {
       +kind: 'relay_resolver.error',
       +owner: string,
       +fieldPath: string,
       +error: Error,
     }
+
+  /**
+   * A field being read by Relay was marked as being in an error state by the
+   * GraphQL response.
+   *
+   * https://spec.graphql.org/October2021/#sec-Errors.Field-errors
+   *
+   * If the field's parent query/fragment/mutation was annotated with
+   * `@throwOnFieldError` and no `@catch` directive was used to catch the error,
+   * Relay will throw an error immediately after logging this event.
+   *
+   * https://relay.dev/docs/next/guides/catch-directive/
+   * https://relay.dev/docs/next/guides/throw-on-field-error-directive/
+   */
   | {
       +kind: 'relay_field_payload.error',
       +owner: string,
       +fieldPath: string,
       +error: TRelayFieldError,
+      // TODO: Should we add `shouldThrow` as a flag here, or perhaps have two
+      // different event types?
     };
 
 /**
@@ -1371,3 +1450,10 @@ export type LiveState<+T> = {
    */
   subscribe(cb: () => void): () => void,
 };
+
+/**
+ * Context that will be provided to live resolvers if
+ * `resolverContext` is set on the Relay Store.
+ * This context will be passed as the third argument to the live resolver
+ */
+export type ResolverContext = mixed;

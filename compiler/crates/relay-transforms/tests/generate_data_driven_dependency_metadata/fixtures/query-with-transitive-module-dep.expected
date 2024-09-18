@@ -72,6 +72,7 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #             "FragmentWithModuleDep",
       #         ),
       #     ),
+      #     read_time_resolvers: false,
       #     fragment_name: FragmentDefinitionName(
       #         "PlainUserNameRenderer_name",
       #     ),
@@ -96,6 +97,7 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #             "FragmentWithModuleDep",
       #         ),
       #     ),
+      #     read_time_resolvers: false,
       #     fragment_name: FragmentDefinitionName(
       #         "MarkdownUserNameRenderer_name",
       #     ),

@@ -93,354 +93,392 @@ function AnimalLegsComponent(props: {
   return animal?.legs;
 }
 
-test('should read the legs of a cat', () => {
-  function CatLegsRootComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverInterfaceTestCatLegsQuery {
-          cat {
-            ...RelayResolverInterfaceTestAnimalLegsFragment
-          }
-        }
-      `,
-      {},
-    );
+describe.each([true, false])(
+  'AVOID_CYCLES_IN_RESOLVER_NOTIFICATION is %p',
+  avoidCycles => {
+    RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION = avoidCycles;
+    test('should read the legs of a cat', () => {
+      function CatLegsRootComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverInterfaceTestCatLegsQuery {
+              cat {
+                ...RelayResolverInterfaceTestAnimalLegsFragment
+              }
+            }
+          `,
+          {},
+        );
 
-    return <AnimalLegsComponent animal={data.cat} />;
-  }
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <CatLegsRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('4');
-});
-
-test('should read the legs of a fish', () => {
-  function FishLegsRootComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverInterfaceTestFishLegsQuery {
-          fish {
-            ...RelayResolverInterfaceTestAnimalLegsFragment
-          }
-        }
-      `,
-      {},
-    );
-
-    return <AnimalLegsComponent animal={data.fish} />;
-  }
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <FishLegsRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('0');
-});
-
-test('should read the legs of a chicken (client schema extension type)', () => {
-  function ChickenLegsRootComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverInterfaceTestChickenLegsQuery {
-          chicken {
-            ...RelayResolverInterfaceTestAnimalLegsFragment
-          }
-        }
-      `,
-      {},
-    );
-
-    return <AnimalLegsComponent animal={data.chicken} />;
-  }
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <ChickenLegsRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('2');
-});
-
-function WeakAnimalColorFragmentComponent(props: {
-  animal: ?RelayResolverInterfaceTestWeakAnimalColorFragment$key,
-}) {
-  const animal = useFragment(
-    graphql`
-      fragment RelayResolverInterfaceTestWeakAnimalColorFragment on IWeakAnimal {
-        color
+        return <AnimalLegsComponent animal={data.cat} />;
       }
-    `,
-    props.animal,
-  );
-  return animal?.color;
-}
-
-test('should read the color of a red octopus (weak model type)', () => {
-  function RedOctopusColorRootComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverInterfaceTestRedOctopusColorQuery {
-          red_octopus {
-            ...RelayResolverInterfaceTestWeakAnimalColorFragment
-          }
-        }
-      `,
-      {},
-    );
-
-    return <WeakAnimalColorFragmentComponent animal={data.red_octopus} />;
-  }
-
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <RedOctopusColorRootComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('red');
-});
-
-function AnimalGreetingQueryComponent(props: {
-  request: {ofType: string, returnValidID: boolean},
-}) {
-  const data = useClientQuery(
-    graphql`
-      query RelayResolverInterfaceTestAnimalGreetingQuery(
-        $request: AnimalRequest!
-      ) {
-        animal(request: $request) {
-          greeting
-        }
-      }
-    `,
-    {request: props.request},
-  );
-  if (data.animal == null) {
-    return 'NULL';
-  }
-  return data.animal.greeting;
-}
-
-function WeakAnimalGreetingQueryComponent(props: {request: {ofType: string}}) {
-  const data = useClientQuery(
-    graphql`
-      query RelayResolverInterfaceTestWeakAnimalGreetingQuery(
-        $request: WeakAnimalRequest!
-      ) {
-        weak_animal(request: $request) {
-          greeting
-        }
-      }
-    `,
-    {request: props.request},
-  );
-  if (data.weak_animal == null) {
-    return 'NULL';
-  }
-  return data.weak_animal.greeting;
-}
-
-describe.each([
-  {
-    inputAnimalType: 'Fish',
-    id: '12redblue',
-  },
-  {
-    inputAnimalType: 'Cat',
-    id: '1234567890',
-  },
-])(
-  'resolvers can read resolver on an interface where all implementors are strong model types: %s',
-  ({inputAnimalType, id}) => {
-    test(`should read the greeting of a ${inputAnimalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalGreetingQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: true}}
-          />
-        </EnvironmentWrapper>,
-      );
-
-      expect(animalRenderer.toJSON()).toEqual(`Hello, ${id}!`);
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <CatLegsRootComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('4');
     });
 
-    test(`should return null for nonexistent ${inputAnimalType}`, () => {
-      const nullRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalGreetingQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
-          />
-        </EnvironmentWrapper>,
-      );
-      expect(nullRenderer.toJSON()).toEqual('NULL');
+    test('should read the legs of a fish', () => {
+      function FishLegsRootComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverInterfaceTestFishLegsQuery {
+              fish {
+                ...RelayResolverInterfaceTestAnimalLegsFragment
+              }
+            }
+          `,
+          {},
+        );
+
+        return <AnimalLegsComponent animal={data.fish} />;
+      }
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <FishLegsRootComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('0');
     });
-  },
-);
 
-describe.each([
-  {
-    inputAnimalType: 'RedOctopus',
-    name: 'Shiny',
-  },
-  {
-    inputAnimalType: 'PurpleOctopus',
-    name: 'Glowing',
-  },
-])(
-  'resolvers can read resolver on an interface where all implementors are weak model types: %s',
-  ({inputAnimalType, name}) => {
-    test(`should read the greeting of a ${inputAnimalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <WeakAnimalGreetingQueryComponent
-            request={{ofType: inputAnimalType}}
-          />
-        </EnvironmentWrapper>,
-      );
+    test('should read the legs of a chicken (client schema extension type)', () => {
+      function ChickenLegsRootComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverInterfaceTestChickenLegsQuery {
+              chicken {
+                ...RelayResolverInterfaceTestAnimalLegsFragment
+              }
+            }
+          `,
+          {},
+        );
 
-      expect(animalRenderer.toJSON()).toEqual(`Hello, ${name}!`);
+        return <AnimalLegsComponent animal={data.chicken} />;
+      }
+
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <ChickenLegsRootComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('2');
     });
-  },
-);
 
-describe.each([
-  {
-    animalType: 'RedOctopus',
-    color: 'red',
-  },
-  {
-    animalType: 'PurpleOctopus',
-    color: 'purple',
-  },
-])(
-  'resolvers can return an interface where all implementors are weak model types: %s',
-  ({animalType, color}) => {
-    function WeakAnimalColorQueryComponent(props: {request: {ofType: string}}) {
+    function WeakAnimalColorFragmentComponent(props: {
+      animal: ?RelayResolverInterfaceTestWeakAnimalColorFragment$key,
+    }) {
+      const animal = useFragment(
+        graphql`
+          fragment RelayResolverInterfaceTestWeakAnimalColorFragment on IWeakAnimal {
+            color
+          }
+        `,
+        props.animal,
+      );
+      return animal?.color;
+    }
+
+    test('should read the color of a red octopus (weak model type)', () => {
+      function RedOctopusColorRootComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverInterfaceTestRedOctopusColorQuery {
+              red_octopus {
+                ...RelayResolverInterfaceTestWeakAnimalColorFragment
+              }
+            }
+          `,
+          {},
+        );
+
+        return <WeakAnimalColorFragmentComponent animal={data.red_octopus} />;
+      }
+
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <RedOctopusColorRootComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('red');
+    });
+
+    function AnimalGreetingQueryComponent(props: {
+      request: {ofType: string, returnValidID: boolean},
+    }) {
       const data = useClientQuery(
         graphql`
-          query RelayResolverInterfaceTestWeakAnimalColorQuery(
-            $request: WeakAnimalRequest!
+          query RelayResolverInterfaceTestAnimalGreetingQuery(
+            $request: AnimalRequest!
           ) {
-            weak_animal(request: $request) {
-              ...RelayResolverInterfaceTestWeakAnimalColorFragment
+            animal(request: $request) {
+              greeting
             }
           }
         `,
         {request: props.request},
       );
-      return <WeakAnimalColorFragmentComponent animal={data.weak_animal} />;
-    }
-
-    test(`should read the color of a ${animalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <WeakAnimalColorQueryComponent request={{ofType: animalType}} />
-        </EnvironmentWrapper>,
-      );
-      expect(animalRenderer.toJSON()).toEqual(color);
-    });
-  },
-);
-
-test('resolvers can return a list of interfaces where all implementors are strong model types', () => {
-  function AnimalsLegsQueryComponent(props: {
-    requests: Array<{ofType: string, returnValidID: boolean}>,
-  }) {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverInterfaceTestAnimalsLegsQuery(
-          $requests: [AnimalRequest!]!
-        ) {
-          animals(requests: $requests) {
-            id
-            ...RelayResolverInterfaceTestAnimalLegsFragment
-          }
-        }
-      `,
-      {requests: props.requests},
-    );
-
-    return data.animals?.map((animal, index) => {
-      if (animal == null) {
+      if (data.animal == null) {
         return 'NULL';
       }
-      return <AnimalLegsComponent key={animal.id} animal={animal} />;
-    });
-  }
+      return data.animal.greeting;
+    }
 
-  const animalRenderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <AnimalsLegsQueryComponent
-        requests={[
-          {ofType: 'Fish', returnValidID: true},
-          {ofType: 'Fish', returnValidID: false}, // This should trigger a `null` value.
-          {ofType: 'Cat', returnValidID: true},
-          {ofType: 'Cat', returnValidID: false}, // This should trigger a `null` value.
-        ]}
-      />
-    </EnvironmentWrapper>,
-  );
-  expect(animalRenderer.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
-});
-
-function AnimalLegsQueryComponent(props: {
-  request: {ofType: string, returnValidID: boolean},
-}) {
-  const data = useClientQuery(
-    graphql`
-      query RelayResolverInterfaceTestAnimalLegsQuery(
-        $request: AnimalRequest!
-      ) {
-        animal(request: $request) {
-          ...RelayResolverInterfaceTestAnimalLegsFragment
-        }
+    function WeakAnimalGreetingQueryComponent(props: {
+      request: {ofType: string},
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverInterfaceTestWeakAnimalGreetingQuery(
+            $request: WeakAnimalRequest!
+          ) {
+            weak_animal(request: $request) {
+              greeting
+            }
+          }
+        `,
+        {request: props.request},
+      );
+      if (data.weak_animal == null) {
+        return 'NULL';
       }
-    `,
-    {request: props.request},
-  );
-  if (data.animal == null) {
-    return 'NULL';
-  }
+      return data.weak_animal.greeting;
+    }
 
-  return <AnimalLegsComponent animal={data.animal} />;
-}
+    describe.each([
+      {
+        inputAnimalType: 'Fish',
+        id: '12redblue',
+      },
+      {
+        inputAnimalType: 'Cat',
+        id: '1234567890',
+      },
+    ])(
+      'resolvers can read resolver on an interface where all implementors are strong model types: %s',
+      ({inputAnimalType, id}) => {
+        test(`should read the greeting of a ${inputAnimalType}`, () => {
+          let animalRenderer;
+          TestRenderer.act(() => {
+            animalRenderer = TestRenderer.create(
+              <EnvironmentWrapper environment={environment}>
+                <AnimalGreetingQueryComponent
+                  request={{ofType: inputAnimalType, returnValidID: true}}
+                />
+              </EnvironmentWrapper>,
+            );
+          });
+          expect(animalRenderer?.toJSON()).toEqual(`Hello, ${id}!`);
+        });
 
-describe.each([
-  {
-    inputAnimalType: 'Fish',
-    expectedLegs: '0',
-  },
-  {
-    inputAnimalType: 'Cat',
-    expectedLegs: '4',
-  },
-])(
-  'resolvers can return an interface where all implementors are strong model types: %s',
-  ({inputAnimalType, expectedLegs}) => {
-    test(`should read the legs of a ${inputAnimalType}`, () => {
-      const animalRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalLegsQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: true}}
-          />
-        </EnvironmentWrapper>,
-      );
+        test(`should return null for nonexistent ${inputAnimalType}`, () => {
+          let nullRenderer;
+          TestRenderer.act(() => {
+            nullRenderer = TestRenderer.create(
+              <EnvironmentWrapper environment={environment}>
+                <AnimalGreetingQueryComponent
+                  request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
+                />
+              </EnvironmentWrapper>,
+            );
+          });
+          expect(nullRenderer?.toJSON()).toEqual('NULL');
+        });
+      },
+    );
 
-      expect(animalRenderer.toJSON()).toEqual(expectedLegs);
+    describe.each([
+      {
+        inputAnimalType: 'RedOctopus',
+        name: 'Shiny',
+      },
+      {
+        inputAnimalType: 'PurpleOctopus',
+        name: 'Glowing',
+      },
+    ])(
+      'resolvers can read resolver on an interface where all implementors are weak model types: %s',
+      ({inputAnimalType, name}) => {
+        test(`should read the greeting of a ${inputAnimalType}`, () => {
+          let animalRenderer;
+          TestRenderer.act(() => {
+            animalRenderer = TestRenderer.create(
+              <EnvironmentWrapper environment={environment}>
+                <WeakAnimalGreetingQueryComponent
+                  request={{ofType: inputAnimalType}}
+                />
+              </EnvironmentWrapper>,
+            );
+          });
+          expect(animalRenderer?.toJSON()).toEqual(`Hello, ${name}!`);
+        });
+      },
+    );
+
+    describe.each([
+      {
+        animalType: 'RedOctopus',
+        color: 'red',
+      },
+      {
+        animalType: 'PurpleOctopus',
+        color: 'purple',
+      },
+    ])(
+      'resolvers can return an interface where all implementors are weak model types: %s',
+      ({animalType, color}) => {
+        function WeakAnimalColorQueryComponent(props: {
+          request: {ofType: string},
+        }) {
+          const data = useClientQuery(
+            graphql`
+              query RelayResolverInterfaceTestWeakAnimalColorQuery(
+                $request: WeakAnimalRequest!
+              ) {
+                weak_animal(request: $request) {
+                  ...RelayResolverInterfaceTestWeakAnimalColorFragment
+                }
+              }
+            `,
+            {request: props.request},
+          );
+          return <WeakAnimalColorFragmentComponent animal={data.weak_animal} />;
+        }
+
+        test(`should read the color of a ${animalType}`, () => {
+          let animalRenderer;
+          TestRenderer.act(() => {
+            animalRenderer = TestRenderer.create(
+              <EnvironmentWrapper environment={environment}>
+                <WeakAnimalColorQueryComponent request={{ofType: animalType}} />
+              </EnvironmentWrapper>,
+            );
+          });
+          expect(animalRenderer?.toJSON()).toEqual(color);
+        });
+      },
+    );
+
+    test('resolvers can return a list of interfaces where all implementors are strong model types', () => {
+      function AnimalsLegsQueryComponent(props: {
+        requests: Array<{ofType: string, returnValidID: boolean}>,
+      }) {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverInterfaceTestAnimalsLegsQuery(
+              $requests: [AnimalRequest!]!
+            ) {
+              animals(requests: $requests) {
+                id
+                ...RelayResolverInterfaceTestAnimalLegsFragment
+              }
+            }
+          `,
+          {requests: props.requests},
+        );
+
+        return data.animals?.map((animal, index) => {
+          if (animal == null) {
+            return 'NULL';
+          }
+          return <AnimalLegsComponent key={animal.id} animal={animal} />;
+        });
+      }
+
+      let animalRenderer;
+      TestRenderer.act(() => {
+        animalRenderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <AnimalsLegsQueryComponent
+              requests={[
+                {ofType: 'Fish', returnValidID: true},
+                {ofType: 'Fish', returnValidID: false}, // This should trigger a `null` value.
+                {ofType: 'Cat', returnValidID: true},
+                {ofType: 'Cat', returnValidID: false}, // This should trigger a `null` value.
+              ]}
+            />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(animalRenderer?.toJSON()).toEqual(['0', 'NULL', '4', 'NULL']);
     });
 
-    test(`should return null for nonexistent ${inputAnimalType}`, () => {
-      const nullRenderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <AnimalLegsQueryComponent
-            request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
-          />
-        </EnvironmentWrapper>,
+    function AnimalLegsQueryComponent(props: {
+      request: {ofType: string, returnValidID: boolean},
+    }) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverInterfaceTestAnimalLegsQuery(
+            $request: AnimalRequest!
+          ) {
+            animal(request: $request) {
+              ...RelayResolverInterfaceTestAnimalLegsFragment
+            }
+          }
+        `,
+        {request: props.request},
       );
-      expect(nullRenderer.toJSON()).toEqual('NULL');
-    });
+      if (data.animal == null) {
+        return 'NULL';
+      }
+
+      return <AnimalLegsComponent animal={data.animal} />;
+    }
+
+    describe.each([
+      {
+        inputAnimalType: 'Fish',
+        expectedLegs: '0',
+      },
+      {
+        inputAnimalType: 'Cat',
+        expectedLegs: '4',
+      },
+    ])(
+      'resolvers can return an interface where all implementors are strong model types: %s',
+      ({inputAnimalType, expectedLegs}) => {
+        test(`should read the legs of a ${inputAnimalType}`, () => {
+          let animalRenderer;
+          TestRenderer.act(() => {
+            animalRenderer = TestRenderer.create(
+              <EnvironmentWrapper environment={environment}>
+                <AnimalLegsQueryComponent
+                  request={{ofType: inputAnimalType, returnValidID: true}}
+                />
+              </EnvironmentWrapper>,
+            );
+          });
+          expect(animalRenderer?.toJSON()).toEqual(expectedLegs);
+        });
+
+        test(`should return null for nonexistent ${inputAnimalType}`, () => {
+          let nullRenderer;
+          TestRenderer.act(() => {
+            nullRenderer = TestRenderer.create(
+              <EnvironmentWrapper environment={environment}>
+                <AnimalLegsQueryComponent
+                  request={{ofType: inputAnimalType, returnValidID: false}} // This should trigger a `null` value.
+                />
+              </EnvironmentWrapper>,
+            );
+          });
+          expect(nullRenderer?.toJSON()).toEqual('NULL');
+        });
+      },
+    );
   },
 );

@@ -40,25 +40,6 @@ const {
   ACTOR_IDENTIFIER_FIELD_NAME,
   getActorIdentifierFromPayload,
 } = require('../multi-actor-environment/ActorUtils');
-const {
-  ACTOR_CHANGE,
-  CLIENT_COMPONENT,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  CLIENT_EXTENSION,
-  CONDITION,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  LINKED_HANDLE,
-  MODULE_IMPORT,
-  RELAY_LIVE_RESOLVER,
-  RELAY_RESOLVER,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-} = require('../util/RelayConcreteNode');
 const {generateClientID, isClientID} = require('./ClientID');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const {
@@ -227,11 +208,11 @@ class RelayResponseNormalizer {
     for (let i = 0; i < node.selections.length; i++) {
       const selection = node.selections[i];
       switch (selection.kind) {
-        case SCALAR_FIELD:
-        case LINKED_FIELD:
+        case 'ScalarField':
+        case 'LinkedField':
           this._normalizeField(selection, record, data);
           break;
-        case CONDITION:
+        case 'Condition':
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),
           );
@@ -239,7 +220,7 @@ class RelayResponseNormalizer {
             this._traverseSelections(selection, record, data);
           }
           break;
-        case FRAGMENT_SPREAD: {
+        case 'FragmentSpread': {
           const prevVariables = this._variables;
           this._variables = getLocalVariables(
             this._variables,
@@ -250,7 +231,7 @@ class RelayResponseNormalizer {
           this._variables = prevVariables;
           break;
         }
-        case INLINE_FRAGMENT: {
+        case 'InlineFragment': {
           const {abstractKey} = selection;
           if (abstractKey == null) {
             const typeName = RelayModernRecord.getType(record);
@@ -277,7 +258,7 @@ class RelayResponseNormalizer {
           }
           break;
         }
-        case TYPE_DISCRIMINATOR: {
+        case 'TypeDiscriminator': {
           const {abstractKey} = selection;
           const implementsInterface = data.hasOwnProperty(abstractKey);
           const typeName = RelayModernRecord.getType(record);
@@ -294,8 +275,8 @@ class RelayResponseNormalizer {
           );
           break;
         }
-        case LINKED_HANDLE:
-        case SCALAR_HANDLE:
+        case 'LinkedHandle':
+        case 'ScalarHandle':
           const args = selection.args
             ? getArgumentValues(selection.args, this._variables)
             : {};
@@ -312,37 +293,37 @@ class RelayResponseNormalizer {
               : {},
           });
           break;
-        case MODULE_IMPORT:
+        case 'ModuleImport':
           this._normalizeModuleImport(selection, record, data);
           break;
-        case DEFER:
+        case 'Defer':
           this._normalizeDefer(selection, record, data);
           break;
-        case STREAM:
+        case 'Stream':
           this._normalizeStream(selection, record, data);
           break;
-        case CLIENT_EXTENSION:
+        case 'ClientExtension':
           const isClientExtension = this._isClientExtension;
           this._isClientExtension = true;
           this._traverseSelections(selection, record, data);
           this._isClientExtension = isClientExtension;
           break;
-        case CLIENT_COMPONENT:
+        case 'ClientComponent':
           if (this._shouldProcessClientComponents === false) {
             break;
           }
           this._traverseSelections(selection.fragment, record, data);
           break;
-        case ACTOR_CHANGE:
+        case 'ActorChange':
           this._normalizeActorChange(selection, record, data);
           break;
-        case RELAY_RESOLVER:
+        case 'RelayResolver':
           this._normalizeResolver(selection, record, data);
           break;
-        case RELAY_LIVE_RESOLVER:
+        case 'RelayLiveResolver':
           this._normalizeResolver(selection, record, data);
           break;
-        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+        case 'ClientEdgeToClientObject':
           this._normalizeResolver(selection.backingField, record, data);
           break;
         default:
@@ -525,7 +506,7 @@ class RelayResponseNormalizer {
         }
       }
       if (__DEV__) {
-        if (selection.kind === SCALAR_FIELD) {
+        if (selection.kind === 'ScalarField') {
           this._validateConflictingFieldsWithIdenticalId(
             record,
             storageKey,
@@ -548,7 +529,7 @@ class RelayResponseNormalizer {
       return;
     }
 
-    if (selection.kind === SCALAR_FIELD) {
+    if (selection.kind === 'ScalarField') {
       if (__DEV__) {
         this._validateConflictingFieldsWithIdenticalId(
           record,
@@ -557,7 +538,7 @@ class RelayResponseNormalizer {
         );
       }
       RelayModernRecord.setValue(record, storageKey, fieldValue);
-    } else if (selection.kind === LINKED_FIELD) {
+    } else if (selection.kind === 'LinkedField') {
       this._path.push(responseKey);
       const oldErrorTrie = this._errorTrie;
       this._errorTrie =

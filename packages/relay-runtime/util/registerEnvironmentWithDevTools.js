@@ -22,8 +22,11 @@ function registerEnvironmentWithDevTools(environment: IEnvironment): void {
       : typeof window !== 'undefined'
         ? window
         : undefined;
+
+  // $FlowFixMe[incompatible-use] D61394600
   const devToolsHook = _global && _global.__RELAY_DEVTOOLS_HOOK__;
   if (devToolsHook) {
+    // $FlowFixMe[incompatible-call] D61394600
     devToolsHook.registerEnvironment(environment);
   }
 }

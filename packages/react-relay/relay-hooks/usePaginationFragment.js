@@ -46,7 +46,7 @@ type RefetchFnBase<TVars, TOptions> = (
   options?: TOptions,
 ) => Disposable;
 
-type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
+export type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
   RefetchVariables<TVariables, TKey>,
   TOptions,
 >;

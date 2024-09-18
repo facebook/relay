@@ -1,0 +1,56 @@
+query client3DResolversEnabledClient3DFragment_clientSideQuery {
+  persona {
+    id
+    basicUser {
+      ...client3DResolversEnabledClient3DFragment_ClientUserFragment @module(name: "ClientUser.react")
+      ...client3DResolversEnabledClient3DFragment_SpecialUserFragment @module(name: "SpecialUser.react")
+    }
+  }
+}
+
+fragment client3DResolversEnabledClient3DFragment_ClientUserFragment on ClientUser {
+  id
+  data
+}
+
+fragment client3DResolversEnabledClient3DFragment_SpecialUserFragment on SpecialUser {
+  id
+  data
+}
+
+%extensions%
+interface BasicUser {
+  data: String
+}
+
+type Persona {
+  id: ID!
+  basicUser: BasicUser
+}
+
+extend type Query {
+  persona: Persona
+}
+
+type ClientUser implements BasicUser @__RelayResolverModel {
+  id: ID!
+  data: String
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "ClientUserResolver", fragment_name: "ClientUser__id", inject_fragment_data: "id")
+}
+
+type SpecialUser implements BasicUser @__RelayResolverModel {
+  id: ID!
+  data: String
+  __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "SpecialUserResolver", fragment_name: "SpecialUser__id", inject_fragment_data: "id")
+}
+
+%project_config%
+{
+  "moduleImportConfig": {
+    "dynamicModuleProvider": {
+      "mode": "JSResource"
+    },
+    "surface": "resolvers"
+  },
+  "language": "flow"
+}

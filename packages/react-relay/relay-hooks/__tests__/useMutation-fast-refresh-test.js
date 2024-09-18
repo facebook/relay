@@ -88,13 +88,15 @@ describe('useLazyLoadQueryNode', () => {
     };
     ReactRefreshRuntime.register(V1, 'Renderer');
 
-    ReactTestRenderer.create(
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="Fallback">
-          <V1 />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Fallback">
+            <V1 />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+      );
+    });
     expect(isInFlightFn).toBeCalledTimes(1);
     expect(isInFlightFn).toBeCalledWith(false);
 

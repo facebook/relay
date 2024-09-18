@@ -40,6 +40,7 @@ import type {
   RecordSource,
   RelayResolverErrors,
   RequestDescriptor,
+  ResolverContext,
   SelectorData,
   SingularReaderSelector,
   Snapshot,
@@ -47,26 +48,6 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
-const {
-  ACTOR_CHANGE,
-  ALIASED_INLINE_FRAGMENT_SPREAD,
-  CATCH_FIELD,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  CLIENT_EDGE_TO_SERVER_OBJECT,
-  CLIENT_EXTENSION,
-  CONDITION,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_DATA_FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  MODULE_IMPORT,
-  RELAY_LIVE_RESOLVER,
-  RELAY_RESOLVER,
-  REQUIRED_FIELD,
-  SCALAR_FIELD,
-  STREAM,
-} = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {
   isSuspenseSentinel,
@@ -99,11 +80,13 @@ function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
   resolverCache?: ResolverCache,
+  resolverContext?: ResolverContext,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
     resolverCache ?? new NoopResolverCache(),
+    resolverContext,
   );
   return reader.read();
 }
@@ -128,11 +111,13 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
+  _resolverContext: ?ResolverContext;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
     resolverCache: ResolverCache,
+    resolverContext: ?ResolverContext,
   ) {
     this._clientEdgeTraversalPath = selector.clientEdgeTraversalPath?.length
       ? [...selector.clientEdgeTraversalPath]
@@ -152,6 +137,7 @@ class RelayReader {
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
+    this._resolverContext = resolverContext;
   }
 
   read(): Snapshot {
@@ -217,10 +203,6 @@ class RelayReader {
   }
 
   _maybeAddErrorResponseFields(record: Record, storageKey: string): void {
-    if (!RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING) {
-      return;
-    }
-
     const errors = RelayModernRecord.getErrors(record, storageKey);
 
     if (errors == null) {
@@ -235,13 +217,39 @@ class RelayReader {
       this._errorResponseFields.push({
         owner,
         path: (error.path ?? []).join('.'),
+        type: 'PAYLOAD_ERROR',
         error,
       });
     }
   }
 
   _markDataAsMissing(): void {
+    // We want to mark multiple missing_data - but not duplicate ones.
+    const alreadyInErrors = Boolean(
+      this._errorResponseFields?.some(
+        err => err.owner === this._fragmentName && err.type === 'MISSING_DATA',
+      ),
+    );
+
+    if (!alreadyInErrors) {
+      if (this._errorResponseFields == null) {
+        this._errorResponseFields = [];
+      }
+      this._errorResponseFields.push({
+        owner: this._fragmentName,
+        // we will add the path later
+        path: '',
+        type: 'MISSING_DATA',
+        error: {
+          message:
+            'Relay: Missing data for one or more fields in ' +
+            this._fragmentName,
+        },
+      });
+    }
+
     this._isMissingData = true;
+
     if (this._clientEdgeTraversalPath.length) {
       const top =
         this._clientEdgeTraversalPath[this._clientEdgeTraversalPath.length - 1];
@@ -322,13 +330,12 @@ class RelayReader {
     }
   }
 
-  _handleCatchFieldValue(
+  _handleCatchToResult(
     selection: ReaderCatchField,
     record: Record,
     data: SelectorData,
     value: mixed,
   ) {
-    const {to} = selection;
     const field = selection.field?.backingField ?? selection.field;
     const fieldName = field?.alias ?? field?.name;
 
@@ -339,56 +346,35 @@ class RelayReader {
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
-    if (this._errorResponseFields != null) {
-      for (let i = 0; i < this._errorResponseFields.length; i++) {
-        // if it's a @catch - it can only be NULL or RESULT. So we always add the "to" from the CatchField.
-        this._errorResponseFields[i].to = to;
+    let errors = this._errorResponseFields?.map(error => error.error);
+
+    if (this._resolverErrors.length > 0) {
+      if (errors == null) {
+        errors = [];
+      }
+      for (let i = 0; i < this._resolverErrors.length; i++) {
+        const resolverError = this._resolverErrors[i];
+        errors.push({
+          message: `Relay: Error in resolver for field at ${resolverError.field.path} in ${resolverError.field.owner}`,
+        });
       }
     }
-    // If we have a nested @required(THROW)  that will throw,
-    // we want to catch that error and provide it, and remove the original error
+
+    // If we have a nested @required(THROW) that will throw,
+    // we want to catch that error and provide it
     if (this._missingRequiredFields?.action === 'THROW') {
-      if (this._missingRequiredFields?.field == null) {
-        return;
-      }
-
-      // We want to catch nested @required THROWs
-      if (this._errorResponseFields == null) {
-        this._errorResponseFields = [];
-      }
-
       const {owner, path} = this._missingRequiredFields.field;
-      this._errorResponseFields.push({
-        owner,
-        path,
-        error: {
-          message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-        },
-        to,
-      });
-
-      // remove missing required because we're providing it in catch instead.
-      this._missingRequiredFields = null;
-
-      return;
-    }
-
-    if (this._errorResponseFields != null) {
-      const errors = this._errorResponseFields.map(error => error.error);
-
-      data[fieldName] = {
-        ok: false,
-        errors,
+      const missingFieldError = {
+        message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
       };
-      return;
+      if (errors == null) {
+        errors = [missingFieldError];
+      } else {
+        errors.push(missingFieldError);
+      }
     }
 
-    data[fieldName] = {
-      ok: true,
-      value,
-    };
-
-    // we do nothing if to is 'NULL'
+    data[fieldName] = errors != null ? {ok: false, errors} : {ok: true, value};
   }
 
   _handleRequiredFieldValue(
@@ -417,7 +403,7 @@ class RelayReader {
       const selection = selections[i];
 
       switch (selection.kind) {
-        case REQUIRED_FIELD:
+        case 'RequiredField':
           const requiredFieldValue = this._readClientSideDirectiveField(
             selection,
             record,
@@ -427,36 +413,50 @@ class RelayReader {
             return false;
           }
           break;
-        case CATCH_FIELD:
+        case 'CatchField': {
+          const previousResponseFields = this._errorResponseFields;
+          const previousMissingRequiredFields = this._missingRequiredFields;
+          const previousResolverErrors = this._resolverErrors;
+
+          this._errorResponseFields = null;
+          this._missingRequiredFields = null;
+          this._resolverErrors = [];
+
           const catchFieldValue = this._readClientSideDirectiveField(
             selection,
             record,
             data,
           );
-          if (RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE) {
-            /* NULL is old behavior. do nothing. */
-            if (selection.to != 'NULL') {
-              /* @catch(to: RESULT) is the default */
-              this._handleCatchFieldValue(
-                selection,
-                record,
-                data,
-                catchFieldValue,
-              );
-            }
+
+          if (selection.to === 'RESULT') {
+            this._handleCatchToResult(selection, record, data, catchFieldValue);
           }
+
+          const childrenMissingRequiredFields = this._missingRequiredFields;
+
+          this._resolverErrors = previousResolverErrors;
+          this._errorResponseFields = previousResponseFields;
+          this._missingRequiredFields = previousMissingRequiredFields;
+
+          // If we encountered non-throwing @required fields, in the children,
+          // we want to preserve those errors in the snapshot.
+          if (childrenMissingRequiredFields?.action === 'LOG') {
+            this._addMissingRequiredFields(childrenMissingRequiredFields);
+          }
+
           break;
-        case SCALAR_FIELD:
+        }
+        case 'ScalarField':
           this._readScalar(selection, record, data);
           break;
-        case LINKED_FIELD:
+        case 'LinkedField':
           if (selection.plural) {
             this._readPluralLink(selection, record, data);
           } else {
             this._readLink(selection, record, data);
           }
           break;
-        case CONDITION:
+        case 'Condition':
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),
           );
@@ -471,7 +471,7 @@ class RelayReader {
             }
           }
           break;
-        case INLINE_FRAGMENT: {
+        case 'InlineFragment': {
           const hasExpectedData = this._readInlineFragment(
             selection,
             record,
@@ -484,18 +484,18 @@ class RelayReader {
           }
           break;
         }
-        case RELAY_LIVE_RESOLVER:
-        case RELAY_RESOLVER: {
+        case 'RelayLiveResolver':
+        case 'RelayResolver': {
           if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
             throw new Error('Relay Resolver fields are not yet supported.');
           }
           this._readResolverField(selection, record, data);
           break;
         }
-        case FRAGMENT_SPREAD:
+        case 'FragmentSpread':
           this._createFragmentPointer(selection, record, data);
           break;
-        case ALIASED_INLINE_FRAGMENT_SPREAD: {
+        case 'AliasedInlineFragmentSpread': {
           let fieldValue = this._readInlineFragment(
             selection.fragment,
             record,
@@ -508,18 +508,18 @@ class RelayReader {
           data[selection.name] = fieldValue;
           break;
         }
-        case MODULE_IMPORT:
+        case 'ModuleImport':
           this._readModuleImport(selection, record, data);
           break;
-        case INLINE_DATA_FRAGMENT_SPREAD:
+        case 'InlineDataFragmentSpread':
           this._createInlineDataOrResolverFragmentPointer(
             selection,
             record,
             data,
           );
           break;
-        case DEFER:
-        case CLIENT_EXTENSION: {
+        case 'Defer':
+        case 'ClientExtension': {
           const isMissingData = this._isMissingData;
           const alreadyMissingClientEdges = this._missingClientEdges.length;
           this._clientEdgeTraversalPath.push(null);
@@ -541,7 +541,7 @@ class RelayReader {
           }
           break;
         }
-        case STREAM: {
+        case 'Stream': {
           const hasExpectedData = this._traverseSelections(
             selection.selections,
             record,
@@ -552,11 +552,11 @@ class RelayReader {
           }
           break;
         }
-        case ACTOR_CHANGE:
+        case 'ActorChange':
           this._readActorChange(selection, record, data);
           break;
-        case CLIENT_EDGE_TO_CLIENT_OBJECT:
-        case CLIENT_EDGE_TO_SERVER_OBJECT:
+        case 'ClientEdgeToClientObject':
+        case 'ClientEdgeToServerObject':
           this._readClientEdge(selection, record, data);
           break;
         default:
@@ -577,26 +577,26 @@ class RelayReader {
     data: SelectorData,
   ): ?mixed {
     switch (selection.field.kind) {
-      case SCALAR_FIELD:
+      case 'ScalarField':
         return this._readScalar(selection.field, record, data);
-      case LINKED_FIELD:
+      case 'LinkedField':
         if (selection.field.plural) {
           return this._readPluralLink(selection.field, record, data);
         } else {
           return this._readLink(selection.field, record, data);
         }
-      case RELAY_RESOLVER:
+      case 'RelayResolver':
         if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
-      case RELAY_LIVE_RESOLVER:
+      case 'RelayLiveResolver':
         if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
-      case CLIENT_EDGE_TO_CLIENT_OBJECT:
-      case CLIENT_EDGE_TO_SERVER_OBJECT:
+      case 'ClientEdgeToClientObject':
+      case 'ClientEdgeToServerObject':
         if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
@@ -691,6 +691,7 @@ class RelayReader {
             field,
             this._variables,
             key,
+            this._resolverContext,
           );
           return {resolverResult, snapshot, error: resolverError};
         });
@@ -699,6 +700,7 @@ class RelayReader {
           field,
           this._variables,
           null,
+          this._resolverContext,
         );
         return {resolverResult, snapshot: undefined, error: resolverError};
       }
@@ -838,12 +840,15 @@ class RelayReader {
     if (field.linkedField.plural) {
       invariant(
         Array.isArray(clientEdgeResolverResponse),
-        'Expected plural Client Edge Relay Resolver to return an array containing IDs or objects with shape {id}.',
+        'Expected plural Client Edge Relay Resolver at `%s` in `%s` to return an array containing IDs or objects with shape {id}.',
+        backingField.path,
+        this._owner.identifier,
       );
       let storeIDs: $ReadOnlyArray<DataID>;
       invariant(
-        field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT,
-        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+        field.kind === 'ClientEdgeToClientObject',
+        'Unexpected Client Edge to plural server type `%s`. This should be prevented by the compiler.',
+        field.kind,
       );
       if (field.backingField.normalizationInfo == null) {
         // @edgeTo case where we need to ensure that the record has `id` field
@@ -851,9 +856,15 @@ class RelayReader {
           const concreteType = field.concreteType ?? itemResponse.__typename;
           invariant(
             typeof concreteType === 'string',
-            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+            'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
+            backingField.path,
+            this._owner.identifier,
           );
-          const localId = extractIdFromResponse(itemResponse);
+          const localId = extractIdFromResponse(
+            itemResponse,
+            backingField.path,
+            this._owner.identifier,
+          );
           const id = this._resolverCache.ensureClientRecord(
             localId,
             concreteType,
@@ -864,7 +875,11 @@ class RelayReader {
             const modelResolver = modelResolvers[concreteType];
             invariant(
               modelResolver !== undefined,
-              `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
+              'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
+              backingField.path,
+              this._owner.identifier,
+              Object.keys(modelResolvers).join(', '),
+              concreteType,
             );
             const model = this._readResolverFieldImpl(modelResolver, id);
             return model != null ? id : null;
@@ -873,7 +888,9 @@ class RelayReader {
         });
       } else {
         // The normalization process in LiveResolverCache should take care of generating the correct ID.
-        storeIDs = clientEdgeResolverResponse.map(extractIdFromResponse);
+        storeIDs = clientEdgeResolverResponse.map(obj =>
+          extractIdFromResponse(obj, backingField.path, this._owner.identifier),
+        );
       }
       this._clientEdgeTraversalPath.push(null);
       const edgeValues = this._readLinkedIds(
@@ -886,16 +903,22 @@ class RelayReader {
       data[fieldName] = edgeValues;
       return edgeValues;
     } else {
-      const id = extractIdFromResponse(clientEdgeResolverResponse);
+      const id = extractIdFromResponse(
+        clientEdgeResolverResponse,
+        backingField.path,
+        this._owner.identifier,
+      );
       let storeID: DataID;
       const concreteType =
         field.concreteType ?? clientEdgeResolverResponse.__typename;
       let traversalPathSegment: ClientEdgeTraversalInfo | null;
-      if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+      if (field.kind === 'ClientEdgeToClientObject') {
         if (field.backingField.normalizationInfo == null) {
           invariant(
             typeof concreteType === 'string',
-            'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+            'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
+            backingField.path,
+            this._owner.identifier,
           );
           // @edgeTo case where we need to ensure that the record has `id` field
           storeID = this._resolverCache.ensureClientRecord(id, concreteType);
@@ -917,12 +940,18 @@ class RelayReader {
       if (modelResolvers != null) {
         invariant(
           typeof concreteType === 'string',
-          'Expected resolver modeling an edge to an abstract type to return an object with a `__typename` property.',
+          'Expected resolver for field at `%s` in `%s` modeling an edge to an abstract type to return an object with a `__typename` property.',
+          backingField.path,
+          this._owner.identifier,
         );
         const modelResolver = modelResolvers[concreteType];
         invariant(
           modelResolver !== undefined,
-          `Invalid \`__typename\` returned by resolver. Expected one of ${Object.keys(modelResolvers).join(', ')} but got \`${concreteType}\`.`,
+          'Invalid `__typename` returned by resolver at `%s` in `%s`. Expected one of %s but got `%s`.',
+          backingField.path,
+          this._owner.identifier,
+          Object.keys(modelResolvers).join(', '),
+          concreteType,
         );
         const model = this._readResolverFieldImpl(modelResolver, storeID);
         if (model == null) {
@@ -937,9 +966,10 @@ class RelayReader {
       const prevData = data[fieldName];
       invariant(
         prevData == null || typeof prevData === 'object',
-        'RelayReader(): Expected data for field `%s` on record `%s` ' +
+        'RelayReader(): Expected data for field at `%s` in `%s` on record `%s` ' +
           'to be an object, got `%s`.',
-        fieldName,
+        backingField.path,
+        this._owner.identifier,
         RelayModernRecord.getDataID(record),
         prevData,
       );
@@ -993,9 +1023,10 @@ class RelayReader {
     const prevData = data[fieldName];
     invariant(
       prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
+      'RelayReader(): Expected data for field `%s` at `%s` on record `%s` ' +
         'to be an object, got `%s`.',
       fieldName,
+      this._owner.identifier,
       RelayModernRecord.getDataID(record),
       prevData,
     );
@@ -1120,7 +1151,10 @@ class RelayReader {
     // Determine the component module from the store: if the field is missing
     // it means we don't know what component to render the match with.
     const componentKey = getModuleComponentKey(moduleImport.documentName);
-    const component = RelayModernRecord.getValue(record, componentKey);
+    // componentModuleProvider is used by Client 3D for read time resolvers.
+    const component =
+      moduleImport.componentModuleProvider ??
+      RelayModernRecord.getValue(record, componentKey);
     if (component == null) {
       if (component === undefined) {
         this._markDataAsMissing();
@@ -1393,6 +1427,7 @@ function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
   fragmentKey: mixed,
+  resolverContext: ?ResolverContext,
 ): [mixed, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
@@ -1402,6 +1437,7 @@ function getResolverValue(
 
   let resolverResult = null;
   let resolverError = null;
+
   try {
     const resolverFunctionArgs = [];
     if (field.fragment != null) {
@@ -1412,6 +1448,8 @@ function getResolverValue(
       : undefined;
 
     resolverFunctionArgs.push(args);
+
+    resolverFunctionArgs.push(resolverContext);
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {
@@ -1424,7 +1462,11 @@ function getResolverValue(
   return [resolverResult, resolverError];
 }
 
-function extractIdFromResponse(individualResponse: mixed): string {
+function extractIdFromResponse(
+  individualResponse: mixed,
+  path: string,
+  owner: string,
+): string {
   if (typeof individualResponse === 'string') {
     return individualResponse;
   } else if (
@@ -1436,7 +1478,9 @@ function extractIdFromResponse(individualResponse: mixed): string {
   }
   invariant(
     false,
-    'Expected object returned from an edge resolver to be a string or an object with an `id` property',
+    'Expected object returned from edge resolver to be a string or an object with an `id` property at path %s in %s,',
+    path,
+    owner,
   );
 }
 

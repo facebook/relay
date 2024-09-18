@@ -34,7 +34,7 @@ type User { name: String }
 /* eslint-disable */
 // @ts-nocheck
 
-import { Fragment, ReaderFragment } from 'relay-runtime';
+import { ReaderFragment } from 'relay-runtime';
 import { FragmentRefs } from "relay-runtime";
 import { foo as userFooResolverType } from "../foo";
 // Type assertion validating that `userFooResolverType` resolver is correctly implemented.

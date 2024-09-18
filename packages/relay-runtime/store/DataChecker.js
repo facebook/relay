@@ -35,7 +35,6 @@ import type {
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const getOperation = require('../util/getOperation');
-const RelayConcreteNode = require('../util/RelayConcreteNode');
 const {isClientID} = require('./ClientID');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
@@ -51,25 +50,6 @@ export type Availability = {
   +mostRecentlyInvalidatedAt: ?number,
 };
 
-const {
-  ACTOR_CHANGE,
-  CONDITION,
-  CLIENT_COMPONENT,
-  CLIENT_EXTENSION,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  LINKED_HANDLE,
-  MODULE_IMPORT,
-  RELAY_RESOLVER,
-  RELAY_LIVE_RESOLVER,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-} = RelayConcreteNode;
 const {getModuleOperationKey, getStorageKey, getArgumentValues} =
   RelayStoreUtils;
 
@@ -338,20 +318,20 @@ class DataChecker {
   ): void {
     selections.forEach(selection => {
       switch (selection.kind) {
-        case SCALAR_FIELD:
+        case 'ScalarField':
           this._checkScalar(selection, dataID);
           break;
-        case LINKED_FIELD:
+        case 'LinkedField':
           if (selection.plural) {
             this._checkPluralLink(selection, dataID);
           } else {
             this._checkLink(selection, dataID);
           }
           break;
-        case ACTOR_CHANGE:
+        case 'ActorChange':
           this._checkActorChange(selection.linkedField, dataID);
           break;
-        case CONDITION:
+        case 'Condition':
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),
           );
@@ -359,7 +339,7 @@ class DataChecker {
             this._traverseSelections(selection.selections, dataID);
           }
           break;
-        case INLINE_FRAGMENT: {
+        case 'InlineFragment': {
           const {abstractKey} = selection;
           if (abstractKey == null) {
             // concrete type refinement: only check data if the type exactly matches
@@ -396,7 +376,7 @@ class DataChecker {
           }
           break;
         }
-        case LINKED_HANDLE: {
+        case 'LinkedHandle': {
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.
           const handleField = cloneRelayHandleSourceField(
@@ -411,7 +391,7 @@ class DataChecker {
           }
           break;
         }
-        case SCALAR_HANDLE: {
+        case 'ScalarHandle': {
           const handleField = cloneRelayScalarHandleSourceField(
             selection,
             selections,
@@ -421,14 +401,14 @@ class DataChecker {
           this._checkScalar(handleField, dataID);
           break;
         }
-        case MODULE_IMPORT:
+        case 'ModuleImport':
           this._checkModuleImport(selection, dataID);
           break;
-        case DEFER:
-        case STREAM:
+        case 'Defer':
+        case 'Stream':
           this._traverseSelections(selection.selections, dataID);
           break;
-        case FRAGMENT_SPREAD:
+        case 'FragmentSpread':
           const prevVariables = this._variables;
           this._variables = getLocalVariables(
             this._variables,
@@ -438,12 +418,12 @@ class DataChecker {
           this._traverseSelections(selection.fragment.selections, dataID);
           this._variables = prevVariables;
           break;
-        case CLIENT_EXTENSION:
+        case 'ClientExtension':
           const recordWasMissing = this._recordWasMissing;
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
           break;
-        case TYPE_DISCRIMINATOR:
+        case 'TypeDiscriminator':
           const {abstractKey} = selection;
           const recordType = this._mutator.getType(dataID);
           invariant(
@@ -462,19 +442,19 @@ class DataChecker {
             this._handleMissing();
           } // else: if it does or doesn't implement, we don't need to check or skip anything else
           break;
-        case CLIENT_COMPONENT:
+        case 'ClientComponent':
           if (this._shouldProcessClientComponents === false) {
             break;
           }
           this._traverseSelections(selection.fragment.selections, dataID);
           break;
-        case RELAY_RESOLVER:
+        case 'RelayResolver':
           this._checkResolver(selection, dataID);
           break;
-        case RELAY_LIVE_RESOLVER:
+        case 'RelayLiveResolver':
           this._checkResolver(selection, dataID);
           break;
-        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+        case 'ClientEdgeToClientObject':
           this._checkResolver(selection.backingField, dataID);
           break;
         default:

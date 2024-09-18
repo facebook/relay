@@ -60,13 +60,16 @@ pub fn categorize_files(
                         name: (*file.name).clone(),
                         exists: *file.exists,
                     };
-                    let file_group = categorizer.categorize(&file.name).unwrap_or_else(|err| {
-                        panic!(
-                            "Unexpected error in file categorizer for file `{}`: {}.",
-                            file.name.to_string_lossy(),
-                            err
-                        )
-                    });
+                    let file_group =
+                        categorizer
+                            .categorize(&file.name, config)
+                            .unwrap_or_else(|err| {
+                                panic!(
+                                    "Unexpected error in file categorizer for file `{}`: {}.",
+                                    file.name.to_string_lossy(),
+                                    err
+                                )
+                            });
                     (file_group, file)
                 })
                 .filter(|(file_group, _)| {
@@ -114,7 +117,7 @@ fn categorize_non_watchman_files(
         .filter(|file| file_filter.is_file_relevant(&file.name))
         .filter_map(|file| {
             let file_group = categorizer
-                .categorize(&file.name)
+                .categorize(&file.name, config)
                 .map_err(|err| {
                     warn!(
                         "Unexpected error in file categorizer for file `{}`: {}.",
@@ -240,7 +243,7 @@ impl FileCategorizer {
     /// Categorizes a file. This method should be kept as cheap as possible by
     /// preprocessing the config in `from_config` and then re-using the
     /// `FileCategorizer`.
-    pub fn categorize(&self, path: &Path) -> Result<FileGroup, Cow<'static, str>> {
+    pub fn categorize(&self, path: &Path, config: &Config) -> Result<FileGroup, Cow<'static, str>> {
         let extension = path.extension();
 
         let in_generated_sources = self
@@ -271,29 +274,33 @@ impl FileCategorizer {
                 .source_mapping
                 .find(path)
                 .ok_or(Cow::Borrowed("File is not in any source set."))?;
-
-            let in_generated_dir = in_relative_generated_dir(self.default_generated_dir, path);
-            // If the path is in a generated directory and is not a generated source
-            // Some generated files can be treated as sources files. For example, resolver codegen.
-            if in_generated_dir && !in_generated_sources {
-                if project_set.has_multiple_projects() {
-                    Err(Cow::Owned(format!(
-                        "Overlapping input sources are incompatible with relative generated \
+            let filtered_project_set = filter_projects_for_path(config, path, project_set);
+            if let Some(project_set) = filtered_project_set {
+                let in_generated_dir = in_relative_generated_dir(self.default_generated_dir, path);
+                // If the path is in a generated directory and is not a generated source
+                // Some generated files can be treated as sources files. For example, resolver codegen.
+                if in_generated_dir && !in_generated_sources {
+                    if project_set.has_multiple_projects() {
+                        Err(Cow::Owned(format!(
+                            "Overlapping input sources are incompatible with relative generated \
                         directories. Got file in a relative generated directory with source set {:?}.",
-                        project_set,
-                    )))
+                            project_set,
+                        )))
+                    } else {
+                        let project_name = project_set.into_iter().next().unwrap();
+                        Ok(FileGroup::Generated { project_name })
+                    }
                 } else {
-                    let project_name = project_set.into_iter().next().unwrap();
-                    Ok(FileGroup::Generated { project_name })
+                    let is_valid_extension =
+                        self.is_valid_extension_for_project_set(&project_set, extension, path);
+                    if is_valid_extension {
+                        Ok(FileGroup::Source { project_set })
+                    } else {
+                        Err(Cow::Borrowed("Invalid extension for a generated file."))
+                    }
                 }
             } else {
-                let is_valid_extension =
-                    self.is_valid_extension_for_project_set(&project_set, extension, path);
-                if is_valid_extension {
-                    Ok(FileGroup::Source { project_set })
-                } else {
-                    Err(Cow::Borrowed("Invalid extension for a generated file."))
-                }
+                Ok(FileGroup::Ignore)
             }
         } else if is_schema_extension(extension) {
             if let Some(project_set) = self.schema_file_mapping.get(path) {
@@ -359,6 +366,33 @@ impl<T: Clone> PathMapping<T> {
     }
 }
 
+fn filter_projects_for_path(
+    config: &Config,
+    path: &Path,
+    project_set: ProjectSet,
+) -> Option<ProjectSet> {
+    let project_names: Vec<ProjectName> = project_set
+        .iter()
+        .filter(|project_name| {
+            if let Some(project_config) = config.projects.get(*project_name) {
+                if let Some(glob_set) = &project_config.excludes_extensions {
+                    !glob_set.is_match(path)
+                } else {
+                    true
+                }
+            } else {
+                true
+            }
+        })
+        .cloned()
+        .collect();
+    if project_names.is_empty() {
+        None
+    } else {
+        Some(ProjectSet::new(project_names))
+    }
+}
+
 fn in_relative_generated_dir(default_generated_dir: &OsStr, path: &Path) -> bool {
     path.components().any(|comp| match comp {
         Component::Normal(comp) => comp == default_generated_dir,
@@ -403,7 +437,9 @@ mod tests {
                         "src/vendor": "public",
                         "src/custom": "with_custom_generated_dir",
                         "src/typescript": "typescript",
-                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"]
+                        "src/custom_overlapping": ["with_custom_generated_dir", "overlapping_generated_dir"],
+                        "src/react_native.native.js": ["public"],
+                        "src/component.react.native.js": ["public"]
                     },
                     "generatedSources": {
                         "src/resolver_codegen/__generated__": "public"
@@ -411,7 +447,10 @@ mod tests {
                     "projects": {
                         "public": {
                             "schema": "graphql/public.graphql",
-                            "language": "flow"
+                            "language": "flow",
+                            "excludesExtensions": [
+                                "*.native.js"
+                            ]
                         },
                         "internal": {
                             "schema": "graphql/__generated__/internal.graphql",
@@ -444,7 +483,7 @@ mod tests {
 
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("src/js/a.js"))
+                .categorize(&PathBuf::from("src/js/a.js"), &config)
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("public".intern().into()),
@@ -452,7 +491,7 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("src/js/__generated__/a.js"))
+                .categorize(&PathBuf::from("src/js/__generated__/a.js"), &config)
                 .unwrap(),
             FileGroup::Generated {
                 project_name: "public".intern().into(),
@@ -460,9 +499,10 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from(
-                    "src/resolver_codegen/__generated__/resolvers.js"
-                ))
+                .categorize(
+                    &PathBuf::from("src/resolver_codegen/__generated__/resolvers.js"),
+                    &config
+                )
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("public".intern().into()),
@@ -470,7 +510,7 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("src/js/nested/b.js"))
+                .categorize(&PathBuf::from("src/js/nested/b.js"), &config)
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("public".intern().into()),
@@ -478,7 +518,7 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("src/js/internal/nested/c.js"))
+                .categorize(&PathBuf::from("src/js/internal/nested/c.js"), &config)
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("internal".intern().into()),
@@ -490,7 +530,7 @@ mod tests {
             // Path is only categorized as generated if it matches the absolute path
             // of the provided custom output.
             categorizer
-                .categorize(&PathBuf::from("src/custom/custom-generated/c.js"))
+                .categorize(&PathBuf::from("src/custom/custom-generated/c.js"), &config)
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("with_custom_generated_dir".intern().into()),
@@ -498,7 +538,10 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("src/js/internal/nested/__generated__/c.js"))
+                .categorize(
+                    &PathBuf::from("src/js/internal/nested/__generated__/c.js"),
+                    &config
+                )
                 .unwrap(),
             FileGroup::Generated {
                 project_name: "internal".intern().into()
@@ -506,7 +549,7 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("graphql/custom-generated/c.js"))
+                .categorize(&PathBuf::from("graphql/custom-generated/c.js"), &config)
                 .unwrap(),
             FileGroup::Generated {
                 project_name: "with_custom_generated_dir".intern().into()
@@ -514,7 +557,7 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("graphql/public.graphql"))
+                .categorize(&PathBuf::from("graphql/public.graphql"), &config)
                 .unwrap(),
             FileGroup::Schema {
                 project_set: ProjectSet::of("public".intern().into())
@@ -522,7 +565,10 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("graphql/__generated__/internal.graphql"))
+                .categorize(
+                    &PathBuf::from("graphql/__generated__/internal.graphql"),
+                    &config
+                )
                 .unwrap(),
             FileGroup::Schema {
                 project_set: ProjectSet::of("internal".intern().into())
@@ -530,7 +576,7 @@ mod tests {
         );
         assert_eq!(
             categorizer
-                .categorize(&PathBuf::from("src/typescript/a.ts"))
+                .categorize(&PathBuf::from("src/typescript/a.ts"), &config)
                 .unwrap(),
             FileGroup::Source {
                 project_set: ProjectSet::of("typescript".intern().into()),
@@ -543,7 +589,7 @@ mod tests {
         let config = create_test_config();
         let categorizer = FileCategorizer::from_config(&config);
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/a.cpp")),
+            categorizer.categorize(&PathBuf::from("src/js/a.cpp"), &config),
             Err(Cow::Borrowed(
                 "File categorizer encounter a file with unsupported extension."
             ))
@@ -555,7 +601,7 @@ mod tests {
         let config = create_test_config();
         let categorizer = FileCategorizer::from_config(&config);
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/a.ts")),
+            categorizer.categorize(&PathBuf::from("src/js/a.ts"), &config),
             Err(Cow::Borrowed("Invalid extension for a generated file."))
         );
     }
@@ -566,29 +612,61 @@ mod tests {
         let categorizer = FileCategorizer::from_config(&config);
 
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/a.graphql")),
+            categorizer.categorize(&PathBuf::from("src/js/a.graphql"), &config),
             Err(Cow::Borrowed(
                 "Expected *.graphql/*.gql file to be either a schema or extension."
             )),
         );
 
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/a.gql")),
+            categorizer.categorize(&PathBuf::from("src/js/a.gql"), &config),
             Err(Cow::Borrowed(
                 "Expected *.graphql/*.gql file to be either a schema or extension."
             )),
         );
 
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/js/noextension")),
+            categorizer.categorize(&PathBuf::from("src/js/noextension"), &config),
             Err(Cow::Borrowed("Got unexpected path without extension.")),
         );
 
         assert_eq!(
-            categorizer.categorize(&PathBuf::from("src/custom_overlapping/__generated__/c.js")),
+            categorizer.categorize(
+                &PathBuf::from("src/custom_overlapping/__generated__/c.js"),
+                &config
+            ),
             Err(Cow::Borrowed(
                 "Overlapping input sources are incompatible with relative generated directories. Got file in a relative generated directory with source set ProjectSet([Named(\"with_custom_generated_dir\"), Named(\"overlapping_generated_dir\")])."
             )),
+        );
+    }
+
+    #[test]
+    fn test_filter_projects_for_path() {
+        let config = create_test_config();
+        assert_eq!(
+            filter_projects_for_path(
+                &config,
+                &PathBuf::from("src/react_native.native.js"),
+                ProjectSet::new(vec![ProjectName::Named("public".intern())])
+            ),
+            None
+        );
+        assert_eq!(
+            filter_projects_for_path(
+                &config,
+                &PathBuf::from("src/component.react.native.js"),
+                ProjectSet::new(vec![ProjectName::Named("public".intern())])
+            ),
+            None
+        );
+        assert_eq!(
+            filter_projects_for_path(
+                &config,
+                &PathBuf::from("src/typescript"),
+                ProjectSet::new(vec![ProjectName::Named("public".intern())])
+            ),
+            Some(ProjectSet::new(vec![ProjectName::Named("public".intern())]))
         );
     }
 }

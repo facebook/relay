@@ -10,9 +10,6 @@ use thiserror::Error;
 #[derive(Error, Debug, serde::Serialize)]
 #[serde(tag = "type")]
 pub(super) enum ValidationMessage {
-    #[error("Catch directive is not yet implemented in Relay")]
-    CatchDirectiveNotImplemented,
-
     #[error("@catch and @required directives cannot be on the same field")]
     CatchDirectiveWithRequiredDirective,
 }

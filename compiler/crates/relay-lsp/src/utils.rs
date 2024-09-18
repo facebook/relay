@@ -7,6 +7,7 @@
 
 use std::path::PathBuf;
 
+use common::Location;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -22,6 +23,7 @@ use log::debug;
 use lsp_types::Position;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
+use relay_compiler::config::Config;
 use relay_compiler::get_parser_features;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
@@ -81,6 +83,7 @@ pub fn get_file_group_from_uri(
     file_categorizer: &FileCategorizer,
     url: &Url,
     root_dir: &PathBuf,
+    config: &Config,
 ) -> LSPRuntimeResult<FileGroup> {
     let absolute_file_path = url.to_file_path().map_err(|_| {
         LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
@@ -93,7 +96,7 @@ pub fn get_file_group_from_uri(
         ))
     })?;
 
-    file_categorizer.categorize(file_path).map_err(|_| {
+    file_categorizer.categorize(file_path, config).map_err(|_| {
         LSPRuntimeError::UnexpectedError(format!(
             "Unable to categorize the file correctly: {:?}",
             file_path
@@ -124,7 +127,7 @@ pub fn extract_feature_from_text(
     schema_source_cache: &DashMap<Url, GraphQLSource>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
-) -> LSPRuntimeResult<(Feature, Span)> {
+) -> LSPRuntimeResult<(Feature, Location)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
@@ -141,7 +144,10 @@ pub fn extract_feature_from_text(
                 LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
             })?;
 
-        return Ok((Feature::SchemaDocument(schema_document), position_span));
+        return Ok((
+            Feature::SchemaDocument(schema_document),
+            Location::new(source_location_key, position_span),
+        ));
     }
 
     let source_features = js_source_feature_cache
@@ -157,7 +163,7 @@ pub fn extract_feature_from_text(
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let source_location_key = SourceLocationKey::embedded(uri.as_ref(), index);
+    let source_location_key = SourceLocationKey::embedded(uri.path(), index);
 
     let parser_features = get_parser_features(project_config);
 
@@ -188,7 +194,10 @@ pub fn extract_feature_from_text(
             // since the change event fires before completion.
             debug!("position_span: {:?}", position_span);
 
-            Ok((Feature::ExecutableDocument(document), position_span))
+            Ok((
+                Feature::ExecutableDocument(document),
+                Location::new(source_location_key, position_span),
+            ))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
             let text_source = &docblock_source.text_source();
@@ -231,7 +240,10 @@ pub fn extract_feature_from_text(
                         )
                     })?;
 
-            Ok((Feature::DocblockIr(docblock_ir), position_span))
+            Ok((
+                Feature::DocblockIr(docblock_ir),
+                Location::new(source_location_key, position_span),
+            ))
         }
     }
 }

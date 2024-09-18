@@ -45,7 +45,7 @@ export type LoadQueryOptions = {
   +__nameForWarning?: ?string,
 };
 
-export type PreloadableConcreteRequest<TQuery: OperationType> = {
+export type PreloadableConcreteRequest<+TQuery: OperationType> = {
   kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
   // Note: the phantom type parameter here helps ensures that the
@@ -53,20 +53,20 @@ export type PreloadableConcreteRequest<TQuery: OperationType> = {
   // We also need to add usage of this generic here,
   // becuase not using the generic in the definition makes it
   // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
-  __phantom__?: ?TQuery,
+  +__phantom__?: ?TQuery,
 };
 
 export type EnvironmentProviderOptions = {+[string]: mixed, ...};
 
 export type PreloadedQuery<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > =
   | PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions>
   | PreloadedQueryInner<TQuery, TEnvironmentProviderOptions>;
 
 export type PreloadedQueryInner_DEPRECATED<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   +kind: 'PreloadedQuery_DEPRECATED',
@@ -83,7 +83,7 @@ export type PreloadedQueryInner_DEPRECATED<
 };
 
 export type PreloadedQueryInner<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   // Releases query data and cancels network request if still in flight
@@ -190,7 +190,8 @@ export type EntryPointComponent<
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
   +TPreloadParams,
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
@@ -199,11 +200,7 @@ export type PreloadProps<
     +[K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
   },
   extraProps?: TExtraProps,
-  // $FlowFixMe[deprecated-type]
-  queries?: $ObjMap<
-    TPreloadedQueries,
-    ExtractQueryTypeHelper<TEnvironmentProviderOptions>,
-  >,
+  queries?: ExtractQueryTypes<TEnvironmentProviderOptions, TPreloadedQueries>,
 }>;
 
 // Return type of `loadEntryPoint(...)`
@@ -236,12 +233,13 @@ export type EntryPointElementConfig<
     : empty;
 
 export type ThinQueryParams<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions,
 > = $ReadOnly<{
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
   options?: ?PreloadOptions,
   parameters: PreloadableConcreteRequest<TQuery>,
+  // $FlowFixMe[incompatible-use]
   variables: TQuery['variables'],
 }>;
 
@@ -255,6 +253,31 @@ declare export opaque type ThinNestedEntryPointParams;
 export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
+
+// We need to match both cases without using distributive conditional types,
+// because PreloadedQuery's TQuery parameter is almost phantom, and breaking
+// up the union type would cause us to lose track of TQuery.
+type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
+  // $FlowFixMe[incompatible-type-arg]
+  +t: PreloadedQuery<infer TQuery>,
+]
+  ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
+  : [+t: T] extends [
+        +t: PreloadedQuery<infer TQuery extends OperationType> | void,
+      ]
+    ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | void
+    : empty;
+
+export type ExtractQueryTypes<
+  TEnvironmentProviderOptions,
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  PreloadedQueries: {+[string]: PreloadedQuery<any>} | void,
+> = {
+  [K in keyof PreloadedQueries]: ExtractThinQueryParams<
+    PreloadedQueries[K],
+    TEnvironmentProviderOptions,
+  >,
+};
 
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<

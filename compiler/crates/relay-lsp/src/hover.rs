@@ -39,7 +39,7 @@ fn argument_definition_hover_info(directive_name: &str) -> Option<MarkedString> 
 `@argumentDefinitions` is a directive used to specify arguments taken by a fragment.
 
 ---
-@see: https://relay.dev/docs/en/graphql-in-relay.html#argumentdefinitions
+@see: https://relay.dev/docs/api-reference/graphql-and-directives/#argumentdefinitions
 "#,
         ),
         "arguments" => Some(
@@ -47,7 +47,7 @@ fn argument_definition_hover_info(directive_name: &str) -> Option<MarkedString> 
 `@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
 
 ---
-@see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
+@see: https://relay.dev/docs/api-reference/graphql-and-directives/#arguments
 "#,
         ),
         "uncheckedArguments_DEPRECATED" => Some(
@@ -56,7 +56,7 @@ DEPRECATED version of `@arguments` directive.
 `@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
 
 ---
-@see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
+@see: https://relay.dev/docs/api-reference/graphql-and-directives/#arguments
 "#,
         ),
         _ => None,

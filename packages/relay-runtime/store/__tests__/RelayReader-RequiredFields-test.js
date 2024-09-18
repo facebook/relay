@@ -26,6 +26,11 @@ const {
 } = require('relay-runtime/store/experimental-live-resolvers/LiveResolverCache');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 
+beforeEach(() => {
+  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
+  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = false;
+});
+
 describe('RelayReader @required', () => {
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
     const source = RelayRecordSource.create({
@@ -877,6 +882,55 @@ describe('RelayReader @required', () => {
     afterEach(() => {
       RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
     });
+
+    describe('when CATCH is enabled', () => {
+      test('caught missing required field error when action:THROW under a @catch', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            me: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+          },
+        });
+        const FooQuery = graphql`
+          query RelayReaderRequiredFieldsTest29Query @throwOnFieldError {
+            me @catch {
+              client_object(return_null: true) @required(action: THROW) {
+                description
+              }
+            }
+          }
+        `;
+        const store = new LiveResolverStore(source);
+        const operation = createOperationDescriptor(FooQuery, {});
+        const resolverCache = new LiveResolverCache(() => source, store);
+        const {data, missingRequiredFields, errorResponseFields} = read(
+          source,
+          operation.fragment,
+          resolverCache,
+        );
+        expect(data).toEqual({
+          me: {
+            errors: [
+              {
+                message:
+                  "Relay: Missing @required value at path 'me.client_object' in 'RelayReaderRequiredFieldsTest29Query'.",
+              },
+            ],
+            ok: false,
+          },
+        });
+        // these are null because the field with the required error was caught
+        expect(errorResponseFields).toBeNull();
+        expect(missingRequiredFields).toBeNull();
+      });
+    });
+
     test('throws when missing required field', () => {
       const source = RelayRecordSource.create({
         'client:root': {

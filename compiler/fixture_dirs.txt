@@ -39,6 +39,7 @@ crates/relay-docblock/tests/parse
 crates/relay-docblock/tests/to_schema
 crates/relay-lsp/tests/find_field_usages
 crates/relay-lsp/tests/hover
+crates/relay-lsp/tests/rename
 crates/relay-schema-generation/tests/docblock
 crates/relay-schema-generation/tests/extract
 crates/relay-transforms/tests/apply_fragment_arguments
@@ -65,8 +66,9 @@ crates/relay-transforms/tests/generate_typename
 crates/relay-transforms/tests/inline_data_fragment
 crates/relay-transforms/tests/inline_fragments
 crates/relay-transforms/tests/mask
+crates/relay-transforms/tests/match_transform_client_only
+crates/relay-transforms/tests/match_transform_client_resolver
 crates/relay-transforms/tests/match_transform
-crates/relay-transforms/tests/match_transform_local
 crates/relay-transforms/tests/provided_variable_fragment_transform
 crates/relay-transforms/tests/refetchable_fragment
 crates/relay-transforms/tests/relay_actor_change

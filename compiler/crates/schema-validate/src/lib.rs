@@ -10,9 +10,11 @@ mod errors;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::InterfaceName;
 use common::Location;
 use common::Named;
+use common::NamedItem;
 use common::WithLocation;
 use errors::*;
 use fnv::FnvHashMap;
@@ -23,6 +25,7 @@ use intern::Lookup;
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
+use schema::DirectiveValue;
 use schema::EnumID;
 use schema::Field;
 use schema::FieldID;
@@ -52,6 +55,8 @@ lazy_static! {
     static ref SUBSCRIPTION: StringKey = "Subscription".intern();
     static ref MUTATION: StringKey = "Mutation".intern();
     static ref TYPE_NAME_REGEX: Regex = Regex::new(r"^[_a-zA-Z][_a-zA-Z0-9]*$").unwrap();
+    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
+        DirectiveName("semanticNonNull".intern());
 }
 
 pub struct SchemaValidationOptions {
@@ -201,7 +206,7 @@ impl<'schema> ValidationContext<'schema> {
         // Must define one or more fields.
         if fields.is_empty() {
             self.report_diagnostic(Diagnostic::error(
-                SchemaValidationError::TypeWithNoFields,
+                SchemaValidationError::TypeWithNoFields(type_name),
                 self.get_type_definition_location(self.schema.get_type(type_name).unwrap()),
             ));
         }
@@ -323,7 +328,7 @@ impl<'schema> ValidationContext<'schema> {
         let input_object = self.schema.input_object(id);
         if input_object.fields.is_empty() {
             self.report_diagnostic(Diagnostic::error(
-                SchemaValidationError::TypeWithNoFields,
+                SchemaValidationError::TypeWithNoFields(input_object.name.item.0),
                 input_object.name.location,
             ));
         }
@@ -405,18 +410,29 @@ impl<'schema> ValidationContext<'schema> {
             let object_field = object_field_map.get(&field_name).unwrap();
             // Assert interface field type is satisfied by object field type, by being
             // a valid subtype. (covariant)
-            if !self
-                .schema
-                .is_type_subtype_of(&object_field.type_, &interface_field.type_)
-            {
+            let object_field_semantic_type = SemanticTypeReference::new(
+                object_field.type_.clone(),
+                self.schema,
+                object_field.directives.clone(),
+            );
+            let interface_field_semantic_type = SemanticTypeReference::new(
+                interface_field.type_.clone(),
+                self.schema,
+                interface_field.directives.clone(),
+            );
+
+            if !self.schema.is_type_subtype_of(
+                &object_field.semantic_type(),
+                &interface_field.semantic_type(),
+            ) {
                 self.report_diagnostic(
                     Diagnostic::error(
                         SchemaValidationError::NotASubType(
                             interface.name.item,
                             field_name,
-                            self.schema.get_type_string(&interface_field.type_),
+                            get_type_string(&interface_field_semantic_type),
                             typename,
-                            self.schema.get_type_string(&object_field.type_),
+                            get_type_string(&object_field_semantic_type),
                         ),
                         object_field.name.location,
                     )
@@ -635,4 +651,42 @@ fn is_output_type(type_: &TypeReference<Type>) -> bool {
 fn is_input_type(type_: &TypeReference<Type>) -> bool {
     let type_ = type_.inner();
     type_.is_enum() || type_.is_input_type() || type_.is_scalar()
+}
+
+#[derive(Clone, Debug)]
+enum SemanticTypeReference<'schema, T> {
+    SemanticNonNull(Box<TypeReference<T>>, &'schema SDLSchema, DirectiveValue),
+    SemanticNullable(Box<TypeReference<T>>, &'schema SDLSchema),
+}
+
+impl<'schema, T> SemanticTypeReference<'schema, T> {
+    pub fn new(
+        inner: TypeReference<T>,
+        schema: &'schema SDLSchema,
+        directives: Vec<DirectiveValue>,
+    ) -> SemanticTypeReference<'schema, T> {
+        let semantic_non_null_directive = directives.named(*SEMANTIC_NON_NULL_DIRECTIVE);
+        match semantic_non_null_directive {
+            Some(directive) => {
+                SemanticTypeReference::SemanticNonNull(Box::new(inner), schema, directive.clone())
+            }
+            None => SemanticTypeReference::SemanticNullable(Box::new(inner), schema),
+        }
+    }
+}
+
+fn get_type_string<'schema>(type_: &SemanticTypeReference<'schema, Type>) -> String {
+    match type_ {
+        SemanticTypeReference::SemanticNonNull(inner, schema, directive) => {
+            let levels = directive.arguments.first();
+            let type_string = schema.get_type_string(inner);
+            match levels {
+                Some(levels) => {
+                    format!("{} @semanticNonNull(levels: {})", type_string, levels.value)
+                }
+                None => format!("{} @semanticNonNull", type_string),
+            }
+        }
+        SemanticTypeReference::SemanticNullable(inner, schema) => schema.get_type_string(inner),
+    }
 }

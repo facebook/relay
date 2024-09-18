@@ -1,0 +1,13 @@
+# expected-to-throw
+
+fragment TestFragment on Comment
+@argumentDefinitions(if: {type: "Boolean!"}, unless: {type: "Boolean!"}) {
+  # Comments have firstNames in our test schema I guess
+  firstName(if: $if, unless: $unless)
+}
+
+query TestQuery($globalIf: Boolean, $globalUnless: Boolean) {
+  node(id: "4") {
+    ...TestFragment @arguments(if: $globalIf, unless: $globalUnless)
+  }
+}

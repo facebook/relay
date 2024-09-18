@@ -23,12 +23,7 @@ graphql`
 //- relay.config.json
 {
    "language": "flow",
-   "schema": "./schema.graphql",
-   "featureFlags": {
-      "enable_fragment_aliases": {
-         "kind": "enabled"
-      }
-   }
+   "schema": "./schema.graphql"
 }
 
 //- schema.graphql

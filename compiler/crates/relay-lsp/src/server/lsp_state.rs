@@ -103,7 +103,7 @@ pub trait GlobalState {
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)>;
+    ) -> LSPRuntimeResult<(Feature, Location)>;
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
 
@@ -325,6 +325,45 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         Ok(())
     }
 
+    fn validate_synced_schema_source(&self, url: &Url) -> LSPRuntimeResult<()> {
+        let schema_source = self.synced_schema_sources.get(url).ok_or_else(|| {
+            LSPRuntimeError::UnexpectedError(format!("Expected schema source for URL {}", url))
+        })?;
+        let project_name = self.extract_project_name_from_url(url)?;
+        let project_config = self
+            .config
+            .projects
+            .get(&ProjectName::from(project_name))
+            .unwrap();
+
+        if project_config.feature_flags.disable_schema_validation {
+            return Ok(());
+        }
+
+        let source_location_key = SourceLocationKey::standalone(url.as_ref());
+
+        let mut diagnostics = vec![];
+        let text_source = schema_source.text_source();
+        let result = graphql_syntax::parse_schema_document(&text_source.text, source_location_key);
+
+        match result {
+            // In the future you could run additional validations based on the new schema document here
+            Ok(_) => (),
+            Err(raw_diagnostics) => {
+                diagnostics.extend(raw_diagnostics.iter().map(|diagnostic| {
+                    // TODO: The very last character is problematic for some reason
+                    self.diagnostic_reporter
+                        .convert_diagnostic(text_source, diagnostic)
+                }));
+            }
+        }
+
+        self.diagnostic_reporter
+            .update_quick_diagnostics_for_url(url, diagnostics);
+
+        Ok(())
+    }
+
     fn preload_documentation(&self) {
         for project_config in self.config.enabled_projects() {
             self.get_schema_documentation(&project_config.name.to_string());
@@ -341,7 +380,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn process_synced_js_sources(&self, uri: &Url, sources: Vec<JavaScriptSourceFeature>) {
         self.insert_synced_js_sources(uri, sources);
-        self.schedule_task(Task::ValidateSyncedSource(uri.clone()));
+        self.schedule_task(Task::SyncedSource(uri.clone()));
     }
 
     fn remove_synced_js_sources(&self, url: &Url) {
@@ -355,8 +394,15 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .insert(url.clone(), graphql_source);
     }
 
+    fn process_synced_schema_sources(&self, uri: &Url, graphql_source: GraphQLSource) {
+        self.insert_synced_schema_source(uri, graphql_source);
+        self.schedule_task(Task::SchemaSource(uri.clone()));
+    }
+
     fn remove_synced_schema_source(&self, url: &Url) {
         self.synced_schema_sources.remove(url);
+        self.diagnostic_reporter
+            .clear_quick_diagnostics_for_url(url);
     }
 
     fn initialize_lsp_state_resources(&self, project_name: StringKey) {
@@ -406,7 +452,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         text_document_position: &TextDocumentPositionParams,
     ) -> LSPRuntimeResult<FeatureResolutionInfo> {
-        let (feature, position_span) = self.extract_feature_from_text(
+        let (feature, location) = self.extract_feature_from_text(
             text_document_position,
             // For hovering, offset the index by 1
             // ```
@@ -421,12 +467,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         match feature {
             Feature::ExecutableDocument(executable_document) => {
                 Ok(FeatureResolutionInfo::GraphqlNode(
-                    create_node_resolution_info(executable_document, position_span)?,
+                    create_node_resolution_info(executable_document, location.span())?,
                 ))
             }
             Feature::DocblockIr(docblock_ir) => {
                 Ok(FeatureResolutionInfo::DocblockNode(DocblockNode {
-                    resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    resolution_info: create_docblock_resolution_info(&docblock_ir, location.span())
                         .ok_or(LSPRuntimeError::ExpectedError)?,
                     ir: docblock_ir,
                 }))
@@ -442,9 +488,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
-        let (feature, span) = self.extract_feature_from_text(position, index_offset)?;
+        let (feature, location) = self.extract_feature_from_text(position, index_offset)?;
         match feature {
-            Feature::ExecutableDocument(document) => Ok((document, span)),
+            Feature::ExecutableDocument(document) => Ok((document, location.span())),
             Feature::DocblockIr(_) => Err(LSPRuntimeError::ExpectedError),
             Feature::SchemaDocument(_) => Err(LSPRuntimeError::ExpectedError),
         }
@@ -456,7 +502,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
-    ) -> LSPRuntimeResult<(Feature, Span)> {
+    ) -> LSPRuntimeResult<(Feature, Location)> {
         let project_name: ProjectName = self
             .extract_project_name_from_url(&position.text_document.uri)?
             .into();
@@ -485,7 +531,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn extract_project_name_from_url(&self, url: &Url) -> LSPRuntimeResult<StringKey> {
-        let file_group = get_file_group_from_uri(&self.file_categorizer, url, &self.root_dir)?;
+        let file_group =
+            get_file_group_from_uri(&self.file_categorizer, url, &self.root_dir, &self.config)?;
 
         get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
@@ -529,7 +576,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
-        let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
+        let file_group =
+            get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
         let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
                 "Could not determine project name for \"{}\": {}",
@@ -540,7 +588,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         match file_group {
             FileGroup::Schema { project_set: _ } | FileGroup::Extension { project_set: _ } => {
                 self.initialize_lsp_state_resources(project_name);
-                self.insert_synced_schema_source(uri, GraphQLSource::new(text, 0, 0));
+                self.process_synced_schema_sources(uri, GraphQLSource::new(text, 0, 0));
 
                 Ok(())
             }
@@ -563,11 +611,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn document_changed(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {
-        let file_group = get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir)?;
+        let file_group =
+            get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
 
         match file_group {
             FileGroup::Schema { project_set: _ } | FileGroup::Extension { project_set: _ } => {
-                self.insert_synced_schema_source(uri, GraphQLSource::new(text, 0, 0));
+                self.process_synced_schema_sources(uri, GraphQLSource::new(text, 0, 0));
 
                 Ok(())
             }
@@ -631,8 +680,9 @@ pub fn build_ir_for_lsp(
 
 #[derive(Debug)]
 pub enum Task {
-    ValidateSyncedSource(Url),
-    ValidateSyncedSources,
+    SyncedDocuments,
+    SyncedSource(Url),
+    SchemaSource(Url),
 }
 
 pub(crate) fn handle_lsp_state_tasks<
@@ -643,13 +693,20 @@ pub(crate) fn handle_lsp_state_tasks<
     task: Task,
 ) {
     match task {
-        Task::ValidateSyncedSource(url) => {
+        Task::SyncedDocuments => {
+            for item in &state.synced_javascript_sources {
+                state.schedule_task(Task::SyncedSource(item.key().clone()));
+            }
+
+            for item in &state.synced_schema_sources {
+                state.schedule_task(Task::SchemaSource(item.key().clone()));
+            }
+        }
+        Task::SyncedSource(url) => {
             state.validate_synced_js_sources(&url).ok();
         }
-        Task::ValidateSyncedSources => {
-            for item in &state.synced_javascript_sources {
-                state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
-            }
+        Task::SchemaSource(url) => {
+            state.validate_synced_schema_source(&url).ok();
         }
     }
 }

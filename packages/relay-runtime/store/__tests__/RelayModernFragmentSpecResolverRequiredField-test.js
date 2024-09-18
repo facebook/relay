@@ -101,7 +101,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     resolver.resolve();
     expect(relayFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'alternate_name',
-      kind: 'missing_field.log',
+      kind: 'missing_required_field.log',
       owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
     });
   });
@@ -124,7 +124,7 @@ describe('RelayModernFragmentSpecResolver', () => {
 
     expect(relayFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'name',
-      kind: 'missing_field.throw',
+      kind: 'missing_required_field.throw',
       owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
     });
   });

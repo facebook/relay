@@ -1,0 +1,10 @@
+fragment MyFragment on Query {
+  # Should be a Result of a non-nullable since it's semanticNonNull
+  my_string @catch
+}
+
+%extensions%
+
+extend type Query {
+  my_string: String @semanticNonNull
+}

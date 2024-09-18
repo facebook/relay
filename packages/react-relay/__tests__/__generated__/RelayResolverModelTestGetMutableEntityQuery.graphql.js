@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37153b011eadba493360d4d9d22f7598>>
+ * @generated SignedSource<<3f370f33db9526932b4ca632fef5cf2b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {mutable_entity as queryMutableEntityResolverType} from "../../../relay-runtime/store/__tests__/resolvers/MutableModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryMutableEntityResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryMutableEntityResolverType: () => LiveState<?mixed>);
+(queryMutableEntityResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?mixed>);
 export type RelayResolverModelTestGetMutableEntityQuery$variables = {||};
 export type RelayResolverModelTestGetMutableEntityQuery$data = {|
   +mutable_entity: ?ReturnType<ReturnType<typeof queryMutableEntityResolverType>["read"]>,

@@ -875,7 +875,7 @@ fn get_scalar_or_linked_field_hover_content(
     }
 
     if is_resolver {
-        let msg = "**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/next/guides/relay-resolvers/).";
+        let msg = "**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/guides/relay-resolvers/introduction/).";
         hover_contents.push(MarkedString::String(msg.to_string()))
     } else if field.is_extension {
         let msg = match content_consumer_type {

@@ -17,6 +17,7 @@ import type {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   PreloadedEntryPoint,
+  PreloadedQuery,
 } from './EntryPointTypes.flow';
 
 const loadEntryPoint = require('./loadEntryPoint');
@@ -51,7 +52,8 @@ const initialNullEntryPointReferenceState = {kind: 'NullEntryPointReference'};
 
 hook useLoadEntryPoint<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,

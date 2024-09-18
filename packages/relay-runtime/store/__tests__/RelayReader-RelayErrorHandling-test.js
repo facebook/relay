@@ -11,7 +11,6 @@
 'use strict';
 
 const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -19,112 +18,161 @@ const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
 
 describe('RelayReader error fields', () => {
-  describe('when field error handling is enabled', () => {
-    beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
+  it('adds the errors to errorResponseFields', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
     });
 
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
-
-    it('adds the errors to errorResponseFields', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-          __errors: {
-            lastName: [
-              {
-                message: 'There was an error!',
-                path: ['me', 'lastName'],
-              },
-            ],
-          },
-        },
-      });
-
-      const FooQuery = graphql`
-        query RelayReaderRelayErrorHandlingTest1Query {
-          me {
-            lastName
-          }
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTest1Query {
+        me {
+          lastName
         }
-      `;
-      const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields} = read(source, operation.fragment);
-      expect(data).toEqual({me: {lastName: null}});
-      expect(errorResponseFields).toEqual([
-        {
-          owner: 'RelayReaderRelayErrorHandlingTest1Query',
-          path: 'me.lastName',
-          error: {
-            message: 'There was an error!',
-            path: ['me', 'lastName'],
-          },
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, errorResponseFields} = read(source, operation.fragment);
+    expect(data).toEqual({me: {lastName: null}});
+    expect(errorResponseFields).toEqual([
+      {
+        owner: 'RelayReaderRelayErrorHandlingTest1Query',
+        path: 'me.lastName',
+        error: {
+          message: 'There was an error!',
+          path: ['me', 'lastName'],
         },
-      ]);
-    });
-
-    afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
-    });
+        type: 'PAYLOAD_ERROR',
+      },
+    ]);
   });
 
-  describe('when field error handling is disabled', () => {
-    beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = false;
+  it('adds the errors to errorResponseFields including missingData - without @catch', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
     });
 
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
-
-    it('errorResponseFields is null', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-          __errors: {
-            lastName: [
-              {
-                message: 'There was an error!',
-                path: ['me', 'lastName'],
-              },
-            ],
-          },
-        },
-      });
-
-      const FooQuery = graphql`
-        query RelayReaderRelayErrorHandlingTest2Query {
-          me {
-            lastName
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTest4Query($size: [Int])
+      @throwOnFieldError {
+        me {
+          lastName
+          profilePicture(size: $size) {
+            uri
           }
         }
-      `;
-      const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields} = read(source, operation.fragment);
-      expect(data).toEqual({me: {lastName: null}});
-      expect(errorResponseFields).toEqual(null);
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {size: 42});
+    const {errorResponseFields} = read(source, operation.fragment);
+
+    expect(errorResponseFields).toEqual([
+      {
+        owner: 'RelayReaderRelayErrorHandlingTest4Query',
+        path: 'me.lastName',
+        type: 'PAYLOAD_ERROR',
+        error: {
+          message: 'There was an error!',
+          path: ['me', 'lastName'],
+        },
+      },
+      {
+        owner: 'RelayReaderRelayErrorHandlingTest4Query',
+        path: '',
+        type: 'MISSING_DATA',
+        error: {
+          message:
+            'Relay: Missing data for one or more fields in RelayReaderRelayErrorHandlingTest4Query',
+        },
+      },
+    ]);
+  });
+
+  it('adds the errors to errorResponseFields including missingData - with @catch', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
     });
 
-    afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTest3Query($size: [Int]) {
+        me @catch {
+          lastName
+          profilePicture(size: $size) {
+            uri
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {size: 42});
+    const {data, errorResponseFields} = read(source, operation.fragment);
+
+    expect(data).toEqual({
+      me: {
+        ok: false,
+        errors: [
+          {message: 'There was an error!', path: ['me', 'lastName']},
+          {
+            message:
+              'Relay: Missing data for one or more fields in RelayReaderRelayErrorHandlingTest3Query',
+          },
+        ],
+      },
     });
+
+    // null because we empty the error response fields of errors that were caught
+    expect(errorResponseFields).toBeNull();
   });
 });

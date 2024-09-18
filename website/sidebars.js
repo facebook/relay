@@ -70,7 +70,10 @@ const Guides = {
   ],
   'Error Handling': [
     'guides/required-directive',
+    'guides/catch-directive',
+    'guides/throw-on-field-error-directive',
     'guided-tour/rendering/error-states',
+    'guides/semantic-nullability',
   ],
   'Updating Data': [
     'guided-tour/list-data/updating-connections',
@@ -107,6 +110,7 @@ const Guides = {
         'guides/relay-resolvers/defining-fields',
         'guides/relay-resolvers/return-types',
         'guides/relay-resolvers/field-arguments',
+        'guides/relay-resolvers/context',
         'guides/relay-resolvers/derived-fields',
         'guides/relay-resolvers/live-fields',
         'guides/relay-resolvers/suspense',

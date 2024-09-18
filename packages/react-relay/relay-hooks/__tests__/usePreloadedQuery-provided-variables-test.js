@@ -154,15 +154,18 @@ describe('usePreloadedQuery provided variables (%s)', () => {
         dataSource.next(responsePV);
       }
 
-      const renderer = TestRenderer.create(
-        <RelayEnvironmentProvider environment={environment}>
-          <React.Suspense fallback="Fallback">
-            <Component prefetched={prefetched} />
-          </React.Suspense>
-        </RelayEnvironmentProvider>,
-      );
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={prefetched} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+      });
       TestRenderer.act(() => jest.runAllImmediates());
-      expect(renderer.toJSON()).toEqual(
+      expect(renderer?.toJSON()).toEqual(
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
@@ -189,16 +192,19 @@ describe('usePreloadedQuery provided variables (%s)', () => {
       }
       TestRenderer.act(() => jest.runAllImmediates());
 
-      const renderer = TestRenderer.create(
-        <RelayEnvironmentProvider environment={environment}>
-          <React.Suspense fallback="Fallback">
-            <Component prefetched={prefetched} />
-          </React.Suspense>
-        </RelayEnvironmentProvider>,
-      );
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={prefetched} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+      });
       TestRenderer.act(() => jest.runAllImmediates());
 
-      expect(renderer.toJSON()).toEqual(
+      expect(renderer?.toJSON()).toEqual(
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
@@ -217,15 +223,18 @@ describe('usePreloadedQuery provided variables (%s)', () => {
       }
       TestRenderer.act(() => jest.runAllImmediates());
 
-      const renderer = TestRenderer.create(
-        <RelayEnvironmentProvider environment={environment}>
-          <React.Suspense fallback="Fallback">
-            <Component prefetched={prefetched} />
-          </React.Suspense>
-        </RelayEnvironmentProvider>,
-      );
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={prefetched} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+      });
 
-      expect(renderer.toJSON()).toEqual(
+      expect(renderer?.toJSON()).toEqual(
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({

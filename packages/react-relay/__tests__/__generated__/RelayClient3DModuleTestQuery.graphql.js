@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<84c31b44d3d332b8366539661ab92879>>
+ * @generated SignedSource<<1a9a6616628a9eabcb1d1df9c1fac6a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,8 +15,6 @@
 /* eslint-disable */
 
 'use strict';
-
-// @indirectDataDrivenDependency RelayClient3DModuleTestFragment2BasicUser.basicUser {"branches":{"ClientUser":{"component":"ClientUser.react","fragment":"RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql"},"SpecialUser":{"component":"SpecialUser.react","fragment":"RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';

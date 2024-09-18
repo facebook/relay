@@ -206,7 +206,7 @@ pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::extract_variable_name;
 pub use util::generate_abstract_type_refinement_key;
-pub use util::get_fragment_filename;
+pub use util::get_normalization_fragment_filename;
 pub use util::get_normalization_operation_name;
 pub use util::remove_directive;
 pub use validate_operation_variables::validate_operation_variables;

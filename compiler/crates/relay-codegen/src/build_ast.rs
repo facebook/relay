@@ -44,7 +44,7 @@ use relay_transforms::extract_connection_metadata_from_directive;
 use relay_transforms::extract_handle_field_directives;
 use relay_transforms::extract_values_from_handle_field_directive;
 use relay_transforms::generate_abstract_type_refinement_key;
-use relay_transforms::get_fragment_filename;
+use relay_transforms::get_normalization_fragment_filename;
 use relay_transforms::get_normalization_operation_name;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use relay_transforms::relay_resolvers::get_resolver_info;
@@ -2288,7 +2288,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 key: CODEGEN_CONSTANTS.operation_module_provider,
                                 value: Primitive::DynamicImport {
                                     provider: dynamic_module_provider,
-                                    module: get_fragment_filename(fragment_name),
+                                    module: get_normalization_fragment_filename(fragment_name),
                                 },
                             });
                         }

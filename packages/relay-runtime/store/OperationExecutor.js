@@ -773,6 +773,10 @@ class Executor<TMutation: MutationParameters> {
   _processResponses(
     responses: $ReadOnlyArray<GraphQLResponseWithData>,
   ): $ReadOnlyArray<RelayResponsePayload> {
+    this._log({
+      name: 'execute.normalize.start',
+      operation: this._operation,
+    });
     if (this._optimisticUpdates !== null) {
       this._optimisticUpdates.forEach(update => {
         this._getPublishQueueAndSaveActor().revertUpdate(update);
@@ -801,7 +805,10 @@ class Executor<TMutation: MutationParameters> {
         relayPayload,
         this._updater,
       );
-
+      this._log({
+        name: 'execute.normalize.end',
+        operation: this._operation,
+      });
       return relayPayload;
     });
   }

@@ -942,7 +942,7 @@ describe('logging', () => {
       {
         name: 'queryresource.fetch',
         resourceID: 200000,
-        profilerContext: expect.objectContaining({}),
+        profilerContext: {},
       },
       {
         name: 'suspense.query',
@@ -965,6 +965,12 @@ describe('logging', () => {
         executeId: 100001,
       },
       {
+        name: 'execute.normalize.start',
+      },
+      {
+        name: 'execute.normalize.end',
+      },
+      {
         name: 'execute.next.end',
         executeId: 100001,
       },
@@ -979,7 +985,7 @@ describe('logging', () => {
       {
         name: 'queryresource.retain',
         resourceID: 200000,
-        profilerContext: expect.objectContaining({}),
+        profilerContext: {},
       },
     ]);
   });
@@ -1147,6 +1153,12 @@ describe('logging', () => {
       {
         name: 'execute.next.start',
         executeId: 100002,
+      },
+      {
+        name: 'execute.normalize.start',
+      },
+      {
+        name: 'execute.normalize.end',
       },
       {
         name: 'execute.next.end',

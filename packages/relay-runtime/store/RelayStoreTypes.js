@@ -695,6 +695,16 @@ export type ExecuteCompleteLogEvent = {
   +executeId: number,
 };
 
+export type ExecuteNormalizeStart = {
+  +name: 'execute.normalize.start',
+  +operation: OperationDescriptor,
+};
+
+export type ExecuteNormalizeEnd = {
+  +name: 'execute.normalize.end',
+  +operation: OperationDescriptor,
+};
+
 export type StoreDataCheckerStartEvent = {
   +name: 'store.datachecker.start',
   +selector: NormalizationSelector,
@@ -801,6 +811,8 @@ export type LogEvent =
   | ExecuteAsyncModuleLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent
+  | ExecuteNormalizeStart
+  | ExecuteNormalizeEnd
   | StoreDataCheckerStartEvent
   | StoreDataCheckerEndEvent
   | StorePublishLogEvent

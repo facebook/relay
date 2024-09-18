@@ -122,7 +122,7 @@ pub struct FeatureFlags {
     /// Adds @ts-nocheck to generated Typescript Files
     #[serde(default = "default_true")]
     pub typescript_disable_checking_generated_files: bool,
-    
+
     /// Disable full GraphQL argument type validation. Historically, we only applied argument type
     /// validation to the query that was actually going to be persisted and sent
     /// to the server. This meant that we didn't typecheck arguments passed to
@@ -165,7 +165,8 @@ impl Default for FeatureFlags {
             allow_resolver_non_nullable_return_type: Default::default(),
             disable_schema_validation: false,
             prefer_fetchable_in_refetch_queries: false,
-            disable_edge_type_name_validation_on_declerative_connection_directives: Default::default(),
+            disable_edge_type_name_validation_on_declerative_connection_directives:
+                Default::default(),
             typescript_disable_checking_generated_files: default_true(),
             enable_exec_time_resolvers_directive: false,
             disable_full_argument_type_validation: Default::default(),
@@ -173,7 +174,6 @@ impl Default for FeatureFlags {
         }
     }
 }
-
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]
 #[serde(tag = "kind", rename_all = "lowercase")]
@@ -226,4 +226,3 @@ impl Display for FeatureFlag {
 fn default_true() -> bool {
     true
 }
-

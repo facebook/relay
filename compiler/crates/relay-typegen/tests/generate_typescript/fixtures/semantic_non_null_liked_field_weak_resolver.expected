@@ -30,6 +30,9 @@ export type ClientUser__blob$normalization = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 import clientUserBlobResolverType from "bar";
+// Type assertion validating that `clientUserBlobResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(clientUserBlobResolverType satisfies () => ClientUser__blob$normalization);
 export type MyFragment$data = {
   readonly blob: {
     readonly data: string | null | undefined;

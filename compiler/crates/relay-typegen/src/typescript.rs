@@ -22,6 +22,8 @@ use crate::writer::AST;
 use crate::KEY_DATA;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
+use crate::writer::FunctionTypeAssertion;
+use crate::writer::KeyValuePairProp;
 
 pub struct TypeScriptPrinter {
     result: String,
@@ -77,10 +79,11 @@ impl Writer for TypeScriptPrinter {
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
             }
-            AST::AssertFunctionType(_) => {
-                // TODO: Implement type generation for typescript
-                Ok(())
-            }
+            AST::AssertFunctionType(FunctionTypeAssertion {
+                function_name,
+                arguments,
+                return_type,
+            }) => self.write_assert_function_type(*function_name, arguments, return_type),
             AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
             AST::PropertyType {
                 type_,
@@ -362,6 +365,41 @@ impl TypeScriptPrinter {
             self.write(inner_type)?;
         }
         write!(&mut self.result, ">")
+    }
+
+    fn write_assert_function_type(
+        &mut self,
+        function_name: StringKey,
+        arguments: &[KeyValuePairProp],
+        return_type: &AST,
+    ) -> FmtResult {
+        writeln!(
+            &mut self.result,
+            "// Type assertion validating that `{}` resolver is correctly implemented.",
+            function_name
+        )?;
+        writeln!(
+            &mut self.result,
+            "// A type error here indicates that the type signature of the resolver module is incorrect."
+        )?;
+        if arguments.is_empty() {
+            write!(&mut self.result, "({} satisfies (", function_name)?;
+        } else {
+            writeln!(&mut self.result, "({} satisfies (", function_name)?;
+            self.indentation += 1;
+            for argument in arguments.iter() {
+                self.write_indentation()?;
+                write!(&mut self.result, "{}: ", argument.key)?;
+                self.write(&argument.value)?;
+                writeln!(&mut self.result, ",")?;
+            }
+            self.indentation -= 1;
+        }
+        write!(&mut self.result, ") => ")?;
+        self.write(return_type)?;
+        writeln!(&mut self.result, ");")?;
+
+        Ok(())
     }
 }
 

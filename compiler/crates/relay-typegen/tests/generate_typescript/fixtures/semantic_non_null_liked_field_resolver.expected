@@ -30,6 +30,11 @@ export type ClientEdgeQuery_MyFragment_best_friend = {
 -------------------------------------------------------------------------------
 import { FragmentRefs, DataID } from "relay-runtime";
 import clientUserBestFriendResolverType from "bar";
+// Type assertion validating that `clientUserBestFriendResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(clientUserBestFriendResolverType satisfies () => {
+  readonly id: DataID;
+});
 export type MyFragment$data = {
   readonly best_friend: {
     readonly name: string | null | undefined;

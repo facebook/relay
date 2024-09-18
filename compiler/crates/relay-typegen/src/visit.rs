@@ -392,13 +392,7 @@ fn generate_resolver_type(
 
     let ast = transform_type_reference_into_ast(&schema_field_type, |_| inner_ast);
 
-    let return_type = if matches!(
-        typegen_context.project_config.typegen_config.language,
-        TypegenLanguage::TypeScript
-    ) {
-        // TODO: Add proper support for Resolver type generation in typescript
-        AST::Any
-    } else if resolver_metadata.live {
+    let return_type = if resolver_metadata.live {
         runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,

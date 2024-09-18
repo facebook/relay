@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b523d1e289a108685b510624165a6f83>>
+ * @generated SignedSource<<4a187a561407aa9fb9576d43e789725b>>
  */
 
 mod relay_compiler_integration;
@@ -321,13 +321,6 @@ async fn resolver_semantic_non_null_scalar() {
 }
 
 #[tokio::test]
-async fn resolver_semantic_non_null_scalar_disabled() {
-    let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.input");
-    let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.expected");
-    test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_scalar_disabled.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar_disabled.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn resolvers_non_nullable() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_non_nullable.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_non_nullable.expected");
@@ -346,6 +339,27 @@ async fn resolvers_schema_module_apply_to_normalization_ast() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected");
     test_fixture(transform_fixture, file!(), "resolvers_schema_module_apply_to_normalization_ast.input", "relay_compiler_integration/fixtures/resolvers_schema_module_apply_to_normalization_ast.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolvers_with_context_javascript() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_javascript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_javascript.expected");
+    test_fixture(transform_fixture, file!(), "resolvers_with_context_javascript.input", "relay_compiler_integration/fixtures/resolvers_with_context_javascript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolvers_with_context_package_import() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_package_import.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_package_import.expected");
+    test_fixture(transform_fixture, file!(), "resolvers_with_context_package_import.input", "relay_compiler_integration/fixtures/resolvers_with_context_package_import.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolvers_with_context_path_import() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_path_import.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_path_import.expected");
+    test_fixture(transform_fixture, file!(), "resolvers_with_context_path_import.input", "relay_compiler_integration/fixtures/resolvers_with_context_path_import.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -402,4 +416,11 @@ async fn typescript_resolver_type_import() {
     let input = include_str!("relay_compiler_integration/fixtures/typescript_resolver_type_import.input");
     let expected = include_str!("relay_compiler_integration/fixtures/typescript_resolver_type_import.expected");
     test_fixture(transform_fixture, file!(), "typescript_resolver_type_import.input", "relay_compiler_integration/fixtures/typescript_resolver_type_import.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typescript_resolver_with_context() {
+    let input = include_str!("relay_compiler_integration/fixtures/typescript_resolver_with_context.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/typescript_resolver_with_context.expected");
+    test_fixture(transform_fixture, file!(), "typescript_resolver_with_context.input", "relay_compiler_integration/fixtures/typescript_resolver_with_context.expected", input, expected).await;
 }

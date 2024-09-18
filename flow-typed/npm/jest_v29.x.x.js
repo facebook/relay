@@ -249,7 +249,7 @@ type EnzymeMatchersType = {
   toContainMatchingElement(selector: string): void,
   toContainMatchingElements(n: number, selector: string): void,
   toContainExactlyOneMatchingElement(selector: string): void,
-  toContainReact(element: React$Element<any>): void,
+  toContainReact(element: React.MixedElement): void,
   toExist(): void,
   toHaveClassName(className: string): void,
   toHaveHTML(html: string): void,
@@ -265,7 +265,7 @@ type EnzymeMatchersType = {
   toHaveValue(value: any): void,
   toIncludeText(text: string): void,
   toMatchElement(
-    element: React$Element<any>,
+    element: React.MixedElement,
     options?: {|ignoreProps?: boolean, verbose?: boolean|},
   ): void,
   toMatchSelector(selector: string): void,

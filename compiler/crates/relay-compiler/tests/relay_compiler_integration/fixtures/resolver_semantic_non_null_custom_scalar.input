@@ -42,7 +42,6 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
   "resolversSchemaModule": {
     "path": "__generated__/ResolversSchemaModule.js"
   },
-  "experimentalEmitSemanticNullabilityTypes": true,
   "schemaExtensions": [
     "./extensions.graphql"
   ],

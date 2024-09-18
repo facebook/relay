@@ -6,7 +6,7 @@
  */
 
 use fixture_tests::assert_file_contains;
-use fixture_tests::workspace_root;
+use fixture_tests::WORKSPACE_ROOT;
 use relay_compiler::ConfigFile;
 
 #[tokio::test]
@@ -15,7 +15,7 @@ async fn json_schema() {
     let expected = include_str!("../relay-compiler-config-schema.json");
     let source_file_path = file!();
 
-    let expected_file_path = workspace_root()
+    let expected_file_path = WORKSPACE_ROOT
         .join(source_file_path)
         .with_file_name("../relay-compiler-config-schema.json");
     assert_file_contains(&actual, expected_file_path, expected)

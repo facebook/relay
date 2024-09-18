@@ -1,0 +1,6 @@
+query MeQuery($inc|lude_firstname: Boolean!) {
+  me {
+    name @skip(if: $include_firstname)
+    firstName(if: $include_firstname)
+  }
+}

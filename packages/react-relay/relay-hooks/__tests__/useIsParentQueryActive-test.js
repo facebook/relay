@@ -105,11 +105,13 @@ it('returns false when owner is not pending', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(fetch).toBeCalledTimes(0);
   expect(pending).toBe(false);
 });
@@ -126,11 +128,13 @@ it('returns false when an unrelated owner is pending', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(pending).toBe(false);
 });
 
@@ -142,11 +146,13 @@ it('returns true when owner is started but has not returned payloads', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(pending).toBe(true);
 });
 
@@ -169,11 +175,13 @@ it('returns true when owner fetch has returned payloads but not completed', () =
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(pending).toBe(true);
 });
 
@@ -197,11 +205,13 @@ it('returns false when owner fetch completed', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(pending).toBe(false);
 });
 
@@ -226,11 +236,13 @@ it('returns false when owner fetch errored', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   expect(onError).toBeCalledTimes(1);
   expect(pending).toBe(false);
 });
@@ -241,11 +253,13 @@ it('does not update the component when the owner is fetched', () => {
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   // Ensure that useEffect runs
   TestRenderer.act(() => jest.runAllImmediates());
 
@@ -264,11 +278,13 @@ it('does not update the component when a pending owner fetch returns a payload',
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   // Ensure that useEffect runs
   TestRenderer.act(() => jest.runAllImmediates());
 
@@ -296,11 +312,13 @@ it('updates the component when a pending owner fetch completes', () => {
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   // Ensure that useEffect runs
   TestRenderer.act(() => jest.runAllImmediates());
 
@@ -323,11 +341,13 @@ it('updates the component when a pending owner fetch errors', () => {
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   // Ensure that useEffect runs
   TestRenderer.act(() => jest.runAllImmediates());
 
@@ -359,12 +379,13 @@ it('updates the component when a pending owner fetch with multiple payloads comp
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   // Ensure that useEffect runs
   TestRenderer.act(() => jest.runAllImmediates());
   expect(states).toEqual([true]);
@@ -414,11 +435,13 @@ it('should only update if the latest owner completes the query', () => {
     const pending = useIsParentQueryActive(fragment, ref);
     return <Renderer pending={pending} />;
   }
-  TestRenderer.create(
-    <RelayEnvironmentProvider environment={environment}>
-      <Component />
-    </RelayEnvironmentProvider>,
-  );
+  TestRenderer.act(() => {
+    TestRenderer.create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Component />
+      </RelayEnvironmentProvider>,
+    );
+  });
   TestRenderer.act(() => jest.runAllImmediates());
   expect(mockFn.mock.calls[0]).toEqual([true]);
 

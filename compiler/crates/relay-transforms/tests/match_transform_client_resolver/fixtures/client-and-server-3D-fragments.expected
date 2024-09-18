@@ -1,0 +1,206 @@
+==================================== INPUT ====================================
+fragment ClientFragment on Persona {
+  id
+  basicUser {
+    ...ClientUser_Fragment @module(name: "ClientUser.react")
+    ...SpecialUser_Fragment @module(name: "SpecialUser.react")
+  }
+}
+
+fragment ClientUser_Fragment on ClientUser {
+  id
+  userInfo {
+    data
+  }
+}
+
+fragment SpecialUser_Fragment on SpecialUser {
+  id
+  userInfo {
+    data
+  }
+}
+
+fragment ServerFragment on User {
+  id
+  nameRenderer @match {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+%extensions%
+interface BasicUser {
+    userInfo: UserInfo
+}
+
+interface UserInfo {
+    data: String
+}
+
+type Persona implements Named {
+  id: ID!
+  name: String
+  basicUser: BasicUser
+}
+
+type ClientUser implements BasicUser @__RelayResolverModel {
+  id: ID!
+  userInfo: UserInfo @relay_resolver(fragment_name: "ClientUser_Fragment", import_path: "ClientUserInfoResolver")
+}
+
+type SpecialUser implements BasicUser @__RelayResolverModel {
+  id: ID!
+  userInfo: UserInfo @relay_resolver(fragment_name: "SpecialUser_Fragment", import_path: "SpecialUserInfoResolver")
+}
+==================================== OUTPUT ===================================
+fragment ClientFragment on Persona {
+  id
+  basicUser {
+    ... on ClientUser {
+      ... on ClientUser @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: client-and-server-3D-fragments.graphql:83:90,
+      #     key: "ClientFragment",
+      #     module_id: "ClientFragment.basicUser",
+      #     module_name: "ClientUser.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "ClientFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: true,
+      #     fragment_name: FragmentDefinitionName(
+      #         "ClientUser_Fragment",
+      #     ),
+      #     fragment_source_location: client-and-server-3D-fragments.graphql:196:215,
+      #     no_inline: false,
+      # }
+       {
+        ...ClientUser_Fragment
+      }
+    }
+    ... on SpecialUser {
+      ... on SpecialUser @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: client-and-server-3D-fragments.graphql:145:152,
+      #     key: "ClientFragment",
+      #     module_id: "ClientFragment.basicUser",
+      #     module_name: "SpecialUser.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "ClientFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: true,
+      #     fragment_name: FragmentDefinitionName(
+      #         "SpecialUser_Fragment",
+      #     ),
+      #     fragment_source_location: client-and-server-3D-fragments.graphql:275:295,
+      #     no_inline: false,
+      # }
+       {
+        ...SpecialUser_Fragment
+      }
+    }
+  }
+}
+
+fragment ClientUser_Fragment on ClientUser {
+  id
+  userInfo {
+    data
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment ServerFragment on User {
+  id
+  nameRenderer(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
+    ... on PlainUserNameRenderer {
+      ... on PlainUserNameRenderer @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: client-and-server-3D-fragments.graphql:444:451,
+      #     key: "ServerFragment",
+      #     module_id: "ServerFragment.nameRenderer",
+      #     module_name: "PlainUserNameRenderer.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "ServerFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: false,
+      #     fragment_name: FragmentDefinitionName(
+      #         "PlainUserNameRenderer_name",
+      #     ),
+      #     fragment_source_location: client-and-server-3D-fragments.graphql:596:622,
+      #     no_inline: false,
+      # }
+       {
+        ...PlainUserNameRenderer_name
+        __module_operation_ServerFragment: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "ServerFragment.nameRenderer")
+        __module_component_ServerFragment: js(module: "PlainUserNameRenderer.react", id: "ServerFragment.nameRenderer")
+      }
+    }
+    ... on MarkdownUserNameRenderer {
+      ... on MarkdownUserNameRenderer @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: client-and-server-3D-fragments.graphql:532:539,
+      #     key: "ServerFragment",
+      #     module_id: "ServerFragment.nameRenderer",
+      #     module_name: "MarkdownUserNameRenderer.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "ServerFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: false,
+      #     fragment_name: FragmentDefinitionName(
+      #         "MarkdownUserNameRenderer_name",
+      #     ),
+      #     fragment_source_location: client-and-server-3D-fragments.graphql:696:725,
+      #     no_inline: false,
+      # }
+       {
+        ...MarkdownUserNameRenderer_name
+        __module_operation_ServerFragment: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "ServerFragment.nameRenderer")
+        __module_component_ServerFragment: js(module: "MarkdownUserNameRenderer.react", id: "ServerFragment.nameRenderer")
+      }
+    }
+  }
+}
+
+fragment SpecialUser_Fragment on SpecialUser {
+  id
+  userInfo {
+    data
+  }
+}

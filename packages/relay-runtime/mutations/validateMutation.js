@@ -18,25 +18,6 @@ import type {
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-const {
-  ACTOR_CHANGE,
-  CLIENT_COMPONENT,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  CLIENT_EXTENSION,
-  CONDITION,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  LINKED_HANDLE,
-  MODULE_IMPORT,
-  RELAY_LIVE_RESOLVER,
-  RELAY_RESOLVER,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-} = require('../util/RelayConcreteNode');
 const warning = require('warning');
 
 type ValidationContext = {
@@ -124,27 +105,27 @@ if (__DEV__) {
     context: ValidationContext,
   ): void => {
     switch (selection.kind) {
-      case CONDITION:
+      case 'Condition':
         validateSelections(optimisticResponse, selection.selections, context);
         return;
-      case CLIENT_COMPONENT:
-      case FRAGMENT_SPREAD:
+      case 'ClientComponent':
+      case 'FragmentSpread':
         validateSelections(
           optimisticResponse,
           selection.fragment.selections,
           context,
         );
         return;
-      case SCALAR_FIELD:
-      case LINKED_FIELD:
+      case 'ScalarField':
+      case 'LinkedField':
         return validateField(optimisticResponse, selection, context);
-      case ACTOR_CHANGE:
+      case 'ActorChange':
         return validateField(
           optimisticResponse,
           selection.linkedField,
           context,
         );
-      case INLINE_FRAGMENT:
+      case 'InlineFragment':
         const type = selection.type;
         const isConcreteType = selection.abstractKey == null;
         validateAbstractKey(context, selection.abstractKey);
@@ -155,22 +136,22 @@ if (__DEV__) {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case CLIENT_EXTENSION:
+      case 'ClientExtension':
         selection.selections.forEach(subselection => {
           validateSelection(optimisticResponse, subselection, context);
         });
         return;
-      case MODULE_IMPORT:
+      case 'ModuleImport':
         return validateModuleImport(context);
-      case TYPE_DISCRIMINATOR:
+      case 'TypeDiscriminator':
         return validateAbstractKey(context, selection.abstractKey);
-      case RELAY_RESOLVER:
-      case RELAY_LIVE_RESOLVER:
-      case CLIENT_EDGE_TO_CLIENT_OBJECT:
-      case LINKED_HANDLE:
-      case SCALAR_HANDLE:
-      case DEFER:
-      case STREAM: {
+      case 'RelayResolver':
+      case 'RelayLiveResolver':
+      case 'ClientEdgeToClientObject':
+      case 'LinkedHandle':
+      case 'ScalarHandle':
+      case 'Defer':
+      case 'Stream': {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
@@ -203,12 +184,12 @@ if (__DEV__) {
     const path = `${context.path}.${fieldName}`;
     context.visitedPaths.add(path);
     switch (field.kind) {
-      case SCALAR_FIELD:
+      case 'ScalarField':
         if (hasOwnProperty.call(optimisticResponse, fieldName) === false) {
           addFieldToDiff(path, context.missingDiff, true);
         }
         return;
-      case LINKED_FIELD:
+      case 'LinkedField':
         const selections = field.selections;
         if (
           optimisticResponse[fieldName] === null ||

@@ -10,8 +10,7 @@ graphql`fragment PersonComponentFragment on Query @throwOnFieldError {
 {
   "language": "flow",
   "jsModuleFormat": "haste",
-  "schema": "schema.graphql",
-  "experimentalEmitSemanticNullabilityTypes": true
+  "schema": "schema.graphql"
 }
 
 //- schema.graphql

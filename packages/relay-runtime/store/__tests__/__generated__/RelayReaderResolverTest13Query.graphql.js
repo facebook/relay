@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7914ff4f288dd75e679e2a02227172ea>>
+ * @generated SignedSource<<497c9028fad4da1b26032b742e458f71>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAlwaysThrowsTransitivelyResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsTransitivelyResolver.graphql";
 import {always_throws_transitively as userAlwaysThrowsTransitivelyResolverType} from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsTransitivelyResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsTransitivelyResolverType: (
   rootKey: UserAlwaysThrowsTransitivelyResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayReaderResolverTest13Query$variables = {||};
 export type RelayReaderResolverTest13Query$data = {|

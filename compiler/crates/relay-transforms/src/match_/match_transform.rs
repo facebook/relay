@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::sync::Arc;
@@ -20,6 +21,7 @@ use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
+use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use graphql_ir::associated_data_impl;
@@ -46,20 +48,23 @@ use graphql_ir::Value;
 use indexmap::IndexSet;
 use relay_config::DeferStreamInterface;
 use relay_config::ModuleImportConfig;
+use relay_config::Surface;
 use schema::FieldID;
+use schema::InterfaceID;
 use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::UnionID;
 
 use super::validation_message::ValidationMessage;
 use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
-use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
 use crate::no_inline::validate_required_no_inline_directive;
 use crate::util::get_normalization_operation_name;
 use crate::FragmentAliasMetadata;
+use crate::INLINE_DIRECTIVE_NAME;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
@@ -123,6 +128,10 @@ pub struct MatchTransform<'program, 'flag> {
     no_inline_fragments: FragmentDefinitionNameMap<Vec<ExecutableDefinitionName>>,
     module_import_config: ModuleImportConfig,
     defer_stream_interface: DeferStreamInterface,
+    // Cache interface IDs of parent interfaces of @module fragments that have Relay Resolver models.
+    relay_resolver_model_interfaces: HashSet<InterfaceID>,
+    // Cache union IDs of parent unions of @module fragments that have Relay Resolver models.
+    relay_resolver_model_unions: HashSet<UnionID>,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
@@ -149,6 +158,8 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             no_inline_fragments: Default::default(),
             module_import_config,
             defer_stream_interface,
+            relay_resolver_model_interfaces: HashSet::new(),
+            relay_resolver_model_unions: HashSet::new(),
         }
     }
 
@@ -355,7 +366,16 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 ));
             }
 
-            let needs_js_fields = self.module_import_config.dynamic_module_provider.is_none();
+            let uses_read_time_resolvers =
+                if let Some(Surface::Resolvers) = self.module_import_config.surface {
+                    has_relay_resolver_model(self, spread)
+                } else {
+                    Ok(false)
+                }?;
+            let needs_js_fields = self.module_import_config.dynamic_module_provider.is_none()
+                || (self.module_import_config.surface == Some(Surface::Resolvers)
+                    && !uses_read_time_resolvers);
+
             if needs_js_fields {
                 self.validate_js_module_type(spread.fragment.location)?;
             }
@@ -544,6 +564,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                 module_name: module_directive_name_argument,
                                 source_document_name: self.document_name,
                                 fragment_name: spread.fragment.item,
+                                read_time_resolvers: uses_read_time_resolvers,
                                 fragment_source_location: self
                                     .program
                                     .fragment(spread.fragment.item)
@@ -645,6 +666,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         // Validate and keep track of the module key
         let field_definition = self.program.schema.field(field.definition.item);
         let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
+
         if let Some(arg) = key_arg {
             let maybe_valid_str = arg
                 .value
@@ -924,6 +946,7 @@ impl Transformer for MatchTransform<'_, '_> {
     // Validate `js` field
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
+
         if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
             match self
                 .program
@@ -1020,6 +1043,108 @@ fn get_module_directive_name_argument(
     })
 }
 
+fn validate_parent_type_of_fragment_with_read_time_resolver(
+    transform: &mut MatchTransform<'_, '_>,
+    spread: &FragmentSpread,
+) -> Result<bool, Diagnostic> {
+    match transform.parent_type {
+        Type::Interface(id) => {
+            if transform.relay_resolver_model_interfaces.contains(&id) {
+                return Ok(true);
+            }
+            let parent_interface = transform.program.schema.interface(id);
+
+            let all_implementing_objects_have_read_time_resolvers = parent_interface
+                .implementing_objects
+                .iter()
+                .all(|object_id| {
+                    transform
+                        .program
+                        .schema
+                        .object(*object_id)
+                        .directives
+                        .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                        .is_some()
+                });
+
+            if !all_implementing_objects_have_read_time_resolvers {
+                return Err(Diagnostic::error(
+                    ValidationMessage::MissingRelayResolverModelForInterface {
+                        spread_name: spread.fragment.item,
+                        parent_interface: transform.program.schema.interface(id).name.item,
+                    },
+                    spread.fragment.location,
+                ));
+            }
+            transform.relay_resolver_model_interfaces.insert(id);
+        }
+        Type::Union(id) => {
+            if transform.relay_resolver_model_unions.contains(&id) {
+                return Ok(true);
+            }
+            let parent_union = transform.program.schema.union(id);
+
+            let all_union_members_have_read_time_resolvers =
+                parent_union.members.iter().all(|object_id| {
+                    transform
+                        .program
+                        .schema
+                        .object(*object_id)
+                        .directives
+                        .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                        .is_some()
+                });
+
+            if !all_union_members_have_read_time_resolvers {
+                return Err(Diagnostic::error(
+                    ValidationMessage::MissingRelayResolverModelForUnion {
+                        spread_name: spread.fragment.item,
+                        parent_union: transform.program.schema.union(id).name.item,
+                    },
+                    spread.fragment.location,
+                ));
+            }
+            transform.relay_resolver_model_unions.insert(id);
+        }
+        Type::Object(id) => {
+            return Err(Diagnostic::error(
+                ValidationMessage::InvalidModuleOnConcreteParentType {
+                    object_name: transform.program.schema.object(id).name.item,
+                },
+                spread.fragment.location,
+            ));
+        }
+        Type::Enum(_) | Type::Scalar(_) | Type::InputObject(_) => {
+            panic!(
+                "Unexpected parent type {:?} for read time resolver backed fragment {:?}",
+                transform.parent_type, spread.fragment.item
+            )
+        }
+    }
+    Ok(true)
+}
+
+fn has_relay_resolver_model(
+    transform: &mut MatchTransform<'_, '_>,
+    spread: &FragmentSpread,
+) -> Result<bool, Diagnostic> {
+    if let Some(fragment_object) = transform.program.fragment(spread.fragment.item) {
+        if let Type::Object(object_id) = fragment_object.type_condition {
+            if transform
+                .program
+                .schema
+                .object(object_id)
+                .directives
+                .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                .is_some()
+            {
+                return validate_parent_type_of_fragment_with_read_time_resolver(transform, spread);
+            }
+        }
+    }
+    Ok(false)
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ModuleMetadata {
     pub location: Location,
@@ -1027,6 +1152,7 @@ pub struct ModuleMetadata {
     pub module_id: StringKey,
     pub module_name: StringKey,
     pub source_document_name: ExecutableDefinitionName,
+    pub read_time_resolvers: bool,
     pub fragment_name: FragmentDefinitionName,
     pub fragment_source_location: Location,
     pub no_inline: bool,

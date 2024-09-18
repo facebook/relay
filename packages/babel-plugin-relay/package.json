@@ -1,7 +1,7 @@
 {
   "name": "babel-plugin-relay",
   "description": "A Babel Plugin for use with Relay applications.",
-  "version": "17.0.0",
+  "version": "18.0.0",
   "keywords": [
     "graphql",
     "relay",
@@ -22,8 +22,8 @@
     "graphql": "15.3.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
+    "@babel/core": "^7.25.2",
     "prettier": "2.8.8",
-    "prettier-plugin-hermes-parser": "0.23.0"
+    "prettier-plugin-hermes-parser": "0.23.1"
   }
 }

@@ -23,9 +23,19 @@
         "packages/relay-test-utils-internal/schema-extensions"
       ],
       "customScalarTypes": {
-        "OpaqueScalarType": {"name": "OpaqueScalarType", "path": "../OpaqueScalarType"}
+        "OpaqueScalarType": {
+          "name": "OpaqueScalarType",
+          "path": "../OpaqueScalarType"
+        }
       },
       "jsModuleFormat": "commonjs",
+      "moduleImportConfig": {
+        "dynamicModuleProvider": {
+          "mode": "Custom",
+          "statement": "() => require('./.<$module>')"
+        },
+        "surface": "resolvers"
+      },
       "schemaConfig": {
         "nonNodeIdFields": {
           "allowedIdTypes": {
@@ -50,13 +60,12 @@
         "actor_change_support": {
           "kind": "enabled"
         },
-        "enable_fragment_aliases": {
+        "relay_resolver_enable_interface_output_type": {
           "kind": "enabled"
-        },
-        "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+        }
       },
       "language": "flow",
-      "experimentalEmitSemanticNullabilityTypes": true
+      "resolverContextType": { "name": "TestResolverContextType", "path": "packages/relay-runtime/mutations/__tests__/TestResolverContextType" }
     }
   },
   "isDevVariableName": "__DEV__"

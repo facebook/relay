@@ -686,6 +686,7 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingClientEdges: null,
           isMissingData: false,
+          errorResponseFields: null,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -771,6 +772,17 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingClientEdges: null,
           isMissingData: true,
+          errorResponseFields: [
+            {
+              error: {
+                message:
+                  'Relay: Missing data for one or more fields in RelayModernStoreTest5Fragment',
+              },
+              owner: 'RelayModernStoreTest5Fragment',
+              type: 'MISSING_DATA',
+              path: '',
+            },
+          ],
           seenRecords: new Set(['842472']),
         });
       });
@@ -1037,6 +1049,8 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'store.notify.complete',
             updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
+            updatedOwners: [owner.request],
+            subscriptionsSize: 1,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
@@ -1127,6 +1141,8 @@ function cloneEventWithSets(event: LogEvent) {
               sourceOperation: owner,
               updatedRecordIDs: new Set(['client:1']),
               invalidatedRecordIDs: new Set(),
+              updatedOwners: [owner.request],
+              subscriptionsSize: 1,
             },
           ]);
           expect(callback).toBeCalledTimes(1);

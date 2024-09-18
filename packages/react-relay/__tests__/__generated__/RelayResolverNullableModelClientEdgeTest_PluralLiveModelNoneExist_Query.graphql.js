@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65d2574cb80396c6b3ddcd81e452b014>>
+ * @generated SignedSource<<c8ccf026a51617ed488c24d5a12ee7c6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {edge_to_plural_live_objects_none_exist as queryEdgeToPluralLiveObjectsNoneExistResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToPluralLiveObjectsNoneExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToPluralLiveObjectsNoneExistResolverType: () => ?$ReadOnlyArray<?{|
+(queryEdgeToPluralLiveObjectsNoneExistResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?$ReadOnlyArray<?{|
   +id: DataID,
 |}>);
 import {description as todoModelDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
@@ -31,6 +35,8 @@ import {description as todoModelDescriptionResolverType} from "../../../relay-ru
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query$data = {|

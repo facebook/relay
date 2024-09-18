@@ -69,12 +69,6 @@ export const FEATURE_FLAGS = [
     default: false,
   },
   {
-    key: 'enable_fragment_aliases',
-    label: '@alias',
-    kind: 'enum',
-    default: true,
-  },
-  {
     key: 'enforce_fragment_alias_where_ambiguous',
     label: 'Enforce @alias where ambiguous',
     kind: 'enum',
@@ -84,12 +78,6 @@ export const FEATURE_FLAGS = [
     key: 'enable_catch_directive_transform',
     label: '@catch',
     kind: 'enum',
-    default: false,
-  },
-  {
-    key: 'disallow_required_on_non_null_fields',
-    label: 'Disallow Required on Non-Null Fields',
-    kind: 'bool',
     default: false,
   },
 ];

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<febfff8f2af85de7533985f405da28ce>>
+ * @generated SignedSource<<a1b3b1f64f8cfd4b670e7c6edaa06175>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UndefinedFieldResolver$key } from "./../resolvers/__generated__/UndefinedFieldResolver.graphql";
 import {undefined_field as queryUndefinedFieldResolverType} from "../resolvers/UndefinedFieldResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryUndefinedFieldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryUndefinedFieldResolverType: (
   rootKey: UndefinedFieldResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?mixed);
 export type RelayReaderResolverTest15Query$variables = {||};
 export type RelayReaderResolverTest15Query$data = {|

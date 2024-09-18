@@ -99,19 +99,22 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
   });
   const environment = createEnvironment(source);
 
-  const renderer = TestRenderer.create(
-    <TestComponent environment={environment} id="1" />,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <TestComponent environment={environment} id="1" />,
+    );
+  });
 
   // Validate that the missing required field was logged.
   expect(relayFieldLogger.mock.calls).toEqual([
     [
       {
         fieldPath: 'name',
-        kind: 'missing_field.log',
+        kind: 'missing_required_field.log',
         owner: 'useFragmentWithRequiredTestUserFragment',
       },
     ],
   ]);
-  expect(renderer.toJSON()).toEqual('Unknown name');
+  expect(renderer?.toJSON()).toEqual('Unknown name');
 });

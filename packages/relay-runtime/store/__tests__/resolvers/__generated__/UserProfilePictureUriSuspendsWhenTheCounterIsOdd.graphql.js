@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b512a3af606c245508eb3b303d3a71f9>>
+ * @generated SignedSource<<8d6fa83f6d19fa90b55190ef1168c80a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,10 +22,13 @@ import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
 import type { UserProfilePictureResolver$key } from "./UserProfilePictureResolver.graphql";
 import type { FragmentType } from "relay-runtime";
 import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolverType} from "../UserProfilePictureResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolverType` resolver is correctly implemented.
@@ -35,6 +38,7 @@ import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScal
   args: {|
     scale: ?number,
   |},
+  context: TestResolverContextType,
 ) => ?string);
 declare export opaque type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$fragmentType: FragmentType;
 export type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$data = {|

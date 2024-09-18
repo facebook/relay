@@ -103,19 +103,46 @@ export type $FragmentRef<T> = {
  */
 // prettier-ignore
 // $FlowFixMe[extra-type-arg] xplat redux flow type error
-// $FlowFixMe[deprecated-type]
-export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
-  $Diff<Props, { relay: RelayPropT | void, ... }>,
-  & (<T: { +$fragmentType: empty, ... }>( T) =>  T)
-  & (<T: { +$fragmentType: empty, ... }>(?T) => ?T)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(                 T ) =>                  $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?                T ) => ?                $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
-  & (<T>(T) => T),
+export type $RelayProps<Props, RelayPropT = RelayProp> = MapRelayProps<
+  $Diff<Props, {relay: RelayPropT | void, ...}>,
 >;
+
+type MapRelayProps<Props> = {[K in keyof Props]: MapRelayProp<Props[K]>};
+type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
+  ? T
+  : [+t: T] extends [+t: ?{+$fragmentType: empty, ...}]
+    ? ?T
+    : [+t: T] extends [+t: {+$fragmentType: FragmentType, ...}]
+      ? $FragmentRef<T>
+      : [+t: T] extends [+t: ?{+$fragmentType: FragmentType, ...}]
+        ? ?$FragmentRef<$NonMaybeType<T>>
+        : [+t: T] extends [
+              +t: $ReadOnlyArray<
+                infer V extends {+$fragmentType: FragmentType, ...},
+              >,
+            ]
+          ? $ReadOnlyArray<$FragmentRef<V>>
+          : [+t: T] extends [
+                +t: ?$ReadOnlyArray<
+                  infer V extends {+$fragmentType: FragmentType, ...},
+                >,
+              ]
+            ? ?$ReadOnlyArray<$FragmentRef<V>>
+            : [+t: T] extends [
+                  +t: $ReadOnlyArray<?infer V extends {
+                    +$fragmentType: FragmentType,
+                    ...
+                  }>,
+                ]
+              ? $ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+              : [+t: T] extends [
+                    +t: ?$ReadOnlyArray<?infer V extends {
+                      +$fragmentType: FragmentType,
+                      ...
+                    }>,
+                  ]
+                ? ?$ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+                : T;
 
 export type RelayFragmentContainer<TComponent> = React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayProp>,

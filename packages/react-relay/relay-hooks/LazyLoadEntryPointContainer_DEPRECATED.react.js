@@ -16,6 +16,7 @@ import type {
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
+  PreloadedQuery,
 } from './EntryPointTypes.flow';
 
 const preloadQuery_DEPRECATED = require('./preloadQuery_DEPRECATED');
@@ -62,7 +63,8 @@ function stableStringify(value: mixed): string {
 
 function prepareEntryPoint<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,
@@ -99,6 +101,7 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
+      // $FlowFixMe[incompatible-type]
       preloadedQueries[queryPropName] = preloadQuery_DEPRECATED<
         OperationType,
         mixed,
@@ -123,11 +126,11 @@ function prepareEntryPoint<
         entryPointDescription;
       preloadedEntryPoints[entryPointPropName] = prepareEntryPoint<
         _,
-        {...},
+        {},
         {...},
         {...},
         mixed,
-        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        EntryPointComponent<{}, {...}, {...}, mixed>,
         _,
       >(environmentProvider, nestedEntryPoint, nestedParams);
     });
@@ -151,7 +154,8 @@ function prepareEntryPoint<
 
 function LazyLoadEntryPointContainer_DEPRECATED<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,

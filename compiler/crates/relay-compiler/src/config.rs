@@ -21,6 +21,8 @@ use common::ScalarName;
 use dunce::canonicalize;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
+use globset::Glob;
+use globset::GlobSetBuilder;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use indexmap::IndexMap;
@@ -75,7 +77,7 @@ use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 use crate::GraphQLAsts;
 
-type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+pub type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 type PostArtifactsWriter = Box<
     dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
@@ -306,7 +308,6 @@ impl Config {
     }
 
     /// Loads a config file without validation for use in tests.
-    #[cfg(test)]
     pub fn from_string_for_test(config_string: &str) -> Result<Self> {
         let path = PathBuf::from("/virtual/root/virtual_config.json");
         let config_file: ConfigFile =
@@ -385,6 +386,17 @@ impl Config {
                         }],
                     })?;
 
+                let excludes_extensions_set =
+                    config_file_project
+                        .excludes_extensions
+                        .map(move |extensions| {
+                            let mut builder = GlobSetBuilder::new();
+                            for ext in extensions {
+                                builder.add(Glob::new(&ext).unwrap());
+                            }
+                            builder.build().unwrap()
+                        });
+
                 let project_config = ProjectConfig {
                     name: project_name,
                     base: config_file_project.base,
@@ -392,6 +404,7 @@ impl Config {
                     schema_extensions: config_file_project.schema_extensions,
                     extra_artifacts_config: None,
                     extra: config_file_project.extra,
+                    excludes_extensions: excludes_extensions_set,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
@@ -413,6 +426,7 @@ impl Config {
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
                     codegen_command: config_file_project.codegen_command,
+                    get_custom_path_for_artifact: None,
                 };
                 Ok((project_name, project_config))
             })
@@ -429,7 +443,10 @@ impl Config {
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(
-                source_control_for_root(&root_dir),
+                match config_file.no_source_control {
+                    Some(true) => None,
+                    _ => source_control_for_root(&root_dir),
+                },
                 root_dir.clone(),
             )),
             status_reporter: Box::new(ConsoleStatusReporter::new(
@@ -711,6 +728,9 @@ pub struct MultiProjectConfigFile {
 
     /// Then name of the global __DEV__ variable to use in generated artifacts
     is_dev_variable_name: Option<String>,
+
+    /// Opt out of source control checks/integration.
+    no_source_control: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
@@ -776,6 +796,10 @@ pub struct SingleProjectConfigFile {
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+
+    /// Opt out of source control checks/integration.
+    #[serde(default)]
+    pub no_source_control: Option<bool>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -798,6 +822,7 @@ impl Default for SingleProjectConfigFile {
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
+            no_source_control: Some(false),
         }
     }
 }
@@ -908,6 +933,7 @@ impl SingleProjectConfigFile {
             excludes: self.excludes,
             is_dev_variable_name: self.is_dev_variable_name,
             codegen_command: self.codegen_command,
+            no_source_control: self.no_source_control,
             ..Default::default()
         })
     }
@@ -981,6 +1007,9 @@ pub struct ConfigFileProject {
     /// need to provide an additional directory to put them.
     /// By default the will use `output` *if available
     extra_artifacts_output: Option<PathBuf>,
+
+    /// Some projects may need to exclude files with certain extensions.
+    excludes_extensions: Option<Vec<String>>,
 
     /// If `output` is provided and `shard_output` is `true`, shard the files
     /// by putting them under `{output_dir}/{source_relative_path}`

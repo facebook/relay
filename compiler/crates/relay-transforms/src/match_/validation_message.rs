@@ -6,7 +6,10 @@
  */
 
 use common::ArgumentName;
+use common::InterfaceName;
+use common::ObjectName;
 use common::ScalarName;
+use common::UnionName;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
@@ -116,4 +119,25 @@ pub enum ValidationMessage {
         "@match without a `key` argument and on a field without the `supported` argument is a no-op, please remove the `@match`."
     )]
     InvalidMatchWithNoSupportedArgument,
+
+    #[error(
+        "Invalid fragment spread '...{spread_name}'. Fragments for interface '{parent_interface}' should be backed by relay resolver models."
+    )]
+    MissingRelayResolverModelForInterface {
+        spread_name: FragmentDefinitionName,
+        parent_interface: InterfaceName,
+    },
+
+    #[error(
+        "Invalid fragment spread '...{spread_name}'. Fragments for union '{parent_union}' should be backed by relay resolver models."
+    )]
+    MissingRelayResolverModelForUnion {
+        spread_name: FragmentDefinitionName,
+        parent_union: UnionName,
+    },
+
+    #[error(
+        "@module was used on a fragment with a concrete parent type: '{object_name}'. The parent type should be an interface or union."
+    )]
+    InvalidModuleOnConcreteParentType { object_name: ObjectName },
 }

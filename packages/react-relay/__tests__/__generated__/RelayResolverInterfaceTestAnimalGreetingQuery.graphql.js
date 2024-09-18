@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<178d8ce18788fe4e15689bfb64c2512c>>
+ * @generated SignedSource<<97d12bb3a656d891fe4d828b1b1d24ce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,10 +22,13 @@ import type { DataID } from "relay-runtime";
 import type { Cat____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat____relay_model_instance.graphql";
 import type { Fish____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish____relay_model_instance.graphql";
 import {greeting as iAnimalGreetingResolverType} from "../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `iAnimalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (iAnimalGreetingResolverType: (
   model: Cat____relay_model_instance$data['__relay_model_instance'] | Fish____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {animal as queryAnimalResolverType} from "../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers.js";
 // Type assertion validating that `queryAnimalResolverType` resolver is correctly implemented.
@@ -34,6 +37,7 @@ import {animal as queryAnimalResolverType} from "../../../relay-runtime/store/__
   args: {|
     request: AnimalRequest,
   |},
+  context: TestResolverContextType,
 ) => ?{|
   +__typename: "Cat" | "Chicken" | "Fish",
   +id: DataID,

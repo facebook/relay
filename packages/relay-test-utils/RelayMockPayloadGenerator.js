@@ -311,7 +311,15 @@ class RelayMockPayloadGenerator {
           if (!this._mockClientData) {
             break;
           }
-        // falls through
+          mockData = this._traverseSelections(
+            selection.selections,
+            typeName,
+            isAbstractType,
+            path,
+            mockData,
+            defaultValues,
+          );
+          break;
         case DEFER:
         case STREAM: {
           const isDeferreable =

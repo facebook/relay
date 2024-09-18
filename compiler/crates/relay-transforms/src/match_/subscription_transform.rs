@@ -57,7 +57,7 @@ impl<'program> SubscriptionTransform<'program> {
     /// - is a linked field, whose type
     /// - is an object with a js: JSDependency field; and
     /// - the linked field has a single selection, which is a fragment spread
-    /// These restrictions may be loosened over time.
+    ///   These restrictions may be loosened over time.
     ///
     /// Return Some(Vec<ValidFieldResult>) if the operation is valid
     /// (i.e. if each field is valid), or None otherwise.
@@ -200,6 +200,7 @@ impl<'program> SubscriptionTransform<'program> {
                         .intern(),
                         module_name: normalization_operation_name,
                         source_document_name: operation.name.item.into(),
+                        read_time_resolvers: false,
                         fragment_name: fragment_spread.fragment.item,
                         fragment_source_location: self
                             .program

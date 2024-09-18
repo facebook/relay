@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-# relay:experimental_emit_semantic_nullability_types
 # expected-to-throw
 fragment MyFragment on User @throwOnFieldError {
   some_linked_field {
@@ -18,8 +17,8 @@ type Foo {
 ==================================== ERROR ====================================
 ✖︎ Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive.
 
-  fragment_with_required_semantic_field_via_linked.invalid.graphql:5:22
-    4 │   some_linked_field {
-    5 │     some_other_field @required(action: THROW)
+  fragment_with_required_semantic_field_via_linked.invalid.graphql:4:22
+    3 │   some_linked_field {
+    4 │     some_other_field @required(action: THROW)
       │                      ^^^^^^^^^
-    6 │   }
+    5 │   }

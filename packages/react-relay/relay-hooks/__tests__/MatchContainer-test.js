@@ -96,14 +96,17 @@ describe('MatchContainer', () => {
       propName: 'user',
       module: 'UserContainer.react',
     });
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={match}
-        props={{otherProp: 'hello!'}}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={match}
+          props={{otherProp: 'hello!'}}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(1);
     expect(UserComponent).toBeCalledTimes(1);
   });
@@ -117,13 +120,16 @@ describe('MatchContainer', () => {
       propName: 'user',
       module: 'UserContainer.react',
     });
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={match}
-        props={{otherProp: 'hello!'}}
-      />,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={match}
+          props={{otherProp: 'hello!'}}
+        />,
+      );
+    });
     loader.mockReturnValue(React.memo((ActorComponent: $FlowFixMe)));
     const match2 = createMatchPointer({
       id: '4',
@@ -132,14 +138,16 @@ describe('MatchContainer', () => {
       propName: 'actor',
       module: 'ActorContainer.react',
     });
-    renderer.update(
-      <MatchContainer
-        loader={loader}
-        match={match2}
-        props={{otherProp: 'hello!'}}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    TestRenderer.act(() => {
+      renderer.update(
+        <MatchContainer
+          loader={loader}
+          match={match2}
+          props={{otherProp: 'hello!'}}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(2);
     expect(UserComponent).toBeCalledTimes(1);
     expect(ActorComponent).toBeCalledTimes(1);
@@ -154,22 +162,27 @@ describe('MatchContainer', () => {
       propName: 'user',
       module: 'UserContainer.react',
     });
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={match}
-        props={{otherProp: 'hello!'}}
-      />,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={match}
+          props={{otherProp: 'hello!'}}
+        />,
+      );
+    });
     const match2 = {...match, __id: '0'};
-    renderer.update(
-      <MatchContainer
-        loader={loader}
-        match={match2}
-        props={{otherProp: 'hello!'}}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    TestRenderer.act(() => {
+      renderer.update(
+        <MatchContainer
+          loader={loader}
+          match={match2}
+          props={{otherProp: 'hello!'}}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     // We expect loader to already be caching module results
     expect(loader).toBeCalledTimes(2);
     expect(UserComponent).toBeCalledTimes(2);
@@ -186,14 +199,19 @@ describe('MatchContainer', () => {
       module: 'UserContainer.react',
     });
     const otherProps = {otherProp: 'hello!'};
-    const renderer = TestRenderer.create(
-      <MatchContainer loader={loader} match={match} props={otherProps} />,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer loader={loader} match={match} props={otherProps} />,
+      );
+    });
     const match2 = {...match};
-    renderer.update(
-      <MatchContainer loader={loader} match={match2} props={otherProps} />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    TestRenderer.act(() => {
+      renderer.update(
+        <MatchContainer loader={loader} match={match2} props={otherProps} />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(2);
     expect(UserComponent).toBeCalledTimes(1);
   });
@@ -202,15 +220,18 @@ describe('MatchContainer', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={({}: $FlowFixMe)} // intentionally empty
-        props={otherProps}
-        fallback={(<Fallback />: $FlowFixMe)}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={({}: $FlowFixMe)} // intentionally empty
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
@@ -221,23 +242,26 @@ describe('MatchContainer', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={
-          ({
-            __id: null,
-            __fragments: null,
-            __fragmentPropName: null,
-            __fragmentOwner: null,
-            __module_component: null,
-          }: $FlowFixMe)
-        } // intentionally all null
-        props={otherProps}
-        fallback={(<Fallback />: $FlowFixMe)}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={
+            ({
+              __id: null,
+              __fragments: null,
+              __fragmentPropName: null,
+              __fragmentOwner: null,
+              __module_component: null,
+            }: $FlowFixMe)
+          } // intentionally all null
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
@@ -364,15 +388,18 @@ describe('MatchContainer', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={null}
-        props={otherProps}
-        fallback={(<Fallback />: $FlowFixMe)}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={null}
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
@@ -395,15 +422,18 @@ describe('MatchContainer', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={undefined}
-        props={otherProps}
-        fallback={(<Fallback />: $FlowFixMe)}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={undefined}
+          props={otherProps}
+          fallback={(<Fallback />: $FlowFixMe)}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
@@ -413,14 +443,17 @@ describe('MatchContainer', () => {
   it('transitions from fallback when new props have a component', () => {
     loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={({}: $FlowFixMe)} // intentionally empty
-        props={{otherProp: 'hello!'}}
-        fallback={<Fallback />}
-      />,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={({}: $FlowFixMe)} // intentionally empty
+          props={{otherProp: 'hello!'}}
+          fallback={<Fallback />}
+        />,
+      );
+    });
     expect(Fallback).toBeCalledTimes(1);
     loader.mockReturnValue(React.memo((ActorComponent: $FlowFixMe)));
     const match2 = createMatchPointer({
@@ -430,15 +463,18 @@ describe('MatchContainer', () => {
       propName: 'actor',
       module: 'ActorContainer.react',
     });
-    renderer.update(
-      <MatchContainer
-        loader={loader}
-        match={match2}
-        props={{otherProp: 'hello!'}}
-        fallback={<Fallback />}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+
+    TestRenderer.act(() => {
+      renderer.update(
+        <MatchContainer
+          loader={loader}
+          match={match2}
+          props={{otherProp: 'hello!'}}
+          fallback={<Fallback />}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(1);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(1);
@@ -454,24 +490,29 @@ describe('MatchContainer', () => {
       module: 'ActorContainer.react',
     });
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
-    const renderer = TestRenderer.create(
-      <MatchContainer
-        loader={loader}
-        match={match}
-        props={{otherProp: 'hello!'}}
-        fallback={<Fallback />}
-      />,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <MatchContainer
+          loader={loader}
+          match={match}
+          props={{otherProp: 'hello!'}}
+          fallback={<Fallback />}
+        />,
+      );
+    });
     expect(ActorComponent).toBeCalledTimes(1);
-    renderer.update(
-      <MatchContainer
-        loader={loader}
-        match={({}: $FlowFixMe)} // intentionally empty
-        props={{otherProp: 'hello!'}}
-        fallback={<Fallback />}
-      />,
-    );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    TestRenderer.act(() => {
+      renderer.update(
+        <MatchContainer
+          loader={loader}
+          match={({}: $FlowFixMe)} // intentionally empty
+          props={{otherProp: 'hello!'}}
+          fallback={<Fallback />}
+        />,
+      );
+    });
+    expect(renderer?.toJSON()).toMatchSnapshot();
     expect(loader).toBeCalledTimes(1);
     expect(Fallback).toBeCalledTimes(1);
     expect(UserComponent).toBeCalledTimes(0);

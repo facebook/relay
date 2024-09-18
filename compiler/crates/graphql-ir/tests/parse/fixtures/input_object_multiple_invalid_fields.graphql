@@ -1,0 +1,9 @@
+# expected-to-throw
+
+mutation TestMutation($someBool: Boolean) {
+  feedbackLikeStrict(
+    input: {userID: $someBool, feedbackId: $someBool, description: $someBool}
+  ) {
+    __typename
+  }
+}

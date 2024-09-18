@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5746353336950e077c65f751091a962a>>
+ * @generated SignedSource<<fe5fff607cc34d2e80fa76caf6bcb1e8>>
  */
 
 mod disallow_required_on_non_null_field;
@@ -45,13 +45,6 @@ async fn fragment_with_required_semantic_field_via_linked_invalid() {
     let input = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_via_linked.invalid.graphql");
     let expected = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_via_linked.invalid.expected");
     test_fixture(transform_fixture, file!(), "fragment_with_required_semantic_field_via_linked.invalid.graphql", "disallow_required_on_non_null_field/fixtures/fragment_with_required_semantic_field_via_linked.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn query_with_disallowed_throw_invalid() {
-    let input = include_str!("disallow_required_on_non_null_field/fixtures/query_with_disallowed_throw.invalid.graphql");
-    let expected = include_str!("disallow_required_on_non_null_field/fixtures/query_with_disallowed_throw.invalid.expected");
-    test_fixture(transform_fixture, file!(), "query_with_disallowed_throw.invalid.graphql", "disallow_required_on_non_null_field/fixtures/query_with_disallowed_throw.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

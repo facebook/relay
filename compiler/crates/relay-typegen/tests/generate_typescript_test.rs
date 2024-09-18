@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<40ee37b571f2844f07f55ccb1407a04a>>
+ * @generated SignedSource<<dc6df4bac160f12fe89c63e98c18f01d>>
  */
 
 mod generate_typescript;
@@ -171,6 +171,13 @@ async fn linked_field() {
     let input = include_str!("generate_typescript/fixtures/linked-field.graphql");
     let expected = include_str!("generate_typescript/fixtures/linked-field.expected");
     test_fixture(transform_fixture, file!(), "linked-field.graphql", "generate_typescript/fixtures/linked-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn linked_semantic_non_null_with_catch() {
+    let input = include_str!("generate_typescript/fixtures/linked-semantic-non-null-with-catch.graphql");
+    let expected = include_str!("generate_typescript/fixtures/linked-semantic-non-null-with-catch.expected");
+    test_fixture(transform_fixture, file!(), "linked-semantic-non-null-with-catch.graphql", "generate_typescript/fixtures/linked-semantic-non-null-with-catch.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -468,6 +475,20 @@ async fn scalar_field() {
 }
 
 #[tokio::test]
+async fn scalar_semantic_non_null_with_catch() {
+    let input = include_str!("generate_typescript/fixtures/scalar-semantic-non-null-with-catch.graphql");
+    let expected = include_str!("generate_typescript/fixtures/scalar-semantic-non-null-with-catch.expected");
+    test_fixture(transform_fixture, file!(), "scalar-semantic-non-null-with-catch.graphql", "generate_typescript/fixtures/scalar-semantic-non-null-with-catch.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_deeply_nested_within_catch() {
+    let input = include_str!("generate_typescript/fixtures/semantic-non-null-deeply-nested-within-catch.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic-non-null-deeply-nested-within-catch.expected");
+    test_fixture(transform_fixture, file!(), "semantic-non-null-deeply-nested-within-catch.graphql", "generate_typescript/fixtures/semantic-non-null-deeply-nested-within-catch.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn semantic_non_null_in_raw_response() {
     let input = include_str!("generate_typescript/fixtures/semantic_non_null_in_raw_response.graphql");
     let expected = include_str!("generate_typescript/fixtures/semantic_non_null_in_raw_response.expected");
@@ -542,6 +563,13 @@ async fn semantic_non_null_scalar_with_catch() {
     let input = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_with_catch.graphql");
     let expected = include_str!("generate_typescript/fixtures/semantic_non_null_scalar_with_catch.expected");
     test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_with_catch.graphql", "generate_typescript/fixtures/semantic_non_null_scalar_with_catch.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_within_catch() {
+    let input = include_str!("generate_typescript/fixtures/semantic-non-null-within-catch.graphql");
+    let expected = include_str!("generate_typescript/fixtures/semantic-non-null-within-catch.expected");
+    test_fixture(transform_fixture, file!(), "semantic-non-null-within-catch.graphql", "generate_typescript/fixtures/semantic-non-null-within-catch.expected", input, expected).await;
 }
 
 #[tokio::test]

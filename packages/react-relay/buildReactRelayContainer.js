@@ -82,6 +82,7 @@ function buildReactRelayContainer<TBase: React.ComponentType<any>>(
     );
   }
   ForwardRef.displayName = containerName;
+  // $FlowFixMe[incompatible-call]
   const ForwardContainer = React.forwardRef(ForwardRef);
 
   if (__DEV__) {

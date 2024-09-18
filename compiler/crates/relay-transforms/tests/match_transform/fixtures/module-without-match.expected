@@ -44,6 +44,7 @@ fragment NameRendererFragment on User {
       #             "NameRendererFragment",
       #         ),
       #     ),
+      #     read_time_resolvers: false,
       #     fragment_name: FragmentDefinitionName(
       #         "PlainUserNameRenderer_name",
       #     ),
@@ -68,6 +69,7 @@ fragment NameRendererFragment on User {
       #             "NameRendererFragment",
       #         ),
       #     ),
+      #     read_time_resolvers: false,
       #     fragment_name: FragmentDefinitionName(
       #         "MarkdownUserNameRenderer_name",
       #     ),

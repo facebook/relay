@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<53be1d5034ad84b25f236af4706b73cc>>
+ * @generated SignedSource<<944174802f80cfe9e20a1cc95e6b62c6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { useFragmentNullabilityTestFragmentWithFieldThatThrows$key } from "./useFragmentNullabilityTestFragmentWithFieldThatThrows.graphql";
 import {field_with_fragment_that_throws as queryFieldWithFragmentThatThrowsResolverType} from "../useFragment_nullability-test.js";
+import type { TestResolverContextType } from "../../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFieldWithFragmentThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryFieldWithFragmentThatThrowsResolverType: (
   rootKey: useFragmentNullabilityTestFragmentWithFieldThatThrows$key,
+  args: void,
+  context: TestResolverContextType,
 ) => number);
 export type useFragmentNullabilityTest2Query$variables = {||};
 export type useFragmentNullabilityTest2Query$data = {|

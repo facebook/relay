@@ -10,7 +10,5 @@ use graphql_test_helpers::apply_transform_for_test;
 use relay_transforms::fragment_alias_directive;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    apply_transform_for_test(fixture, |program| {
-        fragment_alias_directive(program, true, true)
-    })
+    apply_transform_for_test(fixture, |program| fragment_alias_directive(program, true))
 }

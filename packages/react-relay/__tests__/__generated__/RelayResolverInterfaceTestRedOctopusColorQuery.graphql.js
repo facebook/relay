@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f7b15df9b150c2facfc8f391b2c2bce5>>
+ * @generated SignedSource<<6fd94860e46899b3b8315f34de60a209>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolverInterfaceTestWeakAnimalColorFragment$fragmentType } from "./RelayResolverInterfaceTestWeakAnimalColorFragment.graphql";
 import {red_octopus as queryRedOctopusResolverType} from "../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryRedOctopusResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryRedOctopusResolverType: () => ?RedOctopus);
+(queryRedOctopusResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?RedOctopus);
 import type { RedOctopus } from "../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers.js";
 export type RelayResolverInterfaceTestRedOctopusColorQuery$variables = {||};
 export type RelayResolverInterfaceTestRedOctopusColorQuery$data = {|

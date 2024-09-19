@@ -148,7 +148,10 @@ pub enum ValidationMessage {
     },
 
     #[error("Expected variable `${0}` to be defined on the operation")]
-    ExpectedOperationVariableToBeDefined(VariableName),
+    ExpectedOperationVariableToBeDefinedOnUnnamedQuery(VariableName),
+
+    #[error("Expected variable `${0}` to be defined on the operation '{1}'")]
+    ExpectedOperationVariableToBeDefined(VariableName, StringKey),
 
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"

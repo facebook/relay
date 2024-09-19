@@ -9,7 +9,7 @@ query QueryWithUnusedVariable {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Expected variable `$id2` to be defined on the operation
+✖︎ Expected variable `$id2` to be defined on the operation 'QueryWithUnusedVariable'
 
   query-with-undefined-variable.invalid.graphql:6:19
     5 │   }
@@ -17,11 +17,27 @@ query QueryWithUnusedVariable {
       │                   ^^^^
     7 │     id
 
+  ℹ︎ The operation 'QueryWithUnusedVariable' is defined here
 
-✖︎ Expected variable `$id` to be defined on the operation
+  query-with-undefined-variable.invalid.graphql:2:7
+    1 │ #expected-to-throw
+    2 │ query QueryWithUnusedVariable {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   node(id: $id) {
+
+
+✖︎ Expected variable `$id` to be defined on the operation 'QueryWithUnusedVariable'
 
   query-with-undefined-variable.invalid.graphql:3:12
     2 │ query QueryWithUnusedVariable {
     3 │   node(id: $id) {
       │            ^^^
     4 │     id
+
+  ℹ︎ The operation 'QueryWithUnusedVariable' is defined here
+
+  query-with-undefined-variable.invalid.graphql:2:7
+    1 │ #expected-to-throw
+    2 │ query QueryWithUnusedVariable {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   node(id: $id) {

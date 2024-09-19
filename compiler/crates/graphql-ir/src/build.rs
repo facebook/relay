@@ -423,13 +423,28 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             Err(self
                 .used_variables
                 .iter()
-                .map(|(undefined_variable, usage)| {
-                    Diagnostic::error(
+                .map(|(undefined_variable, usage)| match operation.name {
+                    Some(operation_name) => Diagnostic::error(
                         ValidationMessage::ExpectedOperationVariableToBeDefined(
+                            *undefined_variable,
+                            operation_name.value,
+                        ),
+                        self.location.with_span(usage.span),
+                    )
+                    .annotate(
+                        format!("The operation '{}' is defined here", operation_name.value),
+                        self.location.with_span(operation_name.span),
+                    ),
+                    None => Diagnostic::error(
+                        ValidationMessage::ExpectedOperationVariableToBeDefinedOnUnnamedQuery(
                             *undefined_variable,
                         ),
                         self.location.with_span(usage.span),
                     )
+                    .annotate(
+                        "The unnamed operation is defined here",
+                        self.location.with_span(operation.location.span()),
+                    ),
                 })
                 .collect())
         } else {

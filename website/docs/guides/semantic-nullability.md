@@ -9,10 +9,6 @@ keywords:
 - semanticNonNull
 ---
 
-:::warning
-**Experimental**: Because Strict Semantic Nullability is still in flux, the implementation and behavior within Relay are subject to change and may have unexpected behavior as we learn more about the idea and its implications.
-:::
-
 ## Motivation
 
 One of GraphQL's strengths is its field-granular error handling which can dramatically improve response resiliency. However, today that error handling depends upon field nullability, which is the reason it is a [recommended best practice](https://graphql.org/learn/best-practices/#nullability) to default all fields to being nullable. This creates a trade-off where __enabling maximum resiliency means client developers must manually handle all possible permutations of field nullability__ within their components. [`@required`](./required-directive.md) can help a bit, but is ultimately a very blunt tool.
@@ -79,6 +75,13 @@ function UserComponent(props: Props) {
 
 For a hands on example, see [this example project](https://github.com/captbaritone/grats-relay-example/pull/1) showing Relay configured to use `@semanticNonNull` and `@throwOnFieldError` alongside [Grats](https://grats.capt.dev/) which [has support](https://grats.capt.dev/docs/guides/strict-semantic-nullability/) for automatically deriving a schema that includes the experimental `@semanticNonNull` directives.
 
+## GraphQL Conf Talk
+
+The Relay team gave a talk at GraphQL Conf 2024 about semantic nullability. You can watch it here:
+
+<iframe src="https://www.youtube-nocookie.com/embed/kVYlplb1gKk" width={640} height={360} allowFullScreen={true} frameBorder="0" />
+
+
 ## Further Reading
 
 - [True Nullability Schema](https://github.com/graphql/graphql-wg/discussions/1394)
@@ -87,3 +90,4 @@ For a hands on example, see [this example project](https://github.com/captbarito
 - [Grat's support/documentation for `@SemanticNonNull`](https://grats.capt.dev/docs/guides/strict-semantic-nullability/)
 - [Apollo's specification for this directive](https://specs.apollo.dev/nullability/v0.2/)
 - [Support for `@SemanticNonNull` in Apollo Kotlin](https://www.apollographql.com/docs/kotlin/v4/advanced/nullability/#handle-semantic-non-null-with-semanticnonnull) added in [4.0.0-beta.3](https://github.com/apollographql/apollo-kotlin/releases/tag/v4.0.0-beta.3)
+- [Awesome Semantic Nullability](https://github.com/captbaritone/awesome-semantic-nullability) a list of frameworks and stand alone tools that support semantic nullability

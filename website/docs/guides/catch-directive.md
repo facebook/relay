@@ -175,3 +175,9 @@ default argument - which means you can write either `@catch` or
 
 `@catch(to: NULL)` will provide you with the exact same behavior as existed
 before `@catch` was possible. The field will be null if it contains an error.
+
+## GraphQL Conf Talk
+
+The Relay team gave a talk at GraphQL Conf 2024 about `@catch` and explicit error handling in Relay. You can watch it here:
+
+<iframe src="https://www.youtube-nocookie.com/embed/_TSYKAtaK5A" width={640} height={360} allowFullScreen={true} frameBorder="0" />

@@ -128,6 +128,8 @@ fn validate_variables(
     }
 }
 
+// Diagnostics in the Ok case will not prevent later passes (like transforms) to be run.
+// Diagnostics in the Err case will stop compilation an no more passes will be run.
 fn transform_errors(
     output: Result<Vec<()>, Vec<common::Diagnostic>>,
     project_config: &ProjectConfig,

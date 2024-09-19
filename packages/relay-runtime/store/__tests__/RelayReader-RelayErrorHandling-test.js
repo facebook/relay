@@ -54,12 +54,13 @@ describe('RelayReader error fields', () => {
     expect(errorResponseFields).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest1Query',
-        path: 'me.lastName',
+        fieldPath: 'me.lastName',
         error: {
           message: 'There was an error!',
           path: ['me', 'lastName'],
         },
-        type: 'PAYLOAD_ERROR',
+        kind: 'relay_field_payload.error',
+        shouldThrow: false,
       },
     ]);
   });
@@ -104,21 +105,18 @@ describe('RelayReader error fields', () => {
     expect(errorResponseFields).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest4Query',
-        path: 'me.lastName',
-        type: 'PAYLOAD_ERROR',
+        fieldPath: 'me.lastName',
+        kind: 'relay_field_payload.error',
         error: {
           message: 'There was an error!',
           path: ['me', 'lastName'],
         },
+        shouldThrow: true,
       },
       {
         owner: 'RelayReaderRelayErrorHandlingTest4Query',
-        path: '',
-        type: 'MISSING_DATA',
-        error: {
-          message:
-            'Relay: Missing data for one or more fields in RelayReaderRelayErrorHandlingTest4Query',
-        },
+        fieldPath: '',
+        kind: 'missing_expected_data.throw',
       },
     ]);
   });

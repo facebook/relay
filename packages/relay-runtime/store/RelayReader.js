@@ -337,7 +337,17 @@ class RelayReader {
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
-    let errors = this._errorResponseFields?.map(error => error.error);
+    let errors = this._errorResponseFields?.map(error => {
+      switch (error.kind) {
+        case 'relay_field_payload.error':
+          return error.error;
+        case 'missing_expected_data.throw':
+        case 'missing_expected_data.log':
+          return {
+            message: `Relay: Missing data for one or more fields in ${error.owner}`,
+          };
+      }
+    });
 
     if (this._resolverErrors.length > 0) {
       if (errors == null) {

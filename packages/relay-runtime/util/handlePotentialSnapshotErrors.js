@@ -49,7 +49,7 @@ function handleFieldErrors(
   for (const fieldError of errorResponseFields) {
     const {path, owner, error} = fieldError;
     if (fieldError.type === 'MISSING_DATA') {
-      // _logMissingData(environment, shouldThrow);
+      logMissingData(environment, shouldThrow);
     } else {
       environment.relayFieldLogger({
         kind: 'relay_field_payload.error',
@@ -69,7 +69,7 @@ function handleFieldErrors(
   }
 }
 
-function _logMissingData(environment: IEnvironment, throwing: boolean) {
+function logMissingData(environment: IEnvironment, throwing: boolean) {
   if (!throwing) {
     environment.relayFieldLogger({
       kind: 'missing_expected_data.log',
@@ -122,7 +122,7 @@ function handleMissingDataError(
   environment: IEnvironment,
   throwOnFieldErrorDirective: boolean,
 ) {
-  // _logMissingData(environment, throwOnFieldErrorDirective);
+  logMissingData(environment, throwOnFieldErrorDirective);
 
   if (throwOnFieldErrorDirective) {
     throw new RelayFieldError(`Relay: Missing data for one or more fields`);

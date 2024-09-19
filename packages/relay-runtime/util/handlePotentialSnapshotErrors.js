@@ -129,7 +129,8 @@ function handlePotentialSnapshotErrors(
     handleMissingRequiredFields(environment, missingRequiredFields);
   }
 
-  /* inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
+  /**
+   * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
    * which is why this still should run in any case there's errors.
    */
   if (errorResponseFields != null) {

@@ -122,13 +122,6 @@ type FieldLocation = {
   owner: string,
 };
 
-type ErrorFieldLocation = {
-  ...FieldLocation,
-  error: TRelayFieldError,
-  type: FieldErrorType,
-  to?: CatchFieldTo,
-};
-
 export type MissingRequiredFields = $ReadOnly<
   | {action: 'THROW', field: FieldLocation}
   | {action: 'LOG', fields: Array<FieldLocation>},

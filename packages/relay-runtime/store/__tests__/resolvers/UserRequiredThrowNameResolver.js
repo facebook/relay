@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {UserRequiredNameResolver$key} from './__generated__/UserRequiredNameResolver.graphql';
+import type {UserRequiredThrowNameResolver$key} from './__generated__/UserRequiredThrowNameResolver.graphql';
 
 const invariant = require('invariant');
 const {graphql} = require('relay-runtime');
@@ -27,7 +27,9 @@ const requiredThrowNameCalls: {count: number} = {count: 0};
  * @RelayResolver User.required_throw_name: String
  * @rootFragment UserRequiredThrowNameResolver
  */
-function required_name(rootKey: UserRequiredNameResolver$key): string {
+function required_throw_name(
+  rootKey: UserRequiredThrowNameResolver$key,
+): string {
   const user = readFragment(
     graphql`
       fragment UserRequiredThrowNameResolver on User {
@@ -45,6 +47,6 @@ function required_name(rootKey: UserRequiredNameResolver$key): string {
 }
 
 module.exports = {
-  required_name,
+  required_throw_name,
   requiredThrowNameCalls,
 };

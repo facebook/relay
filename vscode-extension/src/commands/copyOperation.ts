@@ -15,12 +15,12 @@ export function handleCopyOperation(context: RelayExtensionContext): void {
 
   if (binaryVersion) {
     const isSupportedCompilerVersion =
-      semver.satisfies(binaryVersion, '>17.0') ||
+      semver.satisfies(binaryVersion, '>18.0') ||
       semver.prerelease(binaryVersion) != null;
 
     if (!isSupportedCompilerVersion) {
       window.showWarningMessage(
-        'Unsupported relay-compiler version. Requires >17.0.0',
+        'Unsupported relay-compiler version. Requires >18.0.0',
       );
       return;
     }

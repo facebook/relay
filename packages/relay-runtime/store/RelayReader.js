@@ -215,38 +215,29 @@ class RelayReader {
     }
     for (const error of errors) {
       this._errorResponseFields.push({
+        kind: 'relay_field_payload.error',
         owner,
-        path: (error.path ?? []).join('.'),
-        type: 'PAYLOAD_ERROR',
+        fieldPath: (error.path ?? []).join('.'),
         error,
+        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
       });
     }
   }
 
   _markDataAsMissing(): void {
-    // We want to mark multiple missing_data - but not duplicate ones.
-    const alreadyInErrors = Boolean(
-      this._errorResponseFields?.some(
-        err => err.owner === this._fragmentName && err.type === 'MISSING_DATA',
-      ),
-    );
-
-    if (!alreadyInErrors) {
-      if (this._errorResponseFields == null) {
-        this._errorResponseFields = [];
-      }
-      this._errorResponseFields.push({
-        owner: this._fragmentName,
-        // we will add the path later
-        path: '',
-        type: 'MISSING_DATA',
-        error: {
-          message:
-            'Relay: Missing data for one or more fields in ' +
-            this._fragmentName,
-        },
-      });
+    if (this._errorResponseFields == null) {
+      this._errorResponseFields = [];
     }
+
+    // we will add the path later
+    const fieldPath = '';
+    const owner = this._fragmentName;
+
+    this._errorResponseFields.push(
+      this._selector.node.metadata?.throwOnFieldError ?? false
+        ? {kind: 'missing_expected_data.throw', owner, fieldPath}
+        : {kind: 'missing_expected_data.log', owner, fieldPath},
+    );
 
     this._isMissingData = true;
 
@@ -346,7 +337,24 @@ class RelayReader {
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
-    let errors = this._errorResponseFields?.map(error => error.error);
+    let errors = this._errorResponseFields?.map(error => {
+      switch (error.kind) {
+        case 'relay_field_payload.error':
+          return error.error;
+        case 'missing_expected_data.throw':
+        case 'missing_expected_data.log':
+          return {
+            message: `Relay: Missing data for one or more fields in ${error.owner}`,
+          };
+        default:
+          (error.kind: empty);
+          invariant(
+            false,
+            'Unexpected error errorResponseField kind: %s',
+            error.kind,
+          );
+      }
+    });
 
     if (this._resolverErrors.length > 0) {
       if (errors == null) {

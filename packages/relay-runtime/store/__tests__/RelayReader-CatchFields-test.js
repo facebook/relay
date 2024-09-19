@@ -140,13 +140,14 @@ describe('RelayReader @catch', () => {
 
       expect(errorResponseFields).toEqual([
         {
-          path: 'me.lastName',
+          fieldPath: 'me.lastName',
           error: {
             message: 'There was an error!',
             path: ['me', 'lastName'],
           },
           owner: 'RelayReaderCatchFieldsTestSiblingErrorQuery',
-          type: 'PAYLOAD_ERROR',
+          kind: 'relay_field_payload.error',
+          shouldThrow: false,
         },
       ]);
     });

@@ -32,7 +32,6 @@ import type {
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
 import type {
-  CatchFieldTo,
   ReaderClientEdgeToServerObject,
   ReaderFragment,
   ReaderLinkedField,
@@ -122,19 +121,16 @@ type FieldLocation = {
   owner: string,
 };
 
-type ErrorFieldLocation = {
-  ...FieldLocation,
-  error: TRelayFieldError,
-  type: FieldErrorType,
-  to?: CatchFieldTo,
-};
-
 export type MissingRequiredFields = $ReadOnly<
   | {action: 'THROW', field: FieldLocation}
   | {action: 'LOG', fields: Array<FieldLocation>},
 >;
 
-export type ErrorResponseFields = Array<ErrorFieldLocation>;
+export type ErrorResponseFields = Array<
+  | RelayFieldPayloadErrorEvent
+  | MissingExpectedDataLogEvent
+  | MissingExpectedDataThrowEvent,
+>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -1361,8 +1357,7 @@ export type RelayFieldPayloadErrorEvent = {
   +owner: string,
   +fieldPath: string,
   +error: TRelayFieldError,
-  // TODO: Should we add `shouldThrow` as a flag here, or perhaps have two
-  // different event types?
+  +shouldThrow: boolean,
 };
 
 /**

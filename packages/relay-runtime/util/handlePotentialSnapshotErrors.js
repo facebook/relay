@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {TRelayFieldError} from '../store/RelayErrorTrie';
 import type {
   ErrorResponseFields,
   IEnvironment,
@@ -47,43 +48,31 @@ function handleFieldErrors(
   shouldThrow: boolean,
 ) {
   for (const fieldError of errorResponseFields) {
-    const {path, owner, error} = fieldError;
-    if (fieldError.type === 'MISSING_DATA') {
-      logMissingData(environment, shouldThrow);
-    } else {
-      environment.relayFieldLogger({
-        kind: 'relay_field_payload.error',
-        owner: owner,
-        fieldPath: path,
-        error,
-      });
-    }
+    // First we log all events. Note that the logger may opt to throw its own
+    // error here if it wants to throw an error that is better integrated into
+    // site's error handling infrastructure.
+    environment.relayFieldLogger(fieldError);
   }
 
   // when a user adds the throwOnFieldError flag, they opt into also throwing on missing fields.
   if (shouldThrow) {
     throw new RelayFieldError(
       `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
-      errorResponseFields.map(({error}) => error),
+      errorResponseFields.map((event): TRelayFieldError => {
+        switch (event.kind) {
+          case 'relay_field_payload.error':
+            return event.error;
+          case 'missing_expected_data.throw':
+            return {message: 'Missing expected data'};
+          case 'missing_expected_data.log':
+            return {message: 'Missing expected data'};
+          default:
+            (event.kind: empty);
+            throw new Error('Relay: Unexpected event kind');
+        }
+      }),
     );
   }
-}
-
-function logMissingData(environment: IEnvironment, throwing: boolean) {
-  if (!throwing) {
-    environment.relayFieldLogger({
-      kind: 'missing_expected_data.log',
-      owner: '',
-      fieldPath: '',
-    });
-    return;
-  }
-
-  environment.relayFieldLogger({
-    kind: 'missing_expected_data.throw',
-    owner: '',
-    fieldPath: '',
-  });
 }
 
 function handleMissingRequiredFields(
@@ -118,17 +107,6 @@ function handleMissingRequiredFields(
   }
 }
 
-function handleMissingDataError(
-  environment: IEnvironment,
-  throwOnFieldErrorDirective: boolean,
-) {
-  logMissingData(environment, throwOnFieldErrorDirective);
-
-  if (throwOnFieldErrorDirective) {
-    throw new RelayFieldError(`Relay: Missing data for one or more fields`);
-  }
-}
-
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   missingRequiredFields: ?MissingRequiredFields,
@@ -136,15 +114,6 @@ function handlePotentialSnapshotErrors(
   errorResponseFields: ?ErrorResponseFields,
   throwOnFieldError: boolean,
 ) {
-  const onlyHasMissingDataErrors = Boolean(
-    errorResponseFields?.every(field => field.type === 'MISSING_DATA'),
-  );
-
-  // if isMissingData is the only error - we should throw that separately
-  if (onlyHasMissingDataErrors) {
-    handleMissingDataError(environment, throwOnFieldError);
-  }
-
   if (relayResolverErrors.length > 0) {
     handleResolverErrors(environment, relayResolverErrors, throwOnFieldError);
   }
@@ -153,10 +122,11 @@ function handlePotentialSnapshotErrors(
     handleMissingRequiredFields(environment, missingRequiredFields);
   }
 
-  /* inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
+  /**
+   * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
    * which is why this still should run in any case there's errors.
    */
-  if (errorResponseFields != null && !onlyHasMissingDataErrors) {
+  if (errorResponseFields != null) {
     handleFieldErrors(environment, errorResponseFields, throwOnFieldError);
   }
 }

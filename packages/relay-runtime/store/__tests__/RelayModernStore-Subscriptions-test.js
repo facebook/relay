@@ -419,13 +419,14 @@ function cloneEventWithSets(event: LogEvent) {
           isMissingData: true,
           errorResponseFields: [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
-              },
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+            },
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
           ],
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
@@ -468,13 +469,14 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           errorResponseFields: [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
-              },
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+            },
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
           ],
           missingLiveResolverFields: [],

@@ -15,6 +15,9 @@ import type {Snapshot} from '../RelayStoreTypes';
 const {
   constant_dependent: UserConstantDependentResolver,
 } = require('./resolvers/UserConstantDependentResolver');
+const {
+  requiredThrowNameCalls,
+} = require('./resolvers/UserRequiredThrowNameResolver');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
@@ -345,6 +348,50 @@ describe.each([true, false])(
               path: 'me.lastName',
             },
           ],
+        });
+      });
+
+      it('propagates @required(action: THROW) errors from the resolver up to the reader and avoid calling resolver code', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            me: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+            name: null, // The missing field
+          },
+        });
+        const FooQuery = graphql`
+          query RelayReaderResolverTestRequiredThrowQuery {
+            me {
+              required_throw_name
+            }
+          }
+        `;
+
+        const operation = createOperationDescriptor(FooQuery, {});
+        const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+
+        const beforeCallCount = requiredThrowNameCalls.count;
+        const {missingRequiredFields} = store.lookup(operation.fragment);
+        expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
+        expect(missingRequiredFields).toEqual({
+          action: 'THROW',
+          field: {owner: 'UserRequiredThrowNameResolver', path: 'name'},
+        });
+
+        // Lookup a second time to ensure that we still report the missing fields when
+        // reading from the cache.
+        const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
+          store.lookup(operation.fragment);
+
+        expect(missingRequiredFieldsTakeTwo).toEqual({
+          action: 'THROW',
+          field: {owner: 'UserRequiredThrowNameResolver', path: 'name'},
         });
       });
 

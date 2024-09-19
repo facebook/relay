@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {MissingRequiredFields} from '..';
 import type {
   ReaderRelayLiveResolver,
   ReaderRelayResolver,
@@ -51,6 +52,7 @@ export type EvaluationResult<T> = {
 export type ResolverFragmentResult = {
   data: mixed,
   isMissingData: boolean,
+  missingRequiredFields: ?MissingRequiredFields,
 };
 
 export type GetDataForResolverFragmentFn =

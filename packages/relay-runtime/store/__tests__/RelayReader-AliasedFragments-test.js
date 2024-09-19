@@ -1039,16 +1039,14 @@ describe('Inline Fragments', () => {
       source,
       operation.fragment,
     );
-    expect(missingRequiredFields).toEqual({
-      action: 'LOG',
-      fields: [
-        {
-          owner:
-            'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
-          path: 'node.aliased_fragment.name',
-        },
-      ],
-    });
+    expect(missingRequiredFields).toEqual([
+      {
+        kind: 'missing_required_field.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
+        fieldPath: 'node.aliased_fragment.name',
+      },
+    ]);
     expect(isMissingData).toBe(true);
     expect(data).toEqual({
       node: {
@@ -1095,16 +1093,14 @@ describe('Inline Fragments', () => {
       source,
       operation.fragment,
     );
-    expect(missingRequiredFields).toEqual({
-      action: 'LOG',
-      fields: [
-        {
-          owner:
-            'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
-          path: 'node.aliased_fragment.name',
-        },
-      ],
-    });
+    expect(missingRequiredFields).toEqual([
+      {
+        kind: 'missing_required_field.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
+        fieldPath: 'node.aliased_fragment.name',
+      },
+    ]);
     expect(isMissingData).toBe(true);
     expect(data).toEqual({
       node: {

@@ -154,7 +154,18 @@ describe('RelayReader @required', () => {
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, missingRequiredFields} = read(source, operation.fragment);
     expect(data).toEqual(null);
-    expect(missingRequiredFields.field.path).toBe('me.lastName');
+    expect(missingRequiredFields).toEqual([
+      {
+        kind: 'missing_required_field.throw',
+        owner: 'RelayReaderRequiredFieldsTest3Query',
+        fieldPath: 'me.lastName',
+      },
+      {
+        kind: 'missing_required_field.throw',
+        owner: 'RelayReaderRequiredFieldsTest3Query',
+        fieldPath: 'me',
+      },
+    ]);
   });
 
   it('bubbles @required(action: LOG) scalars up to LinkedField even if subsequent fields are not unexpectedly null', () => {
@@ -961,13 +972,13 @@ describe('RelayReader @required', () => {
         operation.fragment,
         resolverCache,
       );
-      expect(missingRequiredFields).toEqual({
-        action: 'THROW',
-        field: {
+      expect(missingRequiredFields).toEqual([
+        {
+          kind: 'missing_required_field.throw',
           owner: 'RelayReaderRequiredFieldsTest25Query',
-          path: 'me.client_object',
+          fieldPath: 'me.client_object',
         },
-      });
+      ]);
     });
 
     test('does not throw when required field is present', () => {

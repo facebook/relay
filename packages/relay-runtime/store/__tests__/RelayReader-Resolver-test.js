@@ -246,20 +246,26 @@ describe.each([true, false])(
         const operation = createOperationDescriptor(FooQuery, {});
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
         const {missingRequiredFields} = store.lookup(operation.fragment);
-        expect(missingRequiredFields).toEqual({
-          action: 'LOG',
-          fields: [{owner: 'UserRequiredNameResolver', path: 'name'}],
-        });
+        expect(missingRequiredFields).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+        ]);
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
         const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
           store.lookup(operation.fragment);
 
-        expect(missingRequiredFieldsTakeTwo).toEqual({
-          action: 'LOG',
-          fields: [{owner: 'UserRequiredNameResolver', path: 'name'}],
-        });
+        expect(missingRequiredFieldsTakeTwo).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+        ]);
       });
 
       it('propagates missing data errors from the resolver up to the reader', () => {
@@ -324,32 +330,36 @@ describe.each([true, false])(
         const operation = createOperationDescriptor(FooQuery, {});
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
         const {missingRequiredFields} = store.lookup(operation.fragment);
-        expect(missingRequiredFields).toEqual({
-          action: 'LOG',
-          fields: [
-            {owner: 'UserRequiredNameResolver', path: 'name'},
-            {
-              owner: 'RelayReaderResolverTestRequiredWithParentQuery',
-              path: 'me.lastName',
-            },
-          ],
-        });
+        expect(missingRequiredFields).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+          {
+            kind: 'missing_required_field.log',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            fieldPath: 'me.lastName',
+          },
+        ]);
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
         const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
           store.lookup(operation.fragment);
 
-        expect(missingRequiredFieldsTakeTwo).toEqual({
-          action: 'LOG',
-          fields: [
-            {owner: 'UserRequiredNameResolver', path: 'name'},
-            {
-              owner: 'RelayReaderResolverTestRequiredWithParentQuery',
-              path: 'me.lastName',
-            },
-          ],
-        });
+        expect(missingRequiredFieldsTakeTwo).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+          {
+            kind: 'missing_required_field.log',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            fieldPath: 'me.lastName',
+          },
+        ]);
       });
 
       it('propagates @required(action: THROW) errors from the resolver up to the reader and avoid calling resolver code', () => {

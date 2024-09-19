@@ -25,7 +25,7 @@ describe('handlePotentialSnapshotErrors', () => {
 
   it('should not throw in default case', () => {
     expect(() => {
-      handlePotentialSnapshotErrors(environment, null, null, false);
+      handlePotentialSnapshotErrors(environment, null, false);
     }).not.toThrow();
   });
 
@@ -34,11 +34,13 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          {
-            action: 'THROW',
-            field: {owner: 'testOwner', path: 'testPath'},
-          },
-          null,
+          [
+            {
+              kind: 'missing_required_field.throw',
+              owner: 'testOwner',
+              fieldPath: 'testPath',
+            },
+          ],
           false /* throwOnFieldError */,
         );
       }).toThrowError(
@@ -50,11 +52,12 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          {
-            action: 'THROW',
-            field: {owner: 'testOwner', path: 'testPath'},
-          },
           [
+            {
+              kind: 'missing_required_field.throw',
+              owner: 'testOwner',
+              fieldPath: 'testPath',
+            },
             {
               kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
@@ -72,11 +75,12 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          {
-            action: 'THROW',
-            field: {owner: 'testOwner', path: 'testPath'},
-          },
           [
+            {
+              kind: 'missing_required_field.throw',
+              owner: 'testOwner',
+              fieldPath: 'testPath',
+            },
             {
               kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
@@ -104,11 +108,13 @@ describe('handlePotentialSnapshotErrors', () => {
     it('logs', () => {
       handlePotentialSnapshotErrors(
         environment,
-        {
-          action: 'LOG',
-          fields: [{owner: 'testOwner', path: 'testPath'}],
-        },
-        null,
+        [
+          {
+            kind: 'missing_required_field.log',
+            owner: 'testOwner',
+            fieldPath: 'testPath',
+          },
+        ],
         false /* throwOnFieldError */,
       );
 
@@ -126,7 +132,6 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'missing_expected_data.throw',
@@ -152,7 +157,6 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'missing_expected_data.log',
@@ -176,7 +180,6 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'missing_expected_data.log',
@@ -202,7 +205,6 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'missing_expected_data.log',
@@ -219,7 +221,6 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'relay_field_payload.error',
@@ -255,7 +256,6 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'relay_field_payload.error',
@@ -300,7 +300,6 @@ describe('handlePotentialSnapshotErrors', () => {
     it('logs', () => {
       handlePotentialSnapshotErrors(
         environment,
-        null,
         [
           {
             kind: 'relay_field_payload.error',
@@ -336,7 +335,6 @@ describe('handlePotentialSnapshotErrors', () => {
         // in this case, the MISSING_DATA error is thrown *with* the others
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'relay_field_payload.error',
@@ -388,7 +386,6 @@ describe('handlePotentialSnapshotErrors', () => {
     it('logs when explicit error handling disabled', () => {
       handlePotentialSnapshotErrors(
         environment,
-        null,
         [
           {
             kind: 'relay_resolver.error',
@@ -415,7 +412,6 @@ describe('handlePotentialSnapshotErrors', () => {
       expect(() => {
         handlePotentialSnapshotErrors(
           environment,
-          null,
           [
             {
               kind: 'relay_resolver.error',

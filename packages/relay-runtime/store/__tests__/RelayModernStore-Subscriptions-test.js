@@ -369,7 +369,6 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
-          missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: false,
           errorResponseFields: null,
@@ -414,8 +413,6 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingRequiredFields: null,
-          missingLiveResolverFields: [],
           isMissingData: true,
           errorResponseFields: [
             {
@@ -466,7 +463,6 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingRequiredFields: null,
           errorResponseFields: [
             {
               fieldPath: '',

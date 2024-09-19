@@ -561,7 +561,6 @@ class FragmentResourceImpl {
       snapshot.forEach(s => {
         handlePotentialSnapshotErrors(
           this._environment,
-          s.missingRequiredFields,
           s.errorResponseFields,
           s.selector.node.metadata?.throwOnFieldError ?? false,
         );
@@ -569,7 +568,6 @@ class FragmentResourceImpl {
     } else {
       handlePotentialSnapshotErrors(
         this._environment,
-        snapshot.missingRequiredFields,
         snapshot.errorResponseFields,
         snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
@@ -771,7 +769,6 @@ class FragmentResourceImpl {
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      missingRequiredFields: currentSnapshot.missingRequiredFields,
       errorResponseFields: currentSnapshot.errorResponseFields,
     };
     if (updatedData !== renderData) {

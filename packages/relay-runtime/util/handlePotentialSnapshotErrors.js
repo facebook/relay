@@ -12,11 +12,7 @@
 'use strict';
 
 import type {TRelayFieldError} from '../store/RelayErrorTrie';
-import type {
-  ErrorResponseFields,
-  IEnvironment,
-  MissingRequiredFields,
-} from '../store/RelayStoreTypes';
+import type {ErrorResponseFields, IEnvironment} from '../store/RelayStoreTypes';
 
 const {RelayFieldError} = require('../store/RelayErrorTrie');
 
@@ -48,6 +44,16 @@ function handleFieldErrors(
             return {
               message: `Relay: Unexpected resolver exception: ${event.error.message}`,
             };
+          case 'missing_required_field.throw':
+            return {
+              message: `Missing required field with THROW at path '${event.fieldPath}' in '${event.owner}'`,
+            };
+
+          // TODO: Avoid throwing
+          case 'missing_required_field.log':
+            return {
+              message: `Missing required field with LOG at path '${event.fieldPath}' in '${event.owner}'`,
+            };
           default:
             (event.kind: empty);
             throw new Error('Relay: Unexpected event kind');
@@ -57,48 +63,11 @@ function handleFieldErrors(
   }
 }
 
-function handleMissingRequiredFields(
-  environment: IEnvironment,
-  missingRequiredFields: MissingRequiredFields,
-) {
-  switch (missingRequiredFields.action) {
-    case 'THROW': {
-      const {path, owner} = missingRequiredFields.field;
-      // This gives the consumer the chance to throw their own error if they so wish.
-      environment.relayFieldLogger({
-        kind: 'missing_required_field.throw',
-        owner,
-        fieldPath: path,
-      });
-      throw new Error(
-        `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-      );
-    }
-    case 'LOG':
-      missingRequiredFields.fields.forEach(({path, owner}) => {
-        environment.relayFieldLogger({
-          kind: 'missing_required_field.log',
-          owner,
-          fieldPath: path,
-        });
-      });
-      break;
-    default: {
-      (missingRequiredFields.action: empty);
-    }
-  }
-}
-
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
-  missingRequiredFields: ?MissingRequiredFields,
   errorResponseFields: ?ErrorResponseFields,
   throwOnFieldError: boolean,
 ) {
-  if (missingRequiredFields != null) {
-    handleMissingRequiredFields(environment, missingRequiredFields);
-  }
-
   /**
    * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
    * which is why this still should run in any case there's errors.

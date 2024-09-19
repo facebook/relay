@@ -85,7 +85,6 @@ function handlePotentialSnapshotErrorsForState(
   if (state.kind === 'singular') {
     handlePotentialSnapshotErrors(
       environment,
-      state.snapshot.missingRequiredFields,
       state.snapshot.errorResponseFields,
       state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
@@ -93,7 +92,6 @@ function handlePotentialSnapshotErrorsForState(
     for (const snapshot of state.snapshots) {
       handlePotentialSnapshotErrors(
         environment,
-        snapshot.missingRequiredFields,
         snapshot.errorResponseFields,
         snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );

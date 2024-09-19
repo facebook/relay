@@ -179,10 +179,13 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
     },
     afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({counter_plus_one: undefined});
-      expect(snapshot.missingRequiredFields).toEqual({
-        action: 'THROW',
-        field: {owner: 'CounterPlusOneResolver', path: 'counter'},
-      });
+      expect(snapshot.errorResponseFields).toEqual([
+        {
+          kind: 'missing_required_field.throw',
+          owner: 'CounterPlusOneResolver',
+          fieldPath: 'counter',
+        },
+      ]);
       expect(recordIdsInStore).toEqual([
         'client:root',
         'client:root:counter',

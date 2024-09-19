@@ -181,10 +181,7 @@ describe('RelayReader @catch', () => {
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
+      const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         alsoMe: null,
         me: {
@@ -198,16 +195,13 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      expect(errorResponseFields).toEqual(null);
-      expect(missingRequiredFields).toEqual({
-        action: 'LOG',
-        fields: [
-          {
-            path: 'alsoMe.lastName',
-            owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
-          },
-        ],
-      });
+      expect(errorResponseFields).toEqual([
+        {
+          kind: 'missing_required_field.log',
+          fieldPath: 'alsoMe.lastName',
+          owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
+        },
+      ]);
     });
 
     it('@catch(to: NULL) catching a @required(action: THROW) returns null', () => {
@@ -233,16 +227,12 @@ describe('RelayReader @catch', () => {
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
+      const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         me: null,
       });
 
       expect(errorResponseFields).toEqual(null);
-      expect(missingRequiredFields).toEqual(null);
     });
 
     it('@catch(to: NULL) catching missing data returns null', () => {
@@ -268,8 +258,10 @@ describe('RelayReader @catch', () => {
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields, isMissingData} =
-        read(source, operation.fragment);
+      const {data, errorResponseFields, isMissingData} = read(
+        source,
+        operation.fragment,
+      );
 
       // TODO: This should really be: {me: null}
       expect(data).toEqual({
@@ -282,7 +274,6 @@ describe('RelayReader @catch', () => {
       expect(isMissingData).toEqual(true);
 
       expect(errorResponseFields).toEqual(null);
-      expect(missingRequiredFields).toEqual(null);
     });
 
     it('if scalar has catch to RESULT - but no error, response should reflect', () => {
@@ -427,10 +418,7 @@ describe('RelayReader @catch', () => {
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
+      const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         me: {
           errors: [
@@ -443,7 +431,6 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      expect(missingRequiredFields).toBeNull();
       expect(errorResponseFields).toEqual(null);
     });
   });

@@ -116,21 +116,13 @@ export type NormalizationSelector = {
   +variables: Variables,
 };
 
-type FieldLocation = {
-  path: string,
-  owner: string,
-};
-
-export type MissingRequiredFields = $ReadOnly<
-  | {action: 'THROW', field: FieldLocation}
-  | {action: 'LOG', fields: Array<FieldLocation>},
->;
-
 export type ErrorResponseFields = Array<
   | RelayFieldPayloadErrorEvent
   | MissingExpectedDataLogEvent
   | MissingExpectedDataThrowEvent
-  | RelayResolverErrorEvent,
+  | RelayResolverErrorEvent
+  | MissingFieldLogEvent
+  | MissingFieldThrowEvent,
 >;
 
 export type ClientEdgeTraversalInfo = {
@@ -161,7 +153,6 @@ export type Snapshot = {
   +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
-  +missingRequiredFields: ?MissingRequiredFields,
   +errorResponseFields: ?ErrorResponseFields,
 };
 

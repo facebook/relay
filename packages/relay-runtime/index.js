@@ -134,7 +134,6 @@ export type {
   LogEvent,
   LogFunction,
   MissingFieldHandler,
-  MissingRequiredFields,
   ModuleImportPointer,
   MutableRecordSource,
   MutationParameters,

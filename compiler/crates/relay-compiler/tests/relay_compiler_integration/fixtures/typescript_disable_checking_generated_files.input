@@ -1,0 +1,23 @@
+//- foo.ts
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ */
+
+//- bar.ts
+graphql`fragment barFragment on User {
+   foo
+}`
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "eagerEsModules": true,
+   "featureFlags": {
+      "typescript_disable_checking_generated_files": false
+   }
+}
+
+//- schema.graphql
+type Query { user: User }
+type User { foo: String }

@@ -18,7 +18,7 @@ use serde::Serialize;
 
 use crate::Rollout;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
@@ -119,6 +119,10 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
 
+    /// Adds @ts-nocheck to generated Typescript Files
+    #[serde(default = "default_true")]
+    pub typescript_disable_checking_generated_files: bool,
+
     /// Disable full GraphQL argument type validation. Historically, we only applied argument type
     /// validation to the query that was actually going to be persisted and sent
     /// to the server. This meant that we didn't typecheck arguments passed to
@@ -137,6 +141,38 @@ pub struct FeatureFlags {
     /// Enable a custom path for artifacts
     #[serde(default)]
     pub enable_custom_artifacts_path: FeatureFlag,
+}
+
+impl Default for FeatureFlags {
+    fn default() -> Self {
+        Self {
+            enable_relay_resolver_transform: false,
+            relay_resolver_enable_interface_output_type: Default::default(),
+            no_inline: Default::default(),
+            enable_3d_branch_arg_generation: false,
+            actor_change_support: Default::default(),
+            text_artifacts: Default::default(),
+            skip_printing_nulls: Default::default(),
+            enforce_fragment_alias_where_ambiguous: Default::default(),
+            compact_query_text: Default::default(),
+            enable_resolver_normalization_ast: false,
+            enable_relay_resolver_mutations: false,
+            enable_strict_custom_scalars: false,
+            allow_resolvers_in_mutation_response: Default::default(),
+            allow_required_in_mutation_response: Default::default(),
+            disable_resolver_reader_ast: false,
+            enable_fragment_argument_transform: false,
+            allow_resolver_non_nullable_return_type: Default::default(),
+            disable_schema_validation: false,
+            prefer_fetchable_in_refetch_queries: false,
+            disable_edge_type_name_validation_on_declerative_connection_directives:
+                Default::default(),
+            typescript_disable_checking_generated_files: default_true(),
+            enable_exec_time_resolvers_directive: false,
+            disable_full_argument_type_validation: Default::default(),
+            enable_custom_artifacts_path: Default::default(),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]
@@ -184,4 +220,9 @@ impl Display for FeatureFlag {
             FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
         }
     }
+}
+
+// Returns true by default for the `typescript_disable_checking_generated_files` feature flag
+fn default_true() -> bool {
+    true
 }

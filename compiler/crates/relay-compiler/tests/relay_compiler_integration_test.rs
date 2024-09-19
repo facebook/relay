@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a187a561407aa9fb9576d43e789725b>>
+ * @generated SignedSource<<95c0bd13a358c7cec62c779db71d97ba>>
  */
 
 mod relay_compiler_integration;
@@ -402,6 +402,13 @@ async fn spread_multiple_interface_fragments_on_concrete_type() {
     let input = include_str!("relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.expected");
     test_fixture(transform_fixture, file!(), "spread_multiple_interface_fragments_on_concrete_type.input", "relay_compiler_integration/fixtures/spread_multiple_interface_fragments_on_concrete_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typescript_disable_checking_generated_files() {
+    let input = include_str!("relay_compiler_integration/fixtures/typescript_disable_checking_generated_files.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/typescript_disable_checking_generated_files.expected");
+    test_fixture(transform_fixture, file!(), "typescript_disable_checking_generated_files.input", "relay_compiler_integration/fixtures/typescript_disable_checking_generated_files.expected", input, expected).await;
 }
 
 #[tokio::test]

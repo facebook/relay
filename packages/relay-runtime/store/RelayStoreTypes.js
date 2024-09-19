@@ -400,6 +400,11 @@ export interface Store {
    * Get the current write epoch
    */
   getEpoch(): number;
+
+  /**
+   * Get the current operation loader if it exists
+   */
+  getOperationLoader(): ?OperationLoader;
 }
 
 export interface StoreSubscriptions {

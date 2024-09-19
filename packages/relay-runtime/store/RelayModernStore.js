@@ -164,6 +164,10 @@ class RelayModernStore implements Store {
     return this._optimisticSource ?? this._recordSource;
   }
 
+  getOperationLoader(): ?OperationLoader {
+    return this._operationLoader;
+  }
+
   _getMutableRecordSource(): MutableRecordSource {
     return this._optimisticSource ?? this._recordSource;
   }

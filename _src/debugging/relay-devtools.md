@@ -33,10 +33,10 @@ The internal version of devtools has the latest updates and the process of insta
 2. Get the path to this folder e.g `...\Extensions\<blob>\<version>\`
 3. On edge://extensions/ click load upacked (you might need to Allow extensions for other stores).
 
-### External version
+### External version (use at your own risk)
 
-The external version of devtools is less prone to bugs but does not always contain the latest updates and you have to download the extension from the chrome store.
-Follow this link and install it from the [chrome store](https://chrome.google.com/webstore/detail/relay-developer-tools/ncedobpgnmkhcmnnkcimnobpfepidadl).
+The external version of Dev Tools does not always contain the latest updates, it may stop working, potentially being restricted to be used or removed by corp device admin (via MDM).
+We recommend using the internal installation, but if you prefer, you may download the extension from the [Chrome store](https://chrome.google.com/webstore/detail/relay-developer-tools/ncedobpgnmkhcmnnkcimnobpfepidadl).
 
 </FbInternalOnly>
 

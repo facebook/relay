@@ -346,6 +346,13 @@ class RelayReader {
           return {
             message: `Relay: Missing data for one or more fields in ${error.owner}`,
           };
+        default:
+          (error.kind: empty);
+          invariant(
+            false,
+            'Unexpected error errorResponseField kind: %s',
+            error.kind,
+          );
       }
     });
 

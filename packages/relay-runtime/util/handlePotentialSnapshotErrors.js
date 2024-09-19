@@ -48,12 +48,15 @@ function handleFieldErrors(
   shouldThrow: boolean,
 ) {
   for (const fieldError of errorResponseFields) {
+    // We are currently suppressing missing data logs. We can remove this condition
+    // once we are ready to log missing data again.
     if (
-      fieldError.kind === 'missing_expected_data.log' ||
-      fieldError.kind === 'missing_expected_data.throw'
+      fieldError.kind !== 'missing_expected_data.log' &&
+      fieldError.kind !== 'missing_expected_data.throw'
     ) {
-      // _logMissingData(environment, shouldThrow);
-    } else {
+      // First we log all events. Note that the logger may opt to throw its own
+      // error here if it wants to throw an error that is better integrated into
+      // site's error handling infrastructure.
       environment.relayFieldLogger(fieldError);
     }
   }
@@ -77,23 +80,6 @@ function handleFieldErrors(
       }),
     );
   }
-}
-
-function _logMissingData(environment: IEnvironment, throwing: boolean) {
-  if (!throwing) {
-    environment.relayFieldLogger({
-      kind: 'missing_expected_data.log',
-      owner: '',
-      fieldPath: '',
-    });
-    return;
-  }
-
-  environment.relayFieldLogger({
-    kind: 'missing_expected_data.throw',
-    owner: '',
-    fieldPath: '',
-  });
 }
 
 function handleMissingRequiredFields(
@@ -128,17 +114,6 @@ function handleMissingRequiredFields(
   }
 }
 
-function handleMissingDataError(
-  environment: IEnvironment,
-  throwOnFieldErrorDirective: boolean,
-) {
-  // _logMissingData(environment, throwOnFieldErrorDirective);
-
-  if (throwOnFieldErrorDirective) {
-    throw new RelayFieldError(`Relay: Missing data for one or more fields`);
-  }
-}
-
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   missingRequiredFields: ?MissingRequiredFields,
@@ -146,19 +121,6 @@ function handlePotentialSnapshotErrors(
   errorResponseFields: ?ErrorResponseFields,
   throwOnFieldError: boolean,
 ) {
-  const onlyHasMissingDataErrors = Boolean(
-    errorResponseFields?.every(
-      field =>
-        field.kind === 'missing_expected_data.log' ||
-        field.kind === 'missing_expected_data.throw',
-    ),
-  );
-
-  // if isMissingData is the only error - we should throw that separately
-  if (onlyHasMissingDataErrors) {
-    handleMissingDataError(environment, throwOnFieldError);
-  }
-
   if (relayResolverErrors.length > 0) {
     handleResolverErrors(environment, relayResolverErrors, throwOnFieldError);
   }
@@ -170,7 +132,7 @@ function handlePotentialSnapshotErrors(
   /* inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
    * which is why this still should run in any case there's errors.
    */
-  if (errorResponseFields != null && !onlyHasMissingDataErrors) {
+  if (errorResponseFields != null) {
     handleFieldErrors(environment, errorResponseFields, throwOnFieldError);
   }
 }

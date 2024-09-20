@@ -68,7 +68,7 @@ const {
 } = require('./RelayStoreUtils');
 const {NoopResolverCache} = require('./ResolverCache');
 const {
-  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+  RESOLVER_FRAGMENT_ERRORED_SENTINEL,
   withResolverContext,
 } = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
@@ -661,6 +661,7 @@ class RelayReader {
         return {
           data: snapshot.data,
           isMissingData: snapshot.isMissingData,
+          missingRequiredFields: snapshot.missingRequiredFields,
         };
       }
 
@@ -673,6 +674,7 @@ class RelayReader {
       return {
         data: snapshot.data,
         isMissingData: snapshot.isMissingData,
+        missingRequiredFields: snapshot.missingRequiredFields,
       };
     };
 
@@ -729,7 +731,7 @@ class RelayReader {
       getDataForResolverFragment,
     );
 
-    this._propogateResolverMetadata(
+    this._propagateResolverMetadata(
       field.path,
       cachedSnapshot,
       resolverError,
@@ -744,7 +746,7 @@ class RelayReader {
   // Reading a resolver field can uncover missing data, errors, suspense,
   // additional seen records and updated dataIDs. All of these facts must be
   // represented in the snapshot we return for this fragment.
-  _propogateResolverMetadata(
+  _propagateResolverMetadata(
     fieldPath: string,
     cachedSnapshot: ?Snapshot,
     resolverError: ?Error,
@@ -1463,7 +1465,7 @@ function getResolverValue(
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {
-    if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
+    if (e === RESOLVER_FRAGMENT_ERRORED_SENTINEL) {
       resolverResult = undefined;
     } else {
       resolverError = e;

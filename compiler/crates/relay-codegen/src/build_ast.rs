@@ -8,6 +8,7 @@
 use std::path::PathBuf;
 
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
@@ -2248,9 +2249,22 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             fragment_prop_name: Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
             kind: Primitive::String(CODEGEN_CONSTANTS.module_import),
         };
+
+        let should_use_reader_module_imports =
+            match &self.project_config.feature_flags.use_reader_module_imports {
+                FeatureFlag::Enabled => true,
+                FeatureFlag::Disabled => false,
+                FeatureFlag::Limited {
+                    allowlist: fragment_names,
+                } => fragment_names.contains(&module_metadata.key),
+                FeatureFlag::Rollout { rollout } => {
+                    rollout.check(module_metadata.key.lookup().as_bytes())
+                }
+            };
+
         match self.variant {
             CodegenVariant::Reader => {
-                if module_metadata.read_time_resolvers {
+                if module_metadata.read_time_resolvers || should_use_reader_module_imports {
                     if let Some(dynamic_module_provider) = self
                         .project_config
                         .module_import_config

@@ -134,9 +134,14 @@ pub struct FeatureFlags {
     /// This flag will be removed in a future version of Relay.
     #[serde(default)]
     pub disable_full_argument_type_validation: FeatureFlag,
+
     /// Enable a custom path for artifacts
     #[serde(default)]
     pub enable_custom_artifacts_path: FeatureFlag,
+
+    /// Generate the `moduleImports` field in the Reader AST.
+    #[serde(default)]
+    pub use_reader_module_imports: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

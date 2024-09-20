@@ -13,6 +13,9 @@ type ClientUser {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 import clientUserNameResolverType from "bar";
+// Type assertion validating that `clientUserNameResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(clientUserNameResolverType satisfies () => unknown);
 export type MyFragment$data = {
   readonly name: NonNullable<ReturnType<typeof clientUserNameResolverType>>;
   readonly " $fragmentType": "MyFragment";

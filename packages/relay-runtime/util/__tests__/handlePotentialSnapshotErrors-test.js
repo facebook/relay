@@ -373,24 +373,26 @@ describe('handlePotentialSnapshotErrors', () => {
         /^Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors/,
       );
 
-      expect(relayFieldLogger).toHaveBeenCalledTimes(2);
-      expect(relayFieldLogger).toHaveBeenCalledWith({
-        error: {
-          message: 'testMessage',
-          path: ['testPath'],
-          severity: 'CRITICAL',
-        },
-        fieldPath: 'testPath',
-        kind: 'relay_field_payload.error',
-        owner: 'testOwner',
-        shouldThrow: true,
-      });
+      const eventsLogged = relayFieldLogger.mock.calls.map(call => call[0]);
 
-      expect(relayFieldLogger).toHaveBeenCalledWith({
-        fieldPath: '',
-        kind: 'missing_expected_data.throw',
-        owner: '',
-      });
+      expect(eventsLogged).toEqual([
+        {
+          error: {
+            message: 'testMessage',
+            path: ['testPath'],
+            severity: 'CRITICAL',
+          },
+          fieldPath: 'testPath',
+          kind: 'relay_field_payload.error',
+          owner: 'testOwner',
+          shouldThrow: true,
+        },
+        {
+          fieldPath: '',
+          kind: 'missing_expected_data.log',
+          owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+        },
+      ]);
     });
   });
 

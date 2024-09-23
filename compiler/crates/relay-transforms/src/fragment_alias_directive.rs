@@ -56,10 +56,9 @@ associated_data_impl!(FragmentAliasMetadata);
 
 pub fn fragment_alias_directive(
     program: &Program,
-    is_enabled: bool,
     is_enforced: bool,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = FragmentAliasTransform::new(program, is_enabled, is_enforced);
+    let mut transform = FragmentAliasTransform::new(program, is_enforced);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -120,7 +119,6 @@ impl Transformer for AliasedInlineFragmentRemovalTransform {
 
 struct FragmentAliasTransform<'program> {
     program: &'program Program,
-    is_enabled: bool,
     is_enforced: bool,
     document_name: Option<StringKey>,
     parent_type: Option<Type>,
@@ -130,10 +128,9 @@ struct FragmentAliasTransform<'program> {
 }
 
 impl<'program> FragmentAliasTransform<'program> {
-    fn new(program: &'program Program, enabled: bool, enforced: bool) -> Self {
+    fn new(program: &'program Program, enforced: bool) -> Self {
         Self {
             program,
-            is_enabled: enabled,
             is_enforced: enforced,
             document_name: None,
             parent_type: None,
@@ -298,50 +295,42 @@ impl Transformer for FragmentAliasTransform<'_> {
 
         let transformed = match fragment.alias(&self.program.schema) {
             Ok(Some(alias)) => {
-                if !self.is_enabled {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::FragmentAliasDirectiveDisabled,
-                        alias.location,
-                    ));
-                    self.default_transform_inline_fragment(fragment)
-                } else {
-                    // Note: This must be called before we set self.parent_type
-                    let will_always_match = self.will_always_match(fragment.type_condition);
+                // Note: This must be called before we set self.parent_type
+                let will_always_match = self.will_always_match(fragment.type_condition);
 
-                    if let Some(type_condition) = fragment.type_condition {
-                        self.parent_type = Some(type_condition);
-                    }
-
-                    let alias_metadata = FragmentAliasMetadata {
-                        alias,
-                        type_condition: fragment.type_condition,
-                        non_nullable: will_always_match,
-                        selection_type: self
-                            .parent_type
-                            .expect("Selection should be within a parent type."),
-                        wraps_spread: false,
-                    };
-
-                    let mut directives = fragment.directives.clone();
-                    directives.push(alias_metadata.into());
-
-                    // An aliased inline fragment creates its own name, and so we can reset any
-                    // conditionality created by `@skip` or `@include` directives.
-                    let parent_maybe_condition = self.maybe_condition.take();
-
-                    let selections = self
-                        .transform_selections(&fragment.selections)
-                        .replace_or_else(|| fragment.selections.clone());
-
-                    self.maybe_condition = parent_maybe_condition;
-
-                    Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
-                        directives,
-                        type_condition: fragment.type_condition,
-                        selections,
-                        spread_location: fragment.spread_location,
-                    })))
+                if let Some(type_condition) = fragment.type_condition {
+                    self.parent_type = Some(type_condition);
                 }
+
+                let alias_metadata = FragmentAliasMetadata {
+                    alias,
+                    type_condition: fragment.type_condition,
+                    non_nullable: will_always_match,
+                    selection_type: self
+                        .parent_type
+                        .expect("Selection should be within a parent type."),
+                    wraps_spread: false,
+                };
+
+                let mut directives = fragment.directives.clone();
+                directives.push(alias_metadata.into());
+
+                // An aliased inline fragment creates its own name, and so we can reset any
+                // conditionality created by `@skip` or `@include` directives.
+                let parent_maybe_condition = self.maybe_condition.take();
+
+                let selections = self
+                    .transform_selections(&fragment.selections)
+                    .replace_or_else(|| fragment.selections.clone());
+
+                self.maybe_condition = parent_maybe_condition;
+
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    directives,
+                    type_condition: fragment.type_condition,
+                    selections,
+                    spread_location: fragment.spread_location,
+                })))
             }
             Ok(None) => {
                 // Note: We intentionally don't set self.parent_type here, even if we
@@ -377,13 +366,6 @@ impl Transformer for FragmentAliasTransform<'_> {
 
         match spread.alias() {
             Ok(Some(alias)) => {
-                if !self.is_enabled {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::FragmentAliasDirectiveDisabled,
-                        alias.location,
-                    ));
-                }
-
                 let is_plural = RelayDirective::find(&fragment.directives)
                     .map_or(false, |directive| directive.plural);
 

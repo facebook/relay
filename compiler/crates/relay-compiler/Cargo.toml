@@ -39,6 +39,7 @@ extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
 futures = { version = "0.3.30", features = ["async-await", "compat"] }
 glob = "0.3"
+globset = { version = "0.4.13", features = ["serde1"] }
 graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
@@ -49,7 +50,7 @@ indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.4"
-log = { version = "0.4.22", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.22", features = ["kv_unstable"] }
 md-5 = "0.10"
 persist-query = { path = "../persist-query" }
 petgraph = { version = "0.6.3", features = ["serde-1"] }

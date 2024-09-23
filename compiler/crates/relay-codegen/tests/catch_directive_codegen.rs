@@ -34,7 +34,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    catch_directive(&program, true)
+    catch_directive(&program)
         .map(|next_program| {
             next_program
                 .fragments()

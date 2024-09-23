@@ -269,7 +269,7 @@ describe('fetchQuery with missing @required value', () => {
     expect(observer.next).toHaveBeenCalledWith({me: null});
     expect(relayFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
-      kind: 'missing_field.log',
+      kind: 'missing_required_field.log',
       owner: 'fetchQueryTest2Query',
     });
   });
@@ -301,7 +301,7 @@ describe('fetchQuery with missing @required value', () => {
     subscription.unsubscribe();
     expect(relayFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
-      kind: 'missing_field.throw',
+      kind: 'missing_required_field.throw',
       owner: 'fetchQueryTest3Query',
     });
     expect(observer.error).toHaveBeenCalledWith(

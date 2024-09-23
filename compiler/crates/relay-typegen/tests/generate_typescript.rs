@@ -13,7 +13,6 @@ use std::sync::Arc;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::ConsoleLogger;
-use common::FeatureFlag;
 use common::FeatureFlags;
 use common::ScalarName;
 use common::SourceLocationKey;
@@ -106,15 +105,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             use_import_type_syntax: fixture
                 .content
                 .contains("# typegen_config.use_import_type_syntax = true"),
-            experimental_emit_semantic_nullability_types: fixture
-                .content
-                .contains("# relay:experimental_emit_semantic_nullability_types"),
             custom_error_type,
             ..Default::default()
         },
         feature_flags: Arc::new(FeatureFlags {
-            enable_fragment_aliases: FeatureFlag::Enabled,
-            enable_catch_directive_transform: FeatureFlag::Enabled,
             enable_relay_resolver_transform: true,
             ..Default::default()
         }),

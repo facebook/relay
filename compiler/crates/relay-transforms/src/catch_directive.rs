@@ -82,8 +82,8 @@ pub fn catch_to_with_fallback(catch_to: Option<CatchTo>) -> CatchTo {
     }
 }
 
-pub fn catch_directive(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
-    let mut transform = CatchDirective::new(program, enabled);
+pub fn catch_directive(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = CatchDirective::new(program);
 
     let next_program = transform
         .transform_program(program)
@@ -100,26 +100,15 @@ struct CatchDirective<'s> {
     #[allow(dead_code)]
     program: &'s Program,
     errors: Vec<Diagnostic>,
-    enabled: bool,
     path: Vec<&'s str>,
 }
 
 impl<'program> CatchDirective<'program> {
-    fn new(program: &'program Program, enabled: bool) -> Self {
+    fn new(program: &'program Program) -> Self {
         Self {
             program,
             errors: Default::default(),
-            enabled,
             path: vec![],
-        }
-    }
-
-    fn report_unimplemented(&mut self, directives: &[Directive]) {
-        if let Some(directive) = directives.named(*CATCH_DIRECTIVE_NAME) {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::CatchDirectiveNotImplemented,
-                directive.name.location,
-            ));
         }
     }
 
@@ -155,10 +144,6 @@ impl<'s> Transformer for CatchDirective<'s> {
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        if !self.enabled {
-            self.report_unimplemented(&field.directives);
-        }
-
         let name = field.alias_or_name(&self.program.schema).lookup();
         self.path.push(name);
         let path_name: StringKey = self.path.join(".").intern();
@@ -180,10 +165,6 @@ impl<'s> Transformer for CatchDirective<'s> {
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        if !self.enabled {
-            self.report_unimplemented(&field.directives);
-        }
-
         let name = field.alias_or_name(&self.program.schema).lookup();
         self.path.push(name);
 

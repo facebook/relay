@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<157ead33394671c4571b24fad8112407>>
+ * @generated SignedSource<<70b480b97721b86a5618c2f8f8012117>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,13 @@ import type { DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {edge_to_live_object_does_not_exist as queryEdgeToLiveObjectDoesNotExistResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToLiveObjectDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToLiveObjectDoesNotExistResolverType: () => ?{|
+(queryEdgeToLiveObjectDoesNotExistResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
@@ -32,12 +36,16 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?TodoDescription);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables = {||};

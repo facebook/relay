@@ -15,18 +15,18 @@ fragment validateGlobalVariables_user on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Variable was defined as type 'Boolean' but used where a variable of type 'Boolean!' is expected.
-
-  validate-global-variables.invalid.graphql:2:36
-    1 │ # expected-to-throw
-    2 │ query validateGlobalVariablesQuery($condition: Boolean) {
-      │                                    ^^^^^^^^^^
-    3 │   me {
-
-  ℹ︎ Variable is used as 'Boolean!'
+✖︎ Variable of type 'Boolean' cannot be used where 'Boolean!' is expected.
 
   validate-global-variables.invalid.graphql:12:20
    11 │   # ERROR: nullable values flows into non-nullable arg
    12 │   ... @include(if: $condition) {
       │                    ^^^^^^^^^^
    13 │     lastName
+
+  ℹ︎ Variable `$condition` is defined as 'Boolean'
+
+  validate-global-variables.invalid.graphql:2:36
+    1 │ # expected-to-throw
+    2 │ query validateGlobalVariablesQuery($condition: Boolean) {
+      │                                    ^^^^^^^^^^
+    3 │   me {

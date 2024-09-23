@@ -14,6 +14,7 @@ use common::PerfLogger;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use relay_config::ProjectConfig;
+use validate_operation_variables::ValidateVariablesOptions;
 
 use super::*;
 use crate::apply_custom_transforms::apply_after_custom_transforms;
@@ -161,10 +162,6 @@ fn apply_common_transforms(
             &program,
             project_config
                 .feature_flags
-                .enable_fragment_aliases
-                .is_fully_enabled(),
-            project_config
-                .feature_flags
                 .enforce_fragment_alias_where_ambiguous
                 .is_fully_enabled(),
         )
@@ -267,15 +264,7 @@ fn apply_reader_transforms(
 
     program = log_event.time("required_directive", || required_directive(&program))?;
 
-    program = log_event.time("catch_directive", || {
-        catch_directive(
-            &program,
-            project_config
-                .feature_flags
-                .enable_catch_directive_transform
-                .is_fully_enabled(),
-        )
-    })?;
+    program = log_event.time("catch_directive", || catch_directive(&program))?;
 
     program = log_event.time("client_edges", || {
         client_edges(&program, project_config, &base_fragment_names)
@@ -620,7 +609,12 @@ fn apply_operation_text_transforms(
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
-        validate_operation_variables(&program)
+        validate_operation_variables(
+            &program,
+            ValidateVariablesOptions {
+                remove_unused_variables: true,
+            },
+        )
     })?;
     program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
@@ -674,10 +668,6 @@ fn apply_typegen_transforms(
             &program,
             project_config
                 .feature_flags
-                .enable_fragment_aliases
-                .is_fully_enabled(),
-            project_config
-                .feature_flags
                 .enforce_fragment_alias_where_ambiguous
                 .is_fully_enabled(),
         )
@@ -696,15 +686,7 @@ fn apply_typegen_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
-    program = log_event.time("catch_directive", || {
-        catch_directive(
-            &program,
-            project_config
-                .feature_flags
-                .enable_catch_directive_transform
-                .is_fully_enabled(),
-        )
-    })?;
+    program = log_event.time("catch_directive", || catch_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
         generate_relay_resolvers_model_fragments(
             project_config.name,

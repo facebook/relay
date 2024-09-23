@@ -108,13 +108,41 @@ export type $RelayProps<Props, RelayPropT = RelayProp> = MapRelayProps<
 >;
 
 type MapRelayProps<Props> = {[K in keyof Props]: MapRelayProp<Props[K]>};
-type MapRelayProp<T> = T extends null | void | {+$fragmentType: empty, ...}
+type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
   ? T
-  : T extends {+$fragmentType: FragmentType, ...}
-    ? $FragmentRef<T>
-    : T extends $ReadOnlyArray<?{+$fragmentType: FragmentType, ...}>
-      ? $ReadOnlyArray<MapRelayProp<T[number]>>
-      : T;
+  : [+t: T] extends [+t: ?{+$fragmentType: empty, ...}]
+    ? ?T
+    : [+t: T] extends [+t: {+$fragmentType: FragmentType, ...}]
+      ? $FragmentRef<T>
+      : [+t: T] extends [+t: ?{+$fragmentType: FragmentType, ...}]
+        ? ?$FragmentRef<$NonMaybeType<T>>
+        : [+t: T] extends [
+              +t: $ReadOnlyArray<
+                infer V extends {+$fragmentType: FragmentType, ...},
+              >,
+            ]
+          ? $ReadOnlyArray<$FragmentRef<V>>
+          : [+t: T] extends [
+                +t: ?$ReadOnlyArray<
+                  infer V extends {+$fragmentType: FragmentType, ...},
+                >,
+              ]
+            ? ?$ReadOnlyArray<$FragmentRef<V>>
+            : [+t: T] extends [
+                  +t: $ReadOnlyArray<?infer V extends {
+                    +$fragmentType: FragmentType,
+                    ...
+                  }>,
+                ]
+              ? $ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+              : [+t: T] extends [
+                    +t: ?$ReadOnlyArray<?infer V extends {
+                      +$fragmentType: FragmentType,
+                      ...
+                    }>,
+                  ]
+                ? ?$ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+                : T;
 
 export type RelayFragmentContainer<TComponent> = React.ComponentType<
   $RelayProps<React.ElementConfig<TComponent>, RelayProp>,

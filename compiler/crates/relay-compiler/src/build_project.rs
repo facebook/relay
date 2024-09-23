@@ -38,6 +38,7 @@ use common::WithDiagnostics;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashSet;
 use dependency_analyzer::get_ir_definition_references;
+use errors::try_all;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
@@ -228,47 +229,36 @@ fn build_raw_program_chunks(
     Ok((programs, source_hashes))
 }
 
+// OK(Vec<Diagnostic>) = Compilation can continue
+// Err(Vec<Diagnostic>) = Compilation must stop here
 pub fn validate_program(
     config: &Config,
     project_config: &ProjectConfig,
     program: &Program,
     log_event: &impl PerfLogEvent,
-) -> Result<Vec<Diagnostic>, BuildProjectError> {
+) -> Result<Vec<Diagnostic>, Vec<Diagnostic>> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result = validate(program, project_config, &config.additional_validations).map_or_else(
-        |errors| {
-            Err(BuildProjectError::ValidationErrors {
-                errors,
-                project_name: project_config.name,
-            })
-        },
-        |result| Ok(result.diagnostics),
-    );
+    let result = validate(program, project_config, &config.additional_validations)
+        .map(|result| result.diagnostics);
 
     log_event.stop(timer);
 
     result
 }
 
+// OK(Vec<Diagnostic>) = Compilation can continue
+// Err(Vec<Diagnostic>) = Compilation must stop here
 pub fn validate_reader_program(
     config: &Config,
     project_config: &ProjectConfig,
     program: &Program,
     log_event: &impl PerfLogEvent,
-) -> Result<Vec<Diagnostic>, BuildProjectError> {
+) -> Result<Vec<Diagnostic>, Vec<Diagnostic>> {
     let timer = log_event.start("validate_reader_time");
     log_event.number("validate_reader_documents_count", program.document_count());
     let result = validate_reader(program, project_config, &config.additional_validations)
-        .map_or_else(
-            |errors| {
-                Err(BuildProjectError::ValidationErrors {
-                    errors,
-                    project_name: project_config.name,
-                })
-            },
-            |result| Ok(result.diagnostics),
-        );
+        .map(|result| result.diagnostics);
 
     log_event.stop(timer);
 
@@ -283,7 +273,7 @@ pub fn transform_program(
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
     custom_transforms_config: Option<&CustomTransformsConfig>,
-) -> Result<Programs, BuildProjectFailure> {
+) -> Result<Programs, Vec<Diagnostic>> {
     let timer = log_event.start("apply_transforms_time");
     let result = apply_transforms(
         project_config,
@@ -292,13 +282,7 @@ pub fn transform_program(
         perf_logger,
         Some(print_stats),
         custom_transforms_config,
-    )
-    .map_err(|errors| {
-        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-            errors,
-            project_name: project_config.name,
-        })
-    });
+    );
 
     log_event.stop(timer);
 
@@ -390,32 +374,43 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
     let base_fragment_names = Arc::new(base_fragment_names);
-    let results: Vec<(Programs, Vec<Diagnostic>)> = programs
+    let validation_results = programs
         .into_par_iter()
-        .map(|program| {
-            // Call validation rules that go beyond type checking.
-            // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
-            let mut diagnostics = validate_program(config, project_config, &program, log_event)?;
+        .map(
+            |program| -> Result<(Programs, Vec<Diagnostic>), Vec<Diagnostic>> {
+                // Call validation rules that go beyond type checking.
+                // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
+                let mut diagnostics =
+                    validate_program(config, project_config, &program, log_event)?;
 
-            let programs = transform_program(
-                project_config,
-                Arc::new(program),
-                Arc::clone(&base_fragment_names),
-                Arc::clone(&perf_logger),
-                log_event,
-                config.custom_transforms.as_ref(),
-            )?;
+                let programs = transform_program(
+                    project_config,
+                    Arc::new(program),
+                    Arc::clone(&base_fragment_names),
+                    Arc::clone(&perf_logger),
+                    log_event,
+                    config.custom_transforms.as_ref(),
+                )?;
 
-            diagnostics.extend(validate_reader_program(
-                config,
-                project_config,
-                &programs.reader,
-                log_event,
-            )?);
+                diagnostics.extend(validate_reader_program(
+                    config,
+                    project_config,
+                    &programs.reader,
+                    log_event,
+                )?);
 
-            Ok((programs, diagnostics))
-        })
-        .collect::<Result<Vec<_>, BuildProjectFailure>>()?;
+                Ok((programs, diagnostics))
+            },
+        )
+        .collect::<Vec<_>>();
+
+    let results: Vec<(Programs, Vec<Diagnostic>)> =
+        try_all(validation_results).map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name,
+            })
+        })?;
 
     let len = results.len();
     let (programs, diagnostics) = results.into_iter().fold(

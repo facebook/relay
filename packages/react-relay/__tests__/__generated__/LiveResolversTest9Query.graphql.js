@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8ae5e76947e74633ba85751b4400e334>>
+ * @generated SignedSource<<eabd9b6be8b89789a05d5c797a177a44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,6 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
 import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolverType: (
@@ -28,6 +29,7 @@ import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserPro
   args: {|
     scale: ?number,
   |},
+  context: TestResolverContextType,
 ) => LiveState<?string>);
 export type LiveResolversTest9Query$variables = {|
   id: string,

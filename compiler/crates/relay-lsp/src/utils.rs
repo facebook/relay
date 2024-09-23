@@ -23,6 +23,7 @@ use log::debug;
 use lsp_types::Position;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
+use relay_compiler::config::Config;
 use relay_compiler::get_parser_features;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
@@ -82,6 +83,7 @@ pub fn get_file_group_from_uri(
     file_categorizer: &FileCategorizer,
     url: &Url,
     root_dir: &PathBuf,
+    config: &Config,
 ) -> LSPRuntimeResult<FileGroup> {
     let absolute_file_path = url.to_file_path().map_err(|_| {
         LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
@@ -94,7 +96,7 @@ pub fn get_file_group_from_uri(
         ))
     })?;
 
-    file_categorizer.categorize(file_path).map_err(|_| {
+    file_categorizer.categorize(file_path, config).map_err(|_| {
         LSPRuntimeError::UnexpectedError(format!(
             "Unable to categorize the file correctly: {:?}",
             file_path

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5451d709cb840278df5d822aba954bbe>>
+ * @generated SignedSource<<0e2d032ecd3ec51cf764e966e1ee6164>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,6 +21,7 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {todos as queryTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodosResolverType: (
@@ -28,6 +29,7 @@ import {todos as queryTodosResolverType} from "../../../relay-runtime/store/__te
     first: ?number,
     last: ?number,
   |},
+  context: TestResolverContextType,
 ) => LiveState<?Query__todos$normalization>);
 import type { Query__todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {||};

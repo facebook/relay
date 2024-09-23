@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<479292e81ddc185bf8e31dea5a31dc2b>>
+ * @generated SignedSource<<e5a7bde00a7641de9184d1a55dc97012>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,12 +19,14 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import {hello as queryHelloResolverType} from "../HelloWorldResolver.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloResolverType: (
   args: {|
     world: string,
   |},
+  context: TestResolverContextType,
 ) => ?string);
 export type ResolverGCTestNoFragmentDynamicArgsQuery$variables = {|
   world: string,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1479afc61623ff39f26c6b2ebc95dd0d>>
+ * @generated SignedSource<<fcaf6145940e1e08dd5bcde08c58347d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState, DataID } from "relay-runtime";
 import {live_constant_client_edge as queryLiveConstantClientEdgeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveConstantClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveConstantClientEdgeResolverType: () => LiveState<?{|
+(queryLiveConstantClientEdgeResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?{|
   +id: DataID,
 |}>);
 export type LiveResolversTest13Query$variables = {||};

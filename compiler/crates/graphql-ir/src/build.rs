@@ -21,6 +21,7 @@ use common::WithLocation;
 use errors::par_try_map;
 use errors::try2;
 use errors::try3;
+use errors::try_all;
 use errors::try_map;
 use graphql_syntax::DefaultValue;
 use graphql_syntax::DirectiveLocation;
@@ -422,13 +423,28 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             Err(self
                 .used_variables
                 .iter()
-                .map(|(undefined_variable, usage)| {
-                    Diagnostic::error(
+                .map(|(undefined_variable, usage)| match operation.name {
+                    Some(operation_name) => Diagnostic::error(
                         ValidationMessage::ExpectedOperationVariableToBeDefined(
+                            *undefined_variable,
+                            operation_name.value,
+                        ),
+                        self.location.with_span(usage.span),
+                    )
+                    .annotate(
+                        format!("The operation '{}' is defined here", operation_name.value),
+                        self.location.with_span(operation_name.span),
+                    ),
+                    None => Diagnostic::error(
+                        ValidationMessage::ExpectedOperationVariableToBeDefinedOnUnnamedQuery(
                             *undefined_variable,
                         ),
                         self.location.with_span(usage.span),
                     )
+                    .annotate(
+                        "The unnamed operation is defined here",
+                        self.location.with_span(operation.location.span()),
+                    ),
                 })
                 .collect())
         } else {
@@ -661,62 +677,53 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         if !errors.is_empty() {
             return Err(errors);
         }
-        let result: DiagnosticsResult<Vec<Argument>> = arg_list
-            .items
-            .iter()
-            .map(|arg| {
-                if let Some(argument_definition) = signature
-                    .variable_definitions
-                    .named(VariableName(arg.name.value))
-                {
-                    // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
-                    // in a lot of code that is technically valid but doesn't type-check. Specifically,
-                    // many fragment @argDefs are typed as non-null but used in places that accept a
-                    // nullable value. Similarly, the corresponding @args pass nullable values. This
-                    // works since ultimately a nullable T flows into a nullable T, but isn't
-                    // technically correct. There are also @argDefs are typed with different types,
-                    // but the persist query allowed them as the types are the same underlyingly.
-                    // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
-                    // types of variables passed to @args at all
-                    let arg_result = self.build_argument(
-                        arg,
-                        &argument_definition.type_,
-                        ValidationLevel::Strict,
-                    );
-                    if arg_result.is_err() && validation_level == ValidationLevel::Loose {
-                        has_invalid_arg = true;
-                        self.build_argument(arg, &argument_definition.type_, ValidationLevel::Loose)
-                    } else {
-                        arg_result
-                    }
-                } else if validation_level == ValidationLevel::Loose {
+        let result: DiagnosticsResult<Vec<Argument>> = try_all(arg_list.items.iter().map(|arg| {
+            if let Some(argument_definition) = signature
+                .variable_definitions
+                .named(VariableName(arg.name.value))
+            {
+                // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
+                // in a lot of code that is technically valid but doesn't type-check. Specifically,
+                // many fragment @argDefs are typed as non-null but used in places that accept a
+                // nullable value. Similarly, the corresponding @args pass nullable values. This
+                // works since ultimately a nullable T flows into a nullable T, but isn't
+                // technically correct. There are also @argDefs are typed with different types,
+                // but the persist query allowed them as the types are the same underlyingly.
+                // NOTE: We keep the same behavior as JS compiler for now, where we don't validate
+                // types of variables passed to @args at all
+                let arg_result =
+                    self.build_argument(arg, &argument_definition.type_, ValidationLevel::Strict);
+                if arg_result.is_err() && validation_level == ValidationLevel::Loose {
                     has_invalid_arg = true;
-                    Ok(self.build_argument(
-                        arg,
-                        self.schema.unchecked_argument_type_sentinel(),
-                        ValidationLevel::Loose,
-                    )?)
+                    self.build_argument(arg, &argument_definition.type_, ValidationLevel::Loose)
                 } else {
-                    let possible_argument_names = signature
-                        .variable_definitions
-                        .iter()
-                        .map(|arg_def| arg_def.name.item.0)
-                        .collect::<Vec<_>>();
-                    let suggestions = suggestion_list::suggestion_list(
-                        arg.name.value,
-                        &possible_argument_names,
-                        5,
-                    );
-                    Err(vec![Diagnostic::error_with_data(
-                        ValidationMessageWithData::UnknownArgument {
-                            argument_name: arg.name.value,
-                            suggestions,
-                        },
-                        self.location.with_span(arg.span),
-                    )])
+                    arg_result
                 }
-            })
-            .collect();
+            } else if validation_level == ValidationLevel::Loose {
+                has_invalid_arg = true;
+                self.build_argument(
+                    arg,
+                    self.schema.unchecked_argument_type_sentinel(),
+                    ValidationLevel::Loose,
+                )
+            } else {
+                let possible_argument_names = signature
+                    .variable_definitions
+                    .iter()
+                    .map(|arg_def| arg_def.name.item.0)
+                    .collect::<Vec<_>>();
+                let suggestions =
+                    suggestion_list::suggestion_list(arg.name.value, &possible_argument_names, 5);
+                Err(vec![Diagnostic::error_with_data(
+                    ValidationMessageWithData::UnknownArgument {
+                        argument_name: arg.name.value,
+                        suggestions,
+                    },
+                    self.location.with_span(arg.span),
+                )])
+            }
+        }));
+
         if validation_level == ValidationLevel::Loose && !has_invalid_arg {
             Err(vec![Diagnostic::error(
                 ValidationMessage::UnnecessaryUncheckedArgumentsDirective,
@@ -1230,37 +1237,33 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 }
             }
 
-            arguments
-                .items
-                .iter()
-                .map(|argument| {
-                    match argument_definitions.named(ArgumentName(argument.name.value)) {
-                        Some(argument_definition) => self.build_argument(
-                            argument,
-                            &argument_definition.type_,
-                            ValidationLevel::Strict,
-                        ),
-                        None => {
-                            let possible_argument_names = argument_definitions
-                                .iter()
-                                .map(|arg_def| arg_def.name.item.0)
-                                .collect::<Vec<_>>();
-                            let suggestions = suggestion_list::suggestion_list(
-                                argument.name.value,
-                                &possible_argument_names,
-                                5,
-                            );
-                            Err(vec![Diagnostic::error_with_data(
-                                ValidationMessageWithData::UnknownArgument {
-                                    argument_name: argument.name.value,
-                                    suggestions,
-                                },
-                                self.location.with_span(argument.name.span),
-                            )])
-                        }
+            try_all(arguments.items.iter().map(|argument| {
+                match argument_definitions.named(ArgumentName(argument.name.value)) {
+                    Some(argument_definition) => self.build_argument(
+                        argument,
+                        &argument_definition.type_,
+                        ValidationLevel::Strict,
+                    ),
+                    None => {
+                        let possible_argument_names = argument_definitions
+                            .iter()
+                            .map(|arg_def| arg_def.name.item.0)
+                            .collect::<Vec<_>>();
+                        let suggestions = suggestion_list::suggestion_list(
+                            argument.name.value,
+                            &possible_argument_names,
+                            5,
+                        );
+                        Err(vec![Diagnostic::error_with_data(
+                            ValidationMessageWithData::UnknownArgument {
+                                argument_name: argument.name.value,
+                                suggestions,
+                            },
+                            self.location.with_span(argument.name.span),
+                        )])
                     }
-                })
-                .collect()
+                }
+            }))
         } else {
             Ok(vec![])
         }?;
@@ -1434,13 +1437,23 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             {
                 let defined_type = self.schema.get_type_string(&variable_definition.type_);
                 let used_type = self.schema.get_type_string(used_as_type);
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::InvalidVariableUsage {
-                        defined_type,
-                        used_type,
-                    },
-                    self.location.with_span(variable.span),
-                )]);
+                return Err(vec![
+                    Diagnostic::error(
+                        ValidationMessage::InvalidVariableUsage {
+                            defined_type,
+                            used_type,
+                        },
+                        self.location.with_span(variable.span),
+                    )
+                    .annotate(
+                        format!(
+                            "Variable `${}` is defined as '{}'",
+                            variable_definition.name.item,
+                            self.schema.get_type_string(&variable_definition.type_)
+                        ),
+                        variable_definition.name.location,
+                    ),
+                ]);
             }
         } else if let Some(prev_usage) = self.used_variables.get(&VariableName(variable.name)) {
             let is_used_subtype = self
@@ -1517,11 +1530,11 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         match type_.nullable_type() {
             TypeReference::List(item_type) => match value {
                 graphql_syntax::Value::List(list) => {
-                    let items: DiagnosticsResult<Vec<Value>> = list
-                        .items
-                        .iter()
-                        .map(|x| self.build_value(x, item_type, ValidationLevel::Strict))
-                        .collect();
+                    let items: DiagnosticsResult<Vec<Value>> = try_all(
+                        list.items
+                            .iter()
+                            .map(|x| self.build_value(x, item_type, ValidationLevel::Strict)),
+                    );
                     Ok(Value::List(items?))
                 }
                 _ => {
@@ -1580,59 +1593,52 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .map(|x| x.name.item.0)
             .collect::<StringKeySet>();
 
-        let fields = object
-            .items
-            .iter()
-            .map(
-                |x| match type_definition.fields.named(ArgumentName(x.name.value)) {
-                    Some(field_definition) => {
-                        required_fields.remove(&x.name.value);
-                        let prev_span = seen_fields.insert(x.name.value, x.name.span);
-                        if let Some(prev_span) = prev_span {
-                            return Err(vec![
-                                Diagnostic::error(
-                                    ValidationMessage::DuplicateInputField(x.name.value),
-                                    self.location.with_span(prev_span),
-                                )
-                                .annotate(
-                                    "also defined here",
-                                    self.location.with_span(x.name.span),
-                                ),
-                            ]);
-                        };
+        let fields = try_all(object.items.iter().map(|x| {
+            match type_definition.fields.named(ArgumentName(x.name.value)) {
+                Some(field_definition) => {
+                    required_fields.remove(&x.name.value);
+                    let prev_span = seen_fields.insert(x.name.value, x.name.span);
+                    if let Some(prev_span) = prev_span {
+                        return Err(vec![
+                            Diagnostic::error(
+                                ValidationMessage::DuplicateInputField(x.name.value),
+                                self.location.with_span(prev_span),
+                            )
+                            .annotate("also defined here", self.location.with_span(x.name.span)),
+                        ]);
+                    };
 
-                        let value_span = x.value.span();
-                        let value = self.build_value(
-                            &x.value,
-                            &field_definition.type_,
-                            ValidationLevel::Strict,
-                        )?;
-                        Ok(Argument {
-                            name: x
-                                .name
-                                .name_with_location(self.location.source_location())
-                                .map(ArgumentName),
-                            value: WithLocation::from_span(
-                                self.location.source_location(),
-                                value_span,
-                                value,
-                            ),
-                        })
-                    }
-                    None => Err(vec![Diagnostic::error(
-                        ValidationMessageWithData::UnknownField {
-                            type_: type_definition.name.item.0,
-                            field: x.name.value,
-                            suggestions: self.suggestions.field_name_suggestion(
-                                self.schema.get_type(type_definition.name.item.0),
-                                x.name.value,
-                            ),
-                        },
-                        self.location.with_span(x.name.span),
-                    )]),
-                },
-            )
-            .collect::<DiagnosticsResult<Vec<Argument>>>()?;
+                    let value_span = x.value.span();
+                    let value = self.build_value(
+                        &x.value,
+                        &field_definition.type_,
+                        ValidationLevel::Strict,
+                    )?;
+                    Ok(Argument {
+                        name: x
+                            .name
+                            .name_with_location(self.location.source_location())
+                            .map(ArgumentName),
+                        value: WithLocation::from_span(
+                            self.location.source_location(),
+                            value_span,
+                            value,
+                        ),
+                    })
+                }
+                None => Err(vec![Diagnostic::error(
+                    ValidationMessageWithData::UnknownField {
+                        type_: type_definition.name.item.0,
+                        field: x.name.value,
+                        suggestions: self.suggestions.field_name_suggestion(
+                            self.schema.get_type(type_definition.name.item.0),
+                            x.name.value,
+                        ),
+                    },
+                    self.location.with_span(x.name.span),
+                )]),
+            }
+        }))?;
         if required_fields.is_empty() {
             Ok(Value::Object(fields))
         } else {

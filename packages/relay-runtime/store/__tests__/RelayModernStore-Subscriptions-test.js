@@ -372,6 +372,7 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: false,
+          errorResponseFields: null,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -416,6 +417,18 @@ function cloneEventWithSets(event: LogEvent) {
           missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: true,
+          errorResponseFields: [
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+            },
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+            },
+          ],
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
       });
@@ -454,6 +467,18 @@ function cloneEventWithSets(event: LogEvent) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          errorResponseFields: [
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+            },
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
+            },
+          ],
           missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(['842472']),

@@ -68,11 +68,9 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             .into_iter()
             .collect(),
         },
-        enable_catch_directive_transform: FeatureFlag::Enabled,
         enable_relay_resolver_transform: true,
         relay_resolver_enable_interface_output_type: FeatureFlag::Enabled,
         actor_change_support: FeatureFlag::Enabled,
-        enable_fragment_aliases: FeatureFlag::Enabled,
         ..Default::default()
     };
     let ir = build_ir_in_relay_mode(&schema, &ast.definitions, &feature_flags)
@@ -129,9 +127,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
-            experimental_emit_semantic_nullability_types: fixture
-                .content
-                .contains("# relay:experimental_emit_semantic_nullability_types"),
             custom_error_type,
             ..Default::default()
         },

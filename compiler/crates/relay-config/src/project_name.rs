@@ -16,7 +16,7 @@ use serde::Deserializer;
 use serde::Serialize;
 use serde::Serializer;
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, JsonSchema)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, JsonSchema, Ord, PartialOrd)]
 #[schemars(untagged)]
 pub enum ProjectName {
     Default,

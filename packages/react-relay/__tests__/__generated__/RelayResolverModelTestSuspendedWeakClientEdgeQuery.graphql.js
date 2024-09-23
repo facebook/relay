@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<430ac2bc4f448133a1efd70b6d1760ff>>
+ * @generated SignedSource<<b52874d31469be798a7951bbe409d988>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,12 +22,14 @@ import type { LiveState, DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType: (
   args: {|
     todoID: string,
   |},
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -39,12 +41,15 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
   args: {|
     prefix: string,
   |},
+  context: TestResolverContextType,
 ) => ?string);
 import {fancy_description_suspends as todoModelFancyDescriptionSuspendsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionSuspendsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionSuspendsResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => LiveState<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestSuspendedWeakClientEdgeQuery$variables = {|

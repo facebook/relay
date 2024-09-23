@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7b2beed5937c4289acdd306ff8af83e4>>
+ * @generated SignedSource<<a00c02178fd4db7f76df3cd1f866ae32>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,22 +25,29 @@ import type { TodoDescription__some_interface$normalization } from "./../../../r
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 import type { FragmentType } from "relay-runtime";
 import {some_client_type_with_interface as todoDescriptionSomeClientTypeWithInterfaceResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoDescriptionSomeClientTypeWithInterfaceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionSomeClientTypeWithInterfaceResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?TodoDescription__some_client_type_with_interface$normalization);
 import {some_interface as todoDescriptionSomeInterfaceResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionSomeInterfaceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionSomeInterfaceResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?TodoDescription__some_interface$normalization);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?TodoDescription);
 declare export opaque type RelayResolverModelTestInterfaceFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestInterfaceFragment$data = {|

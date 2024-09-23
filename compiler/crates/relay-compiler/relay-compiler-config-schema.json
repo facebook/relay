@@ -104,11 +104,6 @@
             "type": "string"
           }
         },
-        "experimentalEmitSemanticNullabilityTypes": {
-          "description": "EXPERIMENTAL: If your environment is configured to handles errors out of band, either via a network layer which discards responses with errors, or via enabling strict error handling in the runtime, you can enable this flag to have Relay generate non-null types for fields which are marked as semantically non-null in the schema.\n\nCurrently semantically non-null fields must be specified in your schema using the `@semanticNonNull` directive as specified in: https://github.com/apollographql/specs/pull/42",
-          "default": false,
-          "type": "boolean"
-        },
         "featureFlags": {
           "default": null,
           "type": [
@@ -631,6 +626,92 @@
                 }
               ]
             },
+            "disable_full_argument_type_validation": {
+              "description": "Disable full GraphQL argument type validation. Historically, we only applied argument type validation to the query that was actually going to be persisted and sent to the server. This meant that we didn't typecheck arguments passed to Relay Resolvers or Client Schema Extensions.\n\nWe also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for defining fragment arguments which were not typechecked.\n\nWe no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck both client and server arguments. This flag allows you to opt out of this new behavior to enable gradual adoption of the new validations.\n\nThis flag will be removed in a future version of Relay.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
             "disable_resolver_reader_ast": {
               "description": "Mirror of `enable_resolver_normalization_ast` excludes resolver metadata from reader ast",
               "default": false,
@@ -645,7 +726,8 @@
               "default": false,
               "type": "boolean"
             },
-            "enable_catch_directive_transform": {
+            "enable_custom_artifacts_path": {
+              "description": "Enable a custom path for artifacts",
               "default": {
                 "kind": "disabled"
               },
@@ -730,91 +812,10 @@
                 }
               ]
             },
-            "enable_fragment_aliases": {
-              "description": "Enable support for the experimental `@alias` directive on fragment spreads.",
-              "default": {
-                "kind": "disabled"
-              },
-              "oneOf": [
-                {
-                  "description": "Fully disabled: developers may not use this feature",
-                  "type": "object",
-                  "required": [
-                    "kind"
-                  ],
-                  "properties": {
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "disabled"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "description": "Fully enabled: developers may use this feature",
-                  "type": "object",
-                  "required": [
-                    "kind"
-                  ],
-                  "properties": {
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "enabled"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
-                  "type": "object",
-                  "required": [
-                    "allowlist",
-                    "kind"
-                  ],
-                  "properties": {
-                    "allowlist": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "uniqueItems": true
-                    },
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "limited"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "description": "Partially enabled: used for gradual rollout of the feature",
-                  "type": "object",
-                  "required": [
-                    "kind",
-                    "rollout"
-                  ],
-                  "properties": {
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "rollout"
-                      ]
-                    },
-                    "rollout": {
-                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
-                      "type": [
-                        "integer",
-                        "null"
-                      ],
-                      "format": "uint8",
-                      "minimum": 0.0
-                    }
-                  }
-                }
-              ]
+            "enable_exec_time_resolvers_directive": {
+              "description": "Allow per-query opt in to normalization AST for Resolvers with exec_time_resolvers directive. In contrast to enable_resolver_normalization_ast, if this is true, a normalization AST can be generated for a query using the @exec_time_resolvers directive",
+              "default": false,
+              "type": "boolean"
             },
             "enable_fragment_argument_transform": {
               "description": "Add support for parsing and transforming variable definitions on fragment definitions and arguments on fragment spreads.",
@@ -1189,6 +1190,92 @@
             },
             "text_artifacts": {
               "description": "Enable generation of text artifacts used to generate full query strings later.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "use_reader_module_imports": {
+              "description": "Generate the `moduleImports` field in the Reader AST.",
               "default": {
                 "kind": "disabled"
               },
@@ -1488,6 +1575,55 @@
           "default": false,
           "type": "boolean"
         },
+        "resolverContextType": {
+          "description": "Indicates the type to import and use as the context for live resolvers.",
+          "default": null,
+          "anyOf": [
+            {
+              "anyOf": [
+                {
+                  "description": "Specifies how Relay can import the Resolver context type from a path",
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "path"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "The name under which the type is exported from the module",
+                      "type": "string"
+                    },
+                    "path": {
+                      "description": "The path to the module relative to the project root",
+                      "type": "string"
+                    }
+                  }
+                },
+                {
+                  "description": "Specifies how Relay can import the Resolver context type from a named package",
+                  "type": "object",
+                  "required": [
+                    "name",
+                    "package"
+                  ],
+                  "properties": {
+                    "name": {
+                      "description": "The name under which the type is exported from the package",
+                      "type": "string"
+                    },
+                    "package": {
+                      "description": "The name of the package",
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "resolversSchemaModule": {
           "description": "Configuration for resolvers_schema_module generation",
           "default": null,
@@ -1755,15 +1891,16 @@
             "disable_edge_type_name_validation_on_declerative_connection_directives": {
               "kind": "disabled"
             },
+            "disable_full_argument_type_validation": {
+              "kind": "disabled"
+            },
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
             "enable_3d_branch_arg_generation": false,
-            "enable_catch_directive_transform": {
+            "enable_custom_artifacts_path": {
               "kind": "disabled"
             },
-            "enable_fragment_aliases": {
-              "kind": "disabled"
-            },
+            "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,
             "enable_relay_resolver_mutations": false,
             "enable_relay_resolver_transform": false,
@@ -1783,6 +1920,9 @@
               "kind": "disabled"
             },
             "text_artifacts": {
+              "kind": "disabled"
+            },
+            "use_reader_module_imports": {
               "kind": "disabled"
             }
           },
@@ -2303,6 +2443,92 @@
                 }
               ]
             },
+            "disable_full_argument_type_validation": {
+              "description": "Disable full GraphQL argument type validation. Historically, we only applied argument type validation to the query that was actually going to be persisted and sent to the server. This meant that we didn't typecheck arguments passed to Relay Resolvers or Client Schema Extensions.\n\nWe also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for defining fragment arguments which were not typechecked.\n\nWe no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck both client and server arguments. This flag allows you to opt out of this new behavior to enable gradual adoption of the new validations.\n\nThis flag will be removed in a future version of Relay.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
             "disable_resolver_reader_ast": {
               "description": "Mirror of `enable_resolver_normalization_ast` excludes resolver metadata from reader ast",
               "default": false,
@@ -2317,7 +2543,8 @@
               "default": false,
               "type": "boolean"
             },
-            "enable_catch_directive_transform": {
+            "enable_custom_artifacts_path": {
+              "description": "Enable a custom path for artifacts",
               "default": {
                 "kind": "disabled"
               },
@@ -2402,91 +2629,10 @@
                 }
               ]
             },
-            "enable_fragment_aliases": {
-              "description": "Enable support for the experimental `@alias` directive on fragment spreads.",
-              "default": {
-                "kind": "disabled"
-              },
-              "oneOf": [
-                {
-                  "description": "Fully disabled: developers may not use this feature",
-                  "type": "object",
-                  "required": [
-                    "kind"
-                  ],
-                  "properties": {
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "disabled"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "description": "Fully enabled: developers may use this feature",
-                  "type": "object",
-                  "required": [
-                    "kind"
-                  ],
-                  "properties": {
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "enabled"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
-                  "type": "object",
-                  "required": [
-                    "allowlist",
-                    "kind"
-                  ],
-                  "properties": {
-                    "allowlist": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      },
-                      "uniqueItems": true
-                    },
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "limited"
-                      ]
-                    }
-                  }
-                },
-                {
-                  "description": "Partially enabled: used for gradual rollout of the feature",
-                  "type": "object",
-                  "required": [
-                    "kind",
-                    "rollout"
-                  ],
-                  "properties": {
-                    "kind": {
-                      "type": "string",
-                      "enum": [
-                        "rollout"
-                      ]
-                    },
-                    "rollout": {
-                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
-                      "type": [
-                        "integer",
-                        "null"
-                      ],
-                      "format": "uint8",
-                      "minimum": 0.0
-                    }
-                  }
-                }
-              ]
+            "enable_exec_time_resolvers_directive": {
+              "description": "Allow per-query opt in to normalization AST for Resolvers with exec_time_resolvers directive. In contrast to enable_resolver_normalization_ast, if this is true, a normalization AST can be generated for a query using the @exec_time_resolvers directive",
+              "default": false,
+              "type": "boolean"
             },
             "enable_fragment_argument_transform": {
               "description": "Add support for parsing and transforming variable definitions on fragment definitions and arguments on fragment spreads.",
@@ -2944,6 +3090,92 @@
                   }
                 }
               ]
+            },
+            "use_reader_module_imports": {
+              "description": "Generate the `moduleImports` field in the Reader AST.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -3135,10 +3367,15 @@
                   "null"
                 ]
               },
-              "experimentalEmitSemanticNullabilityTypes": {
-                "description": "EXPERIMENTAL: If your environment is configured to handles errors out of band, either via a network layer which discards responses with errors, or via enabling strict error handling in the runtime, you can enable this flag to have Relay generate non-null types for fields which are marked as semantically non-null in the schema.\n\nCurrently semantically non-null fields must be specified in your schema using the `@semanticNonNull` directive as specified in: https://github.com/apollographql/specs/pull/42",
-                "default": false,
-                "type": "boolean"
+              "excludesExtensions": {
+                "description": "Some projects may need to exclude files with certain extensions.",
+                "type": [
+                  "array",
+                  "null"
+                ],
+                "items": {
+                  "type": "string"
+                }
               },
               "extra": {
                 "description": "A placeholder for allowing extra information in the config file",
@@ -3673,6 +3910,92 @@
                       }
                     ]
                   },
+                  "disable_full_argument_type_validation": {
+                    "description": "Disable full GraphQL argument type validation. Historically, we only applied argument type validation to the query that was actually going to be persisted and sent to the server. This meant that we didn't typecheck arguments passed to Relay Resolvers or Client Schema Extensions.\n\nWe also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for defining fragment arguments which were not typechecked.\n\nWe no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck both client and server arguments. This flag allows you to opt out of this new behavior to enable gradual adoption of the new validations.\n\nThis flag will be removed in a future version of Relay.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
                   "disable_resolver_reader_ast": {
                     "description": "Mirror of `enable_resolver_normalization_ast` excludes resolver metadata from reader ast",
                     "default": false,
@@ -3687,7 +4010,8 @@
                     "default": false,
                     "type": "boolean"
                   },
-                  "enable_catch_directive_transform": {
+                  "enable_custom_artifacts_path": {
+                    "description": "Enable a custom path for artifacts",
                     "default": {
                       "kind": "disabled"
                     },
@@ -3772,91 +4096,10 @@
                       }
                     ]
                   },
-                  "enable_fragment_aliases": {
-                    "description": "Enable support for the experimental `@alias` directive on fragment spreads.",
-                    "default": {
-                      "kind": "disabled"
-                    },
-                    "oneOf": [
-                      {
-                        "description": "Fully disabled: developers may not use this feature",
-                        "type": "object",
-                        "required": [
-                          "kind"
-                        ],
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "enum": [
-                              "disabled"
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        "description": "Fully enabled: developers may use this feature",
-                        "type": "object",
-                        "required": [
-                          "kind"
-                        ],
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "enum": [
-                              "enabled"
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
-                        "type": "object",
-                        "required": [
-                          "allowlist",
-                          "kind"
-                        ],
-                        "properties": {
-                          "allowlist": {
-                            "type": "array",
-                            "items": {
-                              "type": "string"
-                            },
-                            "uniqueItems": true
-                          },
-                          "kind": {
-                            "type": "string",
-                            "enum": [
-                              "limited"
-                            ]
-                          }
-                        }
-                      },
-                      {
-                        "description": "Partially enabled: used for gradual rollout of the feature",
-                        "type": "object",
-                        "required": [
-                          "kind",
-                          "rollout"
-                        ],
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "enum": [
-                              "rollout"
-                            ]
-                          },
-                          "rollout": {
-                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
-                            "type": [
-                              "integer",
-                              "null"
-                            ],
-                            "format": "uint8",
-                            "minimum": 0.0
-                          }
-                        }
-                      }
-                    ]
+                  "enable_exec_time_resolvers_directive": {
+                    "description": "Allow per-query opt in to normalization AST for Resolvers with exec_time_resolvers directive. In contrast to enable_resolver_normalization_ast, if this is true, a normalization AST can be generated for a query using the @exec_time_resolvers directive",
+                    "default": false,
+                    "type": "boolean"
                   },
                   "enable_fragment_argument_transform": {
                     "description": "Add support for parsing and transforming variable definitions on fragment definitions and arguments on fragment spreads.",
@@ -4314,6 +4557,92 @@
                         }
                       }
                     ]
+                  },
+                  "use_reader_module_imports": {
+                    "description": "Generate the `moduleImports` field in the Reader AST.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
                   }
                 },
                 "additionalProperties": false
@@ -4520,6 +4849,55 @@
                 "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",
                 "default": false,
                 "type": "boolean"
+              },
+              "resolverContextType": {
+                "description": "Indicates the type to import and use as the context for live resolvers.",
+                "default": null,
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "description": "Specifies how Relay can import the Resolver context type from a path",
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "path"
+                        ],
+                        "properties": {
+                          "name": {
+                            "description": "The name under which the type is exported from the module",
+                            "type": "string"
+                          },
+                          "path": {
+                            "description": "The path to the module relative to the project root",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      {
+                        "description": "Specifies how Relay can import the Resolver context type from a named package",
+                        "type": "object",
+                        "required": [
+                          "name",
+                          "package"
+                        ],
+                        "properties": {
+                          "name": {
+                            "description": "The name under which the type is exported from the package",
+                            "type": "string"
+                          },
+                          "package": {
+                            "description": "The name of the package",
+                            "type": "string"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               },
               "resolversSchemaModule": {
                 "description": "Configuration for resolvers_schema_module generation",

@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-# relay:experimental_emit_semantic_nullability_types
 query MyQuery @throwOnFieldError {
   some_field @required(action: LOG)
 }

@@ -271,7 +271,6 @@ function subscribeToSnapshot(
   environment: IEnvironment,
   state: FragmentState,
   setState: StateUpdaterFunction<FragmentState>,
-  pendingStateRef: {current: number | null},
 ): () => void {
   if (state.kind === 'bailout') {
     return () => {};
@@ -307,8 +306,6 @@ function subscribeToSnapshot(
             environment: state.environment,
           };
         }
-        pendingStateRef.current =
-          nextState.kind === 'singular' ? nextState.epoch : null;
         return nextState;
       });
     });
@@ -353,8 +350,6 @@ function subscribeToSnapshot(
               environment: state.environment,
             };
           }
-          pendingStateRef.current =
-            nextState.kind === 'plural' ? nextState.epoch : null;
           return nextState;
         });
       }),
@@ -578,11 +573,6 @@ hook useFragmentInternal_EXPERIMENTAL(
   // they're missing even though we are out of options for possibly fetching them:
   handlePotentialSnapshotErrorsForState(environment, state);
 
-  // Ref that stores the epoch of the pending setState, if any. This is used to check
-  // if the state we're rendering is at least as current as the pending update, and
-  // force a refresh if stale.
-  const pendingStateEpochRef = useRef<number | null>(null);
-
   // We emulate CRUD effects using a ref and two effects:
   // - The ref tracks the current state (including updates from the subscription)
   //   and the dispose function for the current subscription. This is null until
@@ -647,7 +637,6 @@ hook useFragmentInternal_EXPERIMENTAL(
       state.environment,
       stateForSubscription,
       setState,
-      pendingStateEpochRef,
     );
     storeSubscriptionRef.current = {
       dispose,
@@ -657,12 +646,7 @@ hook useFragmentInternal_EXPERIMENTAL(
   }, [state]);
   useEffect(() => {
     if (storeSubscriptionRef.current == null && state.kind !== 'bailout') {
-      const dispose = subscribeToSnapshot(
-        state.environment,
-        state,
-        setState,
-        pendingStateEpochRef,
-      );
+      const dispose = subscribeToSnapshot(state.environment, state, setState);
       storeSubscriptionRef.current = {
         dispose,
         selector: state.selector,
@@ -676,23 +660,6 @@ hook useFragmentInternal_EXPERIMENTAL(
     // NOTE: this intentionally has no dependencies, see above comment about
     // simulating a CRUD effect
   }, []);
-
-  // If a low-priority update was queued and hasn't rendered yet, render it now
-  if (
-    pendingStateEpochRef.current !== null &&
-    pendingStateEpochRef.current !== state.epoch
-  ) {
-    const updates = handleMissedUpdates(environment, state);
-    if (updates != null) {
-      const [hasStateUpdates, updatedState] = updates;
-      if (hasStateUpdates) {
-        setState(updatedState);
-        state = updatedState;
-      }
-    }
-  }
-  // $FlowFixMe[react-rule-unsafe-ref]
-  pendingStateEpochRef.current = null;
 
   let data: ?SelectorData | Array<?SelectorData>;
   if (isPlural) {

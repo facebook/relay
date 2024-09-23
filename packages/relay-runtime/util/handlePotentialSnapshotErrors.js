@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {TRelayFieldError} from '../store/RelayErrorTrie';
 import type {
   ErrorResponseFields,
   IEnvironment,
@@ -18,8 +19,8 @@ import type {
   RelayResolverErrors,
 } from '../store/RelayStoreTypes';
 
-import {RelayFieldError} from '../store/RelayErrorTrie';
-import RelayFeatureFlags from './RelayFeatureFlags';
+const {RelayFieldError} = require('../store/RelayErrorTrie');
+const RelayFeatureFlags = require('./RelayFeatureFlags');
 
 function handleResolverErrors(
   environment: IEnvironment,
@@ -27,12 +28,7 @@ function handleResolverErrors(
   throwOnFieldError: boolean,
 ) {
   for (const resolverError of relayResolverErrors) {
-    environment.relayFieldLogger({
-      kind: 'relay_resolver.error',
-      owner: resolverError.field.owner,
-      fieldPath: resolverError.field.path,
-      error: resolverError.error,
-    });
+    environment.relayFieldLogger(resolverError);
   }
 
   if (
@@ -49,25 +45,32 @@ function handleResolverErrors(
 function handleFieldErrors(
   environment: IEnvironment,
   errorResponseFields: ErrorResponseFields,
-  throwOnFieldError: boolean,
+  shouldThrow: boolean,
 ) {
   for (const fieldError of errorResponseFields) {
-    const {path, owner, error} = fieldError;
-    environment.relayFieldLogger({
-      kind: 'relay_field_payload.error',
-      owner: owner,
-      fieldPath: path,
-      error,
-    });
+    // First we log all events. Note that the logger may opt to throw its own
+    // error here if it wants to throw an error that is better integrated into
+    // site's error handling infrastructure.
+    environment.relayFieldLogger(fieldError);
   }
 
-  if (
-    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT ||
-    throwOnFieldError
-  ) {
+  // when a user adds the throwOnFieldError flag, they opt into also throwing on missing fields.
+  if (shouldThrow) {
     throw new RelayFieldError(
       `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
-      errorResponseFields.map(({error}) => error),
+      errorResponseFields.map((event): TRelayFieldError => {
+        switch (event.kind) {
+          case 'relay_field_payload.error':
+            return event.error;
+          case 'missing_expected_data.throw':
+            return {message: 'Missing expected data'};
+          case 'missing_expected_data.log':
+            return {message: 'Missing expected data'};
+          default:
+            (event.kind: empty);
+            throw new Error('Relay: Unexpected event kind');
+        }
+      }),
     );
   }
 }
@@ -81,7 +84,7 @@ function handleMissingRequiredFields(
       const {path, owner} = missingRequiredFields.field;
       // This gives the consumer the chance to throw their own error if they so wish.
       environment.relayFieldLogger({
-        kind: 'missing_field.throw',
+        kind: 'missing_required_field.throw',
         owner,
         fieldPath: path,
       });
@@ -92,7 +95,7 @@ function handleMissingRequiredFields(
     case 'LOG':
       missingRequiredFields.fields.forEach(({path, owner}) => {
         environment.relayFieldLogger({
-          kind: 'missing_field.log',
+          kind: 'missing_required_field.log',
           owner,
           fieldPath: path,
         });
@@ -114,15 +117,17 @@ function handlePotentialSnapshotErrors(
   if (relayResolverErrors.length > 0) {
     handleResolverErrors(environment, relayResolverErrors, throwOnFieldError);
   }
-  /* inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
+
+  if (missingRequiredFields != null) {
+    handleMissingRequiredFields(environment, missingRequiredFields);
+  }
+
+  /**
+   * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
    * which is why this still should run in any case there's errors.
    */
   if (errorResponseFields != null) {
     handleFieldErrors(environment, errorResponseFields, throwOnFieldError);
-  }
-
-  if (missingRequiredFields != null) {
-    handleMissingRequiredFields(environment, missingRequiredFields);
   }
 }
 

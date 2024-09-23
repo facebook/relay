@@ -488,9 +488,15 @@ describe('RelayReader', () => {
         }
       }
     `;
+    const owner = createOperationDescriptor(UserFriends, {id: '1'});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserFriends.fragment, ROOT_ID, {id: '1'}),
+      createReaderSelector(
+        UserFriends.fragment,
+        ROOT_ID,
+        {id: '1'},
+        owner.request,
+      ),
     );
     expect(data).toEqual({
       node: {
@@ -544,6 +550,13 @@ describe('RelayReader', () => {
       },
     };
     source = RelayRecordSource.create(records);
+    const UserQuery = graphql`
+      query RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery {
+        me {
+          ...RelayReaderTestReadsHandleFieldsForFragmentsUserFriends
+        }
+      }
+    `;
     const UserFriends = graphql`
       fragment RelayReaderTestReadsHandleFieldsForFragmentsUserFriends on User {
         friends(first: 1) @__clientField(handle: "bestFriends") {
@@ -557,9 +570,10 @@ describe('RelayReader', () => {
         }
       }
     `;
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserFriends, '1', {}),
+      createReaderSelector(UserFriends, '1', {}, owner.request),
     );
     expect(data).toEqual({
       friends: {
@@ -746,9 +760,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
+      const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -1192,6 +1207,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = false` if data is available', () => {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends
+            }
+          }
+        `;
+
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends on User {
             id
@@ -1205,9 +1228,12 @@ describe('RelayReader', () => {
             }
           }
         `;
+
+        const owner = createOperationDescriptor(UserQuery, {});
+
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserFriends, '1', {}),
+          createReaderSelector(UserFriends, '1', {}, owner.request),
         );
         expect(data.friends.edges).toEqual([
           {
@@ -1228,6 +1254,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing in the node', () => {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriendsQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends
+            }
+          }
+        `;
+
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends on User {
             id
@@ -1242,9 +1276,11 @@ describe('RelayReader', () => {
             }
           }
         `;
+
+        const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserFriends, '1', {}),
+          createReaderSelector(UserFriends, '1', {}, owner.request),
         );
         expect(data.friends.edges).toEqual([
           {
@@ -1265,6 +1301,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing for connection', () => {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriendsQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriends
+            }
+          }
+        `;
+
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriends on User {
             id
@@ -1278,9 +1322,11 @@ describe('RelayReader', () => {
             }
           }
         `;
+
+        const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserFriends, '2', {}),
+          createReaderSelector(UserFriends, '2', {}, owner.request),
         );
         expect(data.id).toBe('2');
         expect(data.friends.edges).not.toBeDefined();

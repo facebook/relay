@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7ffddcb334a047ed5d5b7f8b9e045c6e>>
+ * @generated SignedSource<<5579eb9c66f82f6a923bc8b88dfb7f29>>
  */
 
 mod generate_data_driven_dependency_metadata;
 
 use generate_data_driven_dependency_metadata::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn client_resolver_3d_module_on_interface() {
+    let input = include_str!("generate_data_driven_dependency_metadata/fixtures/client-resolver-3D-module-on-interface.graphql");
+    let expected = include_str!("generate_data_driven_dependency_metadata/fixtures/client-resolver-3D-module-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "client-resolver-3D-module-on-interface.graphql", "generate_data_driven_dependency_metadata/fixtures/client-resolver-3D-module-on-interface.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn match_on_child_of_plural() {

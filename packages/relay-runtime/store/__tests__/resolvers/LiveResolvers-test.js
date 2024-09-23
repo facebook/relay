@@ -263,11 +263,10 @@ test('Errors thrown during _initial_ read() are caught as resolver errors', () =
   const snapshot = environment.lookup(operation.fragment);
   expect(snapshot.relayResolverErrors).toEqual([
     {
+      kind: 'relay_resolver.error',
       error: Error('What?'),
-      field: {
-        owner: 'LiveResolversTestHandlesErrorOnReadQuery',
-        path: 'counter_throws_when_odd',
-      },
+      owner: 'LiveResolversTestHandlesErrorOnReadQuery',
+      fieldPath: 'counter_throws_when_odd',
     },
   ]);
   const data: $FlowExpectedError = snapshot.data;
@@ -316,11 +315,10 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
 
   expect(nextSnapshot.relayResolverErrors).toEqual([
     {
+      kind: 'relay_resolver.error',
       error: Error('What?'),
-      field: {
-        owner: 'LiveResolversTestHandlesErrorOnUpdateQuery',
-        path: 'counter_throws_when_odd',
-      },
+      owner: 'LiveResolversTestHandlesErrorOnUpdateQuery',
+      fieldPath: 'counter_throws_when_odd',
     },
   ]);
   const nextData: $FlowExpectedError = nextSnapshot.data;

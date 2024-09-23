@@ -219,355 +219,357 @@ let environment;
 beforeEach(() => {
   environment = createEnvironment();
 });
-test('client edge to plural IDs, none have corresponding live object', () => {
-  function TodoNullComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query {
-          edge_to_plural_live_objects_none_exist {
-            id
-            description
-          }
+describe.each([true, false])(
+  'AVOID_CYCLES_IN_RESOLVER_NOTIFICATION is %p',
+  avoidCycles => {
+    RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION = avoidCycles;
+    test('client edge to plural IDs, none have corresponding live object', () => {
+      function TodoNullComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverNullableModelClientEdgeTest_PluralLiveModelNoneExist_Query {
+              edge_to_plural_live_objects_none_exist {
+                id
+                description
+              }
+            }
+          `,
+          {},
+        );
+
+        invariant(data != null, 'Query response should be nonnull');
+        expect(data.edge_to_plural_live_objects_none_exist).toHaveLength(2);
+        return data.edge_to_plural_live_objects_none_exist
+          ?.map(item =>
+            item
+              ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
+              : 'unknown',
+          )
+          .join(',');
+      }
+
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoNullComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('unknown,unknown');
+    });
+
+    test('client edge to plural IDs, some with no corresponding live object', () => {
+      function TodoNullComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query {
+              edge_to_plural_live_objects_some_exist {
+                id
+                description
+              }
+            }
+          `,
+          {},
+        );
+
+        invariant(data != null, 'Query response should be nonnull');
+        expect(data.edge_to_plural_live_objects_some_exist).toHaveLength(2);
+        return data.edge_to_plural_live_objects_some_exist
+          ?.map(item =>
+            item
+              ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
+              : 'unknown',
+          )
+          .join(',');
+      }
+
+      addTodo('Test todo');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoNullComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('todo-1 - Test todo,unknown');
+    });
+
+    test('client edge to ID with no corresponding live object', () => {
+      function TodoNullComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverNullableModelClientEdgeTest_LiveModel_Query {
+              edge_to_live_object_does_not_exist {
+                id
+                fancy_description {
+                  text
+                }
+              }
+            }
+          `,
+          {},
+        );
+
+        invariant(data != null, 'Query response should be nonnull');
+
+        switch (data.edge_to_live_object_does_not_exist) {
+          case null:
+            return 'Todo was null';
+          case undefined:
+            return 'Todo was undefined';
+          default:
+            return 'Todo was not null or undefined';
         }
-      `,
-      {},
-    );
+      }
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoNullComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Todo was null');
+    });
 
-    invariant(data != null, 'Query response should be nonnull');
-    expect(data.edge_to_plural_live_objects_none_exist).toHaveLength(2);
-    return data.edge_to_plural_live_objects_none_exist
-      ?.map(item =>
-        item
-          ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
-          : 'unknown',
-      )
-      .join(',');
-  }
+    test('client edge to ID with no corresponding weak object', () => {
+      function NullWeakModelComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverNullableModelClientEdgeTest_WeakModel_Query {
+              edge_to_null_weak_model {
+                first_name
+              }
+            }
+          `,
+          {},
+        );
 
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <TodoNullComponent />
-      </EnvironmentWrapper>,
-    );
-  });
-  expect(renderer?.toJSON()).toEqual('unknown,unknown');
-});
+        invariant(data != null, 'Query response should be nonnull');
 
-test('client edge to plural IDs, some with no corresponding live object', () => {
-  function TodoNullComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query {
-          edge_to_plural_live_objects_some_exist {
-            id
-            description
-          }
+        switch (data.edge_to_null_weak_model) {
+          case null:
+            return 'Weak model was null';
+          case undefined:
+            return 'Weak model was undefined';
+          default:
+            return 'Weak model was not null or undefined';
         }
-      `,
-      {},
-    );
+      }
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <NullWeakModelComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Weak model was null');
+    });
 
-    invariant(data != null, 'Query response should be nonnull');
-    expect(data.edge_to_plural_live_objects_some_exist).toHaveLength(2);
-    return data.edge_to_plural_live_objects_some_exist
-      ?.map(item =>
-        item
-          ? `${item.id ?? 'unknown'} - ${item.description ?? 'unknown'}`
-          : 'unknown',
-      )
-      .join(',');
-  }
+    test('client edge to ID with no corresponding strong object', () => {
+      function NullStrongModelComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverNullableModelClientEdgeTest_StrongModel_Query {
+              edge_to_strong_model_does_not_exist {
+                name
+              }
+            }
+          `,
+          {},
+        );
 
-  addTodo('Test todo');
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <TodoNullComponent />
-      </EnvironmentWrapper>,
-    );
-  });
-  expect(renderer?.toJSON()).toEqual('todo-1 - Test todo,unknown');
-});
+        invariant(data != null, 'Query response should be nonnull');
 
-test('client edge to ID with no corresponding live object', () => {
-  function TodoNullComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverNullableModelClientEdgeTest_LiveModel_Query {
-          edge_to_live_object_does_not_exist {
-            id
-            fancy_description {
-              text
+        switch (data.edge_to_strong_model_does_not_exist) {
+          case null:
+            return 'strong model was null';
+          case undefined:
+            return 'strong model was undefined';
+          default:
+            return 'strong model was not null or undefined';
+        }
+      }
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <NullStrongModelComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('strong model was null');
+    });
+
+    test('client edge to server ID with no corresponding server object', () => {
+      function NullServerObjectComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverNullableModelClientEdgeTest_ServerObject_Query {
+              edge_to_server_object_does_not_exist @waterfall {
+                name
+              }
+            }
+          `,
+          {},
+        );
+
+        invariant(data != null, 'Query response should be nonnull');
+
+        switch (data.edge_to_server_object_does_not_exist) {
+          case null:
+            return 'server object was null';
+          case undefined:
+            return 'server object was undefined';
+          default:
+            return 'server object was not null or undefined';
+        }
+      }
+      const mock_environment = createMockEnvironment();
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={mock_environment}>
+            <NullServerObjectComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Loading...');
+      TestRenderer.act(() => {
+        mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
+        jest.runAllImmediates();
+      });
+      // TODO T169274655 should this be 'server object was null'?
+      expect(renderer?.toJSON()).toEqual('server object was undefined');
+    });
+
+    test('client edge to server ID with no corresponding server object (read only id)', () => {
+      function NullServerObjectComponent() {
+        const data = useClientQuery(
+          graphql`
+            query RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query {
+              edge_to_server_object_does_not_exist @waterfall {
+                id
+              }
+            }
+          `,
+          {},
+        );
+
+        invariant(data != null, 'Query response should be nonnull');
+
+        switch (data.edge_to_server_object_does_not_exist) {
+          case null:
+            return 'server object was null';
+          case undefined:
+            return 'server object was undefined';
+          default:
+            return 'server object was not null or undefined';
+        }
+      }
+      const mock_environment = createMockEnvironment();
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={mock_environment}>
+            <NullServerObjectComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Loading...');
+      TestRenderer.act(() => {
+        mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
+        jest.runAllImmediates();
+      });
+      // TODO T169274655 should this be 'server object was null'?
+      expect(renderer?.toJSON()).toEqual('server object was undefined');
+    });
+
+    test('Errors thrown when reading the model a client edge points to are caught as resolver errors', () => {
+      const operation = createOperationDescriptor(
+        graphql`
+          query RelayResolverNullableModelClientEdgeTest_ErrorModel_Query {
+            edge_to_model_that_throws {
+              __typename
             }
           }
-        }
-      `,
-      {},
-    );
+        `,
+        {},
+      );
+      const snapshot = environment.lookup(operation.fragment);
+      expect(snapshot.relayResolverErrors).toEqual([
+        {
+          error: Error(ERROR_MESSAGE),
+          owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
+          fieldPath: 'edge_to_model_that_throws.__relay_model_instance',
+          kind: 'relay_resolver.error',
+        },
+      ]);
+      const data: $FlowExpectedError = snapshot.data;
+      expect(data.edge_to_model_that_throws).toBe(null);
+    });
 
-    invariant(data != null, 'Query response should be nonnull');
-
-    switch (data.edge_to_live_object_does_not_exist) {
-      case null:
-        return 'Todo was null';
-      case undefined:
-        return 'Todo was undefined';
-      default:
-        return 'Todo was not null or undefined';
-    }
-  }
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <TodoNullComponent />
-      </EnvironmentWrapper>,
-    );
-  });
-  expect(renderer?.toJSON()).toEqual('Todo was null');
-});
-
-test('client edge to ID with no corresponding weak object', () => {
-  function NullWeakModelComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverNullableModelClientEdgeTest_WeakModel_Query {
-          edge_to_null_weak_model {
-            first_name
+    test('Errors thrown when reading plural client edge are caught as resolver errors', () => {
+      const operation = createOperationDescriptor(
+        graphql`
+          query RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query {
+            edge_to_plural_models_that_throw {
+              __typename
+            }
           }
-        }
-      `,
-      {},
-    );
+        `,
+        {},
+      );
+      const snapshot = environment.lookup(operation.fragment);
+      expect(snapshot.relayResolverErrors).toEqual([
+        {
+          error: Error(ERROR_MESSAGE),
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
+        },
+        {
+          error: Error(ERROR_MESSAGE),
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
+        },
+      ]);
+      const data: $FlowExpectedError = snapshot.data;
+      expect(data.edge_to_plural_models_that_throw).toStrictEqual([null, null]);
+    });
 
-    invariant(data != null, 'Query response should be nonnull');
-
-    switch (data.edge_to_null_weak_model) {
-      case null:
-        return 'Weak model was null';
-      case undefined:
-        return 'Weak model was undefined';
-      default:
-        return 'Weak model was not null or undefined';
-    }
-  }
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <NullWeakModelComponent />
-      </EnvironmentWrapper>,
-    );
-  });
-  expect(renderer?.toJSON()).toEqual('Weak model was null');
-});
-
-test('client edge to ID with no corresponding strong object', () => {
-  function NullStrongModelComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverNullableModelClientEdgeTest_StrongModel_Query {
-          edge_to_strong_model_does_not_exist {
-            name
+    test('Errors thrown when reading plural client edge are caught as resolver errors and valid data is returned', () => {
+      const operation = createOperationDescriptor(
+        graphql`
+          query RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query {
+            edge_to_plural_models_some_throw {
+              id
+            }
           }
-        }
-      `,
-      {},
-    );
-
-    invariant(data != null, 'Query response should be nonnull');
-
-    switch (data.edge_to_strong_model_does_not_exist) {
-      case null:
-        return 'strong model was null';
-      case undefined:
-        return 'strong model was undefined';
-      default:
-        return 'strong model was not null or undefined';
-    }
-  }
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={environment}>
-        <NullStrongModelComponent />
-      </EnvironmentWrapper>,
-    );
-  });
-  expect(renderer?.toJSON()).toEqual('strong model was null');
-});
-
-test('client edge to server ID with no corresponding server object', () => {
-  function NullServerObjectComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverNullableModelClientEdgeTest_ServerObject_Query {
-          edge_to_server_object_does_not_exist @waterfall {
-            name
-          }
-        }
-      `,
-      {},
-    );
-
-    invariant(data != null, 'Query response should be nonnull');
-
-    switch (data.edge_to_server_object_does_not_exist) {
-      case null:
-        return 'server object was null';
-      case undefined:
-        return 'server object was undefined';
-      default:
-        return 'server object was not null or undefined';
-    }
-  }
-  const mock_environment = createMockEnvironment();
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={mock_environment}>
-        <NullServerObjectComponent />
-      </EnvironmentWrapper>,
-    );
-  });
-  expect(renderer?.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
-    mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
-    jest.runAllImmediates();
-  });
-  // TODO T169274655 should this be 'server object was null'?
-  expect(renderer?.toJSON()).toEqual('server object was undefined');
-});
-
-test('client edge to server ID with no corresponding server object (read only id)', () => {
-  function NullServerObjectComponent() {
-    const data = useClientQuery(
-      graphql`
-        query RelayResolverNullableModelClientEdgeTest_ServerObjectReadOnlyId_Query {
-          edge_to_server_object_does_not_exist @waterfall {
-            id
-          }
-        }
-      `,
-      {},
-    );
-
-    invariant(data != null, 'Query response should be nonnull');
-
-    switch (data.edge_to_server_object_does_not_exist) {
-      case null:
-        return 'server object was null';
-      case undefined:
-        return 'server object was undefined';
-      default:
-        return 'server object was not null or undefined';
-    }
-  }
-  const mock_environment = createMockEnvironment();
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <EnvironmentWrapper environment={mock_environment}>
-        <NullServerObjectComponent />
-      </EnvironmentWrapper>,
-    );
-  });
-  expect(renderer?.toJSON()).toEqual('Loading...');
-  TestRenderer.act(() => {
-    mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
-    jest.runAllImmediates();
-  });
-  // TODO T169274655 should this be 'server object was null'?
-  expect(renderer?.toJSON()).toEqual('server object was undefined');
-});
-
-test('Errors thrown when reading the model a client edge points to are caught as resolver errors', () => {
-  const operation = createOperationDescriptor(
-    graphql`
-      query RelayResolverNullableModelClientEdgeTest_ErrorModel_Query {
-        edge_to_model_that_throws {
-          __typename
-        }
-      }
-    `,
-    {},
-  );
-  const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([
-    {
-      error: Error(ERROR_MESSAGE),
-      field: {
-        owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
-        path: 'edge_to_model_that_throws.__relay_model_instance',
-      },
-    },
-  ]);
-  const data: $FlowExpectedError = snapshot.data;
-  expect(data.edge_to_model_that_throws).toBe(null);
-});
-
-test('Errors thrown when reading plural client edge are caught as resolver errors', () => {
-  const operation = createOperationDescriptor(
-    graphql`
-      query RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query {
-        edge_to_plural_models_that_throw {
-          __typename
-        }
-      }
-    `,
-    {},
-  );
-  const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([
-    {
-      error: Error(ERROR_MESSAGE),
-      field: {
-        owner:
-          'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-        path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-      },
-    },
-    {
-      error: Error(ERROR_MESSAGE),
-      field: {
-        owner:
-          'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-        path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-      },
-    },
-  ]);
-  const data: $FlowExpectedError = snapshot.data;
-  expect(data.edge_to_plural_models_that_throw).toStrictEqual([null, null]);
-});
-
-test('Errors thrown when reading plural client edge are caught as resolver errors and valid data is returned', () => {
-  const operation = createOperationDescriptor(
-    graphql`
-      query RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query {
-        edge_to_plural_models_some_throw {
-          id
-        }
-      }
-    `,
-    {},
-  );
-  const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([
-    {
-      error: Error(ERROR_MESSAGE),
-      field: {
-        owner:
-          'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
-        path: 'edge_to_plural_models_some_throw.__relay_model_instance',
-      },
-    },
-  ]);
-  const data: $FlowExpectedError = snapshot.data;
-  expect(data.edge_to_plural_models_some_throw).toStrictEqual([
-    null,
-    {id: 'a valid id!'},
-  ]);
-});
+        `,
+        {},
+      );
+      const snapshot = environment.lookup(operation.fragment);
+      expect(snapshot.relayResolverErrors).toEqual([
+        {
+          error: Error(ERROR_MESSAGE),
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_some_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
+        },
+      ]);
+      const data: $FlowExpectedError = snapshot.data;
+      expect(data.edge_to_plural_models_some_throw).toStrictEqual([
+        null,
+        {id: 'a valid id!'},
+      ]);
+    });
+  },
+);

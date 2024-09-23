@@ -133,9 +133,7 @@ pub enum ValidationMessage {
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
     NonNullableVariableHasDefaultValue { variable_name: VariableName },
 
-    #[error(
-        "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
-    )]
+    #[error("Variable of type '{defined_type}' cannot be used where '{used_type}' is expected.")]
     InvalidVariableUsage {
         defined_type: String,
         used_type: String,
@@ -150,7 +148,10 @@ pub enum ValidationMessage {
     },
 
     #[error("Expected variable `${0}` to be defined on the operation")]
-    ExpectedOperationVariableToBeDefined(VariableName),
+    ExpectedOperationVariableToBeDefinedOnUnnamedQuery(VariableName),
+
+    #[error("Expected variable `${0}` to be defined on the operation '{1}'")]
+    ExpectedOperationVariableToBeDefined(VariableName, StringKey),
 
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"
@@ -532,11 +533,6 @@ pub enum ValidationMessage {
         "Unexpected `@required(action: THROW)` directive in mutation response. The use of `@required(action: THROW)` is not supported in mutations."
     )]
     RequiredInMutation,
-
-    #[error(
-        "Unexpected `@throwOnFieldError` directive. The `@throwOnFieldError` directive is not supported unless experimental_emit_semantic_nullability_types is enabled."
-    )]
-    ThrowOnFieldErrorNotEnabled,
 
     #[error(
         "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."

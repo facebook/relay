@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a25d16447be608f67d40ca4e224344f6>>
+ * @generated SignedSource<<593198c057eeeda8d160623a10c56a3a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { RelayResolverInterfaceTestAnimalLegsFragment$fragmentType } from "./RelayResolverInterfaceTestAnimalLegsFragment.graphql";
 import {cat as queryCatResolverType} from "../../../relay-runtime/store/__tests__/resolvers/CatResolvers.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCatResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCatResolverType: () => ?{|
+(queryCatResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 export type RelayResolverInterfaceTestCatLegsQuery$variables = {||};

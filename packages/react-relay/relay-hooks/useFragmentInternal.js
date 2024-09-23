@@ -24,7 +24,7 @@ hook useFragmentInternal(
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
 ): ?SelectorData | Array<?SelectorData> {
-  if (RelayFeatureFlags.ENABLE_USE_FRAGMENT_EXPERIMENTAL) {
+  if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
     // $FlowFixMe[react-rule-hook] - the condition is static
     return useFragmentInternal_EXPERIMENTAL(
       fragmentNode,

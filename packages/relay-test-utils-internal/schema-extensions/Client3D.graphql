@@ -1,0 +1,13 @@
+interface IBasicUser {
+  id: ID!
+  data: String
+}
+
+type Persona {
+  id: ID!
+  basicUser: IBasicUser
+}
+
+extend type Query {
+  persona: Persona
+}

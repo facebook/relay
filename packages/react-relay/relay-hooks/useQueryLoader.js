@@ -25,9 +25,10 @@ import type {
 
 const {loadQuery} = require('./loadQuery');
 const useIsMountedRef = require('./useIsMountedRef');
+const useQueryLoader_EXPERIMENTAL = require('./useQueryLoader_EXPERIMENTAL');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const {useCallback, useEffect, useRef, useState} = require('react');
-const {getRequest} = require('relay-runtime');
+const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 
 export type LoaderFn<TQuery: OperationType> = (
   variables: TQuery['variables'],
@@ -42,7 +43,7 @@ export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
 // NullQueryReference needs to implement referential equality,
 // so that multiple NullQueryReferences can be in the same set
 // (corresponding to multiple calls to disposeQuery).
-type NullQueryReference = {
+export type NullQueryReference = {
   kind: 'NullQueryReference',
 };
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
@@ -68,7 +69,7 @@ function requestIsLiveQuery<
   return request.params.metadata.live !== undefined;
 }
 
-type UseQueryLoaderHookReturnType<
+export type UseQueryLoaderHookReturnType<
   TVariables: Variables,
   TData,
   TRawResponse: ?{...} = void,
@@ -109,6 +110,29 @@ declare function useQueryLoader<TQuery: OperationType>(
 ): UseQueryLoaderHookReturnType<TQuery['variables'], TQuery['response']>;
 
 hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
+  preloadableRequest: Query<TVariables, TData, TRawResponse>,
+  initialQueryReference?: ?PreloadedQuery<{
+    response: TData,
+    variables: TVariables,
+    rawResponse?: $NonMaybeType<TRawResponse>,
+  }>,
+): UseQueryLoaderHookReturnType<TVariables, TData> {
+  if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
+    // $FlowFixMe[react-rule-hook] - the condition is static
+    return useQueryLoader_EXPERIMENTAL(
+      preloadableRequest,
+      initialQueryReference,
+    );
+  }
+  // $FlowFixMe[react-rule-hook] - the condition is static
+  return useQueryLoader_CURRENT(preloadableRequest, initialQueryReference);
+}
+
+hook useQueryLoader_CURRENT<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+>(
   preloadableRequest: Query<TVariables, TData, TRawResponse>,
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,

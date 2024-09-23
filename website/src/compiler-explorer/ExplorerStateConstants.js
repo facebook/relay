@@ -69,12 +69,6 @@ export const FEATURE_FLAGS = [
     default: false,
   },
   {
-    key: 'enable_fragment_aliases',
-    label: '@alias',
-    kind: 'enum',
-    default: true,
-  },
-  {
     key: 'enforce_fragment_alias_where_ambiguous',
     label: 'Enforce @alias where ambiguous',
     kind: 'enum',

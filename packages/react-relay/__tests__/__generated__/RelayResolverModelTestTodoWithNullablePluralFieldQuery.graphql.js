@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<52f419e56f3be155c39f69eb0b45b876>>
+ * @generated SignedSource<<8e891b03214b392a12d3e75304e2e4b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,12 +22,14 @@ import type { DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType: (
   args: {|
     todoID: string,
   |},
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -36,12 +38,16 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {many_fancy_descriptions_but_some_are_null as todoModelManyFancyDescriptionsButSomeAreNullResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelManyFancyDescriptionsButSomeAreNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelManyFancyDescriptionsButSomeAreNullResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?$ReadOnlyArray<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables = {|

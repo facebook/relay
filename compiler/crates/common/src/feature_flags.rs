@@ -25,9 +25,6 @@ pub struct FeatureFlags {
     pub enable_relay_resolver_transform: bool,
 
     #[serde(default)]
-    pub enable_catch_directive_transform: FeatureFlag,
-
-    #[serde(default)]
     // Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,
 
@@ -53,10 +50,6 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
 
-    /// Enable support for the experimental `@alias` directive on fragment spreads.
-    #[serde(default)]
-    pub enable_fragment_aliases: FeatureFlag,
-
     /// Enforce that you must add `@alias` to a fragment if it may not match,
     /// due to type mismatch or `@skip`/`@include`
     #[serde(default)]
@@ -69,6 +62,12 @@ pub struct FeatureFlags {
     /// Fully build the normalization AST for Resolvers
     #[serde(default)]
     pub enable_resolver_normalization_ast: bool,
+
+    /// Allow per-query opt in to normalization AST for Resolvers with exec_time_resolvers
+    /// directive. In contrast to enable_resolver_normalization_ast, if this is true, a
+    /// normalization AST can be generated for a query using the @exec_time_resolvers directive
+    #[serde(default)]
+    pub enable_exec_time_resolvers_directive: bool,
 
     /// Allow relay resolvers to extend the Mutation type
     #[serde(default)]
@@ -119,6 +118,30 @@ pub struct FeatureFlags {
     /// Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.
     #[serde(default)]
     pub disable_edge_type_name_validation_on_declerative_connection_directives: FeatureFlag,
+
+    /// Disable full GraphQL argument type validation. Historically, we only applied argument type
+    /// validation to the query that was actually going to be persisted and sent
+    /// to the server. This meant that we didn't typecheck arguments passed to
+    /// Relay Resolvers or Client Schema Extensions.
+    ///
+    /// We also permitted an escape hatch of `uncheckedArguments_DEPRECATED` for
+    /// defining fragment arguments which were not typechecked.
+    ///
+    /// We no-longer support `uncheckedArguments_DEPRECATED`, and we typecheck
+    /// both client and server arguments. This flag allows you to opt out of
+    /// this new behavior to enable gradual adoption of the new validations.
+    ///
+    /// This flag will be removed in a future version of Relay.
+    #[serde(default)]
+    pub disable_full_argument_type_validation: FeatureFlag,
+
+    /// Enable a custom path for artifacts
+    #[serde(default)]
+    pub enable_custom_artifacts_path: FeatureFlag,
+
+    /// Generate the `moduleImports` field in the Reader AST.
+    #[serde(default)]
+    pub use_reader_module_imports: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

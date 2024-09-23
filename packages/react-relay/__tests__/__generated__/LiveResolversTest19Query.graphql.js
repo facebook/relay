@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3f1ab95503021f37760ce3e491b69877>>
+ * @generated SignedSource<<f97cc06a603105f690e19feaa15d4763>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {live_resolver_return_undefined as queryLiveResolverReturnUndefinedResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveResolverReturnUndefinedResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverReturnUndefinedResolverType: () => LiveState<?mixed>);
+(queryLiveResolverReturnUndefinedResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?mixed>);
 export type LiveResolversTest19Query$variables = {||};
 export type LiveResolversTest19Query$data = {|
   +live_resolver_return_undefined: ?ReturnType<ReturnType<typeof queryLiveResolverReturnUndefinedResolverType>["read"]>,

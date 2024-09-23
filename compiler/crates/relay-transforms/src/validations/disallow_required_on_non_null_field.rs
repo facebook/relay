@@ -18,7 +18,6 @@ use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
-use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use lazy_static::lazy_static;
 use schema::Schema;
@@ -34,26 +33,18 @@ lazy_static! {
         DirectiveName("throwOnFieldError".intern());
 }
 
-pub fn disallow_required_on_non_null_field(
-    program: &Program,
-    experimental_emit_semantic_nullability_types: bool,
-) -> DiagnosticsResult<()> {
-    let mut validator =
-        DisallowRequiredOnNonNullField::new(program, experimental_emit_semantic_nullability_types);
+pub fn disallow_required_on_non_null_field(program: &Program) -> DiagnosticsResult<()> {
+    let mut validator = DisallowRequiredOnNonNullField::new(program);
     validator.validate_program(program)
 }
 
 struct DisallowRequiredOnNonNullField<'program> {
     program: &'program Program,
-    experimental_emit_semantic_nullability_types: bool,
 }
 
 impl<'program> DisallowRequiredOnNonNullField<'program> {
-    fn new(program: &'program Program, experimental_emit_semantic_nullability_types: bool) -> Self {
-        Self {
-            program,
-            experimental_emit_semantic_nullability_types,
-        }
+    fn new(program: &'program Program) -> Self {
+        Self { program }
     }
 
     fn validate_required_field(&self, field: &Arc<impl Field>) -> DiagnosticsResult<()> {
@@ -130,13 +121,6 @@ impl Validator for DisallowRequiredOnNonNullField<'_> {
             return Ok(());
         }
 
-        if !self.experimental_emit_semantic_nullability_types {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ThrowOnFieldErrorNotEnabled,
-                throw_on_field_error_directive.unwrap().name.location,
-            )]);
-        }
-
         self.validate_selection_fields(&fragment.selections)
     }
 
@@ -149,13 +133,6 @@ impl Validator for DisallowRequiredOnNonNullField<'_> {
 
         if throw_on_field_error_directive.is_none() {
             return Ok(());
-        }
-
-        if !self.experimental_emit_semantic_nullability_types {
-            return Err(vec![Diagnostic::error(
-                ValidationMessage::ThrowOnFieldErrorNotEnabled,
-                throw_on_field_error_directive.unwrap().name.location,
-            )]);
         }
 
         self.validate_selection_fields(&operation.selections)

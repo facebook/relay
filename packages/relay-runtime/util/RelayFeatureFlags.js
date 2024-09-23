@@ -43,7 +43,6 @@ export type FeatureFlags = {
   // @see https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
 
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: boolean,
-  ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: boolean,
 
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: boolean,
 
@@ -52,8 +51,13 @@ export type FeatureFlags = {
 
   ENABLE_CYLE_DETECTION_IN_VARIABLES: boolean,
 
-  // Temporary flag to experiment with new useFragmentInternal implementation
-  ENABLE_USE_FRAGMENT_EXPERIMENTAL: boolean,
+  // Temporary flag to experiment to enable compatibility with React's unstable <Activity> API
+  ENABLE_ACTIVITY_COMPATIBILITY: boolean,
+
+  // Gating a fix to prevent infinite loops when invalidating Relay Resolvers.
+  // We believe the fix to be correct but don't yet have a test to validate it
+  // fixes the error, so we're gating it for now.
+  AVOID_CYCLES_IN_RESOLVER_NOTIFICATION: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -73,11 +77,11 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
   ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: false,
-  ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE: false,
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
-  ENABLE_USE_FRAGMENT_EXPERIMENTAL: false,
+  ENABLE_ACTIVITY_COMPATIBILITY: false,
+  AVOID_CYCLES_IN_RESOLVER_NOTIFICATION: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-# relay:experimental_emit_semantic_nullability_types
 fragment MyFragment on ClientUser @throwOnFieldError {
   nullable_name @required(action: LOG)
   resolver_name @required(action: LOG)

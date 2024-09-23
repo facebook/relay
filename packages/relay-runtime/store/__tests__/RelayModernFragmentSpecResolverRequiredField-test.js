@@ -119,7 +119,8 @@ describe('RelayModernFragmentSpecResolver', () => {
     setUserField('4', 'name', null);
 
     expect(() => resolver.resolve()).toThrowError(
-      "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment'.",
+      // "Relay: Missing @required value at path 'name' in 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment'.",
+      'Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors',
     );
 
     expect(relayFieldLogger).toHaveBeenCalledWith({

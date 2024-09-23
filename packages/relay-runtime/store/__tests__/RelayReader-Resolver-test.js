@@ -245,8 +245,8 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {});
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-        const {missingRequiredFields} = store.lookup(operation.fragment);
-        expect(missingRequiredFields).toEqual([
+        const {errorResponseFields} = store.lookup(operation.fragment);
+        expect(errorResponseFields).toEqual([
           {
             kind: 'missing_required_field.log',
             owner: 'UserRequiredNameResolver',
@@ -256,10 +256,11 @@ describe.each([true, false])(
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
-        const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
-          store.lookup(operation.fragment);
+        const {errorResponseFields: errorResponseFieldsTakeTwo} = store.lookup(
+          operation.fragment,
+        );
 
-        expect(missingRequiredFieldsTakeTwo).toEqual([
+        expect(errorResponseFieldsTakeTwo).toEqual([
           {
             kind: 'missing_required_field.log',
             owner: 'UserRequiredNameResolver',
@@ -329,8 +330,8 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {});
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-        const {missingRequiredFields} = store.lookup(operation.fragment);
-        expect(missingRequiredFields).toEqual([
+        const {errorResponseFields} = store.lookup(operation.fragment);
+        expect(errorResponseFields).toEqual([
           {
             kind: 'missing_required_field.log',
             owner: 'UserRequiredNameResolver',
@@ -345,10 +346,11 @@ describe.each([true, false])(
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
-        const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
-          store.lookup(operation.fragment);
+        const {errorResponseFields: errorResponseFieldsTakeTwo} = store.lookup(
+          operation.fragment,
+        );
 
-        expect(missingRequiredFieldsTakeTwo).toEqual([
+        expect(errorResponseFieldsTakeTwo).toEqual([
           {
             kind: 'missing_required_field.log',
             owner: 'UserRequiredNameResolver',
@@ -388,19 +390,20 @@ describe.each([true, false])(
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
 
         const beforeCallCount = requiredThrowNameCalls.count;
-        const {missingRequiredFields} = store.lookup(operation.fragment);
+        const {errorResponseFields} = store.lookup(operation.fragment);
         expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
-        expect(missingRequiredFields).toEqual({
+        expect(errorResponseFields).toEqual({
           action: 'THROW',
           field: {owner: 'UserRequiredThrowNameResolver', path: 'name'},
         });
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
-        const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
-          store.lookup(operation.fragment);
+        const {errorResponseFields: errorResponseFieldsTakeTwo} = store.lookup(
+          operation.fragment,
+        );
 
-        expect(missingRequiredFieldsTakeTwo).toEqual({
+        expect(errorResponseFieldsTakeTwo).toEqual({
           action: 'THROW',
           field: {owner: 'UserRequiredThrowNameResolver', path: 'name'},
         });

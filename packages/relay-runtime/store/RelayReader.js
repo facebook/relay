@@ -627,7 +627,7 @@ class RelayReader {
         return {
           data: snapshot.data,
           isMissingData: snapshot.isMissingData,
-          missingRequiredFields: snapshot.missingRequiredFields,
+          errorResponseFields: snapshot.errorResponseFields,
         };
       }
 
@@ -640,7 +640,7 @@ class RelayReader {
       return {
         data: snapshot.data,
         isMissingData: snapshot.isMissingData,
-        missingRequiredFields: snapshot.missingRequiredFields,
+        errorResponseFields: snapshot.errorResponseFields,
       };
     };
 

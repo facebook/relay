@@ -116,15 +116,10 @@ function handlePotentialSnapshotErrorsForState(
     handlePotentialSnapshotErrors(
       environment,
       state.snapshot.errorResponseFields,
-      state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(
-        environment,
-        snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
-      );
+      handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
     }
   }
 }

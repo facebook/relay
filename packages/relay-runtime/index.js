@@ -64,7 +64,9 @@ const getRefetchMetadata = require('./util/getRefetchMetadata');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
 const getValueAtPath = require('./util/getValueAtPath');
-const handlePotentialSnapshotErrors = require('./util/handlePotentialSnapshotErrors');
+const {
+  handlePotentialSnapshotErrors,
+} = require('./util/handlePotentialSnapshotErrors');
 const isPromise = require('./util/isPromise');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');

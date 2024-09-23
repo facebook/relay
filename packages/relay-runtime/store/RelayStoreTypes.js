@@ -116,14 +116,15 @@ export type NormalizationSelector = {
   +variables: Variables,
 };
 
-export type ErrorResponseFields = Array<
+export type ErrorResponseField =
   | RelayFieldPayloadErrorEvent
   | MissingExpectedDataLogEvent
   | MissingExpectedDataThrowEvent
   | RelayResolverErrorEvent
   | MissingFieldLogEvent
-  | MissingFieldThrowEvent,
->;
+  | MissingFieldThrowEvent;
+
+export type ErrorResponseFields = Array<ErrorResponseField>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,

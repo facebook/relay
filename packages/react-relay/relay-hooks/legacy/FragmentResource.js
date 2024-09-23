@@ -559,17 +559,12 @@ class FragmentResourceImpl {
   _throwOrLogErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
-        handlePotentialSnapshotErrors(
-          this._environment,
-          s.errorResponseFields,
-          s.selector.node.metadata?.throwOnFieldError ?? false,
-        );
+        handlePotentialSnapshotErrors(this._environment, s.errorResponseFields);
       });
     } else {
       handlePotentialSnapshotErrors(
         this._environment,
         snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
     }
   }

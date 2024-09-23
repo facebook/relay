@@ -23,6 +23,10 @@ function loadSchema(): any {
           type: 'number',
           validate: data => data >= 0 && data <= 255,
         },
+        uint: {
+          type: 'number',
+          validate: data => data >= 0 && data <= Number.MAX_SAFE_INTEGER,
+        },
       },
     },
   );

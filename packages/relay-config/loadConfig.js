@@ -19,10 +19,6 @@ function loadConfig(folder?: string): any | void {
 
   const result = cosmiconfig('relay', {
     searchPlaces: ['relay.config.js', 'relay.config.json', 'package.json'],
-    loaders: {
-      '.json': cosmiconfig.loadJson,
-      '.js': cosmiconfig.loadJs,
-    },
   }).searchSync(folder);
   if (!result) {
     return;

@@ -12,6 +12,5 @@
 'use strict';
 
 const loadConfig = require('./loadConfig');
-const saveConfig = require('./saveConfig');
 
-module.exports = {loadConfig, saveConfig};
+module.exports = {loadConfig};

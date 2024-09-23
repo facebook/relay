@@ -12,45 +12,41 @@
 'use strict';
 
 const loadConfig = require('../loadConfig');
-const mockFs = require('mock-fs');
+const path = require('path');
 
 describe('loadConfig', () => {
-  beforeEach(() => {
-    mockFs({
-      '/app/package.json': JSON.stringify({name: 'my-app', version: '1.0.0'}),
-      '/bad-config/relay.config.json': JSON.stringify({}),
-      '/other-app/package.json': JSON.stringify({
-        name: 'my-other-app',
-        version: '2.0.0',
-        relay: {
-          language: 'typescript',
-        },
-      }),
-      '/another-app/relay.config.json': JSON.stringify({
-        language: 'typescript',
-      }),
-      '/and-another-app/relay.config.js': `module.exports = ${JSON.stringify({language: 'typescript'})}`,
-    });
-  });
-  afterEach(mockFs.restore);
-
   it('Returns undefined if there is no config available', () => {
-    expect(loadConfig('/app')).toBeUndefined();
+    expect(
+      loadConfig(path.join(__dirname, 'fixtures/no-config')),
+    ).toBeUndefined();
   });
 
   it('Fails if the config is invalid', () => {
-    expect(() => loadConfig('/bad-config')).toThrow();
+    expect(() =>
+      loadConfig(path.join(__dirname, 'fixtures/invalid-config')),
+    ).toThrow();
   });
 
   it('Properly loads relay.config.js files', () => {
-    expect(loadConfig('/other-app')).toEqual({language: 'typescript'});
+    expect(loadConfig(path.join(__dirname, 'fixtures/js-config'))).toEqual({
+      language: 'typescript',
+      schema: 'schema.graphql',
+    });
   });
 
   it('Properly loads relay.config.json files', () => {
-    expect(loadConfig('/another-app')).toEqual({language: 'typescript'});
+    expect(loadConfig(path.join(__dirname, 'fixtures/json-config'))).toEqual({
+      language: 'typescript',
+      schema: 'schema.graphql',
+    });
   });
 
   it('Properly loads package.json config', () => {
-    expect(loadConfig('/and-another-app')).toEqual({language: 'typescript'});
+    expect(
+      loadConfig(path.join(__dirname, 'fixtures/package-json-config')),
+    ).toEqual({
+      language: 'typescript',
+      schema: 'schema.graphql',
+    });
   });
 });

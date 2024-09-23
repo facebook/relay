@@ -571,7 +571,7 @@ export default function StoryCommentsComposer({story}: Props) {
     // change
     const connectionID = ConnectionHandler.getConnectionID(
       data.id,
-      'StoryCommentsSection_comments',
+      'StoryCommentsSectionFragment_comments',
     );
     // end-change
     commitMutation({

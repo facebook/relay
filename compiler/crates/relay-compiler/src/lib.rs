@@ -25,8 +25,6 @@ pub mod status_reporter;
 mod utils;
 
 pub use artifact_map::ArtifactSourceKey;
-pub use build_project::artifact_writer::ArtifactDifferenceShardedWriter;
-pub use build_project::artifact_writer::ArtifactDifferenceWriter;
 pub use build_project::artifact_writer::ArtifactFileWriter;
 pub use build_project::artifact_writer::ArtifactValidationWriter;
 pub use build_project::artifact_writer::ArtifactWriter;

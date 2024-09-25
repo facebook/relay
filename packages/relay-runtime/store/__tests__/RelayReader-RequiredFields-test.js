@@ -6,6 +6,7 @@
  *
  * @format
  * @oncall relay
+ * @flow strict-local
  */
 
 'use strict';
@@ -27,7 +28,6 @@ const {
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
   RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = false;
 });
 
@@ -152,9 +152,9 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, missingRequiredFields} = read(source, operation.fragment);
+    const {data, errorResponseFields} = read(source, operation.fragment);
     expect(data).toEqual(null);
-    expect(missingRequiredFields).toEqual([
+    expect(errorResponseFields).toEqual([
       {
         kind: 'missing_required_field.throw',
         owner: 'RelayReaderRequiredFieldsTest3Query',
@@ -684,7 +684,7 @@ describe('RelayReader @required', () => {
         }
       }
     `;
-    const owner = createOperationDescriptor(UserQuery);
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data} = read(
       source,
       createReaderSelector(BarFragment, '1', {}, owner.request),
@@ -725,7 +725,7 @@ describe('RelayReader @required', () => {
         }
       }
     `;
-    const owner = createOperationDescriptor(UserQuery);
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data} = read(
       source,
       createReaderSelector(BarFragment, '1', {}, owner.request),
@@ -837,7 +837,7 @@ describe('RelayReader @required', () => {
         }
       }
     `;
-    const owner = createOperationDescriptor(UserQuery);
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data, isMissingData} = read(
       source,
       createReaderSelector(BarFragment, '1', {}, owner.request),
@@ -879,7 +879,7 @@ describe('RelayReader @required', () => {
         }
       }
     `;
-    const owner = createOperationDescriptor(UserQuery);
+    const owner = createOperationDescriptor(UserQuery, {});
     const {nodes} = read(source, owner.fragment).data;
     const pluralSelector = getPluralSelector(BarFragment, nodes);
     const data = pluralSelector.selectors.map(s => read(source, s).data);
@@ -920,7 +920,7 @@ describe('RelayReader @required', () => {
         const store = new LiveResolverStore(source);
         const operation = createOperationDescriptor(FooQuery, {});
         const resolverCache = new LiveResolverCache(() => source, store);
-        const {data, missingRequiredFields, errorResponseFields} = read(
+        const {data, errorResponseFields} = read(
           source,
           operation.fragment,
           resolverCache,
@@ -938,7 +938,6 @@ describe('RelayReader @required', () => {
         });
         // these are null because the field with the required error was caught
         expect(errorResponseFields).toBeNull();
-        expect(missingRequiredFields).toBeNull();
       });
     });
 
@@ -967,12 +966,12 @@ describe('RelayReader @required', () => {
       const store = new LiveResolverStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const {missingRequiredFields} = read(
+      const {errorResponseFields} = read(
         source,
         operation.fragment,
         resolverCache,
       );
-      expect(missingRequiredFields).toEqual([
+      expect(errorResponseFields).toEqual([
         {
           kind: 'missing_required_field.throw',
           owner: 'RelayReaderRequiredFieldsTest25Query',
@@ -1012,13 +1011,13 @@ describe('RelayReader @required', () => {
       const store = new LiveResolverStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const {data, missingRequiredFields} = read(
+      const {data, errorResponseFields} = read(
         source,
         operation.fragment,
         resolverCache,
       );
       expect(data).toEqual({me: {astrological_sign: {name: 'Pisces'}}});
-      expect(missingRequiredFields).toBe(null);
+      expect(errorResponseFields).toBe(null);
     });
 
     test('does not throw when required plural field is present', () => {
@@ -1045,13 +1044,13 @@ describe('RelayReader @required', () => {
       const store = new LiveResolverStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const {data, missingRequiredFields} = read(
+      const {data, errorResponseFields} = read(
         source,
         operation.fragment,
         resolverCache,
       );
       expect(data.all_astrological_signs.length).toBe(12);
-      expect(missingRequiredFields).toBe(null);
+      expect(errorResponseFields).toBe(null);
     });
 
     test('does not throw when @live required field is suspended', () => {
@@ -1074,7 +1073,7 @@ describe('RelayReader @required', () => {
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
       const snapshot = read(source, operation.fragment, resolverCache);
-      expect(snapshot.missingRequiredFields).toEqual(null);
+      expect(snapshot.errorResponseFields).toEqual(null);
       expect(snapshot.missingLiveResolverFields).toEqual([
         {
           path: 'RelayReaderRequiredFieldsTest28Query.live_user_resolver_always_suspend',

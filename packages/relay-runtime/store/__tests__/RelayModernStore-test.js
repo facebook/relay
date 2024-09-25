@@ -337,6 +337,7 @@ function cloneEventWithSets(event: LogEvent) {
             __fragments: {RelayModernStoreTest4Fragment: {}},
             __fragmentOwner: owner.request,
           },
+          errorResponseFields: null,
           seenRecords: new Set(Object.keys(data)),
           missingLiveResolverFields: [],
           missingClientEdges: null,

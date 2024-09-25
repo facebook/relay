@@ -85,7 +85,9 @@ it('should catch a server field error', () => {
 });
 
 it('should catch a @required(action: THROW) error', () => {
-  const environment = createMockEnvironment();
+  const environment = createMockEnvironment({
+    relayFieldLogger: jest.fn(),
+  });
   function TestComponent() {
     return (
       <RelayEnvironmentProvider environment={environment}>

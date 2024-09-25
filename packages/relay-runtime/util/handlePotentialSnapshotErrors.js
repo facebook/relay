@@ -56,37 +56,40 @@ function handlePotentialSnapshotErrors(
   }
 
   const throwAble = errorResponseFields.filter(fieldErrorShouldThrow);
+  if (throwAble.length === 0) {
+    return;
+  }
+  const [firstError, ...otherErrors] = throwAble;
+
   // when a user adds the throwOnFieldError flag, they opt into also throwing on missing fields.
   if (throwAble.length > 0) {
     throw new RelayFieldError(
-      `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
-      throwAble.map((event): TRelayFieldError => {
-        switch (event.kind) {
-          case 'relay_field_payload.error':
-            return event.error;
-          case 'missing_expected_data.throw':
-            return {message: 'Missing expected data'};
-          case 'relay_resolver.error':
-            return {
-              message: `Relay: Unexpected resolver exception: ${event.error.message}`,
-            };
-          case 'missing_required_field.throw':
-            return {
-              message: `Missing required field with THROW at path '${event.fieldPath}' in '${event.owner}'`,
-            };
-          // TODO: Below should be impossible to ever reach
-          case 'missing_required_field.log':
-            return {
-              message: `Missing required field with LOG at path '${event.fieldPath}' in '${event.owner}'`,
-            };
-          case 'missing_expected_data.log':
-            return {message: 'Missing expected data'};
-          default:
-            (event.kind: empty);
-            throw new Error('Relay: Unexpected event kind');
-        }
+      fieldErrorMessage(firstError),
+      otherErrors.map((event): TRelayFieldError => {
+        return {message: fieldErrorMessage(event)};
       }),
     );
+  }
+}
+
+function fieldErrorMessage(event: ErrorResponseField): string {
+  switch (event.kind) {
+    case 'relay_field_payload.error':
+      return `Relay: Unexpected GraphQL field error for field '${event.fieldPath}' in '${event.owner}': ${event.error.message}`;
+    case 'missing_expected_data.throw':
+      return 'Missing expected data';
+    case 'relay_resolver.error':
+      return `Relay: Unexpected resolver exception: ${event.error.message}`;
+    case 'missing_required_field.throw':
+      return `Relay: Missing @required field with THROW at path '${event.fieldPath}' in '${event.owner}'`;
+    // TODO: Below should be impossible to ever reach
+    case 'missing_required_field.log':
+      return `Relay: Missing @required field with LOG at path '${event.fieldPath}' in '${event.owner}'`;
+    case 'missing_expected_data.log':
+      return 'Missing expected data';
+    default:
+      (event.kind: empty);
+      throw new Error('Relay: Unexpected event kind');
   }
 }
 

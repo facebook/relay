@@ -30,7 +30,10 @@ function required_name(rootKey: UserRequiredNameResolver$key): string {
     `,
     rootKey,
   );
-  invariant(user != null);
+  invariant(
+    user != null,
+    "Did not expect user to be null in 'required_name' resolver.",
+  );
   return user.name;
 }
 

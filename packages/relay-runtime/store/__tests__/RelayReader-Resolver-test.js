@@ -252,6 +252,13 @@ describe.each([true, false])(
             owner: 'UserRequiredNameResolver',
             fieldPath: 'name',
           },
+          {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredQuery',
+            shouldThrow: false,
+          },
         ]);
 
         // Lookup a second time to ensure that we still report the missing fields when
@@ -265,6 +272,13 @@ describe.each([true, false])(
             kind: 'missing_required_field.log',
             owner: 'UserRequiredNameResolver',
             fieldPath: 'name',
+          },
+          {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredQuery',
+            shouldThrow: false,
           },
         ]);
       });
@@ -338,6 +352,13 @@ describe.each([true, false])(
             fieldPath: 'name',
           },
           {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            shouldThrow: false,
+          },
+          {
             kind: 'missing_required_field.log',
             owner: 'RelayReaderResolverTestRequiredWithParentQuery',
             fieldPath: 'me.lastName',
@@ -355,6 +376,13 @@ describe.each([true, false])(
             kind: 'missing_required_field.log',
             owner: 'UserRequiredNameResolver',
             fieldPath: 'name',
+          },
+          {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            shouldThrow: false,
           },
           {
             kind: 'missing_required_field.log',
@@ -392,10 +420,13 @@ describe.each([true, false])(
         const beforeCallCount = requiredThrowNameCalls.count;
         const {errorResponseFields} = store.lookup(operation.fragment);
         expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
-        expect(errorResponseFields).toEqual({
-          action: 'THROW',
-          field: {owner: 'UserRequiredThrowNameResolver', path: 'name'},
-        });
+        expect(errorResponseFields).toEqual([
+          {
+            fieldPath: 'name',
+            kind: 'missing_required_field.throw',
+            owner: 'UserRequiredThrowNameResolver',
+          },
+        ]);
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
@@ -403,10 +434,13 @@ describe.each([true, false])(
           operation.fragment,
         );
 
-        expect(errorResponseFieldsTakeTwo).toEqual({
-          action: 'THROW',
-          field: {owner: 'UserRequiredThrowNameResolver', path: 'name'},
-        });
+        expect(errorResponseFieldsTakeTwo).toEqual([
+          {
+            fieldPath: 'name',
+            kind: 'missing_required_field.throw',
+            owner: 'UserRequiredThrowNameResolver',
+          },
+        ]);
       });
 
       it('works when the field is aliased', () => {

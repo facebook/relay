@@ -304,10 +304,8 @@ describe('fetchQuery with missing @required value', () => {
       kind: 'missing_required_field.throw',
       owner: 'fetchQueryTest3Query',
     });
-    expect(observer.error).toHaveBeenCalledWith(
-      Error(
-        "Relay: Missing @required value at path 'me.name' in 'fetchQueryTest3Query'.",
-      ),
+    expect(observer.error.mock.calls[0][0].message).toBe(
+      "Relay: Missing @required field with THROW at path 'me.name' in 'fetchQueryTest3Query'",
     );
     expect(observer.next).not.toHaveBeenCalled();
   });

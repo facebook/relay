@@ -171,6 +171,19 @@ describe('RelayReader error fields', () => {
     });
 
     // null because we empty the error response fields of errors that were caught
-    expect(errorResponseFields).toBeNull();
+    expect(errorResponseFields).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        kind: 'relay_field_payload.error',
+        owner: 'RelayReaderRelayErrorHandlingTest3Query',
+        shouldThrow: false,
+      },
+      {
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner: 'RelayReaderRelayErrorHandlingTest3Query',
+      },
+    ]);
   });
 });

@@ -32,6 +32,7 @@ import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
+  ErrorResponseField,
   ErrorResponseFields,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
@@ -407,15 +408,8 @@ class RelayReader {
 
           this._errorResponseFields = previousResponseFields;
 
-          // If we encountered non-throwing @required fields, in the children,
-          // we want to preserve those errors in the snapshot.
           if (childrenErrorResponseFields != null) {
-            const logEvents = childrenErrorResponseFields.filter(
-              field => field.kind !== 'missing_required_field.throw',
-            );
-            if (logEvents.length > 0) {
-              this._addMissingRequiredFields(logEvents);
-            }
+            this._addHandledFieldErrors(childrenErrorResponseFields);
           }
 
           break;
@@ -739,20 +733,12 @@ class RelayReader {
         }
       }
       if (cachedSnapshot.errorResponseFields != null) {
-        if (this._errorResponseFields == null) {
-          this._errorResponseFields = [];
-        }
-        for (const error of cachedSnapshot.errorResponseFields) {
-          // TODO: In reality we should propagate _all_ errors, but
-          // for now we're only propagating resolver errors for backwards
-          // compatibility with previous behavior.
-          if (error.kind === 'relay_resolver.error') {
-            this._errorResponseFields.push(error);
-          }
-        }
+        this._addHandledFieldErrors(cachedSnapshot.errorResponseFields);
       }
       this._isMissingData = this._isMissingData || cachedSnapshot.isMissingData;
     }
+
+    // TODO: Report snapshot errors as resolver errors?
 
     // If the resolver errored, we track that as part of our traversal so that
     // the errors can be attached to this read's snapshot. This allows the error
@@ -1369,15 +1355,52 @@ class RelayReader {
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
   }
 
-  _addMissingRequiredFields(additional: ErrorResponseFields) {
+  /**
+   * In the case of field errors encountered within a resolver's rootFragment or
+   * within a @catch block, we still want to report the error to our field
+   * logger, but we don't want to throw an error since the error
+   * has already been handled, either by the @catch or via coercing the
+   * resolver's value to null.
+   *
+   * This method allows us to add such field errors to this read's list of
+   * errors, but marks them as handled.
+   */
+  _addHandledFieldErrors(additional: ErrorResponseFields) {
     if (this._errorResponseFields == null) {
       // Note: We don't assign `additional` directly to `this._missingRequiredFields`
       // because it's possible that `additional` has been frozen.
       this._errorResponseFields = [];
     }
 
+    function markAsHandled(event: ErrorResponseField): ErrorResponseField {
+      switch (event.kind) {
+        case 'missing_required_field.throw':
+          // TODO: We should restructure this to allow it to still be a throw, but mark it has handled
+          return {
+            kind: 'missing_required_field.log',
+            owner: event.owner,
+            fieldPath: event.fieldPath,
+          };
+        case 'missing_expected_data.throw':
+          return {
+            kind: 'missing_expected_data.log',
+            owner: event.owner,
+            fieldPath: event.fieldPath,
+          };
+        case 'missing_required_field.log':
+        case 'missing_expected_data.log':
+          return event;
+        case 'relay_field_payload.error':
+        case 'relay_resolver.error':
+          return {...event, shouldThrow: false};
+        default:
+          (event: empty);
+          invariant(false, 'Unexpected error kind: %s', event.kind);
+      }
+    }
+
     for (let i = 0; i < additional.length; i++) {
-      this._errorResponseFields.push(additional[i]);
+      this._errorResponseFields.push(markAsHandled(additional[i]));
     }
   }
 

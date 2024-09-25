@@ -6,6 +6,7 @@
  *
  * @format
  * @oncall relay
+ * @flow strict-local
  */
 
 'use strict';
@@ -906,8 +907,8 @@ describe('Inline Fragments', () => {
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const snapshot = read(source, operation.fragment);
-    const {data, isMissingData, missingRequiredFields} = snapshot;
-    expect(missingRequiredFields).toBe(null);
+    const {data, isMissingData, errorResponseFields} = snapshot;
+    expect(errorResponseFields).toBe(null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -1035,11 +1036,17 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, missingRequiredFields} = read(
+    const {data, isMissingData, errorResponseFields} = read(
       source,
       operation.fragment,
     );
-    expect(missingRequiredFields).toEqual([
+    expect(errorResponseFields).toEqual([
+      {
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
+      },
       {
         kind: 'missing_required_field.log',
         owner:
@@ -1089,11 +1096,17 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, missingRequiredFields} = read(
+    const {data, isMissingData, errorResponseFields} = read(
       source,
       operation.fragment,
     );
-    expect(missingRequiredFields).toEqual([
+    expect(errorResponseFields).toEqual([
+      {
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
+      },
       {
         kind: 'missing_required_field.log',
         owner:

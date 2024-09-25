@@ -264,7 +264,7 @@ it('should throw for missing client-edge field data marked with @required', () =
       jest.runAllImmediates();
     });
   }).toThrow(
-    "Relay: Missing @required value at path 'me.client_node' in 'ClientEdgesTest3Query'.",
+    "Relay: Missing @required field with THROW at path 'me.client_node' in 'ClientEdgesTest3Query'",
   );
   expect(renderer?.toJSON()).toBe(null);
 });
@@ -301,7 +301,7 @@ it('should throw for missing client-edge (client object) field data marked with 
       TestRenderer.create(<TestComponent />);
     });
   }).toThrow(
-    "Relay: Missing @required value at path 'me.client_object' in 'ClientEdgesTest4Query'.",
+    "Relay: Missing @required field with THROW at path 'me.client_object' in 'ClientEdgesTest4Query'",
   );
   expect(fetchFn.mock.calls.length).toEqual(0);
 });

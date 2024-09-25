@@ -40,7 +40,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+        "Relay: Missing @required field with THROW at path 'testPath' in 'testOwner'",
       );
     });
 
@@ -59,7 +59,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+        "Relay: Missing @required field with THROW at path 'testPath' in 'testOwner'",
       );
     });
 
@@ -89,7 +89,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Missing @required value at path 'testPath' in 'testOwner'./,
+        "Relay: Missing @required field with THROW at path 'testPath' in 'testOwner'",
       );
     });
 
@@ -121,9 +121,7 @@ describe('handlePotentialSnapshotErrors', () => {
             fieldPath: '',
           },
         ]);
-      }).toThrowError(
-        /^Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors/,
-      );
+      }).toThrowError('Missing expected data');
 
       expect(relayFieldLogger).toHaveBeenCalledTimes(1);
       expect(relayFieldLogger).toHaveBeenCalledWith({
@@ -308,7 +306,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors/,
+        "Relay: Unexpected GraphQL field error for field 'testPath' in 'testOwner': testMessage",
       );
 
       const eventsLogged = relayFieldLogger.mock.calls.map(call => call[0]);
@@ -367,9 +365,7 @@ describe('handlePotentialSnapshotErrors', () => {
             shouldThrow: true,
           },
         ]);
-      }).toThrowError(
-        /^Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors/,
-      );
+      }).toThrowError('Relay: Unexpected resolver exception: testError');
 
       expect(relayFieldLogger).toHaveBeenCalledTimes(1);
       expect(relayFieldLogger).toHaveBeenCalledWith({

@@ -91,10 +91,18 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      expect(errorResponseFields).toEqual(null);
+      expect(errorResponseFields).toEqual([
+        {
+          error: {message: 'There was an error!', path: ['me', 'lastName']},
+          fieldPath: 'me.lastName',
+          kind: 'relay_field_payload.error',
+          owner: 'RelayReaderCatchFieldsTest01Query',
+          shouldThrow: false,
+        },
+      ]);
     });
 
-    it('if preeceeding scalar sibling has error, catch to RESULT should not catch that error', () => {
+    it('if preceding scalar sibling has error, catch to RESULT should not catch that error', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -273,7 +281,13 @@ describe('RelayReader @catch', () => {
       // We still need to ensure that we will suspend if there is a request in flight.
       expect(isMissingData).toEqual(true);
 
-      expect(errorResponseFields).toEqual(null);
+      expect(errorResponseFields).toEqual([
+        {
+          fieldPath: '',
+          kind: 'missing_expected_data.log',
+          owner: 'RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery',
+        },
+      ]);
     });
 
     it('if scalar has catch to RESULT - but no error, response should reflect', () => {
@@ -392,7 +406,15 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      expect(errorResponseFields).toEqual(null);
+      expect(errorResponseFields).toEqual([
+        {
+          error: {message: 'There was an error!', path: ['me', 'lastName']},
+          fieldPath: 'me.lastName',
+          kind: 'relay_field_payload.error',
+          owner: 'RelayReaderCatchFieldsTest07Query',
+          shouldThrow: false,
+        },
+      ]);
     });
 
     it('if scalar has catch to RESULT with nested required', () => {

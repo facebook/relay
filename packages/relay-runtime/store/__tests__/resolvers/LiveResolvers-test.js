@@ -15,6 +15,7 @@ import type {Snapshot} from '../../RelayStoreTypes';
 const {
   live_external_greeting: LiveExternalGreeting,
 } = require('./LiveExternalGreeting');
+const invariant = require('invariant');
 const {RelayFeatureFlags, suspenseSentinel} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
@@ -335,4 +336,85 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
   expect(finalSnapshot.relayResolverErrors).toEqual([]);
   const finalData: $FlowExpectedError = finalSnapshot.data;
   expect(finalData.counter_throws_when_odd).toBe(2);
+});
+
+test('Reflects optimistic updates, and reverts of optimistic updates', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '4'},
+    },
+    '4': {
+      __id: '4',
+      __typename: 'User',
+      name: 'Alice',
+    },
+  });
+  const operation = createOperationDescriptor(
+    graphql`
+      query LiveResolversTestOptimisticUpdatesQuery {
+        me {
+          greeting
+        }
+      }
+    `,
+    {},
+  );
+
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+
+  // When we start we greet Alice
+  expect(snapshot.data).toEqual({me: {greeting: 'Hello, Alice!'}});
+
+  const handler = jest.fn<[Snapshot], void>();
+  environment.subscribe(snapshot, handler);
+
+  const mutationSub = environment.applyMutation({
+    operation: createOperationDescriptor(
+      graphql`
+        mutation LiveResolversTestOptimisticUpdatesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
+            }
+          }
+        }
+      `,
+      {input: {newName: 'Bob'}},
+    ),
+    response: {
+      actorNameChange: {
+        actor: {
+          __typename: 'User',
+          id: '4',
+          name: 'Bob',
+        },
+      },
+    },
+    updater: null,
+  });
+
+  // In optimistic state we greet Bob
+  expect(handler.mock.calls.length).toBe(1);
+  expect(handler.mock.calls[0][0].data).toEqual({
+    me: {greeting: 'Hello, Bob!'},
+  });
+
+  mutationSub.dispose();
+  // When the optimistic update is disposed we greet Alice again
+  expect(handler.mock.calls.length).toBe(2);
+  expect(handler.mock.calls[1][0].data).toEqual({
+    me: {greeting: 'Hello, Alice!'},
+  });
 });

@@ -30,9 +30,9 @@ function getPendingOperationsForFragment(
   if (promise != null) {
     pendingOperations = [fragmentOwner];
   } else {
-    const result = environment
-      .getOperationTracker()
-      .getPendingOperationsAffectingOwner(fragmentOwner);
+    const operationTracker = environment.getOperationTracker();
+    const result =
+      operationTracker.getPendingOperationsAffectingOwner(fragmentOwner);
 
     pendingOperations = result?.pendingOperations ?? [];
     promise = result?.promise ?? null;

@@ -11,9 +11,12 @@
 
 'use strict';
 
+export type {FragmentState} from './store/observeFragmentExperimental';
 import type {DataID} from './util/RelayRuntimeTypes';
 
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
+const {observeFragment} = require('./store/observeFragmentExperimental');
+const {waitForFragmentData} = require('./store/waitForFragmentExperimental');
 
 // Annotates a strong object return type, where `A` is the GraphQL typename and `Typename` is the
 // `__typename` field for returning an interface
@@ -56,4 +59,6 @@ module.exports = {
   resolverDataInjector,
   isValueResult,
   isErrorResult,
+  observeFragment,
+  waitForFragmentData,
 };

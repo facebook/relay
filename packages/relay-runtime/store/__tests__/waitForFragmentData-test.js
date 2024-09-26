@@ -11,7 +11,7 @@
 
 const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const LiveResolverStore = require('../experimental-live-resolvers/LiveResolverStore');
+const LiveResolverStore = require('../live-resolvers/LiveResolverStore');
 const {waitForFragmentData} = require('../observeFragmentExperimental');
 const {
   createOperationDescriptor,

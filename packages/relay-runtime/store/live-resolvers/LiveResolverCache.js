@@ -17,6 +17,7 @@ import type {
   ResolverNormalizationInfo,
 } from '../../util/ReaderNode';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
+import type RelayModernStore from '../RelayModernStore';
 import type {
   DataIDSet,
   MutableRecordSource,
@@ -30,7 +31,6 @@ import type {
   GetDataForResolverFragmentFn,
   ResolverCache,
 } from '../ResolverCache';
-import type RelayModernStore from './RelayModernStore';
 import type {LiveState} from 'relay-runtime';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');

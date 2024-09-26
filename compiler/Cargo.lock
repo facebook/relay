@@ -784,6 +784,7 @@ dependencies = [
  "relay-test-schema",
  "schema",
  "serde",
+ "strum",
  "thiserror",
  "tokio",
 ]

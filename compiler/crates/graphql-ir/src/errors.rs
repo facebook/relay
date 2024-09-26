@@ -23,6 +23,19 @@ use thiserror::Error;
 use crate::ir::FragmentDefinitionName;
 use crate::VariableName;
 
+#[derive(
+    Eq,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    strum::AsRefStr,
+    strum::Display,
+    strum::EnumString
+)]
+pub enum MachineMetadataKey {
+    UnknownType,
+}
+
 struct ErrorLink(&'static str);
 
 impl Display for ErrorLink {

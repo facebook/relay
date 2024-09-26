@@ -47,6 +47,7 @@ pub use transform::Transformer;
 pub use validator::Validator;
 pub use visitor::Visitor;
 
+pub use crate::errors::MachineMetadataKey;
 pub use crate::errors::ValidationMessage;
 pub use crate::errors::ValidationMessageWithData;
 

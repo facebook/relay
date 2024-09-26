@@ -50,6 +50,7 @@ use schema::Type;
 use schema::TypeReference;
 
 use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::MachineMetadataKey;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::*;
@@ -576,7 +577,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                             },
                             self.location.with_span(named_type.name.span),
                         )
-                        .metadata_for_machine("unknown_type", named_type.name.value.lookup()),
+                        .metadata_for_machine(
+                            MachineMetadataKey::UnknownType,
+                            named_type.name.value.lookup(),
+                        ),
                     ]),
                 }
             }
@@ -949,7 +953,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                                 },
                                 self.location.with_span(span),
                             )
-                            .metadata_for_machine("unknown_type", type_name.lookup()),
+                            .metadata_for_machine(
+                                MachineMetadataKey::UnknownType,
+                                type_name.lookup(),
+                            ),
                         ]);
                     }
                 }

@@ -1020,16 +1020,26 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(vec![Diagnostic::error_with_data(
-                    ValidationMessageWithData::UnknownField {
-                        type_: self.schema.get_type_name(parent_type.inner()),
-                        field: field.name.value,
-                        suggestions: self
-                            .suggestions
-                            .field_name_suggestion(Some(parent_type.inner()), field.name.value),
-                    },
-                    self.location.with_span(span),
-                )]);
+                return Err(vec![
+                    Diagnostic::error_with_data(
+                        ValidationMessageWithData::UnknownField {
+                            type_: self.schema.get_type_name(parent_type.inner()),
+                            field: field.name.value,
+                            suggestions: self
+                                .suggestions
+                                .field_name_suggestion(Some(parent_type.inner()), field.name.value),
+                        },
+                        self.location.with_span(span),
+                    )
+                    .metadata_for_machine(
+                        MachineMetadataKey::UnknownField,
+                        field.name.value.lookup(),
+                    )
+                    .metadata_for_machine(
+                        MachineMetadataKey::ParentType,
+                        self.schema.get_type_name(parent_type.inner()).lookup(),
+                    ),
+                ]);
             }
         };
         let field_definition = self.schema.field(field_id);
@@ -1091,16 +1101,26 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         ) {
             Some(field_id) => field_id,
             None => {
-                return Err(vec![Diagnostic::error_with_data(
-                    ValidationMessageWithData::UnknownField {
-                        type_: self.schema.get_type_name(parent_type.inner()),
-                        field: field.name.value,
-                        suggestions: self
-                            .suggestions
-                            .field_name_suggestion(Some(parent_type.inner()), field.name.value),
-                    },
-                    self.location.with_span(span),
-                )]);
+                return Err(vec![
+                    Diagnostic::error_with_data(
+                        ValidationMessageWithData::UnknownField {
+                            type_: self.schema.get_type_name(parent_type.inner()),
+                            field: field.name.value,
+                            suggestions: self
+                                .suggestions
+                                .field_name_suggestion(Some(parent_type.inner()), field.name.value),
+                        },
+                        self.location.with_span(span),
+                    )
+                    .metadata_for_machine(
+                        MachineMetadataKey::UnknownField,
+                        field.name.value.lookup(),
+                    )
+                    .metadata_for_machine(
+                        MachineMetadataKey::ParentType,
+                        self.schema.get_type_name(parent_type.inner()).lookup(),
+                    ),
+                ]);
             }
         };
         let field_definition = self.schema.field(field_id);
@@ -1633,17 +1653,24 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         ),
                     })
                 }
-                None => Err(vec![Diagnostic::error(
-                    ValidationMessageWithData::UnknownField {
-                        type_: type_definition.name.item.0,
-                        field: x.name.value,
-                        suggestions: self.suggestions.field_name_suggestion(
-                            self.schema.get_type(type_definition.name.item.0),
-                            x.name.value,
-                        ),
-                    },
-                    self.location.with_span(x.name.span),
-                )]),
+                None => Err(vec![
+                    Diagnostic::error(
+                        ValidationMessageWithData::UnknownField {
+                            type_: type_definition.name.item.0,
+                            field: x.name.value,
+                            suggestions: self.suggestions.field_name_suggestion(
+                                self.schema.get_type(type_definition.name.item.0),
+                                x.name.value,
+                            ),
+                        },
+                        self.location.with_span(x.name.span),
+                    )
+                    .metadata_for_machine(MachineMetadataKey::UnknownField, x.name.value.lookup())
+                    .metadata_for_machine(
+                        MachineMetadataKey::ParentType,
+                        type_definition.name.item.0.lookup(),
+                    ),
+                ]),
             }
         }))?;
         if required_fields.is_empty() {
@@ -1787,17 +1814,27 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         Err(diagnostics) => errors.extend(diagnostics),
                     }
                 }
-                None => errors.push(Diagnostic::error(
-                    ValidationMessageWithData::UnknownField {
-                        type_: type_definition.name.item.0,
-                        field: obj_entry.name.value,
-                        suggestions: self.suggestions.field_name_suggestion(
-                            self.schema.get_type(type_definition.name.item.0),
-                            obj_entry.name.value,
-                        ),
-                    },
-                    self.location.with_span(obj_entry.name.span),
-                )),
+                None => errors.push(
+                    Diagnostic::error(
+                        ValidationMessageWithData::UnknownField {
+                            type_: type_definition.name.item.0,
+                            field: obj_entry.name.value,
+                            suggestions: self.suggestions.field_name_suggestion(
+                                self.schema.get_type(type_definition.name.item.0),
+                                obj_entry.name.value,
+                            ),
+                        },
+                        self.location.with_span(obj_entry.name.span),
+                    )
+                    .metadata_for_machine(
+                        MachineMetadataKey::UnknownField,
+                        obj_entry.name.value.lookup(),
+                    )
+                    .metadata_for_machine(
+                        MachineMetadataKey::ParentType,
+                        type_definition.name.item.0.lookup(),
+                    ),
+                ),
             }
         }
         if !required_fields.is_empty() {

@@ -34,6 +34,8 @@ use crate::VariableName;
 )]
 pub enum MachineMetadataKey {
     UnknownType,
+    UnknownField,
+    ParentType,
 }
 
 struct ErrorLink(&'static str);

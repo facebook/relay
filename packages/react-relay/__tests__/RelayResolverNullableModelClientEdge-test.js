@@ -28,7 +28,7 @@ const {
 const {
   addTodo,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {createMockEnvironment} = require('relay-test-utils');
 
 /**
@@ -194,7 +194,7 @@ function logFn(event: LogEvent): void {
 function createEnvironment() {
   return new Environment({
     network: Network.create(jest.fn()),
-    store: new LiveResolverStore(RecordSource.create(), {
+    store: new RelayModernStore(RecordSource.create(), {
       log: logFn,
     }),
     log: logFn,

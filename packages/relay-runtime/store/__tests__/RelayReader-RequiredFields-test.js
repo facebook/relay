@@ -23,8 +23,8 @@ const {
 } = require('relay-runtime');
 const {
   LiveResolverCache,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverCache');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+} = require('relay-runtime/store/live-resolvers/LiveResolverCache');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
@@ -906,7 +906,7 @@ describe('RelayReader @required', () => {
             }
           }
         `;
-        const store = new LiveResolverStore(source);
+        const store = new RelayModernStore(source);
         const operation = createOperationDescriptor(FooQuery, {});
         const resolverCache = new LiveResolverCache(() => source, store);
         const {data, missingRequiredFields, errorResponseFields} = read(
@@ -953,7 +953,7 @@ describe('RelayReader @required', () => {
           }
         }
       `;
-      const store = new LiveResolverStore(source);
+      const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
       const {missingRequiredFields} = read(
@@ -998,7 +998,7 @@ describe('RelayReader @required', () => {
         }
       `;
 
-      const store = new LiveResolverStore(source);
+      const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
       const {data, missingRequiredFields} = read(
@@ -1031,7 +1031,7 @@ describe('RelayReader @required', () => {
         }
       `;
 
-      const store = new LiveResolverStore(source);
+      const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
       const {data, missingRequiredFields} = read(
@@ -1059,7 +1059,7 @@ describe('RelayReader @required', () => {
           }
         }
       `;
-      const store = new LiveResolverStore(source);
+      const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
       const snapshot = read(source, operation.fragment, resolverCache);

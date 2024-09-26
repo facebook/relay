@@ -21,8 +21,8 @@ const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -80,7 +80,7 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
   function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
+      store: new RelayModernStore(source),
       relayFieldLogger,
     });
   }

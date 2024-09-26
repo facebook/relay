@@ -22,7 +22,7 @@ const {
   graphql,
 } = require('relay-runtime');
 const RelayObservable = require('relay-runtime/network/RelayObservable');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -51,7 +51,7 @@ beforeEach(() => {
   );
 
   environment = new Environment({
-    store: new LiveResolverStore(
+    store: new RelayModernStore(
       new RecordSource({
         'client:root': {
           __id: 'client:root',

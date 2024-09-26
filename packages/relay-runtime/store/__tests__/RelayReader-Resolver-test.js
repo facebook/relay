@@ -25,8 +25,7 @@ const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   LiveResolverCache,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverCache');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+} = require('relay-runtime/store/live-resolvers/LiveResolverCache');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -70,7 +69,7 @@ describe.each([true, false])(
       {
         name: 'LiveResolverCache',
         ResolverCache: LiveResolverCache,
-        RelayStore: LiveResolverStore,
+        RelayStore: RelayModernStore,
       },
     ])('Relay Resolver with $name', ({ResolverCache, RelayStore}) => {
       it('returns the result of the resolver function', () => {

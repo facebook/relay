@@ -51,7 +51,7 @@ import type {EvaluationResult, ResolverCache} from './ResolverCache';
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {
   isSuspenseSentinel,
-} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
+} = require('./live-resolvers/LiveResolverSuspenseSentinel');
 const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {

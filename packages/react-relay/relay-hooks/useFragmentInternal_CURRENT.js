@@ -522,7 +522,7 @@ hook useFragmentInternal(
     if (suspendingLiveResolvers != null && suspendingLiveResolvers.length > 0) {
       throw Promise.all(
         suspendingLiveResolvers.map(({liveStateID}) => {
-          // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
+          // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
           return environment.getStore().getLiveResolverPromise(liveStateID);
         }),
       );

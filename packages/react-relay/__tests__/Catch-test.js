@@ -16,7 +16,7 @@ const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {graphql} = require('relay-runtime');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {createMockEnvironment} = require('relay-test-utils');
 const {
@@ -126,7 +126,7 @@ it('should catch a @required(action: THROW) error', () => {
 
 it('should catch Relay Resolver errors', () => {
   const environment = createMockEnvironment({
-    store: new LiveResolverStore(new RelayRecordSource()),
+    store: new RelayModernStore(new RelayRecordSource()),
   });
   function TestComponent() {
     return (

@@ -35,11 +35,11 @@ const {
 const {
   counter: counterResolver,
 } = require('relay-runtime/store/__tests__/resolvers/LiveCounterResolver');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -869,7 +869,7 @@ async function testResolverGC<T: OperationType>({
 
   const mockLogger = jest.fn<[LogEvent], void>();
 
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
     log: mockLogger,
   });

@@ -33,11 +33,11 @@ const {
 const {
   counter_no_fragment: counterNoFragmentResolver,
 } = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -77,7 +77,7 @@ test('Can read an external state resolver directly', () => {
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -116,7 +116,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -188,7 +188,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -261,7 +261,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -289,7 +289,7 @@ describe.each([true, false])(
           name: 'Alice',
         },
       });
-      const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
 
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
@@ -363,7 +363,7 @@ describe.each([true, false])(
         }
       `;
 
-      const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
 
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
@@ -453,7 +453,7 @@ describe.each([true, false])(
         }
       `;
 
-      const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+      const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
 
       const mockPayload = Promise.resolve({
         data: {
@@ -525,7 +525,7 @@ describe.each([true, false])(
         }
       `;
 
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -596,7 +596,7 @@ describe.each([true, false])(
         }
       `;
 
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -701,7 +701,7 @@ describe.each([true, false])(
       function createEnvironment(source: MutableRecordSource) {
         return new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
-          store: new LiveResolverStore(source),
+          store: new RelayModernStore(source),
         });
       }
 
@@ -940,7 +940,7 @@ describe.each([true, false])(
         function createEnvironment(source: MutableRecordSource) {
           return new RelayModernEnvironment({
             network: RelayNetwork.create(jest.fn()),
-            store: new LiveResolverStore(source),
+            store: new RelayModernStore(source),
             relayFieldLogger,
           });
         }
@@ -1062,7 +1062,7 @@ describe.each([true, false])(
       function createEnvironment(source: MutableRecordSource) {
         return new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
-          store: new LiveResolverStore(source),
+          store: new RelayModernStore(source),
         });
       }
 
@@ -1166,7 +1166,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -1208,7 +1208,7 @@ describe.each([true, false])(
       function createEnvironment(source: MutableRecordSource) {
         return new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
-          store: new LiveResolverStore(source),
+          store: new RelayModernStore(source),
         });
       }
 
@@ -1275,7 +1275,7 @@ describe.each([true, false])(
       function createEnvironment(source: MutableRecordSource) {
         return new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
-          store: new LiveResolverStore(source),
+          store: new RelayModernStore(source),
         });
       }
 
@@ -1331,7 +1331,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -1351,7 +1351,7 @@ describe.each([true, false])(
     test('live resolver with the edge that always suspend', () => {
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
-        store: new LiveResolverStore(
+        store: new RelayModernStore(
           RelayRecordSource.create({
             'client:root': {
               __id: 'client:root',
@@ -1439,7 +1439,7 @@ describe.each([true, false])(
       test('correctly suspend on fragments with client-only data', () => {
         const environment = new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
-          store: new LiveResolverStore(RelayRecordSource.create()),
+          store: new RelayModernStore(RelayRecordSource.create()),
         });
         environment.commitPayload(
           createOperationDescriptor(
@@ -1475,7 +1475,7 @@ describe.each([true, false])(
       test('invariant for invalid liveState value in the Relay store.', () => {
         const environment = new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
-          store: new LiveResolverStore(RelayRecordSource.create()),
+          store: new RelayModernStore(RelayRecordSource.create()),
         });
         environment.commitPayload(
           createOperationDescriptor(
@@ -1519,7 +1519,7 @@ describe.each([true, false])(
     });
 
     test('Subscriptions cleaned up correctly after GC', () => {
-      const store = new LiveResolverStore(RelayRecordSource.create(), {
+      const store = new RelayModernStore(RelayRecordSource.create(), {
         gcReleaseBufferSize: 0,
       });
       const environment = new RelayModernEnvironment({
@@ -1639,7 +1639,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -1669,7 +1669,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -1701,7 +1701,7 @@ describe.each([true, false])(
       const operation = createOperationDescriptor(FooQuery, {});
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
-        store: new LiveResolverStore(source, {
+        store: new RelayModernStore(source, {
           gcReleaseBufferSize: 0,
         }),
       });
@@ -1733,7 +1733,7 @@ describe.each([true, false])(
       const operation = createOperationDescriptor(FooQuery, {});
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
-        store: new LiveResolverStore(source, {
+        store: new RelayModernStore(source, {
           gcReleaseBufferSize: 0,
         }),
       });
@@ -1755,7 +1755,7 @@ describe.each([true, false])(
       const operation = createOperationDescriptor(FooQuery, {});
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
-        store: new LiveResolverStore(RelayRecordSource.create(), {
+        store: new RelayModernStore(RelayRecordSource.create(), {
           gcReleaseBufferSize: 0,
         }),
       });
@@ -1777,7 +1777,7 @@ describe.each([true, false])(
       const operation = createOperationDescriptor(FooQuery, {});
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
-        store: new LiveResolverStore(RelayRecordSource.create(), {
+        store: new RelayModernStore(RelayRecordSource.create(), {
           gcReleaseBufferSize: 0,
           resolverContext: {
             greeting: {myHello: 'Hello Allemaal!'},
@@ -1802,7 +1802,7 @@ describe.each([true, false])(
       const operation = createOperationDescriptor(FooQuery, {});
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
-        store: new LiveResolverStore(RelayRecordSource.create(), {
+        store: new RelayModernStore(RelayRecordSource.create(), {
           gcReleaseBufferSize: 0,
           resolverContext: {
             greeting: {
@@ -1843,7 +1843,7 @@ describe.each([true, false])(
       };
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
         resolverContext: {
           counter: Observable.create<number>(observer => {

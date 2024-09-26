@@ -42,8 +42,8 @@ const {
 const {
   LiveColorSubscriptions,
 } = require('relay-runtime/store/__tests__/resolvers/TodoDescription');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -92,7 +92,7 @@ describe.each([true, false])(
         let environment;
         let store;
         beforeEach(() => {
-          store = new LiveResolverStore(RelayRecordSource.create(), {
+          store = new RelayModernStore(RelayRecordSource.create(), {
             log: logFn,
           });
           environment = new RelayModernEnvironment({

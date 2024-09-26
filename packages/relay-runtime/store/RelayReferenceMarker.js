@@ -31,7 +31,7 @@ import type {
 
 const getOperation = require('../util/getOperation');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
-const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
+const getOutputTypeRecordIDs = require('./live-resolvers/getOutputTypeRecordIDs');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreUtils = require('./RelayStoreUtils');

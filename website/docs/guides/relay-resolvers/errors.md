@@ -38,7 +38,7 @@ function fieldLogger(event) {
 
 const environment = new Environment({
   network: Network.create(/* your fetch function here */),
-  store: new LiveResolverStore(new RecordSource()),
+  store: new RelayModernStore(new RecordSource()),
   relayFieldLogger: fieldLogger
 });
 ```

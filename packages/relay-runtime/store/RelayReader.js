@@ -340,11 +340,12 @@ class RelayReader {
     let errors = this._errorResponseFields?.map(error => {
       switch (error.kind) {
         case 'relay_field_payload.error':
-          return error.error;
+          const {message, ...displayError} = error.error;
+          return displayError;
         case 'missing_expected_data.throw':
         case 'missing_expected_data.log':
           return {
-            message: `Relay: Missing data for one or more fields in ${error.owner}`,
+            path: error.fieldPath.split('.'),
           };
         default:
           (error.kind: empty);

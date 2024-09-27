@@ -83,7 +83,6 @@ describe('RelayReader @catch', () => {
             ok: false,
             errors: [
               {
-                message: 'There was an error!',
                 path: ['me', 'lastName'],
               },
             ],
@@ -394,7 +393,6 @@ describe('RelayReader @catch', () => {
           ok: false,
           errors: [
             {
-              message: 'There was an error!',
               path: ['me', 'lastName'],
             },
           ],

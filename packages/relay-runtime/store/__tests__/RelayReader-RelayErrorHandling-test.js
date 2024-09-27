@@ -157,14 +157,16 @@ describe('RelayReader error fields', () => {
     const operation = createOperationDescriptor(FooQuery, {size: 42});
     const {data, errorResponseFields} = read(source, operation.fragment);
 
+    // we have a task out for adding path to missingData. Meantime that array is empty.
     expect(data).toEqual({
       me: {
         ok: false,
         errors: [
-          {message: 'There was an error!', path: ['me', 'lastName']},
           {
-            message:
-              'Relay: Missing data for one or more fields in RelayReaderRelayErrorHandlingTest3Query',
+            path: ['me', 'lastName'],
+          },
+          {
+            path: [''],
           },
         ],
       },

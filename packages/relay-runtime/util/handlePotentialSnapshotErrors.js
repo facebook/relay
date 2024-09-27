@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {TRelayFieldError} from '../store/RelayErrorTrie';
+import type {TRelayFieldErrorForDisplay} from '../store/RelayErrorTrie';
 import type {
   ErrorResponseFields,
   IEnvironment,
@@ -37,7 +37,7 @@ function handleResolverErrors(
   ) {
     throw new RelayFieldError(
       `Relay: Unexpected resolver exception`,
-      relayResolverErrors.map(e => ({message: e.error.message})),
+      relayResolverErrors.map(e => ({path: e.fieldPath.split('.')})),
     );
   }
 }
@@ -58,14 +58,16 @@ function handleFieldErrors(
   if (shouldThrow) {
     throw new RelayFieldError(
       `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
-      errorResponseFields.map((event): TRelayFieldError => {
+      errorResponseFields.map((event): TRelayFieldErrorForDisplay => {
         switch (event.kind) {
           case 'relay_field_payload.error':
-            return event.error;
+            //TODO: [relay] Provide a payloadErrorResolver to allow exposing custom error shape.
+            const {message, ...displayError} = event.error;
+            return displayError;
           case 'missing_expected_data.throw':
-            return {message: 'Missing expected data'};
+            return {path: event.fieldPath.split('.')};
           case 'missing_expected_data.log':
-            return {message: 'Missing expected data'};
+            return {path: event.fieldPath.split('.')};
           default:
             (event.kind: empty);
             throw new Error('Relay: Unexpected event kind');

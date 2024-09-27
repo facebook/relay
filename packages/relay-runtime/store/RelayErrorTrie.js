@@ -17,21 +17,26 @@ import type {PayloadError} from '../network/RelayNetworkTypes';
 const SELF: Self = Symbol('$SELF');
 
 class RelayFieldError extends Error {
-  constructor(message: string, errors: Array<TRelayFieldError> = []) {
+  constructor(message: string, errors: Array<TRelayFieldErrorForDisplay> = []) {
     super(message);
     this.name = 'RelayFieldError';
     this.message = message;
     this.errors = errors;
   }
-  errors: Array<TRelayFieldError>;
+  errors: Array<TRelayFieldErrorForDisplay>;
 }
 
 export opaque type Self = typeof SELF;
 
-export type TRelayFieldError = $ReadOnly<{
-  message: string,
+export type TRelayFieldErrorForDisplay = $ReadOnly<{
   path?: $ReadOnlyArray<string | number>,
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
+}>;
+
+// We display a subset of the TRelayFieldError to the user. Removing the message by default.
+export type TRelayFieldError = $ReadOnly<{
+  ...TRelayFieldErrorForDisplay,
+  message: string,
 }>;
 
 /**

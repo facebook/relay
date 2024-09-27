@@ -25,6 +25,7 @@
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
     "docusaurus-plugin-internaldocs-fb": "1.4.0",
+    "highlight.js": "^10.4.1",
     "lz-string": "^1.4.4",
     "monaco-editor": "^0.24.0",
     "react": "^17.0.2",

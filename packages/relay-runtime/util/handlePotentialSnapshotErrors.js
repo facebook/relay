@@ -15,10 +15,6 @@ import type {
   ErrorResponseField,
   ErrorResponseFields,
   IEnvironment,
-  MissingExpectedDataThrowEvent,
-  MissingRequiredFieldThrowEvent,
-  RelayFieldPayloadErrorEvent,
-  RelayResolverErrorEvent,
 } from '../store/RelayStoreTypes';
 
 const invariant = require('invariant');

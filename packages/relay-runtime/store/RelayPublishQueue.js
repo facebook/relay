@@ -318,7 +318,7 @@ class RelayPublishQueue implements PublishQueue {
         selector,
         this._missingFieldHandlers,
       );
-      const selectorData = lookupSelector(source, selector);
+      const selectorData = lookupMutationSelector(source, selector);
       updater(recordSourceSelectorProxy, selectorData);
     }
     const idsMarkedForInvalidation =
@@ -410,7 +410,7 @@ class RelayPublishQueue implements PublishQueue {
         if (updater) {
           let selectorData;
           if (source) {
-            selectorData = lookupSelector(source, operation.fragment);
+            selectorData = lookupMutationSelector(source, operation.fragment);
           }
           const recordSourceSelectorProxy = new RelayRecordSourceSelectorProxy(
             mutator,
@@ -447,10 +447,12 @@ class RelayPublishQueue implements PublishQueue {
   }
 }
 
-function lookupSelector(
+function lookupMutationSelector(
   source: RecordSource,
   selector: SingularReaderSelector,
 ): ?SelectorData {
+  // The compiler enforces that mutations may not use Resolvers, so it's okay to
+  // not pass a resolver cache here.
   const selectorData = RelayReader.read(source, selector).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');

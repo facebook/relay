@@ -38,7 +38,6 @@ import type {
   MissingRequiredFields,
   Record,
   RecordSource,
-  RelayResolverErrors,
   RequestDescriptor,
   ResolverContext,
   SelectorData,
@@ -109,7 +108,6 @@ class RelayReader {
   _selector: SingularReaderSelector;
   _variables: Variables;
   _resolverCache: ResolverCache;
-  _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
   _resolverContext: ?ResolverContext;
 
@@ -134,7 +132,6 @@ class RelayReader {
     this._selector = selector;
     this._variables = selector.variables;
     this._resolverCache = resolverCache;
-    this._resolverErrors = [];
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
     this._resolverContext = resolverContext;
@@ -197,7 +194,6 @@ class RelayReader {
       seenRecords: this._seenRecords,
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
-      relayResolverErrors: this._resolverErrors,
       errorResponseFields: this._errorResponseFields,
     };
   }
@@ -347,6 +343,10 @@ class RelayReader {
           return {
             path: error.fieldPath.split('.'),
           };
+        case 'relay_resolver.error':
+          return {
+            message: `Relay: Error in resolver for field at ${error.fieldPath} in ${error.owner}`,
+          };
         default:
           (error.kind: empty);
           invariant(
@@ -356,18 +356,6 @@ class RelayReader {
           );
       }
     });
-
-    if (this._resolverErrors.length > 0) {
-      if (errors == null) {
-        errors = [];
-      }
-      for (let i = 0; i < this._resolverErrors.length; i++) {
-        const resolverError = this._resolverErrors[i];
-        errors.push({
-          message: `Relay: Error in resolver for field at ${resolverError.fieldPath} in ${resolverError.owner}`,
-        });
-      }
-    }
 
     // If we have a nested @required(THROW) that will throw,
     // we want to catch that error and provide it
@@ -425,11 +413,9 @@ class RelayReader {
         case 'CatchField': {
           const previousResponseFields = this._errorResponseFields;
           const previousMissingRequiredFields = this._missingRequiredFields;
-          const previousResolverErrors = this._resolverErrors;
 
           this._errorResponseFields = null;
           this._missingRequiredFields = null;
-          this._resolverErrors = [];
 
           const catchFieldValue = this._readClientSideDirectiveField(
             selection,
@@ -443,7 +429,6 @@ class RelayReader {
 
           const childrenMissingRequiredFields = this._missingRequiredFields;
 
-          this._resolverErrors = previousResolverErrors;
           this._errorResponseFields = previousResponseFields;
           this._missingRequiredFields = previousMissingRequiredFields;
 
@@ -776,8 +761,18 @@ class RelayReader {
           this._missingLiveResolverFields.push(missingResolverField);
         }
       }
-      for (const error of cachedSnapshot.relayResolverErrors) {
-        this._resolverErrors.push(error);
+      if (cachedSnapshot.errorResponseFields != null) {
+        if (this._errorResponseFields == null) {
+          this._errorResponseFields = [];
+        }
+        for (const error of cachedSnapshot.errorResponseFields) {
+          // TODO: In reality we should propagate _all_ errors, but
+          // for now we're only propagating resolver errors for backwards
+          // compatibility with previous behavior.
+          if (error.kind === 'relay_resolver.error') {
+            this._errorResponseFields.push(error);
+          }
+        }
       }
       this._isMissingData = this._isMissingData || cachedSnapshot.isMissingData;
     }
@@ -786,12 +781,20 @@ class RelayReader {
     // the errors can be attached to this read's snapshot. This allows the error
     // to be logged.
     if (resolverError) {
-      this._resolverErrors.push({
+      const errorEvent = {
         kind: 'relay_resolver.error',
         fieldPath,
         owner: this._fragmentName,
         error: resolverError,
-      });
+        shouldThrow:
+          this._selector.node.metadata?.throwOnFieldError ??
+          RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT,
+      };
+      if (this._errorResponseFields == null) {
+        this._errorResponseFields = [errorEvent];
+      } else {
+        this._errorResponseFields.push(errorEvent);
+      }
     }
 
     // The resolver itself creates a record in the store. We record that we've

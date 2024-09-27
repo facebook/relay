@@ -273,7 +273,6 @@ describe('ReactRelayFragmentContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
@@ -312,7 +311,6 @@ describe('ReactRelayFragmentContainer', () => {
           name: 'Mark', // !== 'Zuck'
         },
         seenRecords: {},
-        relayResolverErrors: [],
       }),
     );
 
@@ -377,7 +375,6 @@ describe('ReactRelayFragmentContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -437,7 +434,6 @@ describe('ReactRelayFragmentContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

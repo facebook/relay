@@ -100,6 +100,7 @@ describe('FragmentResource RelayResolver behavior', () => {
       fieldPath: 'always_throws',
       kind: 'relay_resolver.error',
       owner: 'FragmentResourceResolverTestFragment1',
+      shouldThrow: false,
     });
     expect(event.error.message).toEqual('I always throw. What did you expect?');
   });

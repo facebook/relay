@@ -116,7 +116,6 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           seenRecords: backup.seenRecords,
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
-          relayResolverErrors: backup.relayResolverErrors,
           errorResponseFields: backup.errorResponseFields,
         };
       } else {
@@ -188,7 +187,6 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,
-      relayResolverErrors: nextSnapshot.relayResolverErrors,
       errorResponseFields: nextSnapshot.errorResponseFields,
     }: Snapshot);
     if (__DEV__) {

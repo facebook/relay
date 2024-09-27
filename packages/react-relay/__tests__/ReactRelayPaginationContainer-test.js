@@ -346,7 +346,6 @@ describe('ReactRelayPaginationContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -389,7 +388,6 @@ describe('ReactRelayPaginationContainer', () => {
           friends: null, // set to null
         },
         seenRecords: {},
-        relayResolverErrors: [],
       });
     });
 
@@ -462,7 +460,6 @@ describe('ReactRelayPaginationContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -533,7 +530,6 @@ describe('ReactRelayPaginationContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -639,7 +635,6 @@ describe('ReactRelayPaginationContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

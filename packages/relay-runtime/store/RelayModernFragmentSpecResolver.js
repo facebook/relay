@@ -22,7 +22,6 @@ import type {
   MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
-  RelayResolverErrors,
   SelectorData,
   SingularReaderSelector,
   Snapshot,
@@ -230,7 +229,6 @@ class SelectorResolver {
   _isMissingData: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
   _errorResponseFields: ?ErrorResponseFields;
-  _relayResolverErrors: RelayResolverErrors;
   _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
@@ -248,7 +246,6 @@ class SelectorResolver {
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
     this._errorResponseFields = snapshot.errorResponseFields;
-    this._relayResolverErrors = snapshot.relayResolverErrors;
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
@@ -332,7 +329,6 @@ class SelectorResolver {
     handlePotentialSnapshotErrors(
       this._environment,
       this._missingRequiredFields,
-      this._relayResolverErrors,
       this._errorResponseFields,
       this._selector.node.metadata?.throwOnFieldError ?? false,
     );
@@ -352,7 +348,6 @@ class SelectorResolver {
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
     this._errorResponseFields = snapshot.errorResponseFields;
-    this._relayResolverErrors = snapshot.relayResolverErrors;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -390,7 +385,6 @@ class SelectorResolver {
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
     this._errorResponseFields = snapshot.errorResponseFields;
-    this._relayResolverErrors = snapshot.relayResolverErrors;
     this._callback();
   };
 }

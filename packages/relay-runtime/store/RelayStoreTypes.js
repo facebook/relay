@@ -129,7 +129,8 @@ export type MissingRequiredFields = $ReadOnly<
 export type ErrorResponseFields = Array<
   | RelayFieldPayloadErrorEvent
   | MissingExpectedDataLogEvent
-  | MissingExpectedDataThrowEvent,
+  | MissingExpectedDataThrowEvent
+  | RelayResolverErrorEvent,
 >;
 
 export type ClientEdgeTraversalInfo = {
@@ -144,8 +145,6 @@ export type MissingClientEdgeRequestInfo = {
   +request: ConcreteRequest,
   +clientEdgeDestinationID: DataID,
 };
-
-export type RelayResolverErrors = Array<RelayResolverErrorEvent>;
 
 export type MissingLiveResolverField = {
   +path: string,
@@ -163,7 +162,6 @@ export type Snapshot = {
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
-  +relayResolverErrors: RelayResolverErrors,
   +errorResponseFields: ?ErrorResponseFields,
 };
 
@@ -1337,6 +1335,7 @@ export type RelayResolverErrorEvent = {
   +owner: string,
   +fieldPath: string,
   +error: Error,
+  +shouldThrow: boolean,
 };
 
 /**

@@ -87,7 +87,9 @@ test('Promise rejects with @throwOnFieldError', async () => {
   } catch (e) {
     result = e;
   }
-  expect(result?.message).toEqual('Relay: Unexpected resolver exception');
+  expect(result?.message).toEqual(
+    'Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors',
+  );
 });
 
 test('data goes missing due to unrelated query response', async () => {

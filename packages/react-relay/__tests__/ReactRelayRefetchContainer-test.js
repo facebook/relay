@@ -282,7 +282,6 @@ describe('ReactRelayRefetchContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -319,7 +318,6 @@ describe('ReactRelayRefetchContainer', () => {
           name: 'Mark', // !== 'Zuck'
         },
         seenRecords: {},
-        relayResolverErrors: [],
       });
     });
 
@@ -385,7 +383,6 @@ describe('ReactRelayRefetchContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -446,7 +443,6 @@ describe('ReactRelayRefetchContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -534,7 +530,6 @@ describe('ReactRelayRefetchContainer', () => {
       missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),

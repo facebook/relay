@@ -139,7 +139,6 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
     handlePotentialSnapshotErrors(
       environment,
       snapshot.missingRequiredFields,
-      snapshot.relayResolverErrors,
       snapshot.errorResponseFields,
       queryNode.fragment.metadata?.throwOnFieldError ?? false,
     );

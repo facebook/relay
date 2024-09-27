@@ -213,7 +213,6 @@ function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
     handlePotentialSnapshotErrors(
       environment,
       snapshot.missingRequiredFields,
-      snapshot.relayResolverErrors,
       snapshot.errorResponseFields,
       snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );

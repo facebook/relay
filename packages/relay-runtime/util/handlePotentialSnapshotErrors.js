@@ -16,31 +16,9 @@ import type {
   ErrorResponseFields,
   IEnvironment,
   MissingRequiredFields,
-  RelayResolverErrors,
 } from '../store/RelayStoreTypes';
 
 const {RelayFieldError} = require('../store/RelayErrorTrie');
-const RelayFeatureFlags = require('./RelayFeatureFlags');
-
-function handleResolverErrors(
-  environment: IEnvironment,
-  relayResolverErrors: RelayResolverErrors,
-  throwOnFieldError: boolean,
-) {
-  for (const resolverError of relayResolverErrors) {
-    environment.relayFieldLogger(resolverError);
-  }
-
-  if (
-    RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT ||
-    throwOnFieldError
-  ) {
-    throw new RelayFieldError(
-      `Relay: Unexpected resolver exception`,
-      relayResolverErrors.map(e => ({path: e.fieldPath.split('.')})),
-    );
-  }
-}
 
 function handleFieldErrors(
   environment: IEnvironment,
@@ -67,6 +45,8 @@ function handleFieldErrors(
           case 'missing_expected_data.throw':
             return {path: event.fieldPath.split('.')};
           case 'missing_expected_data.log':
+            return {path: event.fieldPath.split('.')};
+          case 'relay_resolver.error':
             return {path: event.fieldPath.split('.')};
           default:
             (event.kind: empty);
@@ -112,14 +92,9 @@ function handleMissingRequiredFields(
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   missingRequiredFields: ?MissingRequiredFields,
-  relayResolverErrors: RelayResolverErrors,
   errorResponseFields: ?ErrorResponseFields,
   throwOnFieldError: boolean,
 ) {
-  if (relayResolverErrors.length > 0) {
-    handleResolverErrors(environment, relayResolverErrors, throwOnFieldError);
-  }
-
   if (missingRequiredFields != null) {
     handleMissingRequiredFields(environment, missingRequiredFields);
   }

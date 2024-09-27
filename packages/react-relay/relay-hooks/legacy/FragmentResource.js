@@ -562,7 +562,6 @@ class FragmentResourceImpl {
         handlePotentialSnapshotErrors(
           this._environment,
           s.missingRequiredFields,
-          s.relayResolverErrors,
           s.errorResponseFields,
           s.selector.node.metadata?.throwOnFieldError ?? false,
         );
@@ -571,7 +570,6 @@ class FragmentResourceImpl {
       handlePotentialSnapshotErrors(
         this._environment,
         snapshot.missingRequiredFields,
-        snapshot.relayResolverErrors,
         snapshot.errorResponseFields,
         snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
@@ -774,7 +772,6 @@ class FragmentResourceImpl {
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
       missingRequiredFields: currentSnapshot.missingRequiredFields,
-      relayResolverErrors: currentSnapshot.relayResolverErrors,
       errorResponseFields: currentSnapshot.errorResponseFields,
     };
     if (updatedData !== renderData) {

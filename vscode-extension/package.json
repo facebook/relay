@@ -39,6 +39,10 @@
       {
         "command": "relay.stopCompiler",
         "title": "Relay: Stop Compiler"
+      },
+      {
+        "command": "relay.copyOperation",
+        "title": "Relay: Copy Operation"
       }
     ],
     "configuration": {

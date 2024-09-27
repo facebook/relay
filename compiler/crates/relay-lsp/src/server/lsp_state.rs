@@ -23,12 +23,14 @@ use fnv::FnvBuildHasher;
 use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::ExecutableDocument;
 use graphql_syntax::GraphQLSource;
+use graphql_text_printer::print_full_operation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use log::debug;
@@ -44,6 +46,7 @@ use relay_compiler::FileGroup;
 use relay_compiler::ProjectName;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
+use relay_transforms::apply_transforms;
 use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::CombinedSchemaDocumentation;
@@ -54,6 +57,7 @@ use tokio::sync::Notify;
 use super::task_queue::TaskScheduler;
 use crate::diagnostic_reporter::DiagnosticReporter;
 use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::graphql_tools::get_operation_only_program;
 use crate::graphql_tools::get_query_text;
 use crate::location::transform_relay_location_to_lsp_location_with_cache;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -126,6 +130,12 @@ pub trait GlobalState {
     fn get_full_query_text(
         &self,
         query_text: String,
+        project_name: &StringKey,
+    ) -> LSPRuntimeResult<String>;
+
+    fn get_operation_text(
+        &self,
+        operation_name: OperationDefinitionName,
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String>;
 
@@ -573,6 +583,55 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         project_name: &StringKey,
     ) -> LSPRuntimeResult<String> {
         get_query_text(self, query_text, (*project_name).into())
+    }
+
+    fn get_operation_text(
+        &self,
+        operation_name: OperationDefinitionName,
+        project_name: &StringKey,
+    ) -> LSPRuntimeResult<String> {
+        let project_config = self
+            .config
+            .enabled_projects()
+            .find(|project_config| project_config.name == (*project_name).into())
+            .ok_or_else(|| {
+                LSPRuntimeError::UnexpectedError(format!(
+                    "Unable to get project config for project {}.",
+                    project_name
+                ))
+            })?;
+
+        let program = self.get_program(project_name)?;
+
+        let operation_only_program = program
+            .operation(operation_name)
+            .and_then(|operation| {
+                get_operation_only_program(Arc::clone(operation), vec![], &program)
+            })
+            .ok_or(LSPRuntimeError::ExpectedError)?;
+
+        let programs = apply_transforms(
+            project_config,
+            Arc::new(operation_only_program),
+            Default::default(),
+            Arc::clone(&self.perf_logger),
+            None,
+            self.config.custom_transforms.as_ref(),
+        )
+        .map_err(|_| LSPRuntimeError::ExpectedError)?;
+
+        let operation_to_print = programs
+            .operation_text
+            .operation(operation_name)
+            .ok_or(LSPRuntimeError::ExpectedError)?;
+
+        let operation_text = print_full_operation(
+            &programs.operation_text,
+            operation_to_print,
+            Default::default(),
+        );
+
+        Ok(operation_text)
     }
 
     fn document_opened(&self, uri: &Url, text: &str) -> LSPRuntimeResult<()> {

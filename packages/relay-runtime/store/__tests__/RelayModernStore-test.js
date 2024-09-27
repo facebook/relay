@@ -285,7 +285,6 @@ function cloneEventWithSets(event: LogEvent) {
             },
           },
           seenRecords: new Set(Object.keys(data)),
-          missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
@@ -339,7 +338,6 @@ function cloneEventWithSets(event: LogEvent) {
             __fragmentOwner: owner.request,
           },
           seenRecords: new Set(Object.keys(data)),
-          missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
@@ -397,7 +395,6 @@ function cloneEventWithSets(event: LogEvent) {
             },
           },
           seenRecords: new Set(['client:2', '4']),
-          missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
@@ -680,7 +677,6 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
-          missingRequiredFields: null,
           missingClientEdges: null,
           isMissingData: false,
           errorResponseFields: null,
@@ -737,7 +733,6 @@ function cloneEventWithSets(event: LogEvent) {
               fieldPath: '',
             },
           ],
-          missingRequiredFields: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
           isMissingData: true,
@@ -778,7 +773,6 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingRequiredFields: null,
           missingClientEdges: null,
           isMissingData: true,
           errorResponseFields: [

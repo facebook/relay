@@ -88,7 +88,7 @@ test('Promise rejects with @throwOnFieldError', async () => {
     result = e;
   }
   expect(result?.message).toEqual(
-    'Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors',
+    "Relay: Resolver error at path 'always_throws' in 'waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment'.",
   );
 });
 
@@ -189,6 +189,6 @@ test('data goes missing due to unrelated query response (@throwOnFieldErrro)', a
     result = e;
   }
   expect(result?.message).toEqual(
-    'Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors',
+    "Relay: Missing expected data at path '' in 'waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment'.",
   );
 });

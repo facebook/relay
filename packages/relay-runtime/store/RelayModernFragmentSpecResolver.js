@@ -19,7 +19,6 @@ import type {
   FragmentSpecResolver,
   FragmentSpecResults,
   IEnvironment,
-  MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
   SelectorData,
@@ -227,7 +226,6 @@ class SelectorResolver {
   _data: ?SelectorData;
   _environment: IEnvironment;
   _isMissingData: boolean;
-  _missingRequiredFields: ?MissingRequiredFields;
   _errorResponseFields: ?ErrorResponseFields;
   _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
@@ -244,7 +242,6 @@ class SelectorResolver {
     this._callback = callback;
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
-    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._errorResponseFields = snapshot.errorResponseFields;
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
@@ -326,12 +323,7 @@ class SelectorResolver {
         }
       }
     }
-    handlePotentialSnapshotErrors(
-      this._environment,
-      this._missingRequiredFields,
-      this._errorResponseFields,
-      this._selector.node.metadata?.throwOnFieldError ?? false,
-    );
+    handlePotentialSnapshotErrors(this._environment, this._errorResponseFields);
     return this._data;
   }
 
@@ -346,7 +338,6 @@ class SelectorResolver {
     const snapshot = this._environment.lookup(selector);
     this._data = recycleNodesInto(this._data, snapshot.data);
     this._isMissingData = snapshot.isMissingData;
-    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._errorResponseFields = snapshot.errorResponseFields;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
@@ -383,7 +374,6 @@ class SelectorResolver {
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
-    this._missingRequiredFields = snapshot.missingRequiredFields;
     this._errorResponseFields = snapshot.errorResponseFields;
     this._callback();
   };

@@ -35,7 +35,6 @@ import type {
   ErrorResponseFields,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
-  MissingRequiredFields,
   Record,
   RecordSource,
   RequestDescriptor,
@@ -99,7 +98,6 @@ class RelayReader {
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
   _missingLiveResolverFields: Array<MissingLiveResolverField>;
   _isWithinUnmatchedTypeRefinement: boolean;
-  _missingRequiredFields: ?MissingRequiredFields;
   _errorResponseFields: ?ErrorResponseFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
@@ -124,7 +122,6 @@ class RelayReader {
     this._missingLiveResolverFields = [];
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
-    this._missingRequiredFields = null;
     this._errorResponseFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
@@ -193,7 +190,6 @@ class RelayReader {
       missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
-      missingRequiredFields: this._missingRequiredFields,
       errorResponseFields: this._errorResponseFields,
     };
   }
@@ -284,33 +280,26 @@ class RelayReader {
   }
 
   _maybeReportUnexpectedNull(fieldPath: string, action: 'LOG' | 'THROW') {
-    if (this._missingRequiredFields?.action === 'THROW') {
-      // Chained @required directives may cause a parent `@required(action:
-      // THROW)` field to become null, so the first missing field we
-      // encounter is likely to be the root cause of the error.
-      return;
-    }
     const owner = this._fragmentName;
+
+    if (this._errorResponseFields == null) {
+      this._errorResponseFields = [];
+    }
 
     switch (action) {
       case 'THROW':
-        this._missingRequiredFields = {action, field: {path: fieldPath, owner}};
+        this._errorResponseFields.push({
+          kind: 'missing_required_field.throw',
+          fieldPath,
+          owner,
+        });
         return;
       case 'LOG':
-        if (this._missingRequiredFields == null) {
-          this._missingRequiredFields = {
-            action,
-            fields: [{path: fieldPath, owner}],
-          };
-        } else {
-          this._missingRequiredFields = {
-            action,
-            fields: [
-              ...this._missingRequiredFields.fields,
-              {path: fieldPath, owner},
-            ],
-          };
-        }
+        this._errorResponseFields.push({
+          kind: 'missing_required_field.log',
+          fieldPath,
+          owner,
+        });
         return;
       default:
         (action: empty);
@@ -333,43 +322,40 @@ class RelayReader {
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
-    let errors = this._errorResponseFields?.map(error => {
-      switch (error.kind) {
-        case 'relay_field_payload.error':
-          const {message, ...displayError} = error.error;
-          return displayError;
-        case 'missing_expected_data.throw':
-        case 'missing_expected_data.log':
-          return {
-            path: error.fieldPath.split('.'),
-          };
-        case 'relay_resolver.error':
-          return {
-            message: `Relay: Error in resolver for field at ${error.fieldPath} in ${error.owner}`,
-          };
-        default:
-          (error.kind: empty);
-          invariant(
-            false,
-            'Unexpected error errorResponseField kind: %s',
-            error.kind,
-          );
-      }
-    });
-
-    // If we have a nested @required(THROW) that will throw,
-    // we want to catch that error and provide it
-    if (this._missingRequiredFields?.action === 'THROW') {
-      const {owner, path} = this._missingRequiredFields.field;
-      const missingFieldError = {
-        message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-      };
-      if (errors == null) {
-        errors = [missingFieldError];
-      } else {
-        errors.push(missingFieldError);
-      }
-    }
+    const errors = this._errorResponseFields
+      ?.map(error => {
+        switch (error.kind) {
+          case 'relay_field_payload.error':
+            const {message, ...displayError} = error.error;
+            return displayError;
+          case 'missing_expected_data.throw':
+          case 'missing_expected_data.log':
+            return {
+              path: error.fieldPath.split('.'),
+            };
+          case 'relay_resolver.error':
+            return {
+              message: `Relay: Error in resolver for field at ${error.fieldPath} in ${error.owner}`,
+            };
+          case 'missing_required_field.throw':
+            // If we have a nested @required(THROW) that will throw,
+            // we want to catch that error and provide it
+            return {
+              message: `Relay: Missing @required value at path '${error.fieldPath}' in '${error.owner}'.`,
+            };
+          case 'missing_required_field.log':
+            // For backwards compatibility, we don't surface log level missing required fields
+            return null;
+          default:
+            (error.kind: empty);
+            invariant(
+              false,
+              'Unexpected error errorResponseField kind: %s',
+              error.kind,
+            );
+        }
+      })
+      .filter(Boolean);
 
     data[fieldName] = errors != null ? {ok: false, errors} : {ok: true, value};
   }
@@ -412,10 +398,8 @@ class RelayReader {
           break;
         case 'CatchField': {
           const previousResponseFields = this._errorResponseFields;
-          const previousMissingRequiredFields = this._missingRequiredFields;
 
           this._errorResponseFields = null;
-          this._missingRequiredFields = null;
 
           const catchFieldValue = this._readClientSideDirectiveField(
             selection,
@@ -427,15 +411,23 @@ class RelayReader {
             this._handleCatchToResult(selection, record, data, catchFieldValue);
           }
 
-          const childrenMissingRequiredFields = this._missingRequiredFields;
+          const childrenErrorResponseFields = this._errorResponseFields;
 
           this._errorResponseFields = previousResponseFields;
-          this._missingRequiredFields = previousMissingRequiredFields;
 
           // If we encountered non-throwing @required fields, in the children,
           // we want to preserve those errors in the snapshot.
-          if (childrenMissingRequiredFields?.action === 'LOG') {
-            this._addMissingRequiredFields(childrenMissingRequiredFields);
+          if (childrenErrorResponseFields != null) {
+            for (let i = 0; i < childrenErrorResponseFields.length; i++) {
+              const event = childrenErrorResponseFields[i];
+              if (event.kind === 'missing_required_field.log') {
+                if (this._errorResponseFields == null) {
+                  this._errorResponseFields = [event];
+                } else {
+                  this._errorResponseFields.push(event);
+                }
+              }
+            }
           }
 
           break;
@@ -647,7 +639,7 @@ class RelayReader {
         return {
           data: snapshot.data,
           isMissingData: snapshot.isMissingData,
-          missingRequiredFields: snapshot.missingRequiredFields,
+          errorResponseFields: snapshot.errorResponseFields,
         };
       }
 
@@ -660,7 +652,7 @@ class RelayReader {
       return {
         data: snapshot.data,
         isMissingData: snapshot.isMissingData,
-        missingRequiredFields: snapshot.missingRequiredFields,
+        errorResponseFields: snapshot.errorResponseFields,
       };
     };
 
@@ -744,9 +736,6 @@ class RelayReader {
     // errors, or be in a suspended state. Here we propagate those cases
     // upwards to mimic the behavior of having traversed into that fragment directly.
     if (cachedSnapshot != null) {
-      if (cachedSnapshot.missingRequiredFields != null) {
-        this._addMissingRequiredFields(cachedSnapshot.missingRequiredFields);
-      }
       if (cachedSnapshot.missingClientEdges != null) {
         for (const missing of cachedSnapshot.missingClientEdges) {
           this._missingClientEdges.push(missing);
@@ -767,9 +756,13 @@ class RelayReader {
         }
         for (const error of cachedSnapshot.errorResponseFields) {
           // TODO: In reality we should propagate _all_ errors, but
-          // for now we're only propagating resolver errors for backwards
-          // compatibility with previous behavior.
-          if (error.kind === 'relay_resolver.error') {
+          // for now we're only propagating resolver errors and missing field
+          // errors for backwards compatibility with previous behavior.
+          if (
+            error.kind === 'relay_resolver.error' ||
+            error.kind === 'missing_required_field.throw' ||
+            error.kind === 'missing_required_field.log'
+          ) {
             this._errorResponseFields.push(error);
           }
         }
@@ -1390,26 +1383,6 @@ class RelayReader {
     this._fragmentName = parentFragmentName;
     // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
-  }
-
-  _addMissingRequiredFields(additional: MissingRequiredFields) {
-    if (this._missingRequiredFields == null) {
-      this._missingRequiredFields = additional;
-      return;
-    }
-
-    if (this._missingRequiredFields.action === 'THROW') {
-      return;
-    }
-    if (additional.action === 'THROW') {
-      this._missingRequiredFields = additional;
-      return;
-    }
-
-    this._missingRequiredFields = {
-      action: 'LOG',
-      fields: [...this._missingRequiredFields.fields, ...additional.fields],
-    };
   }
 
   _implementsInterface(record: Record, abstractKey: string): ?boolean {

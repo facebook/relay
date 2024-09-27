@@ -235,8 +235,8 @@ test('Resolver error with @throwOnFieldError', async () => {
   withObservableValues(observable, results => {
     expect(results).toEqual([
       {
-        error: new RelayFieldError(
-          'Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors',
+        error: new Error(
+          "Relay: Resolver error at path 'always_throws' in 'observeFragmentTestResolverErrorWithThrowOnFieldErrorFragment'.",
         ),
         state: 'error',
       },

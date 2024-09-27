@@ -227,7 +227,7 @@ impl Default for SchemaConfig {
     }
 }
 
-type CustomArtifactFilePath = Box<dyn Fn(&ProjectConfig, &PathBuf) -> PathBuf + Send + Sync>;
+type CustomArtifactFilePath = Box<dyn Fn(&PathBuf) -> PathBuf + Send + Sync>;
 
 pub struct ProjectConfig {
     pub name: ProjectName,
@@ -395,16 +395,8 @@ impl ProjectConfig {
                 format!("{}.graphql", artifact_name),
             )
         };
-        if self
-            .feature_flags
-            .enable_custom_artifacts_path
-            .is_enabled_for(path.to_string_lossy().to_string().intern())
-        {
-            if let Some(get_custom_path_for_artifact) = &self.get_custom_path_for_artifact {
-                get_custom_path_for_artifact(self, &path)
-            } else {
-                path
-            }
+        if let Some(get_custom_path_for_artifact) = &self.get_custom_path_for_artifact {
+            get_custom_path_for_artifact(&path)
         } else {
             path
         }

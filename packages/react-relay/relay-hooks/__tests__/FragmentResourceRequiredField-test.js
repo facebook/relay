@@ -176,6 +176,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
     fieldPath: 'name',
     kind: 'missing_required_field.throw',
     owner: 'FragmentResourceRequiredFieldTestUserFragment',
+    handled: false,
   });
 
   disposable.dispose();

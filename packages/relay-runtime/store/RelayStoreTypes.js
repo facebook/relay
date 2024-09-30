@@ -1284,11 +1284,16 @@ export type MissingExpectedDataLogEvent = {
  *
  * Relay will throw immediately after logging this event. If you wish to
  * customize the error being thrown, you may throw your own error.
+ *
+ * *NOTE*: Only throw on this event if `handled` is false. Errors that have been
+ * handled by a `@catch` directive or by making a resolver null will have
+ * `handled: true` and should not trigger a throw.
  */
 export type MissingExpectedDataThrowEvent = {
   +kind: 'missing_expected_data.throw',
   +owner: string,
   +fieldPath: string,
+  +handled: boolean,
 };
 
 /**
@@ -1307,11 +1312,16 @@ export type MissingRequiredFieldLogEvent = {
  *
  * Relay will throw immediately after logging this event. If you wish to
  * customize the error being thrown, you may throw your own error.
+ *
+ * *NOTE*: Only throw on this event if `handled` is false. Errors that have been
+ * handled by a `@catch` directive or by making a resolver null will have
+ * `handled: true` and should not trigger a throw.
  */
 export type MissingRequiredFieldThrowEvent = {
   +kind: 'missing_required_field.throw',
   +owner: string,
   +fieldPath: string,
+  +handled: boolean,
 };
 
 /**
@@ -1321,6 +1331,10 @@ export type MissingRequiredFieldThrowEvent = {
  *
  * If `@throwOnFieldError` was used on the parent query/fragment/mutation, you
  * will also receive a TODO
+ *
+ * *NOTE*: Only throw on this event if `handled` is false. Errors that have been
+ * handled by a `@catch` directive or by making a resolver null will have
+ * `handled: true` and should not trigger a throw.
  */
 export type RelayResolverErrorEvent = {
   +kind: 'relay_resolver.error',
@@ -1328,6 +1342,7 @@ export type RelayResolverErrorEvent = {
   +fieldPath: string,
   +error: Error,
   +shouldThrow: boolean,
+  +handled: boolean,
 };
 
 /**
@@ -1342,6 +1357,10 @@ export type RelayResolverErrorEvent = {
  *
  * https://relay.dev/docs/next/guides/catch-directive/
  * https://relay.dev/docs/next/guides/throw-on-field-error-directive/
+ *
+ * *NOTE*: Only throw on this event if `handled` is false. Errors that have been
+ * handled by a `@catch` directive or by making a resolver null will have
+ * `handled: true` and should not trigger a throw.
  */
 export type RelayFieldPayloadErrorEvent = {
   +kind: 'relay_field_payload.error',
@@ -1349,6 +1368,7 @@ export type RelayFieldPayloadErrorEvent = {
   +fieldPath: string,
   +error: TRelayFieldError,
   +shouldThrow: boolean,
+  +handled: boolean,
 };
 
 /**

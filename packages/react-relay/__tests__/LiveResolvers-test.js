@@ -985,6 +985,7 @@ describe.each([true, false])(
               kind: 'missing_required_field.throw',
               owner: 'ResolverThatThrows',
               fieldPath: 'username',
+              handled: false,
             },
           ],
         ]);
@@ -1012,6 +1013,7 @@ describe.each([true, false])(
               kind: 'relay_resolver.error',
               owner: 'LiveResolversTest8Query',
               shouldThrow: false,
+              handled: false,
             },
           ],
         ]);
@@ -1715,6 +1717,7 @@ describe.each([true, false])(
           fieldPath: 'live_resolver_throws',
           error: new Error('What?'),
           shouldThrow: false,
+          handled: false,
         },
       ]);
     });

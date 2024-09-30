@@ -184,6 +184,7 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
           fieldPath: 'counter',
           kind: 'missing_required_field.throw',
           owner: 'CounterPlusOneResolver',
+          handled: false,
         },
       ]);
       expect(recordIdsInStore).toEqual([

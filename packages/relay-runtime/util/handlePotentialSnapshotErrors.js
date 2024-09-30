@@ -67,10 +67,10 @@ function eventShouldThrow(event: ErrorResponseField): boolean {
   switch (event.kind) {
     case 'relay_resolver.error':
     case 'relay_field_payload.error':
-      return event.shouldThrow;
+      return event.shouldThrow && !event.handled;
     case 'missing_expected_data.throw':
     case 'missing_required_field.throw':
-      return true;
+      return !event.handled;
     case 'missing_required_field.log':
     case 'missing_expected_data.log':
       return false;

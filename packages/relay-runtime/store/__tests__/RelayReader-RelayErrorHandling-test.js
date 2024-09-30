@@ -61,6 +61,7 @@ describe('RelayReader error fields', () => {
         },
         kind: 'relay_field_payload.error',
         shouldThrow: false,
+        handled: false,
       },
     ]);
   });
@@ -112,11 +113,13 @@ describe('RelayReader error fields', () => {
           path: ['me', 'lastName'],
         },
         shouldThrow: true,
+        handled: false,
       },
       {
         owner: 'RelayReaderRelayErrorHandlingTest4Query',
         fieldPath: '',
         kind: 'missing_expected_data.throw',
+        handled: false,
       },
     ]);
   });

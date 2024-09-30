@@ -37,6 +37,7 @@ describe('handlePotentialSnapshotErrors', () => {
             kind: 'missing_required_field.throw',
             owner: 'testOwner',
             fieldPath: 'testPath',
+            handled: false,
           },
         ]);
       }).toThrowError(
@@ -54,6 +55,7 @@ describe('handlePotentialSnapshotErrors', () => {
               kind: 'missing_required_field.throw',
               owner: 'testOwner',
               fieldPath: 'testPath',
+              handled: false,
             },
             {
               kind: 'missing_expected_data.log',
@@ -74,6 +76,7 @@ describe('handlePotentialSnapshotErrors', () => {
             kind: 'missing_required_field.throw',
             owner: 'testOwner',
             fieldPath: 'testPath',
+            handled: false,
           },
           {
             kind: 'missing_expected_data.log',
@@ -90,6 +93,7 @@ describe('handlePotentialSnapshotErrors', () => {
               severity: 'CRITICAL',
             },
             shouldThrow: false,
+            handled: false,
           },
         ]);
       }).toThrowError(
@@ -123,6 +127,7 @@ describe('handlePotentialSnapshotErrors', () => {
             kind: 'missing_expected_data.throw',
             owner: '',
             fieldPath: '',
+            handled: false,
           },
         ]);
       }).toThrowError(/^Relay: Missing expected data at path '' in ''./);
@@ -132,6 +137,7 @@ describe('handlePotentialSnapshotErrors', () => {
         fieldPath: '',
         kind: 'missing_expected_data.throw',
         owner: '',
+        handled: false,
       });
     });
 
@@ -200,6 +206,7 @@ describe('handlePotentialSnapshotErrors', () => {
               severity: 'CRITICAL',
             },
             shouldThrow: false,
+            handled: false,
           },
         ]);
       }).not.toThrow();
@@ -215,6 +222,7 @@ describe('handlePotentialSnapshotErrors', () => {
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
         shouldThrow: false,
+        handled: false,
       });
     });
 
@@ -231,6 +239,7 @@ describe('handlePotentialSnapshotErrors', () => {
               severity: 'CRITICAL',
             },
             shouldThrow: false,
+            handled: false,
           },
           {
             kind: 'missing_expected_data.log',
@@ -251,6 +260,7 @@ describe('handlePotentialSnapshotErrors', () => {
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
         shouldThrow: false,
+        handled: false,
       });
       expect(relayFieldLogger).toHaveBeenCalledWith({
         fieldPath: '',
@@ -271,6 +281,7 @@ describe('handlePotentialSnapshotErrors', () => {
             severity: 'CRITICAL',
           },
           shouldThrow: false,
+          handled: false,
         },
       ]);
 
@@ -285,6 +296,7 @@ describe('handlePotentialSnapshotErrors', () => {
         kind: 'relay_field_payload.error',
         owner: 'testOwner',
         shouldThrow: false,
+        handled: false,
       });
     });
 
@@ -302,6 +314,7 @@ describe('handlePotentialSnapshotErrors', () => {
               severity: 'CRITICAL',
             },
             shouldThrow: true,
+            handled: false,
           },
           {
             kind: 'missing_expected_data.log',
@@ -326,6 +339,7 @@ describe('handlePotentialSnapshotErrors', () => {
           kind: 'relay_field_payload.error',
           owner: 'testOwner',
           shouldThrow: true,
+          handled: false,
         },
         {
           fieldPath: '',
@@ -345,6 +359,7 @@ describe('handlePotentialSnapshotErrors', () => {
           owner: 'testOwner',
           error: Error('testError'),
           shouldThrow: false,
+          handled: false,
         },
       ]);
 
@@ -355,6 +370,7 @@ describe('handlePotentialSnapshotErrors', () => {
         kind: 'relay_resolver.error',
         owner: 'testOwner',
         shouldThrow: false,
+        handled: false,
       });
     });
 
@@ -367,6 +383,7 @@ describe('handlePotentialSnapshotErrors', () => {
             owner: 'testOwner',
             error: Error('testError'),
             shouldThrow: true,
+            handled: false,
           },
         ]);
       }).toThrowError(
@@ -380,6 +397,7 @@ describe('handlePotentialSnapshotErrors', () => {
         kind: 'relay_resolver.error',
         owner: 'testOwner',
         shouldThrow: true,
+        handled: false,
       });
     });
   });

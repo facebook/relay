@@ -216,6 +216,7 @@ describe.each([true, false])(
               error: {message: 'There was an error!', path: ['me', 'lastName']},
               owner: 'RelayReaderResolverTestFieldErrorQuery',
               shouldThrow: false,
+              handled: false,
             },
           ]);
         });
@@ -258,6 +259,7 @@ describe.each([true, false])(
             kind: 'relay_resolver.error',
             owner: 'RelayReaderResolverTestRequiredQuery',
             shouldThrow: false,
+            handled: false,
           },
         ]);
 
@@ -278,6 +280,7 @@ describe.each([true, false])(
             kind: 'relay_resolver.error',
             owner: 'RelayReaderResolverTestRequiredQuery',
             shouldThrow: false,
+            handled: false,
           },
         ]);
       });
@@ -356,6 +359,7 @@ describe.each([true, false])(
             kind: 'relay_resolver.error',
             owner: 'RelayReaderResolverTestRequiredWithParentQuery',
             shouldThrow: false,
+            handled: false,
           },
           {
             kind: 'missing_required_field.log',
@@ -381,6 +385,7 @@ describe.each([true, false])(
             kind: 'relay_resolver.error',
             owner: 'RelayReaderResolverTestRequiredWithParentQuery',
             shouldThrow: false,
+            handled: false,
           },
           {
             kind: 'missing_required_field.log',
@@ -423,6 +428,7 @@ describe.each([true, false])(
             kind: 'missing_required_field.throw',
             owner: 'UserRequiredThrowNameResolver',
             fieldPath: 'name',
+            handled: false,
           },
         ]);
 
@@ -436,6 +442,7 @@ describe.each([true, false])(
             kind: 'missing_required_field.throw',
             owner: 'UserRequiredThrowNameResolver',
             fieldPath: 'name',
+            handled: false,
           },
         ]);
       });
@@ -1100,6 +1107,7 @@ describe.each([true, false])(
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "me.always_throws",
+          "handled": false,
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest12Query",
           "shouldThrow": false,
@@ -1120,6 +1128,7 @@ describe.each([true, false])(
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "me.always_throws",
+          "handled": false,
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest12Query",
           "shouldThrow": false,
@@ -1166,6 +1175,7 @@ describe.each([true, false])(
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "always_throws",
+          "handled": false,
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
           "shouldThrow": false,
@@ -1186,6 +1196,7 @@ describe.each([true, false])(
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "always_throws",
+          "handled": false,
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
           "shouldThrow": false,
@@ -1225,6 +1236,7 @@ describe.each([true, false])(
         Object {
           "error": [Error: Purposefully throwing before reading to exercise an edge case.],
           "fieldPath": "throw_before_read",
+          "handled": false,
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest14Query",
           "shouldThrow": false,

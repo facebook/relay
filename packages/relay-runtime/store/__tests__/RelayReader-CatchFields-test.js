@@ -147,6 +147,7 @@ describe('RelayReader @catch', () => {
           owner: 'RelayReaderCatchFieldsTestSiblingErrorQuery',
           kind: 'relay_field_payload.error',
           shouldThrow: false,
+          handled: false,
         },
       ]);
     });

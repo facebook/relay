@@ -965,6 +965,7 @@ describe('RelayReader @required', () => {
           fieldPath: 'me.client_object',
           kind: 'missing_required_field.throw',
           owner: 'RelayReaderRequiredFieldsTest25Query',
+          handled: false,
         },
       ]);
     });

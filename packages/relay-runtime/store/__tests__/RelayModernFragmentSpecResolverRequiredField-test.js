@@ -126,6 +126,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       fieldPath: 'name',
       kind: 'missing_required_field.throw',
       owner: 'RelayModernFragmentSpecResolverRequiredFieldTestUserFragment',
+      handled: false,
     });
   });
 });

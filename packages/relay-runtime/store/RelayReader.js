@@ -212,6 +212,7 @@ class RelayReader {
         fieldPath: (error.path ?? []).join('.'),
         error,
         shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
+        handled: false,
       });
     }
   }
@@ -227,7 +228,12 @@ class RelayReader {
 
     this._errorResponseFields.push(
       this._selector.node.metadata?.throwOnFieldError ?? false
-        ? {kind: 'missing_expected_data.throw', owner, fieldPath}
+        ? {
+            kind: 'missing_expected_data.throw',
+            owner,
+            fieldPath,
+            handled: false,
+          }
         : {kind: 'missing_expected_data.log', owner, fieldPath},
     );
 
@@ -292,6 +298,7 @@ class RelayReader {
           kind: 'missing_required_field.throw',
           fieldPath,
           owner,
+          handled: false,
         });
         return;
       case 'LOG':
@@ -782,6 +789,7 @@ class RelayReader {
         shouldThrow:
           this._selector.node.metadata?.throwOnFieldError ??
           RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT,
+        handled: false,
       };
       if (this._errorResponseFields == null) {
         this._errorResponseFields = [errorEvent];

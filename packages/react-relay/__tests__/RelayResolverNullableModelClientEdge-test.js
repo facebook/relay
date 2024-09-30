@@ -507,6 +507,7 @@ describe.each([true, false])(
           fieldPath: 'edge_to_model_that_throws.__relay_model_instance',
           kind: 'relay_resolver.error',
           shouldThrow: false,
+          handled: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -533,6 +534,7 @@ describe.each([true, false])(
           fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
           kind: 'relay_resolver.error',
           shouldThrow: false,
+          handled: false,
         },
         {
           error: Error(ERROR_MESSAGE),
@@ -541,6 +543,7 @@ describe.each([true, false])(
           fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
           kind: 'relay_resolver.error',
           shouldThrow: false,
+          handled: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -567,6 +570,7 @@ describe.each([true, false])(
           fieldPath: 'edge_to_plural_models_some_throw.__relay_model_instance',
           kind: 'relay_resolver.error',
           shouldThrow: false,
+          handled: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;

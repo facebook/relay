@@ -268,6 +268,7 @@ test('Errors thrown during _initial_ read() are caught as resolver errors', () =
       owner: 'LiveResolversTestHandlesErrorOnReadQuery',
       fieldPath: 'counter_throws_when_odd',
       shouldThrow: false,
+      handled: false,
     },
   ]);
   const data: $FlowExpectedError = snapshot.data;
@@ -321,6 +322,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
       owner: 'LiveResolversTestHandlesErrorOnUpdateQuery',
       fieldPath: 'counter_throws_when_odd',
       shouldThrow: false,
+      handled: false,
     },
   ]);
   const nextData: $FlowExpectedError = nextSnapshot.data;

@@ -303,6 +303,7 @@ describe('fetchQuery with missing @required value', () => {
       fieldPath: 'me.name',
       kind: 'missing_required_field.throw',
       owner: 'fetchQueryTest3Query',
+      handled: false,
     });
     expect(observer.error).toHaveBeenCalledWith(
       Error(

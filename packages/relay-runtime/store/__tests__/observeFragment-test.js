@@ -22,7 +22,7 @@ const RelayObservable = require('../../network/RelayObservable');
 const fetchQuery = require('../../query/fetchQuery');
 const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const LiveResolverStore = require('../experimental-live-resolvers/LiveResolverStore');
+const LiveResolverStore = require('../live-resolvers/LiveResolverStore');
 const {observeFragment} = require('../observeFragmentExperimental');
 const {
   createOperationDescriptor,

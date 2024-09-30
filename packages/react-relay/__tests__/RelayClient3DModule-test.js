@@ -32,8 +32,8 @@ import {
 import RelayNetwork from 'relay-runtime/network/RelayNetwork';
 import {graphql} from 'relay-runtime/query/GraphQLTag';
 import {resetStore} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
-import LiveResolverStore from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 import RelayModernEnvironment from 'relay-runtime/store/RelayModernEnvironment';
+import RelayModernStore from 'relay-runtime/store/RelayModernStore';
 import RelayRecordSource from 'relay-runtime/store/RelayRecordSource';
 import {
   disallowConsoleErrors,
@@ -124,7 +124,7 @@ describe('ClientUser', () => {
   let environment;
 
   beforeEach(() => {
-    store = new LiveResolverStore(RelayRecordSource.create(), {
+    store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
     });
     environment = new RelayModernEnvironment({
@@ -192,7 +192,7 @@ describe('SpecialUser', () => {
   let environment;
   let store;
   beforeEach(() => {
-    store = new LiveResolverStore(RelayRecordSource.create(), {
+    store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
     });
     environment = new RelayModernEnvironment({

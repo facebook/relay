@@ -14,7 +14,7 @@
 export type {FragmentState} from './store/observeFragmentExperimental';
 import type {DataID} from './util/RelayRuntimeTypes';
 
-const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
+const resolverDataInjector = require('./store/live-resolvers/resolverDataInjector');
 const {observeFragment} = require('./store/observeFragmentExperimental');
 const {waitForFragmentData} = require('./store/waitForFragmentExperimental');
 

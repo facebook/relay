@@ -35,11 +35,11 @@ const {
 } = require('./store/ClientID');
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
+const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const {
   isSuspenseSentinel,
   suspenseSentinel,
-} = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
-const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
+} = require('./store/live-resolvers/LiveResolverSuspenseSentinel');
 const normalizeResponse = require('./store/normalizeResponse');
 const readInlineData = require('./store/readInlineData');
 const RelayConcreteVariables = require('./store/RelayConcreteVariables');

@@ -7,11 +7,10 @@ description: Runtime functions associated with Relay Resolvers
 
 This page documents the runtime functions associated with Relay Resolvers. For an overview of Relay Resolvers and how to think about them, see the [Relay Resolvers](../../guides/relay-resolvers/introduction.md) guide.
 
-## LiveResolverStore
+## RelayModernStore
 
-To use Relay Resolvers you must use our experimental Relay Store implementation `LiveResolverStore` imported from `relay-runtime/lib/store/experimental-live-resolvers/LiveResolverStore`. It behaves identically to the default Relay Store but also supports Relay Resolvers.
 
-It exposes one additional user-facing method `batchLiveStateUpdates()`. See [Live Fields](../../guides/relay-resolvers/live-fields.md#batching) for more details of how to use this method.
+RelayModernStore exposes `batchLiveStateUpdates()`. See [Live Fields](../../guides/relay-resolvers/live-fields.md#batching) for more details of how to use this method.
 
 ## `readFragment()`
 

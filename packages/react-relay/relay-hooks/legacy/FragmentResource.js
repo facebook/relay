@@ -452,7 +452,7 @@ class FragmentResourceImpl {
       missingLiveResolverFields(snapshot)?.map(({liveStateID}) => {
         const store = environment.getStore();
 
-        // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
+        // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
         return store.getLiveResolverPromise(liveStateID);
       }) ?? [];
 

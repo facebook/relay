@@ -93,7 +93,7 @@ describe('RelayReader @catch', () => {
       expect(errorResponseFields).toEqual(null);
     });
 
-    it('if preeceeding scalar sibling has error, catch to RESULT should not catch that error', () => {
+    it('if preceding scalar sibling has error, catch to RESULT should not catch that error', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -151,7 +151,7 @@ describe('RelayReader @catch', () => {
       ]);
     });
 
-    it('if preceeding scalar sibling has a logged missing required field, an THROW required field inside a subsequent @catch should not delete that log', () => {
+    it('if preceding scalar sibling has a logged missing required field, an THROW required field inside a subsequent @catch should not delete that log', () => {
       const source = RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -173,17 +173,14 @@ describe('RelayReader @catch', () => {
             lastName @required(action: LOG)
           }
           me @catch(to: RESULT) {
-            # Despite being more destructive, the THOW here should not overwrite
+            # Despite being more destructive, the THROW here should not overwrite
             # the LOG, since it gets caught.
             firstName @required(action: THROW)
           }
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
+      const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         alsoMe: null,
         me: {
@@ -197,16 +194,13 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      expect(errorResponseFields).toEqual(null);
-      expect(missingRequiredFields).toEqual({
-        action: 'LOG',
-        fields: [
-          {
-            path: 'alsoMe.lastName',
-            owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
-          },
-        ],
-      });
+      expect(errorResponseFields).toEqual([
+        {
+          kind: 'missing_required_field.log',
+          fieldPath: 'alsoMe.lastName',
+          owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
+        },
+      ]);
     });
 
     it('@catch(to: NULL) catching a @required(action: THROW) returns null', () => {
@@ -232,16 +226,12 @@ describe('RelayReader @catch', () => {
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
+      const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         me: null,
       });
 
       expect(errorResponseFields).toEqual(null);
-      expect(missingRequiredFields).toEqual(null);
     });
 
     it('@catch(to: NULL) catching missing data returns null', () => {
@@ -267,8 +257,10 @@ describe('RelayReader @catch', () => {
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields, isMissingData} =
-        read(source, operation.fragment);
+      const {data, errorResponseFields, isMissingData} = read(
+        source,
+        operation.fragment,
+      );
 
       // TODO: This should really be: {me: null}
       expect(data).toEqual({
@@ -281,7 +273,6 @@ describe('RelayReader @catch', () => {
       expect(isMissingData).toEqual(true);
 
       expect(errorResponseFields).toEqual(null);
-      expect(missingRequiredFields).toEqual(null);
     });
 
     it('if scalar has catch to RESULT - but no error, response should reflect', () => {
@@ -425,10 +416,7 @@ describe('RelayReader @catch', () => {
         }
       `;
       const operation = createOperationDescriptor(FooQuery, {id: '1'});
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
+      const {data, errorResponseFields} = read(source, operation.fragment);
       expect(data).toEqual({
         me: {
           errors: [
@@ -441,7 +429,6 @@ describe('RelayReader @catch', () => {
         },
       });
 
-      expect(missingRequiredFields).toBeNull();
       expect(errorResponseFields).toEqual(null);
     });
   });

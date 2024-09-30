@@ -270,7 +270,6 @@ describe('ReactRelayFragmentContainer', () => {
         id: '4',
         name: 'Zuck',
       },
-      missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
@@ -372,7 +371,6 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Joe',
       },
       isMissingData: false,
-      missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
@@ -431,7 +429,6 @@ describe('ReactRelayFragmentContainer', () => {
         // Name is excluded since value of cond is now false
       },
       isMissingData: false,
-      missingRequiredFields: null,
       errorResponseFields: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,

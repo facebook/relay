@@ -116,22 +116,15 @@ export type NormalizationSelector = {
   +variables: Variables,
 };
 
-type FieldLocation = {
-  path: string,
-  owner: string,
-};
-
-export type MissingRequiredFields = $ReadOnly<
-  | {action: 'THROW', field: FieldLocation}
-  | {action: 'LOG', fields: Array<FieldLocation>},
->;
-
-export type ErrorResponseFields = Array<
+export type ErrorResponseField =
   | RelayFieldPayloadErrorEvent
   | MissingExpectedDataLogEvent
   | MissingExpectedDataThrowEvent
-  | RelayResolverErrorEvent,
->;
+  | RelayResolverErrorEvent
+  | MissingRequiredFieldLogEvent
+  | MissingRequiredFieldThrowEvent;
+
+export type ErrorResponseFields = Array<ErrorResponseField>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -161,7 +154,6 @@ export type Snapshot = {
   +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
-  +missingRequiredFields: ?MissingRequiredFields,
   +errorResponseFields: ?ErrorResponseFields,
 };
 
@@ -1303,7 +1295,7 @@ export type MissingExpectedDataThrowEvent = {
  * A field was marked as @required(action: LOG) but was null or missing in the
  * store.
  */
-export type MissingFieldLogEvent = {
+export type MissingRequiredFieldLogEvent = {
   +kind: 'missing_required_field.log',
   +owner: string,
   +fieldPath: string,
@@ -1316,7 +1308,7 @@ export type MissingFieldLogEvent = {
  * Relay will throw immediately after logging this event. If you wish to
  * customize the error being thrown, you may throw your own error.
  */
-export type MissingFieldThrowEvent = {
+export type MissingRequiredFieldThrowEvent = {
   +kind: 'missing_required_field.throw',
   +owner: string,
   +fieldPath: string,
@@ -1365,8 +1357,8 @@ export type RelayFieldPayloadErrorEvent = {
 export type RelayFieldLoggerEvent =
   | MissingExpectedDataLogEvent
   | MissingExpectedDataThrowEvent
-  | MissingFieldLogEvent
-  | MissingFieldThrowEvent
+  | MissingRequiredFieldLogEvent
+  | MissingRequiredFieldThrowEvent
   | RelayResolverErrorEvent
   | RelayFieldPayloadErrorEvent;
 

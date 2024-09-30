@@ -906,8 +906,8 @@ describe('Inline Fragments', () => {
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const snapshot = read(source, operation.fragment);
-    const {data, isMissingData, missingRequiredFields} = snapshot;
-    expect(missingRequiredFields).toBe(null);
+    const {data, isMissingData, errorResponseFields} = snapshot;
+    expect(errorResponseFields).toBe(null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -1035,20 +1035,24 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, missingRequiredFields} = read(
+    const {data, isMissingData, errorResponseFields} = read(
       source,
       operation.fragment,
     );
-    expect(missingRequiredFields).toEqual({
-      action: 'LOG',
-      fields: [
-        {
-          owner:
-            'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
-          path: 'node.aliased_fragment.name',
-        },
-      ],
-    });
+    expect(errorResponseFields).toEqual([
+      {
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
+      },
+      {
+        fieldPath: 'node.aliased_fragment.name',
+        kind: 'missing_required_field.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
+      },
+    ]);
     expect(isMissingData).toBe(true);
     expect(data).toEqual({
       node: {
@@ -1091,20 +1095,24 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, missingRequiredFields} = read(
+    const {data, isMissingData, errorResponseFields} = read(
       source,
       operation.fragment,
     );
-    expect(missingRequiredFields).toEqual({
-      action: 'LOG',
-      fields: [
-        {
-          owner:
-            'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
-          path: 'node.aliased_fragment.name',
-        },
-      ],
-    });
+    expect(errorResponseFields).toEqual([
+      {
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
+      },
+      {
+        kind: 'missing_required_field.log',
+        owner:
+          'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',
+        fieldPath: 'node.aliased_fragment.name',
+      },
+    ]);
     expect(isMissingData).toBe(true);
     expect(data).toEqual({
       node: {

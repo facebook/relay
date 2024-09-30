@@ -111,13 +111,16 @@ function readFragment(
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  const {data, isMissingData, missingRequiredFields} =
+  const {data, isMissingData, errorResponseFields} =
     context.getDataForResolverFragment(fragmentSelector, fragmentKey);
 
   if (
     isMissingData ||
-    (missingRequiredFields != null && missingRequiredFields.action === 'THROW')
-    // TODO: Also consider @throwOnFieldError
+    (errorResponseFields != null &&
+      errorResponseFields.some(
+        // TODO: Also consider @throwOnFieldError
+        event => event.kind === 'missing_required_field.throw',
+      ))
   ) {
     throw RESOLVER_FRAGMENT_ERRORED_SENTINEL;
   }

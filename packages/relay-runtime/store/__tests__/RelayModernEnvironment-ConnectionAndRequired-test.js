@@ -130,16 +130,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           getSingularSelector(fragment, nextOperationSnapshot.data?.node),
         );
         const snapshot = environment.lookup(selector);
-        expect(snapshot.missingRequiredFields).toEqual({
-          action: 'LOG',
-          fields: [
-            {
-              owner:
-                'RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment',
-              path: 'comments',
-            },
-          ],
-        });
+        expect(snapshot.errorResponseFields).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner:
+              'RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment',
+            fieldPath: 'comments',
+          },
+        ]);
         expect(snapshot.data).toEqual(null);
       });
     });

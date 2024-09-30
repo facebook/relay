@@ -82,7 +82,9 @@ describe('useFragment_nullability-test.js', () => {
     );
     await TestRenderer.act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes('Unexpected response payload'),
+      String(renderer.toJSON()).includes(
+        "Resolver error at path 'field_that_throws' in 'useFragmentNullabilityTest1Query'.",
+      ),
     ).toEqual(true);
   });
 
@@ -110,7 +112,9 @@ describe('useFragment_nullability-test.js', () => {
     );
     await TestRenderer.act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes('Unexpected response payload'),
+      String(renderer.toJSON()).includes(
+        "Resolver error at path 'field_that_throws' in 'useFragmentNullabilityTestFragmentWithFieldThatThrows'.",
+      ),
     ).toEqual(true);
   });
 

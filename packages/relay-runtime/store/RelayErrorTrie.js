@@ -16,16 +16,6 @@ import type {PayloadError} from '../network/RelayNetworkTypes';
 // $FlowFixMe[recursive-definition]
 const SELF: Self = Symbol('$SELF');
 
-class RelayFieldError extends Error {
-  constructor(message: string, errors: Array<TRelayFieldErrorForDisplay> = []) {
-    super(message);
-    this.name = 'RelayFieldError';
-    this.message = message;
-    this.errors = errors;
-  }
-  errors: Array<TRelayFieldErrorForDisplay>;
-}
-
 export opaque type Self = typeof SELF;
 
 export type TRelayFieldErrorForDisplay = $ReadOnly<{
@@ -180,11 +170,9 @@ module.exports = ({
   buildErrorTrie,
   getNestedErrorTrieByKey,
   getErrorsByKey,
-  RelayFieldError,
 }: {
   SELF: typeof SELF,
   buildErrorTrie: typeof buildErrorTrie,
   getNestedErrorTrieByKey: typeof getNestedErrorTrieByKey,
   getErrorsByKey: typeof getErrorsByKey,
-  RelayFieldError: Class<RelayFieldError>,
 });

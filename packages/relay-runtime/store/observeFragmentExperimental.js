@@ -210,12 +210,7 @@ function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
   }
 
   try {
-    handlePotentialSnapshotErrors(
-      environment,
-      snapshot.missingRequiredFields,
-      snapshot.errorResponseFields,
-      snapshot.selector.node.metadata?.throwOnFieldError ?? false,
-    );
+    handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
   } catch (error) {
     return {error, state: 'error'};
   }

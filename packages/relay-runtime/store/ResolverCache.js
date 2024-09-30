@@ -11,7 +11,6 @@
 
 'use strict';
 
-import type {MissingRequiredFields} from '..';
 import type {
   ReaderRelayLiveResolver,
   ReaderRelayResolver,
@@ -19,6 +18,7 @@ import type {
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   DataIDSet,
+  ErrorResponseFields,
   MutableRecordSource,
   Record,
   SingularReaderSelector,
@@ -52,7 +52,7 @@ export type EvaluationResult<T> = {
 export type ResolverFragmentResult = {
   data: mixed,
   isMissingData: boolean,
-  missingRequiredFields: ?MissingRequiredFields,
+  errorResponseFields: ?ErrorResponseFields,
 };
 
 export type GetDataForResolverFragmentFn =

@@ -312,7 +312,6 @@ impl WithDiagnosticData for ValidationMessageWithData {
             }
             ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
                 condition_name,
-                ..
             } => {
                 vec![
                     Box::new(format!("@alias @{condition_name}")),

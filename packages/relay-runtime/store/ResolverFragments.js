@@ -17,6 +17,7 @@ import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 import type {ResolverFragmentResult} from './ResolverCache';
 
 const {getFragment} = require('../query/GraphQLTag');
+const {eventShouldThrow} = require('../util/handlePotentialSnapshotErrors');
 const {getSelector} = require('./RelayModernSelector');
 const invariant = require('invariant');
 
@@ -116,11 +117,7 @@ function readFragment(
 
   if (
     isMissingData ||
-    (errorResponseFields != null &&
-      errorResponseFields.some(
-        // TODO: Also consider @throwOnFieldError
-        event => event.kind === 'missing_required_field.throw',
-      ))
+    (errorResponseFields != null && errorResponseFields.some(eventShouldThrow))
   ) {
     throw RESOLVER_FRAGMENT_ERRORED_SENTINEL;
   }

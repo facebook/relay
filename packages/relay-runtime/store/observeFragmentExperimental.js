@@ -22,7 +22,9 @@ import type {
 const Observable = require('../network/RelayObservable');
 const {getFragment} = require('../query/GraphQLTag');
 const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
-const handlePotentialSnapshotErrors = require('../util/handlePotentialSnapshotErrors');
+const {
+  handlePotentialSnapshotErrors,
+} = require('../util/handlePotentialSnapshotErrors');
 const {getSelector} = require('./RelayModernSelector');
 const invariant = require('invariant');
 

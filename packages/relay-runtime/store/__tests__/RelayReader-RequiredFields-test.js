@@ -925,8 +925,15 @@ describe('RelayReader @required', () => {
             ok: false,
           },
         });
-        // these are null because the field with the required error was caught
-        expect(errorResponseFields).toBeNull();
+        // these are "handled" because the field with the required error was caught
+        expect(errorResponseFields).toEqual([
+          {
+            fieldPath: 'me.client_object',
+            handled: true,
+            kind: 'missing_required_field.throw',
+            owner: 'RelayReaderRequiredFieldsTest29Query',
+          },
+        ]);
       });
     });
 

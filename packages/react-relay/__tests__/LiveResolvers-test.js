@@ -970,22 +970,25 @@ describe.each([true, false])(
         const environment = createEnvironment(source);
 
         // First, render with missing data
-        await expect(async () => {
-          await TestRenderer.act(() => {
-            TestRenderer.create(
-              <TestComponent environment={environment} id="1" />,
-            );
-          });
-        }).rejects.toThrow(
-          "Relay: Missing @required value at path 'username' in 'ResolverThatThrows'.",
-        );
+        await TestRenderer.act(() => {
+          TestRenderer.create(
+            <TestComponent environment={environment} id="1" />,
+          );
+        });
         expect(relayFieldLogger.mock.calls).toEqual([
+          [
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'ResolverThatThrows',
+            },
+          ],
           [
             {
               kind: 'missing_required_field.throw',
               owner: 'ResolverThatThrows',
               fieldPath: 'username',
-              handled: false,
+              handled: true,
             },
           ],
         ]);

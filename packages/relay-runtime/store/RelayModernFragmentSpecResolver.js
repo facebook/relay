@@ -27,7 +27,9 @@ import type {
 } from './RelayStoreTypes';
 
 const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
-const handlePotentialSnapshotErrors = require('../util/handlePotentialSnapshotErrors');
+const {
+  handlePotentialSnapshotErrors,
+} = require('../util/handlePotentialSnapshotErrors');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');

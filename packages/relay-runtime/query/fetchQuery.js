@@ -28,7 +28,9 @@ const RelayObservable = require('../network/RelayObservable');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
-const handlePotentialSnapshotErrors = require('../util/handlePotentialSnapshotErrors');
+const {
+  handlePotentialSnapshotErrors,
+} = require('../util/handlePotentialSnapshotErrors');
 const fetchQueryInternal = require('./fetchQueryInternal');
 const {getRequest} = require('./GraphQLTag');
 const invariant = require('invariant');

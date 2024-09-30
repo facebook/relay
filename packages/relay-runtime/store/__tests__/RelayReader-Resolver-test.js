@@ -421,28 +421,32 @@ describe.each([true, false])(
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
 
         const beforeCallCount = requiredThrowNameCalls.count;
-        const {errorResponseFields} = store.lookup(operation.fragment);
+        const {errorResponseFields, data} = store.lookup(operation.fragment);
+        expect(data).toEqual({me: {required_throw_name: null}});
         expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
         expect(errorResponseFields).toEqual([
           {
             kind: 'missing_required_field.throw',
             owner: 'UserRequiredThrowNameResolver',
             fieldPath: 'name',
-            handled: false,
+            handled: true,
           },
         ]);
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
-        const {errorResponseFields: missingRequiredFieldsTakeTwo} =
-          store.lookup(operation.fragment);
+        const {
+          errorResponseFields: missingRequiredFieldsTakeTwo,
+          data: dataTakeTwo,
+        } = store.lookup(operation.fragment);
 
+        expect(dataTakeTwo).toEqual({me: {required_throw_name: null}});
         expect(missingRequiredFieldsTakeTwo).toEqual([
           {
             kind: 'missing_required_field.throw',
             owner: 'UserRequiredThrowNameResolver',
             fieldPath: 'name',
-            handled: false,
+            handled: true,
           },
         ]);
       });
@@ -1175,7 +1179,7 @@ describe.each([true, false])(
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "always_throws",
-          "handled": false,
+          "handled": true,
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
           "shouldThrow": false,
@@ -1196,7 +1200,7 @@ describe.each([true, false])(
         Object {
           "error": [Error: I always throw. What did you expect?],
           "fieldPath": "always_throws",
-          "handled": false,
+          "handled": true,
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
           "shouldThrow": false,
@@ -1595,7 +1599,7 @@ describe.each([true, false])(
           expect(readResult.isMissingData).toBe(true);
           expect(readResult.data).toEqual({
             me: {
-              profile_picture: undefined,
+              profile_picture: null,
             },
           });
         });

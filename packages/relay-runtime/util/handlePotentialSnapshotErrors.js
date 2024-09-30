@@ -93,4 +93,7 @@ function handlePotentialSnapshotErrors(
   }
 }
 
-module.exports = handlePotentialSnapshotErrors;
+module.exports = {
+  handlePotentialSnapshotErrors,
+  eventShouldThrow,
+};

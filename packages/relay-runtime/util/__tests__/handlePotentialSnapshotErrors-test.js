@@ -11,7 +11,7 @@
 
 'use strict';
 
-import handlePotentialSnapshotErrors from '../handlePotentialSnapshotErrors';
+import {handlePotentialSnapshotErrors} from '../handlePotentialSnapshotErrors';
 import {createMockEnvironment} from 'relay-test-utils-internal';
 
 describe('handlePotentialSnapshotErrors', () => {

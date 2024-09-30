@@ -178,13 +178,18 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
       expect(recordIdsInStore).toEqual(['client:root']);
     },
     afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
-      expect(snapshot.data).toEqual({counter_plus_one: undefined});
+      expect(snapshot.data).toEqual({counter_plus_one: null});
       expect(snapshot.errorResponseFields).toEqual([
+        {
+          fieldPath: '',
+          kind: 'missing_expected_data.log',
+          owner: 'LiveCounterResolver',
+        },
         {
           fieldPath: 'counter',
           kind: 'missing_required_field.throw',
           owner: 'CounterPlusOneResolver',
-          handled: false,
+          handled: true,
         },
       ]);
       expect(recordIdsInStore).toEqual([
@@ -728,7 +733,14 @@ test('Resolver reading a plural client-edge to a client type', async () => {
     },
     afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
       // Note that we _can't_ recreate the Resolver value because it's root fragment has been GGed.
-      expect(snapshot.data).toEqual({me: undefined});
+      expect(snapshot.data).toEqual({all_astrological_signs: null});
+      expect(snapshot.errorResponseFields).toEqual([
+        {
+          fieldPath: '',
+          kind: 'missing_expected_data.log',
+          owner: 'QueryAllAstrologicalSignsResolver',
+        },
+      ]);
       expect(recordIdsInStore).toEqual([
         'client:root',
         'client:root:all_astrological_signs',

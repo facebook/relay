@@ -32,6 +32,7 @@ import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
+  ErrorResponseField,
   ErrorResponseFields,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
@@ -329,6 +330,7 @@ class RelayReader {
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
+    // TODO: Should we be hiding log level events here?
     const errors = this._errorResponseFields
       ?.map(error => {
         switch (error.kind) {
@@ -422,18 +424,17 @@ class RelayReader {
 
           this._errorResponseFields = previousResponseFields;
 
-          // If we encountered non-throwing @required fields, in the children,
-          // we want to preserve those errors in the snapshot.
           if (childrenErrorResponseFields != null) {
+            if (this._errorResponseFields == null) {
+              this._errorResponseFields = [];
+            }
             for (let i = 0; i < childrenErrorResponseFields.length; i++) {
-              const event = childrenErrorResponseFields[i];
-              if (event.kind === 'missing_required_field.log') {
-                if (this._errorResponseFields == null) {
-                  this._errorResponseFields = [event];
-                } else {
-                  this._errorResponseFields.push(event);
-                }
-              }
+              // We mark any errors encountered within the @catch as "handled"
+              // to ensure that they don't cause the reader to throw, but can
+              // still be logged.
+              this._errorResponseFields.push(
+                markFieldErrorHasHandled(childrenErrorResponseFields[i]),
+              );
             }
           }
 
@@ -762,15 +763,18 @@ class RelayReader {
           this._errorResponseFields = [];
         }
         for (const error of cachedSnapshot.errorResponseFields) {
-          // TODO: In reality we should propagate _all_ errors, but
-          // for now we're only propagating resolver errors and missing field
-          // errors for backwards compatibility with previous behavior.
-          if (
-            error.kind === 'relay_resolver.error' ||
-            error.kind === 'missing_required_field.throw' ||
-            error.kind === 'missing_required_field.log'
-          ) {
+          if (this._selector.node.metadata?.throwOnFieldError === true) {
+            // If this fragment is @throwOnFieldError, any destructive error
+            // encountered inside a resolver's fragment is equivilent to the
+            // resolver field having a field error, and we want that to cause this
+            // fragment to throw. So, we propagate all errors as is.
             this._errorResponseFields.push(error);
+          } else {
+            // If this fragment is _not_ @throwOnFieldError, we will simply
+            // accept that any destructive errors encountered in the resolver's
+            // root fragment will cause the resolver to return null, and well
+            // pass the errors along to the logger marked as "handled".
+            this._errorResponseFields.push(markFieldErrorHasHandled(error));
           }
         }
       }
@@ -1413,6 +1417,24 @@ class RelayReader {
   }
 }
 
+function markFieldErrorHasHandled(
+  event: ErrorResponseField,
+): ErrorResponseField {
+  switch (event.kind) {
+    case 'missing_expected_data.throw':
+    case 'missing_required_field.throw':
+    case 'relay_field_payload.error':
+    case 'relay_resolver.error':
+      return {...event, handled: true};
+    case 'missing_expected_data.log':
+    case 'missing_required_field.log':
+      return event;
+    default:
+      event.kind as empty;
+      invariant(false, 'Unexpected error response field kind: %s', event.kind);
+  }
+}
+
 // Constructs the arguments for a resolver function and then evaluates it.
 //
 // If the resolver's fragment is missing data (query is in-flight, a dependency
@@ -1450,9 +1472,10 @@ function getResolverValue(
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {
-    if (e === RESOLVER_FRAGMENT_ERRORED_SENTINEL) {
-      resolverResult = undefined;
-    } else {
+    // GraphQL coerces resolver errors to null or nullable fields, and Relay
+    // does not support non-nullable Relay Resolvers.
+    resolverResult = null;
+    if (e !== RESOLVER_FRAGMENT_ERRORED_SENTINEL) {
       resolverError = e;
     }
   }

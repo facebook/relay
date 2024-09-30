@@ -8,14 +8,14 @@ import {FbInternalOnly, fbContent} from 'docusaurus-plugin-internaldocs-fb/inter
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-In order to pass a service, or other values to be shared with all resolvers, the `LiveResolverStore` provides a means of passing context. This gets passed to the third argument of all resolvers (live and non-live). This context argument analogous to the [context argument](https://graphql.org/learn/execution/#root-fields--resolvers) used on the server which usually holds things like the database connection.
+In order to pass a service, or other values to be shared with all resolvers, the `RelayModernStore` provides a means of passing context. This gets passed to the third argument of all resolvers (live and non-live). This context argument analogous to the [context argument](https://graphql.org/learn/execution/#root-fields--resolvers) used on the server which usually holds things like the database connection.
 
 ## Setup
 
-In order to pass context to live resolvers, pass a `resolverContext` argument to the initialization of `LiveResolverStore` before creating the environment:
+In order to pass context to live resolvers, pass a `resolverContext` argument to the initialization of `RelayModernStore` before creating the environment:
 
 ```js
-const store = new LiveResolverStore(source, {
+const store = new RelayModernStore(source, {
   resolverContext: {
     store: customStore,
   },

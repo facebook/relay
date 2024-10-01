@@ -38,6 +38,7 @@ import type {
   SelectorStoreUpdater,
   Store,
   StreamPlaceholder,
+  TaskPriority,
   TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {
@@ -321,7 +322,7 @@ class Executor<TMutation: MutationParameters> {
     );
   }
 
-  _schedule(task: () => void): void {
+  _schedule(task: () => void, priority: TaskPriority): void {
     const scheduler = this._scheduler;
     if (scheduler != null) {
       const id = this._nextSubscriptionId++;
@@ -333,7 +334,7 @@ class Executor<TMutation: MutationParameters> {
           } catch (error) {
             sink.error(error);
           }
-        });
+        }, priority);
         return () => scheduler.cancel(cancellationToken);
       }).subscribe({
         complete: () => this._complete(id),
@@ -374,6 +375,7 @@ class Executor<TMutation: MutationParameters> {
 
   // Handle a raw GraphQL response.
   _next(_id: number, response: GraphQLResponse): void {
+    const priority = this._state === 'loading_incremental' ? 'low' : 'default';
     this._schedule(() => {
       this._log({
         name: 'execute.next.start',
@@ -389,7 +391,7 @@ class Executor<TMutation: MutationParameters> {
         response,
         operation: this._operation,
       });
-    });
+    }, priority);
   }
 
   _handleErrorResponse(

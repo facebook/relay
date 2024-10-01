@@ -444,8 +444,10 @@ export type Scheduler = (() => void) => void;
  */
 export type TaskScheduler = {
   +cancel: (id: string) => void,
-  +schedule: (fn: () => void) => string,
+  +schedule: (fn: () => void, priority?: TaskPriority) => string,
 };
+
+export type TaskPriority = 'default' | 'low';
 
 /**
  * An interface for imperatively getting/setting properties of a `Record`. This interface

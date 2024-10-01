@@ -15,6 +15,7 @@ import type {Snapshot} from '../RelayStoreTypes';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
+  TaskPriority,
 } from 'relay-runtime/store/RelayStoreTypes';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
@@ -256,6 +257,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let tasks;
         let scheduler;
         let runTask;
+        const priorityFn = jest.fn();
 
         beforeEach(() => {
           taskID = 0;
@@ -264,7 +266,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: (task: () => void) => {
+            schedule: (task: () => void, priority?: TaskPriority) => {
+              priorityFn(priority);
               const id = String(taskID++);
               tasks.set(id, task);
               return id;
@@ -311,6 +314,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(next).toBeCalledTimes(0);
           expect(callback).toBeCalledTimes(0);
           expect(tasks.size).toBe(1);
+
+          expect(priorityFn).toBeCalledTimes(1);
+          expect(priorityFn.mock.calls[0][0]).toBe('default');
           runTask();
           expect(tasks.size).toBe(0);
           expect(next).toBeCalledTimes(1);
@@ -318,6 +324,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           jest.runAllTimers();
           next.mockClear();
           callback.mockClear();
+          priorityFn.mockClear();
 
           dataSource.next({
             data: {
@@ -332,6 +339,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(next).toBeCalledTimes(0);
           expect(callback).toBeCalledTimes(0);
           expect(tasks.size).toBe(1);
+          expect(priorityFn).toBeCalledTimes(1);
+          expect(priorityFn.mock.calls[0][0]).toBe('low');
           runTask();
           expect(tasks.size).toBe(0);
 

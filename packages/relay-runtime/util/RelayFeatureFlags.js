@@ -38,12 +38,6 @@ export type FeatureFlags = {
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: boolean,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: boolean,
 
-  // Configure whether Relay should handle any field errors that it encounteres
-  // in a partial response.
-  // @see https://spec.graphql.org/October2021/#sec-Handling-Field-Errors
-
-  ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: boolean,
-
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: boolean,
 
   // Temporary flag to enable a gradual rollout of the fix for T185969900
@@ -76,7 +70,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
-  ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT: false,
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,

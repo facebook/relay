@@ -26,10 +26,6 @@ const {
 } = require('relay-runtime/store/live-resolvers/LiveResolverCache');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = false;
-});
-
 describe('RelayReader @required', () => {
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
     const source = RelayRecordSource.create({

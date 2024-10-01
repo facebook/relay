@@ -790,9 +790,7 @@ class RelayReader {
         fieldPath,
         owner: this._fragmentName,
         error: resolverError,
-        shouldThrow:
-          this._selector.node.metadata?.throwOnFieldError ??
-          RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT,
+        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
         handled: false,
       };
       if (this._errorResponseFields == null) {

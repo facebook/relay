@@ -30,7 +30,6 @@ graphql`mutation barMutation {
    "schema": "./schema.graphql",
    "eagerEsModules": true,
    "featureFlags": {
-      "enable_relay_resolver_transform": true,
       "enable_relay_resolver_mutations": true
    },
    "schemaExtensions": [

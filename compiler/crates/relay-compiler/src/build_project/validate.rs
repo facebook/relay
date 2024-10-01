@@ -86,11 +86,7 @@ pub fn validate(
         validate_updatable_directive(program),
         validate_updatable_fragment_spread(program),
         validate_assignable_directive(program),
-        if project_config.feature_flags.enable_relay_resolver_transform {
-            validate_resolver_fragments(program)
-        } else {
-            Ok(())
-        },
+        validate_resolver_fragments(program),
         disallow_readtime_features_in_mutations(
             program,
             &project_config

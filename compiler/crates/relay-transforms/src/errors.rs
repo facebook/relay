@@ -78,11 +78,6 @@ pub enum ValidationMessage {
     ActorChangePluralFieldsNotSupported,
 
     #[error(
-        "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
-    )]
-    RelayResolversDisabled,
-
-    #[error(
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
     )]
     ActorChangeExpectViewerFieldOnType {

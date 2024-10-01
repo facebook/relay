@@ -109,7 +109,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             ..Default::default()
         },
         feature_flags: Arc::new(FeatureFlags {
-            enable_relay_resolver_transform: true,
             ..Default::default()
         }),
         ..Default::default()

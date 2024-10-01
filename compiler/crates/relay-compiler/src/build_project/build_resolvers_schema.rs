@@ -10,6 +10,5 @@ mod ir_to_schema;
 mod mark_document_as_base;
 
 pub use extract_docblock_ir::extract_docblock_ir;
-pub use extract_docblock_ir::ExtractedDocblockIr;
 pub use ir_to_schema::build_resolver_types_schema_documents;
 pub use ir_to_schema::extend_schema_with_field_ir;

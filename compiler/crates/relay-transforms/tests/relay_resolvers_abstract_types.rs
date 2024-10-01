@@ -45,7 +45,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         };
         let program_pass_one = relay_resolvers_abstract_types(&program, &feature_flags)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-        let program_pass_two = relay_resolvers(ProjectName::default(), &program_pass_one, true)
+        let program_pass_two = relay_resolvers(ProjectName::default(), &program_pass_one)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
         let printer_options = PrinterOptions {
             debug_directive_data: true,

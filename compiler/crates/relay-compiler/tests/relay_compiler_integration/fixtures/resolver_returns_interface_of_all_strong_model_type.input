@@ -37,7 +37,6 @@ graphql`query PersonComponentQuery {
     "schema-extensions"
   ],
   "featureFlags": {
-    "enable_relay_resolver_transform": true,
     "enable_resolver_normalization_ast": true,
     "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
   }

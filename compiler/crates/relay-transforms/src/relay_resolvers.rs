@@ -68,13 +68,8 @@ use crate::REQUIRED_DIRECTIVE_NAME;
 ///
 /// See the docblock for `relay_resolvers_spread_transform` for more details
 /// about the resulting format.
-pub fn relay_resolvers(
-    project_name: ProjectName,
-    program: &Program,
-    enabled: bool,
-) -> DiagnosticsResult<Program> {
-    let transformed_fields_program =
-        relay_resolvers_fields_transform(project_name, program, enabled)?;
+pub fn relay_resolvers(project_name: ProjectName, program: &Program) -> DiagnosticsResult<Program> {
+    let transformed_fields_program = relay_resolvers_fields_transform(project_name, program)?;
     relay_resolvers_spread_transform(&transformed_fields_program)
 }
 
@@ -339,9 +334,8 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
 fn relay_resolvers_fields_transform(
     project_name: ProjectName,
     program: &Program,
-    enabled: bool,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = RelayResolverFieldTransform::new(project_name, program, enabled);
+    let mut transform = RelayResolverFieldTransform::new(project_name, program);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -355,17 +349,15 @@ fn relay_resolvers_fields_transform(
 
 struct RelayResolverFieldTransform<'program> {
     project_name: ProjectName,
-    enabled: bool,
     program: &'program Program,
     errors: Vec<Diagnostic>,
     path: Vec<&'program str>,
 }
 
 impl<'program> RelayResolverFieldTransform<'program> {
-    fn new(project_name: ProjectName, program: &'program Program, enabled: bool) -> Self {
+    fn new(project_name: ProjectName, program: &'program Program) -> Self {
         Self {
             program,
-            enabled,
             errors: Default::default(),
             path: Vec::new(),
             project_name,
@@ -384,13 +376,6 @@ impl<'program> RelayResolverFieldTransform<'program> {
             field.definition().location,
         )
         .and_then(|info| {
-            if !self.enabled {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::RelayResolversDisabled,
-                    field.alias_or_name_location(),
-                ));
-                return None;
-            }
             match info {
                 Ok(ResolverInfo {
                     fragment_name,

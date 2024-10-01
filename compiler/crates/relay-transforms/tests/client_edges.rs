@@ -51,7 +51,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let mut next_program = client_edges(&program, &project_config, &Default::default())
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-        next_program = relay_resolvers(ProjectName::default(), &next_program, true)
+        next_program = relay_resolvers(ProjectName::default(), &next_program)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         let printer_options = PrinterOptions {

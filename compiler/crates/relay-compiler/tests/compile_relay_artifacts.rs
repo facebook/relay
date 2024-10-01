@@ -105,7 +105,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         no_inline: FeatureFlag::Limited {
             allowlist: no_inline_allowlist.into_iter().collect(),
         },
-        enable_relay_resolver_transform: true,
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,

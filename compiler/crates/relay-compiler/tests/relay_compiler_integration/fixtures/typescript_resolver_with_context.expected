@@ -16,9 +16,6 @@ graphql`fragment barFragment on User {
    "language": "typescript",
    "schema": "./schema.graphql",
    "eagerEsModules": true,
-   "featureFlags": {
-      "enable_relay_resolver_transform": true
-   },
    "resolverContextType" : { "package": "@test/package", "name": "ITestResolverContextType" }
 }
 

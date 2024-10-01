@@ -741,10 +741,6 @@
               "default": false,
               "type": "boolean"
             },
-            "enable_relay_resolver_transform": {
-              "default": false,
-              "type": "boolean"
-            },
             "enable_resolver_normalization_ast": {
               "description": "Fully build the normalization AST for Resolvers",
               "default": false,
@@ -1814,7 +1810,6 @@
             "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,
             "enable_relay_resolver_mutations": false,
-            "enable_relay_resolver_transform": false,
             "enable_resolver_normalization_ast": false,
             "enable_strict_custom_scalars": false,
             "enforce_fragment_alias_where_ambiguous": {
@@ -2466,10 +2461,6 @@
             },
             "enable_relay_resolver_mutations": {
               "description": "Allow relay resolvers to extend the Mutation type",
-              "default": false,
-              "type": "boolean"
-            },
-            "enable_relay_resolver_transform": {
               "default": false,
               "type": "boolean"
             },
@@ -3847,10 +3838,6 @@
                   },
                   "enable_relay_resolver_mutations": {
                     "description": "Allow relay resolvers to extend the Mutation type",
-                    "default": false,
-                    "type": "boolean"
-                  },
-                  "enable_relay_resolver_transform": {
                     "default": false,
                     "type": "boolean"
                   },

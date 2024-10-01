@@ -10,7 +10,6 @@
  */
 
 const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const LiveResolverStore = require('../live-resolvers/LiveResolverStore');
 const {waitForFragmentData} = require('../observeFragmentExperimental');
 const {
@@ -20,11 +19,7 @@ const RelayRecordSource = require('../RelayRecordSource');
 const {GLOBAL_STORE} = require('./resolvers/ExampleExternalStateStore');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
 afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   GLOBAL_STORE.reset();
 });
 

@@ -46,12 +46,7 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
 afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   // The call count of the resolver used in this test
   UserConstantDependentResolver._relayResolverTestCallCount = undefined;
 });
@@ -1002,40 +997,6 @@ describe.each([true, false])(
           }),
         );
         subscription.dispose();
-      });
-
-      it('errors if the ENABLE_RELAY_RESOLVERS feature flag is not enabled', () => {
-        RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-
-        const source = RelayRecordSource.create({
-          'client:root': {
-            __id: 'client:root',
-            __typename: '__Root',
-            me: {__ref: '1'},
-          },
-          '1': {
-            __id: '1',
-            id: '1',
-            __typename: 'User',
-            name: 'Alice',
-          },
-        });
-
-        const FooQuery = graphql`
-          query RelayReaderResolverTest7Query {
-            me {
-              greeting
-            }
-          }
-        `;
-
-        const operation = createOperationDescriptor(FooQuery, {});
-
-        expect(() => {
-          read(source, operation.fragment);
-        }).toThrowErrorMatchingInlineSnapshot(
-          '"Relay Resolver fields are not yet supported."',
-        );
       });
 
       it('Bubbles null when @required', () => {

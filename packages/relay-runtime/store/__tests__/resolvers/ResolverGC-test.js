@@ -23,7 +23,6 @@ import type {IEnvironment, Snapshot} from '../../RelayStoreTypes';
 const {HOUSE_ORDER} = require('./AstrologicalSignUtils');
 const {GLOBAL_STORE} = require('./ExampleExternalStateStore');
 const invariant = require('invariant');
-const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -50,12 +49,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   resetStore();
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 test('Live Resolver without fragment', async () => {

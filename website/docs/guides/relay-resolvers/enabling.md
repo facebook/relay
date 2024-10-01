@@ -5,18 +5,13 @@ slug: /guides/relay-resolvers/enabling-resolvers
 description: Enabling experimental Relay Resolvers
 ---
 
-Relay Resolvers are still an experimental feature in Relay. As such they require additional configuration to enable. You may also find that the APIs in the documentation are not yet reflected in our community maintained TypeScript types.
-
 ## Runtime
 
-Relay Resolvers must be enabled in your runtime code by enabling the `ENABLE_RELAY_RESOLVERS` runtime feature flag:
+When using Relay Resolvers, we recommend configuring a `fieldLogger` in your Relay Enviornment in order to track errors which have been thrown within Relay resolver functions.
 
 ```ts
 import { Environment, RecordSource, RelayFeatureFlags } from "relay-runtime";
-// highlight-next-line
 import RelayModernStore from "relay-runtime/lib/store/RelayModernStore";
-
-RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
 
 // It is recommended to log errors thrown by Resolvers
 function fieldLogger(event) {

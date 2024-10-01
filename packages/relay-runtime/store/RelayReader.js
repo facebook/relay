@@ -480,9 +480,6 @@ class RelayReader {
         }
         case 'RelayLiveResolver':
         case 'RelayResolver': {
-          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-            throw new Error('Relay Resolver fields are not yet supported.');
-          }
           this._readResolverField(selection, record, data);
           break;
         }
@@ -580,20 +577,11 @@ class RelayReader {
           return this._readLink(selection.field, record, data);
         }
       case 'RelayResolver':
-        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-          throw new Error('Relay Resolver fields are not yet supported.');
-        }
         return this._readResolverField(selection.field, record, data);
       case 'RelayLiveResolver':
-        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-          throw new Error('Relay Resolver fields are not yet supported.');
-        }
         return this._readResolverField(selection.field, record, data);
       case 'ClientEdgeToClientObject':
       case 'ClientEdgeToServerObject':
-        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-          throw new Error('Relay Resolver fields are not yet supported.');
-        }
         return this._readClientEdge(selection.field, record, data);
       default:
         (selection.field.kind: empty);

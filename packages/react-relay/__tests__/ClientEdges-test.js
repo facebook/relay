@@ -14,13 +14,7 @@
 const React = require('react');
 const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
-const {
-  Environment,
-  Network,
-  RecordSource,
-  RelayFeatureFlags,
-  graphql,
-} = require('relay-runtime');
+const {Environment, Network, RecordSource, graphql} = require('relay-runtime');
 const RelayObservable = require('relay-runtime/network/RelayObservable');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {
@@ -30,14 +24,6 @@ const {
 
 disallowWarnings();
 disallowConsoleErrors();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 let networkSink;
 let environment;

@@ -871,13 +871,6 @@ describe('RelayReader @required', () => {
   });
 
   describe('client edge with @required', () => {
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-    });
-
     describe('when CATCH is enabled', () => {
       test('caught missing required field error when action:THROW under a @catch', () => {
         const source = RelayRecordSource.create({

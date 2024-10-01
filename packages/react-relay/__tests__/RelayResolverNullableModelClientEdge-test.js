@@ -178,14 +178,6 @@ export function edge_to_plural_models_some_throw(): $ReadOnlyArray<{
   return [{id: ERROR_ID}, {id: 'a valid id!'}];
 }
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 const logEvents: Array<LogEvent> = [];
 function logFn(event: LogEvent): void {
   logEvents.push(event);

@@ -16,7 +16,7 @@ import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 const {
   getFragmentResourceForEnvironment,
 } = require('react-relay/relay-hooks/legacy/FragmentResource');
-const {RelayFeatureFlags, getFragment} = require('relay-runtime');
+const {getFragment} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   createOperationDescriptor,
@@ -29,14 +29,6 @@ const {
 
 disallowConsoleErrors();
 disallowWarnings();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 const BASIC_QUERY = graphql`
   query FragmentResourceResolverTest1Query($id: ID!) {

@@ -30,14 +30,6 @@ const {
 disallowConsoleErrors();
 disallowWarnings();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 describe.each([true, false])(
   'AVOID_CYCLES_IN_RESOLVER_NOTIFICATION is %p',
   avoidCycles => {

@@ -21,7 +21,6 @@ const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
 const fetchQuery = require('../../query/fetchQuery');
 const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const LiveResolverStore = require('../live-resolvers/LiveResolverStore');
 const {observeFragment} = require('../observeFragmentExperimental');
 const {
@@ -32,11 +31,7 @@ const {GLOBAL_STORE} = require('./resolvers/ExampleExternalStateStore');
 const invariant = require('invariant');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
 afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   GLOBAL_STORE.reset();
 });
 

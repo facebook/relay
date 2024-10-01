@@ -22,7 +22,6 @@ import {
 } from 'react-relay';
 import TestRenderer from 'react-test-renderer';
 import {
-  RelayFeatureFlags,
   ROOT_ID,
   createOperationDescriptor,
   createReaderSelector,
@@ -110,13 +109,8 @@ function logFn(event: LogEvent): void {
 }
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   logEvents = [];
   resetStore(logFn);
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 describe('ClientUser', () => {

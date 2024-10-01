@@ -32,14 +32,6 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 function EnvironmentWrapper({
   children,
   environment,

@@ -15,7 +15,7 @@ import type {Snapshot} from '../../RelayStoreTypes';
 const {
   live_external_greeting: LiveExternalGreeting,
 } = require('./LiveExternalGreeting');
-const {RelayFeatureFlags, suspenseSentinel} = require('relay-runtime');
+const {suspenseSentinel} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -37,12 +37,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   resetStore();
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 test('unsubscribe happens when record is updated due to missing data', () => {

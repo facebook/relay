@@ -18,7 +18,6 @@ const useClientQuery = require('../useClientQuery');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 const {createMockEnvironment} = require('relay-test-utils');
 
@@ -50,12 +49,7 @@ export function field_with_fragment_that_throws(
 
 describe('useFragment_nullability-test.js', () => {
   beforeEach(() => {
-    RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
     jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   });
 
   it('should throw when a resolver in throwOnFieldError-fragment throws', async () => {

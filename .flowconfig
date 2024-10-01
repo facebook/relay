@@ -3,6 +3,7 @@
 <PROJECT_ROOT>/compiler/.*
 <PROJECT_ROOT>/.*/node_modules/.*
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
+<PROJECT_ROOT>/.*/__tests__/.*/package.json
 
 [options]
 module.system=haste

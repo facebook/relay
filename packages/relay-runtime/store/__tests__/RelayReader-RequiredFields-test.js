@@ -27,7 +27,6 @@ const {
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
   RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_THROW_BY_DEFAULT = false;
 });
 

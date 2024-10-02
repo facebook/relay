@@ -47,7 +47,6 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {
   isSuspenseSentinel,
 } = require('./live-resolvers/LiveResolverSuspenseSentinel');

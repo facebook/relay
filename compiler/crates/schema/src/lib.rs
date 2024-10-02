@@ -122,7 +122,9 @@ pub fn parse_schema_with_extensions<
                     buffer.push('\n');
                 }
             }
-            assert!(buffer.is_empty());
+            if !buffer.is_empty() {
+                eprintln!("Incomplete schema document:  {}", buffer)
+            }
             chunks
         }
     };

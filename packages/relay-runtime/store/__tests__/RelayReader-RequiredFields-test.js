@@ -16,11 +16,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const {
-  RelayFeatureFlags,
-  createReaderSelector,
-  getPluralSelector,
-} = require('relay-runtime');
+const {createReaderSelector, getPluralSelector} = require('relay-runtime');
 const {
   LiveResolverCache,
 } = require('relay-runtime/store/live-resolvers/LiveResolverCache');

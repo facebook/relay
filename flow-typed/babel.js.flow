@@ -5918,15 +5918,10 @@ declare module '@babel/types' {
     | DoExpression
     | RecordExpression
     | TupleExpression
-    | DecimalLiteral
-    | ModuleExpression
-    | TopicReference
     | PipelineTopicExpression
     | PipelineBareFunction
     | PipelinePrimaryTopicReference
-    | TSInstantiationExpression
     | TSAsExpression
-    | TSSatisfiesExpression
     | TSTypeAssertion
     | TSNonNullExpression;
   declare export function isBinary(
@@ -6150,7 +6145,6 @@ declare module '@babel/types' {
     | ArrayPattern
     | ObjectPattern
     | TSAsExpression
-    | TSSatisfiesExpression
     | TSTypeAssertion
     | TSNonNullExpression;
   declare export function isLVal(
@@ -6165,7 +6159,6 @@ declare module '@babel/types' {
     | ObjectPattern
     | TSParameterProperty
     | TSAsExpression
-    | TSSatisfiesExpression
     | TSTypeAssertion
     | TSNonNullExpression;
   declare export function isTSEntityName(
@@ -6182,8 +6175,7 @@ declare module '@babel/types' {
     | BooleanLiteral
     | RegExpLiteral
     | TemplateLiteral
-    | BigIntLiteral
-    | DecimalLiteral;
+    | BigIntLiteral;
   declare export function isImmutable(
     node: ?Object,
     opts?: ?Object,
@@ -6202,8 +6194,7 @@ declare module '@babel/types' {
     | JSXText
     | JSXFragment
     | JSXOpeningFragment
-    | JSXClosingFragment
-    | DecimalLiteral;
+    | JSXClosingFragment;
   declare export function isUserWhitespacable(
     node: ?Object,
     opts?: ?Object,

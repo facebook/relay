@@ -45,7 +45,6 @@ If `name` contains an error - it would be provided in the response data on the
             ok: false,
             errors: [
                 {
-                    message: "Couldn't get name",
                     path: ['viewer', 'name']
                 }
             ]
@@ -73,7 +72,6 @@ query MyQuery {
         ok: false,
         errors: [
             {
-                message: "Couldn't get name",
                 path: ['viewer', 'name']
             }
         ]
@@ -118,7 +116,7 @@ query MyQuery {
         ok: false,
         errors: [
             {
-                message: "Relay: Missing @required value at path 'viewer.name' in 'MyQuery'.",
+                path: ["viewer", "name"],
             }
         ]
     }
@@ -139,7 +137,7 @@ it happens with an `@catch` as an ancestor, it will also be caught like so:
         ok: false,
         errors: [
             {
-                message: "Relay: Missing data for one or more fields in MyQuery",
+                path: ["viewer", "name"],
             }
         ]
     }
@@ -151,7 +149,7 @@ it happens with an `@catch` as an ancestor, it will also be caught like so:
 Using `@throwOnFieldError` enables fields to throw a JavaScript exception when a
 field error occurs. By using `@catch` - you tell Relay that you don't want a
 JavaScript exception in this case. Instead, you are requesting that the error be
-proviced in the data object, with the same behaviors and rules as are listed
+provided in the data object, with the same behaviors and rules as are listed
 above (including bubbling to a parent field).
 
 It is important to note that you can still use @catch without

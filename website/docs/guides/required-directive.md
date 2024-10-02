@@ -39,15 +39,7 @@ This field is expected to be null sometimes.
 
 ### `LOG` (recoverable)
 
-This value is not expected to ever be null, but the component **can still render** if it is. If a field with `action: LOG` is null, the Relay environment logger will receive an event that looks like this:
-
-```javascript
-{
-  name: 'read.missing_required_field',
-  owner: string, // MyFragmentOrQueryName
-  fieldPath: string, // path.to.my.field
-};
-```
+This value is not expected to ever be null, but the component **can still render** if it is. If a field with `action: LOG` is null, the [Relay field logger](../api-reference/relay-runtime/field-logger.md#missing-required-field-log) will receive a `missing_required_field.log` event.
 
 ### `THROW` (unrecoverable)
 

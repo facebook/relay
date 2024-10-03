@@ -1385,8 +1385,7 @@ export type RelayFieldLoggerEvent =
   | RelayFieldPayloadErrorEvent;
 
 /**
- * A handler for events related to @required fields. Currently reports missing
- * fields with either `action: LOG` or `action: THROW`.
+ * A handler for events related to field errors.
  */
 export type RelayFieldLogger = (event: RelayFieldLoggerEvent) => void;
 

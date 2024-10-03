@@ -15,7 +15,7 @@ path = "tests/lib.rs"
 [dependencies]
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
-thiserror = "1.0.49"
+thiserror = "1.0.64"
 
 [dev-dependencies]
 tempfile = "3.8"

@@ -292,4 +292,51 @@ describe('RelayReader error fields', () => {
       },
     ]);
   });
+  it('does not report missing data within an inline fragment that does not match', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"4")': {__ref: '4'},
+      },
+      'client:__type:User': {
+        __isMaybeNodeInterface: false,
+      },
+      '4': {
+        __id: '4',
+        id: '4',
+        __typename: 'User',
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTestInlineFragmentQuery
+      @throwOnFieldError {
+        node(id: "4") {
+          # GraphQL lets us spread this here as long as there is at least one
+          # type that overlaps
+          ... on MaybeNodeInterface {
+            name
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {errorResponseFields, isMissingData} = read(
+      source,
+      operation.fragment,
+    );
+
+    expect(isMissingData).toBe(false);
+
+    // FIXME: This should be null
+    expect(errorResponseFields).toEqual([
+      {
+        fieldPath: '',
+        handled: false,
+        kind: 'missing_expected_data.throw',
+        owner: 'RelayReaderRelayErrorHandlingTestInlineFragmentQuery',
+      },
+    ]);
+  });
 });

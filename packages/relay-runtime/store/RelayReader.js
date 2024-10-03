@@ -218,6 +218,9 @@ class RelayReader {
   }
 
   _markDataAsMissing(): void {
+    if (this._isWithinUnmatchedTypeRefinement) {
+      return;
+    }
     if (this._errorResponseFields == null) {
       this._errorResponseFields = [];
     }

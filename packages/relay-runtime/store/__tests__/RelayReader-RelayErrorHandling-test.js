@@ -328,14 +328,61 @@ describe('RelayReader error fields', () => {
     );
 
     expect(isMissingData).toBe(false);
+    expect(errorResponseFields).toEqual(null);
+  });
 
-    // FIXME: This should be null
+  it('does report missing data within an inline fragment that does match', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"4")': {__ref: '4'},
+      },
+      'client:__type:User': {
+        __isMaybeNodeInterface: true,
+      },
+      '4': {
+        __id: '4',
+        id: '4',
+        __typename: 'NonNodeNoID',
+        // NOTE: `name` is missing
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery
+      @throwOnFieldError {
+        node(id: "4") {
+          # GraphQL lets us spread this here as long as there is at least one
+          # type that overlaps
+          ... on MaybeNodeInterface {
+            name
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {errorResponseFields, isMissingData} = read(
+      source,
+      operation.fragment,
+    );
+
+    expect(isMissingData).toBe(true);
     expect(errorResponseFields).toEqual([
+      // We are missing the metadata bout the interface
       {
         fieldPath: '',
         handled: false,
         kind: 'missing_expected_data.throw',
-        owner: 'RelayReaderRelayErrorHandlingTestInlineFragmentQuery',
+        owner: 'RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery',
+      },
+      // We don't know if we should traverse into the inline fragment, but we do
+      // anyway and find that the field is missing
+      {
+        fieldPath: '',
+        handled: false,
+        kind: 'missing_expected_data.throw',
+        owner: 'RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery',
       },
     ]);
   });

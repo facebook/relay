@@ -85,7 +85,7 @@ pub fn parse_docblock(
  * strings with quotation marks.
  *
  * To account for this, we parse in a single pass, essentially treating each
- * character as a token. This allows us to easily intemperate characters
+ * character as a token. This allows us to easily interpret characters
  * differently in different contexts.
  */
 struct DocblockParser<'a> {
@@ -283,7 +283,7 @@ impl<'a> DocblockParser<'a> {
 
     fn next(&mut self) {
         self.chars.next();
-        self.offset += 1;
+        self.offset += 1; // Is this correct for unicode characters?
     }
 
     /// Advance over a string of characters matching predicate.
@@ -307,7 +307,7 @@ impl<'a> DocblockParser<'a> {
                 break;
             }
         }
-        self.offset += result.len() as u32;
+        self.offset += result.len() as u32; // result.len() returns byte length
         result
     }
 

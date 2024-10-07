@@ -24,4 +24,4 @@ smallvec = { version = "1.6.1", features = ["serde", "union"] }
 [dev-dependencies]
 bincode = "1.3.3"
 rand = { version = "0.8", features = ["small_rng"] }
-serde_json = { version = "1.0.100", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.125", features = ["float_roundtrip", "unbounded_depth"] }

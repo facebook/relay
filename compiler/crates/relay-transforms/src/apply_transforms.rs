@@ -31,7 +31,7 @@ use crate::match_::hash_supported_argument;
 use crate::relay_resolvers_abstract_types::relay_resolvers_abstract_types;
 use crate::skip_updatable_queries::skip_updatable_queries;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Programs {
     pub source: Arc<Program>,
     pub reader: Arc<Program>,

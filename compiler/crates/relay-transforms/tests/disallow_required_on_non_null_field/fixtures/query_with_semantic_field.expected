@@ -8,4 +8,4 @@ extend type Query {
   some_field: Int @semanticNonNull
 }
 ==================================== OUTPUT ===================================
-OK
+OK; warnings:

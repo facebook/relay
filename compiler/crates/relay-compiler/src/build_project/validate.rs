@@ -15,7 +15,6 @@ use graphql_ir::Program;
 use relay_config::ProjectConfig;
 use relay_transforms::disallow_circular_no_inline_fragments;
 use relay_transforms::disallow_readtime_features_in_mutations;
-use relay_transforms::disallow_required_on_non_null_field;
 use relay_transforms::disallow_reserved_aliases;
 use relay_transforms::disallow_typename_on_root;
 use relay_transforms::validate_assignable_directive;
@@ -46,14 +45,11 @@ pub fn validate_reader(
     project_config: &ProjectConfig,
     additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<WithDiagnostics<()>> {
-    let output = try_all(vec![
-        disallow_required_on_non_null_field(program),
-        if let Some(ref validate) = additional_validations {
-            validate(program, project_config)
-        } else {
-            Ok(())
-        },
-    ]);
+    let output = try_all(vec![if let Some(ref validate) = additional_validations {
+        validate(program, project_config)
+    } else {
+        Ok(())
+    }]);
 
     transform_errors(output, project_config)
 }

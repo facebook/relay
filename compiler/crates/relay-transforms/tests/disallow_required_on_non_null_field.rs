@@ -28,10 +28,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let ir = build(&schema, &ast.definitions)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-        disallow_required_on_non_null_field(&program)
+        let results = disallow_required_on_non_null_field(&Arc::clone(&schema), &program)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-        Ok("OK".to_owned())
+        Ok(format!(
+            "OK; warnings: {}",
+            diagnostics_to_sorted_string(fixture.content, &results)
+        )
+        .to_owned())
     } else {
         panic!("Expected exactly one %extensions% section marker.")
     }

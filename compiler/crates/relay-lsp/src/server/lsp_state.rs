@@ -48,6 +48,7 @@ use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
 use relay_transforms::apply_transforms;
 use relay_transforms::deprecated_fields_for_executable_definition;
+use relay_transforms::disallow_required_on_non_null_field_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::CombinedSchemaDocumentation;
 use schema_documentation::SchemaDocumentation;
@@ -272,12 +273,18 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     let get_errors_or_warnings = |documents| {
                         let mut warnings = vec![];
                         for document in documents {
-                            // Today the only warning we check for is deprecated
-                            // fields, but in the future we could check for more
-                            // things here by making this more generic.
+                            // Today the only warnings we check for are deprecated
+                            // fields and unnecessary @requireds, but in the future
+                            // we could check for more things here by making this
+                            // more generic.
                             warnings.extend(deprecated_fields_for_executable_definition(
                                 &schema, &document,
-                            )?)
+                            )?);
+                            warnings.extend(
+                                disallow_required_on_non_null_field_for_executable_definition(
+                                    &schema, &document,
+                                )?,
+                            );
                         }
                         Ok(warnings)
                     };

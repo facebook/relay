@@ -9,17 +9,20 @@ use std::sync::Arc;
 
 use ::errors::try_all;
 use common::Diagnostic;
+use common::DiagnosticTag;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
 use errors::try2;
 use graphql_ir::reexport::Intern;
+use graphql_ir::ExecutableDefinition;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Validator;
 use lazy_static::lazy_static;
+use schema::SDLSchema;
 use schema::Schema;
 
 use crate::ValidationMessageWithData;
@@ -33,21 +36,42 @@ lazy_static! {
         DirectiveName("throwOnFieldError".intern());
 }
 
-pub fn disallow_required_on_non_null_field(program: &Program) -> DiagnosticsResult<()> {
-    let mut validator = DisallowRequiredOnNonNullField::new(program);
-    validator.validate_program(program)
+pub fn disallow_required_on_non_null_field(
+    schema: &Arc<SDLSchema>,
+    program: &Program,
+) -> DiagnosticsResult<Vec<Diagnostic>> {
+    let mut validator = DisallowRequiredOnNonNullField::new(schema);
+    validator.validate_program(program)?;
+    Ok(validator.warnings)
 }
 
-struct DisallowRequiredOnNonNullField<'program> {
-    program: &'program Program,
+pub fn disallow_required_on_non_null_field_for_executable_definition(
+    schema: &Arc<SDLSchema>,
+    definition: &ExecutableDefinition,
+) -> DiagnosticsResult<Vec<Diagnostic>> {
+    let mut validator = DisallowRequiredOnNonNullField::new(schema);
+
+    match definition {
+        ExecutableDefinition::Fragment(fragment) => validator.validate_fragment(fragment),
+        ExecutableDefinition::Operation(operation) => validator.validate_operation(operation),
+    }?;
+    Ok(validator.warnings)
 }
 
-impl<'program> DisallowRequiredOnNonNullField<'program> {
-    fn new(program: &'program Program) -> Self {
-        Self { program }
+struct DisallowRequiredOnNonNullField<'a> {
+    schema: &'a Arc<SDLSchema>,
+    warnings: Vec<Diagnostic>,
+}
+
+impl<'a> DisallowRequiredOnNonNullField<'a> {
+    fn new(schema: &'a Arc<SDLSchema>) -> Self {
+        Self {
+            schema,
+            warnings: vec![],
+        }
     }
 
-    fn validate_required_field(&self, field: &Arc<impl Field>) -> DiagnosticsResult<()> {
+    fn validate_required_field(&mut self, field: &Arc<impl Field>) -> DiagnosticsResult<()> {
         let required_directive = field.directives().named(*REQUIRED_DIRECTIVE_NAME);
 
         if required_directive.is_none() {
@@ -55,38 +79,35 @@ impl<'program> DisallowRequiredOnNonNullField<'program> {
         }
 
         if self
-            .program
             .schema
             .field(field.definition().item)
             .type_
             .is_non_null()
         {
-            // @required on a non-null (!) field is an error.
-            return Err(vec![Diagnostic::error_with_data(
+            self.warnings.push(Diagnostic::hint(
                 ValidationMessageWithData::RequiredOnNonNull,
                 required_directive.unwrap().name.location,
-            )]);
-        }
-
-        if self
-            .program
+                vec![DiagnosticTag::UNNECESSARY],
+            ));
+        } else if self
             .schema
             .field(field.definition().item)
             .directives
             .named(*SEMANTIC_NON_NULL_DIRECTIVE)
             .is_some()
         {
-            // @required on a semantically-non-null field is an error.
-            return Err(vec![Diagnostic::error(
+            // @required on a semantically-non-null field is unnecessary
+            self.warnings.push(Diagnostic::hint(
                 ValidationMessageWithData::RequiredOnSemanticNonNull,
                 required_directive.unwrap().name.location,
-            )]);
+                vec![DiagnosticTag::UNNECESSARY],
+            ));
         }
 
         Ok(())
     }
 
-    fn validate_selection_fields(&self, selections: &[Selection]) -> DiagnosticsResult<()> {
+    fn validate_selection_fields(&mut self, selections: &[Selection]) -> DiagnosticsResult<()> {
         try_all(selections.iter().map(|selection| match selection {
             Selection::LinkedField(linked_field) => {
                 let field_result = match linked_field

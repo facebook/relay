@@ -639,9 +639,16 @@ fn import_relay_resolver_function_type(
         None => None,
     };
 
-    let imported_resolver = ImportedResolver {
-        resolver_name,
-        resolver_type: generate_resolver_type(
+    let resolver_type = if resolver_metadata.type_confirmed
+        && typegen_context
+            .project_config
+            .feature_flags
+            .omit_resolver_type_assertions_for_confirmed_types
+            .is_fully_enabled()
+    {
+        None
+    } else {
+        Some(generate_resolver_type(
             typegen_context,
             input_object_types,
             encountered_enums,
@@ -653,7 +660,12 @@ fn import_relay_resolver_function_type(
             fragment_name,
             resolver_metadata,
             context_import,
-        ),
+        ))
+    };
+
+    let imported_resolver = ImportedResolver {
+        resolver_name,
+        resolver_type,
         import_path,
         context_import,
     };

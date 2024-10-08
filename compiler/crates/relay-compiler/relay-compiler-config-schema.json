@@ -923,6 +923,92 @@
                 }
               ]
             },
+            "omit_resolver_type_assertions_for_confirmed_types": {
+              "description": "Skip generating resolver type assertions for resolvers which have been derived from TS/Flow types.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
             "prefer_fetchable_in_refetch_queries": {
               "description": "Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator in @refetchable transform",
               "default": false,
@@ -1818,6 +1904,9 @@
             "no_inline": {
               "kind": "disabled"
             },
+            "omit_resolver_type_assertions_for_confirmed_types": {
+              "kind": "disabled"
+            },
             "prefer_fetchable_in_refetch_queries": false,
             "relay_resolver_enable_interface_output_type": {
               "kind": "disabled"
@@ -2562,6 +2651,92 @@
             },
             "no_inline": {
               "description": "For now, this also disallows fragments with variable definitions This also makes @module to opt in using @no_inline internally NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that directive.",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "omit_resolver_type_assertions_for_confirmed_types": {
+              "description": "Skip generating resolver type assertions for resolvers which have been derived from TS/Flow types.",
               "default": {
                 "kind": "disabled"
               },
@@ -3939,6 +4114,92 @@
                   },
                   "no_inline": {
                     "description": "For now, this also disallows fragments with variable definitions This also makes @module to opt in using @no_inline internally NOTE that the presence of a fragment in this list only controls whether a fragment is *allowed* to use @no_inline: whether the fragment is inlined or not depends on whether it actually uses that directive.",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "omit_resolver_type_assertions_for_confirmed_types": {
+                    "description": "Skip generating resolver type assertions for resolvers which have been derived from TS/Flow types.",
                     "default": {
                       "kind": "disabled"
                     },

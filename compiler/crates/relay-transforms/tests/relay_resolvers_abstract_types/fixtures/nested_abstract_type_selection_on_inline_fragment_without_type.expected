@@ -47,6 +47,7 @@ fragment nestedAbstractTypeSelectionOnInlineFragmentWithoutTypeFragment on Cat {
           #     live: false,
           #     output_type_info: Legacy,
           #     fragment_data_injection_mode: None,
+          #     type_confirmed: false,
           # }
           
         }
@@ -67,6 +68,7 @@ fragment nestedAbstractTypeSelectionOnInlineFragmentWithoutTypeFragment on Cat {
       #     live: false,
       #     output_type_info: Legacy,
       #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
       # }
       
     }

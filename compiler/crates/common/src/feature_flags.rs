@@ -135,6 +135,11 @@ pub struct FeatureFlags {
     /// Generate the `moduleImports` field in the Reader AST.
     #[serde(default)]
     pub use_reader_module_imports: FeatureFlag,
+
+    /// Skip generating resolver type assertions for resolvers which have
+    /// been derived from TS/Flow types.
+    #[serde(default)]
+    pub omit_resolver_type_assertions_for_confirmed_types: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

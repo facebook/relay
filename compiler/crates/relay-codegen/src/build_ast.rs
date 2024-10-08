@@ -1376,6 +1376,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     is_required: true,
                 },
             )),
+            type_confirmed: relay_resolver_metadata.type_confirmed,
         };
         let fragment_primitive = Primitive::Key(self.object(object! {
             args: Primitive::SkippableNull,

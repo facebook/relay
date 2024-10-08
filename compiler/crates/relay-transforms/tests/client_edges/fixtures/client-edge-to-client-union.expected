@@ -63,6 +63,7 @@ fragment FeedbackFragmentType on User {
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
     # }
     
     feedback_as_union {

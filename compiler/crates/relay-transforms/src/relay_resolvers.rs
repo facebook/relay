@@ -22,6 +22,7 @@ use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
@@ -117,6 +118,7 @@ struct RelayResolverFieldMetadata {
     field_path: StringKey,
     live: bool,
     output_type_info: ResolverOutputTypeInfo,
+    type_confirmed: bool,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
@@ -136,6 +138,7 @@ pub struct RelayResolverMetadata {
         WithLocation<FragmentDefinitionName>,
         FragmentDataInjectionMode,
     )>,
+    pub type_confirmed: bool,
 }
 associated_data_impl!(RelayResolverMetadata);
 
@@ -248,6 +251,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                             *injection_mode,
                         )
                     }),
+                type_confirmed: field_metadata.type_confirmed,
             };
 
             let mut new_directives: Vec<Directive> = vec![resolver_metadata.into()];
@@ -384,6 +388,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     live,
                     has_output_type,
                     fragment_data_injection_mode,
+                    type_confirmed
                 }) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
@@ -481,6 +486,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         live,
                         output_type_info,
                         fragment_data_injection_mode,
+                        type_confirmed
                     };
 
                     let mut directives: Vec<Directive> = field.directives().to_vec();
@@ -597,6 +603,7 @@ pub struct ResolverInfo {
     pub import_name: Option<StringKey>,
     live: bool,
     has_output_type: bool,
+    type_confirmed: bool,
 }
 
 pub fn get_resolver_info(
@@ -629,6 +636,8 @@ pub fn get_resolver_info(
                 error_location,
             )
             .ok();
+            let type_confirmed =
+                get_bool_argument_is_true(arguments, *TYPE_CONFIRMED_ARGUMENT_NAME);
 
             Ok(ResolverInfo {
                 fragment_name,
@@ -658,6 +667,7 @@ pub fn get_resolver_info(
                         is_required: schema.field(injected_field_id).type_.is_non_null(),
                     }
                 }),
+                type_confirmed,
             })
         })
 }

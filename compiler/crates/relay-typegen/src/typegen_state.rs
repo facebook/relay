@@ -134,7 +134,7 @@ pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<EncounteredFragment
 
 pub(crate) struct ImportedResolver {
     pub resolver_name: ImportedResolverName,
-    pub resolver_type: AST,
+    pub resolver_type: Option<AST>,
     pub import_path: StringKey,
     pub context_import: Option<ResolverContextType>,
 }

@@ -30,11 +30,15 @@ const {
 const {createMockEnvironment} = require('relay-test-utils');
 const Scheduler = require('scheduler');
 
-const {disallowWarnings, expectWarningWillFire} = (jest.requireActual(
-  'relay-test-utils-internal',
-): $FlowFixMe);
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+  injectPromisePolyfill__DEPRECATED,
+} = (jest.requireActual('relay-test-utils-internal'): $FlowFixMe);
 
 const {useMemo, useState} = React;
+
+injectPromisePolyfill__DEPRECATED();
 
 disallowWarnings();
 

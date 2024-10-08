@@ -30,6 +30,11 @@ const {
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 /**
  * CLIENT EDGE TO PLURAL LIVE STRONG CLIENT OBJECT

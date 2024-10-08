@@ -32,7 +32,12 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 const warning = require('warning');
+
+injectPromisePolyfill__DEPRECATED();
 
 jest.mock('warning');
 

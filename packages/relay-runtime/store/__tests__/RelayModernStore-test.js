@@ -50,8 +50,11 @@ const {
 } = require('../RelayStoreUtils');
 const {
   createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
   simpleClone,
 } = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
   if (!value) {

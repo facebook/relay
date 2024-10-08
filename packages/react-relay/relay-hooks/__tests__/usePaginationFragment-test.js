@@ -54,6 +54,11 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useMemo, useState} = React;
 

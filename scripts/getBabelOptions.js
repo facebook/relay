@@ -31,7 +31,6 @@ module.exports = function (options) {
         require('./rewrite-modules'),
         {
           map: {
-            Promise: 'promise-polyfill',
             areEqual: 'fbjs/lib/areEqual',
             warning: 'fbjs/lib/warning',
           },

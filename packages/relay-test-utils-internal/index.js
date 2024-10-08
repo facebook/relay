@@ -28,6 +28,7 @@ const {
   FIXTURE_TAG,
   generateTestsFromFixtures,
 } = require('./generateTestsFromFixtures');
+const injectPromisePolyfill__DEPRECATED = require('./injectPromisePolyfill__DEPRECATED');
 const Matchers = require('./Matchers');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
@@ -77,14 +78,15 @@ module.exports = {
   expectConsoleError,
   expectConsoleErrorsMany,
   expectConsoleErrorWillFire,
-  expectConsoleWarningWillFire,
   expectConsoleWarning,
   expectConsoleWarningsMany,
+  expectConsoleWarningWillFire,
   expectToWarn,
   expectToWarnMany,
   expectWarningWillFire,
   FIXTURE_TAG,
   generateTestsFromFixtures,
+  injectPromisePolyfill__DEPRECATED,
   matchers: Matchers,
   printAST,
   simpleClone,

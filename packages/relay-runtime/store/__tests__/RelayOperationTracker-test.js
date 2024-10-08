@@ -17,6 +17,11 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const RelayOperationTracker = require('../RelayOperationTracker');
 const invariant = require('invariant');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 describe('RelayOperationTracker', () => {
   let tracker;

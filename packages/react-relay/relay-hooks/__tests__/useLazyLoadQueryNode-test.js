@@ -47,7 +47,10 @@ const {
   disallowWarnings,
   expectToWarn,
   expectWarningWillFire,
+  injectPromisePolyfill__DEPRECATED,
 } = (jest.requireActual('relay-test-utils-internal'): $FlowFixMe);
+
+injectPromisePolyfill__DEPRECATED();
 
 const defaultFetchPolicy = 'network-only';
 

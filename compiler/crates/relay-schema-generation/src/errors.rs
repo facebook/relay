@@ -47,7 +47,7 @@ pub enum SchemaGenerationError {
     )]
     UseNamedOrDefaultImport,
     #[error(
-        "Failed to find type definition for `{entity_name}` using a {export_type} import from module `{module_name}`. Please make sure `{entity_name}` is imported using a named or default import and that it is a resolver type"
+        "Failed to find @RelayResolver type definition for `{entity_name}` using a {export_type} import from module `{module_name}`. Please make sure `{entity_name}` is either defined locally or imported using a named or default import and that it is a resolver type"
     )]
     ModuleNotFound {
         entity_name: StringKey,

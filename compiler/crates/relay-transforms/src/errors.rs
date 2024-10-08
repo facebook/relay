@@ -292,25 +292,27 @@ impl WithDiagnosticData for ValidationMessageWithData {
             ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
                 fragment_name, ..
             } => {
+                // When used as a codemod, the first suggestion is used as the codemod's replacement text.
+                // For that reason, the `@dangerously_unaliased_fixme` is first, since it requires no other changes.
                 vec![
-                    Box::new(format!("{fragment_name} @alias")),
                     Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
                 ]
             }
             ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
                 fragment_name, ..
             } => {
                 vec![
-                    Box::new(format!("{fragment_name} @alias")),
                     Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
                 ]
             }
             ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
                 condition_name,
             } => {
                 vec![
-                    Box::new(format!("@alias @{condition_name}")),
                     Box::new(format!("@dangerously_unaliased_fixme @{condition_name}")),
+                    Box::new(format!("@alias @{condition_name}")),
                 ]
             }
         }

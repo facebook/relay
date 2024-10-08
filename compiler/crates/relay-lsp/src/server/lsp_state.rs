@@ -205,7 +205,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let root_dir = &config.root_dir.clone();
         let diagnostic_reporter = Arc::new(DiagnosticReporter::new(
             config.root_dir.clone(),
-            sender.clone(),
+            Some(sender.clone()),
         ));
 
         let lsp_state = Self {

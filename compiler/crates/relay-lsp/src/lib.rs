@@ -8,7 +8,7 @@
 #![deny(clippy::all)]
 
 mod client;
-mod code_action;
+pub mod code_action;
 pub mod completion;
 pub mod diagnostic_reporter;
 mod docblock_resolution_info;
@@ -36,7 +36,9 @@ pub mod text_documents;
 pub mod utils;
 use std::sync::Arc;
 
+use code_action::get_code_actions_from_diagnostic;
 use common::PerfLogger;
+use diagnostic_reporter::DiagnosticReporter;
 use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::ExecutableDocument;
@@ -107,6 +109,34 @@ where
     .await?;
     io_handles.join()?;
     Ok(())
+}
+
+pub fn diagnostics_to_code_actions(
+    config: Arc<Config>,
+    diagnostics: &[common::Diagnostic],
+) -> std::vec::Vec<lsp_types::CodeActionOrCommand> {
+    let root_dir = &config.root_dir.clone();
+
+    // We send the diagnostics through the LSP's DiagnosticReporter to transform
+    // them into code actions.
+    // This transformation should probably be split off from the DiagnosticReporter.
+    let dummy_reporter = DiagnosticReporter::new(root_dir.to_path_buf(), None);
+    dummy_reporter.report_diagnostics(diagnostics);
+    let published_params = dummy_reporter.get_published_diagnostics();
+
+    let mut all_actions = vec![];
+    for param in published_params {
+        for diagnostic in param.diagnostics {
+            if let Some(action) = get_code_actions_from_diagnostic(&param.uri, diagnostic)
+                .unwrap()
+                .first()
+            {
+                all_actions.push(action.clone());
+            }
+        }
+    }
+
+    all_actions
 }
 
 #[cfg(test)]

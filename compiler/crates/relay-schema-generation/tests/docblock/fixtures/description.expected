@@ -92,11 +92,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "77d8976fca517fd3aea7ae4517ed9579",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  fullname: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "fullname", import_path: "module.js") @resolver_source_hash(value: "77d8976fca517fd3aea7ae4517ed9579")
+  fullname: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "fullname", import_path: "module.js") @resolver_source_hash(value: "77d8976fca517fd3aea7ae4517ed9579")
 }
 
 
@@ -151,11 +152,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "77d8976fca517fd3aea7ae4517ed9579",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  age: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "age", import_path: "module.js") @resolver_source_hash(value: "77d8976fca517fd3aea7ae4517ed9579")
+  age: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "age", import_path: "module.js") @resolver_source_hash(value: "77d8976fca517fd3aea7ae4517ed9579")
 }
 
 
@@ -186,6 +188,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "77d8976fca517fd3aea7ae4517ed9579",
             ),
+            type_confirmed: true,
         },
     ),
 )

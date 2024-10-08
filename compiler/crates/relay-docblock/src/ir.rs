@@ -33,6 +33,7 @@ use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
+use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
@@ -371,6 +372,7 @@ trait ResolverIr: Sized {
     fn named_import(&self) -> Option<StringKey>;
     fn source_hash(&self) -> ResolverSourceHash;
     fn semantic_non_null(&self) -> Option<ConstantDirective>;
+    fn type_confirmed(&self) -> bool;
 
     fn to_graphql_schema_ast(
         self,
@@ -486,6 +488,13 @@ trait ResolverIr: Sized {
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.fragment.map(|x| x.0),
             ));
+
+            if self.type_confirmed() {
+                arguments.push(true_argument(
+                    TYPE_CONFIRMED_ARGUMENT_NAME.0,
+                    Location::generated(),
+                ));
+            }
 
             if root_fragment.generated {
                 arguments.push(true_argument(
@@ -809,6 +818,9 @@ pub struct TerseRelayResolverIr {
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
     pub source_hash: ResolverSourceHash,
+    /// Indicates that the extraction method used has already validated that the
+    /// implementaiton matches the GraphQL types.
+    pub type_confirmed: bool,
 }
 
 impl ResolverIr for TerseRelayResolverIr {
@@ -909,6 +921,10 @@ impl ResolverIr for TerseRelayResolverIr {
 
     fn source_hash(&self) -> ResolverSourceHash {
         self.source_hash
+    }
+
+    fn type_confirmed(&self) -> bool {
+        self.type_confirmed
     }
 }
 
@@ -1098,6 +1114,10 @@ impl ResolverIr for LegacyVerboseResolverIr {
     fn source_hash(&self) -> ResolverSourceHash {
         self.source_hash
     }
+
+    fn type_confirmed(&self) -> bool {
+        false
+    }
 }
 
 impl ResolverTypeDefinitionIr for LegacyVerboseResolverIr {
@@ -1139,6 +1159,7 @@ pub struct StrongObjectIr {
     /// The interfaces which the newly-created object implements
     pub implements_interfaces: Vec<Identifier>,
     pub source_hash: ResolverSourceHash,
+    pub type_confirmed: bool,
 }
 
 impl StrongObjectIr {
@@ -1243,6 +1264,9 @@ impl ResolverIr for StrongObjectIr {
     fn source_hash(&self) -> ResolverSourceHash {
         self.source_hash
     }
+    fn type_confirmed(&self) -> bool {
+        self.type_confirmed
+    }
 }
 
 /// Relay Resolver docblock representing a "model" type for a weak object
@@ -1260,6 +1284,7 @@ pub struct WeakObjectIr {
     /// The interfaces which the newly-created object implements
     pub implements_interfaces: Vec<Identifier>,
     pub source_hash: ResolverSourceHash,
+    pub type_confirmed: bool,
 }
 
 impl WeakObjectIr {
@@ -1426,6 +1451,10 @@ impl ResolverIr for WeakObjectIr {
 
     fn source_hash(&self) -> ResolverSourceHash {
         self.source_hash
+    }
+
+    fn type_confirmed(&self) -> bool {
+        self.type_confirmed
     }
 }
 

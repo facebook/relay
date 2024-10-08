@@ -87,11 +87,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type FullName {
-  first: String @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "first", import_path: "module.js") @resolver_source_hash(value: "67480ced829a656aa50d7f407d9529d0")
+  first: String @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "first", import_path: "module.js") @resolver_source_hash(value: "67480ced829a656aa50d7f407d9529d0")
 }
 
 
@@ -138,11 +139,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type FullName {
-  last: String @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "last", import_path: "module.js") @resolver_source_hash(value: "67480ced829a656aa50d7f407d9529d0")
+  last: String @relay_resolver(fragment_name: "FullName____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "last", import_path: "module.js") @resolver_source_hash(value: "67480ced829a656aa50d7f407d9529d0")
 }
 
 
@@ -189,11 +191,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  fullName: FullName @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "67480ced829a656aa50d7f407d9529d0")
+  fullName: FullName @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "67480ced829a656aa50d7f407d9529d0")
 }
 
 
@@ -224,6 +227,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
+            type_confirmed: true,
         },
     ),
 )
@@ -253,6 +257,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
+            type_confirmed: true,
         },
     ),
 )

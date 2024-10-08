@@ -112,11 +112,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "d534da5736dd3e656f91a8593a50b413",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  picture(size: Int): String @relay_resolver(fragment_name: "CatIsHungryFragment", has_output_type: true, import_name: "picture", import_path: "module.js") @resolver_source_hash(value: "d534da5736dd3e656f91a8593a50b413")
+  picture(size: Int): String @relay_resolver(type_confirmed: true, fragment_name: "CatIsHungryFragment", has_output_type: true, import_name: "picture", import_path: "module.js") @resolver_source_hash(value: "d534da5736dd3e656f91a8593a50b413")
 }
 
 
@@ -147,6 +148,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "d534da5736dd3e656f91a8593a50b413",
             ),
+            type_confirmed: true,
         },
     ),
 )

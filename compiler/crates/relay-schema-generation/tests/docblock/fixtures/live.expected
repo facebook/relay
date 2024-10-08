@@ -77,11 +77,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "088060a75d59266ad0547d9a0312562f",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  mood: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "mood", import_path: "module.js", live: true) @resolver_source_hash(value: "088060a75d59266ad0547d9a0312562f")
+  mood: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "mood", import_path: "module.js", live: true) @resolver_source_hash(value: "088060a75d59266ad0547d9a0312562f")
 }
 
 
@@ -112,6 +113,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "088060a75d59266ad0547d9a0312562f",
             ),
+            type_confirmed: true,
         },
     ),
 )

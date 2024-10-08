@@ -76,6 +76,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "1b432d1f1ef72adb427857abb24a5068",
             ),
+            type_confirmed: true,
         },
     ),
 )
@@ -105,6 +106,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "fbdfc15b898dadb276e02cb59997fd3e",
             ),
+            type_confirmed: true,
         },
     ),
 )

@@ -429,6 +429,7 @@ impl RelayResolverExtractor {
                             semantic_non_null_levels,
                             field.field_name.location,
                         ),
+                        type_confirmed: true,
                     });
                     Ok(())
                 }),
@@ -509,6 +510,7 @@ impl RelayResolverExtractor {
             implements_interfaces: vec![],
             source_hash,
             semantic_non_null: None,
+            type_confirmed: true,
         };
 
         // We ignore nullable annotation since both nullable and non-nullable types are okay for
@@ -585,6 +587,7 @@ impl RelayResolverExtractor {
             location: name.location,
             implements_interfaces: vec![],
             source_hash,
+            type_confirmed: true,
         };
         let haste_module_name = Path::new(source_module_path)
             .file_stem()

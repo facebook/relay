@@ -42,6 +42,10 @@ lazy_static! {
     /// this argument name is used to track its @rootFragment (if any).
     pub static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName =
         ArgumentName("fragment_name".intern());
+    /// Indicates that the extraction mechanism used to derive this resolver's GraphQL type
+    /// has validated that its Flow/TypeScript type matches the GraphQL type.
+    pub static ref TYPE_CONFIRMED_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("type_confirmed".intern());
     /// "Weak" resolver types are types which are backed by a JS model value, but which don't have a stable
     /// identity. Types in the generated schema are annotated with a directive using this name to signal
     /// to the rest of Relay that they are backed by a "weak" Relay Resolver model.

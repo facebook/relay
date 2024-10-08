@@ -42,6 +42,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "26ae5e285958dda3877b78aaf5a82b65",
             ),
+            type_confirmed: false,
         },
     ),
 )

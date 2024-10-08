@@ -76,11 +76,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "7bbe33db29d93d787719b8c25219f5a0",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  is_hungry: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "is_hungry", import_path: "module.js") @resolver_source_hash(value: "7bbe33db29d93d787719b8c25219f5a0")
+  is_hungry: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "is_hungry", import_path: "module.js") @resolver_source_hash(value: "7bbe33db29d93d787719b8c25219f5a0")
 }
 
 
@@ -127,11 +128,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "7bbe33db29d93d787719b8c25219f5a0",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name", import_path: "module.js") @resolver_source_hash(value: "7bbe33db29d93d787719b8c25219f5a0")
+  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "name", import_path: "module.js") @resolver_source_hash(value: "7bbe33db29d93d787719b8c25219f5a0")
 }
 
 
@@ -162,6 +164,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "7bbe33db29d93d787719b8c25219f5a0",
             ),
+            type_confirmed: true,
         },
     ),
 )

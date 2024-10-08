@@ -91,11 +91,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "08165d712e1fcab6840e997daaebf69e",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  friend: Cat @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "friend", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
+  friend: Cat @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, import_name: "friend", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
 }
 
 
@@ -142,11 +143,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "08165d712e1fcab6840e997daaebf69e",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  neighbor: Dog @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", import_name: "neighbor", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
+  neighbor: Dog @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, import_name: "neighbor", import_path: "module.js") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e")
 }
 
 
@@ -177,6 +179,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "08165d712e1fcab6840e997daaebf69e",
             ),
+            type_confirmed: true,
         },
     ),
 )
@@ -213,6 +216,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "08165d712e1fcab6840e997daaebf69e",
             ),
+            type_confirmed: true,
         },
     ),
 )

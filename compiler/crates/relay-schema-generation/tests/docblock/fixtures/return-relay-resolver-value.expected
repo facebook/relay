@@ -76,7 +76,24 @@ Field(
             },
             root_fragment: None,
             deprecated: None,
-            semantic_non_null: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 419:431,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 419:431,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
             live: None,
             location: module.js:419:431,
             fragment_arguments: None,
@@ -88,7 +105,7 @@ Field(
     ),
 )
 extend type Cat {
-  complexValue: RelayResolverValue @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "complexValue", import_path: "module.js") @resolver_source_hash(value: "fc15c065174264428a3632fe9cf329d6")
+  complexValue: RelayResolverValue @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "complexValue", import_path: "module.js") @resolver_source_hash(value: "fc15c065174264428a3632fe9cf329d6") @semanticNonNull
 }
 
 

@@ -914,7 +914,7 @@ fn return_type_to_type_annotation(
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
     use_semantic_non_null: bool,
 ) -> DiagnosticsResult<(TypeAnnotation, Vec<i64>)> {
-    let (return_type, mut is_optional) = schema_extractor::unwrap_nullable_type(return_type);
+    let (return_type, is_optional) = schema_extractor::unwrap_nullable_type(return_type);
     let mut semantic_non_null_levels: Vec<i64> = vec![];
 
     let location = to_location(source_location, return_type);
@@ -1029,20 +1029,16 @@ fn return_type_to_type_annotation(
                                 )]);
                             }
                         }
-                        "RelayResolverValue" => {
-                            // Special case for `RelayResolverValue`, it is always optional
-                            is_optional = true;
-                            TypeAnnotation::Named(NamedTypeAnnotation {
-                                name: Identifier {
+                        "RelayResolverValue" => TypeAnnotation::Named(NamedTypeAnnotation {
+                            name: Identifier {
+                                span: location.span(),
+                                token: Token {
                                     span: location.span(),
-                                    token: Token {
-                                        span: location.span(),
-                                        kind: TokenKind::Identifier,
-                                    },
-                                    value: intern!("RelayResolverValue"),
+                                    kind: TokenKind::Identifier,
                                 },
-                            })
-                        }
+                                value: intern!("RelayResolverValue"),
+                            },
+                        }),
                         _ => {
                             return Err(vec![Diagnostic::error(
                                 SchemaGenerationError::UnSupportedGeneric {

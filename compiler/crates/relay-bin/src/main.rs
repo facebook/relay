@@ -17,12 +17,15 @@ use common::ConsoleLogger;
 use intern::string_key::Intern;
 use log::error;
 use log::info;
+use relay_codemod::run_codemod;
+use relay_codemod::AvailableCodemod;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
 use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
 use relay_compiler::config::ConfigFile;
 use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::get_programs;
 use relay_compiler::FileSourceKind;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
@@ -60,6 +63,27 @@ struct Opt {
 
     #[clap(flatten)]
     compile: CompileCommand,
+}
+
+#[derive(Parser)]
+#[clap(
+    rename_all = "camel_case",
+    about = "Apply codemod (verification with auto-applied fixes)"
+)]
+struct CodemodCommand {
+    /// Compile only this project. You can pass this argument multiple times.
+    /// to compile multiple projects. If excluded, all projects will be compiled.
+    #[clap(name = "project", long, short)]
+    projects: Vec<String>,
+
+    /// Compile using this config file. If not provided, searches for a config in
+    /// package.json under the `relay` key or `relay.config.json` files among other up
+    /// from the current working directory.
+    config: Option<PathBuf>,
+
+    /// The name of the codemod to run
+    #[clap(long, short, arg_enum)]
+    codemod: AvailableCodemod,
 }
 
 #[derive(Parser)]
@@ -129,6 +153,7 @@ enum Commands {
     Compiler(CompileCommand),
     Lsp(LspCommand),
     ConfigJsonSchema(ConfigJsonSchemaCommand),
+    Codemod(CodemodCommand),
 }
 
 #[derive(ArgEnum, Clone, Copy)]
@@ -189,6 +214,7 @@ async fn main() {
             println!("{}", ConfigFile::json_schema());
             Ok(())
         }
+        Commands::Codemod(command) => handle_codemod_command(command).await,
     };
 
     if let Err(err) = result {
@@ -254,6 +280,25 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
     }
 
     Ok(())
+}
+
+async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
+    let mut config = get_config(command.config)?;
+    set_project_flag(&mut config, command.projects)?;
+    let (programs, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
+
+    match run_codemod(
+        Arc::clone(&programs.source),
+        Arc::clone(&config),
+        command.codemod,
+    )
+    .await
+    {
+        Ok(_) => Ok(()),
+        Err(e) => Err(Error::CodemodError {
+            details: format!("{:?}", e),
+        }),
+    }
 }
 
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {

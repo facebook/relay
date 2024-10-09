@@ -13,6 +13,7 @@ clap = { version = "3.2.25", features = ["derive", "env", "regex", "unicode", "w
 common = { path = "../common" }
 intern = { path = "../intern" }
 log = { version = "0.4.22", features = ["kv_unstable"] }
+relay-codemod = { path = "../relay-codemod" }
 relay-compiler = { path = "../relay-compiler" }
 relay-lsp = { path = "../relay-lsp" }
 schema = { path = "../schema" }

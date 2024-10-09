@@ -20,4 +20,7 @@ pub enum Error {
 
     #[error("Unable to run relay compiler. Error details: \n{details}")]
     CompilerError { details: String },
+
+    #[error("Unable to run relay codemod. Error details: \n{details}")]
+    CodemodError { details: String },
 }

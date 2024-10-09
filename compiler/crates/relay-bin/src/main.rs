@@ -11,8 +11,8 @@ use std::path::PathBuf;
 use std::process::Command;
 use std::sync::Arc;
 
-use clap::ArgEnum;
 use clap::Parser;
+use clap::ValueEnum;
 use common::ConsoleLogger;
 use intern::string_key::Intern;
 use log::error;
@@ -82,7 +82,7 @@ struct CodemodCommand {
     config: Option<PathBuf>,
 
     /// The name of the codemod to run
-    #[clap(long, short, arg_enum)]
+    #[clap(long, short, value_enum)]
     codemod: AvailableCodemod,
 }
 
@@ -114,7 +114,7 @@ struct CompileCommand {
     repersist: bool,
 
     /// Verbosity level
-    #[clap(long, arg_enum, default_value = "verbose")]
+    #[clap(long, value_enum, default_value = "verbose")]
     output: OutputKind,
 
     /// Looks for pending changes and exits with non-zero code instead of
@@ -135,7 +135,7 @@ struct LspCommand {
     config: Option<PathBuf>,
 
     /// Verbosity level
-    #[clap(long, arg_enum, default_value = "quiet-with-errors")]
+    #[clap(long, value_enum, default_value = "quiet-with-errors")]
     output: OutputKind,
 
     /// Script to be called to lookup the actual definition of a GraphQL entity for
@@ -156,7 +156,7 @@ enum Commands {
     Codemod(CodemodCommand),
 }
 
-#[derive(ArgEnum, Clone, Copy)]
+#[derive(ValueEnum, Clone, Copy)]
 enum OutputKind {
     Debug,
     Quiet,

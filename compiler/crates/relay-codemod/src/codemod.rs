@@ -44,7 +44,7 @@ pub async fn run_codemod(
             }
         }
     };
-    let actions = relay_lsp::diagnostics_to_code_actions(config, &diagnostics);
+    let actions = relay_lsp::diagnostics_to_code_actions(&config.root_dir, &diagnostics);
 
     info!(
         "Codemod {:?} ran and found {} changes to make.",

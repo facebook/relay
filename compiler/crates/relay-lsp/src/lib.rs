@@ -34,6 +34,7 @@ mod status_reporter;
 pub mod status_updater;
 pub mod text_documents;
 pub mod utils;
+use std::path::Path;
 use std::sync::Arc;
 
 use code_action::get_code_actions_from_diagnostic;
@@ -112,11 +113,9 @@ where
 }
 
 pub fn diagnostics_to_code_actions(
-    config: Arc<Config>,
+    root_dir: &Path,
     diagnostics: &[common::Diagnostic],
 ) -> std::vec::Vec<lsp_types::CodeActionOrCommand> {
-    let root_dir = &config.root_dir.clone();
-
     // We send the diagnostics through the LSP's DiagnosticReporter to transform
     // them into code actions.
     // This transformation should probably be split off from the DiagnosticReporter.

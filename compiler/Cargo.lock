@@ -1680,6 +1680,7 @@ dependencies = [
  "common",
  "intern",
  "log",
+ "relay-codemod",
  "relay-compiler",
  "relay-lsp",
  "schema",
@@ -1710,6 +1711,19 @@ dependencies = [
  "relay-transforms",
  "schema",
  "tokio",
+]
+
+[[package]]
+name = "relay-codemod"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "graphql-ir",
+ "log",
+ "lsp-types",
+ "relay-compiler",
+ "relay-lsp",
+ "relay-transforms",
 ]
 
 [[package]]

@@ -89,8 +89,8 @@
   },
   "private": true,
   "devEngines": {
-    "node": ">=4.x",
-    "npm": ">=2.x"
+    "node": ">=18.x",
+    "npm": ">=8.x"
   },
   "prettier": {
     "arrowParens": "avoid",

@@ -698,10 +698,6 @@ fn apply_typegen_transforms(
         },
     )?;
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
-    })?;
-
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",
         || transform_assignable_fragment_spreads_in_regular_queries(&program),
@@ -713,6 +709,10 @@ fn apply_typegen_transforms(
     program = log_event.time("annotate_updatable_fragment_spreads", || {
         annotate_updatable_fragment_spreads(&program)
     });
+
+    program = log_event.time("client_edges", || {
+        client_edges(&program, project_config, &base_fragment_names)
+    })?;
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(project_config.name, &program)

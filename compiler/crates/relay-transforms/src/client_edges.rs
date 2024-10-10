@@ -613,6 +613,7 @@ fn create_inline_fragment_for_client_edge(
         type_condition: None,
         directives: inline_fragment_directives,
         selections: vec![
+            // NOTE: This creates 2^H selecitons where H is the depth of nested client edges
             Selection::LinkedField(Arc::clone(&transformed_field)),
             Selection::LinkedField(transformed_field),
         ],

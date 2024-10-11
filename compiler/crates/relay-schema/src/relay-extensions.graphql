@@ -345,3 +345,10 @@ If a non-static value is provided, it will result in a validation error.
 Used for arguments which are expected to be read by the Relay compiler.
 """
 directive @static on ARGUMENT_DEFINITION
+
+"""
+(Relay Only)
+
+Used for printing a query, need to be used with `debug_transform`
+"""
+directive @__debug on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION

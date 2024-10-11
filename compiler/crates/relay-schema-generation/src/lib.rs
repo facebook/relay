@@ -155,14 +155,26 @@ impl Default for RelayResolverExtractor {
 
 impl RelayResolverExtractor {
     pub fn new() -> Self {
-        Self {
+        let mut self_ = Self {
             type_definitions: Default::default(),
             unresolved_field_definitions: Default::default(),
             resolved_field_definitions: vec![],
             module_resolutions: Default::default(),
             current_location: SourceLocationKey::generated(),
             custom_scalar_map: FnvIndexMap::default(),
-        }
+        };
+        self_.add_relay_runtime_flow_scalars();
+        self_
+    }
+
+    fn add_relay_runtime_flow_scalars(&mut self) {
+        self.custom_scalar_map.insert(
+            CustomType::Path(CustomTypeImport {
+                name: intern!("DataID"),
+                path: PathBuf::from_str("relay-runtime").unwrap(),
+            }),
+            ScalarName("ID".intern()),
+        );
     }
 
     pub fn set_custom_scalar_map(
@@ -170,6 +182,7 @@ impl RelayResolverExtractor {
         custom_scalar_types: &FnvIndexMap<ScalarName, CustomType>,
     ) -> DiagnosticsResult<()> {
         self.custom_scalar_map = invert_custom_scalar_map(custom_scalar_types)?;
+        self.add_relay_runtime_flow_scalars();
         Ok(())
     }
 

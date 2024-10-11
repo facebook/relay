@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b3928d8850e33ef5bfe29d88b154af67>>
+ * @generated SignedSource<<37bc46ba9cbfc9f4ef7b6b98faef30d0>>
  */
 
 mod docblock;
@@ -17,6 +17,13 @@ async fn arguments() {
     let input = include_str!("docblock/fixtures/arguments.input");
     let expected = include_str!("docblock/fixtures/arguments.expected");
     test_fixture(transform_fixture, file!(), "arguments.input", "docblock/fixtures/arguments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn built_in_scalar_id() {
+    let input = include_str!("docblock/fixtures/built-in-scalar-id.input");
+    let expected = include_str!("docblock/fixtures/built-in-scalar-id.expected");
+    test_fixture(transform_fixture, file!(), "built-in-scalar-id.input", "docblock/fixtures/built-in-scalar-id.expected", input, expected).await;
 }
 
 #[tokio::test]

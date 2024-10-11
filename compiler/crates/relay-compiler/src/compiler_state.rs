@@ -419,6 +419,10 @@ impl CompilerState {
                 .docblocks
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
+            || self
+                .full_sources
+                .get(&project_name)
+                .map_or(false, |sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {

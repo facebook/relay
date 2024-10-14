@@ -23,7 +23,7 @@ path = "tests/print_schema_test.rs"
 [dependencies]
 fnv = "1.0"
 intern = { path = "../intern" }
-itertools = "0.11.0"
+itertools = "0.12.1"
 rayon = "1.9.0"
 schema = { path = "../schema" }
 

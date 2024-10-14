@@ -26,7 +26,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 intern = { path = "../intern" }
-itertools = "0.11.0"
+itertools = "0.12.1"
 lazy_static = "1.4"
 log = { version = "0.4.22", features = ["kv_unstable"] }
 lsp-server = "0.7.2"

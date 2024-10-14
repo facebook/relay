@@ -15,14 +15,10 @@ use lsp_types::TextEdit;
 use lsp_types::Url;
 use relay_compiler::config::Config;
 use relay_transforms::fragment_alias_directive;
-use relay_transforms::validate_unused_variables;
 use relay_transforms::Programs;
 
 #[derive(ValueEnum, Debug, Clone)]
 pub enum AvailableCodemod {
-    /// Removes fields that are unused in the GraphQL response
-    RemoveUnusedVariables,
-
     /// Marks unaliased conditional fragment spreads as @dangerously_unaliased_fixme
     MarkDangerousConditionalFragmentSpreads,
 }
@@ -35,12 +31,6 @@ pub async fn run_codemod(
     let diagnostics = programs
         .iter()
         .flat_map(|programs| match &codemod {
-            AvailableCodemod::RemoveUnusedVariables => {
-                match validate_unused_variables(&programs.source) {
-                    Ok(_) => vec![],
-                    Err(e) => e,
-                }
-            }
             AvailableCodemod::MarkDangerousConditionalFragmentSpreads => {
                 match fragment_alias_directive(&programs.source, true) {
                     Ok(_) => vec![],

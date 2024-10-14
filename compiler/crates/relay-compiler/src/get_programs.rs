@@ -19,7 +19,7 @@ use crate::NoopArtifactWriter;
 pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
     mut config: Config,
     perf_logger: Arc<TPerfLogger>,
-) -> (Arc<Programs>, CompilerState, Arc<Config>) {
+) -> (Vec<Arc<Programs>>, CompilerState, Arc<Config>) {
     let raw_programs: Arc<Mutex<Vec<Arc<Programs>>>> = Arc::new(Mutex::new(vec![]));
     let raw_programs_cloned = raw_programs.clone();
 
@@ -51,7 +51,7 @@ pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
             eprintln!("Failed to extract program from compiler state");
             std::process::exit(1);
         }
-        guard[0].clone()
+        guard.clone()
     };
-    (Arc::clone(&programs), compiler_state, Arc::clone(&config))
+    (programs, compiler_state, Arc::clone(&config))
 }

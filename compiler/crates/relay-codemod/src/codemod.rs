@@ -9,7 +9,6 @@ use std::fs;
 use std::sync::Arc;
 
 use clap::ValueEnum;
-use graphql_ir::Program;
 use log::info;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
@@ -17,6 +16,7 @@ use lsp_types::Url;
 use relay_compiler::config::Config;
 use relay_transforms::fragment_alias_directive;
 use relay_transforms::validate_unused_variables;
+use relay_transforms::Programs;
 
 #[derive(ValueEnum, Debug, Clone)]
 pub enum AvailableCodemod {
@@ -28,22 +28,28 @@ pub enum AvailableCodemod {
 }
 
 pub async fn run_codemod(
-    program: Arc<Program>,
+    programs: Vec<Arc<Programs>>,
     config: Arc<Config>,
     codemod: AvailableCodemod,
 ) -> Result<(), std::io::Error> {
-    let diagnostics = match &codemod {
-        AvailableCodemod::RemoveUnusedVariables => match validate_unused_variables(&program) {
-            Ok(_) => vec![],
-            Err(e) => e,
-        },
-        AvailableCodemod::MarkDangerousConditionalFragmentSpreads => {
-            match fragment_alias_directive(&program, true) {
-                Ok(_) => vec![],
-                Err(e) => e,
+    let diagnostics = programs
+        .iter()
+        .flat_map(|programs| match &codemod {
+            AvailableCodemod::RemoveUnusedVariables => {
+                match validate_unused_variables(&programs.source) {
+                    Ok(_) => vec![],
+                    Err(e) => e,
+                }
             }
-        }
-    };
+            AvailableCodemod::MarkDangerousConditionalFragmentSpreads => {
+                match fragment_alias_directive(&programs.source, true) {
+                    Ok(_) => vec![],
+                    Err(e) => e,
+                }
+            }
+        })
+        .collect::<Vec<_>>();
+
     let actions = relay_lsp::diagnostics_to_code_actions(&config.root_dir, &diagnostics);
 
     info!(

@@ -287,13 +287,7 @@ async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
     set_project_flag(&mut config, command.projects)?;
     let (programs, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
 
-    match run_codemod(
-        Arc::clone(&programs.source),
-        Arc::clone(&config),
-        command.codemod,
-    )
-    .await
-    {
+    match run_codemod(programs, Arc::clone(&config), command.codemod).await {
         Ok(_) => Ok(()),
         Err(e) => Err(Error::CodemodError {
             details: format!("{:?}", e),

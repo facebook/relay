@@ -12,7 +12,7 @@ export type FooQuery$data = {|
   +me: Result<?{|
     +firstName: ?string,
     +lastName: ?string,
-  |}, $ReadOnlyArray<mixed>>,
+  |}, mixed>,
 |};
 export type FooQuery = {|
   response: FooQuery$data,

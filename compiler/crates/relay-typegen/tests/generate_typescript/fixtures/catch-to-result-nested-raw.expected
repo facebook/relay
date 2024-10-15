@@ -11,7 +11,7 @@ export type FooQuery$variables = Record<PropertyKey, never>;
 export type FooQuery$data = {
   readonly me: {
     readonly firstName: string | null | undefined;
-    readonly lastName: Result<string | null | undefined, ReadonlyArray<unknown>>;
+    readonly lastName: Result<string | null | undefined, unknown>;
   } | null | undefined;
 };
 export type FooQuery$rawResponse = {

@@ -19,7 +19,7 @@ import type { AnotherFragment$fragmentType } from "AnotherFragment.graphql";
 export type MyQuery$variables = {||};
 export type MyQuery$data = {|
   +me: ?{|
-    +id: Result<string, $ReadOnlyArray<mixed>>,
+    +id: Result<string, mixed>,
     +name: ?string,
     +$fragmentSpreads: AnotherFragment$fragmentType,
   |},

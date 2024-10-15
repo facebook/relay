@@ -12,7 +12,7 @@ export type MyQuery$data = {|
   +me: Result<?{|
     +id: string,
     +name: ?string,
-  |}, $ReadOnlyArray<mixed>>,
+  |}, mixed>,
 |};
 export type MyQuery = {|
   response: MyQuery$data,

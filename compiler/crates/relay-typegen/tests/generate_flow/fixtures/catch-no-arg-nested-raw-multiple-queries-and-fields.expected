@@ -21,7 +21,7 @@ import type { Result } from "relay-runtime";
 export type AnotherQuery$variables = {||};
 export type AnotherQuery$data = {|
   +me: ?{|
-    +id: Result<string, $ReadOnlyArray<mixed>>,
+    +id: Result<string, mixed>,
     +name: ?string,
   |},
 |};
@@ -34,7 +34,7 @@ import type { Result } from "relay-runtime";
 export type MyQuery$variables = {||};
 export type MyQuery$data = {|
   +me: ?{|
-    +id: Result<string, $ReadOnlyArray<mixed>>,
+    +id: Result<string, mixed>,
     +name: ?string,
     +profilePicture: ?{|
       +uri: ?string,

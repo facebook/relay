@@ -1,0 +1,73 @@
+==================================== INPUT ====================================
+query Foo_user @raw_response_type {
+  me {
+    pop_star_name
+  }
+
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: RelayResolverValue @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolverType satisfies (
+  rootKey: PopStarNameResolverFragment_name$key,
+) => unknown | null | undefined);
+export type Foo_user$variables = Record<PropertyKey, never>;
+export type Foo_user$data = {
+  readonly me: {
+    readonly pop_star_name: ReturnType<typeof userPopStarNameResolverType> | null | undefined;
+  } | null | undefined;
+};
+export type Foo_user$rawResponse = {
+  readonly me: {
+    readonly address: {
+      readonly street: string | null | undefined;
+    } | null | undefined;
+    readonly id: string;
+    readonly name: string | null | undefined;
+    readonly parents: ReadonlyArray<{
+      readonly id: string;
+      readonly lastName: string | null | undefined;
+    }>;
+  } | {
+    readonly id: string;
+  } | null | undefined;
+};
+export type Foo_user = {
+  rawResponse: Foo_user$rawResponse;
+  response: Foo_user$data;
+  variables: Foo_user$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type PopStarNameResolverFragment_name$data = {
+  readonly address: {
+    readonly street: string | null | undefined;
+  } | null | undefined;
+  readonly name: string | null | undefined;
+  readonly parents: ReadonlyArray<{
+    readonly lastName: string | null | undefined;
+  }>;
+  readonly " $fragmentType": "PopStarNameResolverFragment_name";
+};
+export type PopStarNameResolverFragment_name$key = {
+  readonly " $data"?: PopStarNameResolverFragment_name$data;
+  readonly " $fragmentSpreads": FragmentRefs<"PopStarNameResolverFragment_name">;
+};

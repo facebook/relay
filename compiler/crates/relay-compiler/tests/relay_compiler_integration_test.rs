@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a187a561407aa9fb9576d43e789725b>>
+ * @generated SignedSource<<00aa849a8a46f027d22d0712fd90b3eb>>
  */
 
 mod relay_compiler_integration;
@@ -136,6 +136,20 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn repro_dangerously_unaliased_changes_output_after() {
+    let input = include_str!("relay_compiler_integration/fixtures/repro_dangerously_unaliased_changes_output_after.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/repro_dangerously_unaliased_changes_output_after.expected");
+    test_fixture(transform_fixture, file!(), "repro_dangerously_unaliased_changes_output_after.input", "relay_compiler_integration/fixtures/repro_dangerously_unaliased_changes_output_after.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn repro_dangerously_unaliased_changes_output_before() {
+    let input = include_str!("relay_compiler_integration/fixtures/repro_dangerously_unaliased_changes_output_before.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/repro_dangerously_unaliased_changes_output_before.expected");
+    test_fixture(transform_fixture, file!(), "repro_dangerously_unaliased_changes_output_before.input", "relay_compiler_integration/fixtures/repro_dangerously_unaliased_changes_output_before.expected", input, expected).await;
 }
 
 #[tokio::test]

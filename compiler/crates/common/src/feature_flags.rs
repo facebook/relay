@@ -140,6 +140,24 @@ pub struct FeatureFlags {
     /// been derived from TS/Flow types.
     #[serde(default)]
     pub omit_resolver_type_assertions_for_confirmed_types: FeatureFlag,
+
+    /// Skip the optimization which extracts common JavaScript structures in
+    /// generated artifacts into numbered variables and uses them by reference
+    /// in each position in which they occure.
+    ///
+    /// This optimization can make it hard to follow changes to generated
+    /// code, so being able to disable it can be helpful for debgging.
+    ///
+    /// To disable deduping for just one fragment or operation's generated
+    /// artifacts:
+    ///
+    /// ```json
+    /// "disable_deduping_common_structures_in_artifacts": {
+    ///   { "kind": "limited", "allowList": ["<operation_or_fragment_name>"] }
+    /// }
+    /// ```
+    #[serde(default)]
+    pub disable_deduping_common_structures_in_artifacts: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

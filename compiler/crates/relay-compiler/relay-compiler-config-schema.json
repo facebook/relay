@@ -540,6 +540,92 @@
                 }
               ]
             },
+            "disable_deduping_common_structures_in_artifacts": {
+              "description": "Skip the optimization which extracts common JavaScript structures in generated artifacts into numbered variables and uses them by reference in each position in which they occure.\n\nThis optimization can make it hard to follow changes to generated code, so being able to disable it can be helpful for debgging.\n\nTo disable deduping for just one fragment or operation's generated artifacts:\n\n```json \"disable_deduping_common_structures_in_artifacts\": { { \"kind\": \"limited\", \"allowList\": [\"<operation_or_fragment_name>\"] } } ```",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
             "disable_edge_type_name_validation_on_declerative_connection_directives": {
               "description": "Disable validation of the `edgeTypeName` argument on `@prependNode` and `@appendNode`.",
               "default": {
@@ -1884,6 +1970,9 @@
             "compact_query_text": {
               "kind": "disabled"
             },
+            "disable_deduping_common_structures_in_artifacts": {
+              "kind": "disabled"
+            },
             "disable_edge_type_name_validation_on_declerative_connection_directives": {
               "kind": "disabled"
             },
@@ -2268,6 +2357,92 @@
             },
             "compact_query_text": {
               "description": "Print queries in compact form",
+              "default": {
+                "kind": "disabled"
+              },
+              "oneOf": [
+                {
+                  "description": "Fully disabled: developers may not use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "disabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Fully enabled: developers may use this feature",
+                  "type": "object",
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "enabled"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                  "type": "object",
+                  "required": [
+                    "allowlist",
+                    "kind"
+                  ],
+                  "properties": {
+                    "allowlist": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "uniqueItems": true
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "limited"
+                      ]
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rollout"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "format": "uint8",
+                      "minimum": 0.0
+                    }
+                  }
+                }
+              ]
+            },
+            "disable_deduping_common_structures_in_artifacts": {
+              "description": "Skip the optimization which extracts common JavaScript structures in generated artifacts into numbered variables and uses them by reference in each position in which they occure.\n\nThis optimization can make it hard to follow changes to generated code, so being able to disable it can be helpful for debgging.\n\nTo disable deduping for just one fragment or operation's generated artifacts:\n\n```json \"disable_deduping_common_structures_in_artifacts\": { { \"kind\": \"limited\", \"allowList\": [\"<operation_or_fragment_name>\"] } } ```",
               "default": {
                 "kind": "disabled"
               },
@@ -3731,6 +3906,92 @@
                   },
                   "compact_query_text": {
                     "description": "Print queries in compact form",
+                    "default": {
+                      "kind": "disabled"
+                    },
+                    "oneOf": [
+                      {
+                        "description": "Fully disabled: developers may not use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "disabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Fully enabled: developers may use this feature",
+                        "type": "object",
+                        "required": [
+                          "kind"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "enabled"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: developers may only use this feature on the listed items (fragments, fields, types).",
+                        "type": "object",
+                        "required": [
+                          "allowlist",
+                          "kind"
+                        ],
+                        "properties": {
+                          "allowlist": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "uniqueItems": true
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "limited"
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rollout"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Can be constructed as the Default which passes or a percentage between 0 and 100.",
+                            "type": [
+                              "integer",
+                              "null"
+                            ],
+                            "format": "uint8",
+                            "minimum": 0.0
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "disable_deduping_common_structures_in_artifacts": {
+                    "description": "Skip the optimization which extracts common JavaScript structures in generated artifacts into numbered variables and uses them by reference in each position in which they occure.\n\nThis optimization can make it hard to follow changes to generated code, so being able to disable it can be helpful for debgging.\n\nTo disable deduping for just one fragment or operation's generated artifacts:\n\n```json \"disable_deduping_common_structures_in_artifacts\": { { \"kind\": \"limited\", \"allowList\": [\"<operation_or_fragment_name>\"] } } ```",
                     "default": {
                       "kind": "disabled"
                     },

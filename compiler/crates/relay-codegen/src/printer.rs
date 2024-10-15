@@ -169,22 +169,25 @@ impl<'p> Printer<'p> {
             self.project_config,
             &mut top_level_statements,
         );
-        Some(printer.print(provided_variables, self.dedupe))
+        Some(printer.print(
+            provided_variables,
+            self.should_dedupe(operation.name.item.0),
+        ))
     }
 
     pub fn print_updatable_query(
         &mut self,
         schema: &SDLSchema,
-        fragment: &FragmentDefinition,
+        fragment_definition: &FragmentDefinition,
     ) -> String {
         let mut fragment_builder = CodegenBuilder::new(
             schema,
             CodegenVariant::Reader,
             &mut self.builder,
             self.project_config,
-            fragment.name.map(|x| x.0),
+            fragment_definition.name.map(|x| x.0),
         );
-        let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
+        let fragment = Primitive::Key(fragment_builder.build_fragment(fragment_definition, true));
         let key = self.builder.intern(Ast::Object(object! {
             fragment: fragment,
             kind: Primitive::String(CODEGEN_CONSTANTS.updatable_query),
@@ -196,7 +199,7 @@ impl<'p> Printer<'p> {
             self.project_config,
             &mut top_level_statements,
         );
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(fragment_definition.name.item.0))
     }
 
     pub fn print_request(
@@ -225,7 +228,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_preloadable_request(
@@ -245,7 +248,7 @@ impl<'p> Printer<'p> {
         );
         let key = build_preloadable_request(&mut self.builder, request_parameters);
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_operation(
@@ -262,7 +265,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_fragment(
@@ -279,7 +282,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(fragment.name.item.0))
     }
 
     pub fn print_request_params(
@@ -298,7 +301,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_resolvers_schema(
@@ -309,6 +312,15 @@ impl<'p> Printer<'p> {
         let key = build_resolvers_schema(&mut self.builder, schema, self.project_config);
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
+    }
+
+    fn should_dedupe(&self, name: StringKey) -> bool {
+        self.dedupe
+            && !self
+                .project_config
+                .feature_flags
+                .disable_deduping_common_structures_in_artifacts
+                .is_enabled_for(name)
     }
 }
 

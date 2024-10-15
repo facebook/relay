@@ -9,6 +9,7 @@ use std::fs;
 use std::sync::Arc;
 
 use clap::ValueEnum;
+use common::FeatureFlag;
 use log::info;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
@@ -32,7 +33,8 @@ pub async fn run_codemod(
         .iter()
         .flat_map(|programs| match &codemod {
             AvailableCodemod::MarkDangerousConditionalFragmentSpreads => {
-                match fragment_alias_directive(&programs.source, true) {
+                // TODO: Figure out how to accept FeatureFlag as an optional CLI argument
+                match fragment_alias_directive(&programs.source, &FeatureFlag::Enabled) {
                     Ok(_) => vec![],
                     Err(e) => e,
                 }

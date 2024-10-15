@@ -160,10 +160,9 @@ fn apply_common_transforms(
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
-            project_config
+            &project_config
                 .feature_flags
-                .enforce_fragment_alias_where_ambiguous
-                .is_fully_enabled(),
+                .enforce_fragment_alias_where_ambiguous,
         )
     })?;
 
@@ -658,10 +657,9 @@ fn apply_typegen_transforms(
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
-            project_config
+            &project_config
                 .feature_flags
-                .enforce_fragment_alias_where_ambiguous
-                .is_fully_enabled(),
+                .enforce_fragment_alias_where_ambiguous,
         )
     })?;
 

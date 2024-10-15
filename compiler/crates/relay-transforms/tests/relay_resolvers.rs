@@ -8,6 +8,7 @@
 use std::sync::Arc;
 
 use common::Diagnostic;
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
@@ -40,7 +41,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
         // Run `fragment_alias_directive` first because we want to ensure we
         // correctly generate paths for named inline fragment spreads.
-        let next_program = fragment_alias_directive(&program, true)
+        let next_program = fragment_alias_directive(&program, &FeatureFlag::Enabled)
             .and_then(|program| relay_resolvers(ProjectName::default(), &program))
             .map_err(|diagnostics| diagnostics_to_sorted_string(base, extensions, &diagnostics))?;
 

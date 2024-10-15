@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<677a45710cd71e038c4edcc004d82055>>
+ * @generated SignedSource<<411a160705fa17e2621eb2d31b80d0f0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { Result } from "relay-runtime";
 export type RelayReaderCatchFieldsTest09Query$variables = {||};
 export type RelayReaderCatchFieldsTest09Query$data = {|
   +me: ?{|
-    +lastName: Result<?string, $ReadOnlyArray<mixed>>,
+    +lastName: Result<?string, mixed>,
   |},
 |};
 export type RelayReaderCatchFieldsTest09Query = {|

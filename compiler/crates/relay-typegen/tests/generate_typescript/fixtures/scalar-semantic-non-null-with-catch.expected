@@ -12,7 +12,7 @@ extend type Query {
 ==================================== OUTPUT ===================================
 import { FragmentRefs, Result } from "relay-runtime";
 export type MyFragment$data = {
-  readonly my_string: Result<string, ReadonlyArray<unknown>>;
+  readonly my_string: Result<string, unknown>;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

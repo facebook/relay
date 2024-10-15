@@ -16,7 +16,7 @@ import { FragmentRefs, Result } from "relay-runtime";
 export type MyFragment$data = {
   readonly my_user: Result<{
     readonly name: string | null | undefined;
-  }, ReadonlyArray<unknown>>;
+  }, unknown>;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

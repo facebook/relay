@@ -12,7 +12,7 @@ export type FooQuery$data = {
   readonly me: Result<{
     readonly firstName: string | null | undefined;
     readonly lastName: string | null | undefined;
-  } | null | undefined, ReadonlyArray<unknown>>;
+  } | null | undefined, unknown>;
 };
 export type FooQuery = {
   response: FooQuery$data;

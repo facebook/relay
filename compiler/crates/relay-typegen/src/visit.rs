@@ -1805,7 +1805,7 @@ fn make_result_type(typegen_context: &'_ TypegenContext<'_>, value: AST) -> AST 
 
     AST::GenericType {
         outer: *RESULT_TYPE_NAME,
-        inner: vec![value, AST::ReadOnlyArray(Box::new(error_type))],
+        inner: vec![value, error_type],
     }
 }
 

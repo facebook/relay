@@ -269,9 +269,12 @@ pub enum ValidationMessageWithData {
     },
 
     #[error(
-        "Expected `@alias` directive. Fragment spreads with `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
+        "Expected `@alias` directive. Fragment spreads with (or within an inline fragment with) `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
     )]
-    ExpectedAliasOnConditionalFragmentSpread { condition_name: String },
+    ExpectedAliasOnConditionalFragmentSpread {
+        fragment_name: FragmentDefinitionName,
+        condition_name: String,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -308,11 +311,12 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 ]
             }
             ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
-                condition_name,
+                fragment_name,
+                ..
             } => {
                 vec![
-                    Box::new(format!("@dangerously_unaliased_fixme @{condition_name}")),
-                    Box::new(format!("@alias @{condition_name}")),
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
                 ]
             }
         }

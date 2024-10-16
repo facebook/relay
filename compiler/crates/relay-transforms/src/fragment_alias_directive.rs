@@ -191,12 +191,16 @@ impl<'program> FragmentAliasTransform<'program> {
             return;
         }
         if let Some(condition) = &self.maybe_condition {
-            self.errors.push(Diagnostic::error_with_data(
-                ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
-                    condition_name: condition.directive_name().to_string(),
-                },
-                condition.location,
-            ));
+            self.errors.push(
+                Diagnostic::error_with_data(
+                    ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
+                        fragment_name: spread.fragment.item,
+                        condition_name: condition.directive_name().to_string(),
+                    },
+                    spread.fragment.location,
+                )
+                .annotate("The condition is defined here:", condition.location),
+            );
             return;
         }
         if let Some(type_condition) = type_condition {

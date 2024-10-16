@@ -105,7 +105,8 @@ We've outlined two different ways that fragments can be unsafe in Relay today wi
 
 To experiment with this validation in your project today, you can enable the experimental `enforce_fragment_alias_where_ambiguous` compiler feature flag for your project. To enable incremental adoption of this enforcement, Relay exposes a directive `@dangerously_unaliased_fixme` which will suppress these enforcement errors. This will allow you to enable the enforcement for all new spreads without first needing to migrate all existing issues.
 
-The [Relay VSCode extension](../editor-support.md) offers quick fixes to add either `@alias` or `@dangerously_unaliased_fixme` to unsafe fragments.
+The [Relay VSCode extension](../editor-support.md) offers quick fixes to add either `@alias` or `@dangerously_unaliased_fixme` to unsafe fragments, and the
+[mark-dangerous-conditional-fragment-spreads](../codemods/#mark-dangerous-conditional-fragment-spreads) codemod can be used to apply `@dangerously_unaliased_fixme` across your entire project.
 
 ## Use with @required
 

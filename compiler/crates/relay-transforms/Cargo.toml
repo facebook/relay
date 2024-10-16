@@ -136,7 +136,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
-itertools = "0.12.1"
+itertools = "0.13.0"
 lazy_static = "1.4"
 parking_lot = { version = "0.12.1", features = ["send_guard"] }
 regex = "1.9.2"

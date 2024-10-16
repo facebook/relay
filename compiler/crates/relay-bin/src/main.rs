@@ -82,7 +82,7 @@ struct CodemodCommand {
     config: Option<PathBuf>,
 
     /// The name of the codemod to run
-    #[clap(long, short, value_enum)]
+    #[clap(subcommand)]
     codemod: AvailableCodemod,
 }
 

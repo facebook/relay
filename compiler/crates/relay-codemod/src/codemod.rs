@@ -8,8 +8,10 @@
 use std::fs;
 use std::sync::Arc;
 
-use clap::ValueEnum;
+use clap::Args;
+use clap::Subcommand;
 use common::FeatureFlag;
+use common::Rollout;
 use log::info;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
@@ -18,10 +20,17 @@ use relay_compiler::config::Config;
 use relay_transforms::fragment_alias_directive;
 use relay_transforms::Programs;
 
-#[derive(ValueEnum, Debug, Clone)]
+#[derive(Subcommand, Debug, Clone)]
 pub enum AvailableCodemod {
     /// Marks unaliased conditional fragment spreads as @dangerously_unaliased_fixme
-    MarkDangerousConditionalFragmentSpreads,
+    MarkDangerousConditionalFragmentSpreads(MarkDangerousConditionalFragmentSpreadsArgs),
+}
+
+#[derive(Args, Debug, Clone)]
+pub struct MarkDangerousConditionalFragmentSpreadsArgs {
+    /// If using a feature flag, specify the rollout percentage. If omitted, the codemod is fully enabled.
+    #[clap(long, short, value_parser=valid_percent)]
+    pub rollout_percentage: Option<u8>,
 }
 
 pub async fn run_codemod(
@@ -32,9 +41,13 @@ pub async fn run_codemod(
     let diagnostics = programs
         .iter()
         .flat_map(|programs| match &codemod {
-            AvailableCodemod::MarkDangerousConditionalFragmentSpreads => {
-                // TODO: Figure out how to accept FeatureFlag as an optional CLI argument
-                match fragment_alias_directive(&programs.source, &FeatureFlag::Enabled) {
+            AvailableCodemod::MarkDangerousConditionalFragmentSpreads(opts) => {
+                match fragment_alias_directive(
+                    &programs.source,
+                    &FeatureFlag::Rollout {
+                        rollout: Rollout(opts.rollout_percentage),
+                    },
+                ) {
                     Ok(_) => vec![],
                     Err(e) => e,
                 }
@@ -121,4 +134,15 @@ fn sort_changes(url: &Url, changes: &mut Vec<TextEdit>) -> Result<(), std::io::E
         prev_change = Some(change);
     }
     Ok(())
+}
+
+fn valid_percent(s: &str) -> Result<u8, String> {
+    // turn s into a u8
+    let s = s.parse::<u8>().map_err(|_| "not a number".to_string())?;
+    // check if s is less than 100
+    if (0..=100).contains(&s) {
+        Ok(s)
+    } else {
+        Err("number must be between 0 and 100, inclusive".to_string())
+    }
 }

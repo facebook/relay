@@ -20,24 +20,18 @@ available by running the Relay compiler's `codemod` command:
 > relay codemod --help
 Apply codemod (verification with auto-applied fixes)
 
-Usage: relay codemod [OPTIONS] --codemod <CODEMOD> [CONFIG]
+Usage: relay codemod [OPTIONS] [CONFIG] <COMMAND>
+
+Commands:
+  mark-dangerous-conditional-fragment-spreads  Marks unaliased conditional fragment spreads as @dangerously_unaliased_fixme
+  help                                         Print this message or the help of the given subcommand(s)
 
 Arguments:
-  [CONFIG]
-          Compile using this config file. If not provided, searches for a config in package.json under the `relay` key or `relay.config.json` files among other up from the current working directory
+  [CONFIG]  Compile using this config file. If not provided, searches for a config in package.json under the `relay` key or `relay.config.json` files among other up from the current working directory
 
 Options:
-  -p, --project <project>
-          Compile only this project. You can pass this argument multiple times. to compile multiple projects. If excluded, all projects will be compiled
-
-  -c, --codemod <CODEMOD>
-          The name of the codemod to run
-
-          Possible values:
-          - mark-dangerous-conditional-fragment-spreads: Marks unaliased conditional fragment spreads as @dangerously_unaliased_fixme
-
-  -h, --help
-          Print help (see a summary with '-h')
+  -p, --project <project>  Compile only this project. You can pass this argument multiple times. to compile multiple projects. If excluded, all projects will be compiled
+  -h, --help               Print help
 ```
 
 ## Available codemods

@@ -1143,6 +1143,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1433,7 +1442,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39b0deead1528fd0e5947a8546a9642a9777c25f6e1e26f34c97b204bbb465bd"
 dependencies = [
  "heck 0.4.1",
- "itertools",
+ "itertools 0.12.1",
  "proc-macro2",
  "proc-macro2-diagnostics",
  "quote",
@@ -1851,7 +1860,7 @@ dependencies = [
  "graphql-text-printer",
  "graphql-watchman",
  "intern",
- "itertools",
+ "itertools 0.13.0",
  "lazy_static",
  "log",
  "lsp-server",
@@ -1921,7 +1930,7 @@ dependencies = [
  "graphql-text-printer",
  "indexmap",
  "intern",
- "itertools",
+ "itertools 0.13.0",
  "lazy_static",
  "parking_lot",
  "regex",
@@ -1948,7 +1957,7 @@ dependencies = [
  "graphql-test-helpers",
  "indexmap",
  "intern",
- "itertools",
+ "itertools 0.13.0",
  "lazy_static",
  "regex",
  "relay-codegen",
@@ -2086,7 +2095,7 @@ dependencies = [
  "fixture-tests",
  "fnv",
  "intern",
- "itertools",
+ "itertools 0.13.0",
  "rayon",
  "schema",
  "tokio",

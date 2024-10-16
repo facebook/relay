@@ -1694,6 +1694,7 @@ name = "relay-codemod"
 version = "0.0.0"
 dependencies = [
  "clap",
+ "common",
  "log",
  "lsp-types",
  "relay-compiler",

@@ -14,7 +14,7 @@ Relay Resolvers must be enabled in your runtime code by using our experimental `
 ```ts
 import { Environment, RecordSource, RelayFeatureFlags } from "relay-runtime";
 // highlight-next-line
-import LiveResolverStore from "relay-runtime/lib/store/experimental-live-resolvers/LiveResolverStore";
+import LiveResolverStore from "relay-runtime/lib/store/live-resolvers/LiveResolverStore";
 
 RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
 
@@ -30,7 +30,7 @@ function fieldLogger(event) {
 const environment = new Environment({
   network: Network.create(/* your fetch function here */),
   store: new LiveResolverStore(new RecordSource()),
-  relayFieldLogger: fieldLogger
+  requiredFieldLogger: fieldLogger
 });
 
 // ... create your Relay context with your environment

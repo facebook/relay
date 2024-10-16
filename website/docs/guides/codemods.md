@@ -38,14 +38,20 @@ Options:
 
 The compiler currently has one available codemod:
 
-- **mark-dangerous-conditional-fragment-spreads**: This codemod finds fragment
-  spreads that are _dangerously unaliased_; that is, the fragment might not be
-  fetched due to a directive such as `@skip` or its inclusion on a mismatched
-  type within a union. If such a conditional fragment is not aliased with
-  `@alias`, there is no way for the resulting generated Flow or TypeScript types
-  to reflect its nullability. This codemod will add the
-  `@dangerously_unaliased_fixme` directive to such fragment spreads, indicating
-  to developers that there is a problem to be fixed. After applying this
-  codemod, the `enforce_fragment_alias_where_ambiguous` feature flag can be
-  enabled, which will ensure any future ambiguous fragment spreads must be
-  aliased.
+### mark-dangerous-conditional-fragment-spreads
+
+This codemod finds fragment spreads that are _dangerously unaliased_; that is,
+the fragment might not be fetched due to a directive such as `@skip` or its
+inclusion on a mismatched type within a union. If such a conditional fragment is
+not aliased with [`@alias`](../alias-directive/), there is no way for the
+resulting generated Flow or TypeScript types to reflect its nullability. This
+codemod will add the `@dangerously_unaliased_fixme` directive to such fragment
+spreads, indicating to developers that there is a problem to be fixed. After
+applying this codemod, the `enforce_fragment_alias_where_ambiguous` feature flag
+can be enabled, which will ensure any future ambiguous fragment spreads must be
+aliased.
+
+Since this codemod can potentially modify many files, there is an optional
+`--rollout` parameter which, if used alongside the
+`enforce_fragment_alias_where_ambiguous` feature flag in rollout mode, allows
+progressive codemod and enforcement of this validation.

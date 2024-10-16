@@ -17,6 +17,7 @@ import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 import type {ResolverFragmentResult} from './ResolverCache';
 
 const {getFragment} = require('../query/GraphQLTag');
+const {eventShouldThrow} = require('../util/handlePotentialSnapshotErrors');
 const {getSelector} = require('./RelayModernSelector');
 const invariant = require('invariant');
 
@@ -111,22 +112,23 @@ function readFragment(
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  const {data, isMissingData} = context.getDataForResolverFragment(
-    fragmentSelector,
-    fragmentKey,
-  );
+  const {data, isMissingData, errorResponseFields} =
+    context.getDataForResolverFragment(fragmentSelector, fragmentKey);
 
-  if (isMissingData) {
-    throw RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL;
+  if (
+    isMissingData ||
+    (errorResponseFields != null && errorResponseFields.some(eventShouldThrow))
+  ) {
+    throw RESOLVER_FRAGMENT_ERRORED_SENTINEL;
   }
 
   return data;
 }
 
-const RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL: mixed = {};
+const RESOLVER_FRAGMENT_ERRORED_SENTINEL: mixed = {};
 
 module.exports = {
   readFragment,
   withResolverContext,
-  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+  RESOLVER_FRAGMENT_ERRORED_SENTINEL,
 };

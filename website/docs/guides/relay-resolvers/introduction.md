@@ -5,7 +5,7 @@ slug: /guides/relay-resolvers/introduction
 description: An introduction to Relay Resolvers
 ---
 
-Relay Resolvers are a **experimental** Relay feature which allow you to augment Relay’s GraphQL graph with values that are known only on the client. This allows you to schematize client state in the same way that you model server state, and to use Relay’s familiar data-fetching APIs to access that state. Client state can include both data from client-side data stores as well as derived data that is computed from other values in the graph.
+Relay Resolvers are a Relay feature which allow you to augment Relay’s GraphQL graph with values that are known only on the client. This allows you to schematize client state in the same way that you model server state, and to use Relay’s familiar data-fetching APIs to access that state. Client state can include both data from client-side data stores as well as derived data that is computed from other values in the graph.
 
 By modeling derived and client state in the graph, Relay can present a unified data access API for product developers. All globally relevant data that a product engineer wants to access can be discovered and efficiently obtained from the same structured GraphQL schema. Additionally resolvers provide a number of runtime benefits:
 
@@ -26,10 +26,6 @@ Relay Resolvers are useful for modeling a number of different kinds of data. Her
 * **Legacy Data Stores** - During the adoption of Relay and GraphQL, data from pre-existing data layers, like Redux, can be exposed in the graph to ensure migrated and un-migrated portions of your app always remain in sync
 
 ## Defining a Resolver
-
-:::warning
-Because Resolvers are still an **experimental feature**, before you can begin to use Resolvers in Relay, you'll need to enable them. See [Enabling Relay Resolvers](./enabling.md) for instructions.
-:::
 
 Resolvers are defined using exported functions that are annotated with a special [`@RelayResolver` docblock](../../api-reference/relay-resolvers/docblock-format.md). These docblocks are visible to the Relay compiler, and allow the compiler to build up your client schema and automatically import your function in Relay’s generated artifacts. Resolver functions may be defined in any file in your Relay project, though you may wish to define some convention for where they live within your codebase.
 

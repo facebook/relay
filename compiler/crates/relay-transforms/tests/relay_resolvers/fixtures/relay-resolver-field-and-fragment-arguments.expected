@@ -43,6 +43,7 @@ fragment Foo_user on User {
   #     live: false,
   #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
+  #     type_confirmed: false,
   # }
    @arguments(fragment_arg: 1)
 }

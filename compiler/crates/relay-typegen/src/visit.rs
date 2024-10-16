@@ -402,13 +402,7 @@ fn generate_resolver_type(
 
     let ast = transform_type_reference_into_ast(&schema_field_type, |_| inner_ast);
 
-    let return_type = if matches!(
-        typegen_context.project_config.typegen_config.language,
-        TypegenLanguage::TypeScript
-    ) {
-        // TODO: Add proper support for Resolver type generation in typescript: https://github.com/facebook/relay/issues/4772
-        AST::Any
-    } else if resolver_metadata.live {
+    let return_type = if resolver_metadata.live {
         runtime_imports.resolver_live_state_type = true;
         AST::GenericType {
             outer: *LIVE_STATE_TYPE,
@@ -645,9 +639,16 @@ fn import_relay_resolver_function_type(
         None => None,
     };
 
-    let imported_resolver = ImportedResolver {
-        resolver_name,
-        resolver_type: generate_resolver_type(
+    let resolver_type = if resolver_metadata.type_confirmed
+        && typegen_context
+            .project_config
+            .feature_flags
+            .omit_resolver_type_assertions_for_confirmed_types
+            .is_fully_enabled()
+    {
+        None
+    } else {
+        Some(generate_resolver_type(
             typegen_context,
             input_object_types,
             encountered_enums,
@@ -659,7 +660,12 @@ fn import_relay_resolver_function_type(
             fragment_name,
             resolver_metadata,
             context_import,
-        ),
+        ))
+    };
+
+    let imported_resolver = ImportedResolver {
+        resolver_name,
+        resolver_type,
         import_path,
         context_import,
     };
@@ -1799,7 +1805,7 @@ fn make_result_type(typegen_context: &'_ TypegenContext<'_>, value: AST) -> AST 
 
     AST::GenericType {
         outer: *RESULT_TYPE_NAME,
-        inner: vec![value, AST::ReadOnlyArray(Box::new(error_type))],
+        inner: vec![value, error_type],
     }
 }
 

@@ -16,11 +16,11 @@ import type {ClientEdgeToClientObjectTest3Query$data} from './__generated__/Clie
 const {RelayFeatureFlags, commitLocalUpdate} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -29,14 +29,6 @@ const {
 
 disallowConsoleErrors();
 disallowWarnings();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 describe.each([true, false])(
   'AVOID_CYCLES_IN_RESOLVER_NOTIFICATION is %p',
@@ -85,7 +77,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -139,7 +131,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 
@@ -229,7 +221,7 @@ describe.each([true, false])(
       `;
 
       const operation = createOperationDescriptor(FooQuery, {});
-      const liveStore = new LiveResolverStore(source, {
+      const liveStore = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
 

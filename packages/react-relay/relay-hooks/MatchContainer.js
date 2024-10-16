@@ -95,7 +95,7 @@ export type MatchPointer = {
 
 export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {
   +fallback?: ?TFallback,
-  +loader: (module: mixed) => React.AbstractComponent<TProps>,
+  +loader: (module: mixed) => React.ComponentType<TProps>,
   +match: ?MatchPointer | ?TypenameOnlyPointer,
   +props?: TProps,
 };

@@ -15,7 +15,6 @@ use graphql_ir::Program;
 use relay_config::ProjectConfig;
 use relay_transforms::disallow_circular_no_inline_fragments;
 use relay_transforms::disallow_readtime_features_in_mutations;
-use relay_transforms::disallow_required_on_non_null_field;
 use relay_transforms::disallow_reserved_aliases;
 use relay_transforms::disallow_typename_on_root;
 use relay_transforms::validate_assignable_directive;
@@ -46,14 +45,11 @@ pub fn validate_reader(
     project_config: &ProjectConfig,
     additional_validations: &Option<AdditionalValidations>,
 ) -> DiagnosticsResult<WithDiagnostics<()>> {
-    let output = try_all(vec![
-        disallow_required_on_non_null_field(program),
-        if let Some(ref validate) = additional_validations {
-            validate(program, project_config)
-        } else {
-            Ok(())
-        },
-    ]);
+    let output = try_all(vec![if let Some(ref validate) = additional_validations {
+        validate(program, project_config)
+    } else {
+        Ok(())
+    }]);
 
     transform_errors(output, project_config)
 }
@@ -86,11 +82,7 @@ pub fn validate(
         validate_updatable_directive(program),
         validate_updatable_fragment_spread(program),
         validate_assignable_directive(program),
-        if project_config.feature_flags.enable_relay_resolver_transform {
-            validate_resolver_fragments(program)
-        } else {
-            Ok(())
-        },
+        validate_resolver_fragments(program),
         disallow_readtime_features_in_mutations(
             program,
             &project_config
@@ -128,6 +120,8 @@ fn validate_variables(
     }
 }
 
+// Diagnostics in the Ok case will not prevent later passes (like transforms) to be run.
+// Diagnostics in the Err case will stop compilation an no more passes will be run.
 fn transform_errors(
     output: Result<Vec<()>, Vec<common::Diagnostic>>,
     project_config: &ProjectConfig,

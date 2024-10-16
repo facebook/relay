@@ -16,7 +16,12 @@ const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const query = graphql`
   query useQueryLoaderTestQuery($id: ID!) {
@@ -755,11 +760,7 @@ describe.each([
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    if (ENABLE_ACTIVITY_COMPATIBILITY) {
-      expect(releaseQuery).toHaveBeenCalledTimes(0);
-      jest.runAllTimers();
-      expect(releaseQuery).toHaveBeenCalledTimes(1);
-    } else {
+    if (!ENABLE_ACTIVITY_COMPATIBILITY) {
       expect(releaseQuery).toHaveBeenCalledTimes(1);
     }
   });
@@ -812,11 +813,7 @@ describe.each([
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
-    if (ENABLE_ACTIVITY_COMPATIBILITY) {
-      expect(releaseQuery).toHaveBeenCalledTimes(0);
-      jest.runAllTimers();
-      expect(releaseQuery).toHaveBeenCalledTimes(1);
-    } else {
+    if (!ENABLE_ACTIVITY_COMPATIBILITY) {
       expect(releaseQuery).toHaveBeenCalledTimes(1);
     }
   });

@@ -22,8 +22,8 @@ const {RecordSource} = require('relay-runtime');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -31,14 +31,6 @@ const {
 
 disallowWarnings();
 disallowConsoleErrors();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 function EnvironmentWrapper({
   children,
@@ -57,7 +49,7 @@ function EnvironmentWrapper({
 let environment;
 let store;
 beforeEach(() => {
-  store = new LiveResolverStore(
+  store = new RelayModernStore(
     new RecordSource({
       'client:root': {
         __id: 'client:root',

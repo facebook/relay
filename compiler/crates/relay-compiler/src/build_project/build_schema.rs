@@ -21,7 +21,6 @@ use schema_validate_lib::SchemaValidationOptions;
 use super::build_resolvers_schema::build_resolver_types_schema_documents;
 use super::build_resolvers_schema::extend_schema_with_field_ir;
 use super::build_resolvers_schema::extract_docblock_ir;
-use super::build_resolvers_schema::ExtractedDocblockIr;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::ProjectConfig;
@@ -68,11 +67,7 @@ fn build_schema_impl(
 
     // Collect Relay Resolver schema IR
     let resolver_schema_data = log_event.time("collect_resolver_schema_time", || {
-        if project_config.feature_flags.enable_relay_resolver_transform {
-            extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
-        } else {
-            Ok(ExtractedDocblockIr::default())
-        }
+        extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
     })?;
 
     // Convert resolver schema to AST and append it to extension ASTs

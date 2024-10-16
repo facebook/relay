@@ -369,7 +369,6 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
-          missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: false,
           errorResponseFields: null,
@@ -414,18 +413,18 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingRequiredFields: null,
           missingLiveResolverFields: [],
           isMissingData: true,
           errorResponseFields: [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
-              },
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+            },
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
           ],
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
@@ -465,16 +464,16 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingRequiredFields: null,
           errorResponseFields: [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreSubscriptionsTest1Fragment',
-              },
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+            },
+            {
+              fieldPath: '',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
           ],
           missingLiveResolverFields: [],

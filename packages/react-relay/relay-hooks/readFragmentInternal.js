@@ -85,20 +85,11 @@ function handlePotentialSnapshotErrorsForState(
   if (state.kind === 'singular') {
     handlePotentialSnapshotErrors(
       environment,
-      state.snapshot.missingRequiredFields,
-      state.snapshot.relayResolverErrors,
       state.snapshot.errorResponseFields,
-      state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(
-        environment,
-        snapshot.missingRequiredFields,
-        snapshot.relayResolverErrors,
-        snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
-      );
+      handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
     }
   }
 }

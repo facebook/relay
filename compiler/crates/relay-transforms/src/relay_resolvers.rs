@@ -22,6 +22,7 @@ use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
@@ -68,13 +69,8 @@ use crate::REQUIRED_DIRECTIVE_NAME;
 ///
 /// See the docblock for `relay_resolvers_spread_transform` for more details
 /// about the resulting format.
-pub fn relay_resolvers(
-    project_name: ProjectName,
-    program: &Program,
-    enabled: bool,
-) -> DiagnosticsResult<Program> {
-    let transformed_fields_program =
-        relay_resolvers_fields_transform(project_name, program, enabled)?;
+pub fn relay_resolvers(project_name: ProjectName, program: &Program) -> DiagnosticsResult<Program> {
+    let transformed_fields_program = relay_resolvers_fields_transform(project_name, program)?;
     relay_resolvers_spread_transform(&transformed_fields_program)
 }
 
@@ -122,6 +118,7 @@ struct RelayResolverFieldMetadata {
     field_path: StringKey,
     live: bool,
     output_type_info: ResolverOutputTypeInfo,
+    type_confirmed: bool,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
@@ -141,6 +138,7 @@ pub struct RelayResolverMetadata {
         WithLocation<FragmentDefinitionName>,
         FragmentDataInjectionMode,
     )>,
+    pub type_confirmed: bool,
 }
 associated_data_impl!(RelayResolverMetadata);
 
@@ -253,6 +251,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                             *injection_mode,
                         )
                     }),
+                type_confirmed: field_metadata.type_confirmed,
             };
 
             let mut new_directives: Vec<Directive> = vec![resolver_metadata.into()];
@@ -339,9 +338,8 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
 fn relay_resolvers_fields_transform(
     project_name: ProjectName,
     program: &Program,
-    enabled: bool,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = RelayResolverFieldTransform::new(project_name, program, enabled);
+    let mut transform = RelayResolverFieldTransform::new(project_name, program);
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -355,17 +353,15 @@ fn relay_resolvers_fields_transform(
 
 struct RelayResolverFieldTransform<'program> {
     project_name: ProjectName,
-    enabled: bool,
     program: &'program Program,
     errors: Vec<Diagnostic>,
     path: Vec<&'program str>,
 }
 
 impl<'program> RelayResolverFieldTransform<'program> {
-    fn new(project_name: ProjectName, program: &'program Program, enabled: bool) -> Self {
+    fn new(project_name: ProjectName, program: &'program Program) -> Self {
         Self {
             program,
-            enabled,
             errors: Default::default(),
             path: Vec::new(),
             project_name,
@@ -384,13 +380,6 @@ impl<'program> RelayResolverFieldTransform<'program> {
             field.definition().location,
         )
         .and_then(|info| {
-            if !self.enabled {
-                self.errors.push(Diagnostic::error(
-                    ValidationMessage::RelayResolversDisabled,
-                    field.alias_or_name_location(),
-                ));
-                return None;
-            }
             match info {
                 Ok(ResolverInfo {
                     fragment_name,
@@ -399,6 +388,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     live,
                     has_output_type,
                     fragment_data_injection_mode,
+                    type_confirmed
                 }) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
@@ -496,6 +486,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         live,
                         output_type_info,
                         fragment_data_injection_mode,
+                        type_confirmed
                     };
 
                     let mut directives: Vec<Directive> = field.directives().to_vec();
@@ -612,6 +603,7 @@ pub struct ResolverInfo {
     pub import_name: Option<StringKey>,
     live: bool,
     has_output_type: bool,
+    type_confirmed: bool,
 }
 
 pub fn get_resolver_info(
@@ -644,6 +636,8 @@ pub fn get_resolver_info(
                 error_location,
             )
             .ok();
+            let type_confirmed =
+                get_bool_argument_is_true(arguments, *TYPE_CONFIRMED_ARGUMENT_NAME);
 
             Ok(ResolverInfo {
                 fragment_name,
@@ -673,6 +667,7 @@ pub fn get_resolver_info(
                         is_required: schema.field(injected_field_id).type_.is_non_null(),
                     }
                 }),
+                type_confirmed,
             })
         })
 }

@@ -19,7 +19,7 @@ const deepFreeze = require('../util/deepFreeze');
 const {generateClientObjectClientID, isClientID} = require('./ClientID');
 const {
   isSuspenseSentinel,
-} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
+} = require('./live-resolvers/LiveResolverSuspenseSentinel');
 const {
   ACTOR_IDENTIFIER_KEY,
   ERRORS_KEY,

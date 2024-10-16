@@ -68,7 +68,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             .into_iter()
             .collect(),
         },
-        enable_relay_resolver_transform: true,
         relay_resolver_enable_interface_output_type: FeatureFlag::Enabled,
         actor_change_support: FeatureFlag::Enabled,
         ..Default::default()

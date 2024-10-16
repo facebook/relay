@@ -50,8 +50,11 @@ const {
 } = require('../RelayStoreUtils');
 const {
   createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
   simpleClone,
 } = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
   if (!value) {
@@ -285,10 +288,8 @@ function cloneEventWithSets(event: LogEvent) {
             },
           },
           seenRecords: new Set(Object.keys(data)),
-          missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
-          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });
@@ -340,10 +341,8 @@ function cloneEventWithSets(event: LogEvent) {
             __fragmentOwner: owner.request,
           },
           seenRecords: new Set(Object.keys(data)),
-          missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
-          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });
@@ -399,10 +398,8 @@ function cloneEventWithSets(event: LogEvent) {
             },
           },
           seenRecords: new Set(['client:2', '4']),
-          missingRequiredFields: null,
           errorResponseFields: null,
           missingLiveResolverFields: [],
-          relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
         });
@@ -683,7 +680,6 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
-          missingRequiredFields: null,
           missingClientEdges: null,
           isMissingData: false,
           errorResponseFields: null,
@@ -728,7 +724,18 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingRequiredFields: null,
+          errorResponseFields: [
+            {
+              owner: 'RelayModernStoreTest5Fragment',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
+            },
+            {
+              owner: 'RelayModernStoreTest5Fragment',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
+            },
+          ],
           missingLiveResolverFields: [],
           missingClientEdges: null,
           isMissingData: true,
@@ -769,18 +776,18 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingRequiredFields: null,
           missingClientEdges: null,
           isMissingData: true,
           errorResponseFields: [
             {
-              error: {
-                message:
-                  'Relay: Missing data for one or more fields in RelayModernStoreTest5Fragment',
-              },
               owner: 'RelayModernStoreTest5Fragment',
-              type: 'MISSING_DATA',
-              path: '',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
+            },
+            {
+              owner: 'RelayModernStoreTest5Fragment',
+              kind: 'missing_expected_data.log',
+              fieldPath: '',
             },
           ],
           seenRecords: new Set(['842472']),

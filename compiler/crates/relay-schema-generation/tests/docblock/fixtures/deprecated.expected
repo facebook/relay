@@ -96,11 +96,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "dcf10bac1041d7f30f36c2bd311d01b8",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  age: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "age", import_path: "module.js") @resolver_source_hash(value: "dcf10bac1041d7f30f36c2bd311d01b8") @deprecated(reason: "Use `dateOfBirth` instead.")
+  age: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "age", import_path: "module.js") @resolver_source_hash(value: "dcf10bac1041d7f30f36c2bd311d01b8") @deprecated(reason: "Use `dateOfBirth` instead.")
 }
 
 
@@ -153,11 +154,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "dcf10bac1041d7f30f36c2bd311d01b8",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  breed: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "breed", import_path: "module.js") @resolver_source_hash(value: "dcf10bac1041d7f30f36c2bd311d01b8") @deprecated
+  breed: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "breed", import_path: "module.js") @resolver_source_hash(value: "dcf10bac1041d7f30f36c2bd311d01b8") @deprecated
 }
 
 
@@ -193,6 +195,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "dcf10bac1041d7f30f36c2bd311d01b8",
             ),
+            type_confirmed: true,
         },
     ),
 )

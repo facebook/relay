@@ -31,7 +31,8 @@ lazy_static = "1.4"
 once_cell = "1.12"
 schema = { path = "../schema" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "1.0.49"
+strum = { version = "0.26.2", features = ["derive"] }
+thiserror = "1.0.64"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

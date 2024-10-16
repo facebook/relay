@@ -122,11 +122,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "9eb0075d1ca5f38ce3ae8a364b4fb1be",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  favorite_page(id: Float!): ClientPage @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "favorite_page", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be")
+  favorite_page(id: Float!): ClientPage @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "favorite_page", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be")
 }
 
 
@@ -234,11 +235,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "9eb0075d1ca5f38ce3ae8a364b4fb1be",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  all_pages(limit: Float): [ClientPage!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "all_pages", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be")
+  all_pages(limit: Float): [ClientPage!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "all_pages", import_path: "module.js") @resolver_source_hash(value: "9eb0075d1ca5f38ce3ae8a364b4fb1be")
 }
 
 
@@ -269,6 +271,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "9eb0075d1ca5f38ce3ae8a364b4fb1be",
             ),
+            type_confirmed: true,
         },
     ),
 )
@@ -298,6 +301,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "9eb0075d1ca5f38ce3ae8a364b4fb1be",
             ),
+            type_confirmed: true,
         },
     ),
 )

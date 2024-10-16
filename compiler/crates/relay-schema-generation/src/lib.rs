@@ -155,14 +155,26 @@ impl Default for RelayResolverExtractor {
 
 impl RelayResolverExtractor {
     pub fn new() -> Self {
-        Self {
+        let mut self_ = Self {
             type_definitions: Default::default(),
             unresolved_field_definitions: Default::default(),
             resolved_field_definitions: vec![],
             module_resolutions: Default::default(),
             current_location: SourceLocationKey::generated(),
             custom_scalar_map: FnvIndexMap::default(),
-        }
+        };
+        self_.add_relay_runtime_flow_scalars();
+        self_
+    }
+
+    fn add_relay_runtime_flow_scalars(&mut self) {
+        self.custom_scalar_map.insert(
+            CustomType::Path(CustomTypeImport {
+                name: intern!("DataID"),
+                path: PathBuf::from_str("relay-runtime").unwrap(),
+            }),
+            ScalarName("ID".intern()),
+        );
     }
 
     pub fn set_custom_scalar_map(
@@ -170,6 +182,7 @@ impl RelayResolverExtractor {
         custom_scalar_types: &FnvIndexMap<ScalarName, CustomType>,
     ) -> DiagnosticsResult<()> {
         self.custom_scalar_map = invert_custom_scalar_map(custom_scalar_types)?;
+        self.add_relay_runtime_flow_scalars();
         Ok(())
     }
 
@@ -429,6 +442,7 @@ impl RelayResolverExtractor {
                             semantic_non_null_levels,
                             field.field_name.location,
                         ),
+                        type_confirmed: true,
                     });
                     Ok(())
                 }),
@@ -509,6 +523,7 @@ impl RelayResolverExtractor {
             implements_interfaces: vec![],
             source_hash,
             semantic_non_null: None,
+            type_confirmed: true,
         };
 
         // We ignore nullable annotation since both nullable and non-nullable types are okay for
@@ -585,6 +600,7 @@ impl RelayResolverExtractor {
             location: name.location,
             implements_interfaces: vec![],
             source_hash,
+            type_confirmed: true,
         };
         let haste_module_name = Path::new(source_module_path)
             .file_stem()
@@ -911,7 +927,7 @@ fn return_type_to_type_annotation(
     type_definitions: &FxHashMap<ModuleResolutionKey, DocblockIr>,
     use_semantic_non_null: bool,
 ) -> DiagnosticsResult<(TypeAnnotation, Vec<i64>)> {
-    let (return_type, mut is_optional) = schema_extractor::unwrap_nullable_type(return_type);
+    let (return_type, is_optional) = schema_extractor::unwrap_nullable_type(return_type);
     let mut semantic_non_null_levels: Vec<i64> = vec![];
 
     let location = to_location(source_location, return_type);
@@ -1026,20 +1042,16 @@ fn return_type_to_type_annotation(
                                 )]);
                             }
                         }
-                        "RelayResolverValue" => {
-                            // Special case for `RelayResolverValue`, it is always optional
-                            is_optional = true;
-                            TypeAnnotation::Named(NamedTypeAnnotation {
-                                name: Identifier {
+                        "RelayResolverValue" => TypeAnnotation::Named(NamedTypeAnnotation {
+                            name: Identifier {
+                                span: location.span(),
+                                token: Token {
                                     span: location.span(),
-                                    token: Token {
-                                        span: location.span(),
-                                        kind: TokenKind::Identifier,
-                                    },
-                                    value: intern!("RelayResolverValue"),
+                                    kind: TokenKind::Identifier,
                                 },
-                            })
-                        }
+                                value: intern!("RelayResolverValue"),
+                            },
+                        }),
                         _ => {
                             return Err(vec![Diagnostic::error(
                                 SchemaGenerationError::UnSupportedGeneric {

@@ -31,8 +31,10 @@ const {
 const {
   disallowWarnings,
   expectWarningWillFire,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const query = graphql`

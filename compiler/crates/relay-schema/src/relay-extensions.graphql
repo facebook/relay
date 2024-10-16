@@ -318,9 +318,17 @@ directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
 """
 (Relay Only)
 
-This directive allows users to opt out of validation which enforces that @alias
-be used on all fragment spreads which might not match. It is intended as an
-escape hatch for incremental adoption of enforcing `@alias`.
+**To resolve, replace `@dangerously_unaliased_fixme` with `@alias`**
+
+This fragment spread will only conditionally be fetched, either due to
+`@skip`/@include` or its type condition. Conditionally fetched fragments without
+an `@alias` are unsafe because they don't expose any mechanism for the user to
+check if the data was fetched before using the fragment. In these cases `@alias`
+will materialize the fragment as a nullable named property, ensuring the proper
+null checks are performed.
+
+We now require all such fragment spreads to use `@alias`, and have marked
+existing unsafe spreads with `@dangerously_unaliased_fixme`.
 
 DO NOT ADD NEW USES OF THIS DIRECTIVE.
 
@@ -337,3 +345,10 @@ If a non-static value is provided, it will result in a validation error.
 Used for arguments which are expected to be read by the Relay compiler.
 """
 directive @static on ARGUMENT_DEFINITION
+
+"""
+(Relay Only)
+
+Used for printing a query, need to be used with `debug_transform`
+"""
+directive @__debug on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION

@@ -15,22 +15,13 @@ import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 import RelayNetwork from '../../network/RelayNetwork';
 import {graphql} from '../../query/GraphQLTag';
-import RelayFeatureFlags from '../../util/RelayFeatureFlags';
-import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
 import RelayModernEnvironment from '../RelayModernEnvironment';
 import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
 import {createNormalizationSelector} from '../RelayModernSelector';
+import RelayModernStore from '../RelayModernStore';
 import RelayRecordSource from '../RelayRecordSource';
 import {mark} from '../RelayReferenceMarker';
 import {ROOT_ID} from '../RelayStoreUtils';
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 describe('RelayReferenceMarker', () => {
   let source;
@@ -978,7 +969,7 @@ describe('RelayReferenceMarker', () => {
         ),
       };
 
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
       const environment = new RelayModernEnvironment({

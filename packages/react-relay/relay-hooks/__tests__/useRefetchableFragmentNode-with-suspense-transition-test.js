@@ -27,7 +27,12 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useLayoutEffect, useTransition, useMemo, useState} = React;
 

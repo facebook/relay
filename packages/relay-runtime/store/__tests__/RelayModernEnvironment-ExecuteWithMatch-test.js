@@ -36,8 +36,10 @@ const nullthrows = require('nullthrows');
 const {
   cannotReadPropertyOfUndefined__DEPRECATED,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with @match', () => {

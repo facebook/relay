@@ -25,7 +25,7 @@ const NewsfeedQuery = graphql`
           url
         }
       }
-      image {
+      thumbnail {
         url
       }
     }
@@ -56,7 +56,7 @@ export default function Story({story}: Props) {
       <Heading>{story.title}</Heading>
       // change-line
       <Timestamp time={story.createdAt} /> // Add this line
-      <Image image={story.image} />
+      <Image image={story.thumbnail} />
       <StorySummary summary={story.summary} />
     </Card>
   );
@@ -95,7 +95,7 @@ const StoryFragment = graphql`
         url
       }
     }
-    image {
+    thumbnail {
       url
     }
   }
@@ -146,7 +146,7 @@ export default function Story({story}: Props) {
       <Heading>{data.title}</Heading>
       <PosterByline poster={data.poster} />
       <Timestamp time={data.createdAt} />
-      <Image image={data.image} />
+      <Image image={data.thumbnail} />
       <StorySummary summary={data.summary} />
     </Card>
   );

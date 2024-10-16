@@ -54,6 +54,11 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useMemo, useState} = React;
 
@@ -182,11 +187,7 @@ function resolveQuery(payload: mixed) {
 }
 
 function createFragmentRef(
-  id:
-    | $TEMPORARY$string<'node:1'>
-    | $TEMPORARY$string<'node:100'>
-    | $TEMPORARY$string<'node:2'>
-    | $TEMPORARY$string<'node:200'>,
+  id: string,
   owner: OperationDescriptor,
   fragmentName: string = 'usePaginationFragmentTestNestedUserFragment',
 ) {

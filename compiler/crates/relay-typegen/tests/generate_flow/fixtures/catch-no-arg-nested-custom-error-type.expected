@@ -13,7 +13,7 @@ import type { AComedyOfErrors } from "/all/the/worlds/a/stage";
 export type FooQuery$variables = {||};
 export type FooQuery$data = {|
   +me: ?{|
-    +firstName: Result<?string, $ReadOnlyArray<AComedyOfErrors>>,
+    +firstName: Result<?string, AComedyOfErrors>,
     +lastName: ?string,
   |},
 |};

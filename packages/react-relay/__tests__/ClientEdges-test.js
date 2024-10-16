@@ -14,30 +14,18 @@
 const React = require('react');
 const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
-const {
-  Environment,
-  Network,
-  RecordSource,
-  RelayFeatureFlags,
-  graphql,
-} = require('relay-runtime');
+const {Environment, Network, RecordSource, graphql} = require('relay-runtime');
 const RelayObservable = require('relay-runtime/network/RelayObservable');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 let networkSink;
 let environment;
@@ -51,7 +39,7 @@ beforeEach(() => {
   );
 
   environment = new Environment({
-    store: new LiveResolverStore(
+    store: new RelayModernStore(
       new RecordSource({
         'client:root': {
           __id: 'client:root',

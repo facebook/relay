@@ -72,11 +72,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "1b4f4f49bebe8b72971595382a3f9b57",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  fullName: FullName @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "1b4f4f49bebe8b72971595382a3f9b57")
+  fullName: FullName @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "1b4f4f49bebe8b72971595382a3f9b57")
 }
 
 
@@ -107,6 +108,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "1b4f4f49bebe8b72971595382a3f9b57",
             ),
+            type_confirmed: true,
         },
     ),
 )
@@ -136,6 +138,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "1b4f4f49bebe8b72971595382a3f9b57",
             ),
+            type_confirmed: true,
         },
     ),
 )

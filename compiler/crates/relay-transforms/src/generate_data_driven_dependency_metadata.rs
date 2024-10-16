@@ -20,7 +20,7 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
-use crate::util::get_fragment_filename;
+use crate::util::get_normalization_fragment_filename;
 use crate::ModuleMetadata;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -149,31 +149,37 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                 .program
                                 .schema
                                 .get_type_name(processing_item.parent_type.inner());
-                            module_entries
-                                .entry(id)
-                                .and_modify(|module_entry| {
-                                    module_entry.branches.insert(
-                                        type_name,
-                                        Branch {
-                                            component,
-                                            fragment: get_fragment_filename(fragment_name),
-                                        },
-                                    );
-                                })
-                                .or_insert(ModuleEntry {
-                                    branches: {
-                                        let mut map = StringKeyMap::default();
-                                        map.insert(
+                            if !module_metadata.read_time_resolvers {
+                                module_entries
+                                    .entry(id)
+                                    .and_modify(|module_entry| {
+                                        module_entry.branches.insert(
                                             type_name,
                                             Branch {
                                                 component,
-                                                fragment: get_fragment_filename(fragment_name),
+                                                fragment: get_normalization_fragment_filename(
+                                                    fragment_name,
+                                                ),
                                             },
                                         );
-                                        map
-                                    },
-                                    plural: processing_item.plural,
-                                });
+                                    })
+                                    .or_insert(ModuleEntry {
+                                        branches: {
+                                            let mut map = StringKeyMap::default();
+                                            map.insert(
+                                                type_name,
+                                                Branch {
+                                                    component,
+                                                    fragment: get_normalization_fragment_filename(
+                                                        fragment_name,
+                                                    ),
+                                                },
+                                            );
+                                            map
+                                        },
+                                        plural: processing_item.plural,
+                                    });
+                            }
                         }
                     }
                     Selection::Condition(condition) => {

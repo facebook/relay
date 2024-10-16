@@ -1,0 +1,25 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+import {DataID} from "relay-runtime";
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function cat_id(cat: CatFlowType): DataID {
+  return '';
+}

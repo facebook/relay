@@ -29,6 +29,7 @@ use lazy_static::lazy_static;
 use thiserror::Error;
 
 use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
+use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 lazy_static! {
     pub static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
@@ -67,11 +68,10 @@ impl<'s> InlineDataFragmentsTransform<'s> {
         inline_directive: &Directive,
         spread: &FragmentSpread,
     ) {
-        if let Some(not_allowed_directive) = spread
-            .directives
-            .iter()
-            .find(|directive| directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME)
-        {
+        if let Some(not_allowed_directive) = spread.directives.iter().find(|directive| {
+            directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME
+                && directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME
+        }) {
             self.errors.push(
                 Diagnostic::error(
                     ValidationMessage::InlineDataFragmentDirectivesNotSupported {

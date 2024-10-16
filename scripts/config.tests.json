@@ -53,7 +53,6 @@
         }
       },
       "featureFlags": {
-        "enable_relay_resolver_transform": true,
         "no_inline": {
           "kind": "enabled"
         },
@@ -65,7 +64,10 @@
         }
       },
       "language": "flow",
-      "resolverContextType": { "name": "TestResolverContextType", "path": "packages/relay-runtime/mutations/__tests__/TestResolverContextType" }
+      "resolverContextType": {
+        "name": "TestResolverContextType",
+        "path": "packages/relay-runtime/mutations/__tests__/TestResolverContextType"
+      }
     }
   },
   "isDevVariableName": "__DEV__"

@@ -205,8 +205,11 @@ module.exports = {
           'Relay Runtime': [
             'api-reference/relay-runtime/fetch-query',
             'api-reference/relay-runtime/store',
+            'api-reference/relay-runtime/field-logger',
             'api-reference/relay-runtime/commit-mutation',
             'api-reference/relay-runtime/request-subscription',
+            'api-reference/relay-runtime/observe-fragment',
+            'api-reference/relay-runtime/wait-for-fragment-data',
           ],
         },
         {

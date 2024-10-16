@@ -69,6 +69,11 @@ export type User__pop_star_name$normalization = {
 -------------------------------------------------------------------------------
 import type { FragmentRefs } from "relay-runtime";
 import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolverType satisfies (
+  rootKey: PopStarNameResolverFragment_name$key,
+) => User__pop_star_name$normalization | null | undefined);
 export type Foo_user$data = {
   readonly poppy: {
     readonly name: string | null | undefined;

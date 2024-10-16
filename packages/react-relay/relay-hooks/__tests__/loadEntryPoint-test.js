@@ -283,7 +283,7 @@ describe('with respect to loadQuery', () => {
     };
     const env = createMockEnvironment();
     const entryPoint = {
-      getPreloadProps(params: $TEMPORARY$object<{...}>) {
+      getPreloadProps(params: $ReadOnly<{...}>) {
         return {
           queries: {
             myTestQuery,
@@ -314,7 +314,7 @@ describe('with respect to loadQuery', () => {
   it('it should return a dispose callback that calls loadQuery(...).dispose', () => {
     const env = createMockEnvironment();
     const entryPoint = {
-      getPreloadProps(params: $TEMPORARY$object<{...}>) {
+      getPreloadProps(params: $ReadOnly<{...}>) {
         return {
           queries: {
             myTestQuery: {

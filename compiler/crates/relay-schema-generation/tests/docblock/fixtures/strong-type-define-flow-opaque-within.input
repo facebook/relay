@@ -1,0 +1,37 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+export opaque type CatFlowType = {id: string}
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function name(cat: CatFlowType): ?string {
+  return "cat";
+}
+
+
+//- Cat-fields.js
+
+import type {CatFlowType} from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function age(cat: CatFlowType): ?number {
+  return 2;
+}

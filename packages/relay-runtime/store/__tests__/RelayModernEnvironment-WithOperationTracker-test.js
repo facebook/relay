@@ -25,8 +25,12 @@ const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each([true, false])(

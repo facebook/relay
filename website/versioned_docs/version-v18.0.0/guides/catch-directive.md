@@ -160,7 +160,7 @@ other fields that are not under a `@catch` will still not throw - because
 `@throwOnFieldError` would be missing.
 
 Read more about `@throwOnFieldError`
-[here](https://relay.dev/docs/next/api-reference/graphql-and-directives/#throwonfielderror-experimental).
+[here](https://relay.dev/docs/next/api-reference/graphql-and-directives/#throwonfielderror).
 
 ## `@catch` arguments
 

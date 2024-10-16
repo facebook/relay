@@ -70,7 +70,7 @@ export function name(dog: DogFlowType): ?string {
     6 │   return 5;
 
 
-✖︎ Failed to find type definition for `DogFlowType` using a default import from module `Dog.flow`. Please make sure `DogFlowType` is imported using a named or default import and that it is a resolver type
+✖︎ Failed to find @RelayResolver type definition for `DogFlowType` using a default import from module `Dog.flow`. Please make sure `DogFlowType` is either defined locally or imported using a named or default import and that it is a resolver type
 
   Dog-name.js:7:27
     6 │  */

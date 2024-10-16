@@ -14,7 +14,7 @@
 const {
   getFragmentResourceForEnvironment,
 } = require('react-relay/relay-hooks/legacy/FragmentResource');
-const {RelayFeatureFlags, getFragment} = require('relay-runtime');
+const {getFragment} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   createOperationDescriptor,
@@ -27,14 +27,6 @@ const {
 
 disallowWarnings();
 disallowConsoleErrors();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 const BASIC_QUERY = graphql`
   query FragmentResourceClientEdgesTest1Query($id: ID!) {

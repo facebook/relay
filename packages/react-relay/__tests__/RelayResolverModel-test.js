@@ -42,14 +42,16 @@ const {
 const {
   LiveColorSubscriptions,
 } = require('relay-runtime/store/__tests__/resolvers/TodoDescription');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
@@ -59,13 +61,8 @@ function logFn(event: LogEvent): void {
 }
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   logEvents = [];
   resetStore(logFn);
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 function EnvironmentWrapper({
@@ -92,7 +89,7 @@ describe.each([true, false])(
         let environment;
         let store;
         beforeEach(() => {
-          store = new LiveResolverStore(RelayRecordSource.create(), {
+          store = new RelayModernStore(RelayRecordSource.create(), {
             log: logFn,
           });
           environment = new RelayModernEnvironment({

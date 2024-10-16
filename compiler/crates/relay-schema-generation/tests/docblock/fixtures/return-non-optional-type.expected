@@ -170,11 +170,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  live_maybe_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_maybe_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
+  live_maybe_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "live_maybe_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
 }
 
 
@@ -238,11 +239,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  live_maybe_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_maybe_plural_maybe_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
+  live_maybe_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "live_maybe_plural_maybe_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
 }
 
 
@@ -319,11 +321,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "plural_maybe_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+  plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "plural_maybe_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -392,11 +395,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  maybe_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "maybe_plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
+  maybe_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "maybe_plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
 }
 
 
@@ -456,11 +460,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  maybe_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "maybe_plural_maybe_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
+  maybe_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "maybe_plural_maybe_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36")
 }
 
 
@@ -524,11 +529,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  fullName: FullName @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+  fullName: FullName @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "fullName", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -592,11 +598,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -664,11 +671,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  live_name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+  live_name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "live_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -754,11 +762,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+  plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "plural_name", import_path: "module.js") @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -848,11 +857,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  live_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+  live_plural_name: [String!] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "live_plural_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -933,11 +943,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  live_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "live_plural_maybe_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
+  live_plural_maybe_name: [String] @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "live_plural_maybe_name", import_path: "module.js", live: true) @resolver_source_hash(value: "b97d5d4b012e01a0c3070bd919062a36") @semanticNonNull
 }
 
 
@@ -968,6 +979,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )
@@ -997,6 +1009,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
+            type_confirmed: true,
         },
     ),
 )

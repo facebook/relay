@@ -18,8 +18,7 @@ const path = require('path');
 
 const babelOptions = getBabelOptions({
   env: 'test',
-  // Tests use a Promise polyfill so they can use jest.runAllTimers().
-  autoImport: true,
+  autoImport: false,
   plugins: [
     './dist/babel-plugin-relay',
     '@babel/plugin-transform-flow-strip-types',
@@ -27,7 +26,6 @@ const babelOptions = getBabelOptions({
     '@babel/plugin-proposal-nullish-coalescing-operator',
     '@babel/plugin-proposal-optional-catch-binding',
     '@babel/plugin-proposal-optional-chaining',
-    '@babel/plugin-transform-async-to-generator',
     'babel-plugin-syntax-hermes-parser',
   ],
 });

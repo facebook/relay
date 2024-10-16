@@ -15,18 +15,18 @@ import type {Snapshot} from '../../RelayStoreTypes';
 const {
   live_external_greeting: LiveExternalGreeting,
 } = require('./LiveExternalGreeting');
-const {RelayFeatureFlags, suspenseSentinel} = require('relay-runtime');
+const {suspenseSentinel} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   GLOBAL_STORE,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -37,12 +37,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   resetStore();
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 test('unsubscribe happens when record is updated due to missing data', () => {
@@ -81,7 +76,7 @@ test('unsubscribe happens when record is updated due to missing data', () => {
     `,
     {},
   );
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
   const environment = new RelayModernEnvironment({
@@ -146,7 +141,7 @@ test('Updates can be batched', () => {
     {},
   );
   const log = jest.fn();
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
     log,
   });
@@ -252,7 +247,7 @@ test('Errors thrown during _initial_ read() are caught as resolver errors', () =
     `,
     {},
   );
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
   const environment = new RelayModernEnvironment({
@@ -261,13 +256,14 @@ test('Errors thrown during _initial_ read() are caught as resolver errors', () =
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([
+  expect(snapshot.errorResponseFields).toEqual([
     {
+      kind: 'relay_resolver.error',
       error: Error('What?'),
-      field: {
-        owner: 'LiveResolversTestHandlesErrorOnReadQuery',
-        path: 'counter_throws_when_odd',
-      },
+      owner: 'LiveResolversTestHandlesErrorOnReadQuery',
+      fieldPath: 'counter_throws_when_odd',
+      shouldThrow: false,
+      handled: false,
     },
   ]);
   const data: $FlowExpectedError = snapshot.data;
@@ -289,7 +285,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
     `,
     {},
   );
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
   const environment = new RelayModernEnvironment({
@@ -303,7 +299,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
   environment.subscribe(snapshot, handler);
 
   // Confirm there are no initial errors
-  expect(snapshot.relayResolverErrors).toEqual([]);
+  expect(snapshot.errorResponseFields).toEqual(null);
   const data: $FlowExpectedError = snapshot.data;
   expect(data.counter_throws_when_odd).toBe(0);
 
@@ -314,13 +310,14 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
 
   const nextSnapshot = handler.mock.calls[0][0];
 
-  expect(nextSnapshot.relayResolverErrors).toEqual([
+  expect(nextSnapshot.errorResponseFields).toEqual([
     {
+      kind: 'relay_resolver.error',
       error: Error('What?'),
-      field: {
-        owner: 'LiveResolversTestHandlesErrorOnUpdateQuery',
-        path: 'counter_throws_when_odd',
-      },
+      owner: 'LiveResolversTestHandlesErrorOnUpdateQuery',
+      fieldPath: 'counter_throws_when_odd',
+      shouldThrow: false,
+      handled: false,
     },
   ]);
   const nextData: $FlowExpectedError = nextSnapshot.data;
@@ -334,7 +331,88 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
   const finalSnapshot = handler.mock.calls[0][0];
 
   // Confirm there are no initial errors
-  expect(finalSnapshot.relayResolverErrors).toEqual([]);
+  expect(finalSnapshot.errorResponseFields).toEqual(null);
   const finalData: $FlowExpectedError = finalSnapshot.data;
   expect(finalData.counter_throws_when_odd).toBe(2);
+});
+
+test('Reflects optimistic updates, and reverts of optimistic updates', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '4'},
+    },
+    '4': {
+      __id: '4',
+      __typename: 'User',
+      name: 'Alice',
+    },
+  });
+  const operation = createOperationDescriptor(
+    graphql`
+      query LiveResolversTestOptimisticUpdatesQuery {
+        me {
+          greeting
+        }
+      }
+    `,
+    {},
+  );
+
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+
+  // When we start we greet Alice
+  expect(snapshot.data).toEqual({me: {greeting: 'Hello, Alice!'}});
+
+  const handler = jest.fn<[Snapshot], void>();
+  environment.subscribe(snapshot, handler);
+
+  const mutationSub = environment.applyMutation({
+    operation: createOperationDescriptor(
+      graphql`
+        mutation LiveResolversTestOptimisticUpdatesMutation(
+          $input: ActorNameChangeInput!
+        ) {
+          actorNameChange(input: $input) {
+            actor {
+              name
+            }
+          }
+        }
+      `,
+      {input: {newName: 'Bob'}},
+    ),
+    response: {
+      actorNameChange: {
+        actor: {
+          __typename: 'User',
+          id: '4',
+          name: 'Bob',
+        },
+      },
+    },
+    updater: null,
+  });
+
+  // In optimistic state we greet Bob
+  expect(handler.mock.calls.length).toBe(1);
+  expect(handler.mock.calls[0][0].data).toEqual({
+    me: {greeting: 'Hello, Bob!'},
+  });
+
+  mutationSub.dispose();
+  // When the optimistic update is disposed we greet Alice again
+  expect(handler.mock.calls.length).toBe(2);
+  expect(handler.mock.calls[1][0].data).toEqual({
+    me: {greeting: 'Hello, Alice!'},
+  });
 });

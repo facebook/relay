@@ -111,7 +111,7 @@ test('Logs if a @required(action: LOG) field is null', () => {
   );
   expect(relayFieldLogger).toHaveBeenCalledWith({
     fieldPath: 'alternate_name',
-    kind: 'missing_field.log',
+    kind: 'missing_required_field.log',
     owner: 'FragmentResourceRequiredFieldTestUserFragment',
   });
 });
@@ -174,8 +174,9 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
 
   expect(relayFieldLogger).toHaveBeenCalledWith({
     fieldPath: 'name',
-    kind: 'missing_field.throw',
+    kind: 'missing_required_field.throw',
     owner: 'FragmentResourceRequiredFieldTestUserFragment',
+    handled: false,
   });
 
   disposable.dispose();

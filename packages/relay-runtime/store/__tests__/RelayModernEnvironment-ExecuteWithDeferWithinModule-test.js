@@ -36,8 +36,13 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
-const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectToWarn,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 function createOperationLoader() {

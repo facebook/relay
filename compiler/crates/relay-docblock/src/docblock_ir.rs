@@ -268,6 +268,7 @@ fn parse_strong_object_ir(
         implements_interfaces,
         source_hash,
         semantic_non_null: None,
+        type_confirmed: false,
     })
 }
 
@@ -305,6 +306,7 @@ fn parse_weak_object_ir(
         location,
         implements_interfaces,
         source_hash,
+        type_confirmed: false,
     })
 }
 
@@ -401,6 +403,7 @@ fn parse_terse_relay_resolver_ir(
         semantic_non_null,
         fragment_arguments,
         source_hash,
+        type_confirmed: false,
     })
 }
 

@@ -29,6 +29,7 @@ use crate::build_project::BuildProjectFailure;
 use crate::compiler_state::ArtifactMapKind;
 use crate::compiler_state::CompilerState;
 use crate::compiler_state::DocblockSources;
+use crate::compiler_state::FullSources;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
@@ -378,6 +379,9 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
             get_removed_docblock_artifact_source_keys(compiler_state.docblocks.get(&project_name));
 
         removed_artifact_sources.extend(removed_docblock_artifact_sources);
+        removed_artifact_sources.extend(get_removed_full_sources(
+            compiler_state.full_sources.get(&project_name),
+        ));
 
         let dirty_artifact_paths = compiler_state
             .dirty_artifact_paths
@@ -480,9 +484,25 @@ fn get_removed_docblock_artifact_source_keys(
                 }
             }
         }
-
-        removed_docblocks
-    } else {
-        vec![]
     }
+
+    removed_docblocks
+}
+
+/// Get the list of removed full sources.
+fn get_removed_full_sources(full_sources: Option<&FullSources>) -> Vec<ArtifactSourceKey> {
+    let mut removed_full_sources: Vec<ArtifactSourceKey> = vec![];
+    if let Some(full_sources) = full_sources {
+        for (file, source) in full_sources.pending.iter() {
+            if source.is_empty() {
+                if let Some(text) = full_sources.processed.get(file) {
+                    // For now, full sources are only used for ResolverHash
+                    removed_full_sources.push(ArtifactSourceKey::ResolverHash(
+                        ResolverSourceHash::new(text),
+                    ))
+                }
+            }
+        }
+    }
+    removed_full_sources
 }

@@ -34,10 +34,10 @@ let renderSpy;
 
 hook useFragmentNode(
   fragmentNode: ReaderFragment,
-  fragmentRef: $TEMPORARY$object<{
+  fragmentRef: $ReadOnly<{
     __fragmentOwner: RequestDescriptor,
-    __fragments: $TEMPORARY$object<{
-      useFragmentNodeRequiredTestUserFragment: $TEMPORARY$object<{...}>,
+    __fragments: $ReadOnly<{
+      useFragmentNodeRequiredTestUserFragment: $ReadOnly<{...}>,
     }>,
     __id: any,
   }>,
@@ -91,7 +91,7 @@ beforeEach(() => {
 
   const ContextProvider = ({
     children,
-  }: any | $TEMPORARY$object<{children: React.Node}>) => {
+  }: any | $ReadOnly<{children: React.Node}>) => {
     return (
       <ReactRelayContext.Provider value={{environment}}>
         {children}

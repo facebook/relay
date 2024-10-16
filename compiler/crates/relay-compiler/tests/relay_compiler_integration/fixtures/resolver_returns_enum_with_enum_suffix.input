@@ -28,7 +28,6 @@ graphql`fragment SomeComponentFragment on User {
   ],
   "enumModuleSuffix": ".LOL_WHAT",
   "featureFlags": {
-    "enable_relay_resolver_transform": true,
     "enable_resolver_normalization_ast": true
   }
 }

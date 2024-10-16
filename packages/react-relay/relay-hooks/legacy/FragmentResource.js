@@ -452,7 +452,7 @@ class FragmentResourceImpl {
       missingLiveResolverFields(snapshot)?.map(({liveStateID}) => {
         const store = environment.getStore();
 
-        // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
+        // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
         return store.getLiveResolverPromise(liveStateID);
       }) ?? [];
 
@@ -559,21 +559,12 @@ class FragmentResourceImpl {
   _throwOrLogErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
-        handlePotentialSnapshotErrors(
-          this._environment,
-          s.missingRequiredFields,
-          s.relayResolverErrors,
-          s.errorResponseFields,
-          s.selector.node.metadata?.throwOnFieldError ?? false,
-        );
+        handlePotentialSnapshotErrors(this._environment, s.errorResponseFields);
       });
     } else {
       handlePotentialSnapshotErrors(
         this._environment,
-        snapshot.missingRequiredFields,
-        snapshot.relayResolverErrors,
         snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
       );
     }
   }
@@ -773,8 +764,6 @@ class FragmentResourceImpl {
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      missingRequiredFields: currentSnapshot.missingRequiredFields,
-      relayResolverErrors: currentSnapshot.relayResolverErrors,
       errorResponseFields: currentSnapshot.errorResponseFields,
     };
     if (updatedData !== renderData) {

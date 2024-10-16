@@ -15,6 +15,9 @@ import type {Snapshot} from '../RelayStoreTypes';
 const {
   constant_dependent: UserConstantDependentResolver,
 } = require('./resolvers/UserConstantDependentResolver');
+const {
+  requiredThrowNameCalls,
+} = require('./resolvers/UserRequiredThrowNameResolver');
 const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
@@ -22,8 +25,7 @@ const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   LiveResolverCache,
-} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverCache');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+} = require('relay-runtime/store/live-resolvers/LiveResolverCache');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -44,12 +46,7 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
 afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
   // The call count of the resolver used in this test
   UserConstantDependentResolver._relayResolverTestCallCount = undefined;
 });
@@ -67,7 +64,7 @@ describe.each([true, false])(
       {
         name: 'LiveResolverCache',
         ResolverCache: LiveResolverCache,
-        RelayStore: LiveResolverStore,
+        RelayStore: RelayModernStore,
       },
     ])('Relay Resolver with $name', ({ResolverCache, RelayStore}) => {
       it('returns the result of the resolver function', () => {
@@ -208,10 +205,12 @@ describe.each([true, false])(
           const {errorResponseFields} = store.lookup(operation.fragment);
           expect(errorResponseFields).toEqual([
             {
+              fieldPath: 'me.lastName',
+              kind: 'relay_field_payload.error',
               error: {message: 'There was an error!', path: ['me', 'lastName']},
               owner: 'RelayReaderResolverTestFieldErrorQuery',
-              type: 'PAYLOAD_ERROR',
-              path: 'me.lastName',
+              shouldThrow: false,
+              handled: false,
             },
           ]);
         });
@@ -241,21 +240,43 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {});
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-        const {missingRequiredFields} = store.lookup(operation.fragment);
-        expect(missingRequiredFields).toEqual({
-          action: 'LOG',
-          fields: [{owner: 'UserRequiredNameResolver', path: 'name'}],
-        });
+        const {errorResponseFields} = store.lookup(operation.fragment);
+        expect(errorResponseFields).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+          {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredQuery',
+            shouldThrow: false,
+            handled: false,
+          },
+        ]);
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
-        const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
+        const {errorResponseFields: missingRequiredFieldsTakeTwo} =
           store.lookup(operation.fragment);
 
-        expect(missingRequiredFieldsTakeTwo).toEqual({
-          action: 'LOG',
-          fields: [{owner: 'UserRequiredNameResolver', path: 'name'}],
-        });
+        expect(missingRequiredFieldsTakeTwo).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+          {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredQuery',
+            shouldThrow: false,
+            handled: false,
+          },
+        ]);
       });
 
       it('propagates missing data errors from the resolver up to the reader', () => {
@@ -319,33 +340,109 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {});
         const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-        const {missingRequiredFields} = store.lookup(operation.fragment);
-        expect(missingRequiredFields).toEqual({
-          action: 'LOG',
-          fields: [
-            {owner: 'UserRequiredNameResolver', path: 'name'},
-            {
-              owner: 'RelayReaderResolverTestRequiredWithParentQuery',
-              path: 'me.lastName',
-            },
-          ],
-        });
+        const {errorResponseFields} = store.lookup(operation.fragment);
+        expect(errorResponseFields).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+          {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            shouldThrow: false,
+            handled: false,
+          },
+          {
+            kind: 'missing_required_field.log',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            fieldPath: 'me.lastName',
+          },
+        ]);
 
         // Lookup a second time to ensure that we still report the missing fields when
         // reading from the cache.
-        const {missingRequiredFields: missingRequiredFieldsTakeTwo} =
+        const {errorResponseFields: missingRequiredFieldsTakeTwo} =
           store.lookup(operation.fragment);
 
-        expect(missingRequiredFieldsTakeTwo).toEqual({
-          action: 'LOG',
-          fields: [
-            {owner: 'UserRequiredNameResolver', path: 'name'},
-            {
-              owner: 'RelayReaderResolverTestRequiredWithParentQuery',
-              path: 'me.lastName',
-            },
-          ],
+        expect(missingRequiredFieldsTakeTwo).toEqual([
+          {
+            kind: 'missing_required_field.log',
+            owner: 'UserRequiredNameResolver',
+            fieldPath: 'name',
+          },
+          {
+            error: expect.anything(),
+            fieldPath: 'me.required_name',
+            kind: 'relay_resolver.error',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            shouldThrow: false,
+            handled: false,
+          },
+          {
+            kind: 'missing_required_field.log',
+            owner: 'RelayReaderResolverTestRequiredWithParentQuery',
+            fieldPath: 'me.lastName',
+          },
+        ]);
+      });
+
+      it('propagates @required(action: THROW) errors from the resolver up to the reader and avoid calling resolver code', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            me: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            id: '1',
+            __typename: 'User',
+            name: null, // The missing field
+          },
         });
+        const FooQuery = graphql`
+          query RelayReaderResolverTestRequiredThrowQuery {
+            me {
+              required_throw_name
+            }
+          }
+        `;
+
+        const operation = createOperationDescriptor(FooQuery, {});
+        const store = new RelayStore(source, {gcReleaseBufferSize: 0});
+
+        const beforeCallCount = requiredThrowNameCalls.count;
+        const {errorResponseFields, data} = store.lookup(operation.fragment);
+        expect(data).toEqual({me: {required_throw_name: null}});
+        expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
+        expect(errorResponseFields).toEqual([
+          {
+            kind: 'missing_required_field.throw',
+            owner: 'UserRequiredThrowNameResolver',
+            fieldPath: 'name',
+            handled: true,
+          },
+        ]);
+
+        // Lookup a second time to ensure that we still report the missing fields when
+        // reading from the cache.
+        const {
+          errorResponseFields: missingRequiredFieldsTakeTwo,
+          data: dataTakeTwo,
+        } = store.lookup(operation.fragment);
+
+        expect(dataTakeTwo).toEqual({me: {required_throw_name: null}});
+        expect(missingRequiredFieldsTakeTwo).toEqual([
+          {
+            kind: 'missing_required_field.throw',
+            owner: 'UserRequiredThrowNameResolver',
+            fieldPath: 'name',
+            handled: true,
+          },
+        ]);
       });
 
       it('works when the field is aliased', () => {
@@ -902,40 +999,6 @@ describe.each([true, false])(
         subscription.dispose();
       });
 
-      it('errors if the ENABLE_RELAY_RESOLVERS feature flag is not enabled', () => {
-        RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-
-        const source = RelayRecordSource.create({
-          'client:root': {
-            __id: 'client:root',
-            __typename: '__Root',
-            me: {__ref: '1'},
-          },
-          '1': {
-            __id: '1',
-            id: '1',
-            __typename: 'User',
-            name: 'Alice',
-          },
-        });
-
-        const FooQuery = graphql`
-          query RelayReaderResolverTest7Query {
-            me {
-              greeting
-            }
-          }
-        `;
-
-        const operation = createOperationDescriptor(FooQuery, {});
-
-        expect(() => {
-          read(source, operation.fragment);
-        }).toThrowErrorMatchingInlineSnapshot(
-          '"Relay Resolver fields are not yet supported."',
-        );
-      });
-
       it('Bubbles null when @required', () => {
         const source = RelayRecordSource.create({
           'client:root': {
@@ -996,27 +1059,28 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-        const {data, relayResolverErrors} = read(
+        const {data, errorResponseFields} = read(
           source,
           operation.fragment,
           resolverCache,
         );
 
         expect(data).toEqual({me: {always_throws: null}}); // Resolver result
-        expect(relayResolverErrors).toMatchInlineSnapshot(`
+        expect(errorResponseFields).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "RelayReaderResolverTest12Query",
-            "path": "me.always_throws",
-          },
+          "fieldPath": "me.always_throws",
+          "handled": false,
+          "kind": "relay_resolver.error",
+          "owner": "RelayReaderResolverTest12Query",
+          "shouldThrow": false,
         },
       ]
     `);
 
         // Subsequent read should also read the same error/path
-        const {data: data2, relayResolverErrors: relayResolverErrors2} = read(
+        const {data: data2, errorResponseFields: relayResolverErrors2} = read(
           source,
           operation.fragment,
           resolverCache,
@@ -1027,10 +1091,11 @@ describe.each([true, false])(
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "RelayReaderResolverTest12Query",
-            "path": "me.always_throws",
-          },
+          "fieldPath": "me.always_throws",
+          "handled": false,
+          "kind": "relay_resolver.error",
+          "owner": "RelayReaderResolverTest12Query",
+          "shouldThrow": false,
         },
       ]
     `);
@@ -1062,27 +1127,28 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-        const {data, relayResolverErrors} = read(
+        const {data, errorResponseFields} = read(
           source,
           operation.fragment,
           resolverCache,
         );
 
         expect(data).toEqual({me: {always_throws_transitively: null}}); // Resolver result
-        expect(relayResolverErrors).toMatchInlineSnapshot(`
+        expect(errorResponseFields).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "UserAlwaysThrowsTransitivelyResolver",
-            "path": "always_throws",
-          },
+          "fieldPath": "always_throws",
+          "handled": true,
+          "kind": "relay_resolver.error",
+          "owner": "UserAlwaysThrowsTransitivelyResolver",
+          "shouldThrow": false,
         },
       ]
     `);
 
         // Subsequent read should also read the same error/path
-        const {data: data2, relayResolverErrors: relayResolverErrors2} = read(
+        const {data: data2, errorResponseFields: relayResolverErrors2} = read(
           source,
           operation.fragment,
           resolverCache,
@@ -1093,10 +1159,11 @@ describe.each([true, false])(
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
-          "field": Object {
-            "owner": "UserAlwaysThrowsTransitivelyResolver",
-            "path": "always_throws",
-          },
+          "fieldPath": "always_throws",
+          "handled": true,
+          "kind": "relay_resolver.error",
+          "owner": "UserAlwaysThrowsTransitivelyResolver",
+          "shouldThrow": false,
         },
       ]
     `);
@@ -1121,21 +1188,22 @@ describe.each([true, false])(
 
         const operation = createOperationDescriptor(FooQuery, {});
 
-        const {data, relayResolverErrors} = read(
+        const {data, errorResponseFields} = read(
           source,
           operation.fragment,
           resolverCache,
         );
 
         expect(data).toEqual({throw_before_read: null}); // Resolver result
-        expect(relayResolverErrors).toMatchInlineSnapshot(`
+        expect(errorResponseFields).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: Purposefully throwing before reading to exercise an edge case.],
-          "field": Object {
-            "owner": "RelayReaderResolverTest14Query",
-            "path": "throw_before_read",
-          },
+          "fieldPath": "throw_before_read",
+          "handled": false,
+          "kind": "relay_resolver.error",
+          "owner": "RelayReaderResolverTest14Query",
+          "shouldThrow": false,
         },
       ]
     `);
@@ -1491,7 +1559,7 @@ describe.each([true, false])(
           expect(readResult.isMissingData).toBe(true);
           expect(readResult.data).toEqual({
             me: {
-              profile_picture: undefined,
+              profile_picture: null,
             },
           });
         });

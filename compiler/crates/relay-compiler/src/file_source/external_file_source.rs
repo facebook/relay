@@ -11,6 +11,8 @@ use std::path::PathBuf;
 use std::sync::Arc;
 
 use common::PerfLogger;
+use rayon::prelude::*;
+use serde::Deserialize;
 
 use super::File;
 use crate::compiler_state::CompilerState;
@@ -38,14 +40,34 @@ impl ExternalFileSourceResult {
             file: path.clone(),
             source: err,
         })?;
-        let files: Vec<File> =
-            serde_json::from_reader(BufReader::new(file)).map_err(|err| Error::SerdeError {
+
+        #[derive(Deserialize)]
+        struct FilePartialMetadata {
+            name: PathBuf,
+            exists: Option<bool>,
+        }
+        let files: Vec<FilePartialMetadata> = serde_json::from_reader(BufReader::new(file))
+            .map_err(|err| Error::SerdeError {
                 file: path.clone(),
                 source: err,
             })?;
 
         Ok(Self {
-            files,
+            files: files
+                .into_par_iter()
+                .map(|file| {
+                    let exists = file.exists.unwrap_or_else(|| {
+                        std::fs::metadata(&file.name)
+                            .map(|m| m.is_file())
+                            .unwrap_or(false)
+                    });
+
+                    File {
+                        name: file.name,
+                        exists,
+                    }
+                })
+                .collect(),
             resolved_root,
         })
     }

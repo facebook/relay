@@ -127,6 +127,7 @@ Field(
             source_hash: ResolverSourceHash(
                 "ff0b47b51f0011ae9def59af3e3792a3",
             ),
+            type_confirmed: false,
         },
     ),
 )

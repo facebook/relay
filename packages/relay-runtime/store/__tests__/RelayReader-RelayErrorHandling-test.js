@@ -54,12 +54,14 @@ describe('RelayReader error fields', () => {
     expect(errorResponseFields).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest1Query',
-        path: 'me.lastName',
+        fieldPath: 'me.lastName',
         error: {
           message: 'There was an error!',
           path: ['me', 'lastName'],
         },
-        type: 'PAYLOAD_ERROR',
+        kind: 'relay_field_payload.error',
+        shouldThrow: false,
+        handled: false,
       },
     ]);
   });
@@ -104,21 +106,20 @@ describe('RelayReader error fields', () => {
     expect(errorResponseFields).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest4Query',
-        path: 'me.lastName',
-        type: 'PAYLOAD_ERROR',
+        fieldPath: 'me.lastName',
+        kind: 'relay_field_payload.error',
         error: {
           message: 'There was an error!',
           path: ['me', 'lastName'],
         },
+        shouldThrow: true,
+        handled: false,
       },
       {
         owner: 'RelayReaderRelayErrorHandlingTest4Query',
-        path: '',
-        type: 'MISSING_DATA',
-        error: {
-          message:
-            'Relay: Missing data for one or more fields in RelayReaderRelayErrorHandlingTest4Query',
-        },
+        fieldPath: '',
+        kind: 'missing_expected_data.throw',
+        handled: false,
       },
     ]);
   });
@@ -159,20 +160,230 @@ describe('RelayReader error fields', () => {
     const operation = createOperationDescriptor(FooQuery, {size: 42});
     const {data, errorResponseFields} = read(source, operation.fragment);
 
+    // we have a task out for adding path to missingData. Meantime that array is empty.
     expect(data).toEqual({
       me: {
         ok: false,
         errors: [
-          {message: 'There was an error!', path: ['me', 'lastName']},
           {
-            message:
-              'Relay: Missing data for one or more fields in RelayReaderRelayErrorHandlingTest3Query',
+            path: ['me', 'lastName'],
+          },
+          {
+            path: [''],
           },
         ],
       },
     });
 
-    // null because we empty the error response fields of errors that were caught
-    expect(errorResponseFields).toBeNull();
+    expect(errorResponseFields).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner: 'RelayReaderRelayErrorHandlingTest3Query',
+        shouldThrow: false,
+      },
+      {
+        fieldPath: '',
+        kind: 'missing_expected_data.log',
+        owner: 'RelayReaderRelayErrorHandlingTest3Query',
+      },
+    ]);
+  });
+  test('@throwOnFieldError on a resolver rootFragment that reads field error will cause that resolver to be treated as a field error by the reader', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTest2Query {
+        me {
+          last_name_throw_on_field_error
+        }
+      }
+    `;
+
+    const operation = createOperationDescriptor(FooQuery, {size: 42});
+    const {data, errorResponseFields} = read(source, operation.fragment);
+
+    expect(data).toEqual({
+      me: {
+        last_name_throw_on_field_error: null,
+      },
+    });
+
+    expect(errorResponseFields).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        // handled is true because we handled the error by making
+        // last_name_throw_on_field_error null
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner: 'UserLastNameThrowOnFieldErrorResolver',
+        shouldThrow: true,
+      },
+    ]);
+  });
+
+  test('@throwOnFieldError reading a resolver with @throwOnFieldError on its rootFragment that reads field error will cause that resolver to be treated as a field error by the reader', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTest5Query @throwOnFieldError {
+        me {
+          last_name_throw_on_field_error
+        }
+      }
+    `;
+
+    const operation = createOperationDescriptor(FooQuery, {size: 42});
+    const {errorResponseFields} = read(source, operation.fragment);
+
+    expect(errorResponseFields).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        // handled is false because we want this to throw
+        // last_name_throw_on_field_error null
+        handled: false,
+        kind: 'relay_field_payload.error',
+        owner: 'UserLastNameThrowOnFieldErrorResolver',
+        shouldThrow: true,
+      },
+    ]);
+  });
+  it('does not report missing data within an inline fragment that does not match', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"4")': {__ref: '4'},
+      },
+      'client:__type:User': {
+        __isMaybeNodeInterface: false,
+      },
+      '4': {
+        __id: '4',
+        id: '4',
+        __typename: 'User',
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTestInlineFragmentQuery
+      @throwOnFieldError {
+        node(id: "4") {
+          # GraphQL lets us spread this here as long as there is at least one
+          # type that overlaps
+          ... on MaybeNodeInterface {
+            name
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {errorResponseFields, isMissingData} = read(
+      source,
+      operation.fragment,
+    );
+
+    expect(isMissingData).toBe(false);
+    expect(errorResponseFields).toEqual(null);
+  });
+
+  it('does report missing data within an inline fragment that does match', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"4")': {__ref: '4'},
+      },
+      'client:__type:User': {
+        __isMaybeNodeInterface: true,
+      },
+      '4': {
+        __id: '4',
+        id: '4',
+        __typename: 'NonNodeNoID',
+        // NOTE: `name` is missing
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery
+      @throwOnFieldError {
+        node(id: "4") {
+          # GraphQL lets us spread this here as long as there is at least one
+          # type that overlaps
+          ... on MaybeNodeInterface {
+            name
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {errorResponseFields, isMissingData} = read(
+      source,
+      operation.fragment,
+    );
+
+    expect(isMissingData).toBe(true);
+    expect(errorResponseFields).toEqual([
+      // We are missing the metadata bout the interface
+      {
+        fieldPath: '',
+        handled: false,
+        kind: 'missing_expected_data.throw',
+        owner: 'RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery',
+      },
+      // We don't know if we should traverse into the inline fragment, but we do
+      // anyway and find that the field is missing
+      {
+        fieldPath: '',
+        handled: false,
+        kind: 'missing_expected_data.throw',
+        owner: 'RelayReaderRelayErrorHandlingTestInlineFragmentMatchesQuery',
+      },
+    ]);
   });
 });

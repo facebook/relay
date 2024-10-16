@@ -53,35 +53,36 @@ Type(
     StrongObjectResolver(
         StrongObjectIr {
             type_name: Identifier {
-                span: 82:93,
+                span: 275:278,
                 token: Token {
-                    span: 82:93,
+                    span: 275:278,
                     kind: Identifier,
                 },
-                value: "DomesticCat",
+                value: "Cat",
             },
-            rhs_location: DomesticCat.js:82:93,
+            rhs_location: Cat.js:275:278,
             root_fragment: WithLocation {
-                location: DomesticCat.js:82:93,
+                location: Cat.js:275:278,
                 item: FragmentDefinitionName(
-                    "DomesticCat__id",
+                    "Cat__id",
                 ),
             },
             description: None,
             deprecated: None,
             live: None,
             semantic_non_null: None,
-            location: DomesticCat.js:82:93,
+            location: Cat.js:275:278,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "b5a9019aafc908b4f3bc52643a3883e0",
+                "1b432d1f1ef72adb427857abb24a5068",
             ),
+            type_confirmed: true,
         },
     ),
 )
-type DomesticCat @__RelayResolverModel {
+type Cat @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "DomesticCat__id", import_name: "DomesticCat", import_path: "DomesticCat.js", inject_fragment_data: "id") @resolver_source_hash(value: "b5a9019aafc908b4f3bc52643a3883e0") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "1b432d1f1ef72adb427857abb24a5068") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
@@ -105,6 +106,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "d87c48cc6e55a86fc69fd0d1f73d6bea",
             ),
+            type_confirmed: true,
         },
     ),
 )
@@ -118,19 +120,19 @@ type WeakCat @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
 
 ✖︎ Duplicate GraphQL type definitions found for flow type `CatFlowType` from `Cat`, please make sure each GraphQL type maps to a unique flow type.
 
-  Cat.js:15:17
-   14 │  */
-   15 │ export function Cat(id: DataID): CatFlowType {
-      │                 ^^^
-   16 │   return {};
-
-  ℹ︎ Previous type definition
-
   DomesticCat.js:7:17
     6 │  */
     7 │ export function DomesticCat(id: DataID): CatFlowType {
       │                 ^^^^^^^^^^^
     8 │   return {};
+
+  ℹ︎ Previous type definition
+
+  Cat.js:15:17
+   14 │  */
+   15 │ export function Cat(id: DataID): CatFlowType {
+      │                 ^^^
+   16 │   return {};
 
 
 ✖︎ Duplicate definition for type 'WeakCatModel'.

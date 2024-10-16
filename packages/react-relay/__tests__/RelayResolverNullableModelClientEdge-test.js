@@ -28,8 +28,13 @@ const {
 const {
   addTodo,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 /**
  * CLIENT EDGE TO PLURAL LIVE STRONG CLIENT OBJECT
@@ -178,14 +183,6 @@ export function edge_to_plural_models_some_throw(): $ReadOnlyArray<{
   return [{id: ERROR_ID}, {id: 'a valid id!'}];
 }
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 const logEvents: Array<LogEvent> = [];
 function logFn(event: LogEvent): void {
   logEvents.push(event);
@@ -194,7 +191,7 @@ function logFn(event: LogEvent): void {
 function createEnvironment() {
   return new Environment({
     network: Network.create(jest.fn()),
-    store: new LiveResolverStore(RecordSource.create(), {
+    store: new RelayModernStore(RecordSource.create(), {
       log: logFn,
     }),
     log: logFn,
@@ -500,13 +497,14 @@ describe.each([true, false])(
         {},
       );
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([
+      expect(snapshot.errorResponseFields).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
-            path: 'edge_to_model_that_throws.__relay_model_instance',
-          },
+          owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
+          fieldPath: 'edge_to_model_that_throws.__relay_model_instance',
+          kind: 'relay_resolver.error',
+          shouldThrow: false,
+          handled: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -525,22 +523,24 @@ describe.each([true, false])(
         {},
       );
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([
+      expect(snapshot.errorResponseFields).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner:
-              'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-            path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-          },
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
+          shouldThrow: false,
+          handled: false,
         },
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner:
-              'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-            path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-          },
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
+          shouldThrow: false,
+          handled: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;
@@ -559,14 +559,15 @@ describe.each([true, false])(
         {},
       );
       const snapshot = environment.lookup(operation.fragment);
-      expect(snapshot.relayResolverErrors).toEqual([
+      expect(snapshot.errorResponseFields).toEqual([
         {
           error: Error(ERROR_MESSAGE),
-          field: {
-            owner:
-              'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
-            path: 'edge_to_plural_models_some_throw.__relay_model_instance',
-          },
+          owner:
+            'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
+          fieldPath: 'edge_to_plural_models_some_throw.__relay_model_instance',
+          kind: 'relay_resolver.error',
+          shouldThrow: false,
+          handled: false,
         },
       ]);
       const data: $FlowExpectedError = snapshot.data;

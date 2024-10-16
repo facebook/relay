@@ -20,7 +20,7 @@ export type TestEnums = "mark" | "zuck" | "%future added value";
 export type FooQuery$variables = Record<PropertyKey, never>;
 export type FooQuery$data = {
   readonly me: {
-    readonly firstName: Result<string | null | undefined, ReadonlyArray<unknown>>;
+    readonly firstName: Result<string | null | undefined, unknown>;
     readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
   } | null | undefined;
 };
@@ -44,7 +44,7 @@ export type FooQuery = {
 export type TestEnums = "mark" | "zuck" | "%future added value";
 import { FragmentRefs, Result } from "relay-runtime";
 export type FriendFragment$data = {
-  readonly lastName: Result<string | null | undefined, ReadonlyArray<unknown>>;
+  readonly lastName: Result<string | null | undefined, unknown>;
   readonly name: string | null | undefined;
   readonly profilePicture2: {
     readonly test_enums: TestEnums | null | undefined;

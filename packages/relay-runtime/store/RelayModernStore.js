@@ -11,9 +11,12 @@
 
 'use strict';
 
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
 import type {Availability} from './DataChecker';
+import type {UpdatedRecords} from './live-resolvers/LiveResolverCache';
 import type {GetDataID} from './RelayResponseNormalizer';
+import type {NormalizationOptions} from './RelayResponseNormalizer';
 import type {
   CheckOptions,
   DataIDSet,
@@ -24,23 +27,27 @@ import type {
   OperationLoader,
   RecordSource,
   RequestDescriptor,
+  ResolverContext,
   Scheduler,
   SingularReaderSelector,
   Snapshot,
   Store,
   StoreSubscriptions,
 } from './RelayStoreTypes';
-import type {ResolverCache} from './ResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
   assertInternalActorIdentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../util/deepFreeze');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const resolveImmediate = require('../util/resolveImmediate');
 const DataChecker = require('./DataChecker');
 const defaultGetDataID = require('./defaultGetDataID');
+const {
+  LiveResolverCache,
+  RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+  getUpdatedDataIDs,
+} = require('./live-resolvers/LiveResolverCache');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayOptimisticRecordSource = require('./RelayOptimisticRecordSource');
 const RelayReader = require('./RelayReader');
@@ -48,7 +55,6 @@ const RelayReferenceMarker = require('./RelayReferenceMarker');
 const RelayStoreSubscriptions = require('./RelayStoreSubscriptions');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
-const {RecordResolverCache} = require('./ResolverCache');
 const invariant = require('invariant');
 
 export opaque type InvalidationState = {
@@ -90,7 +96,7 @@ class RelayModernStore implements Store {
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
-  _resolverCache: ResolverCache;
+  _resolverCache: LiveResolverCache;
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
@@ -105,6 +111,9 @@ class RelayModernStore implements Store {
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
   _shouldProcessClientComponents: ?boolean;
+  _resolverContext: ?ResolverContext;
+  _actorIdentifier: ?ActorIdentifier;
+  _treatMissingFieldsAsNull: boolean;
 
   constructor(
     source: MutableRecordSource,
@@ -116,6 +125,12 @@ class RelayModernStore implements Store {
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
+      resolverContext?: ResolverContext,
+
+      // These additional config options are only used if the experimental
+      // @outputType resolver feature is used
+      treatMissingFieldsAsNull?: ?boolean,
+      actorIdentifier?: ?ActorIdentifier,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -146,8 +161,9 @@ class RelayModernStore implements Store {
     this._releaseBuffer = [];
     this._roots = new Map();
     this._shouldScheduleGC = false;
-    this._resolverCache = new RecordResolverCache(() =>
-      this._getMutableRecordSource(),
+    this._resolverCache = new LiveResolverCache(
+      () => this._getMutableRecordSource(),
+      this,
     );
     this._storeSubscriptions = new RelayStoreSubscriptions(
       options?.log,
@@ -155,7 +171,11 @@ class RelayModernStore implements Store {
     );
     this._updatedRecordIDs = new Set();
     this._shouldProcessClientComponents =
-      options?.shouldProcessClientComponents;
+      options?.shouldProcessClientComponents ?? false;
+    this._resolverContext = options?.resolverContext;
+
+    this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
+    this._actorIdentifier = options?.actorIdentifier;
 
     initializeRecordSource(this._recordSource);
   }
@@ -164,8 +184,48 @@ class RelayModernStore implements Store {
     return this._optimisticSource ?? this._recordSource;
   }
 
+  getOperationLoader(): ?OperationLoader {
+    return this._operationLoader;
+  }
+
   _getMutableRecordSource(): MutableRecordSource {
     return this._optimisticSource ?? this._recordSource;
+  }
+
+  getLiveResolverPromise(recordID: DataID): Promise<void> {
+    return this._resolverCache.getLiveResolverPromise(recordID);
+  }
+
+  /**
+   * When an external data provider knows it's going to notify us about multiple
+   * Live Resolver state updates in a single tick, it can batch them into a
+   * single Relay update by notifying us within a batch. All updates received by
+   * Relay during the evaluation of the provided `callback` will be aggregated
+   * into a single Relay update.
+   *
+   * A typical use with a Flux store might look like this:
+   *
+   * const originalDispatch = fluxStore.dispatch;
+   *
+   * function wrapped(action) {
+   *   relayStore.batchLiveStateUpdates(() => {
+   *     originalDispatch(action);
+   *   })
+   * }
+   *
+   * fluxStore.dispatch = wrapped;
+   */
+  batchLiveStateUpdates(callback: () => void) {
+    if (this.__log != null) {
+      this.__log({name: 'liveresolver.batch.start'});
+    }
+    try {
+      this._resolverCache.batchLiveStateUpdates(callback);
+    } finally {
+      if (this.__log != null) {
+        this.__log({name: 'liveresolver.batch.end'});
+      }
+    }
   }
 
   check(
@@ -305,7 +365,12 @@ class RelayModernStore implements Store {
       });
     }
     const source = this.getSource();
-    const snapshot = RelayReader.read(source, selector, this._resolverCache);
+    const snapshot = RelayReader.read(
+      source,
+      selector,
+      this._resolverCache,
+      this._resolverContext,
+    );
     if (__DEV__) {
       deepFreeze(snapshot);
     }
@@ -339,13 +404,12 @@ class RelayModernStore implements Store {
       this._globalInvalidationEpoch = this._currentWriteEpoch;
     }
 
-    if (RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-      // When a record is updated, we need to also handle records that depend on it,
-      // specifically Relay Resolver result records containing results based on the
-      // updated records. This both adds to updatedRecordIDs and invalidates any
-      // cached data as needed.
-      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
-    }
+    // When a record is updated, we need to also handle records that depend on it,
+    // specifically Relay Resolver result records containing results based on the
+    // updated records. This both adds to updatedRecordIDs and invalidates any
+    // cached data as needed.
+    this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+
     const source = this.getSource();
     const updatedOwners: Array<RequestDescriptor> = [];
     this._storeSubscriptions.updateSubscriptions(
@@ -563,8 +627,9 @@ class RelayModernStore implements Store {
   }
 
   restore(): void {
+    const optimisticSource = this._optimisticSource;
     invariant(
-      this._optimisticSource != null,
+      optimisticSource,
       'RelayModernStore: Unexpected call to restore(), expected a snapshot ' +
         'to exist (make sure to call snapshot()).',
     );
@@ -574,11 +639,18 @@ class RelayModernStore implements Store {
         name: 'store.restore',
       });
     }
+    const optimisticIDs =
+      RelayOptimisticRecordSource.getOptimisticRecordIDs(optimisticSource);
+
+    // Clean up any LiveResolver subscriptions made while in the optimistic
+    // state.
+    this._resolverCache.unsubscribeFromLiveResolverRecords(optimisticIDs);
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
       this.scheduleGC();
     }
     this._storeSubscriptions.restoreSubscriptions();
+    this._resolverCache.invalidateResolverRecords(optimisticIDs);
   }
 
   scheduleGC() {
@@ -661,6 +733,17 @@ class RelayModernStore implements Store {
         for (let ii = 0; ii < storeIDs.length; ii++) {
           const dataID = storeIDs[ii];
           if (!references.has(dataID)) {
+            const record = this._recordSource.get(dataID);
+            if (record != null) {
+              const maybeResolverSubscription = RelayModernRecord.getValue(
+                record,
+                RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+              );
+              if (maybeResolverSubscription != null) {
+                // $FlowFixMe - this value if it is not null, it is a function
+                maybeResolverSubscription();
+              }
+            }
             this._recordSource.remove(dataID);
           }
         }
@@ -673,6 +756,29 @@ class RelayModernStore implements Store {
       }
       return;
     }
+  }
+
+  // Internal API for normalizing @outputType payloads in LiveResolverCache.
+  __getNormalizationOptions(
+    path: $ReadOnlyArray<string>,
+  ): NormalizationOptions {
+    return {
+      path,
+      getDataID: this._getDataID,
+      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      shouldProcessClientComponents: this._shouldProcessClientComponents,
+      actorIdentifier: this._actorIdentifier,
+    };
+  }
+
+  // Internal API that can be only invoked from the LiveResolverCache
+  // to notify subscribers of `updatedRecords`.
+  __notifyUpdatedSubscribers(updatedRecords: UpdatedRecords): void {
+    const nextUpdatedRecordIDs = getUpdatedDataIDs(updatedRecords);
+    const prevUpdatedRecordIDs = this._updatedRecordIDs;
+    this._updatedRecordIDs = nextUpdatedRecordIDs;
+    this.notify();
+    this._updatedRecordIDs = prevUpdatedRecordIDs;
   }
 }
 

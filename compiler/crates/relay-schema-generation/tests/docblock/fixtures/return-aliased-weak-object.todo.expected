@@ -31,7 +31,7 @@ export function fullName(cat: CatFlowType): ?FullName {
 ==================================== OUTPUT ===================================
 
 
-✖︎ Failed to find type definition for `FullName` using a FullName import from module `module`. Please make sure `FullName` is imported using a named or default import and that it is a resolver type
+✖︎ Failed to find @RelayResolver type definition for `FullName` using a FullName import from module `module`. Please make sure `FullName` is either defined locally or imported using a named or default import and that it is a resolver type
 
   module.js:26:46
    25 │  */

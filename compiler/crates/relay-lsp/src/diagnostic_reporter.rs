@@ -48,7 +48,7 @@ fn url_from_location(location: Location, root_dir: &Path) -> Option<Url> {
     Url::from_file_path(canonical_path).ok()
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct DiagnosticSet {
     /// Stores the diagnostics from IDE source, which will be updated on any text change
     quick_diagnostics: Vec<Diagnostic>,
@@ -58,13 +58,13 @@ struct DiagnosticSet {
 
 pub struct DiagnosticReporter {
     active_diagnostics: DashMap<Url, DiagnosticSet>,
-    sender: Sender<Message>,
+    sender: Option<Sender<Message>>,
     root_dir: PathBuf,
     source_reader: Box<dyn SourceReader + Send + Sync>,
 }
 
 impl DiagnosticReporter {
-    pub fn new(root_dir: PathBuf, sender: Sender<Message>) -> Self {
+    pub fn new(root_dir: PathBuf, sender: Option<Sender<Message>>) -> Self {
         Self {
             active_diagnostics: Default::default(),
             sender,
@@ -305,6 +305,28 @@ impl DiagnosticReporter {
             })
             .cloned()
     }
+
+    pub fn get_published_diagnostics(&self) -> Vec<PublishDiagnosticsParams> {
+        let mut result = Vec::new();
+        for r in self.active_diagnostics.iter() {
+            let (url, diagnostics) = r.pair();
+            let mut next_diagnostics = diagnostics.quick_diagnostics.clone();
+            for diagnostic in &diagnostics.regular_diagnostics {
+                if !next_diagnostics
+                    .iter()
+                    .any(|prev_diag| prev_diag.eq(diagnostic))
+                {
+                    next_diagnostics.push(diagnostic.clone());
+                }
+            }
+            result.push(PublishDiagnosticsParams {
+                diagnostics: next_diagnostics,
+                uri: url.clone(),
+                version: None,
+            });
+        }
+        result
+    }
 }
 
 /// Checks if `inner` range is within the `outer` range.
@@ -321,10 +343,12 @@ fn is_sub_range(inner: Range, outer: Range) -> bool {
 /// Publish diagnostics to the client
 pub fn publish_diagnostic(
     diagnostic_params: PublishDiagnosticsParams,
-    sender: &Sender<Message>,
+    sender: &Option<Sender<Message>>,
 ) -> LSPProcessResult<()> {
     let notif = ServerNotification::new(PublishDiagnostics::METHOD.into(), diagnostic_params);
-    sender.send(Message::Notification(notif)).unwrap_or(());
+    if let Some(sender) = sender {
+        sender.send(Message::Notification(notif)).unwrap_or(());
+    }
     Ok(())
 }
 
@@ -359,7 +383,7 @@ mod tests {
         let root_dir =
             env::current_dir().expect("expect to be able to get the current working directory");
         let (sender, _) = crossbeam::channel::unbounded();
-        let mut reporter = DiagnosticReporter::new(root_dir, sender);
+        let mut reporter = DiagnosticReporter::new(root_dir, Some(sender));
         reporter.set_source_reader(Box::new(MockSourceReader("Content".to_string())));
         let source_location = SourceLocationKey::Standalone {
             path: "foo.txt".intern(),
@@ -379,7 +403,7 @@ mod tests {
         let root_dir = PathBuf::from("/tmp");
         let (sender, _) = crossbeam::channel::unbounded();
 
-        let mut reporter = DiagnosticReporter::new(root_dir, sender);
+        let mut reporter = DiagnosticReporter::new(root_dir, Some(sender));
         reporter.set_source_reader(Box::new(MockSourceReader("".to_string())));
 
         reporter.report_diagnostic(&Diagnostic::error("-", Location::generated()));

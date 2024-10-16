@@ -28,6 +28,11 @@ const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
   const query = graphql`

@@ -16,7 +16,12 @@ const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {getRequest, graphql} = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const query = graphql`
   query useQueryLoaderLiveQueryTestQuery($id: ID!)

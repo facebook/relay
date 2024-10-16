@@ -2,21 +2,22 @@
 
 [package]
 name = "relay"
-version = "18.0.0"
+version = "18.1.0"
 authors = ["Facebook"]
 edition = "2021"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-clap = { version = "3.2.25", features = ["derive", "env", "regex", "unicode", "wrap_help"] }
+clap = { version = "4.5.20", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
 intern = { path = "../intern" }
 log = { version = "0.4.22", features = ["kv_unstable"] }
+relay-codemod = { path = "../relay-codemod" }
 relay-compiler = { path = "../relay-compiler" }
 relay-lsp = { path = "../relay-lsp" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.10.0"
-thiserror = "1.0.49"
+thiserror = "1.0.64"
 tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }

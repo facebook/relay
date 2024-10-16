@@ -22,7 +22,6 @@ import {
 } from 'react-relay';
 import TestRenderer from 'react-test-renderer';
 import {
-  RelayFeatureFlags,
   ROOT_ID,
   createOperationDescriptor,
   createReaderSelector,
@@ -32,8 +31,8 @@ import {
 import RelayNetwork from 'relay-runtime/network/RelayNetwork';
 import {graphql} from 'relay-runtime/query/GraphQLTag';
 import {resetStore} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
-import LiveResolverStore from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 import RelayModernEnvironment from 'relay-runtime/store/RelayModernEnvironment';
+import RelayModernStore from 'relay-runtime/store/RelayModernStore';
 import RelayRecordSource from 'relay-runtime/store/RelayRecordSource';
 import {
   disallowConsoleErrors,
@@ -110,13 +109,8 @@ function logFn(event: LogEvent): void {
 }
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   logEvents = [];
   resetStore(logFn);
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 describe('ClientUser', () => {
@@ -124,7 +118,7 @@ describe('ClientUser', () => {
   let environment;
 
   beforeEach(() => {
-    store = new LiveResolverStore(RelayRecordSource.create(), {
+    store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
     });
     environment = new RelayModernEnvironment({
@@ -192,7 +186,7 @@ describe('SpecialUser', () => {
   let environment;
   let store;
   beforeEach(() => {
-    store = new LiveResolverStore(RelayRecordSource.create(), {
+    store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
     });
     environment = new RelayModernEnvironment({

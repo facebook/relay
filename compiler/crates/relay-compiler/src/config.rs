@@ -77,7 +77,7 @@ use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 use crate::GraphQLAsts;
 
-type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
+pub type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 type PostArtifactsWriter = Box<
     dyn Fn(&Config) -> std::result::Result<(), Box<dyn std::error::Error + Send + Sync>>
@@ -308,7 +308,6 @@ impl Config {
     }
 
     /// Loads a config file without validation for use in tests.
-    #[cfg(test)]
     pub fn from_string_for_test(config_string: &str) -> Result<Self> {
         let path = PathBuf::from("/virtual/root/virtual_config.json");
         let config_file: ConfigFile =

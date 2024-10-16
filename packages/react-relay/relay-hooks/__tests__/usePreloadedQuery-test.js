@@ -32,8 +32,12 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-const {skipIf} = require('relay-test-utils-internal');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 const warning = require('warning');
+
+injectPromisePolyfill__DEPRECATED();
 
 jest.mock('warning');
 
@@ -1060,55 +1064,47 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
-      skipIf(
-        process.env.OSS,
-        'warns that the preloadedQuery has already been disposed',
-        () => {
-          const expectWarningMessage = expect.stringMatching(
-            /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
-          );
-          const prefetched = loadQuery(
-            environment,
-            preloadableConcreteRequest,
-            {
-              id: '1',
-            },
-          );
+      it('warns that the preloadedQuery has already been disposed', () => {
+        const expectWarningMessage = expect.stringMatching(
+          /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
+        );
+        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
+          id: '1',
+        });
 
-          function Component(props: any) {
-            const data = usePreloadedQuery(query, props.prefetched);
-            return data?.node?.name ?? 'MISSING NAME';
-          }
+        function Component(props: any) {
+          const data = usePreloadedQuery(query, props.prefetched);
+          return data?.node?.name ?? 'MISSING NAME';
+        }
 
-          const render = () => {
-            TestRenderer.act(() => {
-              TestRenderer.create(
-                <RelayEnvironmentProvider environment={environment}>
-                  <React.Suspense fallback="Fallback">
-                    <Component prefetched={prefetched} />
-                  </React.Suspense>
-                </RelayEnvironmentProvider>,
-              );
-              jest.runAllImmediates();
-            });
-          };
+        const render = () => {
+          TestRenderer.act(() => {
+            TestRenderer.create(
+              <RelayEnvironmentProvider environment={environment}>
+                <React.Suspense fallback="Fallback">
+                  <Component prefetched={prefetched} />
+                </React.Suspense>
+              </RelayEnvironmentProvider>,
+            );
+            jest.runAllImmediates();
+          });
+        };
 
-          render();
-          expect(warning).toBeCalledTimes(2);
-          expect(warning).toHaveBeenLastCalledWith(
-            true, // invariant holds
-            expectWarningMessage,
-          );
+        render();
+        expect(warning).toBeCalledTimes(1);
+        expect(warning).toHaveBeenLastCalledWith(
+          true, // invariant holds
+          expectWarningMessage,
+        );
 
-          prefetched.dispose();
-          render();
-          expect(warning).toBeCalledTimes(3);
-          expect(warning).toHaveBeenLastCalledWith(
-            false, // invariant broken
-            expectWarningMessage,
-          );
-        },
-      );
+        prefetched.dispose();
+        render();
+        expect(warning).toBeCalledTimes(2);
+        expect(warning).toHaveBeenLastCalledWith(
+          false, // invariant broken
+          expectWarningMessage,
+        );
+      });
     });
 
     describe('refetching', () => {

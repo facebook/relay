@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -39,6 +39,10 @@
       {
         "command": "relay.stopCompiler",
         "title": "Relay: Stop Compiler"
+      },
+      {
+        "command": "relay.copyOperation",
+        "title": "Relay: Copy Operation"
       }
     ],
     "configuration": {

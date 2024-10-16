@@ -127,20 +127,11 @@ function handlePotentialSnapshotErrorsForState(
   if (state.kind === 'singular') {
     handlePotentialSnapshotErrors(
       environment,
-      state.snapshot.missingRequiredFields,
-      state.snapshot.relayResolverErrors,
       state.snapshot.errorResponseFields,
-      state.snapshot.selector.node.metadata?.throwOnFieldError ?? false,
     );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(
-        environment,
-        snapshot.missingRequiredFields,
-        snapshot.relayResolverErrors,
-        snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
-      );
+      handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
     }
   }
 }
@@ -176,8 +167,6 @@ function handleMissedUpdates(
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      missingRequiredFields: currentSnapshot.missingRequiredFields,
-      relayResolverErrors: currentSnapshot.relayResolverErrors,
       errorResponseFields: currentSnapshot.errorResponseFields,
     };
     return [
@@ -204,8 +193,6 @@ function handleMissedUpdates(
         missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
         seenRecords: currentSnapshot.seenRecords,
         selector: currentSnapshot.selector,
-        missingRequiredFields: currentSnapshot.missingRequiredFields,
-        relayResolverErrors: currentSnapshot.relayResolverErrors,
         errorResponseFields: currentSnapshot.errorResponseFields,
       };
       if (updatedData !== snapshot.data) {
@@ -537,7 +524,7 @@ hook useFragmentInternal_EXPERIMENTAL(
     if (suspendingLiveResolvers != null && suspendingLiveResolvers.length > 0) {
       throw Promise.all(
         suspendingLiveResolvers.map(({liveStateID}) => {
-          // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
+          // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
           return environment.getStore().getLiveResolverPromise(liveStateID);
         }),
       );

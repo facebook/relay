@@ -530,7 +530,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             project_config,
             &base_program,
             log_event,
-        )?;
+        )
+        .map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name: project_config.name,
+            })
+        })?;
 
         transform_program(
             project_config,
@@ -539,7 +545,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Arc::clone(&self.lsp_state.perf_logger),
             log_event,
             self.lsp_state.config.custom_transforms.as_ref(),
-        )?;
+        )
+        .map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name: project_config.name,
+            })
+        })?;
         Ok(())
     }
 

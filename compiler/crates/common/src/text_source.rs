@@ -74,6 +74,7 @@ impl TextSource {
     /**
      * Converts span, which is the relative indices of characters within this text source,
      * into the equivalent line and character number range.
+     * Span is bytes, not characters.
      */
     pub fn to_span_range(&self, span: Span) -> lsp_types::Range {
         let start = span.start as usize;
@@ -84,13 +85,15 @@ impl TextSource {
         let mut character = self.column_index;
         let mut start_position = lsp_types::Position::default();
         let mut end_position = lsp_types::Position::default();
-        let mut chars = self.text.chars().enumerate().peekable();
+        let mut chars = self.text.chars().peekable();
 
-        while let Some((index, chr)) = chars.next() {
-            if index == start {
+        let mut bytes_seen = 0;
+
+        while let Some(chr) = chars.next() {
+            if bytes_seen == start {
                 start_position = lsp_types::Position::new(line as u32, character as u32);
             }
-            if index == end {
+            if bytes_seen == end {
                 end_position = lsp_types::Position::new(line as u32, character as u32);
                 break;
             }
@@ -99,7 +102,7 @@ impl TextSource {
                 // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
                 '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
                     // <CLRF>
-                    !matches!((chr, chars.peek()), ('\u{000D}', Some((_, '\u{000D}'))))
+                    !matches!((chr, chars.peek()), ('\u{000D}', Some('\u{000D}')))
                 }
                 _ => false,
             };
@@ -112,6 +115,7 @@ impl TextSource {
             } else {
                 character += 1;
             }
+            bytes_seen += chr.len_utf8();
         }
 
         if start_position != lsp_types::Position::default()
@@ -136,6 +140,15 @@ mod test {
         let range = text_source.to_span_range(span);
         assert_eq!(range.start, lsp_types::Position::new(0, 0));
         assert_eq!(range.end, lsp_types::Position::new(0, 5));
+    }
+
+    #[test]
+    fn to_range_unicode_test() {
+        let span = Span::new(0, 5);
+        let text_source = TextSource::new("☃ource", 0, 0);
+        let range = text_source.to_span_range(span);
+        assert_eq!(range.start, lsp_types::Position::new(0, 0));
+        assert_eq!(range.end, lsp_types::Position::new(0, 3));
     }
 
     #[test]

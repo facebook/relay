@@ -31,14 +31,6 @@ const {
 disallowConsoleErrors();
 disallowWarnings();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 const BASIC_QUERY = graphql`
   query RelayReaderClientEdgesTest1Query {
     me {

@@ -16,3 +16,5 @@ global.IS_REACT_NATIVE_TEST_ENVIRONMENT = true;
 global.__DEV__ = true;
 
 require('@babel/runtime/regenerator');
+
+process.env.RTL_SKIP_AUTO_CLEANUP = true;

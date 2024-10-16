@@ -32,13 +32,12 @@ import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
+  ErrorResponseField,
   ErrorResponseFields,
   MissingClientEdgeRequestInfo,
   MissingLiveResolverField,
-  MissingRequiredFields,
   Record,
   RecordSource,
-  RelayResolverErrors,
   RequestDescriptor,
   ResolverContext,
   SelectorData,
@@ -48,10 +47,9 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {
   isSuspenseSentinel,
-} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
+} = require('./live-resolvers/LiveResolverSuspenseSentinel');
 const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
@@ -68,7 +66,7 @@ const {
 } = require('./RelayStoreUtils');
 const {NoopResolverCache} = require('./ResolverCache');
 const {
-  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+  RESOLVER_FRAGMENT_ERRORED_SENTINEL,
   withResolverContext,
 } = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
@@ -100,7 +98,6 @@ class RelayReader {
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
   _missingLiveResolverFields: Array<MissingLiveResolverField>;
   _isWithinUnmatchedTypeRefinement: boolean;
-  _missingRequiredFields: ?MissingRequiredFields;
   _errorResponseFields: ?ErrorResponseFields;
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
@@ -109,7 +106,6 @@ class RelayReader {
   _selector: SingularReaderSelector;
   _variables: Variables;
   _resolverCache: ResolverCache;
-  _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
   _resolverContext: ?ResolverContext;
 
@@ -126,7 +122,6 @@ class RelayReader {
     this._missingLiveResolverFields = [];
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
-    this._missingRequiredFields = null;
     this._errorResponseFields = null;
     this._owner = selector.owner;
     this._recordSource = recordSource;
@@ -134,7 +129,6 @@ class RelayReader {
     this._selector = selector;
     this._variables = selector.variables;
     this._resolverCache = resolverCache;
-    this._resolverErrors = [];
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
     this._resolverContext = resolverContext;
@@ -196,8 +190,6 @@ class RelayReader {
       missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
-      missingRequiredFields: this._missingRequiredFields,
-      relayResolverErrors: this._resolverErrors,
       errorResponseFields: this._errorResponseFields,
     };
   }
@@ -215,38 +207,38 @@ class RelayReader {
     }
     for (const error of errors) {
       this._errorResponseFields.push({
+        kind: 'relay_field_payload.error',
         owner,
-        path: (error.path ?? []).join('.'),
-        type: 'PAYLOAD_ERROR',
+        fieldPath: (error.path ?? []).join('.'),
         error,
+        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
+        handled: false,
       });
     }
   }
 
   _markDataAsMissing(): void {
-    // We want to mark multiple missing_data - but not duplicate ones.
-    const alreadyInErrors = Boolean(
-      this._errorResponseFields?.some(
-        err => err.owner === this._fragmentName && err.type === 'MISSING_DATA',
-      ),
-    );
-
-    if (!alreadyInErrors) {
-      if (this._errorResponseFields == null) {
-        this._errorResponseFields = [];
-      }
-      this._errorResponseFields.push({
-        owner: this._fragmentName,
-        // we will add the path later
-        path: '',
-        type: 'MISSING_DATA',
-        error: {
-          message:
-            'Relay: Missing data for one or more fields in ' +
-            this._fragmentName,
-        },
-      });
+    if (this._isWithinUnmatchedTypeRefinement) {
+      return;
     }
+    if (this._errorResponseFields == null) {
+      this._errorResponseFields = [];
+    }
+
+    // we will add the path later
+    const fieldPath = '';
+    const owner = this._fragmentName;
+
+    this._errorResponseFields.push(
+      this._selector.node.metadata?.throwOnFieldError ?? false
+        ? {
+            kind: 'missing_expected_data.throw',
+            owner,
+            fieldPath,
+            handled: false,
+          }
+        : {kind: 'missing_expected_data.log', owner, fieldPath},
+    );
 
     this._isMissingData = true;
 
@@ -297,33 +289,27 @@ class RelayReader {
   }
 
   _maybeReportUnexpectedNull(fieldPath: string, action: 'LOG' | 'THROW') {
-    if (this._missingRequiredFields?.action === 'THROW') {
-      // Chained @required directives may cause a parent `@required(action:
-      // THROW)` field to become null, so the first missing field we
-      // encounter is likely to be the root cause of the error.
-      return;
-    }
     const owner = this._fragmentName;
+
+    if (this._errorResponseFields == null) {
+      this._errorResponseFields = [];
+    }
 
     switch (action) {
       case 'THROW':
-        this._missingRequiredFields = {action, field: {path: fieldPath, owner}};
+        this._errorResponseFields.push({
+          kind: 'missing_required_field.throw',
+          fieldPath,
+          owner,
+          handled: false,
+        });
         return;
       case 'LOG':
-        if (this._missingRequiredFields == null) {
-          this._missingRequiredFields = {
-            action,
-            fields: [{path: fieldPath, owner}],
-          };
-        } else {
-          this._missingRequiredFields = {
-            action,
-            fields: [
-              ...this._missingRequiredFields.fields,
-              {path: fieldPath, owner},
-            ],
-          };
-        }
+        this._errorResponseFields.push({
+          kind: 'missing_required_field.log',
+          fieldPath,
+          owner,
+        });
         return;
       default:
         (action: empty);
@@ -346,33 +332,41 @@ class RelayReader {
       "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
     );
 
-    let errors = this._errorResponseFields?.map(error => error.error);
-
-    if (this._resolverErrors.length > 0) {
-      if (errors == null) {
-        errors = [];
-      }
-      for (let i = 0; i < this._resolverErrors.length; i++) {
-        const resolverError = this._resolverErrors[i];
-        errors.push({
-          message: `Relay: Error in resolver for field at ${resolverError.field.path} in ${resolverError.field.owner}`,
-        });
-      }
-    }
-
-    // If we have a nested @required(THROW) that will throw,
-    // we want to catch that error and provide it
-    if (this._missingRequiredFields?.action === 'THROW') {
-      const {owner, path} = this._missingRequiredFields.field;
-      const missingFieldError = {
-        message: `Relay: Missing @required value at path '${path}' in '${owner}'.`,
-      };
-      if (errors == null) {
-        errors = [missingFieldError];
-      } else {
-        errors.push(missingFieldError);
-      }
-    }
+    // TODO: Should we be hiding log level events here?
+    const errors = this._errorResponseFields
+      ?.map(error => {
+        switch (error.kind) {
+          case 'relay_field_payload.error':
+            const {message, ...displayError} = error.error;
+            return displayError;
+          case 'missing_expected_data.throw':
+          case 'missing_expected_data.log':
+            return {
+              path: error.fieldPath.split('.'),
+            };
+          case 'relay_resolver.error':
+            return {
+              message: `Relay: Error in resolver for field at ${error.fieldPath} in ${error.owner}`,
+            };
+          case 'missing_required_field.throw':
+            // If we have a nested @required(THROW) that will throw,
+            // we want to catch that error and provide it
+            return {
+              message: `Relay: Missing @required value at path '${error.fieldPath}' in '${error.owner}'.`,
+            };
+          case 'missing_required_field.log':
+            // For backwards compatibility, we don't surface log level missing required fields
+            return null;
+          default:
+            (error.kind: empty);
+            invariant(
+              false,
+              'Unexpected error errorResponseField kind: %s',
+              error.kind,
+            );
+        }
+      })
+      .filter(Boolean);
 
     data[fieldName] = errors != null ? {ok: false, errors} : {ok: true, value};
   }
@@ -415,12 +409,8 @@ class RelayReader {
           break;
         case 'CatchField': {
           const previousResponseFields = this._errorResponseFields;
-          const previousMissingRequiredFields = this._missingRequiredFields;
-          const previousResolverErrors = this._resolverErrors;
 
           this._errorResponseFields = null;
-          this._missingRequiredFields = null;
-          this._resolverErrors = [];
 
           const catchFieldValue = this._readClientSideDirectiveField(
             selection,
@@ -432,16 +422,22 @@ class RelayReader {
             this._handleCatchToResult(selection, record, data, catchFieldValue);
           }
 
-          const childrenMissingRequiredFields = this._missingRequiredFields;
+          const childrenErrorResponseFields = this._errorResponseFields;
 
-          this._resolverErrors = previousResolverErrors;
           this._errorResponseFields = previousResponseFields;
-          this._missingRequiredFields = previousMissingRequiredFields;
 
-          // If we encountered non-throwing @required fields, in the children,
-          // we want to preserve those errors in the snapshot.
-          if (childrenMissingRequiredFields?.action === 'LOG') {
-            this._addMissingRequiredFields(childrenMissingRequiredFields);
+          if (childrenErrorResponseFields != null) {
+            if (this._errorResponseFields == null) {
+              this._errorResponseFields = [];
+            }
+            for (let i = 0; i < childrenErrorResponseFields.length; i++) {
+              // We mark any errors encountered within the @catch as "handled"
+              // to ensure that they don't cause the reader to throw, but can
+              // still be logged.
+              this._errorResponseFields.push(
+                markFieldErrorHasHandled(childrenErrorResponseFields[i]),
+              );
+            }
           }
 
           break;
@@ -486,9 +482,6 @@ class RelayReader {
         }
         case 'RelayLiveResolver':
         case 'RelayResolver': {
-          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-            throw new Error('Relay Resolver fields are not yet supported.');
-          }
           this._readResolverField(selection, record, data);
           break;
         }
@@ -586,20 +579,11 @@ class RelayReader {
           return this._readLink(selection.field, record, data);
         }
       case 'RelayResolver':
-        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-          throw new Error('Relay Resolver fields are not yet supported.');
-        }
         return this._readResolverField(selection.field, record, data);
       case 'RelayLiveResolver':
-        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-          throw new Error('Relay Resolver fields are not yet supported.');
-        }
         return this._readResolverField(selection.field, record, data);
       case 'ClientEdgeToClientObject':
       case 'ClientEdgeToServerObject':
-        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-          throw new Error('Relay Resolver fields are not yet supported.');
-        }
         return this._readClientEdge(selection.field, record, data);
       default:
         (selection.field.kind: empty);
@@ -653,6 +637,7 @@ class RelayReader {
         return {
           data: snapshot.data,
           isMissingData: snapshot.isMissingData,
+          errorResponseFields: snapshot.errorResponseFields,
         };
       }
 
@@ -665,6 +650,7 @@ class RelayReader {
       return {
         data: snapshot.data,
         isMissingData: snapshot.isMissingData,
+        errorResponseFields: snapshot.errorResponseFields,
       };
     };
 
@@ -721,7 +707,7 @@ class RelayReader {
       getDataForResolverFragment,
     );
 
-    this._propogateResolverMetadata(
+    this._propagateResolverMetadata(
       field.path,
       cachedSnapshot,
       resolverError,
@@ -736,7 +722,7 @@ class RelayReader {
   // Reading a resolver field can uncover missing data, errors, suspense,
   // additional seen records and updated dataIDs. All of these facts must be
   // represented in the snapshot we return for this fragment.
-  _propogateResolverMetadata(
+  _propagateResolverMetadata(
     fieldPath: string,
     cachedSnapshot: ?Snapshot,
     resolverError: ?Error,
@@ -748,9 +734,6 @@ class RelayReader {
     // errors, or be in a suspended state. Here we propagate those cases
     // upwards to mimic the behavior of having traversed into that fragment directly.
     if (cachedSnapshot != null) {
-      if (cachedSnapshot.missingRequiredFields != null) {
-        this._addMissingRequiredFields(cachedSnapshot.missingRequiredFields);
-      }
       if (cachedSnapshot.missingClientEdges != null) {
         for (const missing of cachedSnapshot.missingClientEdges) {
           this._missingClientEdges.push(missing);
@@ -765,8 +748,25 @@ class RelayReader {
           this._missingLiveResolverFields.push(missingResolverField);
         }
       }
-      for (const error of cachedSnapshot.relayResolverErrors) {
-        this._resolverErrors.push(error);
+      if (cachedSnapshot.errorResponseFields != null) {
+        if (this._errorResponseFields == null) {
+          this._errorResponseFields = [];
+        }
+        for (const error of cachedSnapshot.errorResponseFields) {
+          if (this._selector.node.metadata?.throwOnFieldError === true) {
+            // If this fragment is @throwOnFieldError, any destructive error
+            // encountered inside a resolver's fragment is equivilent to the
+            // resolver field having a field error, and we want that to cause this
+            // fragment to throw. So, we propagate all errors as is.
+            this._errorResponseFields.push(error);
+          } else {
+            // If this fragment is _not_ @throwOnFieldError, we will simply
+            // accept that any destructive errors encountered in the resolver's
+            // root fragment will cause the resolver to return null, and well
+            // pass the errors along to the logger marked as "handled".
+            this._errorResponseFields.push(markFieldErrorHasHandled(error));
+          }
+        }
       }
       this._isMissingData = this._isMissingData || cachedSnapshot.isMissingData;
     }
@@ -775,10 +775,19 @@ class RelayReader {
     // the errors can be attached to this read's snapshot. This allows the error
     // to be logged.
     if (resolverError) {
-      this._resolverErrors.push({
-        field: {path: fieldPath, owner: this._fragmentName},
+      const errorEvent = {
+        kind: 'relay_resolver.error',
+        fieldPath,
+        owner: this._fragmentName,
         error: resolverError,
-      });
+        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
+        handled: false,
+      };
+      if (this._errorResponseFields == null) {
+        this._errorResponseFields = [errorEvent];
+      } else {
+        this._errorResponseFields.push(errorEvent);
+      }
     }
 
     // The resolver itself creates a record in the store. We record that we've
@@ -1376,26 +1385,6 @@ class RelayReader {
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
   }
 
-  _addMissingRequiredFields(additional: MissingRequiredFields) {
-    if (this._missingRequiredFields == null) {
-      this._missingRequiredFields = additional;
-      return;
-    }
-
-    if (this._missingRequiredFields.action === 'THROW') {
-      return;
-    }
-    if (additional.action === 'THROW') {
-      this._missingRequiredFields = additional;
-      return;
-    }
-
-    this._missingRequiredFields = {
-      action: 'LOG',
-      fields: [...this._missingRequiredFields.fields, ...additional.fields],
-    };
-  }
-
   _implementsInterface(record: Record, abstractKey: string): ?boolean {
     const typeName = RelayModernRecord.getType(record);
     const typeRecord = this._recordSource.get(generateTypeID(typeName));
@@ -1413,6 +1402,24 @@ class RelayReader {
     }
     // $FlowFixMe Casting record value
     return implementsInterface;
+  }
+}
+
+function markFieldErrorHasHandled(
+  event: ErrorResponseField,
+): ErrorResponseField {
+  switch (event.kind) {
+    case 'missing_expected_data.throw':
+    case 'missing_required_field.throw':
+    case 'relay_field_payload.error':
+    case 'relay_resolver.error':
+      return {...event, handled: true};
+    case 'missing_expected_data.log':
+    case 'missing_required_field.log':
+      return event;
+    default:
+      event.kind as empty;
+      invariant(false, 'Unexpected error response field kind: %s', event.kind);
   }
 }
 
@@ -1453,9 +1460,10 @@ function getResolverValue(
 
     resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
   } catch (e) {
-    if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
-      resolverResult = undefined;
-    } else {
+    // GraphQL coerces resolver errors to null or nullable fields, and Relay
+    // does not support non-nullable Relay Resolvers.
+    resolverResult = null;
+    if (e !== RESOLVER_FRAGMENT_ERRORED_SENTINEL) {
       resolverError = e;
     }
   }

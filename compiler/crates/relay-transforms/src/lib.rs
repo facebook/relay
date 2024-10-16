@@ -21,6 +21,7 @@ mod client_edges;
 mod client_extensions;
 mod client_extensions_abstract_types;
 mod connections;
+mod debug_transform;
 mod declarative_connection;
 mod defer_stream;
 mod directive_finder;
@@ -76,7 +77,6 @@ use intern::string_key::StringKey;
 use intern::BuildIdHasher;
 pub use metadata_directive::create_metadata_directive;
 pub use metadata_directive::INTERNAL_METADATA_DIRECTIVE;
-
 /// Name of an executable operation
 type OperationName = StringKey;
 
@@ -126,6 +126,7 @@ pub use connections::extract_connection_metadata_from_directive;
 pub use connections::ConnectionConstants;
 pub use connections::ConnectionInterface;
 pub use connections::ConnectionMetadata;
+pub use debug_transform::debug_transform;
 pub use declarative_connection::transform_declarative_connection;
 pub use defer_stream::transform_defer_stream;
 pub use defer_stream::DeferDirective;
@@ -206,7 +207,7 @@ pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::extract_variable_name;
 pub use util::generate_abstract_type_refinement_key;
-pub use util::get_fragment_filename;
+pub use util::get_normalization_fragment_filename;
 pub use util::get_normalization_operation_name;
 pub use util::remove_directive;
 pub use validate_operation_variables::validate_operation_variables;

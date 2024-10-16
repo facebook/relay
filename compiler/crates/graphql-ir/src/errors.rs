@@ -23,6 +23,21 @@ use thiserror::Error;
 use crate::ir::FragmentDefinitionName;
 use crate::VariableName;
 
+#[derive(
+    Eq,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    strum::AsRefStr,
+    strum::Display,
+    strum::EnumString
+)]
+pub enum MachineMetadataKey {
+    UnknownType,
+    UnknownField,
+    ParentType,
+}
+
 struct ErrorLink(&'static str);
 
 impl Display for ErrorLink {
@@ -148,7 +163,10 @@ pub enum ValidationMessage {
     },
 
     #[error("Expected variable `${0}` to be defined on the operation")]
-    ExpectedOperationVariableToBeDefined(VariableName),
+    ExpectedOperationVariableToBeDefinedOnUnnamedQuery(VariableName),
+
+    #[error("Expected variable `${0}` to be defined on the operation '{1}'")]
+    ExpectedOperationVariableToBeDefined(VariableName, StringKey),
 
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"

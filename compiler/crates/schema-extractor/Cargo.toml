@@ -16,4 +16,4 @@ hermes_parser = { git = "https://github.com/facebook/hermes.git" }
 intern = { path = "../intern" }
 rustc-hash = "1.1.0"
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "1.0.49"
+thiserror = "1.0.64"

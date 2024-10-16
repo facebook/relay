@@ -11,10 +11,18 @@ fragment UserFragment on User
   name
 }
 ==================================== ERROR ====================================
-✖︎ Expected variable `$age` to be defined on the operation
+✖︎ Expected variable `$age` to be defined on the operation 'QueryWithUndefinedArgument'
 
   fragment-spread-with-undefined-argument.invalid.graphql:4:37
     3 │   node {
     4 │     ...UserFragment @arguments(age: $age)
       │                                     ^^^^
     5 │   }
+
+  ℹ︎ The operation 'QueryWithUndefinedArgument' is defined here
+
+  fragment-spread-with-undefined-argument.invalid.graphql:2:7
+    1 │ #expected-to-throw
+    2 │ query QueryWithUndefinedArgument {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   node {

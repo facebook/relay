@@ -80,6 +80,8 @@ use crate::hover::on_hover;
 use crate::inlay_hints::on_inlay_hint_request;
 use crate::lsp_process_error::LSPProcessResult;
 use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::print_operation::on_print_operation;
+use crate::print_operation::PrintOperation;
 use crate::references::on_references;
 use crate::rename::on_prepare_rename;
 use crate::rename::on_rename;
@@ -103,6 +105,12 @@ pub use crate::LSPExtraDataProvider;
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
 pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
+    // We don't currently negotiate character encoding in the Relay LSP.
+    // This means we fall back to the LSP default of UTF-16, but we make no effort to
+    // ensure that the LSP positions we emit are actually representing the source text as UTF-16.
+    // This is a possible source of positioning issues, but in lieu of having a reproducible bug,
+    // we're leaving it how it is for now.
+
     let server_capabilities = ServerCapabilities {
         // Enable text document syncing so we can know when files are opened/changed/saved/closed
         text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
@@ -258,6 +266,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<GetSourceLocationOfTypeDefinition>(
                 on_get_source_location_of_type_definition,
             )?
+            .on_request_sync::<PrintOperation>(on_print_operation)?
             .on_request_sync::<HoverRequest>(on_hover)?
             .on_request_sync::<GotoDefinition>(on_goto_definition)?
             .on_request_sync::<References>(on_references)?

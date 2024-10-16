@@ -8,6 +8,7 @@
 use std::path::PathBuf;
 
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
@@ -44,7 +45,7 @@ use relay_transforms::extract_connection_metadata_from_directive;
 use relay_transforms::extract_handle_field_directives;
 use relay_transforms::extract_values_from_handle_field_directive;
 use relay_transforms::generate_abstract_type_refinement_key;
-use relay_transforms::get_fragment_filename;
+use relay_transforms::get_normalization_fragment_filename;
 use relay_transforms::get_normalization_operation_name;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use relay_transforms::relay_resolvers::get_resolver_info;
@@ -1375,6 +1376,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     is_required: true,
                 },
             )),
+            type_confirmed: relay_resolver_metadata.type_confirmed,
         };
         let fragment_primitive = Primitive::Key(self.object(object! {
             args: Primitive::SkippableNull,
@@ -2248,9 +2250,22 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             fragment_prop_name: Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
             kind: Primitive::String(CODEGEN_CONSTANTS.module_import),
         };
+
+        let should_use_reader_module_imports =
+            match &self.project_config.feature_flags.use_reader_module_imports {
+                FeatureFlag::Enabled => true,
+                FeatureFlag::Disabled => false,
+                FeatureFlag::Limited {
+                    allowlist: fragment_names,
+                } => fragment_names.contains(&module_metadata.key),
+                FeatureFlag::Rollout { rollout } => {
+                    rollout.check(module_metadata.key.lookup().as_bytes())
+                }
+            };
+
         match self.variant {
             CodegenVariant::Reader => {
-                if module_metadata.read_time_resolvers {
+                if module_metadata.read_time_resolvers || should_use_reader_module_imports {
                     if let Some(dynamic_module_provider) = self
                         .project_config
                         .module_import_config
@@ -2288,7 +2303,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                                 key: CODEGEN_CONSTANTS.operation_module_provider,
                                 value: Primitive::DynamicImport {
                                     provider: dynamic_module_provider,
-                                    module: get_fragment_filename(fragment_name),
+                                    module: get_normalization_fragment_filename(fragment_name),
                                 },
                             });
                         }

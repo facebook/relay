@@ -23,7 +23,6 @@ import type {IEnvironment, Snapshot} from '../../RelayStoreTypes';
 const {HOUSE_ORDER} = require('./AstrologicalSignUtils');
 const {GLOBAL_STORE} = require('./ExampleExternalStateStore');
 const invariant = require('invariant');
-const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -35,11 +34,11 @@ const {
 const {
   counter: counterResolver,
 } = require('relay-runtime/store/__tests__/resolvers/LiveCounterResolver');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -50,12 +49,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   resetStore();
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 test('Live Resolver without fragment', async () => {
@@ -178,11 +172,20 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
       expect(recordIdsInStore).toEqual(['client:root']);
     },
     afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
-      expect(snapshot.data).toEqual({counter_plus_one: undefined});
-      expect(snapshot.missingRequiredFields).toEqual({
-        action: 'THROW',
-        field: {owner: 'CounterPlusOneResolver', path: 'counter'},
-      });
+      expect(snapshot.data).toEqual({counter_plus_one: null});
+      expect(snapshot.errorResponseFields).toEqual([
+        {
+          fieldPath: '',
+          kind: 'missing_expected_data.log',
+          owner: 'LiveCounterResolver',
+        },
+        {
+          fieldPath: 'counter',
+          kind: 'missing_required_field.throw',
+          owner: 'CounterPlusOneResolver',
+          handled: true,
+        },
+      ]);
       expect(recordIdsInStore).toEqual([
         'client:root',
         'client:root:counter',
@@ -724,7 +727,14 @@ test('Resolver reading a plural client-edge to a client type', async () => {
     },
     afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
       // Note that we _can't_ recreate the Resolver value because it's root fragment has been GGed.
-      expect(snapshot.data).toEqual({me: undefined});
+      expect(snapshot.data).toEqual({all_astrological_signs: null});
+      expect(snapshot.errorResponseFields).toEqual([
+        {
+          fieldPath: '',
+          kind: 'missing_expected_data.log',
+          owner: 'QueryAllAstrologicalSignsResolver',
+        },
+      ]);
       expect(recordIdsInStore).toEqual([
         'client:root',
         'client:root:all_astrological_signs',
@@ -869,7 +879,7 @@ async function testResolverGC<T: OperationType>({
 
   const mockLogger = jest.fn<[LogEvent], void>();
 
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
     log: mockLogger,
   });

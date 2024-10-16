@@ -13,7 +13,7 @@ import { AComedyOfErrors } from "/all/the/worlds/a/stage";
 export type FooQuery$variables = Record<PropertyKey, never>;
 export type FooQuery$data = {
   readonly me: {
-    readonly firstName: Result<string | null | undefined, ReadonlyArray<AComedyOfErrors>>;
+    readonly firstName: Result<string | null | undefined, AComedyOfErrors>;
     readonly lastName: string | null | undefined;
   } | null | undefined;
 };

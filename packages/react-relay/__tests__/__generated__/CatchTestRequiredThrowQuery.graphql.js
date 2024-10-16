@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e2e212c97eeb5a3d412c2e5e2d62ec38>>
+ * @generated SignedSource<<c0c739f9d96e06419713bc4594446ea3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type CatchTestRequiredThrowQuery$variables = {||};
 export type CatchTestRequiredThrowQuery$data = {|
   +me: Result<?{|
     +name: string,
-  |}, $ReadOnlyArray<mixed>>,
+  |}, mixed>,
 |};
 export type CatchTestRequiredThrowQuery = {|
   response: CatchTestRequiredThrowQuery$data,

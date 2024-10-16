@@ -22,9 +22,6 @@ use crate::Rollout;
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
-    pub enable_relay_resolver_transform: bool,
-
-    #[serde(default)]
     // Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,
 
@@ -134,9 +131,33 @@ pub struct FeatureFlags {
     /// This flag will be removed in a future version of Relay.
     #[serde(default)]
     pub disable_full_argument_type_validation: FeatureFlag,
-    /// Enable a custom path for artifacts
+
+    /// Generate the `moduleImports` field in the Reader AST.
     #[serde(default)]
-    pub enable_custom_artifacts_path: FeatureFlag,
+    pub use_reader_module_imports: FeatureFlag,
+
+    /// Skip generating resolver type assertions for resolvers which have
+    /// been derived from TS/Flow types.
+    #[serde(default)]
+    pub omit_resolver_type_assertions_for_confirmed_types: FeatureFlag,
+
+    /// Skip the optimization which extracts common JavaScript structures in
+    /// generated artifacts into numbered variables and uses them by reference
+    /// in each position in which they occure.
+    ///
+    /// This optimization can make it hard to follow changes to generated
+    /// code, so being able to disable it can be helpful for debgging.
+    ///
+    /// To disable deduping for just one fragment or operation's generated
+    /// artifacts:
+    ///
+    /// ```json
+    /// "disable_deduping_common_structures_in_artifacts": {
+    ///   { "kind": "limited", "allowList": ["<operation_or_fragment_name>"] }
+    /// }
+    /// ```
+    #[serde(default)]
+    pub disable_deduping_common_structures_in_artifacts: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]

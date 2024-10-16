@@ -10,7 +10,7 @@ import { Result } from "relay-runtime";
 export type MyQuery$variables = Record<PropertyKey, never>;
 export type MyQuery$data = {
   readonly me: {
-    readonly id: Result<string, ReadonlyArray<unknown>>;
+    readonly id: Result<string, unknown>;
     readonly name: string | null | undefined;
   } | null | undefined;
 };

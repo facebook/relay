@@ -17,7 +17,12 @@ import type {IEnvironment} from 'relay-runtime/store/RelayStoreTypes';
 const useEntryPointLoader = require('../useEntryPointLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 let loadedEntryPoint;
 let instance;

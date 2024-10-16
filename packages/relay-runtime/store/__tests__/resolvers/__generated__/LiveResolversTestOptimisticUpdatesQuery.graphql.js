@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9770867b00a1bbbb6d55b95cac5649a3>>
+ * @generated SignedSource<<0b9f1e1f6018bce3e3ea6ecc24f148a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,9 +18,9 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { UserGreetingResolver$key } from "./../resolvers/__generated__/UserGreetingResolver.graphql";
-import {greeting as userGreetingResolverType} from "../resolvers/UserGreetingResolver.js";
-import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
+import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
+import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
@@ -28,15 +28,15 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderResolverTest7Query$variables = {||};
-export type RelayReaderResolverTest7Query$data = {|
+export type LiveResolversTestOptimisticUpdatesQuery$variables = {||};
+export type LiveResolversTestOptimisticUpdatesQuery$data = {|
   +me: ?{|
     +greeting: ?string,
   |},
 |};
-export type RelayReaderResolverTest7Query = {|
-  response: RelayReaderResolverTest7Query$data,
-  variables: RelayReaderResolverTest7Query$variables,
+export type LiveResolversTestOptimisticUpdatesQuery = {|
+  response: LiveResolversTestOptimisticUpdatesQuery$data,
+  variables: LiveResolversTestOptimisticUpdatesQuery$variables,
 |};
 */
 
@@ -45,7 +45,7 @@ var node/*: ConcreteRequest*/ = {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "RelayReaderResolverTest7Query",
+    "name": "LiveResolversTestOptimisticUpdatesQuery",
     "selections": [
       {
         "alias": null,
@@ -65,7 +65,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "greeting",
-            "resolverModule": require('./../resolvers/UserGreetingResolver').greeting,
+            "resolverModule": require('./../UserGreetingResolver').greeting,
             "path": "me.greeting"
           }
         ],
@@ -79,7 +79,7 @@ var node/*: ConcreteRequest*/ = {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderResolverTest7Query",
+    "name": "LiveResolversTestOptimisticUpdatesQuery",
     "selections": [
       {
         "alias": null,
@@ -123,20 +123,20 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "24bc0fcdf8a304ea57450f9a3a4369db",
+    "cacheID": "b8daebf830b9fd491f8038d470953c19",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderResolverTest7Query",
+    "name": "LiveResolversTestOptimisticUpdatesQuery",
     "operationKind": "query",
-    "text": "query RelayReaderResolverTest7Query {\n  me {\n    ...UserGreetingResolver\n    id\n  }\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n"
+    "text": "query LiveResolversTestOptimisticUpdatesQuery {\n  me {\n    ...UserGreetingResolver\n    id\n  }\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n"
   }
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9d350b220d0974747f2eb357a093bd59";
+  (node/*: any*/).hash = "ea37ac9c431e038b966fc6ca9e096241";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  RelayReaderResolverTest7Query$variables,
-  RelayReaderResolverTest7Query$data,
+  LiveResolversTestOptimisticUpdatesQuery$variables,
+  LiveResolversTestOptimisticUpdatesQuery$data,
 >*/);

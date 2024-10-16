@@ -95,6 +95,10 @@ impl ProjectSet {
     pub fn first(&self) -> Option<&ProjectName> {
         self.0.first()
     }
+
+    pub fn sort(&mut self) {
+        self.0.sort();
+    }
 }
 
 impl IntoIterator for ProjectSet {
@@ -413,6 +417,10 @@ impl CompilerState {
                 .map_or(false, |sources| !sources.pending.is_empty())
             || self
                 .docblocks
+                .get(&project_name)
+                .map_or(false, |sources| !sources.pending.is_empty())
+            || self
+                .full_sources
                 .get(&project_name)
                 .map_or(false, |sources| !sources.pending.is_empty())
     }

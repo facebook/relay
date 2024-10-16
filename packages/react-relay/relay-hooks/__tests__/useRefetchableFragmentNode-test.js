@@ -55,9 +55,12 @@ const {
 } = require('relay-runtime');
 const {
   createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
   trackRetentionForEnvironment,
 } = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useMemo, useState, useEffect} = React;
 

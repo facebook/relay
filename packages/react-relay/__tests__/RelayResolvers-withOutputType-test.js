@@ -31,8 +31,8 @@ const {
   removeTodo,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -48,19 +48,14 @@ function logFn(event: LogEvent): void {
 }
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   logEvents = [];
   resetStore(logFn);
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 function createEnvironment() {
   return new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
-    store: new LiveResolverStore(RelayRecordSource.create(), {
+    store: new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
     }),
     log: logFn,

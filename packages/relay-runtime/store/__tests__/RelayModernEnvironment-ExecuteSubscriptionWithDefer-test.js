@@ -136,9 +136,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        const handlerProvider = (
-          name: string | $TEMPORARY$string<'name_handler'>,
-        ) => {
+        const handlerProvider = (name: string) => {
           switch (name) {
             case 'name_handler':
               return NameHandler;

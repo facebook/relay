@@ -68,6 +68,11 @@ const {
   graphql,
 } = require('relay-runtime');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 describe('FragmentResource', () => {
   let environment;

@@ -21,7 +21,12 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useContext} = React;
 

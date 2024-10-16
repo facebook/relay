@@ -90,11 +90,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  ages: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "ages", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
+  ages: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "ages", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -141,11 +142,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  hungry1: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry1", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
+  hungry1: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "hungry1", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -192,11 +194,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  hungry2: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry2", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
+  hungry2: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "hungry2", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -243,11 +246,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  hungry3: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "hungry3", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
+  hungry3: Boolean @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "hungry3", import_path: "module.js") @resolver_source_hash(value: "41bd781893c904ec9352255c4f6e974e")
 }
 
 
@@ -278,6 +282,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
+            type_confirmed: true,
         },
     ),
 )

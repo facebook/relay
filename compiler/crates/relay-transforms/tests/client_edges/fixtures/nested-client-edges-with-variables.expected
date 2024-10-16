@@ -43,6 +43,7 @@ fragment Foo_user on User {
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
     # }
      @waterfall
     best_friend @waterfall {
@@ -66,6 +67,7 @@ fragment Foo_user on User {
         #     live: false,
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
+        #     type_confirmed: false,
         # }
          @waterfall
         best_friend @waterfall {
@@ -124,6 +126,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
     #     live: false,
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
     # }
      @waterfall
     best_friend @waterfall {

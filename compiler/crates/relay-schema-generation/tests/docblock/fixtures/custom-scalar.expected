@@ -79,11 +79,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "69e6ff1ceadd103da3b3b9a805681c7c",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  serialize: JSON @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "serialize", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
+  serialize: JSON @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "serialize", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
 }
 
 
@@ -178,11 +179,12 @@ Field(
             source_hash: ResolverSourceHash(
                 "69e6ff1ceadd103da3b3b9a805681c7c",
             ),
+            type_confirmed: true,
         },
     ),
 )
 extend type Cat {
-  deserialize_extras(extras: JSON!): String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", has_output_type: true, import_name: "deserialize_extras", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
+  deserialize_extras(extras: JSON!): String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "deserialize_extras", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
 }
 
 
@@ -213,6 +215,7 @@ Type(
             source_hash: ResolverSourceHash(
                 "69e6ff1ceadd103da3b3b9a805681c7c",
             ),
+            type_confirmed: true,
         },
     ),
 )

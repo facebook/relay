@@ -21,7 +21,12 @@ const ReactRelayTestMocker = require('../ReactRelayTestMocker');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
-const RelayTestUtils = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const ReactRelayTestMockerTestQuery = graphql`
   query ReactRelayTestMockerTestQuery {
@@ -55,7 +60,6 @@ const ReactRelayTestMockerTestFragContainerTestQuery = graphql`
     }
   }
 `;
-const {createMockEnvironment} = RelayTestUtils;
 
 describe('ReactRelayTestMocker', () => {
   describe('generateId', () => {

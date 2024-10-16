@@ -11,6 +11,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlag;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -56,7 +57,7 @@ associated_data_impl!(FragmentAliasMetadata);
 
 pub fn fragment_alias_directive(
     program: &Program,
-    is_enforced: bool,
+    is_enforced: &FeatureFlag,
 ) -> DiagnosticsResult<Program> {
     let mut transform = FragmentAliasTransform::new(program, is_enforced);
     let next_program = transform
@@ -119,21 +120,23 @@ impl Transformer for AliasedInlineFragmentRemovalTransform {
 
 struct FragmentAliasTransform<'program> {
     program: &'program Program,
-    is_enforced: bool,
+    is_enforced: &'program FeatureFlag,
     document_name: Option<StringKey>,
     parent_type: Option<Type>,
+    parent_name: Option<StringKey>,
     within_inline_fragment_type_condition: bool,
     maybe_condition: Option<Condition>,
     errors: Vec<Diagnostic>,
 }
 
 impl<'program> FragmentAliasTransform<'program> {
-    fn new(program: &'program Program, enforced: bool) -> Self {
+    fn new(program: &'program Program, enforced: &'program FeatureFlag) -> Self {
         Self {
             program,
             is_enforced: enforced,
             document_name: None,
             parent_type: None,
+            parent_name: None,
             within_inline_fragment_type_condition: false,
             maybe_condition: None,
             errors: Vec::new(),
@@ -163,8 +166,10 @@ impl<'program> FragmentAliasTransform<'program> {
         type_condition: Option<Type>,
         spread: &FragmentSpread,
     ) {
-        if !self.is_enforced {
-            return;
+        if let Some(parent_name) = self.parent_name {
+            if !self.is_enforced.is_enabled_for(parent_name) {
+                return;
+            }
         }
         if spread
             .directives
@@ -186,12 +191,16 @@ impl<'program> FragmentAliasTransform<'program> {
             return;
         }
         if let Some(condition) = &self.maybe_condition {
-            self.errors.push(Diagnostic::error_with_data(
-                ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
-                    condition_name: condition.directive_name().to_string(),
-                },
-                condition.location,
-            ));
+            self.errors.push(
+                Diagnostic::error_with_data(
+                    ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
+                        fragment_name: spread.fragment.item,
+                        condition_name: condition.directive_name().to_string(),
+                    },
+                    spread.fragment.location,
+                )
+                .annotate("The condition is defined here:", condition.location),
+            );
             return;
         }
         if let Some(type_condition) = type_condition {
@@ -238,9 +247,11 @@ impl Transformer for FragmentAliasTransform<'_> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.document_name = Some(fragment.name.item.0);
+        self.parent_name = Some(fragment.name.item.0);
         self.parent_type = Some(fragment.type_condition);
         let transformed = self.default_transform_fragment(fragment);
         self.parent_type = None;
+        self.parent_name = None;
         self.document_name = None;
         transformed
     }
@@ -251,8 +262,10 @@ impl Transformer for FragmentAliasTransform<'_> {
     ) -> Transformed<OperationDefinition> {
         self.document_name = Some(operation.name.item.0);
         self.parent_type = Some(operation.type_);
+        self.parent_name = Some(operation.name.item.0);
         let transformed = self.default_transform_operation(operation);
         self.parent_type = None;
+        self.parent_name = None;
         self.document_name = None;
         transformed
     }

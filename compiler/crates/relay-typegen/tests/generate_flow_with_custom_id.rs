@@ -55,7 +55,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     });
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
-        enable_relay_resolver_transform: true,
         actor_change_support: FeatureFlag::Enabled,
         ..Default::default()
     };

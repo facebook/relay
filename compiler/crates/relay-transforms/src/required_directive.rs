@@ -41,7 +41,7 @@ use lazy_static::lazy_static;
 use requireable_field::RequireableField;
 use requireable_field::RequiredMetadata;
 
-use self::validation_message::ValidationMessage;
+use self::validation_message::RequiredDirectiveValidationMessage;
 use crate::DirectiveFinder;
 use crate::FragmentAliasMetadata;
 
@@ -128,7 +128,7 @@ impl<'program> RequiredDirective<'program> {
     fn assert_not_within_abstract_inline_fragment(&mut self, directive_location: Location) {
         if self.within_abstract_inline_fragment {
             self.errors.push(Diagnostic::error(
-                ValidationMessage::RequiredWithinAbstractInlineFragment,
+                RequiredDirectiveValidationMessage::WithinAbstractInlineFragment,
                 // TODO(T70172661): Also reference the location of the inline fragment, once they have a location.
                 directive_location,
             ))
@@ -139,7 +139,7 @@ impl<'program> RequiredDirective<'program> {
         if let Some(location) = self.parent_inline_fragment_directive {
             self.errors.push(
                 Diagnostic::error(
-                    ValidationMessage::RequiredWithinInlineDirective,
+                    RequiredDirectiveValidationMessage::WithinInlineDirective,
                     directive_location,
                 )
                 .annotate("The fragment is annotated as @inline here.", location),
@@ -154,7 +154,7 @@ impl<'program> RequiredDirective<'program> {
                     if previous_metadata.action != current_metadata.action {
                         self.errors.push(
                             Diagnostic::error(
-                                ValidationMessage::RequiredActionMismatch {
+                                RequiredDirectiveValidationMessage::ActionMismatch {
                                     field_name: current.field_name.item,
                                 },
                                 previous_metadata.action_location,
@@ -168,7 +168,7 @@ impl<'program> RequiredDirective<'program> {
                 } else {
                     self.errors.push(
                         Diagnostic::error(
-                            ValidationMessage::RequiredFieldMismatch {
+                            RequiredDirectiveValidationMessage::FieldMismatch {
                                 field_name: current.field_name.item,
                             },
                             previous.field_name.location,
@@ -179,7 +179,7 @@ impl<'program> RequiredDirective<'program> {
             } else if current.required.is_some() {
                 self.errors.push(
                     Diagnostic::error(
-                        ValidationMessage::RequiredFieldMismatch {
+                        RequiredDirectiveValidationMessage::FieldMismatch {
                             field_name: current.field_name.item,
                         },
                         current.field_name.location,
@@ -238,7 +238,7 @@ impl<'program> RequiredDirective<'program> {
             if required_child.required.action < parent_action {
                 self.errors.push(
                     Diagnostic::error(
-                        ValidationMessage::RequiredFieldInvalidNesting {
+                        RequiredDirectiveValidationMessage::FieldInvalidNesting {
                             suggested_action: required_child.required.action.into(),
                         },
                         required_metadata.action_location,
@@ -270,7 +270,7 @@ impl<'program> RequiredDirective<'program> {
                 if let Some(other_parent) = self.path_required_map.get(&field_path) {
                     self.errors.push(
                         Diagnostic::error(
-                            ValidationMessage::RequiredFieldMissing {
+                            RequiredDirectiveValidationMessage::FieldMissing {
                                 field_name: required_child.field_name.item,
                             },
                             required_child.field_name.location,
@@ -295,7 +295,7 @@ impl<'program> RequiredDirective<'program> {
             if !self.current_node_required_children.contains_key(path) {
                 self.errors.push(
                     Diagnostic::error(
-                        ValidationMessage::RequiredFieldMissing {
+                        RequiredDirectiveValidationMessage::FieldMissing {
                             field_name: required_child.field_name.item,
                         },
                         required_child.field_name.location,

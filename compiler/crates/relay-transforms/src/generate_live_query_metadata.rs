@@ -70,7 +70,7 @@ impl Transformer for GenerateLiveQueryMetadata {
 
                     if polling_interval.is_none() && config_id.is_none() {
                         self.errors.push(Diagnostic::error(
-                            ValidationMessage::LiveQueryTransformMissingConfig {
+                            LiveQueryTransformValidationMessage::MissingConfig {
                                 query_name: operation.name.item,
                             },
                             live_query_directive.name.location,
@@ -87,7 +87,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             Value::Constant(ConstantValue::Int(value)) => value,
                             _ => {
                                 self.errors.push(Diagnostic::error(
-                                    ValidationMessage::LiveQueryTransformInvalidPollingInterval {
+                                    LiveQueryTransformValidationMessage::InvalidPollingInterval {
                                         query_name: operation.name.item,
                                     },
                                     polling_interval.value.location,
@@ -109,7 +109,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             Some(value) => value,
                             None => {
                                 self.errors.push(Diagnostic::error(
-                                    ValidationMessage::LiveQueryTransformInvalidConfigId {
+                                    LiveQueryTransformValidationMessage::InvalidConfigId {
                                         query_name: operation.name.item,
                                     },
                                     config_id.value.location,
@@ -143,19 +143,19 @@ impl Transformer for GenerateLiveQueryMetadata {
 
 #[derive(Error, Debug, serde::Serialize)]
 #[serde(tag = "type")]
-enum ValidationMessage {
+enum LiveQueryTransformValidationMessage {
     #[error(
         "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
     )]
-    LiveQueryTransformMissingConfig { query_name: OperationDefinitionName },
+    MissingConfig { query_name: OperationDefinitionName },
 
     #[error(
         "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
     )]
-    LiveQueryTransformInvalidPollingInterval { query_name: OperationDefinitionName },
+    InvalidPollingInterval { query_name: OperationDefinitionName },
 
     #[error(
         "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
     )]
-    LiveQueryTransformInvalidConfigId { query_name: OperationDefinitionName },
+    InvalidConfigId { query_name: OperationDefinitionName },
 }

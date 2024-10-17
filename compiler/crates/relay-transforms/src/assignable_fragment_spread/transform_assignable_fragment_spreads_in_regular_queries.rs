@@ -60,10 +60,10 @@ struct AssignableFragmentSpread<'s> {
 
 impl<'s> AssignableFragmentSpread<'s> {
     /// 1. Validate that the assignable fragment does not have @skip/@defer, and
-    /// is not within an inline fragment with directives, and is nested in a linked field
+    ///    is not within an inline fragment with directives, and is nested in a linked field
     /// 2. Mark the enclosing linked field as containing an assignable fragment spread.
-    /// This later results in an __id (clientid_field) selection being added to the linked
-    /// field.
+    ///    This later results in an __id (clientid_field) selection being added to the linked
+    ///    field.
     fn validate_nesting_and_mark_enclosing_linked_field(
         &mut self,
         fragment_spread: &FragmentSpread,

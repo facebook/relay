@@ -16,7 +16,7 @@ use graphql_ir::ScalarField;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 
-use super::validation_message::ValidationMessage;
+use super::validation_message::RequiredDirectiveValidationMessage;
 use super::ACTION_ARGUMENT;
 use super::REQUIRED_DIRECTIVE_NAME;
 use crate::RequiredAction;
@@ -69,7 +69,7 @@ fn get_action_argument(
     let maybe_action_arg = required_directive.arguments.named(*ACTION_ARGUMENT);
     let action_arg = maybe_action_arg.ok_or_else(|| {
         Diagnostic::error(
-            ValidationMessage::RequiredActionArgumentRequired,
+            RequiredDirectiveValidationMessage::ActionArgumentRequired,
             required_directive.name.location,
         )
     })?;

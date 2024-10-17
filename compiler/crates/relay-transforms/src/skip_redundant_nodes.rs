@@ -54,8 +54,8 @@ use crate::RelayLocationAgnosticBehavior;
  *
  *
  * 2. Inline fragments and conditions introduce the possibility for duplication
- * at different levels of the tree. Whenever a selection is fetched in a parent,
- * it is redundant to also fetch it in a child:
+ *    at different levels of the tree. Whenever a selection is fetched in a parent,
+ *    it is redundant to also fetch it in a child:
  *
  *
  * fragment Foo on FooType {
@@ -479,21 +479,15 @@ impl SkipRedundantNodesTransform {
      */
     fn get_partitioned_selections<'a>(&self, selections: &'a [Selection]) -> Vec<&'a Selection> {
         let mut result = Vec::with_capacity(selections.len());
-        unsafe { result.set_len(selections.len()) };
-        let mut non_field_index = selections
-            .iter()
-            .filter(|sel| self.is_selection_linked_or_scalar(sel))
-            .count();
-        let mut field_index = 0;
+        let mut non_field_selections = Vec::new();
         for sel in selections.iter() {
             if self.is_selection_linked_or_scalar(sel) {
-                result[field_index] = sel;
-                field_index += 1;
+                result.push(sel);
             } else {
-                result[non_field_index] = sel;
-                non_field_index += 1;
+                non_field_selections.push(sel);
             }
         }
+        result.extend(non_field_selections);
         result
     }
 

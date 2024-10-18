@@ -50,6 +50,7 @@ declare module react {
   declare export type Element<+C> = React$Element<C>;
   declare export var Fragment: React$FragmentType;
   declare export type Key = React$Key;
+  declare export type RefSetter<-T> = React$RefSetter<T>;
   declare export type Node = React$Node;
   declare export type Context<T> = React$Context<T>;
   declare export type Portal = React$Portal;

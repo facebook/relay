@@ -14,7 +14,7 @@
 /* eslint-disable no-unused-vars */
 
 import type {JSResourceReference} from 'JSResourceReference';
-import type {AbstractComponent, ElementConfig} from 'react';
+import type {ComponentType, ElementConfig} from 'react';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -178,7 +178,7 @@ export type EntryPointComponent<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-> = AbstractComponent<
+> = ComponentType<
   EntryPointProps<
     TPreloadedQueries,
     TPreloadedEntryPoints,

@@ -118,11 +118,17 @@ impl Transformer for AliasedInlineFragmentRemovalTransform {
     }
 }
 
+#[derive(Clone, Copy)]
+struct ParentType {
+    type_: Type,
+    is_plural: bool,
+}
+
 struct FragmentAliasTransform<'program> {
     program: &'program Program,
     is_enforced: &'program FeatureFlag,
     document_name: Option<StringKey>,
-    parent_type: Option<Type>,
+    parent_type: Option<ParentType>,
     parent_name: Option<StringKey>,
     within_inline_fragment_type_condition: bool,
     maybe_condition: Option<Condition>,
@@ -155,7 +161,7 @@ impl<'program> FragmentAliasTransform<'program> {
 
                 self.program
                     .schema
-                    .is_named_type_subtype_of(parent_type, type_condition)
+                    .is_named_type_subtype_of(parent_type.type_, type_condition)
             }
             None => true,
         }
@@ -178,6 +184,20 @@ impl<'program> FragmentAliasTransform<'program> {
         {
             // We allow users to add `@dangerously_unaliaed_fixme` to suppress
             // this error as a migration strategy.
+            return;
+        }
+        let fragment = self
+            .program
+            .fragment(spread.fragment.item)
+            .expect("I believe we have already validated that all fragments exist");
+
+        let fragment_is_plural =
+            RelayDirective::find(&fragment.directives).map_or(false, |directive| directive.plural);
+
+        if fragment_is_plural && self.parent_type.expect("expect parent type").is_plural {
+            // Plural fragments handle their own nullability when read. However,
+            // they can calso be used in a singular selection. In that case,
+            // they should be aliased.
             return;
         }
         if spread
@@ -211,10 +231,10 @@ impl<'program> FragmentAliasTransform<'program> {
             if !self
                 .program
                 .schema
-                .is_named_type_subtype_of(parent_type, type_condition)
+                .is_named_type_subtype_of(parent_type.type_, type_condition)
             {
                 let fragment_type_name = self.program.schema.get_type_name(type_condition);
-                let selection_type_name = self.program.schema.get_type_name(parent_type);
+                let selection_type_name = self.program.schema.get_type_name(parent_type.type_);
                 let diagnostic = if self.within_inline_fragment_type_condition {
                     ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
                         fragment_name: spread.fragment.item,
@@ -248,7 +268,10 @@ impl Transformer for FragmentAliasTransform<'_> {
     ) -> Transformed<FragmentDefinition> {
         self.document_name = Some(fragment.name.item.0);
         self.parent_name = Some(fragment.name.item.0);
-        self.parent_type = Some(fragment.type_condition);
+        self.parent_type = Some(ParentType {
+            type_: fragment.type_condition,
+            is_plural: false,
+        });
         let transformed = self.default_transform_fragment(fragment);
         self.parent_type = None;
         self.parent_name = None;
@@ -261,7 +284,10 @@ impl Transformer for FragmentAliasTransform<'_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.document_name = Some(operation.name.item.0);
-        self.parent_type = Some(operation.type_);
+        self.parent_type = Some(ParentType {
+            type_: operation.type_,
+            is_plural: false,
+        });
         self.parent_name = Some(operation.name.item.0);
         let transformed = self.default_transform_operation(operation);
         self.parent_type = None;
@@ -312,16 +338,24 @@ impl Transformer for FragmentAliasTransform<'_> {
                 let will_always_match = self.will_always_match(fragment.type_condition);
 
                 if let Some(type_condition) = fragment.type_condition {
-                    self.parent_type = Some(type_condition);
+                    let parent_type = self
+                        .parent_type
+                        .expect("Selection should be within a parent type.");
+                    self.parent_type = Some(ParentType {
+                        type_: type_condition,
+                        is_plural: parent_type.is_plural,
+                    });
                 }
+
+                let parent_type = self
+                    .parent_type
+                    .expect("Selection should be within a parent type.");
 
                 let alias_metadata = FragmentAliasMetadata {
                     alias,
                     type_condition: fragment.type_condition,
                     non_nullable: will_always_match,
-                    selection_type: self
-                        .parent_type
-                        .expect("Selection should be within a parent type."),
+                    selection_type: parent_type.type_,
                     wraps_spread: false,
                 };
 
@@ -379,10 +413,14 @@ impl Transformer for FragmentAliasTransform<'_> {
 
         match spread.alias() {
             Ok(Some(alias)) => {
-                let is_plural = RelayDirective::find(&fragment.directives)
+                let fragment_is_plural = RelayDirective::find(&fragment.directives)
                     .map_or(false, |directive| directive.plural);
 
-                if is_plural {
+                let parent_type = self
+                    .parent_type
+                    .expect("Selection should be within a parent type.");
+
+                if fragment_is_plural && parent_type.is_plural {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::PluralFragmentAliasNotSupported,
                         alias.location,
@@ -393,9 +431,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                     alias,
                     type_condition,
                     non_nullable: self.will_always_match(type_condition),
-                    selection_type: self
-                        .parent_type
-                        .expect("Selection should be within a parent type."),
+                    selection_type: parent_type.type_,
                     wraps_spread: true,
                 };
 
@@ -422,13 +458,12 @@ impl Transformer for FragmentAliasTransform<'_> {
         // does not apply to the selections within the linked field.
         let parent_condition = self.maybe_condition.take();
 
-        self.parent_type = Some(
-            self.program
-                .schema
-                .field(field.definition.item)
-                .type_
-                .inner(),
-        );
+        let field_definition = self.program.schema.field(field.definition.item);
+
+        self.parent_type = Some(ParentType {
+            type_: field_definition.type_.inner(),
+            is_plural: field_definition.type_.is_list(),
+        });
 
         let transformed = self.default_transform_linked_field(field);
 

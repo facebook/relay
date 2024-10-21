@@ -747,7 +747,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             {errorMessage != null && (
               <span testID="errorMessage">{errorMessage}</span>
             )}
-            Feedback: {props.feedback.message.text}
+            {props.feedback.message.text}
             <button
               testID="likeButton"
               disabled={busy}
@@ -1040,7 +1040,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         });
         return (
           <div>
-            Feedback: {props.feedback.message.text}
+            {props.feedback.message.text}
             <span
               testID="reaction"
               reactionType={

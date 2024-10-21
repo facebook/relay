@@ -19,7 +19,6 @@ Array [
 
 exports[`ReactRelayTestMocker with Containers Subscription Tests should resolve subscription 1`] = `
 <div>
-  Feedback: 
   &lt;mock-value-for-field-"text"&gt;
   <span
     reactionType="Viewer does not like it"
@@ -35,7 +34,6 @@ exports[`ReactRelayTestMocker with Containers Test Mutations should reject mutat
   >
     Uh-oh
   </span>
-  Feedback: 
   &lt;mock-value-for-field-"text"&gt;
   <button
     disabled={false}
@@ -49,7 +47,6 @@ exports[`ReactRelayTestMocker with Containers Test Mutations should reject mutat
 
 exports[`ReactRelayTestMocker with Containers Test Mutations should resolve mutation: Button should be enabled. Text should be "Like". 1`] = `
 <div>
-  Feedback: 
   &lt;mock-value-for-field-"text"&gt;
   <button
     disabled={false}
@@ -63,7 +60,6 @@ exports[`ReactRelayTestMocker with Containers Test Mutations should resolve muta
 
 exports[`ReactRelayTestMocker with Containers Test Mutations should resolve mutation: Should apply optimistic update. Button should says "Unlike". And it should be disabled 1`] = `
 <div>
-  Feedback: 
   &lt;mock-value-for-field-"text"&gt;
   <button
     disabled={true}
@@ -77,7 +73,6 @@ exports[`ReactRelayTestMocker with Containers Test Mutations should resolve muta
 
 exports[`ReactRelayTestMocker with Containers Test Mutations should resolve mutation: Should render response from the server. Button should be enabled. And text still "Unlike" 1`] = `
 <div>
-  Feedback: 
   &lt;mock-value-for-field-"text"&gt;
   <button
     disabled={false}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a28fc604221fc6f9dffabfa722e096b3>>
+ * @generated SignedSource<<f96996b8ca3c191bd4f0792827be194f>>
  */
 
 mod transform_connections;
@@ -73,6 +73,20 @@ async fn connection_with_variables() {
     let input = include_str!("transform_connections/fixtures/connection-with-variables.graphql");
     let expected = include_str!("transform_connections/fixtures/connection-with-variables.expected");
     test_fixture(transform_fixture, file!(), "connection-with-variables.graphql", "transform_connections/fixtures/connection-with-variables.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prefetchable_pagination() {
+    let input = include_str!("transform_connections/fixtures/prefetchable-pagination.graphql");
+    let expected = include_str!("transform_connections/fixtures/prefetchable-pagination.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable-pagination.graphql", "transform_connections/fixtures/prefetchable-pagination.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prefetchable_pagination_on_alias() {
+    let input = include_str!("transform_connections/fixtures/prefetchable-pagination-on-alias.graphql");
+    let expected = include_str!("transform_connections/fixtures/prefetchable-pagination-on-alias.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable-pagination-on-alias.graphql", "transform_connections/fixtures/prefetchable-pagination-on-alias.expected", input, expected).await;
 }
 
 #[tokio::test]

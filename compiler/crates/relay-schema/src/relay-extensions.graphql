@@ -137,6 +137,7 @@ directive @connection(
   filters: [String]
   handler: String
   dynamicKey_UNSTABLE: String
+  prefetchable_pagination: Boolean = false
 ) on FIELD
 
 directive @stream_connection(
@@ -148,6 +149,7 @@ directive @stream_connection(
   if: Boolean = true
   use_customized_batch: Boolean = false
   dynamicKey_UNSTABLE: String
+  prefetchable_pagination: Boolean = false
 ) on FIELD
 
 # RequiredTransform

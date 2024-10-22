@@ -72,6 +72,7 @@ pub struct ConnectionMetadata {
     pub before: Option<StringKey>,
     pub after: Option<StringKey>,
     pub is_stream_connection: bool,
+    pub is_prefetchable_pagination: bool,
 }
 
 /// Builds the connection metadata that will be attached
@@ -81,6 +82,7 @@ pub fn build_connection_metadata(
     connection_constants: ConnectionConstants,
     path: &Option<Vec<StringKey>>,
     is_stream_connection: bool,
+    is_prefetchable_pagination: bool,
 ) -> ConnectionMetadata {
     let first_arg = connection_field
         .arguments
@@ -118,6 +120,7 @@ pub fn build_connection_metadata(
         direction,
         path: path.clone(),
         is_stream_connection,
+        is_prefetchable_pagination,
     }
 }
 

@@ -3,7 +3,7 @@ query NodeQuery($id: ID!) {
   node(id: $id) {
     id
     ... on Story {
-      comments(first: 10) @connection(key: "NodeQuery_comments") {
+      comments(first: 10) @connection(key: "NodeQuery_comments", prefetchable_pagination: true) {
         commentEdges: edges {
           node {
             actor {
@@ -19,6 +19,14 @@ query NodeQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
+fragment NodeQuery__edges on CommentsEdge @relay(plural: true) {
+  node {
+    actor {
+      name
+    }
+  }
+}
+
 query NodeQuery(
   $id: ID!
 ) @__ConnectionMetadataDirective
@@ -37,7 +45,7 @@ query NodeQuery(
 #             before: None,
 #             after: None,
 #             is_stream_connection: false,
-#             is_prefetchable_pagination: false,
+#             is_prefetchable_pagination: true,
 #         },
 #     ],
 # )
@@ -47,11 +55,7 @@ query NodeQuery(
     ... on Story {
       comments(first: 10) @__clientField(key: "NodeQuery_comments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         commentEdges: edges {
-          node {
-            actor {
-              name
-            }
-          }
+          ...NodeQuery__edges
         }
         commentPageInfo: pageInfo {
           hasNextPage

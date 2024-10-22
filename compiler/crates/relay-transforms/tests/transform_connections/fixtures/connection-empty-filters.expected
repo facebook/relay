@@ -36,6 +36,7 @@ query NodeQuery(
 #             before: None,
 #             after: None,
 #             is_stream_connection: false,
+#             is_prefetchable_pagination: false,
 #         },
 #     ],
 # )

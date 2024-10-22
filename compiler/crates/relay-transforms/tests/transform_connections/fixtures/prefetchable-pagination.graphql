@@ -1,0 +1,21 @@
+query NodeQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10) @connection(key: "NodeQuery_comments", prefetchable_pagination: true) {
+        edges {
+          node {
+            id
+            __typename
+            actor {
+              name
+            }
+          }
+        }
+        commentPageInfo: pageInfo {
+          hasNextPage
+        }
+      }
+    }
+  }
+}

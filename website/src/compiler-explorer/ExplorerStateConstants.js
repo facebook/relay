@@ -74,12 +74,6 @@ export const FEATURE_FLAGS = [
     kind: 'enum',
     default: true,
   },
-  {
-    key: 'enable_catch_directive_transform',
-    label: '@catch',
-    kind: 'enum',
-    default: false,
-  },
 ];
 
 export const DEFAULT_STATE = {

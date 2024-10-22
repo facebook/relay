@@ -143,10 +143,10 @@ pub struct FeatureFlags {
 
     /// Skip the optimization which extracts common JavaScript structures in
     /// generated artifacts into numbered variables and uses them by reference
-    /// in each position in which they occure.
+    /// in each position in which they occur.
     ///
     /// This optimization can make it hard to follow changes to generated
-    /// code, so being able to disable it can be helpful for debgging.
+    /// code, so being able to disable it can be helpful for debugging.
     ///
     /// To disable deduping for just one fragment or operation's generated
     /// artifacts:

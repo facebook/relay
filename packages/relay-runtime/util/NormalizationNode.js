@@ -200,10 +200,17 @@ export type NormalizationLiveResolverField = {
   ...ResolverData,
 };
 
+export type NormalizationModelResolvers = {
+  [string]: {
+    +resolverModule: ResolverModule,
+  },
+};
+
 export type NormalizationClientEdgeToClientObject = {
   +kind: 'ClientEdgeToClientObject',
   +linkedField: NormalizationLinkedField,
   +backingField: NormalizationResolverField | NormalizationLiveResolverField,
+  +modelResolvers?: NormalizationModelResolvers | null,
 };
 
 export type NormalizationClientComponent = {

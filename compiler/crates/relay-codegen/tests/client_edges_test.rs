@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<47f77ebc1507bbe5e60146b25f042c50>>
+ * @generated SignedSource<<5873fe295d3d76246e0125a0b8a37f15>>
  */
 
 mod client_edges;
@@ -17,6 +17,13 @@ async fn client_edge_backed_by_resolver() {
     let input = include_str!("client_edges/fixtures/client-edge-backed-by-resolver.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-backed-by-resolver.expected");
     test_fixture(transform_fixture, file!(), "client-edge-backed-by-resolver.graphql", "client_edges/fixtures/client-edge-backed-by-resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_edge_exec_time_resolver() {
+    let input = include_str!("client_edges/fixtures/client-edge-exec-time-resolver.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-exec-time-resolver.expected");
+    test_fixture(transform_fixture, file!(), "client-edge-exec-time-resolver.graphql", "client_edges/fixtures/client-edge-exec-time-resolver.expected", input, expected).await;
 }
 
 #[tokio::test]

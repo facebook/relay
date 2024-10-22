@@ -1343,17 +1343,51 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let type_name = model_resolver.type_name.item.0;
                 ObjectEntry {
                     key: type_name,
-                    value: self.build_client_edge_model_resolver(
-                        model_resolver.type_name,
-                        model_resolver.is_live,
-                        relay_resolver_metadata,
-                    ),
+                    value: match self.variant {
+                        CodegenVariant::Reader => self.build_reader_client_edge_model_resolver(
+                            model_resolver.type_name,
+                            model_resolver.is_live,
+                            relay_resolver_metadata,
+                        ),
+                        CodegenVariant::Normalization => self
+                            .build_normalization_client_edge_model_resolver(
+                                model_resolver.type_name,
+                                relay_resolver_metadata,
+                            ),
+                    },
                 }
             })
             .collect()
     }
 
-    fn build_client_edge_model_resolver(
+    fn build_normalization_client_edge_model_resolver(
+        &mut self,
+        type_name: WithLocation<ObjectName>,
+        relay_resolver_metadata: &RelayResolverMetadata,
+    ) -> Primitive {
+        let import_path = self.project_config.js_module_import_identifier(
+            &self
+                .project_config
+                .artifact_path_for_definition(self.definition_source_location),
+            &PathBuf::from(type_name.location.source_location().path()),
+        );
+        let variable_name = relay_resolver_metadata.generate_local_resolver_name(self.schema);
+        let resolver_module = JSModuleDependency {
+            path: import_path,
+            import_name: ModuleImportName::Named {
+                name: type_name.item.0,
+                import_as: Some(variable_name),
+            },
+        };
+
+        let object_props = object! {
+            resolver_module: Primitive::JSModuleDependency(resolver_module),
+        };
+
+        Primitive::Key(self.object(object_props))
+    }
+
+    fn build_reader_client_edge_model_resolver(
         &mut self,
         type_name: WithLocation<ObjectName>,
         is_live: bool,
@@ -1705,12 +1739,57 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
         let backing_field = backing_field_primitives.into_iter().next().unwrap();
 
+        let client_edge_model_resolvers = match &client_edge_metadata.metadata_directive {
+            ClientEdgeMetadataDirective::ClientObject {
+                model_resolvers, ..
+            } => {
+                let field_directives = match &client_edge_metadata.backing_field {
+                    Selection::ScalarField(field) => Some(&field.directives),
+                    // Although the reader checks for FragmentSpreads on the backing field, the normalization
+                    // transforms inline the fragment spread so we match an InlineFragment here
+                    Selection::InlineFragment(inline_frag) => Some(&inline_frag.directives),
+                    _ => panic!(
+                        "Expected Client Edge backing field to be a Relay Resolver. {:?}",
+                        client_edge_metadata.backing_field
+                    ),
+                };
+                field_directives.and_then(|field_directives| {
+                    let resolver_metadata = RelayResolverMetadata::find(field_directives).unwrap();
+                    let is_weak_resolver = matches!(
+                        resolver_metadata.output_type_info,
+                        ResolverOutputTypeInfo::Composite(_)
+                    );
+                    let model_resolver_primitives = if !is_weak_resolver {
+                        self.build_client_edge_model_resolvers(model_resolvers, resolver_metadata)
+                    } else {
+                        vec![]
+                    };
+                    if model_resolver_primitives.is_empty() {
+                        None
+                    } else {
+                        Some(Primitive::Key(self.object(model_resolver_primitives)))
+                    }
+                })
+            }
+            ClientEdgeMetadataDirective::ServerObject { .. } => None,
+        };
+
         let selections_item = self.build_linked_field(context, client_edge_metadata.linked_field);
-        Primitive::Key(self.object(object! {
-            kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-            client_edge_backing_field_key: backing_field,
-            client_edge_selections_key: selections_item,
-        }))
+
+        let obj = match client_edge_model_resolvers {
+            Some(model_resolvers) => object! {
+                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                client_edge_model_resolvers: model_resolvers,
+                client_edge_backing_field_key: backing_field,
+                client_edge_selections_key: selections_item,
+            },
+            None => object! {
+                kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                client_edge_backing_field_key: backing_field,
+                client_edge_selections_key: selections_item,
+            },
+        };
+        Primitive::Key(self.object(obj))
     }
 
     fn build_normalization_client_edge(

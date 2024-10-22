@@ -92,24 +92,23 @@ declare module react {
     ...
   };
 
-  declare export function forwardRef<Config, Instance>(
-    render: (
-      props: Config,
-      ref: {current: null | Instance, ...} | ((null | Instance) => mixed),
-    ) => React$Node,
-  ): React$AbstractComponent<Config, Instance>;
+  declare export function forwardRef<Config: {...}, Instance>(
+    render: (props: Config, ref: React$RefSetter<Instance>) => React$Node,
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
-  declare export function memo<Config, Instance = mixed>(
-    component_: React$AbstractComponent<Config, Instance>,
+  declare export function memo<Config: {...}, Instance = mixed>(
+    component: component(ref: React.RefSetter<Instance>, ...Config),
     equal?: (Config, Config) => boolean,
-  ): React$AbstractComponent<Config, Instance>;
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
-  declare export function lazy<Config, Instance = mixed>(
-    component_: () => Promise<{
-      default: React$AbstractComponent<Config, Instance>,
-      ...
-    }>,
-  ): React$AbstractComponent<Config, Instance>;
+  declare export function lazy<Config: {...}, Instance = mixed>(
+    component_: () => Promise<
+      $ReadOnly<{
+        default: component(ref: React.RefSetter<Instance>, ...Config),
+        ...
+      }>,
+    >,
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
   declare type MaybeCleanUpFn = void | (() => void);
 

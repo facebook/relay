@@ -77,6 +77,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on Us
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   name

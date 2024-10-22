@@ -43,6 +43,7 @@ fragment RefetchableFragmentFoo on RefetchableInterfaceFoo @refetchable(queryNam
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   id

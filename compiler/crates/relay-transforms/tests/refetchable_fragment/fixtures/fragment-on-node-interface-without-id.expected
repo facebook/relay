@@ -48,6 +48,7 @@ fragment RefetchableFragment on Node @refetchable(queryName: "RefetchableFragmen
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   ... on User {

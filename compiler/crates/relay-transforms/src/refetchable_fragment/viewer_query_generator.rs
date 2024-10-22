@@ -24,6 +24,7 @@ use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
 use super::build_used_global_variables;
+use super::uses_prefetchable_pagination_in_connection;
 use super::validation_message::ValidationMessage;
 use super::QueryGenerator;
 use super::RefetchRoot;
@@ -51,6 +52,7 @@ fn build_refetch_operation(
                 operation_name: query_name,
                 path: vec![CONSTANTS.viewer_field_name],
                 identifier_info: None,
+                is_prefetchable_pagination: uses_prefetchable_pagination_in_connection(fragment),
             },
         ),
         used_global_variables: build_used_global_variables(

@@ -34,6 +34,7 @@ use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
 use super::build_used_global_variables;
+use super::uses_prefetchable_pagination_in_connection;
 use super::validation_message::ValidationMessage;
 use super::QueryGenerator;
 use super::RefetchRoot;
@@ -78,6 +79,9 @@ fn build_refetch_operation(
                         identifier_query_variable_name: schema_config
                             .node_interface_id_variable_name,
                     }),
+                    is_prefetchable_pagination: uses_prefetchable_pagination_in_connection(
+                        fragment,
+                    ),
                 },
             ),
             selections: enforce_selections_with_id_field(

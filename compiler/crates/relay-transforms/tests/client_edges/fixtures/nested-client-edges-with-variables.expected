@@ -104,6 +104,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   url(site: $top_level_site)
@@ -162,6 +163,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @_
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   name

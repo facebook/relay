@@ -118,6 +118,7 @@ fragment RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend on 
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   name
@@ -149,6 +150,7 @@ fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User 
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   doesViewerLike

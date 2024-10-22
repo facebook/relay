@@ -492,6 +492,27 @@ pub(crate) fn write_fragment_type_exports_section(
                 )?;
             }
         }
+        let edges_name = format!("{}__edges$data", fragment_name);
+        if refetchable_metadata.is_prefetchable_pagination {
+            match typegen_context.project_config.js_module_format {
+                JsModuleFormat::CommonJS => {
+                    if typegen_context.has_unified_output {
+                        writer.write_import_fragment_type(
+                            &[&edges_name],
+                            &format!("./{}__edges.graphql", fragment_name),
+                        )?;
+                    } else {
+                        writer.write_any_type_definition(&edges_name)?;
+                    }
+                }
+                JsModuleFormat::Haste => {
+                    writer.write_import_fragment_type(
+                        &[&edges_name],
+                        &format!("{}__edges.graphql", fragment_name),
+                    )?;
+                }
+            }
+        }
     }
 
     if !is_assignable_fragment {

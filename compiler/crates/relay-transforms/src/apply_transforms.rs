@@ -174,6 +174,7 @@ fn apply_common_transforms(
             &program,
             &project_config.schema_config.connection_interface,
             &project_config.schema_config.defer_stream_interface,
+            false,
         )
     });
     program = log_event.time("mask", || mask(&program));
@@ -662,6 +663,16 @@ fn apply_typegen_transforms(
                 .enforce_fragment_alias_where_ambiguous,
         )
     })?;
+
+    // Split edge fragment for prefetchable pagination
+    program = log_event.time("transform_connections_typegen", || {
+        transform_connections(
+            &program,
+            &project_config.schema_config.connection_interface,
+            &project_config.schema_config.defer_stream_interface,
+            true,
+        )
+    });
 
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {

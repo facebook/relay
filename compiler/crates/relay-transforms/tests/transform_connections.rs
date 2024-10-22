@@ -39,8 +39,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     validate_connections(&program, &connection_interface)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let next_program =
-        transform_connections(&program, &connection_interface, &defer_stream_interface);
+    let next_program = transform_connections(
+        &program,
+        &connection_interface,
+        &defer_stream_interface,
+        false,
+    );
 
     let printer_options = PrinterOptions {
         debug_directive_data: true,

@@ -7,6 +7,10 @@
 
 use std::path::PathBuf;
 
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use ::intern::Lookup;
 use common::DirectiveName;
 use common::FeatureFlag;
 use common::NamedItem;
@@ -32,9 +36,6 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::Lookup;
 use lazy_static::lazy_static;
 use md5::Digest;
 use md5::Md5;
@@ -593,6 +594,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         identifier_field:  Primitive::String(identifier_info.identifier_field),
                         identifier_query_variable_name:  Primitive::String(identifier_info.identifier_query_variable_name),
                     })),
+                });
+            }
+            if refetch_metadata.is_prefetchable_pagination {
+                refetch_object.push(ObjectEntry {
+                    key: intern!("edgesFragment"),
+                    value: Primitive::GraphQLModuleDependency(GraphQLModuleDependency::Name(
+                        ExecutableDefinitionName::FragmentDefinitionName(FragmentDefinitionName(
+                            format!("{}__edges", fragment.name.item).intern(),
+                        )),
+                    )),
                 });
             }
 

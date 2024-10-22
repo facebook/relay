@@ -53,9 +53,16 @@ pub fn transform_connections(
     program: &Program,
     connection_interface: &ConnectionInterface,
     defer_stream_interface: &DeferStreamInterface,
+    // Does not do other validaiton and transforms only extract prefetchable pagination
+    // fragment. Needed for generating correct types in the typegen pipeline.
+    only_extract_prefetchable_pagination_fragment: bool,
 ) -> Program {
-    let mut transform =
-        ConnectionTransform::new(program, connection_interface, defer_stream_interface);
+    let mut transform = ConnectionTransform::new(
+        program,
+        connection_interface,
+        defer_stream_interface,
+        only_extract_prefetchable_pagination_fragment,
+    );
     let mut program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -74,6 +81,7 @@ struct ConnectionTransform<'s> {
     program: &'s Program,
     defer_stream_interface: &'s DeferStreamInterface,
     edge_fragments: Vec<Arc<FragmentDefinition>>,
+    only_extract_prefetchable_pagination_fragment: bool,
 }
 
 impl<'s> ConnectionTransform<'s> {
@@ -81,6 +89,7 @@ impl<'s> ConnectionTransform<'s> {
         program: &'s Program,
         connection_interface: &'s ConnectionInterface,
         defer_stream_interface: &'s DeferStreamInterface,
+        only_extract_prefetchable_pagination_fragment: bool,
     ) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
@@ -91,6 +100,7 @@ impl<'s> ConnectionTransform<'s> {
             program,
             defer_stream_interface,
             edge_fragments: vec![],
+            only_extract_prefetchable_pagination_fragment,
         }
     }
 
@@ -433,6 +443,11 @@ impl<'s> ConnectionTransform<'s> {
                 false
             },
         );
+        if self.only_extract_prefetchable_pagination_fragment
+            && !connection_metadata.is_prefetchable_pagination
+        {
+            return Transformed::Keep;
+        }
         let next_connection_selections = self.transform_connection_selections(
             connection_field,
             &connection_metadata,

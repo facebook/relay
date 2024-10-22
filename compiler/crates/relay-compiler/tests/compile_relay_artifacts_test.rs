@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a990b1cc8c6c1cdceef8602343de947f>>
+ * @generated SignedSource<<85f6b556df80c4d819ff23344734487b>>
  */
 
 mod compile_relay_artifacts;
@@ -969,6 +969,13 @@ async fn plural_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/plural-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/plural-fragment.expected");
     test_fixture(transform_fixture, file!(), "plural-fragment.graphql", "compile_relay_artifacts/fixtures/plural-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prefetchable_refetchable_fragment_with_connection() {
+    let input = include_str!("compile_relay_artifacts/fixtures/prefetchable-refetchable-fragment-with-connection.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/prefetchable-refetchable-fragment-with-connection.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable-refetchable-fragment-with-connection.graphql", "compile_relay_artifacts/fixtures/prefetchable-refetchable-fragment-with-connection.expected", input, expected).await;
 }
 
 #[tokio::test]

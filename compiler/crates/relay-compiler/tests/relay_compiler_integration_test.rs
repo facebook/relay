@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<00aa849a8a46f027d22d0712fd90b3eb>>
+ * @generated SignedSource<<44313b4ad0ca41fac58e6a820c78a157>>
  */
 
 mod relay_compiler_integration;
@@ -115,6 +115,13 @@ async fn multiple_resolvers_returns_interfaces_of_all_strong_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected");
     test_fixture(transform_fixture, file!(), "multiple_resolvers_returns_interfaces_of_all_strong_model_type.input", "relay_compiler_integration/fixtures/multiple_resolvers_returns_interfaces_of_all_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prefetchable_refetchable_pagination() {
+    let input = include_str!("relay_compiler_integration/fixtures/prefetchable_refetchable_pagination.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/prefetchable_refetchable_pagination.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable_refetchable_pagination.input", "relay_compiler_integration/fixtures/prefetchable_refetchable_pagination.expected", input, expected).await;
 }
 
 #[tokio::test]

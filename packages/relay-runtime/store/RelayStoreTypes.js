@@ -467,6 +467,7 @@ export interface RecordProxy {
   ): RecordProxy;
   getType(): string;
   getValue(name: string, args?: ?Variables): mixed;
+  getErrors(name: string, args?: ?Variables): ?$ReadOnlyArray<TRelayFieldError>;
   setLinkedRecord(
     record: RecordProxy,
     name: string,
@@ -477,7 +478,12 @@ export interface RecordProxy {
     name: string,
     args?: ?Variables,
   ): RecordProxy;
-  setValue(value: mixed, name: string, args?: ?Variables): RecordProxy;
+  setValue(
+    value: mixed,
+    name: string,
+    args?: ?Variables,
+    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+  ): RecordProxy;
   invalidateRecord(): void;
 }
 

@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {TRelayFieldError} from '../store/RelayErrorTrie';
 import type {RecordState} from '../store/RelayRecordState';
 import type {
   MutableRecordSource,
@@ -177,6 +178,32 @@ class RelayRecordSourceMutator {
   setValue(dataID: DataID, storageKey: string, value: mixed): void {
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setValue(sinkRecord, storageKey, value);
+  }
+
+  getErrors(
+    dataID: DataID,
+    storageKey: string,
+  ): ?$ReadOnlyArray<TRelayFieldError> {
+    for (let ii = 0; ii < this.__sources.length; ii++) {
+      const record = this.__sources[ii].get(dataID);
+      if (record) {
+        const value = RelayModernRecord.getErrors(record, storageKey);
+        if (value !== undefined) {
+          return value;
+        }
+      } else if (record === null) {
+        return null;
+      }
+    }
+  }
+
+  setErrors(
+    dataID: DataID,
+    storageKey: string,
+    errors?: $ReadOnlyArray<TRelayFieldError>,
+  ): void {
+    const sinkRecord = this._getSinkRecord(dataID);
+    RelayModernRecord.setErrors(sinkRecord, storageKey, errors);
   }
 
   getLinkedRecordID(dataID: DataID, storageKey: string): ?DataID {

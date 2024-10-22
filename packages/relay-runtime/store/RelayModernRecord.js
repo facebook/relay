@@ -35,7 +35,7 @@ const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
 
-type StorageKey = Exclude<string, typeof ERRORS_KEY>;
+export type StorageKey = Exclude<string, typeof ERRORS_KEY>;
 
 type RelayFieldErrors = {[StorageKey]: $ReadOnlyArray<TRelayFieldError>};
 

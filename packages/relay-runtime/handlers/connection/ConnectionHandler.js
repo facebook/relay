@@ -67,7 +67,12 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   const serverPageInfo =
     serverConnection && serverConnection.getLinkedRecord(PAGE_INFO);
   if (!serverConnection) {
-    record.setValue(null, payload.handleKey);
+    record.setValue(
+      null,
+      payload.handleKey,
+      undefined,
+      record.getErrors(payload.fieldKey),
+    );
     return;
   }
   // In rare cases the handleKey field may be unset even though the client

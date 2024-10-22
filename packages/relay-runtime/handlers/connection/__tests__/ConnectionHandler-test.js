@@ -45,7 +45,7 @@ describe('ConnectionHandler', () => {
   let proxy;
   let sinkSource;
 
-  function normalize(payload, variables, options) {
+  function normalize(payload, variables, options, errors) {
     RelayResponseNormalizer.normalize(
       baseSource,
       createNormalizationSelector(
@@ -57,6 +57,7 @@ describe('ConnectionHandler', () => {
       options ?? {
         getDataID: defaultGetDataID,
       },
+      errors,
     );
   }
 
@@ -129,6 +130,110 @@ describe('ConnectionHandler', () => {
       ).toBe(
         'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
       );
+    });
+  });
+
+  describe('field errors', () => {
+    it('propagates errors to virtual connection field from server connection field', () => {
+      normalize(
+        {
+          node: {
+            id: '4',
+            __typename: 'User',
+            friends: null,
+          },
+        },
+        {
+          after: null,
+          before: null,
+          count: 10,
+          orderby: ['first name'],
+          id: '4',
+        },
+        undefined,
+        [{message: 'Oops!', path: ['node', 'friends']}],
+      );
+      const args = {first: 10, orderby: ['first name']};
+      const handleKey =
+        getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        '(orderby:["first name"])';
+      const payload = {
+        args,
+        dataID: '4',
+        fieldKey: getStableStorageKey('friends', args),
+        handleKey,
+      };
+      ConnectionHandler.update(proxy, payload);
+      expect(sinkSource.toJSON()['4'].__errors).toEqual({
+        '__ConnectionQuery_friends_connection(orderby:["first name"])': [
+          {message: 'Oops!'},
+        ],
+      });
+    });
+
+    it('leaves errors when a valid value is added', () => {
+      normalize(
+        {
+          node: {
+            id: '4',
+            __typename: 'User',
+            friends: null,
+          },
+        },
+        {
+          after: null,
+          before: null,
+          count: 10,
+          orderby: ['first name'],
+          id: '4',
+        },
+        undefined,
+        [{message: 'Oops!', path: ['node', 'friends']}],
+      );
+
+      const args = {first: 10, orderby: ['first name']};
+      const handleKey =
+        getRelayHandleKey('connection', 'ConnectionQuery_friends', 'friends') +
+        '(orderby:["first name"])';
+      const payload = {
+        args,
+        dataID: '4',
+        fieldKey: getStableStorageKey('friends', args),
+        handleKey,
+      };
+      ConnectionHandler.update(proxy, payload);
+      // Re-check that an error is set (same as basic error test)
+      expect(sinkSource.toJSON()['4'].__errors).toEqual({
+        '__ConnectionQuery_friends_connection(orderby:["first name"])': [
+          {message: 'Oops!'},
+        ],
+      });
+
+      // Check that the error is not cleared even if new data arrives
+      normalize(
+        {
+          node: {
+            id: '4',
+            __typename: 'User',
+            friends: [],
+          },
+        },
+        {
+          after: null,
+          before: null,
+          count: 10,
+          orderby: ['first name'],
+          id: '4',
+        },
+        undefined,
+        undefined,
+      );
+      ConnectionHandler.update(proxy, payload);
+      expect(sinkSource.toJSON()['4'].__errors).toEqual({
+        '__ConnectionQuery_friends_connection(orderby:["first name"])': [
+          {message: 'Oops!'},
+        ],
+      });
     });
   });
 

@@ -214,7 +214,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                 ValidationMessage::AssignableFragmentSpreadNoOtherDirectives {
                     disallowed_directive_name: directive.name.item.0,
                 },
-                directive.name.location,
+                directive.location,
             ));
         }
 

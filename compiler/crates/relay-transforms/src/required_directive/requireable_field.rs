@@ -70,7 +70,7 @@ fn get_action_argument(
     let action_arg = maybe_action_arg.ok_or_else(|| {
         Diagnostic::error(
             RequiredDirectiveValidationMessage::ActionArgumentRequired,
-            required_directive.name.location,
+            required_directive.location,
         )
     })?;
 

@@ -11,5 +11,5 @@ query requiredQuery @updatable {
   required.invalid.graphql:4:10
     3 │   me {
     4 │     name @required(action: NONE)
-      │          ^^^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^^^
     5 │   }

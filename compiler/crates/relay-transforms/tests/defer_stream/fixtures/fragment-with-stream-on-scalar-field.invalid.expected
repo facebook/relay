@@ -17,5 +17,5 @@ fragment UserFragment on User {
   fragment-with-stream-on-scalar-field.invalid.graphql:11:8
    10 │   id
    11 │   name @stream(initialCount: 1, label: $label)
-      │        ^^^^^^^
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    12 │ }

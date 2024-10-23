@@ -84,7 +84,7 @@ impl<'a> Validator for AssignableDirective<'a> {
                     ValidationMessage::AssignableDisallowOtherDirectives {
                         disallowed_directive_name: directive.name.item.0,
                     },
-                    directive.name.location,
+                    directive.location,
                 ))
             }
         }

@@ -31,5 +31,5 @@ fragment FeedbackFragment on Feedback {
   fragment-with-stream-duplicate-label.invalid.graphql:14:23
    13 │   }
    14 │   otherActors: actors @stream(initialCount: 1, label: "actors") {
-      │                       ^^^^^^^
+      │                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    15 │     # invalid: duplicate label

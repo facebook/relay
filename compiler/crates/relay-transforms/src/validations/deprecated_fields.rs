@@ -138,7 +138,7 @@ impl<'a> Validator for DeprecatedFields<'a> {
             if directive_definition.name.item == *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME {
                 self.warnings.push(Diagnostic::hint_with_data(
                     ValidationMessageWithData::DeprecatedDangerouslyUnaliasedDirective,
-                    directive.name.location,
+                    directive.location,
                     vec![DiagnosticTag::DEPRECATED],
                 ));
             }

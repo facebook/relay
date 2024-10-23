@@ -16,7 +16,7 @@ fragment duplicateDirectiveOnField on User {
   duplicate-directive.invalid.graphql:10:37
     9 │ fragment duplicateDirectiveOnField on User {
    10 │     name @customDirective(level: 1) @customDirective(level: 2)
-      │                                     ^^^^^^^^^^^^^^^^
+      │                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^
    11 │ }
 
   ℹ︎ previously used here
@@ -24,7 +24,7 @@ fragment duplicateDirectiveOnField on User {
   duplicate-directive.invalid.graphql:10:10
     9 │ fragment duplicateDirectiveOnField on User {
    10 │     name @customDirective(level: 1) @customDirective(level: 2)
-      │          ^^^^^^^^^^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^
    11 │ }
 
 

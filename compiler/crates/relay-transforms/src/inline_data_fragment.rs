@@ -77,11 +77,11 @@ impl<'s> InlineDataFragmentsTransform<'s> {
                     ValidationMessage::InlineDataFragmentDirectivesNotSupported {
                         directive_name: not_allowed_directive.name.item,
                     },
-                    not_allowed_directive.name.location,
+                    not_allowed_directive.location,
                 )
                 .annotate(
                     "spread is marked as `@inline` here",
-                    inline_directive.name.location,
+                    inline_directive.location,
                 ),
             );
         }

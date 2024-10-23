@@ -142,7 +142,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                             field_name: field.alias_or_name(self.schema),
                             current_type: self.schema.get_type_string(&field_definition.type_),
                         },
-                        delete_directive.name.location,
+                        delete_directive.location,
                     ));
                     Transformed::Keep
                 } else {
@@ -198,7 +198,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                         node_directive_name: node_directive.name.item,
                         field_name: field.alias_or_name(self.schema),
                     },
-                    edge_directive.name.location,
+                    edge_directive.location,
                 ));
                 transformed_field
             }
@@ -211,7 +211,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                             ValidationMessage::ConnectionsArgumentRequired {
                                 directive_name: edge_directive.name.item,
                             },
-                            edge_directive.name.location,
+                            edge_directive.location,
                         ));
                         transformed_field
                     }
@@ -262,7 +262,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                     directive_name: edge_directive.name.item,
                                     field_name: field.alias_or_name(self.schema),
                                 },
-                                edge_directive.name.location,
+                                edge_directive.location,
                             ));
                             Transformed::Keep
                         }
@@ -277,7 +277,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                             ValidationMessage::ConnectionsArgumentRequired {
                                 directive_name: node_directive.name.item,
                             },
-                            node_directive.name.location,
+                            node_directive.location,
                         ));
                         transformed_field
                     }
@@ -359,7 +359,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                                 .schema
                                                 .get_type_string(&field_definition.type_),
                                         },
-                                        node_directive.name.location,
+                                        node_directive.location,
                                     ));
                                     Transformed::Keep
                                 }
@@ -370,7 +370,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                     directive_name: node_directive.name.item,
                                     field_name: field.alias_or_name(self.schema),
                                 },
-                                node_directive.name.location,
+                                node_directive.location,
                             ));
                             Transformed::Keep
                         }

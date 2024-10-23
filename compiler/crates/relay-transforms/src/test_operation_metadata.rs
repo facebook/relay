@@ -117,7 +117,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                         ValidationMessage::TestOperationOutsideTestDirectory {
                             test_path_regex: test_path_regex.to_string(),
                         },
-                        test_operation_directive.name.location,
+                        test_operation_directive.location,
                     ));
                     return Transformed::Keep;
                 }

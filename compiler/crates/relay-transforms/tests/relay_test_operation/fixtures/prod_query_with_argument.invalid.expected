@@ -12,5 +12,5 @@ query ProdQueryWithArgumentInvalid @relay_test_operation(DO_NOT_USE_use_in_produ
   prod_query_with_argument.invalid.graphql:2:36
     1 │ # expected-to-throw
     2 │ query ProdQueryWithArgumentInvalid @relay_test_operation(DO_NOT_USE_use_in_production: false) {
-      │                                    ^^^^^^^^^^^^^^^^^^^^^
+      │                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     3 │   node(id: "test-id") {

@@ -86,7 +86,7 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
         {
             self.warnings.push(Diagnostic::hint(
                 ValidationMessageWithData::RequiredOnNonNull,
-                required_directive.unwrap().name.location,
+                required_directive.unwrap().location,
                 vec![DiagnosticTag::UNNECESSARY],
             ));
         } else if self
@@ -99,7 +99,7 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
             // @required on a semantically-non-null field is unnecessary
             self.warnings.push(Diagnostic::hint(
                 ValidationMessageWithData::RequiredOnSemanticNonNull,
-                required_directive.unwrap().name.location,
+                required_directive.unwrap().location,
                 vec![DiagnosticTag::UNNECESSARY],
             ));
         }

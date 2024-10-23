@@ -19,5 +19,5 @@ fragment FeedbackFragment on Feedback {
   fragment-with-stream-variable-label.invalid.graphql:11:10
    10 │   id
    11 │   actors @stream(initialCount: 1, label: $label) {
-      │          ^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    12 │     name

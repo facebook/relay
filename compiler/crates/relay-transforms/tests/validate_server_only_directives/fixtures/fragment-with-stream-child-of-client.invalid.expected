@@ -37,7 +37,7 @@ type Bar {
   fragment-with-stream-child-of-client.invalid.graphql:13:13
    12 │     bar {
    13 │       users @stream(initialCount: 1, label: "StreamedActorsLabel") {
-      │             ^^^^^^^
+      │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    14 │         id
 
   ℹ︎ related location

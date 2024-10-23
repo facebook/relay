@@ -213,7 +213,7 @@ impl<'program, 'pc> RefetchableFragment<'program, 'pc> {
                 ValidationMessage::InvalidRefetchableFragmentWithRelayPlural {
                     fragment_name: fragment.name.item,
                 },
-                directive.name.location,
+                directive.location,
             )])
         } else {
             Ok(())

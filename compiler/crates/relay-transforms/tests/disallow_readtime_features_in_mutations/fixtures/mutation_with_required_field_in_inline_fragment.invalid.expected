@@ -15,5 +15,5 @@ mutation MyMutation {
   mutation_with_required_field_in_inline_fragment.invalid.graphql:5:12
     4 │     ... on User {
     5 │       name @required(action: THROW)
-      │            ^^^^^^^^^
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^
     6 │     }

@@ -20,7 +20,7 @@ OK; warnings: ℹ Unexpected `@required` directive on a non-null field. This fie
   fragment_with_multiple_required_non_null_fields.invalid.graphql:2:14
     1 │ fragment MyFragment on User @throwOnFieldError {
     2 │   some_field @required(action: THROW)
-      │              ^^^^^^^^^
+      │              ^^^^^^^^^^^^^^^^^^^^^^^^
     3 │   some_other_field @required(action: THROW)
 
 
@@ -29,7 +29,7 @@ OK; warnings: ℹ Unexpected `@required` directive on a non-null field. This fie
   fragment_with_multiple_required_non_null_fields.invalid.graphql:3:20
     2 │   some_field @required(action: THROW)
     3 │   some_other_field @required(action: THROW)
-      │                    ^^^^^^^^^
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^^
     4 │   best_friend {
 
 
@@ -38,7 +38,7 @@ OK; warnings: ℹ Unexpected `@required` directive on a non-null field. This fie
   fragment_with_multiple_required_non_null_fields.invalid.graphql:5:16
     4 │   best_friend {
     5 │     some_field @required(action: THROW)
-      │                ^^^^^^^^^
+      │                ^^^^^^^^^^^^^^^^^^^^^^^^
     6 │     some_other_field @required(action: THROW)
 
 
@@ -47,5 +47,5 @@ OK; warnings: ℹ Unexpected `@required` directive on a non-null field. This fie
   fragment_with_multiple_required_non_null_fields.invalid.graphql:6:22
     5 │     some_field @required(action: THROW)
     6 │     some_other_field @required(action: THROW)
-      │                      ^^^^^^^^^
+      │                      ^^^^^^^^^^^^^^^^^^^^^^^^
     7 │   }

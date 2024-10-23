@@ -452,7 +452,7 @@ impl InlineFragment {
                     ))),
                     None => Err(vec![Diagnostic::error(
                         ValidationMessage::FragmentAliasDirectiveMissingAs,
-                        directive.name.location,
+                        directive.location,
                     )]),
                 }
             }
@@ -722,7 +722,7 @@ fn alias_arg_as(alias_directive: &Directive) -> DiagnosticsResult<Option<WithLoc
             }
             _ => Err(vec![Diagnostic::error(
                 ValidationMessage::FragmentAliasDirectiveDynamicNameArg,
-                alias_directive.name.location,
+                alias_directive.location,
             )]),
         },
         None => Ok(None),

@@ -19,5 +19,5 @@ OK; warnings: ℹ Unexpected `@required` directive on a `@semanticNonNull` field
   fragment_with_required_semantic_field_via_linked.invalid.graphql:3:22
     2 │   some_linked_field {
     3 │     some_other_field @required(action: THROW)
-      │                      ^^^^^^^^^
+      │                      ^^^^^^^^^^^^^^^^^^^^^^^^
     4 │   }

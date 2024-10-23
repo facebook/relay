@@ -95,7 +95,7 @@ impl DeferStreamTransform<'_> {
                         },
                         prev.name.location,
                     )
-                    .annotate("related location", directive.name.location),
+                    .annotate("related location", directive.location),
                 );
             }
             None => {
@@ -318,7 +318,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
             }
             self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidDeferOnInlineFragment,
-                directive.name.location,
+                directive.location,
             ));
         }
 
@@ -353,7 +353,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
                 ValidationMessage::InvalidStreamOnScalarField {
                     field_name: scalar_field.alias_or_name(&self.program.schema),
                 },
-                directive.name.location,
+                directive.location,
             ));
         }
         self.default_transform_scalar_field(scalar_field)
@@ -410,7 +410,7 @@ fn get_literal_string_argument(
                     arg_name: arg.name.item,
                     directive_name: directive.name.item,
                 },
-                directive.name.location,
+                directive.location,
             ))
         }
     } else {

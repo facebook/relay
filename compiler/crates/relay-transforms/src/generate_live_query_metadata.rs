@@ -73,7 +73,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             LiveQueryTransformValidationMessage::MissingConfig {
                                 query_name: operation.name.item,
                             },
-                            live_query_directive.name.location,
+                            live_query_directive.location,
                         ));
                         return Transformed::Keep;
                     }

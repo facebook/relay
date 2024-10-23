@@ -362,7 +362,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     ValidationMessage::InvalidModuleWithAdditionalDirectives {
                         spread_name: spread.fragment.item,
                     },
-                    invalid_directive.name.location,
+                    invalid_directive.location,
                 ));
             }
 
@@ -386,12 +386,9 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if let Some(inline_data_directive) = fragment.directives.named(*INLINE_DIRECTIVE_NAME) {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidModuleWithInline,
-                    module_directive.name.location,
+                    module_directive.location,
                 )
-                .annotate(
-                    "@inline directive location",
-                    inline_data_directive.name.location,
-                ));
+                .annotate("@inline directive location", inline_data_directive.location));
             }
 
             let module_directive_name_argument =
@@ -712,7 +709,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 if key_arg.is_none() {
                     return Err(Diagnostic::error(
                         ValidationMessage::InvalidMatchWithNoSupportedArgument,
-                        match_directive.name.location,
+                        match_directive.location,
                     ));
                 }
                 return Ok(if let TransformedValue::Keep = next_selections {
@@ -830,7 +827,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         if seen_types.is_empty() {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidMatchNoModuleSelection,
-                match_directive.name.location,
+                match_directive.location,
             ));
         }
 

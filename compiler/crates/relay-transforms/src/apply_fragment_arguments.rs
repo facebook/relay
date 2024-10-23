@@ -443,7 +443,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
                     fragment.name.item, self.no_inline_feature
                 ),
-                directive.name.location,
+                directive.location,
             ));
         }
 

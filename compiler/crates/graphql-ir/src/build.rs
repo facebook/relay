@@ -1351,9 +1351,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                             ValidationMessage::RepeatedNonRepeatableDirective {
                                 name: directive.name.item,
                             },
-                            repeated_directive.name.location,
+                            repeated_directive.location,
                         )
-                        .annotate("previously used here", directive.name.location),
+                        .annotate("previously used here", directive.location),
                     ]);
                 }
             }

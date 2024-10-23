@@ -13,5 +13,5 @@ mutation MyMutation {
   mutation_with_required_field.invalid.graphql:4:10
     3 │   setName(name: "Alice") {
     4 │     name @required(action: THROW)
-      │          ^^^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^
     5 │   }

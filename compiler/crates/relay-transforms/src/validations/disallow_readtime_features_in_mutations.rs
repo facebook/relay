@@ -81,7 +81,7 @@ impl<'program> DisallowReadtimeFeaturesInMutations<'program> {
                     if *action == *THROW_ACTION {
                         return Err(vec![Diagnostic::error(
                             ValidationMessage::RequiredInMutation,
-                            directive.name.location,
+                            directive.location,
                         )]);
                     }
                 }

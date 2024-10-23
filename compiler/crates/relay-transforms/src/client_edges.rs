@@ -332,7 +332,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 ValidationMessage::ClientEdgeUnsupportedDirective {
                     directive_name: directive.name.item,
                 },
-                directive.name.location,
+                directive.location,
             ));
         }
     }
@@ -350,7 +350,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         if let Some(directive) = waterfall_directive {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                directive.name.location,
+                directive.location,
             ));
         }
 
@@ -542,7 +542,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             if let Some(directive) = waterfall_directive {
                 self.errors.push(Diagnostic::error_with_data(
                     ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                    directive.name.location,
+                    directive.location,
                 ));
             }
             return self.default_transform_linked_field(field);
@@ -684,7 +684,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                directive.name.location,
+                directive.location,
             ));
         }
         self.default_transform_scalar_field(field)

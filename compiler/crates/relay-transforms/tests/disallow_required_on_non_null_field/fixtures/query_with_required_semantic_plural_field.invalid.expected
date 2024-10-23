@@ -13,5 +13,5 @@ OK; warnings: ℹ Unexpected `@required` directive on a `@semanticNonNull` field
   query_with_required_semantic_plural_field.invalid.graphql:2:14
     1 │ query MyQuery @throwOnFieldError {
     2 │   some_field @required(action: LOG)
-      │              ^^^^^^^^^
+      │              ^^^^^^^^^^^^^^^^^^^^^^
     3 │ }

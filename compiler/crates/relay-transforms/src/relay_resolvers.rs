@@ -401,7 +401,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::RelayResolverUnexpectedDirective,
-                            directive.name.location,
+                            directive.location,
                         ));
                     }
 

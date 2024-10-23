@@ -106,7 +106,7 @@ impl Validator for ValidateRequiredArguments<'_> {
                 &definition.arguments,
                 &directive.arguments,
                 directive.name.item.0,
-                directive.name.location,
+                directive.location,
                 self.root_name_with_location.unwrap(),
             )
         } else {

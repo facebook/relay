@@ -229,7 +229,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
                         ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
                             directive.name.item,
                         ),
-                        directive.name.location,
+                        directive.location,
                     )
                     .annotate("related location", location),
                 ])

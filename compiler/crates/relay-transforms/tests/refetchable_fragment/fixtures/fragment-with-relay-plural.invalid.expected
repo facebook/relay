@@ -11,5 +11,5 @@ fragment RefetchableFragment on User
   fragment-with-relay-plural.invalid.graphql:3:3
     2 │ fragment RefetchableFragment on User
     3 │   @relay(plural: true)
-      │   ^^^^^^
+      │   ^^^^^^^^^^^^^^^^^^^^
     4 │   @refetchable(queryName: "RefetchableFragmentQuery") {

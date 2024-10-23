@@ -136,7 +136,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                                     .schema
                                     .get_type_name(viewer_field.type_.inner()),
                             },
-                            actor_change_directive.name.location,
+                            actor_change_directive.location,
                         ));
                         return Transformed::Keep;
                     } else {
@@ -151,7 +151,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                             field_name: schema_field.name.item,
                             type_name: self.program.schema.get_type_name(field_type),
                         },
-                        actor_change_directive.name.location,
+                        actor_change_directive.location,
                     ));
                     return Transformed::Keep;
                 }

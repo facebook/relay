@@ -36,7 +36,7 @@ Options:
 
 ## Available codemods
 
-The compiler currently has one available codemod:
+The compiler currently has these available codemods:
 
 ### mark-dangerous-conditional-fragment-spreads
 
@@ -55,3 +55,11 @@ Since this codemod can potentially modify many files, there is an optional
 `--rollout` parameter which, if used alongside the
 `enforce_fragment_alias_where_ambiguous` feature flag in rollout mode, allows
 progressive codemod and enforcement of this validation.
+
+### remove-unnecessary-required-directives
+
+Removes [@required](../api-reference/graphql/graphql-directives.md#required)
+directives from non-null fields within
+[@throwOnFieldError](../api-reference/graphql/graphql-directives.md#throwonfielderror)
+fragments and operations where the compiler is certain that the directive does
+not change the generated types for the data being fetched.

@@ -144,6 +144,7 @@ fragment ChildFragment on User
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-literal-enum-arguments-into-enum-list.graphql:187:248,
                 },
             ],
             selections: [

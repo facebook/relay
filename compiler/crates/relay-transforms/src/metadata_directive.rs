@@ -7,6 +7,7 @@
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::Location;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -32,5 +33,6 @@ pub fn create_metadata_directive(key: ArgumentName, value: ConstantValue) -> Dir
             value: WithLocation::generated(Value::Constant(value)),
         }],
         data: None,
+        location: Location::generated(),
     }
 }

@@ -155,6 +155,7 @@ impl DeferStreamTransform<'_> {
             name: defer.name,
             arguments: next_arguments,
             data: None,
+            location: defer.location,
         };
 
         Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
@@ -264,6 +265,7 @@ impl DeferStreamTransform<'_> {
             name: stream.name,
             arguments: next_arguments,
             data: None,
+            location: stream.location,
         };
 
         Ok(get_next_selection(replace_directive(

@@ -216,5 +216,6 @@ fn build_client_extension_directive() -> Directive {
         name: WithLocation::generated(*CLIENT_EXTENSION_DIRECTIVE_NAME),
         arguments: Default::default(),
         data: None,
+        location: Location::generated(),
     }
 }

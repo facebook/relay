@@ -136,6 +136,7 @@ fragment ChildFragment on Query
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-literal-enum-arguments.graphql:188:245,
                 },
             ],
             selections: [

@@ -8,6 +8,7 @@
 use std::sync::Arc;
 
 use common::DirectiveName;
+use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Directive;
@@ -60,6 +61,7 @@ impl<'s> Transformer for AnnotateUpdatableFragmentSpreads<'s> {
                 name: WithLocation::generated(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN),
                 arguments: vec![],
                 data: None,
+                location: Location::generated(),
             });
             Transformed::Replace(Selection::FragmentSpread(Arc::new(fragment_spread)))
         } else {

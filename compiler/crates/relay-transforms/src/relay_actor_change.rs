@@ -173,6 +173,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                     ),
                     arguments: vec![],
                     data: None,
+                    location: actor_change_directive.location,
                 }],
                 selections: vec![Selection::LinkedField(Arc::new(LinkedField {
                     selections: next_selections,

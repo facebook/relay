@@ -97,6 +97,7 @@ fragment Foo($localId: ID!) on User {
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-variable-definitions-syntax.graphql:32:126,
                 },
             ],
             selections: [

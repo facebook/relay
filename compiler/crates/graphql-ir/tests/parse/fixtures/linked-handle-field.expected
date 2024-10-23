@@ -72,6 +72,7 @@ fragment LinkedHandleField on User {
                                 },
                             ],
                             data: None,
+                            location: linked-handle-field.graphql:62:101,
                         },
                         Directive {
                             name: WithLocation {
@@ -99,6 +100,7 @@ fragment LinkedHandleField on User {
                                 },
                             ],
                             data: None,
+                            location: linked-handle-field.graphql:106:144,
                         },
                     ],
                     selections: [

@@ -8,6 +8,7 @@
 use std::sync::Arc;
 
 use common::DirectiveName;
+use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -122,6 +123,7 @@ fn get_directive(type_condition: Type, schema: &SDLSchema) -> Directive {
         name: WithLocation::generated(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN),
         arguments: vec![],
         data: Some(Box::new(get_associated_data(type_condition, schema))),
+        location: Location::generated(),
     }
 }
 

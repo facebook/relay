@@ -95,6 +95,7 @@ fragment ChildFragment on User
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-literal-arguments.graphql:119:169,
                 },
             ],
             selections: [

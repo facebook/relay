@@ -83,6 +83,8 @@ macro_rules! associated_data_impl {
                     name: $crate::reexport::WithLocation::generated($name::directive_name()),
                     arguments: Vec::new(),
                     data: Some(Box::new(item)),
+                    location: $crate::reexport::WithLocation::generated($name::directive_name())
+                        .location,
                 }
             }
         }

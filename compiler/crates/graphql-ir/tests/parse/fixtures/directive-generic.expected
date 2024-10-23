@@ -51,6 +51,7 @@ fragment TestFragment on User {
                                 },
                             ],
                             data: None,
+                            location: directive-generic.graphql:37:64,
                         },
                     ],
                 },

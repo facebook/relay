@@ -38,6 +38,7 @@ fragment TestFragment on User
                             },
                             arguments: [],
                             data: None,
+                            location: <generated>:89:102,
                         },
                     ],
                 },
@@ -80,6 +81,7 @@ fragment TestFragment on User
                     },
                     arguments: [],
                     data: None,
+                    location: argument_definitions.graphql:32:156,
                 },
             ],
             selections: [

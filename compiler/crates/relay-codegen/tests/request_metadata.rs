@@ -60,6 +60,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                                     ),
                                 }],
                                 data: None,
+                                location: operation.name.location,
                             }],
                             ..operation.clone()
                         };

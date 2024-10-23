@@ -243,6 +243,7 @@ fn generate_abstract_key_field(
                 name: WithLocation::new(location, *TYPE_DISCRIMINATOR_DIRECTIVE_NAME),
                 arguments: vec![],
                 data: None,
+                location,
             }]
         } else {
             vec![]

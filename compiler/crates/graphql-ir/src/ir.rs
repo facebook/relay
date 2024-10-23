@@ -568,6 +568,7 @@ pub struct Directive {
     /// to attach arbitrary data on compiler-internal directives, such as to
     /// pass instructions to code generation.
     pub data: Option<Box<dyn AssociatedData>>,
+    pub location: Location,
 }
 impl Named for Directive {
     type Name = DirectiveName;

@@ -136,6 +136,7 @@ fragment LinkedHandleField on User {
                                 },
                             ],
                             data: None,
+                            location: linked-handle-field-with-filters.graphql:81:151,
                         },
                     ],
                     selections: [

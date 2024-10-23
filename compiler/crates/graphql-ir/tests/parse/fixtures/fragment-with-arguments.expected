@@ -97,6 +97,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-arguments.graphql:32:126,
                 },
             ],
             selections: [
@@ -276,6 +277,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-arguments.graphql:298:342,
                 },
             ],
             selections: [

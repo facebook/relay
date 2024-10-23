@@ -97,6 +97,7 @@ extend type Query {
                                 },
                             ],
                             data: None,
+                            location: custom_scalar_directive_arg_variable.graphql:116:149,
                         },
                     ],
                     selections: [
@@ -155,6 +156,7 @@ extend type Query {
                                 },
                             ],
                             data: None,
+                            location: custom_scalar_directive_arg_variable.graphql:204:237,
                         },
                     ],
                 },

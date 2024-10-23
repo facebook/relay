@@ -543,6 +543,7 @@ fn maybe_add_children_can_bubble_metadata_directive(
         name: WithLocation::generated(*CHILDREN_CAN_BUBBLE_METADATA_KEY),
         arguments: vec![],
         data: None,
+        location: Location::generated(),
     });
     TransformedValue::Replace(next_directives)
 }

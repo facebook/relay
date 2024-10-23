@@ -46,6 +46,7 @@ query Test {
                                     },
                                     arguments: [],
                                     data: None,
+                                    location: fixme_fat_interface_on_union.graphql:54:74,
                                 },
                             ],
                         },

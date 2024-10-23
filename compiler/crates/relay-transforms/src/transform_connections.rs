@@ -214,6 +214,7 @@ impl<'s> ConnectionTransform<'s> {
                 ),
                 arguments,
                 data: None,
+                location: connection_directive.location,
             });
         }
 
@@ -317,6 +318,7 @@ impl<'s> ConnectionTransform<'s> {
                     ),
                     arguments,
                     data: None,
+                    location: connection_directive.location,
                 }],
                 spread_location: Location::generated(),
             }))
@@ -364,6 +366,7 @@ impl<'s> ConnectionTransform<'s> {
                                     ),
                                 }],
                                 data: None,
+                                location,
                             }],
                             selections: fields,
                         });

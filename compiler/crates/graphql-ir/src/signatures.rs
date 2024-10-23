@@ -300,6 +300,7 @@ fn build_fragment_variable_definitions(
                             ),
                             arguments: Vec::new(),
                             data: None,
+                            location: fragment.location.with_span(unused_local_variable_arg.span)
                         });
                     }
 
@@ -334,6 +335,7 @@ fn build_fragment_variable_definitions(
                                 original_variable_name: VariableName(variable_name.value),
                                 fragment_source_location: fragment.location.source_location(),
                             })),
+                            location: fragment.location.with_span(provider_arg.span),
                         });
                     }
 

@@ -699,6 +699,7 @@ fn make_refetchable_directive(query_name: OperationDefinitionName) -> Directive 
             value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name.0))),
         }],
         data: None,
+        location: Location::generated(),
     }
 }
 

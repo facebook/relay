@@ -1381,6 +1381,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     .map(DirectiveName),
                 arguments: vec![],
                 data: None,
+                location: self.location.with_span(directive.span),
             });
         }
         let directive_definition = match self
@@ -1420,6 +1421,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             ),
             arguments,
             data: None,
+            location: self.location.with_span(directive.span),
         })
     }
 

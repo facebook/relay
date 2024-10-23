@@ -17,6 +17,7 @@ use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
 use lsp_types::Url;
 use relay_compiler::config::Config;
+use relay_transforms::disallow_required_on_non_null_field;
 use relay_transforms::fragment_alias_directive;
 use relay_transforms::Programs;
 
@@ -24,6 +25,9 @@ use relay_transforms::Programs;
 pub enum AvailableCodemod {
     /// Marks unaliased conditional fragment spreads as @dangerously_unaliased_fixme
     MarkDangerousConditionalFragmentSpreads(MarkDangerousConditionalFragmentSpreadsArgs),
+
+    /// Removes @required directives from non-null fields within @throwOnFieldError fragments and operations.
+    RemoveUnnecessaryRequiredDirectives,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -51,6 +55,10 @@ pub async fn run_codemod(
                     Ok(_) => vec![],
                     Err(e) => e,
                 }
+            }
+            AvailableCodemod::RemoveUnnecessaryRequiredDirectives => {
+                disallow_required_on_non_null_field(&programs.source.schema, &programs.source)
+                    .unwrap_or_default()
             }
         })
         .collect::<Vec<_>>();

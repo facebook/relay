@@ -84,7 +84,7 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
             .type_
             .is_non_null()
         {
-            self.warnings.push(Diagnostic::hint(
+            self.warnings.push(Diagnostic::hint_with_data(
                 ValidationMessageWithData::RequiredOnNonNull,
                 required_directive.unwrap().location,
                 vec![DiagnosticTag::UNNECESSARY],
@@ -97,7 +97,7 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
             .is_some()
         {
             // @required on a semantically-non-null field is unnecessary
-            self.warnings.push(Diagnostic::hint(
+            self.warnings.push(Diagnostic::hint_with_data(
                 ValidationMessageWithData::RequiredOnSemanticNonNull,
                 required_directive.unwrap().location,
                 vec![DiagnosticTag::UNNECESSARY],

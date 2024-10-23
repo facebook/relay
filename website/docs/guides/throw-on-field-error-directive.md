@@ -23,7 +23,11 @@ non-null Flow types for fields that have the `@semanticNonNull` directive in the
 schema. This means that if a field has the `@semanticNonNull` directive, the
 generated Flow type for that field will be non-nullable; if an error were to
 occur while reading that field, the thrown exception will prevent your
-application from receiving a null value.
+application from receiving a null value. Making a previously-nullable field
+non-null may make many existing `@required` directives unnecessary; you can use
+the
+[remove-unnecessary-required-directives codemod](../guides/codemods.md#remove-unnecessary-required-directives)
+to clean these up.
 
 To use the `@throwOnFieldError` directive, add it to a fragment or query in your
 Relay code. For example:
@@ -40,7 +44,9 @@ fragment. If any of the fields in this fragment (in this case, id and name) have
 a field error, the Relay runtime will throw an exception at the time the
 fragment is read.
 
-If you wish to handle a specific field error locally within your `@throwOnFieldError` fragment or query instead of having that error throw, you can catch the error with [@catch](./catch-directive.md).
+If you wish to handle a specific field error locally within your
+`@throwOnFieldError` fragment or query instead of having that error throw, you
+can catch the error with [@catch](./catch-directive.md).
 
 **Read more about Relay's experimental support for
 [Semantic Nullability](./semantic-nullability.md).**

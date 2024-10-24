@@ -375,6 +375,7 @@ impl<'s> ConnectionTransform<'s> {
                             Selection::FragmentSpread(Arc::new(FragmentSpread {
                                 fragment: edges_fragment.name,
                                 arguments: vec![],
+                                signature: None,
                                 directives: vec![],
                             })),
                         );

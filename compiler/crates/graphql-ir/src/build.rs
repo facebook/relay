@@ -770,6 +770,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 return Ok(FragmentSpread {
                     fragment: spread_name_with_location,
                     arguments: Vec::new(),
+                    signature: None,
                     directives,
                 });
             }
@@ -822,6 +823,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             return Ok(FragmentSpread {
                 fragment: spread_name_with_location,
                 arguments: Vec::new(),
+                signature: Some(signature.clone()),
                 directives,
             });
         }
@@ -854,6 +856,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             return Ok(FragmentSpread {
                 fragment: spread_name_with_location,
                 arguments: spread_arguments,
+                signature: Some(signature.clone()),
                 directives,
             });
         }
@@ -915,6 +918,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         Ok(FragmentSpread {
             fragment: spread_name_with_location,
             arguments,
+            signature: Some(signature.clone()),
             directives,
         })
     }

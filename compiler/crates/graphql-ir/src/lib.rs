@@ -35,6 +35,7 @@ pub use build::FIXME_FAT_INTERFACE;
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
+pub use signatures::FragmentSignature;
 pub use signatures::ProvidedVariableMetadata;
 pub use signatures::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 pub use transform::transform_list;

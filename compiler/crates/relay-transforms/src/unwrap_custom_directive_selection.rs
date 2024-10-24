@@ -62,8 +62,7 @@ impl Transformer for UnwrapCustomDirectiveSelection {
                                 .chain(iter::once(defer))
                                 .cloned()
                                 .collect(),
-                            fragment: frag_spread.fragment,
-                            arguments: frag_spread.arguments.clone(),
+                            ..frag_spread.as_ref().clone()
                         },
                     )));
                 }

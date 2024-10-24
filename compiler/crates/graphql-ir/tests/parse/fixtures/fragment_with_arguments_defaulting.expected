@@ -96,6 +96,34 @@ fragment F2 on Query @argumentDefinitions(
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment_with_arguments_defaulting.graphql:236:238,
+                                item: FragmentDefinitionName(
+                                    "F2",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment_with_arguments_defaulting.graphql:272:281,
+                                        item: VariableName(
+                                            "nonnullID",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(4),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(0),
+                        },
+                    ),
                     directives: [],
                 },
             ],

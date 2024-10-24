@@ -53,6 +53,34 @@ fragment ChildFragment on User
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment-with-literal-arguments.graphql:95:108,
+                                item: FragmentDefinitionName(
+                                    "ChildFragment",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment-with-literal-arguments.graphql:140:151,
+                                        item: VariableName(
+                                            "pictureSize",
+                                        ),
+                                    },
+                                    type_: List(
+                                        Named(
+                                            Scalar(0),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(70),
+                        },
+                    ),
                     directives: [],
                 },
             ],

@@ -38,6 +38,7 @@ use schema::TypeReference;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::signatures::FragmentSignature;
 use crate::AssociatedData;
 use crate::ValidationMessage;
 // Definitions
@@ -404,6 +405,7 @@ impl fmt::Debug for Selection {
 pub struct FragmentSpread {
     pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
+    pub signature: Option<FragmentSignature>,
     pub directives: Vec<Directive>,
 }
 

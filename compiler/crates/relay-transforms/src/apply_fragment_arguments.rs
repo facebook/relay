@@ -29,6 +29,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::FragmentSignature;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
@@ -298,6 +299,11 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         fragment.name.location,
                         FragmentDefinitionName(normalization_name),
                     ),
+                    signature: Some(FragmentSignature {
+                        name: fragment.name,
+                        variable_definitions: fragment.variable_definitions.clone(),
+                        type_condition: fragment.type_condition,
+                    }),
                 }));
                 // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
                 // type of the object matches the fragment's type condition. Rather than reimplement type refinement
@@ -324,6 +330,11 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 fragment: applied_fragment.name,
                 arguments: Vec::new(),
                 directives,
+                signature: Some(FragmentSignature {
+                    name: applied_fragment.name,
+                    variable_definitions: applied_fragment.variable_definitions.clone(),
+                    type_condition: applied_fragment.type_condition,
+                }),
             })))
         } else {
             Transformed::Delete

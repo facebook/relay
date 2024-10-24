@@ -75,7 +75,7 @@ sha1 = "0.10.5"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }
 thiserror = "1.0.64"
-tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }
 walkdir = "2.3"
 watchman_client = "0.8.0"
 zstd = { version = "0.13", features = ["experimental", "zstdmt"] }

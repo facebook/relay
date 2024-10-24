@@ -20,4 +20,4 @@ schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.10.0"
 thiserror = "1.0.64"
-tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }

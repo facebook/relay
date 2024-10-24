@@ -261,6 +261,7 @@ fragment Foo($localId: ID!) on User {
                                 },
                             ],
                             type_condition: Object(70),
+                            directives: [],
                         },
                     ),
                     directives: [],

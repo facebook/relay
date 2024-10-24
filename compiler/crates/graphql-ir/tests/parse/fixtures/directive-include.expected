@@ -130,6 +130,7 @@ fragment Foo on User {
                                     },
                                     variable_definitions: [],
                                     type_condition: Object(70),
+                                    directives: [],
                                 },
                             ),
                             directives: [],

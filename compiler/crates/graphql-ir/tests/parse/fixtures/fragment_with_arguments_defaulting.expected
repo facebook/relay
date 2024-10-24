@@ -122,6 +122,19 @@ fragment F2 on Query @argumentDefinitions(
                                 },
                             ],
                             type_condition: Object(0),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment_with_arguments_defaulting.graphql:249:268,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment_with_arguments_defaulting.graphql:248:298,
+                                },
+                            ],
                         },
                     ),
                     directives: [],

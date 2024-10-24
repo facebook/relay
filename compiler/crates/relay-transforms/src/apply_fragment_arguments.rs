@@ -303,6 +303,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         name: fragment.name,
                         variable_definitions: fragment.variable_definitions.clone(),
                         type_condition: fragment.type_condition,
+                        directives: fragment.directives.clone(),
                     }),
                 }));
                 // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
@@ -334,6 +335,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     name: applied_fragment.name,
                     variable_definitions: applied_fragment.variable_definitions.clone(),
                     type_condition: applied_fragment.type_condition,
+                    directives: applied_fragment.directives.clone(),
                 }),
             })))
         } else {

@@ -270,6 +270,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                         name: fragment_definition.name,
                         variable_definitions: fragment_definition.variable_definitions.clone(),
                         type_condition: fragment_definition.type_condition,
+                        directives: fragment_definition.directives.clone(),
                     }),
                     directives: new_directives,
                 }))

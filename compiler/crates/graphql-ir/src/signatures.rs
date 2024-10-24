@@ -16,7 +16,7 @@ use common::Location;
 use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
-use errors::try2;
+use errors::try3;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
@@ -29,6 +29,7 @@ use schema::TypeReference;
 
 use crate::associated_data_impl;
 use crate::build::build_constant_value;
+use crate::build::build_directives;
 use crate::build::build_type_annotation;
 use crate::build::build_variable_definitions;
 use crate::build::ValidationLevel;
@@ -86,7 +87,7 @@ pub struct FragmentSignature {
     pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
-    // Should also include directives.
+    pub directives: Vec<crate::Directive>,
 }
 
 pub fn build_signatures(
@@ -198,7 +199,15 @@ fn build_fragment_signature(
         })
         .unwrap_or_else(|| Ok(Default::default()));
 
-    let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
+    let directives = build_directives(
+        schema,
+        &fragment.directives,
+        graphql_syntax::DirectiveLocation::FragmentDefinition,
+        fragment.location,
+    );
+
+    let (type_condition, variable_definitions, directives) =
+        try3(type_condition, variable_definitions, directives)?;
 
     Ok(FragmentSignature {
         name: WithLocation::from_span(
@@ -208,6 +217,7 @@ fn build_fragment_signature(
         ),
         type_condition,
         variable_definitions,
+        directives,
     })
 }
 

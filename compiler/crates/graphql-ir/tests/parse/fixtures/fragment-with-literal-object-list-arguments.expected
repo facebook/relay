@@ -158,6 +158,19 @@ fragment ChildFragment on Query
                                 },
                             ],
                             type_condition: Object(0),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment-with-literal-object-list-arguments.graphql:209:228,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment-with-literal-object-list-arguments.graphql:208:270,
+                                },
+                            ],
                         },
                     ),
                     directives: [],

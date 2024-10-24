@@ -132,6 +132,19 @@ fragment ChildFragment on User
                                 },
                             ],
                             type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment-with-literal-enum-list-arguments.graphql:190:209,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment-with-literal-enum-list-arguments.graphql:189:250,
+                                },
+                            ],
                         },
                     ),
                     directives: [],

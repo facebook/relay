@@ -261,6 +261,19 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                                 },
                             ],
                             type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment-with-arguments.graphql:299:318,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment-with-arguments.graphql:298:342,
+                                },
+                            ],
                         },
                     ),
                     directives: [],

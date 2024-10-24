@@ -129,6 +129,19 @@ fragment ChildFragment2 on User
                                 },
                             ],
                             type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:142:161,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: use_fragment_spread_with_provider.graphql:141:280,
+                                },
+                            ],
                         },
                     ),
                     directives: [],
@@ -189,6 +202,19 @@ fragment ChildFragment2 on User
                                 },
                             ],
                             type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:415:434,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: use_fragment_spread_with_provider.graphql:414:520,
+                                },
+                            ],
                         },
                     ),
                     directives: [],

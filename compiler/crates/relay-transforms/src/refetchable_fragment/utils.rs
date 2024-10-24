@@ -92,6 +92,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
             name: fragment.name,
             variable_definitions: fragment.variable_definitions.clone(),
             type_condition: fragment.type_condition,
+            directives: fragment.directives.clone(),
         }),
     }))
 }

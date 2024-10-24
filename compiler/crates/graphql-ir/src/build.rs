@@ -250,6 +250,28 @@ pub fn build_variable_definitions(
     builder.build_variable_definitions(definitions)
 }
 
+pub fn build_directives(
+    schema: &SDLSchema,
+    directives: &[graphql_syntax::Directive],
+    directive_location: DirectiveLocation,
+    location: Location,
+) -> DiagnosticsResult<Vec<Directive>> {
+    let signatures = Default::default();
+    let mut builder = Builder::new(
+        schema,
+        &signatures,
+        location,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+            relay_mode: None,
+            default_anonymous_operation_name: None,
+            allow_custom_scalar_literals: true, // for compatibility
+        },
+    );
+    builder.build_directives(directives, directive_location)
+}
+
 // Helper Types
 
 type VariableDefinitions = HashMap<VariableName, VariableDefinition>;

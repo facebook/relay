@@ -335,6 +335,13 @@ async fn relay_client_id_field() {
 }
 
 #[tokio::test]
+async fn relay_resolver_on_query_with_output_type() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-on-query-with-output-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-on-query-with-output-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-on-query-with-output-type.graphql", "generate_typescript/fixtures/relay-resolver-on-query-with-output-type.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_resolver_with_output_type_client_interface() {
     let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-client-interface.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type-client-interface.expected");

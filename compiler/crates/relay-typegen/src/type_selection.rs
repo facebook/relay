@@ -42,6 +42,17 @@ impl TypeSelection {
         }
     }
 
+    pub(crate) fn set_abstract_type(&mut self, type_: Type) {
+        match self {
+            TypeSelection::LinkedField(l) => l.abstract_type = Some(type_),
+            TypeSelection::ScalarField(s) => s.abstract_type = Some(type_),
+            TypeSelection::InlineFragment(f) => f.abstract_type = Some(type_),
+            TypeSelection::FragmentSpread(f) => f.abstract_type = Some(type_),
+            TypeSelection::ModuleDirective(m) => m.abstract_type = Some(type_),
+            TypeSelection::RawResponseFragmentSpread(f) => f.abstract_type = Some(type_),
+        }
+    }
+
     pub(crate) fn set_conditional(&mut self, conditional: bool) {
         match self {
             TypeSelection::LinkedField(l) => l.conditional = conditional,
@@ -72,6 +83,17 @@ impl TypeSelection {
             TypeSelection::InlineFragment(f) => f.concrete_type,
             TypeSelection::ModuleDirective(m) => m.concrete_type,
             TypeSelection::RawResponseFragmentSpread(f) => f.concrete_type,
+        }
+    }
+
+    pub(crate) fn get_enclosing_abstract_type(&self) -> Option<Type> {
+        match self {
+            TypeSelection::LinkedField(l) => l.abstract_type,
+            TypeSelection::ScalarField(s) => s.abstract_type,
+            TypeSelection::FragmentSpread(f) => f.abstract_type,
+            TypeSelection::InlineFragment(f) => f.abstract_type,
+            TypeSelection::ModuleDirective(m) => m.abstract_type,
+            TypeSelection::RawResponseFragmentSpread(f) => f.abstract_type,
         }
     }
 
@@ -120,6 +142,7 @@ pub(crate) struct RawResponseFragmentSpread {
     pub(crate) value: StringKey,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) abstract_type: Option<Type>,
 }
 
 #[derive(Debug, Clone)]
@@ -128,6 +151,7 @@ pub(crate) struct ModuleDirective {
     pub(crate) document_name: StringKey,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) abstract_type: Option<Type>,
 }
 
 #[derive(Debug, Clone)]
@@ -137,6 +161,7 @@ pub(crate) struct TypeSelectionLinkedField {
     pub(crate) node_selections: TypeSelectionMap,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) abstract_type: Option<Type>,
     pub(crate) is_result_type: bool,
 }
 
@@ -147,6 +172,7 @@ pub(crate) struct TypeSelectionScalarField {
     pub(crate) value: AST,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) abstract_type: Option<Type>,
     pub(crate) is_result_type: bool,
 }
 
@@ -155,6 +181,7 @@ pub(crate) struct TypeSelectionInlineFragment {
     pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) abstract_type: Option<Type>,
 }
 
 #[derive(Debug, Clone)]
@@ -162,6 +189,7 @@ pub(crate) struct TypeSelectionFragmentSpread {
     pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) abstract_type: Option<Type>,
     // Why are we using TypeSelectionInfo instead of re-using concrete_type?
     // Because concrete_type is poorly named and does not refer to the concrete
     // type of the fragment spread.

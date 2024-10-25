@@ -280,6 +280,6 @@ const RelayStoreUtils = {
   getStableStorageKey,
   getModuleComponentKey,
   getModuleOperationKey,
-};
+} as const;
 
 module.exports = RelayStoreUtils;

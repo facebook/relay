@@ -5,6 +5,7 @@
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
 
 [options]
+as_const=true
 module.system=haste
 module.system.haste.use_name_reducers=true
 # get basename

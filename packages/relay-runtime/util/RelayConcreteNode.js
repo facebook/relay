@@ -130,6 +130,6 @@ const RelayConcreteNode = {
   TYPE_DISCRIMINATOR: 'TypeDiscriminator',
   UPDATABLE_QUERY: 'UpdatableQuery',
   VARIABLE: 'Variable',
-};
+} as const;
 
 module.exports = RelayConcreteNode;

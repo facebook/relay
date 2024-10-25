@@ -5354,6 +5354,14 @@
                   "type": "string"
                 }
               },
+              "schemaName": {
+                "description": "Schema name, if differs from project name. If schema name is unset, the project name will be used as schema name.",
+                "default": null,
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "shardOutput": {
                 "description": "If `output` is provided and `shard_output` is `true`, shard the files by putting them under `{output_dir}/{source_relative_path}`",
                 "default": false,

@@ -240,6 +240,7 @@ pub struct ProjectConfig {
     pub shard_strip_regex: Option<Regex>,
     pub schema_extensions: Vec<PathBuf>,
     pub enabled: bool,
+    pub schema_name: Option<StringKey>,
     pub schema_location: SchemaLocation,
     pub schema_config: SchemaConfig,
     pub typegen_config: TypegenConfig,
@@ -272,6 +273,7 @@ impl Default for ProjectConfig {
             schema_extensions: vec![],
             enabled: true,
             schema_location: SchemaLocation::File(PathBuf::default()),
+            schema_name: None,
             schema_config: Default::default(),
             typegen_config: Default::default(),
             persist: None,
@@ -303,6 +305,7 @@ impl Debug for ProjectConfig {
             schema_extensions,
             enabled,
             schema_location,
+            schema_name,
             schema_config,
             typegen_config,
             persist,
@@ -330,6 +333,7 @@ impl Debug for ProjectConfig {
             .field("schema_extensions", schema_extensions)
             .field("enabled", enabled)
             .field("schema_location", schema_location)
+            .field("schema_name", schema_name)
             .field("schema_config", schema_config)
             .field("typegen_config", typegen_config)
             .field("persist", persist)

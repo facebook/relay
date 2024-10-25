@@ -410,6 +410,7 @@ impl Config {
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
+                    schema_name: config_file_project.schema_name,
                     schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
@@ -1029,6 +1030,11 @@ pub struct ConfigFileProject {
     /// Exactly 1 of these options needs to be defined.
     schema: Option<PathBuf>,
     schema_dir: Option<PathBuf>,
+
+    /// Schema name, if differs from project name.
+    /// If schema name is unset, the project name will be used as schema name.
+    #[serde(default)]
+    schema_name: Option<StringKey>,
 
     /// If this option is set, the compiler will persist queries using this
     /// config.

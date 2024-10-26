@@ -276,7 +276,7 @@ jobs:
         if: github.ref == 'refs/heads/main' || github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
         run: |
           for pkg in dist/*; do
-            npm publish "$pkg" ${TAG}
+            npm publish "./$pkg" ${TAG}
           done
         env:
           TAG: ${{ github.ref == 'refs/heads/main' && '--tag=main' || ((contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}

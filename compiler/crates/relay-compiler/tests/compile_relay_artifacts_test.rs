@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<85f6b556df80c4d819ff23344734487b>>
+ * @generated SignedSource<<0eda6d27709dd85260c81d892f3252db>>
  */
 
 mod compile_relay_artifacts;
@@ -479,6 +479,13 @@ async fn connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/connection.expected");
     test_fixture(transform_fixture, file!(), "connection.graphql", "compile_relay_artifacts/fixtures/connection.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn connection_field_required() {
+    let input = include_str!("compile_relay_artifacts/fixtures/connection-field-required.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/connection-field-required.expected");
+    test_fixture(transform_fixture, file!(), "connection-field-required.graphql", "compile_relay_artifacts/fixtures/connection-field-required.expected", input, expected).await;
 }
 
 #[tokio::test]

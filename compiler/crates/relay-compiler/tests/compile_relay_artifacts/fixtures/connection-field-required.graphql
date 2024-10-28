@@ -1,0 +1,13 @@
+# expected-to-throw
+query connectionFieldRequiredQuery($first: Int, $last: Int) {
+  node(id: "4") {
+    comments(first: $first, last: $last) @connection(key: "Hello_comments") {
+      count
+      edges {
+        node {
+          id @required(action: THROW)
+        }
+      }
+    }
+  }
+}

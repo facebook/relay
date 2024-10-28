@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query connectionFieldRequiredQuery($first: Int, $last: Int) {
+  node(id: "4") {
+    comments(first: $first, last: $last) @connection(key: "Hello_comments") {
+      count
+      edges {
+        node {
+          id @required(action: THROW)
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ @required fields must be included in all instances of their parent. The field 'id` is marked as @required here
+
+  connection-field-required.graphql:8:11
+    7 │         node {
+    8 │           id @required(action: THROW)
+      │           ^^
+    9 │         }
+
+  ℹ︎ but is missing from
+
+  <generated>:1:1
+    1 │ # expected-to-throw
+      │ ^
+    2 │ query connectionFieldRequiredQuery($first: Int, $last: Int) {

@@ -405,7 +405,7 @@ impl SDLSchema {
 
     pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
-            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::FlatBuffer(schema) => schema.has_directive(directive_name),
             SDLSchema::InMemory(schema) => schema.has_directive(directive_name),
         }
     }

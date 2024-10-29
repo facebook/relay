@@ -1,4 +1,6 @@
 ==================================== INPUT ====================================
+# enable-exec-time-resolvers-directive
+
 query Foo @exec_time_resolvers {
   me {
     pet {

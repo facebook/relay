@@ -38,9 +38,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         } else {
             FeatureFlag::Disabled
         };
+        let enable_exec_time_resolvers_directive = fixture
+            .content
+            .contains("# enable-exec-time-resolvers-directive");
         let feature_flags = Arc::new(FeatureFlags {
             relay_resolver_enable_interface_output_type,
-            enable_exec_time_resolvers_directive: true,
+            enable_exec_time_resolvers_directive,
             ..Default::default()
         });
         let project_config: ProjectConfig = ProjectConfig {

@@ -246,7 +246,7 @@ pub enum ValidationMessageWithData {
     RequiredOnNonNull,
 
     #[error(
-        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive."
+        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` or `@catch` selection. Such fields are already non-null and do not need the `@required` directive."
     )]
     RequiredOnSemanticNonNull,
 

@@ -8,7 +8,7 @@ extend type User {
   some_field: Int @semanticNonNull
 }
 ==================================== OUTPUT ===================================
-OK; warnings: ℹ Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive.
+OK; warnings: ℹ Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` or `@catch` selection. Such fields are already non-null and do not need the `@required` directive.
 
   fragment_with_required_semantic_field.invalid.graphql:2:14
     1 │ fragment MyFragment on User @throwOnFieldError {

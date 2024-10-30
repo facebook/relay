@@ -11,10 +11,6 @@ Relay Resolvers are do have some limitations. Here we will collect a list of kno
 
 In a full GraphQL implementation, resolvers would have access to an `info` argument. This argument is not available in Relay Resolvers today.
 
-## No support for abstract types
-
-Today it is not possible to define an interface or union with multiple concrete types using Relay Resolvers. This is something we would like to support in the future, but have not yet implemented.
-
 ## All fields must be nullable
 
 Today all resolvers must be typed as nullable in order to support coercing errors to null without having to implement null bubbling. In the future we intend Resolvers to support some version of [strict semantic nullability](https://github.com/graphql/graphql-wg/discussions/1410).

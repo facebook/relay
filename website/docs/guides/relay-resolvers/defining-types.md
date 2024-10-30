@@ -108,3 +108,55 @@ export type ProfilePicture = { url: string, height: number, width: number };
 :::tip
 Generally weak types are used for creating a namespace for a set of fields that ultimately "belong" to a parent object.
 :::
+
+### Implementing Abstract Types
+
+Relay Resolver types can implement [abstract types](https://relay.dev/docs/glossary/#abstract-type) defined in the graphql schema. Note, these abstract types can
+be defined on your GraphQL server schema OR a [client side schema extension](https://relay.dev/docs/next/guides/client-schema-extensions/).
+
+For example, given the following interface:
+
+```graphql
+# IUser.graphql
+interface IUser {
+  name: String
+}
+```
+
+You could define two (or more) concrete resolver types that implement the IUser interface by adding annotations in the docblock (the same applies for unions).
+<FbInternalOnly>
+Note, support for abstract types is not available for relay resolvers in Flow syntax (yet).
+</FbInternalOnly>
+
+<Tabs
+  groupId="resolver"
+  defaultValue="Docblock"
+  values={fbContent({
+    internal: [
+      {label: 'Docblock', value: 'Docblock'},
+    ],
+    external: [
+      {label: 'Docblock', value: 'Docblock'},
+    ]
+  })}>
+  <TabItem value="Docblock">
+
+
+```tsx
+/**
+ * @RelayResolver BasicUser implements IUser
+ */
+export function BasicUser(id: DataID): BasicUserModel {
+  return { ...BasicUserService.getById(id), name: 'BasicUser1'};
+}
+
+/**
+ * @RelayResolver SpecialUser implements IUser
+ */
+export function SpecialUser(id: DataID): SpecialUserModel {
+  return { ...SpecialUserService.getById(id), name: 'SpecalUser1'};
+}
+```
+
+  </TabItem>
+</Tabs>

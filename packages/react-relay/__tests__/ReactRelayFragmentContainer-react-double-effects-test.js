@@ -96,7 +96,11 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
       return user.name;
     };
 
-    const FragmentContainer = createContainer(FragmentComponent, {
+    const FragmentContainer = createContainer<
+      any,
+      void,
+      typeof FragmentComponent,
+    >(FragmentComponent, {
       // eslint-disable-next-line relay/graphql-naming
       user: gqlFragment,
     });

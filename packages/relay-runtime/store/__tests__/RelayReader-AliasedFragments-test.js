@@ -1041,7 +1041,7 @@ describe('Inline Fragments', () => {
     );
     expect(errorResponseFields).toEqual([
       {
-        fieldPath: '',
+        fieldPath: 'node.aliased_fragment.name',
         kind: 'missing_expected_data.log',
         owner:
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractTypeQuery',
@@ -1101,7 +1101,7 @@ describe('Inline Fragments', () => {
     );
     expect(errorResponseFields).toEqual([
       {
-        fieldPath: '',
+        fieldPath: 'node.aliased_fragment.<abstract-type-hint>',
         kind: 'missing_expected_data.log',
         owner:
           'RelayReaderAliasedFragmentsTestRequiredBubblesOnAbstractWithMissingTypeInfoQuery',

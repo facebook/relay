@@ -1274,7 +1274,7 @@ export type MissingFieldHandler =
 export type MissingExpectedDataLogEvent = {
   +kind: 'missing_expected_data.log',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string,
 };
 
 /**
@@ -1300,7 +1300,7 @@ export type MissingExpectedDataLogEvent = {
 export type MissingExpectedDataThrowEvent = {
   +kind: 'missing_expected_data.throw',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string,
   +handled: boolean,
 };
 

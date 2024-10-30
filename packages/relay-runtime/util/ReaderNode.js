@@ -80,6 +80,7 @@ export type ReaderRefetchMetadata = {
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
   +identifierInfo?: ?RefetchableIdentifierInfo,
+  +edgesFragment?: ReaderFragment,
 };
 
 // Stricter form of ConnectionMetadata

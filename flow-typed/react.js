@@ -41,10 +41,6 @@ declare module react {
   declare export var Component: typeof React$Component;
   declare export var PureComponent: typeof React$PureComponent;
   declare export type ComponentType<-P> = React$ComponentType<P>;
-  declare export type AbstractComponent<
-    -Config,
-    +Instance = mixed,
-  > = React$AbstractComponent<Config, Instance>;
   declare export type MixedElement = React$MixedElement;
   declare export type ElementType = React$ElementType;
   declare export type Element<+C> = React$Element<C>;
@@ -191,14 +187,11 @@ declare module react {
     interactions: Set<Interaction>,
   ) => void;
 
-  declare export var Profiler: React$AbstractComponent<
-    {|
-      children?: React$Node,
-      id: string,
-      onRender: ProfilerOnRenderFnType,
-    |},
-    void,
-  >;
+  declare export var Profiler: React$ComponentType<{|
+    children?: React$Node,
+    id: string,
+    onRender: ProfilerOnRenderFnType,
+  |}>;
 
   declare type TimeoutConfig = {|
     timeoutMs: number,

@@ -198,6 +198,12 @@ module.exports = {
         infoLink: 'https://www.rea-app.fr/',
         pinned: false,
       },
+      {
+        caption: 'Replexica',
+        image: '/img/logos/replexica.png',
+        infoLink: 'https://replexica.com',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

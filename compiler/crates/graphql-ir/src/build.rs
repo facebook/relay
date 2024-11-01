@@ -19,10 +19,10 @@ use common::ScalarName;
 use common::Span;
 use common::WithLocation;
 use errors::par_try_map;
-use errors::try2;
-use errors::try3;
 use errors::try_all;
 use errors::try_map;
+use errors::try2;
+use errors::try3;
 use graphql_syntax::DefaultValue;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::Identifier;
@@ -31,14 +31,12 @@ use graphql_syntax::OperationKind;
 use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use indexmap::IndexMap;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
-use intern::Lookup;
 use lazy_static::lazy_static;
-use schema::suggestion_list;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::ArgumentDefinitions;
 use schema::Enum;
 use schema::FieldID;
@@ -48,16 +46,18 @@ use schema::Scalar;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::suggestion_list;
+use schema::suggestion_list::GraphQLSuggestions;
 
 use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::MachineMetadataKey;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::*;
-use crate::signatures::build_signatures;
 use crate::signatures::FragmentSignature;
 use crate::signatures::FragmentSignatures;
 use crate::signatures::ProvidedVariableMetadata;
+use crate::signatures::build_signatures;
 
 lazy_static! {
     static ref TYPENAME_FIELD_NAME: StringKey = "__typename".intern();
@@ -135,17 +135,13 @@ pub fn build_ir(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    build_ir_with_extra_features(
-        schema,
-        definitions,
-        &BuilderOptions {
-            allow_undefined_fragment_spreads: false,
-            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: None,
-            default_anonymous_operation_name: None,
-            allow_custom_scalar_literals: true, // for compatibility
-        },
-    )
+    build_ir_with_extra_features(schema, definitions, &BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+        relay_mode: None,
+        default_anonymous_operation_name: None,
+        allow_custom_scalar_literals: true, // for compatibility
+    })
 }
 
 /// Converts a self-contained corpus of definitions into typed IR, or returns
@@ -169,18 +165,13 @@ pub fn build_type_annotation(
     location: Location,
 ) -> DiagnosticsResult<TypeReference<Type>> {
     let signatures = Default::default();
-    let mut builder = Builder::new(
-        schema,
-        &signatures,
-        location,
-        &BuilderOptions {
-            allow_undefined_fragment_spreads: false,
-            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: None,
-            default_anonymous_operation_name: None,
-            allow_custom_scalar_literals: true, // for compatibility
-        },
-    );
+    let mut builder = Builder::new(schema, &signatures, location, &BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+        relay_mode: None,
+        default_anonymous_operation_name: None,
+        allow_custom_scalar_literals: true, // for compatibility
+    });
     builder.build_type_annotation(annotation)
 }
 
@@ -191,18 +182,13 @@ pub fn build_directive(
     location: Location,
 ) -> DiagnosticsResult<Directive> {
     let signatures = Default::default();
-    let mut builder = Builder::new(
-        schema,
-        &signatures,
-        location,
-        &BuilderOptions {
-            allow_undefined_fragment_spreads: false,
-            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: None,
-            default_anonymous_operation_name: None,
-            allow_custom_scalar_literals: true, // for compatibility
-        },
-    );
+    let mut builder = Builder::new(schema, &signatures, location, &BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+        relay_mode: None,
+        default_anonymous_operation_name: None,
+        allow_custom_scalar_literals: true, // for compatibility
+    });
     builder.build_directive(directive, directive_location)
 }
 
@@ -214,18 +200,13 @@ pub fn build_constant_value(
     validation: ValidationLevel,
 ) -> DiagnosticsResult<ConstantValue> {
     let signatures = Default::default();
-    let mut builder = Builder::new(
-        schema,
-        &signatures,
-        location,
-        &BuilderOptions {
-            allow_undefined_fragment_spreads: false,
-            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: None,
-            default_anonymous_operation_name: None,
-            allow_custom_scalar_literals: true, // for compatibility
-        },
-    );
+    let mut builder = Builder::new(schema, &signatures, location, &BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+        relay_mode: None,
+        default_anonymous_operation_name: None,
+        allow_custom_scalar_literals: true, // for compatibility
+    });
     builder.build_constant_value(value, type_, validation)
 }
 
@@ -235,18 +216,13 @@ pub fn build_variable_definitions(
     location: Location,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
     let signatures = Default::default();
-    let mut builder = Builder::new(
-        schema,
-        &signatures,
-        location,
-        &BuilderOptions {
-            allow_undefined_fragment_spreads: false,
-            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: None,
-            default_anonymous_operation_name: None,
-            allow_custom_scalar_literals: true, // for compatibility
-        },
-    );
+    let mut builder = Builder::new(schema, &signatures, location, &BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+        relay_mode: None,
+        default_anonymous_operation_name: None,
+        allow_custom_scalar_literals: true, // for compatibility
+    });
     builder.build_variable_definitions(definitions)
 }
 
@@ -257,18 +233,13 @@ pub fn build_directives(
     location: Location,
 ) -> DiagnosticsResult<Vec<Directive>> {
     let signatures = Default::default();
-    let mut builder = Builder::new(
-        schema,
-        &signatures,
-        location,
-        &BuilderOptions {
-            allow_undefined_fragment_spreads: false,
-            fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
-            relay_mode: None,
-            default_anonymous_operation_name: None,
-            allow_custom_scalar_literals: true, // for compatibility
-        },
-    );
+    let mut builder = Builder::new(schema, &signatures, location, &BuilderOptions {
+        allow_undefined_fragment_spreads: false,
+        fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
+        relay_mode: None,
+        default_anonymous_operation_name: None,
+        allow_custom_scalar_literals: true, // for compatibility
+    });
     builder.build_directives(directives, directive_location)
 }
 
@@ -1424,9 +1395,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         };
         if !directive_definition.locations.contains(&location) {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation(DirectiveName(
-                    directive.name.value,
-                )),
+                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation {
+                    directive_name: DirectiveName(directive.name.value),
+                    valid_locations: directive_definition
+                        .locations
+                        .iter()
+                        .map(|l| l.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                },
                 self.location.with_span(directive.name.span),
             )]);
         }
@@ -1537,22 +1514,18 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             // If the currently used type is a subtype of the previous usage, then it could
             // be a narrower type. Update our inference to reflect the stronger requirements.
             if is_used_subtype {
-                self.used_variables.insert(
-                    VariableName(variable.name),
-                    VariableUsage {
+                self.used_variables
+                    .insert(VariableName(variable.name), VariableUsage {
                         type_: used_as_type.clone(),
                         span: variable.span,
-                    },
-                );
+                    });
             }
         } else {
-            self.used_variables.insert(
-                VariableName(variable.name),
-                VariableUsage {
+            self.used_variables
+                .insert(VariableName(variable.name), VariableUsage {
                     type_: used_as_type.clone(),
                     span: variable.span,
-                },
-            );
+                });
         }
         Ok(Variable {
             name: variable

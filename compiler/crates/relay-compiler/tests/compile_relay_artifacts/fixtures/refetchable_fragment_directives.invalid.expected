@@ -41,7 +41,7 @@ fragment refetchableFragmentDirectivesNotValidOnQuery on Node
   id
 }
 ==================================== ERROR ====================================
-✖︎ Directive 'defer' not supported in this location
+✖︎ Directive 'defer' not supported in this location. Supported location(s): FRAGMENT_SPREAD, INLINE_FRAGMENT
 
   refetchable_fragment_directives.invalid.graphql:38:15
    37 │   queryName: "refetchableFragmentDirectivesQuery"

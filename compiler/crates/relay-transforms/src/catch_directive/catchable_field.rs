@@ -7,13 +7,12 @@
 
 use common::Diagnostic;
 use common::NamedItem;
-use common::WithLocation;
 use graphql_ir::Directive;
-use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
 use graphql_ir::ScalarField;
-use intern::string_key::StringKey;
-use schema::SDLSchema;
 
 use super::CATCH_DIRECTIVE_NAME;
 use super::TO_ARGUMENT;
@@ -25,9 +24,8 @@ pub struct CatchMetadata {
 }
 
 #[allow(dead_code)]
-pub trait CatchableField {
+pub trait Catchable {
     fn directives(&self) -> &Vec<Directive>;
-    fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey>;
     fn catch_metadata(&self) -> Result<Option<CatchMetadata>, Diagnostic> {
         if let Some(catch_directive) = self.directives().named(*CATCH_DIRECTIVE_NAME) {
             let maybe_to_arg = catch_directive.arguments.named(*TO_ARGUMENT);
@@ -41,20 +39,32 @@ pub trait CatchableField {
     }
 }
 
-impl CatchableField for ScalarField {
+impl Catchable for ScalarField {
     fn directives(&self) -> &Vec<Directive> {
         &self.directives
-    }
-    fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
-        WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
     }
 }
 
-impl CatchableField for LinkedField {
+impl Catchable for LinkedField {
     fn directives(&self) -> &Vec<Directive> {
         &self.directives
     }
-    fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
-        WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
+}
+
+impl Catchable for FragmentDefinition {
+    fn directives(&self) -> &Vec<Directive> {
+        &self.directives
+    }
+}
+
+impl Catchable for OperationDefinition {
+    fn directives(&self) -> &Vec<Directive> {
+        &self.directives
+    }
+}
+
+impl Catchable for InlineFragment {
+    fn directives(&self) -> &Vec<Directive> {
+        &self.directives
     }
 }

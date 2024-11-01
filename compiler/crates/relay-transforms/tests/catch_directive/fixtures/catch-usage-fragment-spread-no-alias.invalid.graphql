@@ -1,0 +1,9 @@
+# expected-to-throw
+fragment FragFoo on User {
+  # Not valid without @alias
+  ...FragBar @catch(to: RESULT)
+}
+
+fragment FragBar on User {
+  name
+}

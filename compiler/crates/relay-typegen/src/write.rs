@@ -31,6 +31,7 @@ use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::CATCH_DIRECTIVE_NAME;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use schema::Schema;
 
@@ -47,6 +48,10 @@ use crate::typegen_state::RuntimeImports;
 use crate::visit::get_data_type;
 use crate::visit::get_input_variables_type;
 use crate::visit::get_operation_type_export;
+use crate::visit::has_explicit_catch_to_null;
+use crate::visit::is_result_type_directive;
+use crate::visit::make_custom_error_import;
+use crate::visit::make_result_type;
 use crate::visit::raw_response_selections_to_babel;
 use crate::visit::raw_response_visit_selections;
 use crate::visit::transform_input_type;
@@ -104,6 +109,11 @@ pub(crate) fn write_operation_type_exports_section(
         .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
         .is_some();
 
+    let is_catch = typegen_operation
+        .directives
+        .named(*CATCH_DIRECTIVE_NAME)
+        .is_some();
+
     let type_selections = visit_selections(
         typegen_context,
         &typegen_operation.selections,
@@ -117,7 +127,7 @@ pub(crate) fn write_operation_type_exports_section(
         &mut runtime_imports,
         &mut custom_error_import,
         None,
-        is_throw_on_field_error,
+        is_throw_on_field_error || is_catch,
     );
 
     let emit_optional_type = typegen_operation
@@ -125,12 +135,14 @@ pub(crate) fn write_operation_type_exports_section(
         .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
         .is_some();
 
-    let data_type = get_data_type(
+    let coerce_to_nullable = has_explicit_catch_to_null(&typegen_operation.directives);
+
+    let mut data_type = get_data_type(
         typegen_context,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
-        emit_optional_type,
+        emit_optional_type || coerce_to_nullable,
         false, // Query types can never be plural
         &mut encountered_enums,
         &mut encountered_fragments,
@@ -138,6 +150,17 @@ pub(crate) fn write_operation_type_exports_section(
         &mut runtime_imports,
         &mut custom_error_import,
     );
+
+    if is_result_type_directive(&typegen_operation.directives) {
+        data_type = make_result_type(typegen_context, data_type);
+        runtime_imports.result_type = true;
+        match make_custom_error_import(typegen_context, &mut custom_error_import) {
+            Ok(_) => {}
+            Err(e) => {
+                panic!("Error while generating custom error type: {}", e);
+            }
+        }
+    }
 
     let raw_response_type_and_match_fields =
         if has_raw_response_type_directive(normalization_operation) {
@@ -351,6 +374,10 @@ pub(crate) fn write_fragment_type_exports_section(
         .directives
         .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
         .is_some();
+    let is_catch = fragment_definition
+        .directives
+        .named(*CATCH_DIRECTIVE_NAME)
+        .is_some();
 
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
@@ -378,7 +405,7 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut runtime_imports,
         &mut custom_error_import,
         None,
-        is_throw_on_field_error,
+        is_throw_on_field_error || is_catch,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
         let num_concrete_selections = type_selections
@@ -427,7 +454,13 @@ pub(crate) fn write_fragment_type_exports_section(
         MaskStatus::Masked
     };
 
-    let data_type = get_data_type(
+    let coerce_to_nullable = has_explicit_catch_to_null(&fragment_definition.directives);
+    let required_can_bubble = fragment_definition
+        .directives
+        .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        .is_some();
+
+    let mut data_type = get_data_type(
         typegen_context,
         type_selections.into_iter(),
         mask_status,
@@ -436,10 +469,7 @@ pub(crate) fn write_fragment_type_exports_section(
         } else {
             Some(fragment_name)
         },
-        fragment_definition
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-            .is_some(),
+        required_can_bubble || coerce_to_nullable,
         is_plural_fragment,
         &mut encountered_enums,
         &mut encountered_fragments,
@@ -447,6 +477,17 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut runtime_imports,
         &mut custom_error_import,
     );
+
+    if is_result_type_directive(&fragment_definition.directives) {
+        data_type = make_result_type(typegen_context, data_type);
+        runtime_imports.result_type = true;
+        match make_custom_error_import(typegen_context, &mut custom_error_import) {
+            Ok(_) => {}
+            Err(e) => {
+                panic!("Error while generating custom error type: {}", e);
+            }
+        }
+    }
 
     write_import_actor_change_point(actor_change_status, writer)?;
     let input_object_types = input_object_types

@@ -194,6 +194,7 @@ module.exports = {
             }),
             'api-reference/hooks/use-mutation',
             'api-reference/hooks/use-subscription',
+            'api-reference/hooks/use-prefetchable-forward-pagination-fragment',
           ],
           'Entrypoint APIs': [
             'api-reference/entrypoint-apis/use-entrypoint-loader',

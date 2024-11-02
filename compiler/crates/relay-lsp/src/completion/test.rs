@@ -104,7 +104,7 @@ fn scalar_field() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["uri", "width", "height", "test_enums", "__typename"],
+        vec!["uri", "width", "height", "test_enums", "__typename", "__id"],
     );
 }
 
@@ -121,7 +121,10 @@ fn linked_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["location", "categories", "__typename"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["location", "categories", "__typename", "__id"],
+    );
 }
 
 #[test]
@@ -139,7 +142,7 @@ fn whitespace_in_linked_field() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["uri", "test_enums", "width", "height", "__typename"],
+        vec!["uri", "test_enums", "width", "height", "__typename", "__id"],
     );
 }
 
@@ -155,7 +158,7 @@ fn whitespace_in_fragment() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["uri", "width", "height", "test_enums", "__typename"],
+        vec!["uri", "width", "height", "test_enums", "__typename", "__id"],
     );
 }
 
@@ -173,7 +176,7 @@ fn whitespace_in_inline_fragment() {
     );
     assert_labels(
         items.unwrap(),
-        vec!["uri", "width", "height", "test_enums", "__typename"],
+        vec!["uri", "width", "height", "test_enums", "__typename", "__id"],
     );
 }
 
@@ -207,6 +210,7 @@ fn whitespace_in_object_type() {
             "cursor",
             "node",
             "__typename",
+            "__id",
             "...ObjectTypeFragment",
             "...InterfaceFragment",
         ],
@@ -244,6 +248,7 @@ fn whitespace_in_interface() {
             "source",
             "node",
             "__typename",
+            "__id",
             "... on CommentsEdge",
             "...ImplementingFragment",
             "...InterfaceFragment",
@@ -279,6 +284,7 @@ fn whitespace_in_union() {
         items.unwrap(),
         vec![
             "__typename",
+            "__id",
             "... on MarkdownCommentBody",
             "... on PlainCommentBody",
             "...UnionVariantFragment",
@@ -779,7 +785,7 @@ fn field_documentation() {
         .map(|item| (item.label, item.documentation))
         .collect::<HashMap<String, Option<Documentation>>>();
 
-    assert_eq!(docs.len(), 5);
+    assert_eq!(docs.len(), 6);
     assert_eq!(
         *docs.get("uri").unwrap(),
         Some(make_markdown_table_documentation(

@@ -188,10 +188,9 @@ pub(crate) fn write_operation_type_exports_section(
     if custom_error_import.is_some() {
         write_import_custom_type(custom_error_import, writer)?;
     }
-    // TODO: Add proper support for Resolver type generation in typescript: https://github.com/facebook/relay/issues/4772
-    if typegen_context.project_config.typegen_config.language == TypegenLanguage::Flow {
-        write_relay_resolver_imports(imported_resolvers, writer)?;
-    }
+
+    write_relay_resolver_imports(imported_resolvers, writer)?;
+
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();

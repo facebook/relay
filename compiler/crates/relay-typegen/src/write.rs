@@ -144,6 +144,7 @@ pub(crate) fn write_operation_type_exports_section(
             let mut match_fields = Default::default();
             let raw_response_selections = raw_response_visit_selections(
                 typegen_context,
+                normalization_operation.name.item,
                 &normalization_operation.selections,
                 &mut encountered_enums,
                 &mut match_fields,
@@ -157,6 +158,7 @@ pub(crate) fn write_operation_type_exports_section(
             Some((
                 raw_response_selections_to_babel(
                     typegen_context,
+                    normalization_operation.name.item,
                     raw_response_selections.into_iter(),
                     None,
                     &mut encountered_enums,
@@ -301,6 +303,7 @@ pub(crate) fn write_split_operation_type_exports_section(
 
     let raw_response_selections = raw_response_visit_selections(
         typegen_context,
+        normalization_operation.name.item,
         &normalization_operation.selections,
         &mut encountered_enums,
         &mut match_fields,
@@ -313,6 +316,7 @@ pub(crate) fn write_split_operation_type_exports_section(
     );
     let raw_response_type = raw_response_selections_to_babel(
         typegen_context,
+        normalization_operation.name.item,
         raw_response_selections.into_iter(),
         None,
         &mut encountered_enums,

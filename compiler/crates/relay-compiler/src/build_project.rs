@@ -32,6 +32,7 @@ pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
 use common::sync::*;
 use common::Diagnostic;
+use common::DirectiveName;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use common::WithDiagnostics;
@@ -273,6 +274,7 @@ pub fn transform_program(
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> Result<Programs, Vec<Diagnostic>> {
     let timer = log_event.start("apply_transforms_time");
     let result = apply_transforms(
@@ -282,6 +284,7 @@ pub fn transform_program(
         perf_logger,
         Some(print_stats),
         custom_transforms_config,
+        transferrable_refetchable_query_directives,
     );
 
     log_event.stop(timer);
@@ -390,6 +393,7 @@ pub fn build_programs(
                     Arc::clone(&perf_logger),
                     log_event,
                     config.custom_transforms.as_ref(),
+                    config.transferrable_refetchable_query_directives.clone(),
                 )?;
 
                 diagnostics.extend(validate_reader_program(

@@ -15,6 +15,7 @@ use std::vec;
 
 use async_trait::async_trait;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::FeatureFlags;
 use common::Rollout;
 use common::ScalarName;
@@ -195,6 +196,9 @@ pub struct Config {
 
     /// A function to determine if full file source should be extracted instead of docblock
     pub should_extract_full_source: Option<ShouldExtractFullSource>,
+
+    /// Names of directives that will be automatically copied from the parent fragment to refetchable queries
+    pub transferrable_refetchable_query_directives: Vec<DirectiveName>,
 }
 
 pub enum FileSourceKind {
@@ -483,6 +487,7 @@ impl Config {
             has_schema_change_incremental_build: false,
             custom_extract_relay_resolvers: None,
             should_extract_full_source: None,
+            transferrable_refetchable_query_directives: vec![],
         };
 
         let mut validation_errors = Vec::new();

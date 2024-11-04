@@ -92,6 +92,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         Arc::new(ConsoleLogger),
         None,
         None,
+        vec![],
     )
     .unwrap();
 

@@ -624,6 +624,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Arc::clone(&self.perf_logger),
             None,
             self.config.custom_transforms.as_ref(),
+            self.config
+                .transferrable_refetchable_query_directives
+                .clone(),
         )
         .map_err(|_| LSPRuntimeError::ExpectedError)?;
 

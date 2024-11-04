@@ -8,6 +8,7 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::PerfLogger;
 use common::SourceLocationKey;
 use graphql_ir::build_ir_with_extra_features;
@@ -141,6 +142,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
     program: Arc<Program>,
     perf_logger: Arc<TPerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> Result<Programs, String> {
     apply_transforms(
         project_config,
@@ -149,6 +151,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
         perf_logger,
         None,
         custom_transforms_config,
+        transferrable_refetchable_query_directives,
     )
     .map_err(|errors| format!("{:?}", errors))
 }
@@ -260,6 +263,10 @@ pub(crate) fn get_query_text<
                 Arc::new(program),
                 Arc::clone(&state.perf_logger),
                 state.config.custom_transforms.as_ref(),
+                state
+                    .config
+                    .transferrable_refetchable_query_directives
+                    .clone(),
             )
             .map_err(LSPRuntimeError::UnexpectedError)?;
 

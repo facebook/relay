@@ -545,6 +545,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Arc::clone(&self.lsp_state.perf_logger),
             log_event,
             self.lsp_state.config.custom_transforms.as_ref(),
+            self.lsp_state
+                .config
+                .transferrable_refetchable_query_directives
+                .clone(),
         )
         .map_err(|diagnostics| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {

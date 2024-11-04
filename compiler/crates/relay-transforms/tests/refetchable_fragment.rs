@@ -21,6 +21,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             false,
         );
         let base_fragments = Default::default();
-        transform_refetchable_fragment(&program, &Default::default(), &base_fragments, false)
+        transform_refetchable_fragment(
+            &program,
+            &Default::default(),
+            &base_fragments,
+            false,
+            vec![],
+        )
     })
 }

@@ -297,7 +297,7 @@ describe('RelayReader @catch', () => {
 
       expect(errorResponseFields).toEqual([
         {
-          fieldPath: '',
+          fieldPath: 'me.firstName',
           kind: 'missing_expected_data.log',
           owner: 'RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery',
         },

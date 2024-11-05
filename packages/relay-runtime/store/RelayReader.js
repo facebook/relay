@@ -217,7 +217,7 @@ class RelayReader {
     }
   }
 
-  _markDataAsMissing(): void {
+  _markDataAsMissing(fieldName: string): void {
     if (this._isWithinUnmatchedTypeRefinement) {
       return;
     }
@@ -226,7 +226,6 @@ class RelayReader {
     }
 
     // we will add the path later
-    const fieldPath = '';
     const owner = this._fragmentName;
 
     this._errorResponseFields.push(
@@ -234,10 +233,10 @@ class RelayReader {
         ? {
             kind: 'missing_expected_data.throw',
             owner,
-            fieldPath,
+            fieldPath: fieldName,
             handled: false,
           }
-        : {kind: 'missing_expected_data.log', owner, fieldPath},
+        : {kind: 'missing_expected_data.log', owner, fieldPath: fieldName},
     );
 
     this._isMissingData = true;
@@ -266,7 +265,7 @@ class RelayReader {
     this._seenRecords.add(dataID);
     if (record == null) {
       if (record === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing('<record>');
       }
       return record;
     }
@@ -489,12 +488,15 @@ class RelayReader {
           this._createFragmentPointer(selection, record, data);
           break;
         case 'AliasedInlineFragmentSpread': {
+          const prevErrors = this._errorResponseFields;
+          this._errorResponseFields = null;
           let fieldValue = this._readInlineFragment(
             selection.fragment,
             record,
             {},
             true,
           );
+          this._prependPreviousErrors(prevErrors, selection.name);
           if (fieldValue === false) {
             fieldValue = null;
           }
@@ -601,9 +603,12 @@ class RelayReader {
     data: SelectorData,
   ): mixed {
     const parentRecordID = RelayModernRecord.getDataID(record);
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
     const result = this._readResolverFieldImpl(field, parentRecordID);
 
     const fieldName = field.alias ?? field.name;
+    this._prependPreviousErrors(prevErrors, fieldName);
     data[fieldName] = result;
     return result;
   }
@@ -982,12 +987,15 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevData,
       );
+      const prevErrors = this._errorResponseFields;
+      this._errorResponseFields = null;
       const edgeValue = this._traverse(
         field.linkedField,
         storeID,
         // $FlowFixMe[incompatible-variance]
         prevData,
       );
+      this._prependPreviousErrors(prevErrors, fieldName);
       this._clientEdgeTraversalPath.pop();
       data[fieldName] = edgeValue;
       return edgeValue;
@@ -1005,7 +1013,7 @@ class RelayReader {
     if (value === null) {
       this._maybeAddErrorResponseFields(record, storageKey);
     } else if (value === undefined) {
-      this._markDataAsMissing();
+      this._markDataAsMissing(fieldName);
     }
     data[fieldName] = value;
     return value;
@@ -1024,7 +1032,7 @@ class RelayReader {
       if (linkedID === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       } else if (linkedID === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing(fieldName);
       }
       return linkedID;
     }
@@ -1039,10 +1047,71 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
     // $FlowFixMe[incompatible-variance]
     const value = this._traverse(field, linkedID, prevData);
+
+    this._prependPreviousErrors(prevErrors, fieldName);
     data[fieldName] = value;
     return value;
+  }
+
+  /**
+   * Adds a set of field errors to `this._errorResponseFields`, ensuring the
+   * `fieldPath` property of existing field errors are prefixed with the given
+   * `fieldNameOrIndex`.
+   *
+   * In order to make field errors maximally useful in logs/errors, we want to
+   * include the path to the field that caused the error. A naive approach would
+   * be to maintain a path property on RelayReader which we push/pop field names
+   * to as we traverse into fields/etc. However, this would be expensive to
+   * maintain, and in the common case where there are no field errors, the work
+   * would go unused.
+   *
+   * Instead, we take a lazy approach where as we exit the recurison into a
+   * field/etc we prepend any errors encountered while traversing that field
+   * with the field name. This is somewhat more expensive in the error case, but
+   * ~free in the common case where there are no errors.
+   *
+   * To achieve this, named field readers must do the following to correctly
+   * track error filePaths:
+   *
+   * 1. Stash the value of `this._errorResponseFields` in a local variable
+   * 2. Set `this._errorResponseFields` to `null`
+   * 3. Traverse into the field
+   * 4. Call this method with the stashed errors and the field's name
+   *
+   * Similarly, when creating field errors, we simply initialize the `fieldPath`
+   * as the direct field name.
+   *
+   * Today we only use this apporach for `missing_expected_data` errors, but we
+   * intend to broaden it to handle all field error paths.
+   */
+  _prependPreviousErrors(
+    prevErrors: ?Array<ErrorResponseField>,
+    fieldNameOrIndex: string | number,
+  ): void {
+    if (this._errorResponseFields != null) {
+      for (let i = 0; i < this._errorResponseFields.length; i++) {
+        const event = this._errorResponseFields[i];
+        if (
+          event.owner === this._fragmentName &&
+          (event.kind === 'missing_expected_data.throw' ||
+            event.kind === 'missing_expected_data.log')
+        ) {
+          event.fieldPath = `${fieldNameOrIndex}.${event.fieldPath}`;
+        }
+      }
+      if (prevErrors != null) {
+        for (let i = this._errorResponseFields.length - 1; i >= 0; i--) {
+          prevErrors.push(this._errorResponseFields[i]);
+        }
+        this._errorResponseFields = prevErrors;
+      }
+    } else {
+      this._errorResponseFields = prevErrors;
+    }
   }
 
   _readActorChange(
@@ -1060,7 +1129,7 @@ class RelayReader {
     if (externalRef == null) {
       data[fieldName] = externalRef;
       if (externalRef === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing(fieldName);
       } else if (externalRef === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       }
@@ -1107,7 +1176,7 @@ class RelayReader {
     if (linkedIDs == null) {
       data[fieldName] = linkedIDs;
       if (linkedIDs === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing(fieldName);
       }
       return linkedIDs;
     }
@@ -1121,11 +1190,13 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
     const linkedArray = prevData || [];
     linkedIDs.forEach((linkedID, nextIndex) => {
       if (linkedID == null) {
         if (linkedID === undefined) {
-          this._markDataAsMissing();
+          this._markDataAsMissing(String(nextIndex));
         }
         // $FlowFixMe[cannot-write]
         linkedArray[nextIndex] = linkedID;
@@ -1140,10 +1211,14 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevItem,
       );
+      const prevErrors = this._errorResponseFields;
+      this._errorResponseFields = null;
       // $FlowFixMe[cannot-write]
       // $FlowFixMe[incompatible-variance]
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
+      this._prependPreviousErrors(prevErrors, nextIndex);
     });
+    this._prependPreviousErrors(prevErrors, fieldName);
     data[fieldName] = linkedArray;
     return linkedArray;
   }
@@ -1166,7 +1241,7 @@ class RelayReader {
       RelayModernRecord.getValue(record, componentKey);
     if (component == null) {
       if (component === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing('<module-import>');
       }
       return;
     }
@@ -1398,7 +1473,7 @@ class RelayReader {
       // fetched the `__is[AbstractType]` flag for this concrete type. In this
       // case we need to report that we are missing data, in case that field is
       // still in flight.
-      this._markDataAsMissing();
+      this._markDataAsMissing('<abstract-type-hint>');
     }
     // $FlowFixMe Casting record value
     return implementsInterface;

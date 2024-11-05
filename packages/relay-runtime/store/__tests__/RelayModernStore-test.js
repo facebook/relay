@@ -728,12 +728,12 @@ function cloneEventWithSets(event: LogEvent) {
             {
               owner: 'RelayModernStoreTest5Fragment',
               kind: 'missing_expected_data.log',
-              fieldPath: '',
+              fieldPath: 'profilePicture',
             },
             {
               owner: 'RelayModernStoreTest5Fragment',
               kind: 'missing_expected_data.log',
-              fieldPath: '',
+              fieldPath: 'emailAddresses',
             },
           ],
           missingLiveResolverFields: [],
@@ -782,12 +782,12 @@ function cloneEventWithSets(event: LogEvent) {
             {
               owner: 'RelayModernStoreTest5Fragment',
               kind: 'missing_expected_data.log',
-              fieldPath: '',
+              fieldPath: 'profilePicture',
             },
             {
               owner: 'RelayModernStoreTest5Fragment',
               kind: 'missing_expected_data.log',
-              fieldPath: '',
+              fieldPath: 'emailAddresses',
             },
           ],
           seenRecords: new Set(['842472']),

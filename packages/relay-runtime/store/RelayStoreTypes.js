@@ -1274,7 +1274,7 @@ export type MissingFieldHandler =
 export type MissingExpectedDataLogEvent = {
   +kind: 'missing_expected_data.log',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
 };
 
 /**
@@ -1300,7 +1300,7 @@ export type MissingExpectedDataLogEvent = {
 export type MissingExpectedDataThrowEvent = {
   +kind: 'missing_expected_data.throw',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
 };
 

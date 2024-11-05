@@ -417,12 +417,12 @@ function cloneEventWithSets(event: LogEvent) {
           isMissingData: true,
           errorResponseFields: [
             {
-              fieldPath: '',
+              fieldPath: 'profilePicture',
               kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
             {
-              fieldPath: '',
+              fieldPath: 'emailAddresses',
               kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
@@ -466,12 +466,12 @@ function cloneEventWithSets(event: LogEvent) {
           },
           errorResponseFields: [
             {
-              fieldPath: '',
+              fieldPath: 'profilePicture',
               kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
             {
-              fieldPath: '',
+              fieldPath: 'emailAddresses',
               kind: 'missing_expected_data.log',
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },

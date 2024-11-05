@@ -1424,9 +1424,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         };
         if !directive_definition.locations.contains(&location) {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation(DirectiveName(
-                    directive.name.value,
-                )),
+                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation {
+                    directive_name: DirectiveName(directive.name.value),
+                    valid_locations: directive_definition
+                        .locations
+                        .iter()
+                        .map(|l| l.to_string())
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                },
                 self.location.with_span(directive.name.span),
             )]);
         }

@@ -7,4 +7,4 @@ mutation MyMutation @throwOnFieldError {
   }
 }
 ==================================== ERROR ====================================
-Diagnostic(DiagnosticData { message: InvalidDirectiveUsageUnsupportedLocation(DirectiveName("throwOnFieldError")), location: throw_on_field_error_mutation_directive.graphql:42:59, related_information: [], tags: [], severity: Error, data: [], machine_readable: {} })
+Diagnostic(DiagnosticData { message: InvalidDirectiveUsageUnsupportedLocation { directive_name: DirectiveName("throwOnFieldError"), valid_locations: "QUERY, FRAGMENT_DEFINITION" }, location: throw_on_field_error_mutation_directive.graphql:42:59, related_information: [], tags: [], severity: Error, data: [], machine_readable: {} })

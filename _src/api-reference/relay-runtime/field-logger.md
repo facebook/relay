@@ -88,6 +88,11 @@ export type MissingExpectedDataThrowEvent = {
 };
 ```
 
+The `fieldPath` property is a `.` separated string containing the path from the query/mutation/fragment root to the field which was missing. Note that there are some cases where we are missing data that is not strictly a field. In those cases the path will end with one of these segments:
+
+1. `path.to.<record>` An edge points to an ID that is not present in the Relay store
+2. `path.to.<abstract-type-hint>` A virtual field inserted by the Relay compiler to detect if a type condition holds is missing from the Relay store
+
 ## Missing Required Field Log
 
 A field was marked as [@required(action: LOG)](../../guides/required-directive.md#action) but was null or missing in the store.

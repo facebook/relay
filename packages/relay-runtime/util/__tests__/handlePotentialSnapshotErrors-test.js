@@ -323,7 +323,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors/,
+        /^Relay: Unexpected response payload - check server logs for details./,
       );
 
       const eventsLogged = relayFieldLogger.mock.calls.map(call => call[0]);

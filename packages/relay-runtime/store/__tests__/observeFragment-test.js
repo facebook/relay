@@ -193,7 +193,7 @@ test('Field error with @throwOnFieldError', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          'Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors',
+          'Relay: Unexpected response payload - check server logs for details.',
         ),
         state: 'error',
       },

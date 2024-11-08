@@ -21,7 +21,6 @@ const React = require('react');
 const {RelayEnvironmentProvider, useClientQuery} = require('react-relay');
 const useFragment = require('react-relay/relay-hooks/useFragment');
 const TestRenderer = require('react-test-renderer');
-const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -273,523 +272,514 @@ function ManyLiveTodosComponent() {
   });
 }
 
-describe.each([true, false])(
-  'AVOID_CYCLES_IN_RESOLVER_NOTIFICATION is %p',
-  avoidCycles => {
-    RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION = avoidCycles;
-    test('should render empty state', () => {
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-          </EnvironmentWrapper>,
-        );
-      });
-      expect(renderer?.toJSON()).toEqual('No Items');
+test('should render empty state', () => {
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('No Items');
+});
+
+test('add new item to the list', () => {
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+
+  TestRenderer.act(() => {
+    addTodo('My first todo');
+    jest.runAllImmediates();
+  });
+
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+
+  TestRenderer.act(() => {
+    addTodo('My second todo');
+    jest.runAllImmediates();
+  });
+
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+});
+
+test('complete todo', () => {
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  TestRenderer.act(() => {
+    addTodo('My first todo');
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+
+  TestRenderer.act(() => {
+    completeTodo('todo-1');
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+  ]);
+});
+
+test('complete todo and add one more', () => {
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  TestRenderer.act(() => {
+    addTodo('My first todo');
+    completeTodo('todo-1');
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+  ]);
+  TestRenderer.act(() => {
+    addTodo('My second todo');
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+    'My second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+});
+
+test('query single todo item (item is missing)', () => {
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toBe(null);
+});
+
+test('query single todo item (item is present) and complete it', () => {
+  addTodo('My first todo');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+  TestRenderer.act(() => {
+    completeTodo('todo-1');
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+  ]);
+});
+
+test('render both list and item component', () => {
+  addTodo('My first todo');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
+
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+
+  TestRenderer.act(() => {
+    addTodo('Second todo');
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'Second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+
+  // complete the first item
+  TestRenderer.act(() => {
+    completeTodo('todo-1');
+    jest.runAllImmediates();
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+    'Second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+  ]);
+});
+
+test('removes item', () => {
+  addTodo('My first todo');
+  addTodo('Second todo');
+  completeTodo('todo-1');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
+
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+    'Second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My first todo',
+    'is completed',
+    'style: normal',
+    'color: color is green',
+  ]);
+
+  TestRenderer.act(() => {
+    removeTodo('todo-1');
+    jest.runAllImmediates();
+  });
+
+  expect(renderer?.toJSON()).toEqual([
+    'Second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+});
+
+test('renders after GC', () => {
+  addTodo('My first todo');
+
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+
+  (environment.getStore(): $FlowFixMe).__gc();
+  jest.runAllTimers();
+
+  expect(environment.getStore().getSource().toJSON()).toEqual({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      'todos(first:10)': {
+        __ref: 'client:root:todos(first:10)',
+      },
+    },
+    'client:root:todos(first:10)': {
+      __id: 'client:root:todos(first:10)',
+      __resolverError: null,
+      __resolverLiveStateDirty: false,
+      __resolverLiveStateSubscription: expect.anything(),
+      __resolverLiveStateValue: {
+        read: expect.anything(),
+        subscribe: expect.anything(),
+      },
+      __resolverOutputTypeRecordIDs: new Set([
+        'client:TodoConnection:client:root:todos(first:10)',
+        'client:TodoConnection:client:root:todos(first:10):edges:0',
+        'client:TodoConnection:client:root:todos(first:10):edges:0:node',
+        'client:TodoConnection:client:root:todos(first:10):pageInfo',
+      ]),
+      __resolverSnapshot: undefined,
+      __resolverValue: 'client:TodoConnection:client:root:todos(first:10)',
+      __typename: '__RELAY_RESOLVER__',
+    },
+    'client:TodoConnection:client:root:todos(first:10)': {
+      __id: 'client:TodoConnection:client:root:todos(first:10)',
+      __typename: 'TodoConnection',
+      count: 1,
+      edges: {
+        __refs: ['client:TodoConnection:client:root:todos(first:10):edges:0'],
+      },
+      pageInfo: {
+        __ref: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
+      },
+    },
+    'client:TodoConnection:client:root:todos(first:10):edges:0': {
+      __id: 'client:TodoConnection:client:root:todos(first:10):edges:0',
+      __typename: 'TodoEdge',
+      cursor: null,
+      node: {
+        __ref: 'client:TodoConnection:client:root:todos(first:10):edges:0:node',
+      },
+    },
+    'client:TodoConnection:client:root:todos(first:10):edges:0:node': {
+      __id: 'client:TodoConnection:client:root:todos(first:10):edges:0:node',
+      __typename: 'Todo',
+      complete: {
+        __ref:
+          'client:TodoConnection:client:root:todos(first:10):edges:0:node:complete',
+      },
+      self: {
+        __ref:
+          'client:TodoConnection:client:root:todos(first:10):edges:0:node:self',
+      },
+      text: {
+        __ref:
+          'client:TodoConnection:client:root:todos(first:10):edges:0:node:text',
+      },
+      todo_id: 'todo-1',
+    },
+    'client:TodoConnection:client:root:todos(first:10):pageInfo': {
+      __id: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
+      __typename: 'TodoConnectionPageInfo',
+      endCursor: null,
+      hasNextPage: false,
+      hasPreviousPage: false,
+      startCursor: null,
+    },
+  });
+
+  expect(() => {
+    TestRenderer.act(() => {
+      renderer.update(
+        <EnvironmentWrapper environment={environment} key="1">
+          <TodoListComponent />
+        </EnvironmentWrapper>,
+      );
     });
+  }).not.toThrow();
+});
 
-    test('add new item to the list', () => {
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-          </EnvironmentWrapper>,
-        );
-      });
+test('render with recursive resolvers (with blocked_by)', () => {
+  addTodo('My first todo');
+  addTodo('My second todo');
+  addTodo('My 3rd todo');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootWithBlockedComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+  });
 
-      TestRenderer.act(() => {
-        addTodo('My first todo');
-        jest.runAllImmediates();
-      });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My 3rd todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
 
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
+  TestRenderer.act(() => {
+    blockedBy('todo-1', 'todo-2');
+    jest.runAllImmediates();
+  });
 
-      TestRenderer.act(() => {
-        addTodo('My second todo');
-        jest.runAllImmediates();
-      });
+  expect(renderer?.toJSON()).toEqual([
+    'My first todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My 3rd todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'My second todo',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+});
 
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-    });
+// TODO: T184433715 We currently break with the GraphQL spec here and filter out null values.
+test('rendering lists with nulls', () => {
+  addTodo('Todo 1');
+  addTodo('Todo 2');
+  addTodo('Todo 3');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <ManyTodosComponent todos={['todo-1', null, 'todo-2']} />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'Todo 1',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'Todo 2',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+  TestRenderer.act(() => {
+    renderer.update(
+      <EnvironmentWrapper environment={environment}>
+        <ManyTodosComponent todos={['todo-1', 'todo-2', 'todo-3']} />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual([
+    'Todo 1',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'Todo 2',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'Todo 3',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+});
 
-    test('complete todo', () => {
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-          </EnvironmentWrapper>,
-        );
-      });
-      TestRenderer.act(() => {
-        addTodo('My first todo');
-        jest.runAllImmediates();
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
+test('rendering live list', () => {
+  addTodo('Todo 1');
+  addTodo('Todo 2');
+  addTodo('Todo 3');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <ManyLiveTodosComponent />
+      </EnvironmentWrapper>,
+    );
+  });
 
-      TestRenderer.act(() => {
-        completeTodo('todo-1');
-        jest.runAllImmediates();
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-      ]);
-    });
+  expect(renderer?.toJSON()).toEqual([
+    'Todo 1',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'Todo 2',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+    'Todo 3',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
 
-    test('complete todo and add one more', () => {
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-          </EnvironmentWrapper>,
-        );
-      });
-      TestRenderer.act(() => {
-        addTodo('My first todo');
-        completeTodo('todo-1');
-        jest.runAllImmediates();
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-      ]);
-      TestRenderer.act(() => {
-        addTodo('My second todo');
-        jest.runAllImmediates();
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-        'My second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-    });
+  TestRenderer.act(() => {
+    removeTodo('todo-1');
+    removeTodo('todo-2');
+    jest.runAllImmediates();
+  });
 
-    test('query single todo item (item is missing)', () => {
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoRootComponent todoID="todo-1" />
-          </EnvironmentWrapper>,
-        );
-      });
-      expect(renderer?.toJSON()).toBe(null);
-    });
-
-    test('query single todo item (item is present) and complete it', () => {
-      addTodo('My first todo');
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoRootComponent todoID="todo-1" />
-          </EnvironmentWrapper>,
-        );
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-      TestRenderer.act(() => {
-        completeTodo('todo-1');
-        jest.runAllImmediates();
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-      ]);
-    });
-
-    test('render both list and item component', () => {
-      addTodo('My first todo');
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-            <TodoRootComponent todoID="todo-1" />
-          </EnvironmentWrapper>,
-        );
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-
-      TestRenderer.act(() => {
-        addTodo('Second todo');
-        jest.runAllImmediates();
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'Second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-
-      // complete the first item
-      TestRenderer.act(() => {
-        completeTodo('todo-1');
-        jest.runAllImmediates();
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-        'Second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-      ]);
-    });
-
-    test('removes item', () => {
-      addTodo('My first todo');
-      addTodo('Second todo');
-      completeTodo('todo-1');
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-            <TodoRootComponent todoID="todo-1" />
-          </EnvironmentWrapper>,
-        );
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-        'Second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My first todo',
-        'is completed',
-        'style: normal',
-        'color: color is green',
-      ]);
-
-      TestRenderer.act(() => {
-        removeTodo('todo-1');
-        jest.runAllImmediates();
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'Second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-    });
-
-    test('renders after GC', () => {
-      addTodo('My first todo');
-
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-          </EnvironmentWrapper>,
-        );
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-
-      (environment.getStore(): $FlowFixMe).__gc();
-      jest.runAllTimers();
-
-      expect(environment.getStore().getSource().toJSON()).toEqual({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'todos(first:10)': {
-            __ref: 'client:root:todos(first:10)',
-          },
-        },
-        'client:root:todos(first:10)': {
-          __id: 'client:root:todos(first:10)',
-          __resolverError: null,
-          __resolverLiveStateDirty: false,
-          __resolverLiveStateSubscription: expect.anything(),
-          __resolverLiveStateValue: {
-            read: expect.anything(),
-            subscribe: expect.anything(),
-          },
-          __resolverOutputTypeRecordIDs: new Set([
-            'client:TodoConnection:client:root:todos(first:10)',
-            'client:TodoConnection:client:root:todos(first:10):edges:0',
-            'client:TodoConnection:client:root:todos(first:10):edges:0:node',
-            'client:TodoConnection:client:root:todos(first:10):pageInfo',
-          ]),
-          __resolverSnapshot: undefined,
-          __resolverValue: 'client:TodoConnection:client:root:todos(first:10)',
-          __typename: '__RELAY_RESOLVER__',
-        },
-        'client:TodoConnection:client:root:todos(first:10)': {
-          __id: 'client:TodoConnection:client:root:todos(first:10)',
-          __typename: 'TodoConnection',
-          count: 1,
-          edges: {
-            __refs: [
-              'client:TodoConnection:client:root:todos(first:10):edges:0',
-            ],
-          },
-          pageInfo: {
-            __ref: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
-          },
-        },
-        'client:TodoConnection:client:root:todos(first:10):edges:0': {
-          __id: 'client:TodoConnection:client:root:todos(first:10):edges:0',
-          __typename: 'TodoEdge',
-          cursor: null,
-          node: {
-            __ref:
-              'client:TodoConnection:client:root:todos(first:10):edges:0:node',
-          },
-        },
-        'client:TodoConnection:client:root:todos(first:10):edges:0:node': {
-          __id: 'client:TodoConnection:client:root:todos(first:10):edges:0:node',
-          __typename: 'Todo',
-          complete: {
-            __ref:
-              'client:TodoConnection:client:root:todos(first:10):edges:0:node:complete',
-          },
-          self: {
-            __ref:
-              'client:TodoConnection:client:root:todos(first:10):edges:0:node:self',
-          },
-          text: {
-            __ref:
-              'client:TodoConnection:client:root:todos(first:10):edges:0:node:text',
-          },
-          todo_id: 'todo-1',
-        },
-        'client:TodoConnection:client:root:todos(first:10):pageInfo': {
-          __id: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
-          __typename: 'TodoConnectionPageInfo',
-          endCursor: null,
-          hasNextPage: false,
-          hasPreviousPage: false,
-          startCursor: null,
-        },
-      });
-
-      expect(() => {
-        TestRenderer.act(() => {
-          renderer.update(
-            <EnvironmentWrapper environment={environment} key="1">
-              <TodoListComponent />
-            </EnvironmentWrapper>,
-          );
-        });
-      }).not.toThrow();
-    });
-
-    test('render with recursive resolvers (with blocked_by)', () => {
-      addTodo('My first todo');
-      addTodo('My second todo');
-      addTodo('My 3rd todo');
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <TodoListComponent />
-            <TodoRootWithBlockedComponent todoID="todo-1" />
-          </EnvironmentWrapper>,
-        );
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My 3rd todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-
-      TestRenderer.act(() => {
-        blockedBy('todo-1', 'todo-2');
-        jest.runAllImmediates();
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'My first todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My 3rd todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'My second todo',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-    });
-
-    // TODO: T184433715 We currently break with the GraphQL spec here and filter out null values.
-    test('rendering lists with nulls', () => {
-      addTodo('Todo 1');
-      addTodo('Todo 2');
-      addTodo('Todo 3');
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <ManyTodosComponent todos={['todo-1', null, 'todo-2']} />
-          </EnvironmentWrapper>,
-        );
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'Todo 1',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'Todo 2',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-      TestRenderer.act(() => {
-        renderer.update(
-          <EnvironmentWrapper environment={environment}>
-            <ManyTodosComponent todos={['todo-1', 'todo-2', 'todo-3']} />
-          </EnvironmentWrapper>,
-        );
-      });
-      expect(renderer?.toJSON()).toEqual([
-        'Todo 1',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'Todo 2',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'Todo 3',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-    });
-
-    test('rendering live list', () => {
-      addTodo('Todo 1');
-      addTodo('Todo 2');
-      addTodo('Todo 3');
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <EnvironmentWrapper environment={environment}>
-            <ManyLiveTodosComponent />
-          </EnvironmentWrapper>,
-        );
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'Todo 1',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'Todo 2',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-        'Todo 3',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-
-      TestRenderer.act(() => {
-        removeTodo('todo-1');
-        removeTodo('todo-2');
-        jest.runAllImmediates();
-      });
-
-      expect(renderer?.toJSON()).toEqual([
-        'Todo 3',
-        'is not completed',
-        'style: bold',
-        'color: color is red',
-      ]);
-    });
-  },
-);
+  expect(renderer?.toJSON()).toEqual([
+    'Todo 3',
+    'is not completed',
+    'style: bold',
+    'color: color is red',
+  ]);
+});

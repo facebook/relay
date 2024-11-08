@@ -28,6 +28,14 @@ export type FeatureFlags = {
   LOG_MISSING_RECORDS_IN_PROD: boolean,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
 
+  // Some GraphQL servers are noncompliant with the GraphQL specification and
+  // return an empty list instead of null when there is a field error on a list.
+  //
+  // If this describes your server, enable this flag so that Relay will treat
+  // empty lists as null when deciding whether or not to check for field errors
+  // in the response.
+  ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS: boolean,
+
   // Configure RelayStoreSubscriptions to mark a subscription as affected by an
   // update if there are any overlapping IDs other than ROOT_ID or VIWER_ID,
   // even if none of the read fields were affected. The strict behavior (current
@@ -67,6 +75,7 @@ const RelayFeatureFlags: FeatureFlags = {
   MAX_DATA_ID_LENGTH: null,
   STRING_INTERN_LEVEL: 0,
   LOG_MISSING_RECORDS_IN_PROD: false,
+  ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS: false,
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,

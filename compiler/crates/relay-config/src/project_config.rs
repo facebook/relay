@@ -108,10 +108,16 @@ pub struct LocalPersistConfig {
     pub include_query_text: bool,
 }
 
+/// Configuration for how the Relay Compiler should persist GraphQL queries.
 #[derive(Debug, Serialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum PersistConfig {
+    /// This variant represents a remote persistence configuration, where GraphQL queries are sent to a remote endpoint for persistence.
     Remote(RemotePersistConfig),
+    /// This variant represents a local persistence configuration, where GraphQL queries are persisted to a local JSON file.
+    ///
+    /// When this variant is used, the compiler will attempt to read the local file as a hash map,
+    /// add new queries to the map, and then serialize and write the resulting map to the configured path.
     Local(LocalPersistConfig),
 }
 
@@ -157,9 +163,12 @@ It also cannot be a local persist configuration due to:
     }
 }
 
+/// Specifies the type of location of a GraphQL schema, and the path to the schema location.
 #[derive(Clone, Debug, JsonSchema)]
 pub enum SchemaLocation {
+    /// A single file containing the schema.
     File(PathBuf),
+    /// A directory containing multiple schema files.
     Directory(PathBuf),
 }
 

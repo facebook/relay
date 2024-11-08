@@ -40,6 +40,7 @@ const {
   ACTOR_IDENTIFIER_FIELD_NAME,
   getActorIdentifierFromPayload,
 } = require('../multi-actor-environment/ActorUtils');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {generateClientID, isClientID} = require('./ClientID');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const {
@@ -471,7 +472,12 @@ class RelayResponseNormalizer {
     const responseKey = selection.alias || selection.name;
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
-    if (fieldValue == null) {
+    if (
+      fieldValue == null ||
+      (RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
+        Array.isArray(fieldValue) &&
+        fieldValue.length === 0)
+    ) {
       if (fieldValue === undefined) {
         // Fields may be missing in the response in two main cases:
         // - Inside a client extension: the server will not generally return

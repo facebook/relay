@@ -14,14 +14,17 @@
 const nullthrows = require('nullthrows');
 const {getFragment, graphql} = require('relay-runtime/query/GraphQLTag');
 const {
+  LiveResolverCache,
+} = require('relay-runtime/store/live-resolvers/LiveResolverCache');
+const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
 const {
   getSingularSelector,
 } = require('relay-runtime/store/RelayModernSelector');
+const RelayStore = require('relay-runtime/store/RelayModernStore');
 const {read} = require('relay-runtime/store/RelayReader');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
-const {RecordResolverCache} = require('relay-runtime/store/ResolverCache');
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -136,7 +139,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Bob',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = BASIC_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -170,7 +174,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Alice',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = BASIC_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -268,7 +273,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Bob',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = QUERY_WITH_ALIAS;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -303,7 +309,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Alice',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = NULL_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -343,7 +350,8 @@ describe('RelayReader Client Edges behavior', () => {
         author: {__ref: '1338'}, // missing
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = LINKED_FIELD_WITHIN_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -384,7 +392,8 @@ describe('RelayReader Client Edges behavior', () => {
         // name is missing
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = FRAGMENT_SPREAD_WITHIN_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data: parentData} = read(source, operation.fragment, resolverCache);
@@ -426,7 +435,8 @@ describe('RelayReader Client Edges behavior', () => {
         // name is missing
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = NESTED_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -478,7 +488,8 @@ describe('RelayReader Client Edges behavior', () => {
       },
       // 1337 (the client edge destination) is missing.
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = CLIENT_EDGE_WITHIN_CLIENT_EXTENSION;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -529,7 +540,8 @@ describe('RelayReader Client Edges behavior', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const {missingClientEdges} = read(
       source,
       operation.fragment,

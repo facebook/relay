@@ -14,12 +14,19 @@ use tokio::sync::Semaphore;
 use crate::config::ArtifactForPersister;
 use crate::OperationPersister;
 
+/// A remote persister that sends GraphQL documents to a server for persistence.
+///
+/// This struct implements the `OperationPersister` trait, which defines the interface for persisting GraphQL operations.
+#[derive(Debug)]
 pub struct RemotePersister {
+    /// The configuration for the remote persister.
     pub config: RemotePersistConfig,
-    semaphore: Option<Semaphore>,
+    /// An optional semaphore to limit the number of concurrent connections to the remote server.
+    pub semaphore: Option<Semaphore>,
 }
 
 impl RemotePersister {
+    /// Creates a new `RemotePersister` instance with the given configuration and semaphore.
     pub fn new(config: RemotePersistConfig) -> Self {
         let semaphore = config.semaphore_permits.map(Semaphore::new);
         Self { config, semaphore }

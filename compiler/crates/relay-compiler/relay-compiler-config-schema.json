@@ -1587,6 +1587,7 @@
                   ],
                   "properties": {
                     "concurrency": {
+                      "description": "Number of concurrent requests that can be made to the server.",
                       "default": null,
                       "type": [
                         "integer",
@@ -1596,7 +1597,7 @@
                       "minimum": 0.0
                     },
                     "headers": {
-                      "description": "Additional headers to send",
+                      "description": "Additional headers to include in the POST request.",
                       "default": {},
                       "type": "object",
                       "additionalProperties": {
@@ -1604,11 +1605,12 @@
                       }
                     },
                     "includeQueryText": {
+                      "description": "Whether to include the query text in the persisted document.",
                       "default": false,
                       "type": "boolean"
                     },
                     "params": {
-                      "description": "The document will be in a POST parameter `text`. This map can contain additional parameters to send.",
+                      "description": "Additional parameters to include in the POST request.\n\nThe main document will be in a POST parameter `text`. This map can contain additional parameters to send.",
                       "default": {},
                       "type": "object",
                       "additionalProperties": {
@@ -1616,7 +1618,7 @@
                       }
                     },
                     "url": {
-                      "description": "URL to send a POST request to to persist.",
+                      "description": "URL that the document should be persisted to via a POST request.",
                       "type": "string"
                     }
                   },
@@ -1630,6 +1632,7 @@
                   ],
                   "properties": {
                     "algorithm": {
+                      "description": "The algorithm to use for hashing the operation text.",
                       "default": "MD5",
                       "type": "string",
                       "enum": [
@@ -1639,9 +1642,11 @@
                       ]
                     },
                     "file": {
+                      "description": "The file path where the persisted documents will be written.",
                       "type": "string"
                     },
                     "include_query_text": {
+                      "description": "Whether to include the query text in the persisted document.",
                       "default": false,
                       "type": "boolean"
                     }
@@ -5037,6 +5042,7 @@
                         ],
                         "properties": {
                           "concurrency": {
+                            "description": "Number of concurrent requests that can be made to the server.",
                             "default": null,
                             "type": [
                               "integer",
@@ -5046,7 +5052,7 @@
                             "minimum": 0.0
                           },
                           "headers": {
-                            "description": "Additional headers to send",
+                            "description": "Additional headers to include in the POST request.",
                             "default": {},
                             "type": "object",
                             "additionalProperties": {
@@ -5054,11 +5060,12 @@
                             }
                           },
                           "includeQueryText": {
+                            "description": "Whether to include the query text in the persisted document.",
                             "default": false,
                             "type": "boolean"
                           },
                           "params": {
-                            "description": "The document will be in a POST parameter `text`. This map can contain additional parameters to send.",
+                            "description": "Additional parameters to include in the POST request.\n\nThe main document will be in a POST parameter `text`. This map can contain additional parameters to send.",
                             "default": {},
                             "type": "object",
                             "additionalProperties": {
@@ -5066,7 +5073,7 @@
                             }
                           },
                           "url": {
-                            "description": "URL to send a POST request to to persist.",
+                            "description": "URL that the document should be persisted to via a POST request.",
                             "type": "string"
                           }
                         },
@@ -5080,6 +5087,7 @@
                         ],
                         "properties": {
                           "algorithm": {
+                            "description": "The algorithm to use for hashing the operation text.",
                             "default": "MD5",
                             "type": "string",
                             "enum": [
@@ -5089,9 +5097,11 @@
                             ]
                           },
                           "file": {
+                            "description": "The file path where the persisted documents will be written.",
                             "type": "string"
                           },
                           "include_query_text": {
+                            "description": "Whether to include the query text in the persisted document.",
                             "default": false,
                             "type": "boolean"
                           }

@@ -33,12 +33,17 @@ use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;
 use crate::utils::get_parser_features;
 
+/// A collection of GraphQL abstract syntax trees (ASTs) for a set of files.
+///
+/// This struct contains a map of file paths to their corresponding GraphQL ASTs,
+/// as well as sets of pending and removed definition names.
 #[derive(Debug)]
 pub struct GraphQLAsts {
+    /// A map of file paths to their corresponding GraphQL ASTs.
     asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>>,
-    /// Names of fragments and operations that are updated or created
+    /// Names of fragments and operations that are updated or created.
     pub pending_definition_names: ExecutableDefinitionNameSet,
-    /// Names of fragments and operations that are deleted
+    /// Names of fragments and operations that are deleted.
     pub removed_definition_names: Vec<ArtifactSourceKey>,
 }
 

@@ -5,9 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-//! This module is responsible to build a single project. It does not handle
-//! watch mode or other state.
-
+//! The `build_project` module is responsible for building a single Relay project, and does not
+//! handle watch mode or other state.
+//!
+//! This module takes a `ProjectConfig` as input and returns a `Result` containing the built project,
+//! or an error if the build failed. The main entrypoint function `build_project` performs several steps including:
+//! * Reading the schema from the specified location
+//! * Processing the GraphQL documents in the project
+//! * Generating the necessary artifacts (e.g. generated files)
 mod artifact_generated_types;
 pub mod artifact_writer;
 mod build_ir;

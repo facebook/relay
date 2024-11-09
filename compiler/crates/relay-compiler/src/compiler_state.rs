@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! The `compiler_state` module manages the state of the Relay compiler.
+//!
+//! This module provides a way to manage the state of the Relay compiler, including the current project,
+//! schema, and other configuration options. It also provides methods for updating the state and
+//! generating artifacts.
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::env;
@@ -332,6 +337,7 @@ enum FileSourceIntermediateResult {
 }
 
 impl CompilerState {
+    /// Creates a new instance of the compiler state from the given file source changes.
     pub fn from_file_source_changes(
         config: &Config,
         file_source_changes: &FileSourceResult,
@@ -533,6 +539,7 @@ impl CompilerState {
     }
 
     /// Merges pending changes from the file source into the compiler state.
+    ///
     /// Returns a boolean indicating if any new changes were merged.
     pub fn merge_file_source_changes(
         &mut self,

@@ -5,6 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! The compiler module compiles Relay source code into efficient and optimized runtime artifacts.
+//!
+//! The main entrypoint function for this module is `compile`. It performs several steps including:
+//! * Parsing GraphQL sources into an abstract syntax tree (AST)
+//! * Validating the AST against the GraphQL specification
+//! * Applying transformations to the AST
+//! * Generating output files based on the transformed AST
 use std::collections::HashSet;
 use std::sync::Arc;
 

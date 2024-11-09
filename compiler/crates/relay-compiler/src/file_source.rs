@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! This module provides functionality for working with file sources in the Relay compiler.
+//!
+//! A file source represents a source code file that contains GraphQL code, such as files with `.graphql` or `.js` extensions (the
+//! extension can be set in the relay compiler config). The `FileSource` struct represents a connection to a file source,
+//! and provides methods for reading and parsing the contents of the file.
 mod external_file_source;
 mod extract_graphql;
 mod file_categorizer;

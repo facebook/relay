@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! The config module provides functionality for managing the configuration of the Relay compiler.
 use std::env::current_dir;
 use std::ffi::OsStr;
 use std::fmt;

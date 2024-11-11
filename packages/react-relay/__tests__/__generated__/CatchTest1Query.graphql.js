@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<15af28c5a3ba6f3fbef0e1d63877c0aa>>
+ * @generated SignedSource<<db1b67f6b25de8d126b693f641ed88b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,8 +59,7 @@ return {
             {
               "kind": "CatchField",
               "field": (v0/*: any*/),
-              "to": "RESULT",
-              "path": "me.name"
+              "to": "RESULT"
             }
           ],
           "storageKey": null

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5b1198cde6c862c29ba9d8801fed1f01>>
+ * @generated SignedSource<<52eaf3c41dd8d54c863126ca7d32eddb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -119,8 +119,7 @@ return {
           ],
           "storageKey": null
         },
-        "to": "RESULT",
-        "path": "me"
+        "to": "RESULT"
       }
     ],
     "type": "Query",

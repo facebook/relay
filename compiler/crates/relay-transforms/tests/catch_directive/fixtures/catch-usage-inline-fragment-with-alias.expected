@@ -22,7 +22,6 @@ fragment FragFoo on User {
    @__CatchMetadataDirective
   # CatchMetadataDirective {
   #     to: Result,
-  #     path: "User",
   # }
    {
     name

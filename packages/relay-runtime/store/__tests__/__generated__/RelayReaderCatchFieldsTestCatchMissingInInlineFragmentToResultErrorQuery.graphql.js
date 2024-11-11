@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<15acb8c25702aa21df910a538845a758>>
+ * @generated SignedSource<<97fc88cd2d126da773e4c2bd76e0727a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -70,8 +70,7 @@ return {
               "kind": "AliasedInlineFragmentSpread",
               "name": "myAlias"
             },
-            "to": "RESULT",
-            "path": "me.myAlias"
+            "to": "RESULT"
           }
         ],
         "storageKey": null

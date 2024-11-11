@@ -10,7 +10,6 @@ mutation MutationFoo @catch(to: RESULT) {
 mutation MutationFoo @catch(to: RESULT) @__CatchMetadataDirective
 # CatchMetadataDirective {
 #     to: Result,
-#     path: "",
 # }
  {
   unfriend(input: {friendId: "1"}) {

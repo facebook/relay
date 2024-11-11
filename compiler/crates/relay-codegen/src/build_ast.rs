@@ -1046,7 +1046,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             kind: Primitive::String(CODEGEN_CONSTANTS.catch_field),
             field: primitive,
             to: Primitive::String(catch_metadata.to.into()),
-            path: Primitive::String(catch_metadata.path),
         }))
     }
 

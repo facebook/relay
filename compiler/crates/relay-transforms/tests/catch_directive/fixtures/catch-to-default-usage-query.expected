@@ -8,7 +8,6 @@ query FragFoo @catch {
 query FragFoo @catch @__CatchMetadataDirective
 # CatchMetadataDirective {
 #     to: Result,
-#     path: "",
 # }
  {
   me {

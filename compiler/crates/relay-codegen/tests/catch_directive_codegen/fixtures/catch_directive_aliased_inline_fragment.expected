@@ -39,8 +39,7 @@ fragment MyFragment on Node  {
         "kind": "AliasedInlineFragmentSpread",
         "name": "User"
       },
-      "to": "RESULT",
-      "path": "User"
+      "to": "RESULT"
     }
   ],
   "type": "Node",

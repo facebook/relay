@@ -38,14 +38,12 @@ fragment MyFragmentFirst on User {
               "name": "lastName",
               "storageKey": null
             },
-            "to": "RESULT",
-            "path": "parents.lastName"
+            "to": "RESULT"
           }
         ],
         "storageKey": null
       },
-      "to": "NULL",
-      "path": "parents"
+      "to": "NULL"
     }
   ],
   "type": "User",

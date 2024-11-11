@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<db9825e65e5c49dc2986c873cc324502>>
+ * @generated SignedSource<<30b8c2c3b86f090bdb6df642ac31a67a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,8 +76,7 @@ var node/*: ConcreteRequest*/ = {
           ],
           "storageKey": null
         },
-        "to": "RESULT",
-        "path": "me"
+        "to": "RESULT"
       }
     ],
     "type": "Query",

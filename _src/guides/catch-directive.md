@@ -11,17 +11,21 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 
-The `@catch` directive can be added to fields in your Relay
-queries/fragments/mutations to declare how exceptions and unexpected values
-should be handled at runtime. Using `@catch` allows Relay to give you the
-exceptions in the response data instead of a null value (which has been the
-default behavior).
+The `@catch` directive can be added to fields, fragment/operation definitions or
+aliased inline fragment spreads declare how exceptions and unexpected values
+should be handled at runtime. Using `@catch` allows Relay to surface these error
+states as part of your fragment/query/mutation data instead of a null value
+(which has been the default behavior), or a runtime exception if
+[`@throwOnFieldError`](./throw-on-field-error-directive.md) is being used.
 
-When a GraphQL response contains
-[field errors](https://spec.graphql.org/October2021/#sec-Errors.Field-errors) -
-Relay will look for the errors and - if a `@catch` directive is present on that
-field, or a parent field - will respond with either
-`{ok: true, value: "your value"}` or `{ok: false, errors: [...]}`.
+## `to` Argument
+
+The `@catch` directive accepts an optional `to` argument which has two options:
+
+- `RESULT` (default): The value is returned as `{ ok: true, value: T } | { ok: false, errors: [error] }`. This allows you implement explicit field-granular error handling in your application.
+- `NULL`: If an error is encountered within the `@catch`, the value will be replaced with `null`.
+
+## Examples
 
 If a `@catch` error is caught directly on the field that the error originated
 from - the error is provided on that field. Here's an example:
@@ -40,17 +44,13 @@ If `name` contains an error - it would be provided in the response data on the
 
 ```js
 {
-    viewer: {
-        name: {
-            ok: false,
-            errors: [
-                {
-                    path: ['viewer', 'name']
-                }
-            ]
-        }
-        age: 39
+  viewer: {
+    name: {
+      ok: false,
+      errors: [{path: ['viewer', 'name']}]
     }
+    age: 39
+  }
 }
 ```
 
@@ -68,34 +68,36 @@ query MyQuery {
 
 ```js
 {
-    viewer: {
-        ok: false,
-        errors: [
-            {
-                path: ['viewer', 'name']
-            }
-        ]
-    }
+  viewer: {
+    ok: false,
+    errors: [{ path: ['viewer', 'name'] } ]
+  }
 }
 ```
 
+## Implications for nullability
+
+Fields whose errors are explicitly handled by `@catch`, either by being
+annotated with `@catch` or by being nested with a `@catch` ancestor will be
+typed using their [Semantic Nullability](./semantic-nullability.md). In other
+words, if a field has been marked as `@semanticNonNull` in the server schema to
+indicate that it will only be null in the case of error, Relay will type that
+field as non-nullable in its generated Flow/TypeScript types.
+
 ## What can be caught with `@catch`?
 
-### Payload Errors
+### Payload Field Errors
 
-Payload errors are errors that occur as the result of a server-side exception
-while executing a given field's response. In this case, GraphQL servers provide
-a null value where a value should be, and a separate errors object.
+Payload [field
+errors](https://spec.graphql.org/October2021/#sec-Errors.Field-errors) are
+errors that occur as the result of a server-side exception while executing a
+given field's resolver. In this case, the GraphQL specifies that the sever must
+provide a null value where a value should be, and a separate errors object.
 
 When you `@catch` on a field, Relay takes those errors and provides them to you
 in-line instead, making them easier to handle, and no longer invisible.
 
-Another great side-effect is that if a field is nullable, you will now know if
-the null was the result of an exception or a true null - because the shape would
-either contain `{ok: true}` with the value `null`, or `{ok: false}` with the
-actual error.
-
-### @required(action: THROW) below an @catch
+### @required(action: THROW) within an @catch
 
 If you have an `@required(action: THROW)` with an ancestor that contains a
 `@catch` - instead of throwing an exception, the `@required` error would bubble
@@ -112,14 +114,10 @@ query MyQuery {
 
 ```js
 {
-    viewer: {
-        ok: false,
-        errors: [
-            {
-                path: ["viewer", "name"],
-            }
-        ]
-    }
+  viewer: {
+    ok: false,
+    errors: [{ path: ["viewer", "name"] }]
+  }
 }
 ```
 
@@ -133,14 +131,10 @@ it happens with an `@catch` as an ancestor, it will also be caught like so:
 
 ```js
 {
-    viewer: {
-        ok: false,
-        errors: [
-            {
-                path: ["viewer", "name"],
-            }
-        ]
-    }
+  viewer: {
+    ok: false,
+    errors: [{ path: ["viewer", "name"] }]
+  }
 }
 ```
 
@@ -159,20 +153,6 @@ other fields that are not under a `@catch` will still not throw - because
 
 Read more about `@throwOnFieldError`
 [here](https://relay.dev/docs/next/api-reference/graphql-and-directives/#throwonfielderror-experimental).
-
-## `@catch` arguments
-
-### to: RESULT (default)
-
-`@catch(to: RESULT)` enables the behavior described above - with providing
-errors in-line for same or child fields that contain an error. This is the
-default argument - which means you can write either `@catch` or
-`@catch(to: RESULT)` and the behavior will be identical.
-
-### to: NULL
-
-`@catch(to: NULL)` will provide you with the exact same behavior as existed
-before `@catch` was possible. The field will be null if it contains an error.
 
 ## GraphQL Conf Talk
 

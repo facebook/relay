@@ -235,7 +235,8 @@ export type ReaderRequiredField = {
   +kind: 'RequiredField',
   +field: ReaderField | ReaderClientEdge,
   +action: RequiredFieldAction,
-  +path: string,
+  // TODO: This field is not used any more, we should be able to remove it.
+  +path?: mixed,
 };
 
 export type CatchFieldTo = 'RESULT' | 'NULL';

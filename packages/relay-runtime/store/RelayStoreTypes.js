@@ -1311,7 +1311,7 @@ export type MissingExpectedDataThrowEvent = {
 export type MissingRequiredFieldLogEvent = {
   +kind: 'missing_required_field.log',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
 };
 
 /**
@@ -1328,7 +1328,7 @@ export type MissingRequiredFieldLogEvent = {
 export type MissingRequiredFieldThrowEvent = {
   +kind: 'missing_required_field.throw',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
 };
 

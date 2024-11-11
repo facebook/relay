@@ -295,18 +295,29 @@ class RelayReader {
     return this._variables[name];
   }
 
-  _maybeReportUnexpectedNull(fieldPath: string, action: 'LOG' | 'THROW') {
+  _maybeReportUnexpectedNull(selection: ReaderRequiredField) {
+    if (selection.action === 'NONE') {
+      return;
+    }
     const owner = this._fragmentName;
 
     if (this._errorResponseFields == null) {
       this._errorResponseFields = [];
     }
 
-    switch (action) {
+    let fieldName: string;
+    if (selection.field.linkedField != null) {
+      fieldName =
+        selection.field.linkedField.alias ?? selection.field.linkedField.name;
+    } else {
+      fieldName = selection.field.alias ?? selection.field.name;
+    }
+
+    switch (selection.action) {
       case 'THROW':
         this._errorResponseFields.push({
           kind: 'missing_required_field.throw',
-          fieldPath,
+          fieldPath: fieldName,
           owner,
           handled: false,
         });
@@ -314,12 +325,12 @@ class RelayReader {
       case 'LOG':
         this._errorResponseFields.push({
           kind: 'missing_required_field.log',
-          fieldPath,
+          fieldPath: fieldName,
           owner,
         });
         return;
       default:
-        (action: empty);
+        (selection.action: empty);
     }
   }
 
@@ -328,10 +339,7 @@ class RelayReader {
     value: mixed,
   ): boolean /*should continue to siblings*/ {
     if (value == null) {
-      const {action} = selection;
-      if (action !== 'NONE') {
-        this._maybeReportUnexpectedNull(selection.path, action);
-      }
+      this._maybeReportUnexpectedNull(selection);
       // We are going to throw, or our parent is going to get nulled out.
       // Either way, sibling values are going to be ignored, so we can
       // bail early here as an optimization.
@@ -1137,8 +1145,9 @@ class RelayReader {
    * Similarly, when creating field errors, we simply initialize the `fieldPath`
    * as the direct field name.
    *
-   * Today we only use this apporach for `missing_expected_data` errors, but we
-   * intend to broaden it to handle all field error paths.
+   * Today we only use this apporach for `missing_expected_data` and
+   * `missing_required_field` errors, but we intend to broaden it to handle all
+   * field error paths.
    */
   _prependPreviousErrors(
     prevErrors: ?Array<ErrorResponseField>,
@@ -1150,7 +1159,9 @@ class RelayReader {
         if (
           event.owner === this._fragmentName &&
           (event.kind === 'missing_expected_data.throw' ||
-            event.kind === 'missing_expected_data.log')
+            event.kind === 'missing_expected_data.log' ||
+            event.kind === 'missing_required_field.throw' ||
+            event.kind === 'missing_required_field.log')
         ) {
           event.fieldPath = `${fieldNameOrIndex}.${event.fieldPath}`;
         }

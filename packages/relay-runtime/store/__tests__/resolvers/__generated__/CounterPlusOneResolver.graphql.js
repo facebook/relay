@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1fb119578070513b8dbd94af420f38ab>>
+ * @generated SignedSource<<0841992868c0ef9b9b3488eac7b92ccd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,8 +62,7 @@ var node/*: ReaderFragment*/ = {
         "resolverModule": require('./../LiveCounterResolver').counter,
         "path": "counter"
       },
-      "action": "THROW",
-      "path": "counter"
+      "action": "THROW"
     }
   ],
   "type": "Query",

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c1228fd59ee287554b787759113a36fd>>
+ * @generated SignedSource<<529e4e92ddb5997e328edcbec79f8ea5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -113,8 +113,7 @@ return {
             "storageKey": null
           }
         },
-        "action": "THROW",
-        "path": "all_astrological_signs"
+        "action": "THROW"
       }
     ],
     "type": "Query",

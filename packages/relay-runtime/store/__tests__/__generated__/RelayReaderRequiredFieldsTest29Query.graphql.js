@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<52eaf3c41dd8d54c863126ca7d32eddb>>
+ * @generated SignedSource<<0957bb9e4355a585335953ebed19566e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -113,8 +113,7 @@ return {
                 },
                 "linkedField": (v1/*: any*/)
               },
-              "action": "THROW",
-              "path": "me.client_object"
+              "action": "THROW"
             }
           ],
           "storageKey": null

@@ -84,8 +84,7 @@ query connectionFieldRequiredQuery($first: Int, $last: Int) {
                           "name": "id",
                           "storageKey": null
                         },
-                        "action": "THROW",
-                        "path": "node.comments.edges.node.id"
+                        "action": "THROW"
                       },
                       {
                         "alias": null,

@@ -1029,12 +1029,24 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         required_metadata: &RequiredMetadataDirective,
         primitive: Primitive,
     ) -> Primitive {
-        Primitive::Key(self.object(object! {
+        let mut obj = object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.required_field),
             field: primitive,
             action: Primitive::String(required_metadata.action.into()),
-            path: Primitive::String(required_metadata.path),
-        }))
+        };
+
+        if self
+            .project_config
+            .feature_flags
+            .legacy_include_path_in_required_reader_nodes
+            .is_enabled_for(self.definition_source_location.item)
+        {
+            obj.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.path,
+                value: Primitive::String(required_metadata.path),
+            });
+        }
+        Primitive::Key(self.object(obj))
     }
 
     fn build_catch_node(

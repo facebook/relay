@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<27901509ea9d62838969acf41a0286bf>>
+ * @generated SignedSource<<e3c77db9a9e5653df79b53f704eb568c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,8 +59,7 @@ return {
             {
               "kind": "RequiredField",
               "field": (v0/*: any*/),
-              "action": "THROW",
-              "path": "me.name"
+              "action": "THROW"
             }
           ],
           "storageKey": null

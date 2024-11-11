@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86b68cd8e9f2c83867683c7b3c40a5fe>>
+ * @generated SignedSource<<a5750563fc9a5d6e3ebb6391671427d7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -156,8 +156,7 @@ return {
         ],
         "storageKey": "__RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment_comments_connection(orderby:\"date\")"
       },
-      "action": "LOG",
-      "path": "comments"
+      "action": "LOG"
     }
   ],
   "type": "Feedback",

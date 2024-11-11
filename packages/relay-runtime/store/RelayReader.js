@@ -38,7 +38,6 @@ import type {
   ErrorResponseField,
   ErrorResponseFields,
   MissingClientEdgeRequestInfo,
-  MissingLiveResolverField,
   Record,
   RecordSource,
   RequestDescriptor,
@@ -97,7 +96,7 @@ class RelayReader {
   _clientEdgeTraversalPath: Array<ClientEdgeTraversalInfo | null>;
   _isMissingData: boolean;
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
-  _missingLiveResolverFields: Array<MissingLiveResolverField>;
+  _missingLiveResolverFields: Array<DataID>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _errorResponseFields: ?ErrorResponseFields;
   _owner: RequestDescriptor;
@@ -869,10 +868,7 @@ class RelayReader {
     // they know when to unsuspend.
     if (suspenseID != null) {
       this._isMissingData = true;
-      this._missingLiveResolverFields.push({
-        path: `${this._fragmentName}.${fieldPath}`,
-        liveStateID: suspenseID,
-      });
+      this._missingLiveResolverFields.push(suspenseID);
     }
     if (updatedDataIDs != null) {
       for (const recordID of updatedDataIDs) {

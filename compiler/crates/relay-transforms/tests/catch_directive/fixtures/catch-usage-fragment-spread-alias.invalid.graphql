@@ -1,0 +1,8 @@
+# expected-to-throw
+fragment FragFoo on User {
+  ...FragBar @catch(to: RESULT) @alias
+}
+
+fragment FragBar on User {
+  name
+}

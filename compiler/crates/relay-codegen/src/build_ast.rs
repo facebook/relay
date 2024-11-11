@@ -536,6 +536,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 value: Primitive::Bool(true),
             })
         }
+        if let Some(catch_metadata) = CatchMetadataDirective::find(&fragment.directives) {
+            metadata.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.catch_to,
+                value: Primitive::String(catch_metadata.to.into()),
+            })
+        }
         if let Some(refetch_metadata) = RefetchableMetadata::find(&fragment.directives) {
             let refetch_connection = if let Some(connection_metadata) = connection_metadata {
                 let metadata = &connection_metadata[0]; // Validated in `transform_refetchable`
@@ -803,7 +809,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
             self.build_required_field(required_metadata, resolver_primitive)
         } else if let Some(catch_metadata) = CatchMetadataDirective::find(&field.directives) {
-            self.build_catch_field(catch_metadata, resolver_primitive)
+            self.build_catch_node(catch_metadata, resolver_primitive)
         } else {
             resolver_primitive
         }
@@ -1031,7 +1037,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }))
     }
 
-    fn build_catch_field(
+    fn build_catch_node(
         &mut self,
         catch_metadata: &CatchMetadataDirective,
         primitive: Primitive,
@@ -1072,7 +1078,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
             self.build_required_field(required_metadata, primitive)
         } else if let Some(catch_metadata) = CatchMetadataDirective::find(&field.directives) {
-            self.build_catch_field(catch_metadata, primitive)
+            self.build_catch_node(catch_metadata, primitive)
         } else {
             primitive
         }
@@ -1172,7 +1178,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
             self.build_required_field(required_metadata, primitive)
         } else if let Some(catch_metadata) = CatchMetadataDirective::find(&field.directives) {
-            self.build_catch_field(catch_metadata, primitive)
+            self.build_catch_node(catch_metadata, primitive)
         } else {
             primitive
         }
@@ -1323,7 +1329,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             } else if let Some(catch_metadata) =
                 CatchMetadataDirective::find(&frag_spread.directives)
             {
-                self.build_catch_field(catch_metadata, resolver_primitive)
+                self.build_catch_node(catch_metadata, resolver_primitive)
             } else {
                 resolver_primitive
             }
@@ -1939,7 +1945,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         if let Some(required_metadata) = required_metadata {
             self.build_required_field(&required_metadata, field)
         } else if let Some(catch_metadata) = catch_metadata {
-            self.build_catch_field(&catch_metadata, field)
+            self.build_catch_node(&catch_metadata, field)
         } else {
             field
         }
@@ -1997,11 +2003,18 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         type_: Primitive::SkippableNull,
                         abstract_key: Primitive::SkippableNull,
                     }));
-                    Primitive::Key(self.object(object! {
+                    let aliased_fragment = Primitive::Key(self.object(object! {
                         fragment: primitive,
                         kind: Primitive::String(CODEGEN_CONSTANTS.aliased_inline_fragment_spread),
                         name: Primitive::String(fragment_alias_metadata.alias.item),
-                    }))
+                    }));
+                    if let Some(catch_metadata) =
+                        CatchMetadataDirective::find(&inline_frag.directives)
+                    {
+                        self.build_catch_node(catch_metadata, aliased_fragment)
+                    } else {
+                        aliased_fragment
+                    }
                 } else {
                     // TODO(T63559346): Handle anonymous inline fragments with no directives
                     panic!(
@@ -2080,11 +2093,18 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 if let Some(fragment_alias_metadata) =
                     FragmentAliasMetadata::find(&inline_frag.directives)
                 {
-                    Primitive::Key(self.object(object! {
+                    let aliased_fragment = Primitive::Key(self.object(object! {
                         fragment: primitive,
                         kind: Primitive::String(CODEGEN_CONSTANTS.aliased_inline_fragment_spread),
                         name: Primitive::String(fragment_alias_metadata.alias.item),
-                    }))
+                    }));
+                    if let Some(catch_metadata) =
+                        CatchMetadataDirective::find(&inline_frag.directives)
+                    {
+                        self.build_catch_node(catch_metadata, aliased_fragment)
+                    } else {
+                        aliased_fragment
+                    }
                 } else {
                     primitive
                 }

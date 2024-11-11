@@ -185,10 +185,15 @@ directive @required(action: RequiredFieldAction! @static) on FIELD
 """
 (Relay Only)
 
-`@catch` is a directive you can add to fields in your Relay queries to
-declare how errors are handled.
+`@catch` is a directive you can add to fields, fragment definitions, queries,
+mutations, and aliased inline fragments to opt into explicitly handling field
+errors.
+
+[Read More](https://relay.dev/docs/guides/catch-directive/)
 """
-directive @catch(to: CatchFieldTo! = RESULT @static) on FIELD
+directive @catch(
+  to: CatchFieldTo! = RESULT @static
+) on FIELD | FRAGMENT_DEFINITION | QUERY | MUTATION | INLINE_FRAGMENT
 
 # DeclarativeConnection
 """

@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment FragFoo on User {
+  ...FragBar @catch(to: RESULT) @alias
+}
+
+fragment FragBar on User {
+  name
+}
+==================================== ERROR ====================================
+✖︎ Directive 'catch' not supported in this location. Supported location(s): FIELD, FRAGMENT_DEFINITION, QUERY, MUTATION, INLINE_FRAGMENT
+
+  catch-usage-fragment-spread-alias.invalid.graphql:3:15
+    2 │ fragment FragFoo on User {
+    3 │   ...FragBar @catch(to: RESULT) @alias
+      │               ^^^^^
+    4 │ }

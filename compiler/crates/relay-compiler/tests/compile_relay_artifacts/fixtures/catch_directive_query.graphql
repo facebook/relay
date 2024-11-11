@@ -1,0 +1,6 @@
+query catchDirectiveQueryQuery @catch(to: RESULT) {
+  me {
+    id
+    name
+  }
+}

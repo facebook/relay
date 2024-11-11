@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query MyQuery @catch(to: NULL) {
+  me {
+    id
+    name
+  }
+}
+==================================== OUTPUT ===================================
+export type MyQuery$variables = {||};
+export type MyQuery$data = ?{|
+  +me: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+|};
+export type MyQuery = {|
+  response: MyQuery$data,
+  variables: MyQuery$variables,
+|};

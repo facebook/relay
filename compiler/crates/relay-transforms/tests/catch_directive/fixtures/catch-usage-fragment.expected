@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+fragment FragFoo on User @catch(to: RESULT) {
+  name
+}
+==================================== OUTPUT ===================================
+fragment FragFoo on User @catch(to: RESULT) @__CatchMetadataDirective
+# CatchMetadataDirective {
+#     to: Result,
+#     path: "",
+# }
+ {
+  name
+}

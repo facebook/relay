@@ -1,0 +1,6 @@
+fragment MyFragment on Node  {
+  id
+  ... on User @catch(to: RESULT) @alias {
+    name
+  }
+}

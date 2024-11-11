@@ -1,0 +1,5 @@
+fragment FragFoo on User {
+  ... on User @catch @alias {
+    name
+  }
+}

@@ -11,8 +11,11 @@
 
 'use strict';
 
+import type {Result} from '../experimental';
 import type {
+  CatchFieldTo,
   ReaderActorChange,
+  ReaderAliasedInlineFragmentSpread,
   ReaderCatchField,
   ReaderClientEdge,
   ReaderFragment,
@@ -71,8 +74,6 @@ const {
 } = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
-
-type RequiredOrCatchField = ReaderRequiredField | ReaderCatchField;
 
 function read(
   recordSource: RecordSource,
@@ -175,7 +176,14 @@ class RelayReader {
     }
 
     this._isWithinUnmatchedTypeRefinement = !isDataExpectedToBePresent;
-    const data = this._traverse(node, dataID, null);
+    let data = this._traverse(node, dataID, null);
+
+    // If the fragment/operation was marked with @catch, we need to handle any
+    // errors that were encountered while reading the fields within it.
+    const catchTo = this._selector.node.metadata?.catchTo;
+    if (catchTo != null) {
+      data = this._catchErrors(data, catchTo, null) as $FlowFixMe;
+    }
 
     if (this._updatedDataIDs.size > 0) {
       this._resolverCache.notifyUpdatedSubscribers(this._updatedDataIDs);
@@ -315,25 +323,103 @@ class RelayReader {
     }
   }
 
-  _handleCatchToResult(
-    selection: ReaderCatchField,
-    record: Record,
-    data: SelectorData,
+  _handleRequiredFieldValue(
+    selection: ReaderRequiredField,
     value: mixed,
-  ) {
-    const field = selection.field?.backingField ?? selection.field;
-    const fieldName = field?.alias ?? field?.name;
+  ): boolean /*should continue to siblings*/ {
+    if (value == null) {
+      const {action} = selection;
+      if (action !== 'NONE') {
+        this._maybeReportUnexpectedNull(selection.path, action);
+      }
+      // We are going to throw, or our parent is going to get nulled out.
+      // Either way, sibling values are going to be ignored, so we can
+      // bail early here as an optimization.
+      return false;
+    }
+    return true;
+  }
 
-    // ReaderClientExtension doesn't have `alias` or `name`
-    // so we don't support this yet
-    invariant(
-      fieldName != null,
-      "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
-    );
+  /**
+   * Fields, aliased inline fragments, fragments and operations with `@catch`
+   * directives must handle the case that errors were encountered while reading
+   * any fields within them.
+   *
+   * 1. Before traversing into the selection(s) marked as `@catch`, the caller
+   *   stores the previous field errors (`this._errorResponseFields`) in a
+   *   variable.
+   * 2. After traversing into the selection(s) marked as `@catch`, the caller
+   *   calls this method with the resulting value, the `to` value from the
+   *   `@catch` directive, and the previous field errors.
+   *
+   * This method will then:
+   *
+   * 1. Compute the correct value to return based on any errors encountered and the supplied `to` type.
+   * 2. Mark any errors encountered within the `@catch` as "handled" to ensure they don't cause the reader to throw.
+   * 3. Merge any errors encountered within the `@catch` with the previous field errors.
+   */
+  _catchErrors<T>(
+    _value: T,
+    to: CatchFieldTo,
+    previousResponseFields: ?ErrorResponseFields,
+  ): ?T | Result<T, mixed> {
+    let value: T | null | Result<T, mixed> = _value;
+    switch (to) {
+      case 'RESULT':
+        value = this._asResult(_value);
+        break;
+      case 'NULL':
+        if (
+          this._errorResponseFields != null &&
+          this._errorResponseFields.length > 0
+        ) {
+          value = null;
+        }
+        break;
+      default:
+        (to: empty);
+    }
+
+    const childrenErrorResponseFields = this._errorResponseFields;
+
+    this._errorResponseFields = previousResponseFields;
+
+    // Merge any errors encountered within the @catch with the previous field
+    // errors, but mark them as "handled" first.
+    if (childrenErrorResponseFields != null) {
+      if (this._errorResponseFields == null) {
+        this._errorResponseFields = [];
+      }
+      for (let i = 0; i < childrenErrorResponseFields.length; i++) {
+        // We mark any errors encountered within the @catch as "handled"
+        // to ensure that they don't cause the reader to throw, but can
+        // still be logged.
+        this._errorResponseFields.push(
+          markFieldErrorHasHandled(childrenErrorResponseFields[i]),
+        );
+      }
+    }
+    return value;
+  }
+
+  /**
+   * Convert a value into a Result object based on the presence of errors in the
+   * `this._errorResponseFields` array.
+   *
+   * **Note**: This method does _not_ mark errors as handled. It is the caller's
+   * responsibility to ensure that errors are marked as handled.
+   */
+  _asResult<T>(value: T): Result<T, mixed> {
+    if (
+      this._errorResponseFields == null ||
+      this._errorResponseFields.length === 0
+    ) {
+      return {ok: true, value};
+    }
 
     // TODO: Should we be hiding log level events here?
     const errors = this._errorResponseFields
-      ?.map(error => {
+      .map(error => {
         switch (error.kind) {
           case 'relay_field_payload.error':
             const {message, ...displayError} = error.error;
@@ -367,24 +453,7 @@ class RelayReader {
       })
       .filter(Boolean);
 
-    data[fieldName] = errors != null ? {ok: false, errors} : {ok: true, value};
-  }
-
-  _handleRequiredFieldValue(
-    selection: ReaderRequiredField,
-    value: mixed,
-  ): boolean /*should continue to siblings*/ {
-    if (value == null) {
-      const {action} = selection;
-      if (action !== 'NONE') {
-        this._maybeReportUnexpectedNull(selection.path, action);
-      }
-      // We are going to throw, or our parent is going to get nulled out.
-      // Either way, sibling values are going to be ignored, so we can
-      // bail early here as an optimization.
-      return false;
-    }
-    return true;
+    return {ok: false, errors};
   }
 
   _traverseSelections(
@@ -417,27 +486,20 @@ class RelayReader {
             data,
           );
 
-          if (selection.to === 'RESULT') {
-            this._handleCatchToResult(selection, record, data, catchFieldValue);
-          }
+          const field = selection.field?.backingField ?? selection.field;
+          const fieldName = field?.alias ?? field?.name;
+          // ReaderClientExtension doesn't have `alias` or `name`
+          // so we don't support this yet
+          invariant(
+            fieldName != null,
+            "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
+          );
 
-          const childrenErrorResponseFields = this._errorResponseFields;
-
-          this._errorResponseFields = previousResponseFields;
-
-          if (childrenErrorResponseFields != null) {
-            if (this._errorResponseFields == null) {
-              this._errorResponseFields = [];
-            }
-            for (let i = 0; i < childrenErrorResponseFields.length; i++) {
-              // We mark any errors encountered within the @catch as "handled"
-              // to ensure that they don't cause the reader to throw, but can
-              // still be logged.
-              this._errorResponseFields.push(
-                markFieldErrorHasHandled(childrenErrorResponseFields[i]),
-              );
-            }
-          }
+          data[fieldName] = this._catchErrors(
+            catchFieldValue,
+            selection.to,
+            previousResponseFields,
+          );
 
           break;
         }
@@ -488,19 +550,7 @@ class RelayReader {
           this._createFragmentPointer(selection, record, data);
           break;
         case 'AliasedInlineFragmentSpread': {
-          const prevErrors = this._errorResponseFields;
-          this._errorResponseFields = null;
-          let fieldValue = this._readInlineFragment(
-            selection.fragment,
-            record,
-            {},
-            true,
-          );
-          this._prependPreviousErrors(prevErrors, selection.name);
-          if (fieldValue === false) {
-            fieldValue = null;
-          }
-          data[selection.name] = fieldValue;
+          this._readAliasedInlineFragment(selection, record, data);
           break;
         }
         case 'ModuleImport':
@@ -567,7 +617,7 @@ class RelayReader {
   }
 
   _readClientSideDirectiveField(
-    selection: RequiredOrCatchField,
+    selection: ReaderRequiredField | ReaderCatchField,
     record: Record,
     data: SelectorData,
   ): ?mixed {
@@ -587,12 +637,14 @@ class RelayReader {
       case 'ClientEdgeToClientObject':
       case 'ClientEdgeToServerObject':
         return this._readClientEdge(selection.field, record, data);
+      case 'AliasedInlineFragmentSpread':
+        return this._readAliasedInlineFragment(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
           false,
           'RelayReader(): Unexpected ast kind `%s`.',
-          selection.kind,
+          selection.field.kind,
         );
     }
   }
@@ -1262,6 +1314,39 @@ class RelayReader {
     );
     data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
     data[MODULE_COMPONENT_KEY] = component;
+  }
+
+  /**
+   * Aliased inline fragments allow the user to check if the data in an inline
+   * fragment was fetched. Data in the inline fragment can be conditional in the
+   * case of a type condition on the inline fragment or directives like `@skip`
+   * or `@include`.
+   *
+   * We model aliased inline fragments as a special reader node wrapped around a
+   * regular inline fragment reader node.
+   *
+   * This allows us to read the inline fragment as normal, check if it matched,
+   * and then define the alias to either contain the inline fragment's data, or
+   * null.
+   */
+  _readAliasedInlineFragment(
+    aliasedInlineFragment: ReaderAliasedInlineFragmentSpread,
+    record: Record,
+    data: SelectorData,
+  ) {
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
+    let fieldValue = this._readInlineFragment(
+      aliasedInlineFragment.fragment,
+      record,
+      {},
+      true,
+    );
+    this._prependPreviousErrors(prevErrors, aliasedInlineFragment.name);
+    if (fieldValue === false) {
+      fieldValue = null;
+    }
+    data[aliasedInlineFragment.name] = fieldValue;
   }
 
   // Has three possible return values:

@@ -1,0 +1,11 @@
+fragment MyFragment on ClientUser @throwOnFieldError {
+  ... {
+    name
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}

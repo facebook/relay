@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9b3e9405c461aea8f7d13327590c2c37>>
+ * @generated SignedSource<<517598dad58115fe478729b087af3fff>>
  */
 
 mod catch_directive_codegen;
@@ -17,6 +17,27 @@ async fn catch_directive() {
     let input = include_str!("catch_directive_codegen/fixtures/catch_directive.graphql");
     let expected = include_str!("catch_directive_codegen/fixtures/catch_directive.expected");
     test_fixture(transform_fixture, file!(), "catch_directive.graphql", "catch_directive_codegen/fixtures/catch_directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_directive_aliased_inline_fragment() {
+    let input = include_str!("catch_directive_codegen/fixtures/catch_directive_aliased_inline_fragment.graphql");
+    let expected = include_str!("catch_directive_codegen/fixtures/catch_directive_aliased_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "catch_directive_aliased_inline_fragment.graphql", "catch_directive_codegen/fixtures/catch_directive_aliased_inline_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_directive_aliased_inline_fragment_no_condition() {
+    let input = include_str!("catch_directive_codegen/fixtures/catch_directive_aliased_inline_fragment_no_condition.graphql");
+    let expected = include_str!("catch_directive_codegen/fixtures/catch_directive_aliased_inline_fragment_no_condition.expected");
+    test_fixture(transform_fixture, file!(), "catch_directive_aliased_inline_fragment_no_condition.graphql", "catch_directive_codegen/fixtures/catch_directive_aliased_inline_fragment_no_condition.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_directive_fragment() {
+    let input = include_str!("catch_directive_codegen/fixtures/catch_directive_fragment.graphql");
+    let expected = include_str!("catch_directive_codegen/fixtures/catch_directive_fragment.expected");
+    test_fixture(transform_fixture, file!(), "catch_directive_fragment.graphql", "catch_directive_codegen/fixtures/catch_directive_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

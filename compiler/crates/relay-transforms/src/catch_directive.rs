@@ -16,7 +16,10 @@ use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -24,14 +27,16 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::intern;
 use lazy_static::lazy_static;
-mod catchable_field;
+mod catchable_node;
 mod validation_message;
 use graphql_ir::Field;
 use intern::Lookup;
 
-use self::catchable_field::CatchMetadata;
-use self::catchable_field::CatchableField;
+use self::catchable_node::CatchMetadata;
+use self::catchable_node::CatchableNode;
 use crate::catch_directive::validation_message::ValidationMessage;
+use crate::catch_directive::validation_message::ValidationMessageWithData;
+use crate::FragmentAliasMetadata;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
@@ -112,7 +117,7 @@ impl<'program> CatchDirective<'program> {
         }
     }
 
-    fn get_catch_metadata<T: CatchableField>(&mut self, field: &T) -> Option<CatchMetadata> {
+    fn get_catch_metadata<T: CatchableNode>(&mut self, field: &T) -> Option<CatchMetadata> {
         self.assert_not_with_required(field);
 
         match field.catch_metadata() {
@@ -124,7 +129,7 @@ impl<'program> CatchDirective<'program> {
         }
     }
 
-    fn assert_not_with_required<T: CatchableField>(&mut self, field: &T) {
+    fn assert_not_with_required<T: CatchableNode>(&mut self, field: &T) {
         let catchable_field = field.directives().named(*CATCH_DIRECTIVE_NAME);
         let required_field = field.directives().named(*REQUIRED_DIRECTIVE_NAME);
 
@@ -142,6 +147,51 @@ impl<'s> Transformer for CatchDirective<'s> {
     const NAME: &'static str = "CatchDirectiveTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let maybe_catch_metadata = self.get_catch_metadata(operation);
+
+        match maybe_catch_metadata {
+            None => self.default_transform_operation(operation),
+            Some(catch_metadata) => {
+                let next_directives =
+                    add_metadata_directive(&operation.directives, intern!(""), catch_metadata.to);
+
+                let selections = self.transform_selections(&operation.selections);
+
+                Transformed::Replace(OperationDefinition {
+                    directives: next_directives,
+                    selections: selections.replace_or_else(|| operation.selections.clone()),
+                    ..operation.clone()
+                })
+            }
+        }
+    }
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        let maybe_catch_metadata = self.get_catch_metadata(fragment);
+
+        match maybe_catch_metadata {
+            None => self.default_transform_fragment(fragment),
+            Some(catch_metadata) => {
+                let next_directives =
+                    add_metadata_directive(&fragment.directives, intern!(""), catch_metadata.to);
+
+                let selections = self.transform_selections(&fragment.selections);
+
+                Transformed::Replace(FragmentDefinition {
+                    directives: next_directives,
+                    selections: selections.replace_or_else(|| fragment.selections.clone()),
+                    ..fragment.clone()
+                })
+            }
+        }
+    }
 
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let name = field.alias_or_name(&self.program.schema).lookup();
@@ -197,6 +247,62 @@ impl<'s> Transformer for CatchDirective<'s> {
                     selections: selections.replace_or_else(|| field.selections.clone()),
                     ..field.clone()
                 })))
+            }
+        }
+    }
+
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        let alias = FragmentAliasMetadata::find(&fragment.directives);
+
+        let maybe_catch_metadata = self.get_catch_metadata(fragment);
+
+        match alias {
+            Some(alias) => {
+                self.path.push(alias.alias.item.lookup());
+                match maybe_catch_metadata {
+                    None => {
+                        let selections = self.transform_selections(&fragment.selections);
+                        self.path.pop();
+                        if selections.should_keep() {
+                            Transformed::Keep
+                        } else {
+                            Transformed::Replace(Selection::InlineFragment(Arc::new(
+                                InlineFragment {
+                                    selections: selections
+                                        .replace_or_else(|| fragment.selections.clone()),
+                                    ..fragment.clone()
+                                },
+                            )))
+                        }
+                    }
+                    Some(catch_metadata) => {
+                        let path_name = self.path.join(".").intern();
+                        let next_directives = add_metadata_directive(
+                            &fragment.directives,
+                            path_name,
+                            catch_metadata.to,
+                        );
+
+                        let selections = self.transform_selections(&fragment.selections);
+
+                        self.path.pop();
+
+                        Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                            directives: next_directives,
+                            selections: selections.replace_or_else(|| fragment.selections.clone()),
+                            ..fragment.clone()
+                        })))
+                    }
+                }
+            }
+            None => {
+                if maybe_catch_metadata.is_some() {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessageWithData::CatchNotValidOnUnaliasedInlineFragment,
+                        fragment.spread_location,
+                    ));
+                };
+                self.default_transform_inline_fragment(fragment)
             }
         }
     }

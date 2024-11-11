@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<efd0cc9dd8094edb0a45db08e783e4b1>>
+ * @generated SignedSource<<7c4bbd43433461799f4caf7a6320fa4e>>
  */
 
 mod generate_flow;
@@ -125,6 +125,20 @@ async fn catch_no_arg_nested_raw_multiple_queries_and_fields() {
 }
 
 #[tokio::test]
+async fn catch_on_aliased_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/catch-on-aliased-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-on-aliased-inline-fragment.expected");
+    test_fixture(transform_fixture, file!(), "catch-on-aliased-inline-fragment.graphql", "generate_flow/fixtures/catch-on-aliased-inline-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_on_mutation() {
+    let input = include_str!("generate_flow/fixtures/catch-on-mutation.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-on-mutation.expected");
+    test_fixture(transform_fixture, file!(), "catch-on-mutation.graphql", "generate_flow/fixtures/catch-on-mutation.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn catch_on_root() {
     let input = include_str!("generate_flow/fixtures/catch-on-root.graphql");
     let expected = include_str!("generate_flow/fixtures/catch-on-root.expected");
@@ -153,10 +167,52 @@ async fn catch_to_null_nested() {
 }
 
 #[tokio::test]
+async fn catch_to_null_on_aliased_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/catch-to-null-on-aliased-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-to-null-on-aliased-inline-fragment.expected");
+    test_fixture(transform_fixture, file!(), "catch-to-null-on-aliased-inline-fragment.graphql", "generate_flow/fixtures/catch-to-null-on-aliased-inline-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_to_null_on_fragment() {
+    let input = include_str!("generate_flow/fixtures/catch-to-null-on-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-to-null-on-fragment.expected");
+    test_fixture(transform_fixture, file!(), "catch-to-null-on-fragment.graphql", "generate_flow/fixtures/catch-to-null-on-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_to_null_on_query() {
+    let input = include_str!("generate_flow/fixtures/catch-to-null-on-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-to-null-on-query.expected");
+    test_fixture(transform_fixture, file!(), "catch-to-null-on-query.graphql", "generate_flow/fixtures/catch-to-null-on-query.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn catch_to_result_nested() {
     let input = include_str!("generate_flow/fixtures/catch-to-result-nested.graphql");
     let expected = include_str!("generate_flow/fixtures/catch-to-result-nested.expected");
     test_fixture(transform_fixture, file!(), "catch-to-result-nested.graphql", "generate_flow/fixtures/catch-to-result-nested.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_to_result_on_aliased_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/catch-to-result-on-aliased-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-to-result-on-aliased-inline-fragment.expected");
+    test_fixture(transform_fixture, file!(), "catch-to-result-on-aliased-inline-fragment.graphql", "generate_flow/fixtures/catch-to-result-on-aliased-inline-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_to_result_on_fragment() {
+    let input = include_str!("generate_flow/fixtures/catch-to-result-on-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-to-result-on-fragment.expected");
+    test_fixture(transform_fixture, file!(), "catch-to-result-on-fragment.graphql", "generate_flow/fixtures/catch-to-result-on-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_to_result_on_query() {
+    let input = include_str!("generate_flow/fixtures/catch-to-result-on-query.graphql");
+    let expected = include_str!("generate_flow/fixtures/catch-to-result-on-query.expected");
+    test_fixture(transform_fixture, file!(), "catch-to-result-on-query.graphql", "generate_flow/fixtures/catch-to-result-on-query.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -885,6 +941,34 @@ async fn semantic_non_null_scalar_with_catch() {
     let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_with_catch.graphql");
     let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_with_catch.expected");
     test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_with_catch.graphql", "generate_flow/fixtures/semantic_non_null_scalar_with_catch.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_within_catch_fragment() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_catch_fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_catch_fragment.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_within_catch_fragment.graphql", "generate_flow/fixtures/semantic_non_null_scalar_within_catch_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_within_catch_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_catch_inline_fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_catch_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_within_catch_inline_fragment.graphql", "generate_flow/fixtures/semantic_non_null_scalar_within_catch_inline_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_within_catch_query() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_catch_query.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_catch_query.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_within_catch_query.graphql", "generate_flow/fixtures/semantic_non_null_scalar_within_catch_query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn semantic_non_null_scalar_within_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_inline_fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/semantic_non_null_scalar_within_inline_fragment.expected");
+    test_fixture(transform_fixture, file!(), "semantic_non_null_scalar_within_inline_fragment.graphql", "generate_flow/fixtures/semantic_non_null_scalar_within_inline_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

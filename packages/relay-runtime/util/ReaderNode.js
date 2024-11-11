@@ -37,7 +37,10 @@ export type ReaderFragment = {
   +abstractKey?: ?string,
   +metadata?: ?{
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    // Indicates if the fragment has been annotated with `@throwOnFieldError`
     +throwOnFieldError?: boolean,
+    // Indicates if the fragment has been annotated with `@catch`
+    +catchTo?: CatchFieldTo,
     +hasClientEdges?: boolean,
     +mask?: boolean,
     +plural?: boolean,
@@ -239,9 +242,10 @@ export type CatchFieldTo = 'RESULT' | 'NULL';
 
 export type ReaderCatchField = {
   +kind: 'CatchField',
-  +field: ReaderField | ReaderClientEdge,
+  +field: ReaderField | ReaderClientEdge | ReaderAliasedInlineFragmentSpread,
   +to: CatchFieldTo,
-  +path: string,
+  // TODO: This field is not used any more, we should be able to remove it.
+  +path?: mixed,
 };
 
 export type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off

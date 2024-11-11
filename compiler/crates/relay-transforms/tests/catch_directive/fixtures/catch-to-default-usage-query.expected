@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+query FragFoo @catch {
+  me {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+query FragFoo @catch @__CatchMetadataDirective
+# CatchMetadataDirective {
+#     to: Result,
+#     path: "",
+# }
+ {
+  me {
+    name
+  }
+}

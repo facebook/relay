@@ -16,6 +16,11 @@ use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::NoopArtifactWriter;
 
+/// Asynchronously compiles Relay programs and returns them along with the compiler state and configuration.
+///
+/// A Relay program represents a compiled GraphQL operation or fragment that can be executed by the Relay runtime.
+/// It contains the necessary information to fetch and manage data efficiently, including the query or mutation,
+/// variables, and caching instructions.
 pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
     mut config: Config,
     perf_logger: Arc<TPerfLogger>,

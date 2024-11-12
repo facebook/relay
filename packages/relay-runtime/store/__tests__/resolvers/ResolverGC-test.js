@@ -820,6 +820,85 @@ test('Resolver reading a client-edge to a client type (recursive)', async () => 
   });
 });
 
+test.each([0, 1, 5])(
+  'Live Resolver cleanup when %i references retained',
+  async numRetainedReferences => {
+    const unsubscribeMock = jest.fn();
+    const subscribeSpy = jest
+      .spyOn(GLOBAL_STORE, 'subscribe')
+      .mockImplementation(() => {
+        return unsubscribeMock;
+      });
+
+    // Reset the store before each test run
+    resetStore();
+
+    const source = RelayRecordSource.create();
+
+    const store = new RelayModernStore(source, {
+      gcReleaseBufferSize: 0,
+    });
+
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create((request, variables) => {
+        return Promise.resolve({data: {}});
+      }),
+      store,
+    });
+
+    // The operation that uses the live resolver
+    const operation = createOperationDescriptor(
+      graphql`
+        query ResolverGCTestWithoutFragmentQuery {
+          counter_no_fragment
+        }
+      `,
+      {},
+    );
+
+    // Execute the query to populate the store
+    await environment.execute({operation}).toPromise();
+
+    // Lookup the data to trigger evaluation of the resolver
+    const snapshot = environment.lookup(operation.fragment);
+
+    // Ensure the live resolver has been called
+    expect(subscribeSpy).toHaveBeenCalledTimes(1);
+    expect(snapshot.data).toEqual({counter_no_fragment: 0});
+
+    // Retain the operation if numRetainedReferences > 0
+    const retains = [];
+    for (let i = 0; i < numRetainedReferences; i++) {
+      retains.push(environment.retain(operation));
+    }
+
+    // Run GC
+    store.__gc();
+
+    if (numRetainedReferences > 0) {
+      // The data is still retained, so cleanup should not have happened
+      expect(unsubscribeMock).not.toHaveBeenCalled();
+    } else {
+      // The data is not retained, cleanup should have happened
+      expect(unsubscribeMock).toHaveBeenCalledTimes(1);
+    }
+
+    // Dispose of the retains
+    for (const retain of retains) {
+      retain.dispose();
+    }
+
+    // Run GC again to ensure cleanup happens after disposing retains
+    store.__gc();
+
+    // Now, cleanup should have happened if it didn't before
+    expect(unsubscribeMock).toHaveBeenCalledTimes(1);
+
+    // Cleanup the spy
+    subscribeSpy.mockRestore();
+  },
+);
+
 type TestProps<T: OperationType> = {
   query: ConcreteRequest,
   variables: VariablesOf<T>,

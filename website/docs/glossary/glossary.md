@@ -20,7 +20,7 @@ Data-Driven Dependencies. Facebook's way of including the code to render a parti
 
 <FbInternalOnly>
 
-See the [@match](#match) directive, [@module](#module) directive and [the 3D guide](../guides/data-driven-dependencies).
+See the [@match](#match) directive, [@module](#module) directive and [the 3D guide](../guides/data-driven-dependencies/server-3d).
 
 </FbInternalOnly>
 

@@ -55,7 +55,14 @@ const Guides = {
           ],
           'Web-Only': [
             'guides/fb/incremental-data-delivery',
-            'guides/fb/data-driven-dependencies',
+            {
+              'Data Driven Dependencies': [
+                'guides/data-driven-dependencies/introduction',
+                'guides/data-driven-dependencies/server-3d',
+                'guides/data-driven-dependencies/client-3d',
+                'guides/data-driven-dependencies/configuration',
+              ],
+            },
             'guides/fb/image-prefetching',
             'guides/fb/comet-route-prefetching',
             'guides/fb/web-query-preloading',

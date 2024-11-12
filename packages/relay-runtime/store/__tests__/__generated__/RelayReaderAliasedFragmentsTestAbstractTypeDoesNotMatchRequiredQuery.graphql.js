@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<79c1680edd78198da170ef6b3f36f4e0>>
+ * @generated SignedSource<<08dc10522e39988b14cfbf1ca2b0bdfe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -78,8 +78,7 @@ return {
                 {
                   "kind": "RequiredField",
                   "field": (v2/*: any*/),
-                  "action": "THROW",
-                  "path": "node.aliased_fragment.name"
+                  "action": "THROW"
                 }
               ],
               "type": "MaybeNodeInterface",

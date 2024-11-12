@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50a799457627983199aaebcc40d33edf>>
+ * @generated SignedSource<<3341a2b08cf9bda5adb3b7f9763c432b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -83,8 +83,7 @@ var node/*: ClientRequest*/ = {
             "storageKey": null
           }
         },
-        "action": "THROW",
-        "path": "live_user_resolver_always_suspend"
+        "action": "THROW"
       }
     ],
     "type": "Query",

@@ -23,7 +23,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Directive 'stream' not supported in this location
+✖︎ Directive 'stream' not supported in this location. Supported location(s): FIELD
 
   module-with-other-directives.invalid.graphql:5:81
     4 │   nameRenderer {
@@ -32,7 +32,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
     6 │     ...MarkdownUserNameRenderer_name
 
 
-✖︎ Directive 'stream' not supported in this location
+✖︎ Directive 'stream' not supported in this location. Supported location(s): FIELD
 
   module-with-other-directives.invalid.graphql:7:56
     6 │     ...MarkdownUserNameRenderer_name

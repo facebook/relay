@@ -61,5 +61,6 @@ progressive codemod and enforcement of this validation.
 Removes [@required](../api-reference/graphql/graphql-directives.md#required)
 directives from non-null fields within
 [@throwOnFieldError](../api-reference/graphql/graphql-directives.md#throwonfielderror)
-fragments and operations where the compiler is certain that the directive does
-not change the generated types for the data being fetched.
+fragments and operations, or linked fields with
+[`@catch`](../guides/catch-directive.md), where the compiler is certain that the
+directive does not change the generated types for the data being fetched.

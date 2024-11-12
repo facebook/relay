@@ -6,6 +6,7 @@
 
 [options]
 as_const=true
+component_syntax=true
 module.system=haste
 module.system.haste.use_name_reducers=true
 # get basename
@@ -41,4 +42,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.250.0
+^0.252.0

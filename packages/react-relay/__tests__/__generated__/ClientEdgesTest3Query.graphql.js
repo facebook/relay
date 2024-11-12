@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f28cfab58d33fbd472c7d949a6ba4de4>>
+ * @generated SignedSource<<3d1c5acd70a753e740b92cee04e932b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -119,8 +119,7 @@ return {
                 "storageKey": null
               }
             },
-            "action": "THROW",
-            "path": "me.client_node"
+            "action": "THROW"
           }
         ],
         "storageKey": null

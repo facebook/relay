@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {RenderProps} from 'react-relay/ReactRelayQueryRenderer';
 import type {
   HandleFieldPayload,
   RecordSourceProxy,
@@ -191,8 +192,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         // In www, this is differently typed (via react-test-renderer.js.flow) than in
         // fbsource, so it isn't obvious (without syncing react-test-renderer.js.flow) how
         // to get flow to accept this typing.
-        // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
-        props => {
+        (props: $FlowFixMe) => {
           return (
             <img
               testID="profile_picture"
@@ -211,7 +211,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           environment={environment}
           query={UserQuery}
           variables={{}}
-          render={({error, props}) => {
+          render={({error, props}: RenderProps<$FlowFixMe>) => {
             if (props) {
               return (
                 <div>

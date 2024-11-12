@@ -5,6 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! The errors module provides functionality for handling and reporting errors in the Relay compiler.
+//!
+//! This module contains a set of error types used throughout the Relay compiler to represent different types of
+//! errors that can occur during the compilation process:
+//! * `Error`: A general-purpose error type that represents any error that can occur during compilation.
+//! * `BuildProjectError`: An error type that represents an error that occurred while building a project.
+//! * `PersistError`: An error type that represents an error that occurred while persisting data.
 use std::io;
 use std::path::PathBuf;
 

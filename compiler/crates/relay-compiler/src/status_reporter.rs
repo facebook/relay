@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! The status reporter module provides functionality for reporting the status of the Relay compiler.
+//!
+//! This module contains two implementations of the `StatusReporter` trait:
+//! * `ConsoleStatusReporter`: Reports the status to the console using the `log` crate.
+//! * `JSONStatusReporter`: Reports the status to a JSON file using the `serde_json` crate.
 use std::path::PathBuf;
 
 use common::Diagnostic;

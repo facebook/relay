@@ -1056,10 +1056,7 @@ describe('RelayReader @required', () => {
       const snapshot = read(source, operation.fragment, resolverCache);
       expect(snapshot.errorResponseFields).toEqual(null);
       expect(snapshot.missingLiveResolverFields).toEqual([
-        {
-          path: 'RelayReaderRequiredFieldsTest28Query.live_user_resolver_always_suspend',
-          liveStateID: 'client:root:live_user_resolver_always_suspend',
-        },
+        'client:root:live_user_resolver_always_suspend',
       ]);
     });
   });

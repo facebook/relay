@@ -6,7 +6,7 @@ query TestQuery($id: ID!) @module @match {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Directive 'module' not supported in this location
+✖︎ Directive 'module' not supported in this location. Supported location(s): FRAGMENT_SPREAD
 
   directive-module-match-on-query.invalid.graphql:2:28
     1 │ # expected-to-throw
@@ -15,7 +15,7 @@ query TestQuery($id: ID!) @module @match {
     3 │   foo: node(id: $id) {
 
 
-✖︎ Directive 'match' not supported in this location
+✖︎ Directive 'match' not supported in this location. Supported location(s): FIELD
 
   directive-module-match-on-query.invalid.graphql:2:36
     1 │ # expected-to-throw

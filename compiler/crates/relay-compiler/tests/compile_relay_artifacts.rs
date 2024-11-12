@@ -214,6 +214,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         Arc::new(ConsoleLogger),
         None,
         None,
+        vec![],
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

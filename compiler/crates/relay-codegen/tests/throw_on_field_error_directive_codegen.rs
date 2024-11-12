@@ -14,6 +14,7 @@ use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_ir::ExecutableDefinition;
 use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_config::ProjectConfig;
@@ -69,11 +70,5 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 .collect::<Vec<_>>()
                 .join("\n\n")
         })
-        .map_err(|errors| {
-            errors
-                .into_iter()
-                .map(|error| format!("{:?}", error))
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        })
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }

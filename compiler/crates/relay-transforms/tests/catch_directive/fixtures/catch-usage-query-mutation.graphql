@@ -1,0 +1,7 @@
+mutation MutationFoo @catch(to: RESULT) {
+  unfriend(input: {friendId: "1"}) {
+    formerFriend {
+      name
+    }
+  }
+}

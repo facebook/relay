@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<85f6b556df80c4d819ff23344734487b>>
+ * @generated SignedSource<<220a462d1e8062621d9ac165e8d6b30d>>
  */
 
 mod compile_relay_artifacts;
@@ -185,6 +185,20 @@ async fn auto_filled_argument_on_match() {
     let input = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected");
     test_fixture(transform_fixture, file!(), "auto-filled-argument-on-match.graphql", "compile_relay_artifacts/fixtures/auto-filled-argument-on-match.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_directive_mutation() {
+    let input = include_str!("compile_relay_artifacts/fixtures/catch_directive_mutation.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/catch_directive_mutation.expected");
+    test_fixture(transform_fixture, file!(), "catch_directive_mutation.graphql", "compile_relay_artifacts/fixtures/catch_directive_mutation.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn catch_directive_query() {
+    let input = include_str!("compile_relay_artifacts/fixtures/catch_directive_query.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/catch_directive_query.expected");
+    test_fixture(transform_fixture, file!(), "catch_directive_query.graphql", "compile_relay_artifacts/fixtures/catch_directive_query.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -479,6 +493,13 @@ async fn connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/connection.expected");
     test_fixture(transform_fixture, file!(), "connection.graphql", "compile_relay_artifacts/fixtures/connection.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn connection_field_required() {
+    let input = include_str!("compile_relay_artifacts/fixtures/connection-field-required.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/connection-field-required.expected");
+    test_fixture(transform_fixture, file!(), "connection-field-required.graphql", "compile_relay_artifacts/fixtures/connection-field-required.expected", input, expected).await;
 }
 
 #[tokio::test]

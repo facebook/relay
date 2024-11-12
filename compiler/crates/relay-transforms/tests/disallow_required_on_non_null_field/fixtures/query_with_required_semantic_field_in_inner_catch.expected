@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+query MyQuery {
+  some_field {
+    some_other_field: some_field @catch(to: RESULT) {
+      im_not_null @required(action: THROW)
+    }
+  }
+}
+
+# %extensions%
+extend type Query {
+  some_field: SomeRecord
+}
+
+type SomeRecord {
+  some_field: SomeRecord
+  im_not_null: Int @semanticNonNull
+}
+==================================== OUTPUT ===================================
+OK; warnings: ℹ Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` or `@catch` selection. Such fields are already non-null and do not need the `@required` directive.
+
+  query_with_required_semantic_field_in_inner_catch.graphql:4:19
+    3 │     some_other_field: some_field @catch(to: RESULT) {
+    4 │       im_not_null @required(action: THROW)
+      │                   ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │     }

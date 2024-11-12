@@ -429,6 +429,7 @@ fn directive() {
             "skip",
             "fb_actor_change",
             "waterfall",
+            "live",
         ],
     );
 }
@@ -468,6 +469,7 @@ fn directive_on_scalar_field() {
             "skip",
             "fb_actor_change",
             "waterfall",
+            "live",
         ],
     );
 }
@@ -756,6 +758,7 @@ fn empty_directive() {
             "skip",
             "fb_actor_change",
             "waterfall",
+            "live",
         ],
     );
 }

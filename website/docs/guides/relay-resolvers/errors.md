@@ -2,7 +2,7 @@
 id: errors
 title: "Error Handling"
 slug: /guides/relay-resolvers/errors/
-description: How Relay handles errors throw by resolvers
+description: How Relay handles errors thrown by resolvers
 ---
 
 Just like GraphQL servers, Relay Resolvers support field-level error handling. If an individual resolver throws an error, when that field is read, Relay will log that error to the environment's user-provided `relayFieldLogger` logger, and the field will become null.
@@ -46,3 +46,19 @@ const environment = new Environment({
 :::note
 [Live Resolvers](./live-fields.md) can potentially throw errors when they are first evaluated or when their `.read()` method is called. Both types of errors will be handled identically by Relay.
 :::
+
+## Support for Semantic Nullability
+
+Relay resolver fields can be specified as [semantically non-null](../../semantic-nullability/) just like server schema fields. Developers can add the directive `@semanticNonNull` in the docblock of a relay resolver in order to indicate that the field is non-nullable in the semantic sense, but that the client should still be prepared to handle errors.
+
+For example:
+```ts
+/**
+ * @RelayResolver RelayExample.semantic_non_null_field: String @semanticNonNull
+ */
+export function semantic_non_null_field(
+  model: RelayExampleModel,
+): string {
+  return model.someField ?? 'field was null, this is the default';
+}
+```

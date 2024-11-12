@@ -31,8 +31,7 @@ fragment MyFragment on User {
         ],
         "storageKey": null
       },
-      "to": "RESULT",
-      "path": "address"
+      "to": "RESULT"
     }
   ],
   "type": "User",

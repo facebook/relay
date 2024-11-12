@@ -1,0 +1,12 @@
+query NodeQuery($id: ID!) {
+  node(id: $id) @live {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}

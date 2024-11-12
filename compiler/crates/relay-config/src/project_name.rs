@@ -16,10 +16,15 @@ use serde::Deserializer;
 use serde::Serialize;
 use serde::Serializer;
 
+/// Represents the name of a project in the Relay configuration.
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, JsonSchema, Ord, PartialOrd)]
 #[schemars(untagged)]
 pub enum ProjectName {
+    /// No project name is specified.
     Default,
+    /// A project name.
+    ///
+    /// This should match one the keys in the `projects` map in the Relay compiler config.
     Named(StringKey),
 }
 

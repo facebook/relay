@@ -232,6 +232,7 @@ export type {
   ClientQuery,
   RefetchableFragment,
   RenderPolicy,
+  PrefetchableRefetchableFragment,
   UpdatableFragment,
   UpdatableQuery,
   Variables,

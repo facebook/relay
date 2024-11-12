@@ -165,3 +165,14 @@ declare export opaque type RefetchableFragment<
   +TData,
   TVariables: Variables,
 >: Fragment<TFragmentType, TData>;
+
+/**
+ * Return type of graphql tag literals for `@refetchable` fragments
+ * with prefetchable pagination connections.
+ */
+declare export opaque type PrefetchableRefetchableFragment<
+  TFragmentType,
+  +TData,
+  +TEdgeData,
+  TVariables: Variables,
+>: Fragment<TFragmentType, TData>;

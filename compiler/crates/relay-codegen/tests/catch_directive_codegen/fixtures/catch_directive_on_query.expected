@@ -35,8 +35,7 @@ query Foo {
             "name": "name",
             "storageKey": null
           },
-          "to": "RESULT",
-          "path": "me.name"
+          "to": "RESULT"
         }
       ],
       "storageKey": null

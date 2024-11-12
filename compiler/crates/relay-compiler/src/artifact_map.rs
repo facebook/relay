@@ -29,13 +29,16 @@ pub struct ArtifactRecord {
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]
 pub struct ArtifactMap(pub DashMap<ArtifactSourceKey, Vec<ArtifactRecord>>);
 
+/// An enum used to identify the source type a relay compiler artifact is generated from.
+///
+/// Artifacts can be derived from source types such as executable definitions, resolvers, or schemas.
 #[derive(Serialize, Deserialize, Debug, Clone, Eq, PartialEq, Hash)]
 pub enum ArtifactSourceKey {
-    /// Derieved from a GraphQL Executable Definition
+    /// Derived from a GraphQL Executable Definition, such as a Query, Mutation, or Fragment.
     ExecutableDefinition(ExecutableDefinitionName),
-    /// Derieved from a RelayResolver docblock
+    /// Derived from a RelayResolver docblock.
     ResolverHash(ResolverSourceHash),
-    /// Derived from GraphQL Schema
+    /// Derived from GraphQL Schema.
     Schema(),
 }
 

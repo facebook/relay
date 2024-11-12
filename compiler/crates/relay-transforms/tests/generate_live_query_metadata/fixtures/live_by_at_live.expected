@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+query NodeQuery($id: ID!) {
+  node(id: $id) @live {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query NodeQuery(
+  $id: ID!
+) @__metadata(live: {config_id: ""}) {
+  node(id: $id) @live {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}

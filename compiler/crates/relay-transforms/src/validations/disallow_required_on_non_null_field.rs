@@ -26,6 +26,7 @@ use schema::SDLSchema;
 use schema::Schema;
 
 use crate::ValidationMessageWithData;
+use crate::CATCH_DIRECTIVE_NAME;
 use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
@@ -71,7 +72,15 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
         }
     }
 
-    fn validate_required_field(&mut self, field: &Arc<impl Field>) -> DiagnosticsResult<()> {
+    fn validate_required_field(
+        &mut self,
+        field: &Arc<impl Field>,
+        errors_are_caught: bool,
+    ) -> DiagnosticsResult<()> {
+        if !errors_are_caught {
+            return Ok(());
+        }
+
         let required_directive = field.directives().named(*REQUIRED_DIRECTIVE_NAME);
 
         if required_directive.is_none() {
@@ -107,23 +116,36 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
         Ok(())
     }
 
-    fn validate_selection_fields(&mut self, selections: &[Selection]) -> DiagnosticsResult<()> {
+    fn validate_selection_fields(
+        &mut self,
+        selections: &[Selection],
+        errors_are_caught: bool,
+    ) -> DiagnosticsResult<()> {
         try_all(selections.iter().map(|selection| match selection {
             Selection::LinkedField(linked_field) => {
+                let errors_are_caught = errors_are_caught
+                    || linked_field
+                        .directives()
+                        .named(*CATCH_DIRECTIVE_NAME)
+                        .is_some();
+
                 let field_result = match linked_field
                     .directives()
                     .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
                 {
                     Some(_) => Ok(()),
-                    None => self.validate_required_field(linked_field),
+                    None => self.validate_required_field(linked_field, errors_are_caught),
                 };
 
-                let selection_result = self.validate_selection_fields(&linked_field.selections);
+                let selection_result =
+                    self.validate_selection_fields(&linked_field.selections, errors_are_caught);
 
                 try2(field_result, selection_result)?;
                 Ok(())
             }
-            Selection::ScalarField(scalar_field) => self.validate_required_field(scalar_field),
+            Selection::ScalarField(scalar_field) => {
+                self.validate_required_field(scalar_field, errors_are_caught)
+            }
             _ => Ok(()),
         }))?;
         Ok(())
@@ -138,11 +160,9 @@ impl Validator for DisallowRequiredOnNonNullField<'_> {
         let throw_on_field_error_directive =
             fragment.directives.named(*THROW_ON_FIELD_ERROR_DIRECTIVE);
 
-        if throw_on_field_error_directive.is_none() {
-            return Ok(());
-        }
+        let has_throw_on_field_error_directive = throw_on_field_error_directive.is_some();
 
-        self.validate_selection_fields(&fragment.selections)
+        self.validate_selection_fields(&fragment.selections, has_throw_on_field_error_directive)
     }
 
     fn validate_operation(
@@ -152,10 +172,7 @@ impl Validator for DisallowRequiredOnNonNullField<'_> {
         let throw_on_field_error_directive =
             operation.directives.named(*THROW_ON_FIELD_ERROR_DIRECTIVE);
 
-        if throw_on_field_error_directive.is_none() {
-            return Ok(());
-        }
-
-        self.validate_selection_fields(&operation.selections)
+        let has_throw_on_field_error_directive = throw_on_field_error_directive.is_some();
+        self.validate_selection_fields(&operation.selections, has_throw_on_field_error_directive)
     }
 }

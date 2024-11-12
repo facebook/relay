@@ -268,15 +268,21 @@ impl<'program> RequiredDirective<'program> {
         for (path, required_child) in self.current_node_required_children.iter() {
             if !previous_required_children.contains_key(path) {
                 if let Some(other_parent) = self.path_required_map.get(&field_path) {
-                    self.errors.push(
-                        Diagnostic::error(
-                            RequiredDirectiveValidationMessage::FieldMissing {
-                                field_name: required_child.field_name.item,
-                            },
-                            required_child.field_name.location,
+                    let other_location = other_parent.field_name.location;
+                    // We only care about conflicts with values that are
+                    // actually requested by the user, so conflicts with
+                    // generated fields are ignored.
+                    if !other_location.source_location().is_generated() {
+                        self.errors.push(
+                            Diagnostic::error(
+                                RequiredDirectiveValidationMessage::FieldMissing {
+                                    field_name: required_child.field_name.item,
+                                },
+                                required_child.field_name.location,
+                            )
+                            .annotate("but is missing from", other_location),
                         )
-                        .annotate("but is missing from", other_parent.field_name.location),
-                    )
+                    }
                 } else {
                     // We want to give a location of the other parent which is
                     // missing this field. We expect that we will be able to
@@ -293,18 +299,21 @@ impl<'program> RequiredDirective<'program> {
         // Check if a previous reference to this field had a required child field which we are missing.
         for (path, required_child) in previous_required_children.iter() {
             if !self.current_node_required_children.contains_key(path) {
-                self.errors.push(
-                    Diagnostic::error(
-                        RequiredDirectiveValidationMessage::FieldMissing {
-                            field_name: required_child.field_name.item,
-                        },
-                        required_child.field_name.location,
+                let other_location = field.name_with_location(&self.program.schema).location;
+                // We only care about conflicts with values that are actually
+                // requested by the user, so conflicts with generated fields are
+                // ignored.
+                if !other_location.source_location().is_generated() {
+                    self.errors.push(
+                        Diagnostic::error(
+                            RequiredDirectiveValidationMessage::FieldMissing {
+                                field_name: required_child.field_name.item,
+                            },
+                            required_child.field_name.location,
+                        )
+                        .annotate("but is missing from", other_location),
                     )
-                    .annotate(
-                        "but is missing from",
-                        field.name_with_location(&self.program.schema).location,
-                    ),
-                )
+                }
             }
         }
     }

@@ -195,8 +195,13 @@ pub enum ValidationMessage {
         type_condition: StringKey,
     },
 
-    #[error("Directive '{0}' not supported in this location")]
-    InvalidDirectiveUsageUnsupportedLocation(DirectiveName),
+    #[error(
+        "Directive '{directive_name}' not supported in this location. Supported location(s): {valid_locations}"
+    )]
+    InvalidDirectiveUsageUnsupportedLocation {
+        directive_name: DirectiveName,
+        valid_locations: String,
+    },
 
     #[error(
         "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"

@@ -139,18 +139,13 @@ export type MissingClientEdgeRequestInfo = {
   +clientEdgeDestinationID: DataID,
 };
 
-export type MissingLiveResolverField = {
-  +path: string,
-  +liveStateID: DataID,
-};
-
 /**
  * A representation of a selector and its results at a particular point in time.
  */
 export type Snapshot = {
   +data: ?SelectorData,
   +isMissingData: boolean,
-  +missingLiveResolverFields?: $ReadOnlyArray<MissingLiveResolverField>,
+  +missingLiveResolverFields?: $ReadOnlyArray<DataID>,
   +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
@@ -1274,7 +1269,7 @@ export type MissingFieldHandler =
 export type MissingExpectedDataLogEvent = {
   +kind: 'missing_expected_data.log',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
 };
 
 /**
@@ -1300,7 +1295,7 @@ export type MissingExpectedDataLogEvent = {
 export type MissingExpectedDataThrowEvent = {
   +kind: 'missing_expected_data.throw',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
 };
 
@@ -1311,7 +1306,7 @@ export type MissingExpectedDataThrowEvent = {
 export type MissingRequiredFieldLogEvent = {
   +kind: 'missing_required_field.log',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
 };
 
 /**
@@ -1328,7 +1323,7 @@ export type MissingRequiredFieldLogEvent = {
 export type MissingRequiredFieldThrowEvent = {
   +kind: 'missing_required_field.throw',
   +owner: string,
-  +fieldPath: string,
+  fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
 };
 

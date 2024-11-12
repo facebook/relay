@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use common::sync::try_join;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use graphql_ir::FragmentDefinitionNameSet;
@@ -47,6 +48,7 @@ pub fn apply_transforms<TPerfLogger>(
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> DiagnosticsResult<Programs>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -71,6 +73,7 @@ where
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
                 custom_transforms_config,
+                transferrable_refetchable_query_directives.clone(),
             )?;
 
             try_join(
@@ -123,6 +126,7 @@ where
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
                 custom_transforms_config,
+                transferrable_refetchable_query_directives.clone(),
             )
         },
     )?;
@@ -143,6 +147,7 @@ fn apply_common_transforms(
     base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_config.name.to_string());
@@ -196,7 +201,13 @@ fn apply_common_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, project_config, &base_fragment_names, false)
+        transform_refetchable_fragment(
+            &program,
+            project_config,
+            &base_fragment_names,
+            false,
+            transferrable_refetchable_query_directives,
+        )
     })?;
 
     program = log_event.time("relay_actor_change_transform", || {
@@ -641,6 +652,7 @@ fn apply_typegen_transforms(
     base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_config.name.to_string());
@@ -728,7 +740,13 @@ fn apply_typegen_transforms(
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, project_config, &base_fragment_names, true)
+        transform_refetchable_fragment(
+            &program,
+            project_config,
+            &base_fragment_names,
+            true,
+            transferrable_refetchable_query_directives,
+        )
     })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)

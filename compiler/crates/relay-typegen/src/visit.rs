@@ -970,16 +970,17 @@ fn visit_inline_fragment(
             runtime_imports,
             custom_error_import,
             enclosing_linked_field_concrete_type,
-            inline_fragment
-                .directives
-                .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
-                .is_some(),
+            emit_semantic_types
+                || inline_fragment
+                    .directives
+                    .named(*CATCH_DIRECTIVE_NAME)
+                    .is_some(),
         );
 
         let mut selections = if let Some(fragment_alias_metadata) =
             FragmentAliasMetadata::find(&inline_fragment.directives)
         {
-            // We will model the types as a linked filed containing just the fragment spread.
+            // We will model the types as a linked field containing just the fragment spread.
             let mut node_type = TypeReference::Named(fragment_alias_metadata.selection_type);
             if fragment_alias_metadata.non_nullable {
                 node_type = TypeReference::NonNull(Box::new(node_type));
@@ -992,14 +993,16 @@ fn visit_inline_fragment(
                 &inline_fragment.directives,
                 false,
             );
+            let coerce_to_nullable = has_explicit_catch_to_null(&inline_fragment.directives);
+            let is_result_type = is_result_type_directive(&inline_fragment.directives);
+
             vec![TypeSelection::LinkedField(TypeSelectionLinkedField {
                 field_name_or_alias: fragment_alias_metadata.alias.item,
                 node_type,
                 node_selections: selections_to_map(inline_selections.into_iter(), true),
-                conditional: false,
+                conditional: coerce_to_nullable,
                 concrete_type: None,
-                // @catch cannot be used directly on an inline fragment.
-                is_result_type: false,
+                is_result_type,
             })]
         } else {
             // If the inline fragment is on an abstract type, its selections must be
@@ -1767,7 +1770,7 @@ fn append_local_3d_payload(
     }
 }
 
-fn make_custom_error_import(
+pub fn make_custom_error_import(
     typegen_context: &'_ TypegenContext<'_>,
     custom_error_type: &mut Option<CustomTypeImport>,
 ) -> Result<(), std::fmt::Error> {
@@ -1792,7 +1795,7 @@ fn make_custom_error_import(
     );
     Ok(())
 }
-fn make_result_type(typegen_context: &'_ TypegenContext<'_>, value: AST) -> AST {
+pub fn make_result_type(typegen_context: &'_ TypegenContext<'_>, value: AST) -> AST {
     let maybe_custom_error = &typegen_context
         .project_config
         .typegen_config

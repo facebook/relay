@@ -36,8 +36,7 @@ fragment requiredDirectiveOnConditionalField_Foo_user on User {
             "name": "name",
             "storageKey": null
           },
-          "action": "THROW",
-          "path": "name"
+          "action": "THROW"
         }
       ]
     }

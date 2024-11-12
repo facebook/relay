@@ -19,6 +19,8 @@ use std::sync::Arc;
 use ::errors::validate_map;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Named;
 use common::NamedItem;
 use common::WithLocation;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
@@ -74,6 +76,7 @@ pub fn transform_refetchable_fragment(
     project_config: &ProjectConfig,
     base_fragment_names: &'_ FragmentDefinitionNameSet,
     for_typegen: bool,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
 
@@ -90,6 +93,22 @@ pub fn transform_refetchable_fragment(
             if !base_fragment_names.contains(&fragment.name.item) {
                 let mut directives = refetchable_directive.directives;
                 directives.push(RefetchableDerivedFromMetadata(fragment.name.item).into());
+                // Calculate directives that are transferrable but that do not already exist on the refetchable query
+                let transferrable_refetchable_query_directives: Vec<&DirectiveName> =
+                    transferrable_refetchable_query_directives
+                        .iter()
+                        .filter(|name| directives.named(**name).is_none())
+                        .collect::<Vec<_>>();
+                let directives_to_copy = fragment
+                    .directives
+                    .iter()
+                    .filter(|directive| {
+                        transferrable_refetchable_query_directives
+                            .iter()
+                            .any(|name| directive.name() == **name)
+                    })
+                    .cloned();
+                directives.extend(directives_to_copy);
 
                 next_program.insert_operation(Arc::new(OperationDefinition {
                     kind: OperationKind::Query,

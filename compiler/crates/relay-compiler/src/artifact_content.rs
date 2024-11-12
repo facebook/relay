@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! Artifact content refers to the generated code that is produced by the Relay compiler during the compilation process
+//! to be used by Relay runtime.
+//!
+//! The artifact content module provides functionality for generating and managing different types of artifact content,
+//! such as operations, fragments, and resolvers schema modules.
 pub mod content;
 pub mod content_section;
 

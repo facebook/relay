@@ -14,6 +14,7 @@
 import type {QueryResult} from './QueryResource';
 import type {
   CacheConfig,
+  DataID,
   FetchPolicy,
   IEnvironment,
   ReaderFragment,
@@ -21,10 +22,7 @@ import type {
   SelectorData,
   Snapshot,
 } from 'relay-runtime';
-import type {
-  MissingClientEdgeRequestInfo,
-  MissingLiveResolverField,
-} from 'relay-runtime/store/RelayStoreTypes';
+import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreTypes';
 
 const {getQueryResourceForEnvironment} = require('./QueryResource');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -89,13 +87,13 @@ function getMissingClientEdges(
 
 function getSuspendingLiveResolver(
   state: FragmentState,
-): $ReadOnlyArray<MissingLiveResolverField> | null {
+): $ReadOnlyArray<DataID> | null {
   if (state.kind === 'bailout') {
     return null;
   } else if (state.kind === 'singular') {
     return state.snapshot.missingLiveResolverFields ?? null;
   } else {
-    let missingFields: null | Array<MissingLiveResolverField> = null;
+    let missingFields: null | Array<DataID> = null;
     for (const snapshot of state.snapshots) {
       if (snapshot.missingLiveResolverFields) {
         missingFields = missingFields ?? [];
@@ -508,7 +506,7 @@ hook useFragmentInternal(
     const suspendingLiveResolvers = getSuspendingLiveResolver(state);
     if (suspendingLiveResolvers != null && suspendingLiveResolvers.length > 0) {
       throw Promise.all(
-        suspendingLiveResolvers.map(({liveStateID}) => {
+        suspendingLiveResolvers.map(liveStateID => {
           // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
           return environment.getStore().getLiveResolverPromise(liveStateID);
         }),

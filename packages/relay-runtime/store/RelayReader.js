@@ -11,8 +11,11 @@
 
 'use strict';
 
+import type {Result} from '../experimental';
 import type {
+  CatchFieldTo,
   ReaderActorChange,
+  ReaderAliasedInlineFragmentSpread,
   ReaderCatchField,
   ReaderClientEdge,
   ReaderFragment,
@@ -35,7 +38,6 @@ import type {
   ErrorResponseField,
   ErrorResponseFields,
   MissingClientEdgeRequestInfo,
-  MissingLiveResolverField,
   Record,
   RecordSource,
   RequestDescriptor,
@@ -72,8 +74,6 @@ const {
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
-type RequiredOrCatchField = ReaderRequiredField | ReaderCatchField;
-
 function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
@@ -96,7 +96,7 @@ class RelayReader {
   _clientEdgeTraversalPath: Array<ClientEdgeTraversalInfo | null>;
   _isMissingData: boolean;
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
-  _missingLiveResolverFields: Array<MissingLiveResolverField>;
+  _missingLiveResolverFields: Array<DataID>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _errorResponseFields: ?ErrorResponseFields;
   _owner: RequestDescriptor;
@@ -175,7 +175,14 @@ class RelayReader {
     }
 
     this._isWithinUnmatchedTypeRefinement = !isDataExpectedToBePresent;
-    const data = this._traverse(node, dataID, null);
+    let data = this._traverse(node, dataID, null);
+
+    // If the fragment/operation was marked with @catch, we need to handle any
+    // errors that were encountered while reading the fields within it.
+    const catchTo = this._selector.node.metadata?.catchTo;
+    if (catchTo != null) {
+      data = this._catchErrors(data, catchTo, null) as $FlowFixMe;
+    }
 
     if (this._updatedDataIDs.size > 0) {
       this._resolverCache.notifyUpdatedSubscribers(this._updatedDataIDs);
@@ -217,7 +224,7 @@ class RelayReader {
     }
   }
 
-  _markDataAsMissing(): void {
+  _markDataAsMissing(fieldName: string): void {
     if (this._isWithinUnmatchedTypeRefinement) {
       return;
     }
@@ -226,7 +233,6 @@ class RelayReader {
     }
 
     // we will add the path later
-    const fieldPath = '';
     const owner = this._fragmentName;
 
     this._errorResponseFields.push(
@@ -234,10 +240,10 @@ class RelayReader {
         ? {
             kind: 'missing_expected_data.throw',
             owner,
-            fieldPath,
+            fieldPath: fieldName,
             handled: false,
           }
-        : {kind: 'missing_expected_data.log', owner, fieldPath},
+        : {kind: 'missing_expected_data.log', owner, fieldPath: fieldName},
     );
 
     this._isMissingData = true;
@@ -266,7 +272,7 @@ class RelayReader {
     this._seenRecords.add(dataID);
     if (record == null) {
       if (record === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing('<record>');
       }
       return record;
     }
@@ -288,18 +294,29 @@ class RelayReader {
     return this._variables[name];
   }
 
-  _maybeReportUnexpectedNull(fieldPath: string, action: 'LOG' | 'THROW') {
+  _maybeReportUnexpectedNull(selection: ReaderRequiredField) {
+    if (selection.action === 'NONE') {
+      return;
+    }
     const owner = this._fragmentName;
 
     if (this._errorResponseFields == null) {
       this._errorResponseFields = [];
     }
 
-    switch (action) {
+    let fieldName: string;
+    if (selection.field.linkedField != null) {
+      fieldName =
+        selection.field.linkedField.alias ?? selection.field.linkedField.name;
+    } else {
+      fieldName = selection.field.alias ?? selection.field.name;
+    }
+
+    switch (selection.action) {
       case 'THROW':
         this._errorResponseFields.push({
           kind: 'missing_required_field.throw',
-          fieldPath,
+          fieldPath: fieldName,
           owner,
           handled: false,
         });
@@ -307,34 +324,109 @@ class RelayReader {
       case 'LOG':
         this._errorResponseFields.push({
           kind: 'missing_required_field.log',
-          fieldPath,
+          fieldPath: fieldName,
           owner,
         });
         return;
       default:
-        (action: empty);
+        (selection.action: empty);
     }
   }
 
-  _handleCatchToResult(
-    selection: ReaderCatchField,
-    record: Record,
-    data: SelectorData,
+  _handleRequiredFieldValue(
+    selection: ReaderRequiredField,
     value: mixed,
-  ) {
-    const field = selection.field?.backingField ?? selection.field;
-    const fieldName = field?.alias ?? field?.name;
+  ): boolean /*should continue to siblings*/ {
+    if (value == null) {
+      this._maybeReportUnexpectedNull(selection);
+      // We are going to throw, or our parent is going to get nulled out.
+      // Either way, sibling values are going to be ignored, so we can
+      // bail early here as an optimization.
+      return false;
+    }
+    return true;
+  }
 
-    // ReaderClientExtension doesn't have `alias` or `name`
-    // so we don't support this yet
-    invariant(
-      fieldName != null,
-      "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
-    );
+  /**
+   * Fields, aliased inline fragments, fragments and operations with `@catch`
+   * directives must handle the case that errors were encountered while reading
+   * any fields within them.
+   *
+   * 1. Before traversing into the selection(s) marked as `@catch`, the caller
+   *   stores the previous field errors (`this._errorResponseFields`) in a
+   *   variable.
+   * 2. After traversing into the selection(s) marked as `@catch`, the caller
+   *   calls this method with the resulting value, the `to` value from the
+   *   `@catch` directive, and the previous field errors.
+   *
+   * This method will then:
+   *
+   * 1. Compute the correct value to return based on any errors encountered and the supplied `to` type.
+   * 2. Mark any errors encountered within the `@catch` as "handled" to ensure they don't cause the reader to throw.
+   * 3. Merge any errors encountered within the `@catch` with the previous field errors.
+   */
+  _catchErrors<T>(
+    _value: T,
+    to: CatchFieldTo,
+    previousResponseFields: ?ErrorResponseFields,
+  ): ?T | Result<T, mixed> {
+    let value: T | null | Result<T, mixed> = _value;
+    switch (to) {
+      case 'RESULT':
+        value = this._asResult(_value);
+        break;
+      case 'NULL':
+        if (
+          this._errorResponseFields != null &&
+          this._errorResponseFields.length > 0
+        ) {
+          value = null;
+        }
+        break;
+      default:
+        (to: empty);
+    }
+
+    const childrenErrorResponseFields = this._errorResponseFields;
+
+    this._errorResponseFields = previousResponseFields;
+
+    // Merge any errors encountered within the @catch with the previous field
+    // errors, but mark them as "handled" first.
+    if (childrenErrorResponseFields != null) {
+      if (this._errorResponseFields == null) {
+        this._errorResponseFields = [];
+      }
+      for (let i = 0; i < childrenErrorResponseFields.length; i++) {
+        // We mark any errors encountered within the @catch as "handled"
+        // to ensure that they don't cause the reader to throw, but can
+        // still be logged.
+        this._errorResponseFields.push(
+          markFieldErrorHasHandled(childrenErrorResponseFields[i]),
+        );
+      }
+    }
+    return value;
+  }
+
+  /**
+   * Convert a value into a Result object based on the presence of errors in the
+   * `this._errorResponseFields` array.
+   *
+   * **Note**: This method does _not_ mark errors as handled. It is the caller's
+   * responsibility to ensure that errors are marked as handled.
+   */
+  _asResult<T>(value: T): Result<T, mixed> {
+    if (
+      this._errorResponseFields == null ||
+      this._errorResponseFields.length === 0
+    ) {
+      return {ok: true, value};
+    }
 
     // TODO: Should we be hiding log level events here?
     const errors = this._errorResponseFields
-      ?.map(error => {
+      .map(error => {
         switch (error.kind) {
           case 'relay_field_payload.error':
             const {message, ...displayError} = error.error;
@@ -368,24 +460,7 @@ class RelayReader {
       })
       .filter(Boolean);
 
-    data[fieldName] = errors != null ? {ok: false, errors} : {ok: true, value};
-  }
-
-  _handleRequiredFieldValue(
-    selection: ReaderRequiredField,
-    value: mixed,
-  ): boolean /*should continue to siblings*/ {
-    if (value == null) {
-      const {action} = selection;
-      if (action !== 'NONE') {
-        this._maybeReportUnexpectedNull(selection.path, action);
-      }
-      // We are going to throw, or our parent is going to get nulled out.
-      // Either way, sibling values are going to be ignored, so we can
-      // bail early here as an optimization.
-      return false;
-    }
-    return true;
+    return {ok: false, errors};
   }
 
   _traverseSelections(
@@ -418,27 +493,20 @@ class RelayReader {
             data,
           );
 
-          if (selection.to === 'RESULT') {
-            this._handleCatchToResult(selection, record, data, catchFieldValue);
-          }
+          const field = selection.field?.backingField ?? selection.field;
+          const fieldName = field?.alias ?? field?.name;
+          // ReaderClientExtension doesn't have `alias` or `name`
+          // so we don't support this yet
+          invariant(
+            fieldName != null,
+            "Couldn't determine field name for this field. It might be a ReaderClientExtension - which is not yet supported.",
+          );
 
-          const childrenErrorResponseFields = this._errorResponseFields;
-
-          this._errorResponseFields = previousResponseFields;
-
-          if (childrenErrorResponseFields != null) {
-            if (this._errorResponseFields == null) {
-              this._errorResponseFields = [];
-            }
-            for (let i = 0; i < childrenErrorResponseFields.length; i++) {
-              // We mark any errors encountered within the @catch as "handled"
-              // to ensure that they don't cause the reader to throw, but can
-              // still be logged.
-              this._errorResponseFields.push(
-                markFieldErrorHasHandled(childrenErrorResponseFields[i]),
-              );
-            }
-          }
+          data[fieldName] = this._catchErrors(
+            catchFieldValue,
+            selection.to,
+            previousResponseFields,
+          );
 
           break;
         }
@@ -489,16 +557,7 @@ class RelayReader {
           this._createFragmentPointer(selection, record, data);
           break;
         case 'AliasedInlineFragmentSpread': {
-          let fieldValue = this._readInlineFragment(
-            selection.fragment,
-            record,
-            {},
-            true,
-          );
-          if (fieldValue === false) {
-            fieldValue = null;
-          }
-          data[selection.name] = fieldValue;
+          this._readAliasedInlineFragment(selection, record, data);
           break;
         }
         case 'ModuleImport':
@@ -565,7 +624,7 @@ class RelayReader {
   }
 
   _readClientSideDirectiveField(
-    selection: RequiredOrCatchField,
+    selection: ReaderRequiredField | ReaderCatchField,
     record: Record,
     data: SelectorData,
   ): ?mixed {
@@ -585,12 +644,14 @@ class RelayReader {
       case 'ClientEdgeToClientObject':
       case 'ClientEdgeToServerObject':
         return this._readClientEdge(selection.field, record, data);
+      case 'AliasedInlineFragmentSpread':
+        return this._readAliasedInlineFragment(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
           false,
           'RelayReader(): Unexpected ast kind `%s`.',
-          selection.kind,
+          selection.field.kind,
         );
     }
   }
@@ -601,9 +662,12 @@ class RelayReader {
     data: SelectorData,
   ): mixed {
     const parentRecordID = RelayModernRecord.getDataID(record);
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
     const result = this._readResolverFieldImpl(field, parentRecordID);
 
     const fieldName = field.alias ?? field.name;
+    this._prependPreviousErrors(prevErrors, fieldName);
     data[fieldName] = result;
     return result;
   }
@@ -804,10 +868,7 @@ class RelayReader {
     // they know when to unsuspend.
     if (suspenseID != null) {
       this._isMissingData = true;
-      this._missingLiveResolverFields.push({
-        path: `${this._fragmentName}.${fieldPath}`,
-        liveStateID: suspenseID,
-      });
+      this._missingLiveResolverFields.push(suspenseID);
     }
     if (updatedDataIDs != null) {
       for (const recordID of updatedDataIDs) {
@@ -982,12 +1043,15 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevData,
       );
+      const prevErrors = this._errorResponseFields;
+      this._errorResponseFields = null;
       const edgeValue = this._traverse(
         field.linkedField,
         storeID,
         // $FlowFixMe[incompatible-variance]
         prevData,
       );
+      this._prependPreviousErrors(prevErrors, fieldName);
       this._clientEdgeTraversalPath.pop();
       data[fieldName] = edgeValue;
       return edgeValue;
@@ -1005,7 +1069,7 @@ class RelayReader {
     if (value === null) {
       this._maybeAddErrorResponseFields(record, storageKey);
     } else if (value === undefined) {
-      this._markDataAsMissing();
+      this._markDataAsMissing(fieldName);
     }
     data[fieldName] = value;
     return value;
@@ -1024,7 +1088,7 @@ class RelayReader {
       if (linkedID === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       } else if (linkedID === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing(fieldName);
       }
       return linkedID;
     }
@@ -1039,10 +1103,74 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
     // $FlowFixMe[incompatible-variance]
     const value = this._traverse(field, linkedID, prevData);
+
+    this._prependPreviousErrors(prevErrors, fieldName);
     data[fieldName] = value;
     return value;
+  }
+
+  /**
+   * Adds a set of field errors to `this._errorResponseFields`, ensuring the
+   * `fieldPath` property of existing field errors are prefixed with the given
+   * `fieldNameOrIndex`.
+   *
+   * In order to make field errors maximally useful in logs/errors, we want to
+   * include the path to the field that caused the error. A naive approach would
+   * be to maintain a path property on RelayReader which we push/pop field names
+   * to as we traverse into fields/etc. However, this would be expensive to
+   * maintain, and in the common case where there are no field errors, the work
+   * would go unused.
+   *
+   * Instead, we take a lazy approach where as we exit the recurison into a
+   * field/etc we prepend any errors encountered while traversing that field
+   * with the field name. This is somewhat more expensive in the error case, but
+   * ~free in the common case where there are no errors.
+   *
+   * To achieve this, named field readers must do the following to correctly
+   * track error filePaths:
+   *
+   * 1. Stash the value of `this._errorResponseFields` in a local variable
+   * 2. Set `this._errorResponseFields` to `null`
+   * 3. Traverse into the field
+   * 4. Call this method with the stashed errors and the field's name
+   *
+   * Similarly, when creating field errors, we simply initialize the `fieldPath`
+   * as the direct field name.
+   *
+   * Today we only use this apporach for `missing_expected_data` and
+   * `missing_required_field` errors, but we intend to broaden it to handle all
+   * field error paths.
+   */
+  _prependPreviousErrors(
+    prevErrors: ?Array<ErrorResponseField>,
+    fieldNameOrIndex: string | number,
+  ): void {
+    if (this._errorResponseFields != null) {
+      for (let i = 0; i < this._errorResponseFields.length; i++) {
+        const event = this._errorResponseFields[i];
+        if (
+          event.owner === this._fragmentName &&
+          (event.kind === 'missing_expected_data.throw' ||
+            event.kind === 'missing_expected_data.log' ||
+            event.kind === 'missing_required_field.throw' ||
+            event.kind === 'missing_required_field.log')
+        ) {
+          event.fieldPath = `${fieldNameOrIndex}.${event.fieldPath}`;
+        }
+      }
+      if (prevErrors != null) {
+        for (let i = this._errorResponseFields.length - 1; i >= 0; i--) {
+          prevErrors.push(this._errorResponseFields[i]);
+        }
+        this._errorResponseFields = prevErrors;
+      }
+    } else {
+      this._errorResponseFields = prevErrors;
+    }
   }
 
   _readActorChange(
@@ -1060,7 +1188,7 @@ class RelayReader {
     if (externalRef == null) {
       data[fieldName] = externalRef;
       if (externalRef === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing(fieldName);
       } else if (externalRef === null) {
         this._maybeAddErrorResponseFields(record, storageKey);
       }
@@ -1107,7 +1235,7 @@ class RelayReader {
     if (linkedIDs == null) {
       data[fieldName] = linkedIDs;
       if (linkedIDs === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing(fieldName);
       }
       return linkedIDs;
     }
@@ -1121,11 +1249,13 @@ class RelayReader {
       RelayModernRecord.getDataID(record),
       prevData,
     );
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
     const linkedArray = prevData || [];
     linkedIDs.forEach((linkedID, nextIndex) => {
       if (linkedID == null) {
         if (linkedID === undefined) {
-          this._markDataAsMissing();
+          this._markDataAsMissing(String(nextIndex));
         }
         // $FlowFixMe[cannot-write]
         linkedArray[nextIndex] = linkedID;
@@ -1140,10 +1270,14 @@ class RelayReader {
         RelayModernRecord.getDataID(record),
         prevItem,
       );
+      const prevErrors = this._errorResponseFields;
+      this._errorResponseFields = null;
       // $FlowFixMe[cannot-write]
       // $FlowFixMe[incompatible-variance]
       linkedArray[nextIndex] = this._traverse(field, linkedID, prevItem);
+      this._prependPreviousErrors(prevErrors, nextIndex);
     });
+    this._prependPreviousErrors(prevErrors, fieldName);
     data[fieldName] = linkedArray;
     return linkedArray;
   }
@@ -1166,7 +1300,7 @@ class RelayReader {
       RelayModernRecord.getValue(record, componentKey);
     if (component == null) {
       if (component === undefined) {
-        this._markDataAsMissing();
+        this._markDataAsMissing('<module-import>');
       }
       return;
     }
@@ -1187,6 +1321,39 @@ class RelayReader {
     );
     data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
     data[MODULE_COMPONENT_KEY] = component;
+  }
+
+  /**
+   * Aliased inline fragments allow the user to check if the data in an inline
+   * fragment was fetched. Data in the inline fragment can be conditional in the
+   * case of a type condition on the inline fragment or directives like `@skip`
+   * or `@include`.
+   *
+   * We model aliased inline fragments as a special reader node wrapped around a
+   * regular inline fragment reader node.
+   *
+   * This allows us to read the inline fragment as normal, check if it matched,
+   * and then define the alias to either contain the inline fragment's data, or
+   * null.
+   */
+  _readAliasedInlineFragment(
+    aliasedInlineFragment: ReaderAliasedInlineFragmentSpread,
+    record: Record,
+    data: SelectorData,
+  ) {
+    const prevErrors = this._errorResponseFields;
+    this._errorResponseFields = null;
+    let fieldValue = this._readInlineFragment(
+      aliasedInlineFragment.fragment,
+      record,
+      {},
+      true,
+    );
+    this._prependPreviousErrors(prevErrors, aliasedInlineFragment.name);
+    if (fieldValue === false) {
+      fieldValue = null;
+    }
+    data[aliasedInlineFragment.name] = fieldValue;
   }
 
   // Has three possible return values:
@@ -1398,7 +1565,7 @@ class RelayReader {
       // fetched the `__is[AbstractType]` flag for this concrete type. In this
       // case we need to report that we are missing data, in case that field is
       // still in flight.
-      this._markDataAsMissing();
+      this._markDataAsMissing('<abstract-type-hint>');
     }
     // $FlowFixMe Casting record value
     return implementsInterface;

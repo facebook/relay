@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b76c6e10fd87789efa2b6c729219c55b>>
+ * @generated SignedSource<<e85f72321280ba279fc3229bd1a004b4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -78,8 +78,7 @@ return {
                 {
                   "kind": "RequiredField",
                   "field": (v2/*: any*/),
-                  "action": "LOG",
-                  "path": "node.aliased_fragment.name"
+                  "action": "LOG"
                 }
               ],
               "type": "MaybeNodeInterface",

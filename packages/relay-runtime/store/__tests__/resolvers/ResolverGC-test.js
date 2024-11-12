@@ -175,7 +175,7 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
       expect(snapshot.data).toEqual({counter_plus_one: null});
       expect(snapshot.errorResponseFields).toEqual([
         {
-          fieldPath: '',
+          fieldPath: 'me.<record>',
           kind: 'missing_expected_data.log',
           owner: 'LiveCounterResolver',
         },
@@ -730,7 +730,7 @@ test('Resolver reading a plural client-edge to a client type', async () => {
       expect(snapshot.data).toEqual({all_astrological_signs: null});
       expect(snapshot.errorResponseFields).toEqual([
         {
-          fieldPath: '',
+          fieldPath: 'me.<record>',
           kind: 'missing_expected_data.log',
           owner: 'QueryAllAstrologicalSignsResolver',
         },

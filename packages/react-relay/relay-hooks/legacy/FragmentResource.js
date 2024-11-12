@@ -22,7 +22,6 @@ import type {
   RequestDescriptor,
   Snapshot,
 } from 'relay-runtime';
-import type {MissingLiveResolverField} from 'relay-runtime/store/RelayStoreTypes';
 
 const LRUCache = require('../LRUCache');
 const {getQueryResourceForEnvironment} = require('../QueryResource');
@@ -98,7 +97,7 @@ function hasMissingClientEdges(snapshot: SingularOrPluralSnapshot): boolean {
 
 function missingLiveResolverFields(
   snapshot: SingularOrPluralSnapshot,
-): ?$ReadOnlyArray<MissingLiveResolverField> {
+): ?$ReadOnlyArray<DataID> {
   if (Array.isArray(snapshot)) {
     return snapshot
       .map(s => s.missingLiveResolverFields)
@@ -449,7 +448,7 @@ class FragmentResourceImpl {
       );
     const parentQueryPromiseResultPromise = parentQueryPromiseResult?.promise; // for refinement
     const missingResolverFieldPromises =
-      missingLiveResolverFields(snapshot)?.map(({liveStateID}) => {
+      missingLiveResolverFields(snapshot)?.map(liveStateID => {
         const store = environment.getStore();
 
         // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore

@@ -7,4 +7,10 @@ mutation MyMutation @throwOnFieldError {
   }
 }
 ==================================== ERROR ====================================
-Diagnostic(DiagnosticData { message: InvalidDirectiveUsageUnsupportedLocation(DirectiveName("throwOnFieldError")), location: throw_on_field_error_mutation_directive.graphql:42:59, related_information: [], tags: [], severity: Error, data: [], machine_readable: {} })
+✖︎ Directive 'throwOnFieldError' not supported in this location. Supported location(s): QUERY, FRAGMENT_DEFINITION
+
+  throw_on_field_error_mutation_directive.graphql:3:22
+    2 │ 
+    3 │ mutation MyMutation @throwOnFieldError {
+      │                      ^^^^^^^^^^^^^^^^^
+    4 │   setName(name: "Alice") {

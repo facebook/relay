@@ -7,7 +7,6 @@
 
 use std::sync::Arc;
 
-use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::Diagnostic;
@@ -16,7 +15,10 @@ use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -24,14 +26,14 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::intern;
 use lazy_static::lazy_static;
-mod catchable_field;
+mod catchable_node;
 mod validation_message;
-use graphql_ir::Field;
-use intern::Lookup;
 
-use self::catchable_field::CatchMetadata;
-use self::catchable_field::CatchableField;
+use self::catchable_node::CatchMetadata;
+use self::catchable_node::CatchableNode;
 use crate::catch_directive::validation_message::ValidationMessage;
+use crate::catch_directive::validation_message::ValidationMessageWithData;
+use crate::FragmentAliasMetadata;
 use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
@@ -70,7 +72,6 @@ impl From<CatchTo> for StringKey {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct CatchMetadataDirective {
     pub to: CatchTo,
-    pub path: StringKey,
 }
 associated_data_impl!(CatchMetadataDirective);
 
@@ -100,7 +101,6 @@ struct CatchDirective<'s> {
     #[allow(dead_code)]
     program: &'s Program,
     errors: Vec<Diagnostic>,
-    path: Vec<&'s str>,
 }
 
 impl<'program> CatchDirective<'program> {
@@ -108,11 +108,10 @@ impl<'program> CatchDirective<'program> {
         Self {
             program,
             errors: Default::default(),
-            path: vec![],
         }
     }
 
-    fn get_catch_metadata<T: CatchableField>(&mut self, field: &T) -> Option<CatchMetadata> {
+    fn get_catch_metadata<T: CatchableNode>(&mut self, field: &T) -> Option<CatchMetadata> {
         self.assert_not_with_required(field);
 
         match field.catch_metadata() {
@@ -124,7 +123,7 @@ impl<'program> CatchDirective<'program> {
         }
     }
 
-    fn assert_not_with_required<T: CatchableField>(&mut self, field: &T) {
+    fn assert_not_with_required<T: CatchableNode>(&mut self, field: &T) {
         let catchable_field = field.directives().named(*CATCH_DIRECTIVE_NAME);
         let required_field = field.directives().named(*REQUIRED_DIRECTIVE_NAME);
 
@@ -143,21 +142,57 @@ impl<'s> Transformer for CatchDirective<'s> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
-    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
-        let name = field.alias_or_name(&self.program.schema).lookup();
-        self.path.push(name);
-        let path_name: StringKey = self.path.join(".").intern();
-        self.path.pop();
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let maybe_catch_metadata = self.get_catch_metadata(operation);
 
+        match maybe_catch_metadata {
+            None => self.default_transform_operation(operation),
+            Some(catch_metadata) => {
+                let next_directives =
+                    add_metadata_directive(&operation.directives, catch_metadata.to);
+
+                let selections = self.transform_selections(&operation.selections);
+
+                Transformed::Replace(OperationDefinition {
+                    directives: next_directives,
+                    selections: selections.replace_or_else(|| operation.selections.clone()),
+                    ..operation.clone()
+                })
+            }
+        }
+    }
+    fn transform_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        let maybe_catch_metadata = self.get_catch_metadata(fragment);
+
+        match maybe_catch_metadata {
+            None => self.default_transform_fragment(fragment),
+            Some(catch_metadata) => {
+                let next_directives =
+                    add_metadata_directive(&fragment.directives, catch_metadata.to);
+
+                let selections = self.transform_selections(&fragment.selections);
+
+                Transformed::Replace(FragmentDefinition {
+                    directives: next_directives,
+                    selections: selections.replace_or_else(|| fragment.selections.clone()),
+                    ..fragment.clone()
+                })
+            }
+        }
+    }
+
+    fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         match self.get_catch_metadata(field) {
             None => Transformed::Keep,
             Some(catch_metadata) => {
                 Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {
-                    directives: add_metadata_directive(
-                        &field.directives,
-                        path_name,
-                        catch_metadata.to,
-                    ),
+                    directives: add_metadata_directive(&field.directives, catch_metadata.to),
                     ..field.clone()
                 })))
             }
@@ -165,15 +200,11 @@ impl<'s> Transformer for CatchDirective<'s> {
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let name = field.alias_or_name(&self.program.schema).lookup();
-        self.path.push(name);
-
         let maybe_catch_metadata = self.get_catch_metadata(field);
 
         match maybe_catch_metadata {
             None => {
                 let selections = self.transform_selections(&field.selections);
-                self.path.pop();
                 if selections.should_keep() {
                     Transformed::Keep
                 } else {
@@ -184,13 +215,9 @@ impl<'s> Transformer for CatchDirective<'s> {
                 }
             }
             Some(catch_metadata) => {
-                let path_name = self.path.join(".").intern();
-                let next_directives =
-                    add_metadata_directive(&field.directives, path_name, catch_metadata.to);
+                let next_directives = add_metadata_directive(&field.directives, catch_metadata.to);
 
                 let selections = self.transform_selections(&field.selections);
-
-                self.path.pop();
 
                 Transformed::Replace(Selection::LinkedField(Arc::new(LinkedField {
                     directives: next_directives,
@@ -200,19 +227,47 @@ impl<'s> Transformer for CatchDirective<'s> {
             }
         }
     }
+
+    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        let alias = FragmentAliasMetadata::find(&fragment.directives);
+
+        let maybe_catch_metadata = self.get_catch_metadata(fragment);
+
+        match alias {
+            Some(_alias) => match maybe_catch_metadata {
+                None => self.default_transform_inline_fragment(fragment),
+                Some(catch_metadata) => {
+                    let next_directives =
+                        add_metadata_directive(&fragment.directives, catch_metadata.to);
+
+                    let selections = self.transform_selections(&fragment.selections);
+
+                    Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                        directives: next_directives,
+                        selections: selections.replace_or_else(|| fragment.selections.clone()),
+                        ..fragment.clone()
+                    })))
+                }
+            },
+            None => {
+                if maybe_catch_metadata.is_some() {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessageWithData::CatchNotValidOnUnaliasedInlineFragment,
+                        fragment.spread_location,
+                    ));
+                };
+                self.default_transform_inline_fragment(fragment)
+            }
+        }
+    }
 }
 
-fn add_metadata_directive(
-    directives: &[Directive],
-    path_name: StringKey,
-    to: Option<CatchTo>,
-) -> Vec<Directive> {
+fn add_metadata_directive(directives: &[Directive], to: Option<CatchTo>) -> Vec<Directive> {
     let mut next_directives: Vec<Directive> = Vec::with_capacity(directives.len() + 1);
     next_directives.extend(directives.iter().cloned());
     next_directives.push(
         CatchMetadataDirective {
             to: catch_to_with_fallback(to),
-            path: path_name,
         }
         .into(),
     );

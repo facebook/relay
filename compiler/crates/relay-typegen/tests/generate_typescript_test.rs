@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dc6df4bac160f12fe89c63e98c18f01d>>
+ * @generated SignedSource<<1903a7cf2db933f9227f3b83bb115fb5>>
  */
 
 mod generate_typescript;
@@ -332,6 +332,13 @@ async fn relay_client_id_field() {
     let input = include_str!("generate_typescript/fixtures/relay-client-id-field.graphql");
     let expected = include_str!("generate_typescript/fixtures/relay-client-id-field.expected");
     test_fixture(transform_fixture, file!(), "relay-client-id-field.graphql", "generate_typescript/fixtures/relay-client-id-field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_on_query_with_output_type() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-on-query-with-output-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-on-query-with-output-type.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-on-query-with-output-type.graphql", "generate_typescript/fixtures/relay-resolver-on-query-with-output-type.expected", input, expected).await;
 }
 
 #[tokio::test]

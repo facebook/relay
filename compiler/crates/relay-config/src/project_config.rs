@@ -43,20 +43,24 @@ use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
+/// Configuration for remote persistence of GraphQL documents.
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct RemotePersistConfig {
-    /// URL to send a POST request to to persist.
+    /// URL that the document should be persisted to via a POST request.
     pub url: String,
-    /// The document will be in a POST parameter `text`. This map can contain
+    /// Additional parameters to include in the POST request.
+    ///
+    /// The main document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
     #[serde(default)]
     pub params: FnvIndexMap<String, String>,
 
-    /// Additional headers to send
+    /// Additional headers to include in the POST request.
     #[serde(default)]
     pub headers: FnvIndexMap<String, String>,
 
+    /// Number of concurrent requests that can be made to the server.
     #[serde(
         default,
         rename = "concurrency",
@@ -64,6 +68,7 @@ pub struct RemotePersistConfig {
     )]
     pub semaphore_permits: Option<usize>,
 
+    /// Whether to include the query text in the persisted document.
     #[serde(default)]
     pub include_query_text: bool,
 }
@@ -96,22 +101,34 @@ impl Default for LocalPersistAlgorithm {
     }
 }
 
+/// Configuration for local persistence of GraphQL documents.
+///
+/// This struct contains settings that control how GraphQL documents are persisted locally.
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct LocalPersistConfig {
+    /// The file path where the persisted documents will be written.
     pub file: PathBuf,
 
+    /// The algorithm to use for hashing the operation text.
     #[serde(default)]
     pub algorithm: LocalPersistAlgorithm,
 
+    /// Whether to include the query text in the persisted document.
     #[serde(default)]
     pub include_query_text: bool,
 }
 
+/// Configuration for how the Relay Compiler should persist GraphQL queries.
 #[derive(Debug, Serialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum PersistConfig {
+    /// This variant represents a remote persistence configuration, where GraphQL queries are sent to a remote endpoint for persistence.
     Remote(RemotePersistConfig),
+    /// This variant represents a local persistence configuration, where GraphQL queries are persisted to a local JSON file.
+    ///
+    /// When this variant is used, the compiler will attempt to read the local file as a hash map,
+    /// add new queries to the map, and then serialize and write the resulting map to the configured path.
     Local(LocalPersistConfig),
 }
 
@@ -157,9 +174,12 @@ It also cannot be a local persist configuration due to:
     }
 }
 
+/// Specifies the type of location of a GraphQL schema, and the path to the schema location.
 #[derive(Clone, Debug, JsonSchema)]
 pub enum SchemaLocation {
+    /// A single file containing the schema.
     File(PathBuf),
+    /// A directory containing multiple schema files.
     Directory(PathBuf),
 }
 
@@ -229,32 +249,61 @@ impl Default for SchemaConfig {
 
 type CustomArtifactFilePath = Box<dyn Fn(&PathBuf) -> PathBuf + Send + Sync>;
 
+/// Configuration for a Relay project.
+///
+/// This struct contains various settings and options that control how Relay compiles and generates code for a project.
 pub struct ProjectConfig {
+    /// The name of the project.
     pub name: ProjectName,
+    /// The base project configuration to inherit from.
     pub base: Option<ProjectName>,
+    /// The output directory for extra artifacts.
     pub extra_artifacts_output: Option<PathBuf>,
+    /// The configuration for extra artifacts.
     pub extra_artifacts_config: Option<ExtraArtifactsConfig>,
+    /// A list of glob patterns specifying file extensions to exclude from compilation.
     pub excludes_extensions: Option<GlobSet>,
+    /// The output directory for compiled artifacts.
     pub output: Option<PathBuf>,
+    /// Whether to shard output into separate files.
     pub shard_output: bool,
+    /// A regular expression to strip from file paths when sharding output.
     pub shard_strip_regex: Option<Regex>,
+    /// A list of schema extensions to include in the project.
     pub schema_extensions: Vec<PathBuf>,
+    /// Whether the project is enabled.
     pub enabled: bool,
+    /// The name of the schema to use for this project.
     pub schema_name: Option<StringKey>,
+    /// The location of the schema for this project.
     pub schema_location: SchemaLocation,
+    /// The schema configuration for this project.
     pub schema_config: SchemaConfig,
+    /// The typegen configuration for this project.
     pub typegen_config: TypegenConfig,
+    /// The persist configuration for this project.
     pub persist: Option<PersistConfig>,
+    /// Whether to include variable names in comments.
     pub variable_names_comment: bool,
+    /// Additional metadata for the project.
     pub extra: serde_json::Value,
+    /// Feature flags for the project.
     pub feature_flags: Arc<FeatureFlags>,
+    /// Regular expression to match test files.
     pub test_path_regex: Option<Regex>,
+    /// Rollout configuration for the project.
     pub rollout: Rollout,
+    /// Format for JavaScript modules.
     pub js_module_format: JsModuleFormat,
+    /// Configuration for module imports.
     pub module_import_config: ModuleImportConfig,
+    /// Configuration for diagnostic reports.
     pub diagnostic_report_config: DiagnosticReportConfig,
+    /// Configuration for resolvers schema module.
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+    /// Command to run after code generation.
     pub codegen_command: Option<String>,
+    /// Custom function to get the path for an artifact.
     pub get_custom_path_for_artifact: Option<CustomArtifactFilePath>,
 }
 

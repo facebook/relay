@@ -132,8 +132,9 @@ Notes:
 
 ## `@catch`
 
-`@catch` is a directive you can add to fields in your Relay queries to declare
-how field-level exceptions are handled in runtime.
+`@catch` is a directive you can add to fields, fragments, queries, mutations,
+and aliased inline fragments in your Relay queries to declare how field-level
+errors are handled in runtime.
 
 See also [the @catch guide](../../guides/catch-directive/).
 

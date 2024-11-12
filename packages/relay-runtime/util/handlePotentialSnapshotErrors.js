@@ -39,7 +39,7 @@ function handleFieldErrors(
           );
         case 'relay_field_payload.error':
           throw new Error(
-            `Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors`,
+            `Relay: Unexpected response payload - check server logs for details.`,
           );
         case 'missing_expected_data.throw':
           throw new Error(

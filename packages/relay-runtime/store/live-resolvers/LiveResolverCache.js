@@ -656,9 +656,7 @@ class LiveResolverCache implements ResolverCache {
     while (recordsToVisit.length) {
       // $FlowFixMe[incompatible-type] We just checked length so we know this is not undefined
       const recordID: string = recordsToVisit.pop();
-      if (RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION) {
-        visited.add(recordID);
-      }
+      visited.add(recordID);
 
       // $FlowFixMe[incompatible-call]
       updatedDataIDs.add(recordID);
@@ -669,9 +667,7 @@ class LiveResolverCache implements ResolverCache {
       }
       for (const fragment of fragmentSet) {
         if (!visited.has(fragment)) {
-          if (RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION) {
-            visited.add(fragment);
-          }
+          visited.add(fragment);
 
           const recordSet = this._resolverIDToRecordIDs.get(fragment);
           if (recordSet == null) {
@@ -680,9 +676,7 @@ class LiveResolverCache implements ResolverCache {
           for (const anotherRecordID of recordSet) {
             markInvalidatedResolverRecord(anotherRecordID, recordSource);
             if (!visited.has(anotherRecordID)) {
-              if (RelayFeatureFlags.AVOID_CYCLES_IN_RESOLVER_NOTIFICATION) {
-                visited.add(anotherRecordID);
-              }
+              visited.add(anotherRecordID);
               recordsToVisit.push(anotherRecordID);
             }
           }

@@ -56,8 +56,7 @@ extend type User {
                   "resolverModule": require('PopStarNameResolver'),
                   "path": "node.pop_star_name"
                 },
-                "action": "LOG",
-                "path": "node.pop_star_name"
+                "action": "LOG"
               }
             ],
             "type": "User",

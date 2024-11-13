@@ -92,6 +92,7 @@ module.exports = FriendsList;
 
 Object containing the following properties:
 
+* `edges`: The edges to use. This provides a filtered list of edges in the connection that excludes the buffer. Do not use the connection edges from `data` to render otherwise the hook will not work correctly.
 * `data`: Object that contains data which has been read out from the Relay store; the object matches the shape of specified fragment.
     * The Flow type for data will also match this shape, and contain types derived from the GraphQL Schema.
 * `isLoadingNext`: Boolean value which indicates if a pagination request for the *next* items in the connection is currently in flight, including any incremental data payloads. The value stays `false` if the hook is automatically prefetching to fill the buffer, and the code hasn't asked for more items.

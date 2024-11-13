@@ -69,8 +69,11 @@ type LoadMoreOptions<TVariables> = {
   onComplete?: (Error | null) => void,
 };
 
-export type GetExtraVariablesFn<TEdgeData, TVariables> = ({
+export type GetExtraVariablesFn<TEdgeData, TData, TVariables, TKey> = ({
   hasNext: boolean,
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? TData
+    : ?TData,
   getServerEdges: () => TEdgeData,
 }) => Partial<TVariables>;
 
@@ -93,7 +96,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
   prefetchingLoadMoreOptions?: {
     UNSTABLE_extraVariables?:
       | Partial<TVariables>
-      | GetExtraVariablesFn<TEdgeData, TVariables>,
+      | GetExtraVariablesFn<TEdgeData, TData, TVariables, TKey>,
     onComplete?: (Error | null) => void,
   },
   minimalFetchSize: number = 1,
@@ -290,6 +293,8 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
               ? // $FlowFixMe[incompatible-call]
                 prefetchingUNSTABLE_extraVariables({
                   hasNext,
+                  // $FlowFixMe[incompatible-call]
+                  data: fragmentData,
                   getServerEdges: () => {
                     const selector = getSelector(edgesFragment, edgeKeys);
                     const result = [];

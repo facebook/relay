@@ -406,6 +406,13 @@ describe('RelayReader', () => {
   });
 
   it('reads data when the root is deleted', () => {
+    const UserQuery = graphql`
+      query RelayReaderTestReadsDataWhenTheRootIsDeletedQuery {
+        me {
+          ...RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile
+        }
+      }
+    `;
     const UserProfile = graphql`
       fragment RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile on User {
         name
@@ -413,24 +420,33 @@ describe('RelayReader', () => {
     `;
     source = RelayRecordSource.create();
     source.delete('4');
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserProfile, '4', {}),
+      createReaderSelector(UserProfile, '4', {}, owner.request),
     );
     expect(data).toBe(null);
     expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
   });
 
   it('reads data when the root is unfetched', () => {
+    const UserQuery = graphql`
+      query RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery {
+        me {
+          ...RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile
+        }
+      }
+    `;
     const UserProfile = graphql`
       fragment RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile on User {
         name
       }
     `;
     source = RelayRecordSource.create();
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserProfile, '4', {}),
+      createReaderSelector(UserProfile, '4', {}, owner.request),
     );
     expect(data).toBe(undefined);
     expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
@@ -791,9 +807,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
+      const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -817,9 +834,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
+      const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -1106,9 +1124,17 @@ describe('RelayReader', () => {
             }
           }
         `;
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress
+            }
+          }
+        `;
+        const owner = createOperationDescriptor(UserQuery);
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(Address, '1', {}),
+          createReaderSelector(Address, '1', {}, owner.request),
         );
         expect(data.id).toBe('1');
         expect(data.address).not.toBeDefined();
@@ -1124,11 +1150,24 @@ describe('RelayReader', () => {
             }
           }
         `;
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery {
+            me {
+              id # Note that this does not include the fragment so the variable data should be missing
+            }
+          }
+        `;
+        const owner = createOperationDescriptor(UserQuery);
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(ProfilePicture, '1', {
-            size: 48,
-          }),
+          createReaderSelector(
+            ProfilePicture,
+            '1',
+            {
+              size: 48,
+            },
+            owner.request,
+          ),
         );
         expect(data.id).toBe('1');
         expect(data.profilePicture).not.toBeDefined();

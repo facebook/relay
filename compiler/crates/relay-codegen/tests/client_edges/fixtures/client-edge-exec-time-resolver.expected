@@ -84,5 +84,6 @@ extend type User {
       ],
       "storageKey": null
     }
-  ]
+  ],
+  "use_exec_time_resolvers": true
 }

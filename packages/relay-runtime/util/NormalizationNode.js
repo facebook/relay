@@ -27,6 +27,7 @@ export type NormalizationOperation = {
   +clientAbstractTypes?: {
     +[string]: $ReadOnlyArray<string>,
   },
+  +use_exec_time_resolvers?: boolean,
 };
 
 export type NormalizationHandle =

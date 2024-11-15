@@ -198,6 +198,12 @@ module.exports = {
         infoLink: 'https://www.rea-app.fr/',
         pinned: false,
       },
+      {
+        caption: 'GigSmart',
+        image: '/img/logos/gigsmart.png',
+        infoLink: 'https://gigsmart.com',
+        pinned: false
+      }
     ],
   },
   onBrokenLinks: 'throw',

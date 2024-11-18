@@ -13,10 +13,6 @@
 import type {Snapshot} from '../RelayStoreTypes';
 import type {RecordSourceProxy} from 'relay-runtime/store/RelayStoreTypes';
 
-const {
-  MultiActorEnvironment,
-  getActorIdentifier,
-} = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
@@ -52,10 +48,6 @@ describe('RelayContext works when applying updates and gets passed through to th
       resolverContext: {
         age: 42,
       },
-    });
-    const multiActorEnvironment = new MultiActorEnvironment({
-      createNetworkForActor: _actorID => RelayNetwork.create(jest.fn()),
-      createStoreForActor: _actorID => store,
     });
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),

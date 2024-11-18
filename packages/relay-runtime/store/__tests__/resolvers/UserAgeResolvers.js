@@ -1,5 +1,3 @@
-import type { LiveState} from 'relay-runtime/store/RelayStoreTypes';
-
 /**
  * @RelayResolver User.age: Int
  */

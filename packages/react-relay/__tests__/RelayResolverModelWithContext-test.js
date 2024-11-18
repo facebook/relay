@@ -11,15 +11,8 @@
 
 'use strict';
 
-import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {RelayResolverModelWithContextTestFragment$key} from './__generated__/RelayResolverModelWithContextTestFragment.graphql';
 import type {TestResolverContextType} from 'relay-runtime/mutations/__tests__/TestResolverContextType';
-import type {
-  RecordSourceProxy,
-  Snapshot,
-} from 'relay-runtime/store/RelayStoreTypes';
-
-const {Observable} = require('relay-runtime');
 
 const React = require('react');
 const {
@@ -28,6 +21,7 @@ const {
   useFragment,
 } = require('react-relay');
 const TestRenderer = require('react-test-renderer');
+const {Observable} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -37,12 +31,6 @@ const {
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
-const {
-  createOperationDescriptor,
-} = require('relay-runtime/store/RelayModernOperationDescriptor');
-const {
-  createReaderSelector,
-} = require('relay-runtime/store/RelayModernSelector');
 const {
   disallowConsoleErrors,
   disallowWarnings,

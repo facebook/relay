@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {TestResolverContextType} from '../../../mutations/__tests__/TestResolverContextType';
 import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitalizedID.graphql';
 import type {TodoModelCapitalizedIDLegacy$key} from './__generated__/TodoModelCapitalizedIDLegacy.graphql';
 import type {TodoDescription} from './TodoDescription';
@@ -25,7 +26,6 @@ const {
   Selectors,
   TODO_STORE,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-import type {TestResolverContextType} from '../../../mutations/__tests__/TestResolverContextType';
 
 type TodoModelType = ?TodoItem;
 

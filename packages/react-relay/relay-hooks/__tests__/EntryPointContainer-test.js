@@ -284,8 +284,8 @@ it('suspends then updates when the query and component load', () => {
   dataSource.next(response);
   dataSource.complete();
   TestRenderer.act(() => jest.runAllImmediates());
-  // One for preloading, 2 more for render
-  expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(3);
+  // Two for preloading, 2 more for render
+  expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(4);
   expect(nestedEntryPointResource.load).toBeCalledTimes(1);
   expect(preloadedQuery).not.toBe(null);
   expect(renderer?.toJSON()).toEqual('Alice');
@@ -393,5 +393,9 @@ it('warns if the entryPointReference has already been disposed', () => {
   expectWarningWillFire(
     '<EntryPointContainer>: Expected entryPointReference to not be disposed yet. This is because disposing the entrypoint marks it for future garbage collection, and as such may no longer be present in the Relay store. In the future, this will become a hard error.',
   );
-  render();
+  expect(() => {
+    render();
+  }).toThrow(
+    '<EntryPointContainer>: Expected entryPointReference to not be disposed yet. This is because disposing the entrypoint marks it for future garbage collection, and as such may no longer be present in the Relay store. In the future, this will become a hard error.',
+  );
 });

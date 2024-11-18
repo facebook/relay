@@ -756,7 +756,7 @@ describe.each([
        * useQueryLoader */
       queryLoaderCallback({});
     });
-    expect(renderCount).toEqual(2);
+    expect(renderCount).toEqual(3);
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());
@@ -809,7 +809,7 @@ describe.each([
       queryLoaderCallback({});
     });
 
-    expect(renderCount).toEqual(1);
+    expect(renderCount).toEqual(2);
     expect(outerInstance?.toJSON()).toEqual('fallback');
     expect(releaseQuery).not.toHaveBeenCalled();
     ReactTestRenderer.act(() => outerInstance?.unmount());

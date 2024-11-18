@@ -691,7 +691,7 @@ it('releases and cancels all queries if a the callback is called, the component 
      * useQueryLoader */
     queryLoaderCallback({});
   });
-  expect(renderCount).toEqual(2);
+  expect(renderCount).toEqual(3);
   expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());
@@ -742,7 +742,7 @@ it('releases and cancels all queries if the component suspends, another query is
     queryLoaderCallback({});
   });
 
-  expect(renderCount).toEqual(1);
+  expect(renderCount).toEqual(2);
   expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());

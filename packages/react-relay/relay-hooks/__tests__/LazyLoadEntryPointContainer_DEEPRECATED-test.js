@@ -173,7 +173,7 @@ it('suspends while the query and component are pending', () => {
   expect(renderer?.toJSON()).toEqual('Fallback');
   expect(fetch).toBeCalledTimes(1);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(entryPoint.root.load).toBeCalledTimes(1);
+  expect(entryPoint.root.load).toBeCalledTimes(2);
 });
 
 it('suspends while the component is loading', () => {
@@ -198,7 +198,7 @@ it('suspends while the component is loading', () => {
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer?.toJSON()).toEqual('Fallback');
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(entryPoint.root.load).toBeCalledTimes(1);
+  expect(entryPoint.root.load).toBeCalledTimes(2);
 });
 
 it('suspends while the query is loading', () => {
@@ -248,9 +248,9 @@ it('suspends then updates when the query and component load', () => {
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer?.toJSON()).toEqual('Fallback');
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(4);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(entryPoint.root.load).toBeCalledTimes(1);
+  expect(entryPoint.root.load).toBeCalledTimes(2);
 
   let receivedProps = null;
   function Component(props: any) {
@@ -264,9 +264,9 @@ it('suspends then updates when the query and component load', () => {
   dataSource.complete();
   TestRenderer.act(() => jest.runAllImmediates());
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(4);
+  expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(6);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(entryPoint.root.load).toBeCalledTimes(1);
+  expect(entryPoint.root.load).toBeCalledTimes(2);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
   expect(renderer.toJSON()).toEqual('Zuck');
@@ -405,8 +405,8 @@ it('re-renders and reloads when prefetch params change', () => {
     );
   });
   expect(renderer.toJSON()).toEqual('Fallback');
-  expect(Component).toBeCalledTimes(2);
-  expect(entryPoint.getPreloadProps).toBeCalledTimes(2);
+  expect(Component).toBeCalledTimes(3);
+  expect(entryPoint.getPreloadProps).toBeCalledTimes(3);
   expect(fetch).toBeCalledTimes(2);
   dataSource.next({
     data: {

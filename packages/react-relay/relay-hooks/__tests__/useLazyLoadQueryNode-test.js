@@ -758,8 +758,7 @@ describe('with @defer and re-rendering', () => {
     query = createOperationDescriptor(gqlQuery, variables);
   });
 
-  // TODO fixme
-  it.skip('should handle errors ', () => {
+  it('should handle errors ', () => {
     const instance = render(
       environment,
       <Container key={0} variables={variables} />,
@@ -917,8 +916,7 @@ describe('partial rendering', () => {
 });
 
 describe('logging', () => {
-  // TODO fixme
-  test.skip('simple fetch', () => {
+  test('simple fetch', () => {
     render(environment, <Container variables={variables} />);
 
     environment.mock.resolve(gqlQuery, {
@@ -995,8 +993,7 @@ describe('logging', () => {
     ]);
   });
 
-  // TODO fixme
-  test.skip('log when switching queries', () => {
+  test('log when switching queries', () => {
     const initialVariables = {id: 'first-render'};
     const variablesOne = {id: '1'};
     const variablesTwo = {id: '2'};

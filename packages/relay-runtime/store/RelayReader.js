@@ -437,8 +437,8 @@ class RelayReader {
       .map(error => {
         switch (error.kind) {
           case 'relay_field_payload.error':
-            const {path} = error.error;
-            return {path};
+            const {message, ...displayError} = error.error;
+            return displayError;
           case 'missing_expected_data.throw':
           case 'missing_expected_data.log':
             return {

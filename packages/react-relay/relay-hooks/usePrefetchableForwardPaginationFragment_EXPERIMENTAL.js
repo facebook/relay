@@ -276,9 +276,9 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
                           'Expected a plural selector',
                         );
                         // $FlowFixMe[incompatible-call]
-                        return selector.selectors.map(sel => {
-                          environment.lookup(sel).data;
-                        });
+                        return selector.selectors.map(
+                          sel => environment.lookup(sel).data,
+                        );
                       },
                     })
                   : prefetchingUNSTABLE_extraVariables,
@@ -346,9 +346,9 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
                       'Expected a plural selector',
                     );
                     // $FlowFixMe[incompatible-call]
-                    return selector.selectors.map(sel => {
-                      environment.lookup(sel).data;
-                    });
+                    return selector.selectors.map(
+                      sel => environment.lookup(sel).data,
+                    );
                   },
                 })
               : prefetchingUNSTABLE_extraVariables,

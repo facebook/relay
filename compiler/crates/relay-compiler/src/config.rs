@@ -612,6 +612,138 @@ impl Config {
             }
         }
     }
+
+    /// Compute all root paths that we need to query. All files relevant to the
+    /// compiler should be in these directories.
+    pub fn get_all_roots(&self) -> Vec<PathBuf> {
+        let source_roots = self.get_source_roots();
+        let extra_sources_roots = self.get_generated_sources_roots();
+        let output_roots = self.get_output_dir_paths();
+        let extension_roots = self.get_extension_roots();
+        let schema_file_roots = self.get_schema_file_roots();
+        let schema_dir_roots = self.get_schema_dir_paths();
+
+        unify_roots(
+            source_roots
+                .into_iter()
+                .chain(extra_sources_roots)
+                .chain(output_roots)
+                .chain(extension_roots)
+                .chain(schema_file_roots)
+                .chain(schema_dir_roots)
+                .collect(),
+        )
+    }
+
+    /// Returns all root directories of JS source files for the config.
+    pub fn get_source_roots(&self) -> Vec<PathBuf> {
+        self.sources.keys().cloned().collect()
+    }
+
+    /// Returns all root directories of JS source files for the config.
+    pub fn get_generated_sources_roots(&self) -> Vec<PathBuf> {
+        self.generated_sources.keys().cloned().collect()
+    }
+
+    /// Returns all root directories of GraphQL schema extension files for the
+    /// config.
+    pub fn get_extension_roots(&self) -> Vec<PathBuf> {
+        self.projects
+            .values()
+            .flat_map(|project_config| project_config.schema_extensions.iter().cloned())
+            .collect()
+    }
+
+    /// Returns all output and extra artifact output directories for the config.
+    pub fn get_output_dir_paths(&self) -> Vec<PathBuf> {
+        let output_dirs = self
+            .projects
+            .values()
+            .filter_map(|project_config| project_config.output.clone());
+
+        let extra_artifact_output_dirs = self
+            .projects
+            .values()
+            .filter_map(|project_config| project_config.extra_artifacts_output.clone());
+
+        output_dirs.chain(extra_artifact_output_dirs).collect()
+    }
+
+    /// Returns all paths that contain GraphQL schema files for the config.
+    pub fn get_schema_file_paths(&self) -> Vec<PathBuf> {
+        self.projects
+            .values()
+            .filter_map(|project_config| match &project_config.schema_location {
+                SchemaLocation::File(schema_file) => Some(schema_file.clone()),
+                SchemaLocation::Directory(_) => None,
+            })
+            .collect()
+    }
+
+    /// Returns all GraphQL schema directories for the config.
+    pub fn get_schema_dir_paths(&self) -> Vec<PathBuf> {
+        self.projects
+            .values()
+            .filter_map(|project_config| match &project_config.schema_location {
+                SchemaLocation::File(_) => None,
+                SchemaLocation::Directory(schema_dir) => Some(schema_dir.clone()),
+            })
+            .collect()
+    }
+
+    /// Returns root directories that contain GraphQL schema files.
+    pub fn get_schema_file_roots(&self) -> impl Iterator<Item = PathBuf> {
+        self.get_schema_file_paths().into_iter().map(|schema_path| {
+            schema_path
+                .parent()
+                .expect("A schema in the project root directory is currently not supported.")
+                .to_owned()
+        })
+    }
+}
+
+/// Finds the roots of a set of paths. This filters any paths
+/// that are a subdirectory of other paths in the input.
+fn unify_roots(mut paths: Vec<PathBuf>) -> Vec<PathBuf> {
+    paths.sort();
+    let mut roots = Vec::new();
+    for path in paths {
+        match roots.last() {
+            Some(prev) if path.starts_with(prev) => {
+                // skip
+            }
+            _ => {
+                roots.push(path);
+            }
+        }
+    }
+    roots
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_unify_roots() {
+        assert_eq!(unify_roots(vec![]).len(), 0);
+        assert_eq!(
+            unify_roots(vec!["Apps".into(), "Libraries".into()]),
+            &[PathBuf::from("Apps"), PathBuf::from("Libraries")]
+        );
+        assert_eq!(
+            unify_roots(vec!["Apps".into(), "Apps/Foo".into()]),
+            &[PathBuf::from("Apps")]
+        );
+        assert_eq!(
+            unify_roots(vec!["Apps/Foo".into(), "Apps".into()]),
+            &[PathBuf::from("Apps")]
+        );
+        assert_eq!(
+            unify_roots(vec!["Foo".into(), "Foo2".into()]),
+            &[PathBuf::from("Foo"), PathBuf::from("Foo2"),]
+        );
+    }
 }
 
 impl fmt::Debug for Config {

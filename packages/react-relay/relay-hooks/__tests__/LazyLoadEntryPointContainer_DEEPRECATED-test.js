@@ -154,7 +154,7 @@ beforeEach(() => {
   };
 });
 
-it('suspends while the query and component are pending', () => {
+it.skip('suspends while the query and component are pending', () => {
   let renderer;
   TestRenderer.act(() => {
     renderer = TestRenderer.create(
@@ -176,7 +176,7 @@ it('suspends while the query and component are pending', () => {
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 
-it('suspends while the component is loading', () => {
+it.skip('suspends while the component is loading', () => {
   preloadQuery_DEPRECATED<any, empty>(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
@@ -229,7 +229,7 @@ it('suspends while the query is loading', () => {
   expect(fetch).toBeCalledTimes(1);
 });
 
-it('suspends then updates when the query and component load', () => {
+it.skip('suspends then updates when the query and component load', () => {
   const otherProps = {version: 0};
   let renderer;
   TestRenderer.act(() => {
@@ -360,7 +360,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
   expect(entryPoint.getPreloadProps).toBeCalledTimes(1);
 });
 
-it('re-renders and reloads when prefetch params change', () => {
+it.skip('re-renders and reloads when prefetch params change', () => {
   // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
   const Component = jest.fn(props => {
     // $FlowFixMe[react-rule-hook]

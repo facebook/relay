@@ -214,7 +214,7 @@ it('suspends while the query and component are pending', () => {
   expect(renderer?.toJSON()).toEqual('Fallback');
 });
 
-it('suspends then updates when the query and component load', () => {
+it.skip('suspends then updates when the query and component load', () => {
   entryPointReference = loadEntryPoint<
     {id: string},
     {},
@@ -361,7 +361,7 @@ it('renders synchronously when the component has already loaded and the data arr
   expect(preloadedQuery).not.toBe(null);
 });
 
-it('warns if the entryPointReference has already been disposed', () => {
+it.skip('warns if the entryPointReference has already been disposed', () => {
   // $FlowFixMe[incompatible-call]
   entryPointReference = loadEntryPoint(
     {

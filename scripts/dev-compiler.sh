@@ -8,7 +8,7 @@
 # VSCode extension on our test files. An example VSCode project settings.json file:
 #
 # {
-#    "relay.pathToConfig": "./scripts/config.tests.json",
+#    "relay.pathToConfig": "./scripts/config.tests.js",
 #    "relay.pathToRelay": "./scripts/dev-compiler.sh",
 #    "relay.autoStartCompiler": true
 # }

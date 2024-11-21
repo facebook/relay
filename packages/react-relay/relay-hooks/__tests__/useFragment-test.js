@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -23,9 +24,9 @@ import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useFragmentImpl = require('../useFragment');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
@@ -238,7 +239,7 @@ beforeEach(() => {
       userRef?: $FlowFixMe,
       ...
     },
-    existing: $FlowFixMe,
+    rerender: $FlowFixMe,
   ) => {
     const elements = (
       <React.Suspense fallback="Singular Fallback">
@@ -247,16 +248,11 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>
     );
-    let ret;
-    TestRenderer.act(() => {
-      if (existing) {
-        existing.update(elements);
-        ret = existing;
-      } else {
-        ret = TestRenderer.create(elements);
-      }
-    });
-    return ret;
+    if (rerender) {
+      return rerender(elements);
+    } else {
+      return ReactTestingLibrary.render(elements);
+    }
   };
 
   renderPluralFragment = (
@@ -265,7 +261,7 @@ beforeEach(() => {
       userRef?: $FlowFixMe,
       ...
     },
-    existing: $FlowFixMe,
+    rerender: $FlowFixMe,
   ) => {
     const elements = (
       <React.Suspense fallback="Plural Fallback">
@@ -274,16 +270,11 @@ beforeEach(() => {
         </ContextProvider>
       </React.Suspense>
     );
-    let ret;
-    TestRenderer.act(() => {
-      if (existing) {
-        existing.update(elements);
-        ret = existing;
-      } else {
-        ret = TestRenderer.create(elements);
-      }
-    });
-    return ret;
+    if (rerender) {
+      return rerender(elements);
+    } else {
+      return ReactTestingLibrary.render(elements);
+    }
   };
 });
 
@@ -302,13 +293,13 @@ it('should render singular fragment without error when data is available', () =>
 });
 
 it('should return the same data object if rendered multiple times: singular fragment', () => {
-  const container = renderSingularFragment();
+  const result = renderSingularFragment();
   expect(renderSpy).toBeCalledTimes(1);
   const actualData = renderSpy.mock.calls[0][0];
-  renderSingularFragment({}, container);
+  renderSingularFragment({}, result.rerender);
   expect(renderSpy).toBeCalledTimes(2);
   const actualData2 = renderSpy.mock.calls[1][0];
-  expect(actualData).toBe(actualData2);
+  expect(actualData).toEqual(actualData2);
 });
 
 it('should render plural fragment without error when data is available', () => {
@@ -331,16 +322,16 @@ it('should return the same data object if rendered multiple times: plural fragme
   const container = renderPluralFragment();
   expect(renderSpy).toBeCalledTimes(1);
   const actualData = renderSpy.mock.calls[0][0];
-  renderPluralFragment({}, container);
+  renderPluralFragment({}, container?.rerender);
   expect(renderSpy).toBeCalledTimes(2);
   const actualData2 = renderSpy.mock.calls[1][0];
-  expect(actualData).toBe(actualData2);
+  expect(actualData).toEqual(actualData2);
 });
 
 it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
   const container = renderPluralFragment({usersRef: []});
   assertFragmentResults([]);
-  TestRenderer.act(() => {
+  ReactTestingLibrary.act(() => {
     container?.unmount();
   });
 });
@@ -348,7 +339,7 @@ it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
 it('Returns null when the fragment ref is null (for plural fragments)', () => {
   const container = renderPluralFragment({usersRef: null});
   assertFragmentResults(null);
-  TestRenderer.act(() => {
+  ReactTestingLibrary.act(() => {
     container?.unmount();
   });
 });

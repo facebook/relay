@@ -125,7 +125,7 @@ jobs:
       - name: "Build test project"
         run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} ./compiler/test-project/relay.config.json
       - name: "Build Relay unit-test artifacts"
-        run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} ./scripts/config.tests.json
+        run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} ./scripts/config.tests.js
       - name: "Check working directory status"
         run: './scripts/check-git-status.sh'
 

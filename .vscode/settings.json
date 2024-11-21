@@ -20,7 +20,7 @@
     // Note that startup will be very slow since it will need to build the
     // compiler first.
 
-    // "relay.pathToConfig": "./scripts/config.tests.json",
+    // "relay.pathToConfig": "./scripts/config.tests.js",
     // "relay.pathToRelay": "./scripts/dev-compiler.sh",
     // "relay.autoStartCompiler": true,
 }

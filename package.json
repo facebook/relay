@@ -1,7 +1,7 @@
 {
   "name": "relay-github-root",
   "description": "A framework for building data-driven React applications.",
-  "version": "18.1.0",
+  "version": "18.2.0",
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",

@@ -1,7 +1,7 @@
 {
   "name": "babel-plugin-relay",
   "description": "A Babel Plugin for use with Relay applications.",
-  "version": "18.1.0",
+  "version": "18.2.0",
   "keywords": [
     "graphql",
     "relay",

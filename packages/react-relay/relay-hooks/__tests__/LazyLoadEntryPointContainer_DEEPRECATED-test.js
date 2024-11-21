@@ -269,6 +269,7 @@ it.skip('suspends then updates when the query and component load', () => {
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Zuck');
 });
 
@@ -355,6 +356,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
       </RelayEnvironmentProvider>,
     );
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Zuck');
   expect(Component).toBeCalledTimes(2);
   expect(entryPoint.getPreloadProps).toBeCalledTimes(1);
@@ -404,6 +406,7 @@ it.skip('re-renders and reloads when prefetch params change', () => {
       </RelayEnvironmentProvider>,
     );
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Fallback');
   expect(Component).toBeCalledTimes(2);
   expect(entryPoint.getPreloadProps).toBeCalledTimes(2);
@@ -422,6 +425,7 @@ it.skip('re-renders and reloads when prefetch params change', () => {
   });
   dataSource.complete();
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Mark');
 });
 

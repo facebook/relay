@@ -282,6 +282,7 @@ describe.each([['New', useFragment]])(
         completeTodo('todo-1');
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('Test todo - green');
     });
 
@@ -328,6 +329,7 @@ describe.each([['New', useFragment]])(
       });
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
 
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('Test todo - green');
 
       TestRenderer.act(() => {
@@ -335,6 +337,7 @@ describe.each([['New', useFragment]])(
         jest.runAllImmediates();
       });
 
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual(null);
       // Run GC to will remove "orphan" records and unsubscribe if they have live resolver subscriptions
       store.scheduleGC();
@@ -378,6 +381,7 @@ describe.each([['New', useFragment]])(
         changeDescription('todo-1', 'Changed todo description text');
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
     });
 
@@ -671,6 +675,7 @@ describe.each([['New', useFragment]])(
         setIsHuman(false);
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('robot:0');
 
       TestRenderer.act(() => {
@@ -678,6 +683,7 @@ describe.each([['New', useFragment]])(
         setIsHuman(true);
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('human:0');
 
       TestRenderer.act(() => {

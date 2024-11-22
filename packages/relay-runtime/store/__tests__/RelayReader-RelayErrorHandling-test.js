@@ -11,6 +11,7 @@
 'use strict';
 
 const {graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -634,5 +635,252 @@ describe('RelayReader error fields', () => {
         owner: 'RelayReaderRelayErrorHandlingTestErrorOrderQuery',
       },
     ]);
+  });
+
+  let wasNoncompliantErrorHandlingOnListsEnabled;
+
+  beforeEach(() => {
+    wasNoncompliantErrorHandlingOnListsEnabled =
+      RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS;
+  });
+
+  afterEach(() => {
+    RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS =
+      wasNoncompliantErrorHandlingOnListsEnabled;
+  });
+
+  describe('when noncompliant error handling on lists is enabled', () => {
+    beforeEach(() => {
+      RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS = true;
+    });
+
+    describe('when query has @throwOnFieldError directive', () => {
+      it('has errors that will throw when the linked field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            'friends(first:3)': {
+              __ref: 'client:1:friends(first:3)',
+            },
+            id: '1',
+          },
+          'client:1:friends(first:3)': {
+            __id: 'client:1:friends(first:3)',
+            __typename: 'FriendsConnection',
+            __errors: {
+              edges: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            edges: {
+              __refs: [],
+            },
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery
+          @throwOnFieldError {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                friends(first: 3) {
+                  edges {
+                    cursor
+                  }
+                }
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {errorResponseFields} = read(source, operation.fragment);
+
+        expect(errorResponseFields).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery',
+            shouldThrow: true,
+          },
+        ]);
+      });
+
+      it('has errors that will throw when the scalar field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            __errors: {
+              emailAddresses: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            id: '1',
+            emailAddresses: [],
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery
+          @throwOnFieldError {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                emailAddresses
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {errorResponseFields} = read(source, operation.fragment);
+
+        expect(errorResponseFields).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery',
+            shouldThrow: true,
+          },
+        ]);
+      });
+    });
+
+    describe('when query does not have the @throwOnFieldError directive', () => {
+      it('has errors that wont throw when the linked field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            'friends(first:3)': {
+              __ref: 'client:1:friends(first:3)',
+            },
+            id: '1',
+          },
+          'client:1:friends(first:3)': {
+            __id: 'client:1:friends(first:3)',
+            __typename: 'FriendsConnection',
+            __errors: {
+              edges: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            edges: {
+              __refs: [],
+            },
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithoutThrowOnFieldErrorQuery {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                friends(first: 3) {
+                  edges {
+                    cursor
+                  }
+                }
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {data, errorResponseFields} = read(source, operation.fragment);
+
+        expect(data.node.friends.edges).toEqual([]);
+        expect(errorResponseFields).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithoutThrowOnFieldErrorQuery',
+            shouldThrow: false,
+          },
+        ]);
+      });
+
+      it('has errors that wont throw when the scalar field is an empty list', () => {
+        const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            __errors: {
+              emailAddresses: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            id: '1',
+            emailAddresses: [],
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+
+        const FooQuery = graphql`
+          query RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery {
+            node(id: "1") {
+              id
+              __typename
+              ... on User {
+                emailAddresses
+              }
+            }
+          }
+        `;
+        const operation = createOperationDescriptor(FooQuery, {});
+        const {data, errorResponseFields} = read(source, operation.fragment);
+        expect(data.node.emailAddresses).toEqual([]);
+        expect(errorResponseFields).toEqual([
+          {
+            fieldPath: '',
+            handled: false,
+            error: {message: 'There was an error!'},
+            kind: 'relay_field_payload.error',
+            owner:
+              'RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithoutThrowOnFieldErrorQuery',
+            shouldThrow: false,
+          },
+        ]);
+      });
+    });
   });
 });

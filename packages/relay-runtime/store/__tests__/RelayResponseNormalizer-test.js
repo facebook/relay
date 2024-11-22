@@ -4491,7 +4491,7 @@ describe('RelayResponseNormalizer', () => {
         RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS = true;
       });
 
-      it('stores field errors on an empty list', () => {
+      it('stores field errors on an linked field that is an empty list', () => {
         const FooQuery = graphql`
           query RelayResponseNormalizerTest40Query($id: ID!) {
             node(id: $id) {
@@ -4553,7 +4553,68 @@ describe('RelayResponseNormalizer', () => {
                 },
               ],
             },
-            edges: null,
+            edges: {
+              __refs: [],
+            },
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            'node(id:"1")': {__ref: '1'},
+          },
+        });
+      });
+
+      it('stores field errors on an scalar field that is an empty list', () => {
+        const FooQuery = graphql`
+          query RelayResponseNormalizerTest41Query($id: ID!) {
+            node(id: $id) {
+              id
+              __typename
+              ... on User {
+                emailAddresses
+              }
+            }
+          }
+        `;
+        const payload = {
+          node: {
+            id: '1',
+            __typename: 'User',
+            emailAddresses: [],
+          },
+        };
+        const errors = [
+          {
+            message: 'There was an error!',
+            path: ['node', 'emailAddresses'],
+          },
+        ];
+        const recordSource = new RelayRecordSource();
+        recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+        normalize(
+          recordSource,
+          createNormalizationSelector(FooQuery.operation, ROOT_ID, {
+            id: '1',
+            size: 32,
+          }),
+          payload,
+          defaultOptions,
+          errors,
+        );
+        expect(recordSource.toJSON()).toEqual({
+          '1': {
+            __id: '1',
+            __typename: 'User',
+            __errors: {
+              emailAddresses: [
+                {
+                  message: 'There was an error!',
+                },
+              ],
+            },
+            id: '1',
+            emailAddresses: [],
           },
           'client:root': {
             __id: 'client:root',

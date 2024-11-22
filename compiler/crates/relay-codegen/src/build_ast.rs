@@ -379,6 +379,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 .named(*EXEC_TIME_RESOLVERS)
                 .is_some(),
         };
+        let exec_time_resolvers_field = ObjectEntry {
+            key: "use_exec_time_resolvers".intern(),
+            value: Primitive::Bool(context.has_exec_time_resolvers_directive),
+        };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
@@ -389,6 +393,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     name: Primitive::String(operation.name.item.0),
                     selections: selections,
                 };
+                if context.has_exec_time_resolvers_directive {
+                    fields.push(exec_time_resolvers_field);
+                }
                 if !operation.variable_definitions.is_empty() {
                     let argument_definitions =
                         self.build_operation_variable_definitions(&operation.variable_definitions);
@@ -412,6 +419,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     name: Primitive::String(operation.name.item.0),
                     selections: selections,
                 };
+                if context.has_exec_time_resolvers_directive {
+                    fields.push(exec_time_resolvers_field);
+                }
                 if let Some(client_abstract_types) =
                     self.maybe_build_client_abstract_types(operation)
                 {

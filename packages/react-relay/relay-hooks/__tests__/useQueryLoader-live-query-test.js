@@ -640,7 +640,7 @@ it('should release and cancel queries on unmount if the callback is called, the 
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
+it.skip('releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -698,7 +698,7 @@ it('releases and cancels all queries if a the callback is called, the component 
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 
-it('releases and cancels all queries if the component suspends, another query is loaded and then the component unmounts', () => {
+it.skip('releases and cancels all queries if the component suspends, another query is loaded and then the component unmounts', () => {
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});

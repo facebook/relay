@@ -69,8 +69,11 @@ type LoadMoreOptions<TVariables> = {
   onComplete?: (Error | null) => void,
 };
 
-export type GetExtraVariablesFn<TEdgeData, TVariables> = ({
+export type GetExtraVariablesFn<TEdgeData, TData, TVariables, TKey> = ({
   hasNext: boolean,
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+    ? TData
+    : ?TData,
   getServerEdges: () => TEdgeData,
 }) => Partial<TVariables>;
 
@@ -93,7 +96,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
   prefetchingLoadMoreOptions?: {
     UNSTABLE_extraVariables?:
       | Partial<TVariables>
-      | GetExtraVariablesFn<TEdgeData, TVariables>,
+      | GetExtraVariablesFn<TEdgeData, TData, TVariables, TKey>,
     onComplete?: (Error | null) => void,
   },
   minimalFetchSize: number = 1,
@@ -223,6 +226,10 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
     availableSizeRef.current = sourceSize - numInUse;
   }, [numInUse, sourceSize]);
 
+  const prefetchingUNSTABLE_extraVariables =
+    prefetchingLoadMoreOptions?.UNSTABLE_extraVariables;
+  const prefetchingOnComplete = prefetchingLoadMoreOptions?.onComplete;
+
   const showMore = useCallback(
     (numToAdd: number, options?: LoadMoreOptions<TVariables>) => {
       // Matches the behavior of `usePaginationFragment`. If there is a `loadMore` ongoing,
@@ -244,12 +251,51 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
               minimalFetchSize,
               Math.min(numToAdd, bufferSize - availableSizeRef.current),
             ),
-            options,
+            // Keep options For backward compatibility
+            options ?? {
+              onComplete: prefetchingOnComplete,
+              UNSTABLE_extraVariables:
+                typeof prefetchingUNSTABLE_extraVariables === 'function'
+                  ? // $FlowFixMe[incompatible-call]
+                    prefetchingUNSTABLE_extraVariables({
+                      hasNext,
+                      // $FlowFixMe[incompatible-call]
+                      data: fragmentData,
+                      getServerEdges: () => {
+                        const selector = getSelector(
+                          // $FlowFixMe[incompatible-call]
+                          edgesFragment,
+                          edgeKeys,
+                        );
+                        if (selector == null) {
+                          // $FlowFixMe[incompatible-call]
+                          return [];
+                        }
+                        invariant(
+                          selector.kind === 'PluralReaderSelector',
+                          'Expected a plural selector',
+                        );
+                        // $FlowFixMe[incompatible-call]
+                        return selector.selectors.map(
+                          sel => environment.lookup(sel).data,
+                        );
+                      },
+                    })
+                  : prefetchingUNSTABLE_extraVariables,
+            },
           );
         }
       }
     },
-    [bufferSize, loadMore, minimalFetchSize],
+    [
+      bufferSize,
+      loadMore,
+      minimalFetchSize,
+      edgeKeys,
+      fragmentData,
+      prefetchingUNSTABLE_extraVariables,
+      prefetchingOnComplete,
+    ],
   );
 
   const edgesFragment = fragmentInput.metadata?.refetch?.edgesFragment;
@@ -259,9 +305,6 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
       'please make sure you have added `prefetchable_pagination: true`  to `@connection`',
   );
 
-  const prefetchingUNSTABLE_extraVariables =
-    prefetchingLoadMoreOptions?.UNSTABLE_extraVariables;
-  const prefetchingOnComplete = prefetchingLoadMoreOptions?.onComplete;
   // Always try to keep `bufferSize` items in the buffer
   // Or load the number of items that have been registred to show
   useEffect(() => {
@@ -290,22 +333,22 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
               ? // $FlowFixMe[incompatible-call]
                 prefetchingUNSTABLE_extraVariables({
                   hasNext,
+                  // $FlowFixMe[incompatible-call]
+                  data: fragmentData,
                   getServerEdges: () => {
                     const selector = getSelector(edgesFragment, edgeKeys);
-                    const result = [];
                     if (selector == null) {
                       // $FlowFixMe[incompatible-call]
-                      return result;
+                      return [];
                     }
                     invariant(
                       selector.kind === 'PluralReaderSelector',
                       'Expected a plural selector',
                     );
-                    selector.selectors.forEach(sel => {
-                      result.push(environment.lookup(sel).data);
-                    });
                     // $FlowFixMe[incompatible-call]
-                    return result;
+                    return selector.selectors.map(
+                      sel => environment.lookup(sel).data,
+                    );
                   },
                 })
               : prefetchingUNSTABLE_extraVariables,

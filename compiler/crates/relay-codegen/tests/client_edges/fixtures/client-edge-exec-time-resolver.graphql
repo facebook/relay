@@ -10,8 +10,6 @@ query Foo @exec_time_resolvers {
 
 # %extensions%
 
-directive @exec_time_resolvers on QUERY
-
 type Cat @__RelayResolverModel {
   name: String
     @relay_resolver(import_name: "name", import_path: "CatNameResolver")

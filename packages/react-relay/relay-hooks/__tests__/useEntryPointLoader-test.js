@@ -558,6 +558,7 @@ it('disposes all entry points if the callback is called, the component suspends,
     entryPointLoaderCallback({});
   });
   const secondDispose = dispose;
+  // $FlowFixMe[incompatible-use]
   expect(outerInstance.toJSON()).toEqual('fallback');
 
   // TODO(T19754110): This fails in OSS where we have concurrent mode, but might
@@ -609,6 +610,7 @@ it('disposes all entry points if the component suspends, another entry point is 
   // *even though the component is in a suspended state.* As such, it commits and
   // the entry point is disposed.
   expect(renderCount).toBeLessThanOrEqual(2);
+  // $FlowFixMe[incompatible-use]
   expect(outerInstance.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance.unmount());

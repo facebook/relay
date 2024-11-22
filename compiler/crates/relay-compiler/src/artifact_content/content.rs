@@ -341,11 +341,17 @@ pub fn generate_operation(
         writeln!(section, "@relayRequestID {}", id)?;
     }
     if project_config.variable_names_comment {
-        write!(section, "@relayVariables")?;
+        let mut variables = String::new();
+        let mut non_null_variables = String::new();
+
         for variable_definition in &normalization_operation.variable_definitions {
-            write!(section, " {}", variable_definition.name.item)?;
+            variables.push_str(&format!(" {}", variable_definition.name.item));
+            if variable_definition.type_.is_non_null() {
+                non_null_variables.push_str(&format!(" {}", variable_definition.name.item));
+            }
         }
-        writeln!(section)?;
+        writeln!(section, "@relayVariables{}", variables)?;
+        writeln!(section, "@relayRequiredVariables{}", non_null_variables)?;
     }
     let data_driven_dependency_metadata =
         RelayDataDrivenDependencyMetadata::find(&operation_fragment.directives);

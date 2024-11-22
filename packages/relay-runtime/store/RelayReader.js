@@ -49,6 +49,7 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {
   isSuspenseSentinel,
 } = require('./live-resolvers/LiveResolverSuspenseSentinel');
@@ -100,6 +101,12 @@ class RelayReader {
   _isWithinUnmatchedTypeRefinement: boolean;
   _errorResponseFields: ?ErrorResponseFields;
   _owner: RequestDescriptor;
+  // Exec time resolvers are run before reaching the Relay store so the store already contains
+  // the normalized data; the same as if the data were sent from the server. However, since a
+  // resolver could be used at read time or exec time in different queries, the reader AST for
+  // a resolver is the read time AST. At runtime, this flag is used to ignore the extra
+  // information in the read time resolver AST and use the "standard", non-resolver read paths
+  _useExecTimeResolvers: boolean;
   _recordSource: RecordSource;
   _seenRecords: DataIDSet;
   _updatedDataIDs: DataIDSet;
@@ -124,6 +131,8 @@ class RelayReader {
     this._isWithinUnmatchedTypeRefinement = false;
     this._errorResponseFields = null;
     this._owner = selector.owner;
+    this._useExecTimeResolvers =
+      this._owner.node.operation.use_exec_time_resolvers ?? false;
     this._recordSource = recordSource;
     this._seenRecords = new Set();
     this._selector = selector;
@@ -550,7 +559,11 @@ class RelayReader {
         }
         case 'RelayLiveResolver':
         case 'RelayResolver': {
-          this._readResolverField(selection, record, data);
+          if (this._useExecTimeResolvers) {
+            this._readScalar(selection, record, data);
+          } else {
+            this._readResolverField(selection, record, data);
+          }
           break;
         }
         case 'FragmentSpread':
@@ -609,7 +622,20 @@ class RelayReader {
           break;
         case 'ClientEdgeToClientObject':
         case 'ClientEdgeToServerObject':
-          this._readClientEdge(selection, record, data);
+          if (
+            this._useExecTimeResolvers &&
+            (selection.backingField.kind === 'RelayResolver' ||
+              selection.backingField.kind === 'RelayLiveResolver')
+          ) {
+            const {linkedField} = selection;
+            if (linkedField.plural) {
+              this._readPluralLink(linkedField, record, data);
+            } else {
+              this._readLink(linkedField, record, data);
+            }
+          } else {
+            this._readClientEdge(selection, record, data);
+          }
           break;
         default:
           (selection: empty);
@@ -1059,14 +1085,19 @@ class RelayReader {
   }
 
   _readScalar(
-    field: ReaderScalarField,
+    field: ReaderScalarField | ReaderRelayResolver | ReaderRelayLiveResolver,
     record: Record,
     data: SelectorData,
   ): ?mixed {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
-    if (value === null) {
+    if (
+      value === null ||
+      (RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
+        Array.isArray(value) &&
+        value.length === 0)
+    ) {
       this._maybeAddErrorResponseFields(record, storageKey);
     } else if (value === undefined) {
       this._markDataAsMissing(fieldName);
@@ -1218,7 +1249,12 @@ class RelayReader {
   ): ?mixed {
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
-    if (linkedIDs === null) {
+    if (
+      linkedIDs === null ||
+      (RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
+        Array.isArray(linkedIDs) &&
+        linkedIDs.length === 0)
+    ) {
       this._maybeAddErrorResponseFields(record, storageKey);
     }
     return this._readLinkedIds(field, linkedIDs, record, data);

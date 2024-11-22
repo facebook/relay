@@ -359,3 +359,12 @@ directive @static on ARGUMENT_DEFINITION
 Used for printing a query, need to be used with `debug_transform`
 """
 directive @__debug on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+"""
+(Relay Only)
+
+If added to a query, resolvers in that query to run at exec-time, rather than read-time.
+This means the resolvers are run when the query data is requested rather than when the
+query is used (i.e. when the network request is made instead of at render time).
+"""
+directive @exec_time_resolvers on QUERY

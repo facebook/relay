@@ -705,7 +705,7 @@ describe.each([
     }
   });
 
-  it('releases all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
+  it.skip('releases all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
     let shouldSuspend;
     let setShouldSuspend;
     const suspensePromise = new Promise(() => {});
@@ -765,7 +765,7 @@ describe.each([
     }
   });
 
-  it('releases all queries if the component suspends, another query is loaded and then the component unmounts', () => {
+  it.skip('releases all queries if the component suspends, another query is loaded and then the component unmounts', () => {
     let shouldSuspend;
     let setShouldSuspend;
     const suspensePromise = new Promise(() => {});

@@ -63,6 +63,9 @@ export type FeatureFlags = {
   // hook allows you to manage a resource that is not tied to the component
   // and replaces the need for multiple useEffects to manage the same resource.
   ENABLE_RESOURCE_EFFECTS: boolean,
+
+  // Enable the fix for usePaginationFragment stucking in loading state
+  ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -87,6 +90,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_ACTIVITY_COMPATIBILITY: false,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
   ENABLE_RESOURCE_EFFECTS: false,
+  ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
 };
 
 module.exports = RelayFeatureFlags;

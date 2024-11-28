@@ -25,7 +25,7 @@ rayon = "1.9.0"
 schema-flatbuffer = { path = "../schema-flatbuffer" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 strsim = "0.10.0"
-thiserror = "1.0.64"
+thiserror = "2"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

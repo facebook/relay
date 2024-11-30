@@ -25,7 +25,7 @@ const {
   join: joinPath,
   relative: relativePath,
   resolve: resolvePath,
-} = require('path');
+} = require('path/posix');
 
 const GENERATED = './__generated__/';
 

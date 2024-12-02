@@ -1,7 +1,7 @@
 {
   "name": "relay-test-utils-internal",
   "description": "Internal utilities for testing Relay.",
-  "version": "18.1.0",
+  "version": "18.2.0",
   "keywords": [
     "graphql",
     "relay"
@@ -17,7 +17,7 @@
   "dependencies": {
     "@babel/runtime": "^7.25.0",
     "fbjs": "^3.0.2",
-    "relay-runtime": "18.1.0"
+    "relay-runtime": "18.2.0"
   },
   "directories": {
     "": "./"

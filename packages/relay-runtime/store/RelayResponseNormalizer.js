@@ -472,12 +472,11 @@ class RelayResponseNormalizer {
     const responseKey = selection.alias || selection.name;
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];
-    if (
-      fieldValue == null ||
-      (RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
-        Array.isArray(fieldValue) &&
-        fieldValue.length === 0)
-    ) {
+    const isNoncompliantlyNullish =
+      RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
+      Array.isArray(fieldValue) &&
+      fieldValue.length === 0;
+    if (fieldValue == null || isNoncompliantlyNullish) {
       if (fieldValue === undefined) {
         // Fields may be missing in the response in two main cases:
         // - Inside a client extension: the server will not generally return
@@ -524,7 +523,16 @@ class RelayResponseNormalizer {
           );
         }
       }
-      RelayModernRecord.setValue(record, storageKey, null);
+      if (isNoncompliantlyNullish) {
+        // We need to preserve the fact that we received an empty list
+        if (selection.kind === 'LinkedField') {
+          RelayModernRecord.setLinkedRecordIDs(record, storageKey, []);
+        } else {
+          RelayModernRecord.setValue(record, storageKey, []);
+        }
+      } else {
+        RelayModernRecord.setValue(record, storageKey, null);
+      }
       const errorTrie = this._errorTrie;
       if (errorTrie != null) {
         const errors = getErrorsByKey(errorTrie, responseKey);

@@ -38,6 +38,7 @@ const {
 } = require('relay-runtime');
 const {
   ConnectionInterface,
+  RelayFeatureFlags,
   getSelector,
   getValueAtPath,
 } = require('relay-runtime');
@@ -170,25 +171,25 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
   // to synchronously get the loading state to decide whether to load more
   const isLoadingMoreRef = useRef(false);
 
-  const observer = useMemo(
-    () => ({
+  const observer = useMemo(() => {
+    function setIsLoadingFalse() {
+      isLoadingMoreRef.current = false;
+      setIsLoadingMore(false);
+    }
+    return {
       start: () => {
         isLoadingMoreRef.current = true;
         // We want to make sure that `isLoadingMore` is updated immediately, to avoid
         // product code triggering multiple `loadMore` calls
         reallySetIsLoadingMore(true);
       },
-      complete: () => {
-        isLoadingMoreRef.current = false;
-        setIsLoadingMore(false);
-      },
-      error: () => {
-        isLoadingMoreRef.current = false;
-        setIsLoadingMore(false);
-      },
-    }),
-    [setIsLoadingMore],
-  );
+      complete: setIsLoadingFalse,
+      error: setIsLoadingFalse,
+      unsubscribe: RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX
+        ? setIsLoadingFalse
+        : undefined,
+    };
+  }, [setIsLoadingMore]);
   const handleReset = useCallback(() => {
     if (!isRefetching) {
       // Do not reset items count during refetching
@@ -276,9 +277,9 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
                           'Expected a plural selector',
                         );
                         // $FlowFixMe[incompatible-call]
-                        return selector.selectors.map(sel => {
-                          environment.lookup(sel).data;
-                        });
+                        return selector.selectors.map(
+                          sel => environment.lookup(sel).data,
+                        );
                       },
                     })
                   : prefetchingUNSTABLE_extraVariables,
@@ -346,9 +347,9 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
                       'Expected a plural selector',
                     );
                     // $FlowFixMe[incompatible-call]
-                    return selector.selectors.map(sel => {
-                      environment.lookup(sel).data;
-                    });
+                    return selector.selectors.map(
+                      sel => environment.lookup(sel).data,
+                    );
                   },
                 })
               : prefetchingUNSTABLE_extraVariables,

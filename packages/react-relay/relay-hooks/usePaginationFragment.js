@@ -28,6 +28,7 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useCallback, useDebugValue, useState} = require('react');
 const {
+  RelayFeatureFlags,
   getFragment,
   getFragmentIdentifier,
   getPaginationMetadata,
@@ -196,6 +197,9 @@ hook useLoadMore<TVariables: Variables>(
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),
     error: () => setIsLoadingMore(false),
+    unsubscribe: RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX
+      ? () => setIsLoadingMore(false)
+      : undefined,
   };
   const handleReset = () => setIsLoadingMore(false);
   const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({

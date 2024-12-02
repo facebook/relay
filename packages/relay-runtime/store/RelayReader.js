@@ -49,6 +49,7 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const {
   isSuspenseSentinel,
 } = require('./live-resolvers/LiveResolverSuspenseSentinel');
@@ -1091,7 +1092,12 @@ class RelayReader {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
-    if (value === null) {
+    if (
+      value === null ||
+      (RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
+        Array.isArray(value) &&
+        value.length === 0)
+    ) {
       this._maybeAddErrorResponseFields(record, storageKey);
     } else if (value === undefined) {
       this._markDataAsMissing(fieldName);
@@ -1243,7 +1249,12 @@ class RelayReader {
   ): ?mixed {
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
-    if (linkedIDs === null) {
+    if (
+      linkedIDs === null ||
+      (RelayFeatureFlags.ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS &&
+        Array.isArray(linkedIDs) &&
+        linkedIDs.length === 0)
+    ) {
       this._maybeAddErrorResponseFields(record, storageKey);
     }
     return this._readLinkedIds(field, linkedIDs, record, data);

@@ -68,7 +68,7 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
 
     let extension_roots = get_extension_roots(config);
     if !extension_roots.is_empty() {
-        let extensions_expr = expr_graphql_files_in_dirs(extension_roots);
+        let extensions_expr = expr_graphql_file_or_dir_contents(extension_roots);
         expressions.push(extensions_expr);
     }
 
@@ -225,12 +225,23 @@ fn expr_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
 
 fn expr_graphql_files_in_dirs(roots: Vec<PathBuf>) -> Expr {
     Expr::All(vec![
-        // ending in *.graphql
+        // ending in *.graphql or *.gql
         Expr::Suffix(vec!["graphql".into(), "gql".into()]),
         // in one of the extension directories
         expr_files_in_dirs(roots),
     ])
 }
+
+// Expression to get all graphql items by path or path of containing folder.
+fn expr_graphql_file_or_dir_contents(paths: Vec<PathBuf>) -> Expr {
+    Expr::All(vec![
+        Expr::Suffix(vec!["graphql".into(), "gql".into()]),
+        Expr::Any(vec![
+            Expr::Name(NameTerm {paths: paths.clone(), wholename: true}),
+            expr_files_in_dirs(paths)]),
+    ])
+}
+
 
 /// Helper to create an `anyof` expression if multiple items are passed or just
 /// return the expression for a single item input `Vec`.

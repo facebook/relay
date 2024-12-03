@@ -6448,17 +6448,17 @@ randombytes@^2.1.0:
   dependencies:
     safe-buffer "^5.1.0"
 
-react-dom@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-0.0.0-experimental-4beb1fd8-20241118.tgz#bf51483d52faea0618abef7d7eab681eea328ac7"
-  integrity sha512-/Gs2N/6hiuwqf2uuJ3UN/PWxpIncbuY7XY/IynlB2oNpopeV+x1MMXfNdse8TiPkpgg9aw+VUfQUlLPC52bKiQ==
+react-dom@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-0.0.0-experimental-7670501b-20241124.tgz#2d94f677386cb524df568deb7972623de2e7c3fb"
+  integrity sha512-150W/wDCbC/W8WpDowFCY3294u1WYTnpgc4owl3BVzsAkBeGxgKN1CNT4IC1xNI05CGDDG9lyGE9M0wvDj0fTQ==
   dependencies:
-    scheduler "0.0.0-experimental-4beb1fd8-20241118"
+    scheduler "0.0.0-experimental-7670501b-20241124"
 
-react-is@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-is/-/react-is-0.0.0-experimental-4beb1fd8-20241118.tgz#b6831c4ea841c994cc4a2f8c516ec8bbfe6b93ec"
-  integrity sha512-7JE3PtW4zpMYdp1bTXKNmz2t0jzaqc3frMWbvbuZmhif5ndtYx5oCGhfnbm6S5ZeTNKe4GXsN5D73QtZClfepQ==
+react-is@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-is/-/react-is-0.0.0-experimental-7670501b-20241124.tgz#e6ca59dbe174a84973fc1fcb93c80e70fd954e92"
+  integrity sha512-PnwSMy9ku+6ZQbUNXA9bF9y4LyVQTKfOLAQYe/YcM2D+6KdENLKFp+CBQIuqOo5iC5b89bYyDSM3FJ7GNh0byA==
 
 react-is@^16.13.1:
   version "16.13.1"
@@ -6475,23 +6475,23 @@ react-is@^18.0.0:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-18.2.0.tgz#199431eeaaa2e09f86427efbb4f1473edb47609b"
   integrity sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==
 
-react-refresh@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.0.0-experimental-4beb1fd8-20241118.tgz#0605b592bbbdfeee13b49f14fea5cb0247100667"
-  integrity sha512-McWSxqM2X1KeDxMZsKOvecqs0lqa8ToHn8uFA1uKGn5VpD1zpqGS81c9ZMiDI4KLIC1jt0Q0Na0XPNMUNpyi9A==
+react-refresh@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.0.0-experimental-7670501b-20241124.tgz#eae264af9c555810115c06e2802119da0ddf0e0b"
+  integrity sha512-GfDDetNKgJr9Y/Ny2vbIvZkBRuMyVdKRp9xWQDUgmlzl/Mr4oPYlDJacCxctn0G/UT9FnsqQOOhu7Vy7NF8r7w==
 
-react-test-renderer@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-0.0.0-experimental-4beb1fd8-20241118.tgz#fbf42d72d3049ae17c19d589cede3c2632a34ea1"
-  integrity sha512-/SWsL+FRxDgDLT8b1/yG8eOSl/lw2k8f0fhb7oTzwU1ArjimKy0mU2sWMr46U5ZP6NZ1iZyQlNJ/q2PwyjCT7A==
+react-test-renderer@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react-test-renderer/-/react-test-renderer-0.0.0-experimental-7670501b-20241124.tgz#651782a2fa4a9ba03c64d18ca7f97f759f266b89"
+  integrity sha512-/lzy5JWNO6CiKIJOmlpVSyFuhVMqEMAwsSH8LoLgBpaxWUlA88CWJPhJxU9yN1eEVkSRb3O9umqtfNeqT+bYHA==
   dependencies:
-    react-is "0.0.0-experimental-4beb1fd8-20241118"
-    scheduler "0.0.0-experimental-4beb1fd8-20241118"
+    react-is "0.0.0-experimental-7670501b-20241124"
+    scheduler "0.0.0-experimental-7670501b-20241124"
 
-react@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/react/-/react-0.0.0-experimental-4beb1fd8-20241118.tgz#1585771bb5246a2a9828700997d90db9adb0eeba"
-  integrity sha512-SojDx9IQZXRbze+BNoLRiBDblVTMRebpOZyU2QyRk4ptJob78QiROi58uuE7yxrFMDQN4kBl6tqYkSwQaIM2nQ==
+react@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/react/-/react-0.0.0-experimental-7670501b-20241124.tgz#056d77fa46ba89238a7d1fff6101b688802bdac7"
+  integrity sha512-A7FwEzKrEj3Trjm+EQAgGYaBriKgIfRf2q6byM8RpEip1PDG/6g8giycr0Y03JLSlkKNDoHXqq9z+YQudpCSCg==
 
 read-pkg-up@^1.0.1:
   version "1.0.1"
@@ -6779,10 +6779,10 @@ saxes@^6.0.0:
   dependencies:
     xmlchars "^2.2.0"
 
-scheduler@0.0.0-experimental-4beb1fd8-20241118:
-  version "0.0.0-experimental-4beb1fd8-20241118"
-  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.0.0-experimental-4beb1fd8-20241118.tgz#3143baa23dfb4daed6a9d0bfd44a8050a0cdab93"
-  integrity sha512-b7GQktevD5BPcS+R5qY5se5oX4b8AHQyebWswGZBdLCmElIwR3Q+RO5EgsLOA4t5D3/TDjLm58CQG16uEB5rMA==
+scheduler@0.0.0-experimental-7670501b-20241124:
+  version "0.0.0-experimental-7670501b-20241124"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.0.0-experimental-7670501b-20241124.tgz#87eb07afd85a709b6cdff847cdf427ed4408830e"
+  integrity sha512-3gEk9E54G93Oio+DIwptiqdPQdhU28UYOOL4F5ktKEnkFuUdTme8CDcvPOmca5Hg9URhp1tNZnW8m6gP993YdQ==
 
 schema-utils@^3.1.1, schema-utils@^3.2.0:
   version "3.3.0"

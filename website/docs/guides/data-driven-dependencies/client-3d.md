@@ -184,6 +184,10 @@ in this example, these separate fragments are `FOO_FRAGMENT`, `BAR_FRAGMENT`, an
 to this fragment's data as an argument.
 3. Return the final component using Relay's `MatchContainer`, providing the returned query data as a prop.
 
+Notice that in Client 3D, just as in Server 3D, you cannot use `@module` on multiple fragments on the SAME concrete type (but they can be on the same abstract type i.e. a union or an interface).
+
+So in this example, `Client3DFooComponent_Fragment` is on the concrete type `Client3DFoo`, and `Client3DBarComponent_Fragment` is on the concrete type `Client3DBar`. If `Client3DBarComponent_Fragment` was also on `Client3DFoo`, the relay compiler would report an error. However, all three concrete types implement the same parent interface `IClient3D`, which is fine.
+
 <FbInternalOnly>
 
 > **NOTE:** If you are in www, but not in Comet, you should use `RelayFBMatchContainer` instead of `MatchContainer`.

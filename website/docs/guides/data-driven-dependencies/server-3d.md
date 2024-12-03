@@ -276,6 +276,8 @@ public function commentContentRenderer(Traversable<string> $supported): Awaitabl
 
 Your Relay fragment can now use `@match` to specify that for the `comment_content_renderer` field, we expect dependencies to be decided by the data. In this example, if the `comment_content_renderer` field is of type `CommentMarkdownRenderer`, we load the `CommentMarkdownRenderer.react` component and use the `CommentMarkdownRenderer_comment` fragment to load its data. Similar for the plaintext variant.
 
+> **NOTE:** The inline fragments annotated with `@module` on the same parent 3D fragment must be on distinct concrete types. If they are on the same concrete type, the relay compiler will report an error. So in the example below, `CommentMarkdownRenderer_comment` must be on a different concrete type than `CommentPlaintextRenderer_comment` (for example, the former could be on a `MarkdownComment` type, and the latter on a `PlaintextComment` type. Both could implement a parent interface `Comment`).
+
 On the Relay side you'd write:
 
 ```graphql

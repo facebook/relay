@@ -220,7 +220,7 @@ pub enum ConfigValidationError {
     #[error(
         "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_path}`."
     )]
-    ExtensionDirNotExistent {
+    ExtensionPathNotExistent {
         project_name: ProjectName,
         extension_path: PathBuf,
     },

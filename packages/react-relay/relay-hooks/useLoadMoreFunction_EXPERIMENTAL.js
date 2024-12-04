@@ -31,6 +31,7 @@ const invariant = require('invariant');
 const {useCallback, useRef, useState} = require('react');
 const {
   __internal: {fetchQuery},
+  RelayFeatureFlags,
   createOperationDescriptor,
   getPaginationVariables,
   getRefetchMetadata,
@@ -135,6 +136,8 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
     connectionPathInFragmentData,
   );
 
+  const isRequestInvalid = fragmentData == null || isParentQueryActive;
+
   const isMountedRef = useIsMountedRef();
   const loadMore = useCallback(
     (
@@ -164,11 +167,13 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
       }
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
-      if (
-        fetchStatusRef.current.kind === 'fetching' ||
-        fragmentData == null ||
-        isParentQueryActive
-      ) {
+
+      const isRequestInvalidCheck =
+        RelayFeatureFlags.OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION
+          ? isRequestInvalid
+          : fragmentData == null || isParentQueryActive;
+
+      if (fetchStatusRef.current.kind === 'fetching' || isRequestInvalidCheck) {
         if (fragmentSelector == null) {
           warning(
             false,
@@ -267,8 +272,9 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
       identifierValue,
       direction,
       cursor,
-      isParentQueryActive,
-      fragmentData,
+      ...(RelayFeatureFlags.OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION
+        ? [isRequestInvalid]
+        : [isParentQueryActive, fragmentData]),
       fragmentNode.name,
       fragmentRef,
       componentDisplayName,

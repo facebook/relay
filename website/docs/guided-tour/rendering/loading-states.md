@@ -252,6 +252,6 @@ Fragments are also integrated with Suspense in order to support rendering of dat
   <FbSuspenseInRelayTransitions />
 </FbInternalOnly>
 
-Additionally, our APIs for refetching ([Refreshing and Refetching](../../refetching/)) and for [rendering connections](../../list-data/connections/) are also integrated with Suspense; for these use cases, these APIs will also suspend.
+Additionally, our APIs for fetching ([Refreshing and Refetching](../list-data/introduction.md)) and for [rendering connections](../../list-data/connections/) are also integrated with Suspense; for these use cases, these APIs will also suspend.
 
 <DocsRating />

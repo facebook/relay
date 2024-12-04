@@ -15,7 +15,7 @@ import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 
 Usually when you're rendering a connection, you'll also want to be able to add or remove items to/from the connection in response to user actions.
 
-As explained in our [Updating Data](../../updating-data/) section, Relay holds a local in-memory store of normalized GraphQL data, where records are stored by their IDs.  When creating mutations, subscriptions, or local data updates with Relay, you must provide an [`updater`](../../updating-data/graphql-mutations/#updater-functions) function, inside which you can access and read records, as well as write and make updates to them. When records are updated, any components affected by the updated data will be notified and re-rendered.
+Relay holds a local in-memory store of normalized GraphQL data, where records are stored by their IDs.  When creating mutations, subscriptions, or local data updates with Relay, you must provide an [`updater`](../../updating-data/graphql-mutations/#updater-functions) function, inside which you can access and read records, as well as write and make updates to them. When records are updated, any components affected by the updated data will be notified and re-rendered.
 
 
 ## Connection Records

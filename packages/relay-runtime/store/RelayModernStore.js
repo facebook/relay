@@ -723,31 +723,31 @@ class RelayModernStore implements Store {
         }
       }
 
-      // Sweep records without references
-      if (references.size === 0) {
-        // Short-circuit if *nothing* is referenced
-        this._recordSource.clear();
-      } else {
-        // Evict any unreferenced nodes
-        const storeIDs = this._recordSource.getRecordIDs();
-        for (let ii = 0; ii < storeIDs.length; ii++) {
-          const dataID = storeIDs[ii];
-          if (!references.has(dataID)) {
-            const record = this._recordSource.get(dataID);
-            if (record != null) {
-              const maybeResolverSubscription = RelayModernRecord.getValue(
-                record,
-                RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
-              );
-              if (maybeResolverSubscription != null) {
-                // $FlowFixMe - this value if it is not null, it is a function
-                maybeResolverSubscription();
-              }
+      // NOTE: It may be tempting to use `this._recordSource.clear()`
+      // when no references are found, but that would prevent calling
+      // maybeResolverSubscription() on any records that have an active
+      // resolver subscription. This would result in a memory leak.
+
+      // Evict any unreferenced nodes
+      const storeIDs = this._recordSource.getRecordIDs();
+      for (let ii = 0; ii < storeIDs.length; ii++) {
+        const dataID = storeIDs[ii];
+        if (!references.has(dataID)) {
+          const record = this._recordSource.get(dataID);
+          if (record != null) {
+            const maybeResolverSubscription = RelayModernRecord.getValue(
+              record,
+              RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+            );
+            if (maybeResolverSubscription != null) {
+              // $FlowFixMe - this value if it is not null, it is a function
+              maybeResolverSubscription();
             }
-            this._recordSource.remove(dataID);
           }
+          this._recordSource.remove(dataID);
         }
       }
+
       if (log != null) {
         log({
           name: 'store.gc.end',

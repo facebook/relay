@@ -107,6 +107,7 @@ class RelayModernStore implements Store {
       fetchTime: ?number,
     },
   >;
+  _shouldRetainWithinTTL_EXPERIMENTAL: boolean;
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
@@ -126,6 +127,9 @@ class RelayModernStore implements Store {
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
       resolverContext?: ResolverContext,
+
+      // Experimental
+      shouldRetainWithinTTL_EXPERIMENTAL?: boolean,
 
       // These additional config options are only used if the experimental
       // @outputType resolver feature is used
@@ -147,6 +151,8 @@ class RelayModernStore implements Store {
     this._gcHoldCounter = 0;
     this._gcReleaseBufferSize =
       options?.gcReleaseBufferSize ?? DEFAULT_RELEASE_BUFFER_SIZE;
+    this._shouldRetainWithinTTL_EXPERIMENTAL =
+      options?.shouldRetainWithinTTL_EXPERIMENTAL ?? false;
     this._gcRun = null;
     this._gcScheduler = options?.gcScheduler ?? resolveImmediate;
     this._getDataID = options?.getDataID ?? defaultGetDataID;
@@ -315,7 +321,9 @@ class RelayModernStore implements Store {
           rootEntry.fetchTime <= Date.now() - _queryCacheExpirationTime;
 
         if (rootEntryIsStale) {
-          this._roots.delete(id);
+          if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
+            this._roots.delete(id);
+          }
           this.scheduleGC();
         } else {
           this._releaseBuffer.push(id);
@@ -326,7 +334,9 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             // $FlowFixMe[incompatible-call]
-            this._roots.delete(_id);
+            if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
+              this._roots.delete(id);
+            }
             this.scheduleGC();
           }
         }
@@ -688,6 +698,14 @@ class RelayModernStore implements Store {
   };
 
   *_collect(): Generator<void, void, void> {
+    if (
+      this._shouldRetainWithinTTL_EXPERIMENTAL &&
+      this._queryCacheExpirationTime == null
+    ) {
+      // Null expiration time indicates infinite TTL, so we don't need to
+      // run GC.
+      return;
+    }
     /* eslint-disable no-labels */
     const log = this.__log;
     top: while (true) {
@@ -699,8 +717,30 @@ class RelayModernStore implements Store {
       const startEpoch = this._currentWriteEpoch;
       const references = new Set<DataID>();
 
-      // Mark all records that are traversable from a root
-      for (const {operation} of this._roots.values()) {
+      for (const [
+        dataID,
+        {operation, refCount, fetchTime},
+      ] of this._roots.entries()) {
+        if (this._shouldRetainWithinTTL_EXPERIMENTAL) {
+          // Do not mark records that should be garbage collected
+          const {_queryCacheExpirationTime} = this;
+          invariant(
+            _queryCacheExpirationTime != null,
+            'Query cache expiration time should be non-null if executing GC',
+          );
+          const recordHasExpired =
+            fetchTime == null ||
+            fetchTime <= Date.now() - _queryCacheExpirationTime;
+          const recordShouldBeCollected =
+            recordHasExpired &&
+            refCount === 0 &&
+            !this._releaseBuffer.includes(dataID);
+          if (recordShouldBeCollected) {
+            continue;
+          }
+        }
+
+        // Mark all records that are traversable from a root that is still valid
         const selector = operation.root;
         RelayReferenceMarker.mark(
           this._recordSource,
@@ -745,6 +785,11 @@ class RelayModernStore implements Store {
               }
             }
             this._recordSource.remove(dataID);
+            if (this._shouldRetainWithinTTL_EXPERIMENTAL) {
+              // Note: A record that was never retained will not be in the roots map
+              // but the following line should not throw
+              this._roots.delete(dataID);
+            }
           }
         }
       }

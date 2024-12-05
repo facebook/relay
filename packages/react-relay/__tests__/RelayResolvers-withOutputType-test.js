@@ -34,6 +34,9 @@ const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironme
 const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
+const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
@@ -562,12 +565,12 @@ test('renders after GC', () => {
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
-      'todos(first:10)': {
-        __ref: 'client:root:todos(first:10)',
+      [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]: {
+        __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
       },
     },
-    'client:root:todos(first:10)': {
-      __id: 'client:root:todos(first:10)',
+    [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]: {
+      __id: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
       __resolverError: null,
       __resolverLiveStateDirty: false,
       __resolverLiveStateSubscription: expect.anything(),
@@ -576,59 +579,62 @@ test('renders after GC', () => {
         subscribe: expect.anything(),
       },
       __resolverOutputTypeRecordIDs: new Set([
-        'client:TodoConnection:client:root:todos(first:10)',
-        'client:TodoConnection:client:root:todos(first:10):edges:0',
-        'client:TodoConnection:client:root:todos(first:10):edges:0:node',
-        'client:TodoConnection:client:root:todos(first:10):pageInfo',
+        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
+        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`,
+        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
+        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,
       ]),
       __resolverSnapshot: undefined,
-      __resolverValue: 'client:TodoConnection:client:root:todos(first:10)',
+      __resolverValue: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
       __typename: '__RELAY_RESOLVER__',
     },
-    'client:TodoConnection:client:root:todos(first:10)': {
-      __id: 'client:TodoConnection:client:root:todos(first:10)',
-      __typename: 'TodoConnection',
-      count: 1,
-      edges: {
-        __refs: ['client:TodoConnection:client:root:todos(first:10):edges:0'],
+    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]:
+      {
+        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
+        __typename: 'TodoConnection',
+        count: 1,
+        edges: {
+          __refs: [
+            `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`,
+          ],
+        },
+        pageInfo: {
+          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,
+        },
       },
-      pageInfo: {
-        __ref: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
+    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`]:
+      {
+        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`,
+        __typename: 'TodoEdge',
+        cursor: null,
+        node: {
+          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
+        },
       },
-    },
-    'client:TodoConnection:client:root:todos(first:10):edges:0': {
-      __id: 'client:TodoConnection:client:root:todos(first:10):edges:0',
-      __typename: 'TodoEdge',
-      cursor: null,
-      node: {
-        __ref: 'client:TodoConnection:client:root:todos(first:10):edges:0:node',
+    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`]:
+      {
+        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
+        __typename: 'Todo',
+        [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}complete`]: {
+          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}complete`,
+        },
+        [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}self`]: {
+          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}self`,
+        },
+        [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}text`]: {
+          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}text`,
+        },
+        todo_id: 'todo-1',
       },
-    },
-    'client:TodoConnection:client:root:todos(first:10):edges:0:node': {
-      __id: 'client:TodoConnection:client:root:todos(first:10):edges:0:node',
-      __typename: 'Todo',
-      complete: {
-        __ref:
-          'client:TodoConnection:client:root:todos(first:10):edges:0:node:complete',
+    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`]:
+      {
+        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,
+        __typename: 'TodoConnectionPageInfo',
+        endCursor: null,
+        hasNextPage: false,
+        hasPreviousPage: false,
+        startCursor: null,
       },
-      self: {
-        __ref:
-          'client:TodoConnection:client:root:todos(first:10):edges:0:node:self',
-      },
-      text: {
-        __ref:
-          'client:TodoConnection:client:root:todos(first:10):edges:0:node:text',
-      },
-      todo_id: 'todo-1',
-    },
-    'client:TodoConnection:client:root:todos(first:10):pageInfo': {
-      __id: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
-      __typename: 'TodoConnectionPageInfo',
-      endCursor: null,
-      hasNextPage: false,
-      hasPreviousPage: false,
-      startCursor: null,
-    },
   });
 
   expect(() => {

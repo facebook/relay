@@ -48,6 +48,7 @@ const {
   RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
   RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
+  getReadTimeResolverStorageKey,
   getStorageKey,
 } = require('../RelayStoreUtils');
 const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
@@ -129,7 +130,7 @@ class LiveResolverCache implements ResolverCache {
     // resolvers on this parent record.
     const record = expectRecord(recordSource, recordID);
 
-    const storageKey = getStorageKey(field, variables);
+    const storageKey = getReadTimeResolverStorageKey(field, variables);
     let linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     let linkedRecord = linkedID == null ? null : recordSource.get(linkedID);
 

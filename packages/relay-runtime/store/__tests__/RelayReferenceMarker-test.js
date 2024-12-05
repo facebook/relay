@@ -21,7 +21,7 @@ import {createNormalizationSelector} from '../RelayModernSelector';
 import RelayModernStore from '../RelayModernStore';
 import RelayRecordSource from '../RelayRecordSource';
 import {mark} from '../RelayReferenceMarker';
-import {ROOT_ID} from '../RelayStoreUtils';
+import {RELAY_READ_TIME_RESOLVER_KEY_PREFIX, ROOT_ID} from '../RelayStoreUtils';
 
 describe('RelayReferenceMarker', () => {
   let source;
@@ -841,11 +841,12 @@ describe('RelayReferenceMarker', () => {
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
-          counter_no_fragment: {
-            __ref: 'client:root:counter_no_fragment',
+          [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`]: {
+            __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`,
           },
         },
-        'client:root:counter_no_fragment': {},
+        [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`]:
+          {},
       };
       const nodes = {
         FooQuery: graphql`
@@ -879,7 +880,7 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         'client:root',
-        'client:root:counter_no_fragment',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`,
       ]);
     });
     it('with fragment dependency is retained', () => {
@@ -888,15 +889,15 @@ describe('RelayReferenceMarker', () => {
           __id: 'client:root',
           __typename: 'Query',
           me: {__ref: '1'},
-          counter: {
-            __ref: 'client:root:counter',
+          [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`]: {
+            __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`,
           },
         },
         '1': {
           __id: '1',
           __typename: 'User',
         },
-        'client:root:counter': {},
+        [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`]: {},
       };
       const nodes = {
         FooQuery: graphql`
@@ -931,7 +932,7 @@ describe('RelayReferenceMarker', () => {
       expect(Array.from(references).sort()).toEqual([
         '1',
         'client:root',
-        'client:root:counter',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`,
       ]);
     });
     it('with @edgeTo client object is retained', () => {
@@ -1005,7 +1006,7 @@ describe('RelayReferenceMarker', () => {
         'client:AstrologicalSign:Taurus',
         'client:AstrologicalSign:Virgo',
         'client:root',
-        'client:root:all_astrological_signs',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}all_astrological_signs`,
       ]);
     });
   });

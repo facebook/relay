@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {Snapshot} from '../RelayStoreTypes';
 
 const {
@@ -35,6 +36,7 @@ const RelayStore = require('relay-runtime/store/RelayModernStore');
 const {read} = require('relay-runtime/store/RelayReader');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
   RELAY_RESOLVER_INVALIDATION_KEY,
 } = require('relay-runtime/store/RelayStoreUtils');
 const {
@@ -86,7 +88,7 @@ it('returns the result of the resolver function', () => {
 
   expect(Array.from(seenRecords).sort()).toEqual([
     '1',
-    'client:1:greeting',
+    `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}greeting`,
     'client:root',
   ]);
 });
@@ -618,7 +620,7 @@ it.each([true, false])(
     const resolverCacheRecord = environment
       .getStore()
       .getSource()
-      .get('client:1:constant_dependent');
+      .get(`client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}constant_dependent`);
     invariant(resolverCacheRecord != null, 'Expected a resolver cache record');
 
     const isMaybeInvalid = RelayModernRecord.getValue(

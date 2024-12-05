@@ -38,7 +38,8 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
-const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
+const {getReadTimeResolverStorageKey, getStorageKey, getModuleOperationKey} =
+  RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -291,7 +292,7 @@ class RelayReferenceMarker {
     field: NormalizationResolverField | NormalizationLiveResolverField,
     record: Record,
   ): ?DataID {
-    const storageKey = getStorageKey(field, this._variables);
+    const storageKey = getReadTimeResolverStorageKey(field, this._variables);
     const dataID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
     // If the resolver value has been created, we should retain it.

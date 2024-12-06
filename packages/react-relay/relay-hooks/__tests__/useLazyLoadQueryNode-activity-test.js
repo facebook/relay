@@ -236,12 +236,18 @@ it('fetches and renders the query data', async () => {
   expectToBeRendered(renderFn, data);
 });
 
-it('does not dispose and GC the query when hiding', async () => {
-  const store = new Store(new RecordSource(), {
+it('does not dispose and GC the query when hiding within store TTL', async () => {
+  const queryCacheExpirationTime = 1000;
+  const source = new RecordSource();
+  const store = new Store(source, {
     gcScheduler: run => run(),
     gcReleaseBufferSize: 0,
+    shouldRetainWithinTTL_EXPERIMENTAL: true,
+    queryCacheExpirationTime,
   });
   jest.spyOn(store, 'scheduleGC');
+  const currentTime = Date.now();
+  jest.spyOn(global.Date, 'now').mockImplementation(() => currentTime);
   environment = createMockEnvironment({
     store,
   });
@@ -284,22 +290,108 @@ it('does not dispose and GC the query when hiding', async () => {
 
   // Assert that GC doesn't run since the query doesn't
   // incorrectly get fully released (which would trigger GC)
-  // TODO: GC should not run here
   expect(store.scheduleGC).toHaveBeenCalledTimes(1);
-
-  // Assert that a new request was not started
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(environment.execute).toHaveBeenCalledTimes(1); // TODO: shouldn't fetch
+  expect(source.toJSON()).toEqual({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Bob',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      'node(id:"1")': {
+        __ref: '1',
+      },
+    },
+  });
 
   ReactTestingLibrary.act(() => {
     setMode('visible');
   });
 
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  expect(environment.retain).toHaveBeenCalledTimes(2); // TODO: shouldn't need to retain again
+  expect(source.toJSON()).toEqual({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Bob',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      'node(id:"1")': {
+        __ref: '1',
+      },
+    },
+  });
 });
 
-it('does not dispose the temporary retain when hiding before commiting', async () => {
+it('disposes and GCs the query when hiding past query TTL in the store', async () => {
+  const queryCacheExpirationTime = 1000;
+  const source = new RecordSource();
+  const store = new Store(source, {
+    gcScheduler: run => run(),
+    gcReleaseBufferSize: 0,
+    shouldRetainWithinTTL_EXPERIMENTAL: true,
+    queryCacheExpirationTime,
+  });
+  jest.spyOn(store, 'scheduleGC');
+  let currentTime = Date.now();
+  jest.spyOn(global.Date, 'now').mockImplementation(() => currentTime);
+  environment = createMockEnvironment({
+    store,
+  });
+  // Render the component
+  const instance = await render(
+    environment,
+    <Container variables={variables} />,
+  );
+
+  expect(instance?.asFragment().textContent).toEqual('Fallback');
+  expectToHaveFetched(environment, query);
+  expect(renderFn).not.toBeCalled();
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+  expect(environment.retain).toHaveBeenCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+  environment.execute.mockClear();
+  renderFn.mockClear();
+
+  await ReactTestingLibrary.act(() => {
+    environment.mock.resolve(gqlQuery, {
+      data: {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Bob',
+        },
+      },
+    });
+  });
+
+  const data = environment.lookup(query.fragment).data;
+  expectToBeRendered(renderFn, data);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+  expect(environment.retain).toHaveBeenCalledTimes(1);
+  renderFn.mockClear();
+
+  currentTime += queryCacheExpirationTime;
+  ReactTestingLibrary.act(() => {
+    setMode('hidden');
+  });
+
+  expect(store.scheduleGC).toHaveBeenCalledTimes(1);
+  expect(source.toJSON()).toEqual({});
+
+  ReactTestingLibrary.act(() => {
+    setMode('visible');
+  });
+
+  expect(source.toJSON()).toEqual({});
+});
+
+it('does not dispose the temporary retain when hiding before committing', async () => {
   const instance = ReactTestingLibrary.render(
     <RelayEnvironmentProvider environment={environment}>
       <React.Suspense fallback="Fallback">

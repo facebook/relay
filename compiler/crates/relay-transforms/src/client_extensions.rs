@@ -9,7 +9,6 @@ use std::sync::Arc;
 
 use common::DirectiveName;
 use common::Location;
-use common::PointerAddress;
 use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::Directive;
@@ -23,6 +22,7 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
+use parking_lot::RwLock;
 use schema::Schema;
 
 use crate::ClientEdgeMetadata;
@@ -37,7 +37,7 @@ pub fn client_extensions(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
+type Seen = RwLock<FnvHashMap<*const (), Transformed<Selection>>>;
 
 lazy_static! {
     pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
@@ -153,15 +153,38 @@ impl Transformer for ClientExtensionsTransform<'_> {
     }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
-        let key = PointerAddress::new(selection);
-        if let Some(prev) = self.seen.get(&key) {
-            prev.clone()
-        } else {
-            self.seen.insert(key, Transformed::Keep);
-            let result = self.default_transform_selection(selection);
-            self.seen.insert(key, result.clone());
-            result
+        let (should_cache, key) = match selection {
+            Selection::FragmentSpread(node) => {
+                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
+            }
+            Selection::InlineFragment(node) => {
+                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
+            }
+            Selection::LinkedField(node) => {
+                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
+            }
+            Selection::ScalarField(node) => {
+                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
+            }
+            Selection::Condition(node) => {
+                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
+            }
+        };
+        if should_cache {
+            let seen = self.seen.read();
+            if let Some(prev) = seen.get(&key) {
+                return prev.clone();
+            }
         }
+        let result = self.default_transform_selection(selection);
+        if should_cache {
+            let mut seen = self.seen.write();
+            if let Some(prev) = seen.get(&key) {
+                return prev.clone();
+            }
+            seen.insert(key, result.clone());
+        }
+        result
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {

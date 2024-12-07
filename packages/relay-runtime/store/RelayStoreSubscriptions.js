@@ -42,12 +42,12 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
   __log: ?LogFunction;
   _resolverCache: ResolverCache;
-  _resolverContext: ?ResolverContext;
+  _resolverContext: ResolverContext;
 
   constructor(
     log?: ?LogFunction,
     resolverCache: ResolverCache,
-    resolverContext?: ResolverContext,
+    resolverContext: ResolverContext,
   ) {
     this._subscriptions = new Set();
     this.__log = log;

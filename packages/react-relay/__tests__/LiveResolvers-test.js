@@ -1895,3 +1895,88 @@ test('ResolverContext can contain observable values', async () => {
     counter_context: 1,
   });
 });
+
+test('ResolverContext as passed through nested resolver counters', async () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
+    },
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTestCounterContextBaseQuery {
+      base_counter_context {
+        count_plus_one
+      }
+    }
+  `;
+
+  let next: (v: number) => void = () => {
+    throw new Error('next() not initialized');
+  };
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+    resolverContext: {
+      counter: Observable.create<number>(observer => {
+        next = (value: number) => observer.next(value);
+      }),
+    },
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  let observedCounter = null;
+
+  const snapshot = environment.lookup(operation.fragment);
+  // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+  observedCounter = (snapshot.data: any).base_counter_context.count_plus_one;
+
+  const environmentUpdateHandler = jest.fn(() => {
+    const s = environment.lookup(operation.fragment);
+    // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+    observedCounter = (s.data: any).base_counter_context.count_plus_one;
+  });
+  const disposable = environment.subscribe(
+    snapshot,
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+    environmentUpdateHandler,
+  );
+
+  // SETUP COMPLETE
+
+  // Read the initial value
+  expect(observedCounter).toBe(0);
+  expect(environmentUpdateHandler).not.toHaveBeenCalled();
+
+  // Increment and assert we get notified of the new value
+  next(43);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(44);
+
+  // Unsubscribe then increment and assert don't get notified.
+  disposable.dispose();
+  next(1);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(44);
+
+  // Explicitly read and assert we see the incremented value
+  // missed before due to unsubscribing.
+  const nextSnapshot = environment.lookup(operation.fragment);
+
+  expect(nextSnapshot.data).toEqual({
+    base_counter_context: {
+      count_plus_one: 2,
+    },
+  });
+});

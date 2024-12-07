@@ -20,7 +20,6 @@ use relay_saved_state_loader::SavedStateLoader;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 
-use super::watchman_query_builder::get_all_roots;
 use super::watchman_query_builder::get_watchman_expr;
 use super::FileSourceResult;
 use crate::compiler_state::CompilerState;
@@ -345,7 +344,8 @@ async fn query_file_result(
             ..Default::default()
         }
     } else {
-        let query_roots = get_all_roots(config)
+        let query_roots = config
+            .get_all_roots()
             .into_iter()
             .map(PathGeneratorElement::RecursivePath)
             .collect();

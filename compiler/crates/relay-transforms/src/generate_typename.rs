@@ -70,7 +70,7 @@ impl<'s> GenerateTypenameTransform<'s> {
     }
 }
 
-impl<'s> Transformer for GenerateTypenameTransform<'s> {
+impl<'s> Transformer<'_> for GenerateTypenameTransform<'s> {
     const NAME: &'static str = "GenerateTypenameTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

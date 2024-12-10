@@ -169,7 +169,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     split_operations: StringKeyMap<(Option<OperationDefinition>, ProvidedVariablesMap)>,
 }
 
-impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
+impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
     const NAME: &'static str = "ApplyFragmentArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;

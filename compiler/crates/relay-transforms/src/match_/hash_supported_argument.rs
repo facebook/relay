@@ -45,7 +45,7 @@ struct HashSupportedArgumentTransform<'a> {
     errors: Vec<Diagnostic>,
 }
 
-impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
+impl<'a> Transformer<'_> for HashSupportedArgumentTransform<'a> {
     const NAME: &'static str = "HashSupportedArgumentTransform";
 
     const VISIT_ARGUMENTS: bool = false;

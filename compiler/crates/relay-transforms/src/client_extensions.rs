@@ -22,7 +22,6 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
-use parking_lot::RwLock;
 use schema::Schema;
 
 use crate::ClientEdgeMetadata;
@@ -37,7 +36,7 @@ pub fn client_extensions(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-type Seen = RwLock<FnvHashMap<*const (), Transformed<Selection>>>;
+type Seen<'a> = FnvHashMap<&'a Selection, Transformed<Selection>>;
 
 lazy_static! {
     pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
@@ -46,7 +45,7 @@ lazy_static! {
 
 struct ClientExtensionsTransform<'program> {
     program: &'program Program,
-    seen: Seen,
+    seen: Seen<'program>,
 }
 
 impl<'program> ClientExtensionsTransform<'program> {
@@ -60,7 +59,7 @@ impl<'program> ClientExtensionsTransform<'program> {
     fn transform_client_edge(
         &mut self,
         fragment: &InlineFragment,
-        metadata: ClientEdgeMetadata<'_>,
+        metadata: ClientEdgeMetadata<'program>,
     ) -> Transformed<Selection> {
         // Backing field should always be a RelayResolver. We can't wrap a
         // resolver. If its a scalar (no fragment) we don't need to wrap
@@ -74,7 +73,7 @@ impl<'program> ClientExtensionsTransform<'program> {
         // fields of the client edge get wrapped with a client extension inline
         // fragment or deleted.
         let backing_field = self
-            .transform_selection(&metadata.backing_field)
+            .transform_selection(metadata.backing_field)
             .unwrap_or_else(|| metadata.backing_field.clone());
 
         let selections = self
@@ -88,14 +87,14 @@ impl<'program> ClientExtensionsTransform<'program> {
     }
 }
 
-impl Transformer for ClientExtensionsTransform<'_> {
+impl<'a> Transformer<'a> for ClientExtensionsTransform<'a> {
     const NAME: &'static str = "ClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_selections(
         &mut self,
-        selections: &[Selection],
+        selections: &'a [Selection],
     ) -> TransformedValue<Vec<Selection>> {
         if selections.is_empty() {
             return TransformedValue::Keep;
@@ -152,42 +151,20 @@ impl Transformer for ClientExtensionsTransform<'_> {
         }
     }
 
-    fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
-        let (should_cache, key) = match selection {
-            Selection::FragmentSpread(node) => {
-                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
-            }
-            Selection::InlineFragment(node) => {
-                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
-            }
-            Selection::LinkedField(node) => {
-                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
-            }
-            Selection::ScalarField(node) => {
-                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
-            }
-            Selection::Condition(node) => {
-                (Arc::strong_count(node) > 1, Arc::as_ptr(node) as *const ())
-            }
-        };
-        if should_cache {
-            let seen = self.seen.read();
-            if let Some(prev) = seen.get(&key) {
-                return prev.clone();
-            }
+    fn transform_selection(&mut self, selection: &'a Selection) -> Transformed<Selection> {
+        if let Some(prev) = self.seen.get(selection) {
+            return prev.clone();
         }
+
         let result = self.default_transform_selection(selection);
-        if should_cache {
-            let mut seen = self.seen.write();
-            if let Some(prev) = seen.get(&key) {
-                return prev.clone();
-            }
-            seen.insert(key, result.clone());
-        }
+        self.seen.insert(selection, result.clone());
         result
     }
 
-    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+    fn transform_inline_fragment(
+        &mut self,
+        fragment: &'a InlineFragment,
+    ) -> Transformed<Selection> {
         // Client Edges are modeled in the IR as inline fragments. If we
         // traverse into those fragments, and pull its contents out into a
         // separate inline fragment (without this directive) we will have lost
@@ -206,7 +183,7 @@ impl Transformer for ClientExtensionsTransform<'_> {
         self.default_transform_inline_fragment(fragment)
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+    fn transform_linked_field(&mut self, field: &'a LinkedField) -> Transformed<Selection> {
         if self
             .program
             .schema

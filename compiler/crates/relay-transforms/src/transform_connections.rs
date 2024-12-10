@@ -476,7 +476,7 @@ impl<'s> ConnectionTransform<'s> {
     }
 }
 
-impl<'s> Transformer for ConnectionTransform<'s> {
+impl<'s> Transformer<'_> for ConnectionTransform<'s> {
     const NAME: &'static str = "ConnectionTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

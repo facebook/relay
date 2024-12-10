@@ -137,7 +137,7 @@ enum ValidGeneratedFlowType {
     Any,
 }
 
-impl<'s> Transformer for AssignableFragmentSpread<'s> {
+impl<'s> Transformer<'_> for AssignableFragmentSpread<'s> {
     const NAME: &'static str = "AssignableFragmentTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

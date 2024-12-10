@@ -24,7 +24,7 @@ pub fn skip_null_arguments_transform(program: &Program) -> Program {
 
 struct SkipNullArgumentsTransform;
 
-impl Transformer for SkipNullArgumentsTransform {
+impl Transformer<'_> for SkipNullArgumentsTransform {
     const NAME: &'static str = "SkipNullArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;

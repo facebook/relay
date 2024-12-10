@@ -349,7 +349,7 @@ impl RelayResolverAbstractTypesTransform<'_> {
     }
 }
 
-impl Transformer for RelayResolverAbstractTypesTransform<'_> {
+impl Transformer<'_> for RelayResolverAbstractTypesTransform<'_> {
     const NAME: &'static str = "RelayResolverAbstractTypesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

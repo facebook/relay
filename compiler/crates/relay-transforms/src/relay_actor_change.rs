@@ -70,7 +70,7 @@ impl<'program, 'feature> ActorChangeTransform<'program, 'feature> {
     }
 }
 
-impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature> {
+impl<'program, 'feature> Transformer<'_> for ActorChangeTransform<'program, 'feature> {
     const NAME: &'static str = "ActorChangeTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

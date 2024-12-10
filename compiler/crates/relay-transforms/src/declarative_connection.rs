@@ -102,7 +102,7 @@ impl<'a> DeclarativeConnectionMutationTransform<'a> {
     }
 }
 
-impl Transformer for DeclarativeConnectionMutationTransform<'_> {
+impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
     const NAME: &'static str = "DeclarativeConnectionMutationTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

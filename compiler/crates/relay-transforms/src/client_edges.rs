@@ -103,7 +103,7 @@ associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
 pub struct ClientEdgeMetadata<'a> {
     /// The field which defines the graph relationship (currently always a Resolver)
-    pub backing_field: Selection,
+    pub backing_field: &'a Selection,
     /// Models the client edge field and its selections
     pub linked_field: &'a LinkedField,
     /// Additional metadata about the client edge
@@ -132,14 +132,10 @@ impl<'a> ClientEdgeMetadata<'a> {
                 fragment.selections.len() == 2,
                 "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
             );
-            let mut backing_field = fragment
-                .selections.first()
-                .expect("Client Edge inline fragments have exactly two selections").clone();
 
-            let backing_field_directives = backing_field.directives().iter().filter(|directive|
-                directive.name.item != RequiredMetadataDirective::directive_name()
-            ).cloned().collect();
-            backing_field.set_directives(backing_field_directives);
+            let backing_field = fragment
+                .selections.first()
+                .expect("Client Edge inline fragments have exactly two selections");
 
             let linked_field = match fragment.selections.get(1) {
                 Some(Selection::LinkedField(linked_field)) => linked_field,
@@ -605,7 +601,20 @@ fn create_inline_fragment_for_client_edge(
     }
 
     let transformed_field = Arc::new(LinkedField {
+        selections: selections.clone(),
+        ..field.clone()
+    });
+
+    let backing_field_directives = field
+        .directives()
+        .iter()
+        .filter(|directive| directive.name.item != RequiredMetadataDirective::directive_name())
+        .cloned()
+        .collect();
+
+    let backing_field = Arc::new(LinkedField {
         selections,
+        directives: backing_field_directives,
         ..field.clone()
     });
 
@@ -614,14 +623,14 @@ fn create_inline_fragment_for_client_edge(
         directives: inline_fragment_directives,
         selections: vec![
             // NOTE: This creates 2^H selecitons where H is the depth of nested client edges
+            Selection::LinkedField(Arc::clone(&backing_field)),
             Selection::LinkedField(Arc::clone(&transformed_field)),
-            Selection::LinkedField(transformed_field),
         ],
         spread_location: Location::generated(),
     }
 }
 
-impl Transformer for ClientEdgesTransform<'_, '_> {
+impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
     const NAME: &'static str = "ClientEdgesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -715,7 +724,7 @@ pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Pro
 #[derive(Default)]
 struct ClientEdgesCleanupTransform;
 
-impl Transformer for ClientEdgesCleanupTransform {
+impl Transformer<'_> for ClientEdgesCleanupTransform {
     const NAME: &'static str = "ClientEdgesCleanupTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -726,7 +735,7 @@ impl Transformer for ClientEdgesCleanupTransform {
                 let new_selection = metadata.backing_field;
 
                 Transformed::Replace(
-                    self.transform_selection(&new_selection)
+                    self.transform_selection(new_selection)
                         .unwrap_or_else(|| new_selection.clone()),
                 )
             }

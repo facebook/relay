@@ -70,7 +70,7 @@ impl<'program, 'base_fragment_names> SplitModuleImportTransform<'program, 'base_
     }
 }
 
-impl Transformer for SplitModuleImportTransform<'_, '_> {
+impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
     const NAME: &'static str = "SplitModuleImportTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

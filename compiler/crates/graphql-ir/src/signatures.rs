@@ -82,7 +82,7 @@ associated_data_impl!(ProvidedVariableMetadata);
 /// would depend on having checked its body! Since recursive fragments
 /// are allowed, we break the cycle by first computing signatures
 /// and using these to type check fragment spreads in selections.
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FragmentSignature {
     pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,

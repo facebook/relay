@@ -52,7 +52,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
     }
 }
 
-impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
+impl<'s> Transformer<'_> for SkipClientExtensionsTransform<'s> {
     const NAME: &'static str = "SkipClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;

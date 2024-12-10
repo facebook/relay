@@ -79,7 +79,7 @@ pub fn remove_aliased_inline_fragments(program: &Program) -> Program {
 
 struct AliasedInlineFragmentRemovalTransform {}
 
-impl Transformer for AliasedInlineFragmentRemovalTransform {
+impl Transformer<'_> for AliasedInlineFragmentRemovalTransform {
     const NAME: &'static str = "AliasedInlineFragmentRemovalTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -257,7 +257,7 @@ impl<'program> FragmentAliasTransform<'program> {
     }
 }
 
-impl Transformer for FragmentAliasTransform<'_> {
+impl Transformer<'_> for FragmentAliasTransform<'_> {
     const NAME: &'static str = "NamedFragmentSpreadsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

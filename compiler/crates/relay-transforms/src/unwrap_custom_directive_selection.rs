@@ -41,7 +41,7 @@ impl UnwrapCustomDirectiveSelection {
     }
 }
 
-impl Transformer for UnwrapCustomDirectiveSelection {
+impl Transformer<'_> for UnwrapCustomDirectiveSelection {
     const NAME: &'static str = "UnwrapCustomDirectiveSelection";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

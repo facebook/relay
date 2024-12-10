@@ -171,14 +171,15 @@ class RelayModernStore implements Store {
       () => this._getMutableRecordSource(),
       this,
     );
+    this._resolverContext = options?.resolverContext;
     this._storeSubscriptions = new RelayStoreSubscriptions(
       options?.log,
       this._resolverCache,
+      this._resolverContext,
     );
     this._updatedRecordIDs = new Set();
     this._shouldProcessClientComponents =
       options?.shouldProcessClientComponents ?? false;
-    this._resolverContext = options?.resolverContext;
 
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
     this._actorIdentifier = options?.actorIdentifier;

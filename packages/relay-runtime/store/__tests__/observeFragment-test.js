@@ -337,6 +337,189 @@ test('read deferred fragment', async () => {
   });
 });
 
+test('observes a plural fragment', async () => {
+  const query = graphql`
+    query observeFragmentTestPluralQuery {
+      nodes(ids: ["1", "2"]) {
+        ...observeFragmentTestPluralFragment
+      }
+    }
+  `;
+
+  const fragment = graphql`
+    fragment observeFragmentTestPluralFragment on User @relay(plural: true) {
+      name
+    }
+  `;
+
+  const environment = createMockEnvironment({
+    store: new LiveResolverStore(new RelayRecordSource()),
+  });
+  const variables = {};
+  const operation = createOperationDescriptor(query, variables);
+  environment.commitPayload(operation, {
+    nodes: [
+      {id: '1', __typename: 'User', name: 'Alice'},
+      {id: '2', __typename: 'User', name: 'Bob'},
+    ],
+  });
+  const {data} = environment.lookup(operation.fragment);
+  // $FlowFixMe Data is untyped
+  const observable = observeFragment(environment, fragment, data.nodes);
+  const result = await observable.toPromise();
+  expect(result).toEqual({
+    state: 'ok',
+    value: [{name: 'Alice'}, {name: 'Bob'}],
+  });
+});
+
+test('Missing required data on plural fragment', async () => {
+  const query = graphql`
+    query observeFragmentTestMissingRequiredPluralQuery {
+      nodes(ids: ["1", "2"]) {
+        ...observeFragmentTestMissingRequiredPluralFragment
+      }
+    }
+  `;
+
+  const fragment = graphql`
+    fragment observeFragmentTestMissingRequiredPluralFragment on User
+    @relay(plural: true) {
+      name @required(action: THROW)
+    }
+  `;
+
+  const environment = createMockEnvironment();
+  const variables = {};
+  const operation = createOperationDescriptor(query, variables);
+  environment.commitPayload(operation, {
+    nodes: [
+      // Name is null despite being required
+      {id: '1', __typename: 'User', name: null},
+      {id: '2', __typename: 'User', name: 'Bob'},
+    ],
+  });
+
+  const {data} = environment.lookup(operation.fragment);
+  // $FlowFixMe Data is untyped
+  const observable = observeFragment(environment, fragment, data.nodes);
+  withObservableValues(observable, results => {
+    expect(results).toEqual([
+      {
+        error: new Error(
+          "Relay: Missing @required value at path 'name' in 'observeFragmentTestMissingRequiredPluralFragment'.",
+        ),
+        state: 'error',
+      },
+    ]);
+  });
+});
+
+test('Field error with @relay(plural: true) @throwOnFieldError', async () => {
+  const query = graphql`
+    query observeFragmentTestPluralThrowOnFieldErrorQuery {
+      nodes(ids: ["1", "2"]) {
+        ...observeFragmentTestPluralThrowOnFieldErrorFragment
+      }
+    }
+  `;
+
+  const fragment = graphql`
+    fragment observeFragmentTestPluralThrowOnFieldErrorFragment on User
+    @relay(plural: true)
+    @throwOnFieldError {
+      name
+    }
+  `;
+
+  let dataSource: Sink<GraphQLResponse>;
+  const fetch = (
+    _query: RequestParameters,
+    _variables: Variables,
+    _cacheConfig: CacheConfig,
+  ) => {
+    // $FlowFixMe[missing-local-annot] Error found while enabling LTI on this file
+    return RelayObservable.create(sink => {
+      dataSource = sink;
+    });
+  };
+
+  const environment = createMockEnvironment({
+    network: RelayNetwork.create(fetch),
+  });
+  const variables = {};
+  const operation = createOperationDescriptor(query, variables);
+
+  environment.execute({operation}).subscribe({});
+  invariant(dataSource != null, 'Expected data source to be set');
+  dataSource.next({
+    data: {
+      nodes: [
+        {id: '1', __typename: 'User', name: null},
+        {id: '2', __typename: 'User', name: 'Bob'},
+      ],
+    },
+    errors: [{message: 'error', path: ['nodes', 0, 'name']}],
+  });
+
+  const {data} = environment.lookup(operation.fragment);
+  // $FlowFixMe Data is untyped
+  const observable = observeFragment(environment, fragment, data.nodes);
+  withObservableValues(observable, results => {
+    expect(results).toEqual([
+      {
+        error: new Error(
+          'Relay: Unexpected response payload - check server logs for details.',
+        ),
+        state: 'error',
+      },
+    ]);
+  });
+});
+
+test('Resolver error with @relay(plural: true) @throwOnFieldError', async () => {
+  const query = graphql`
+    query observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorQuery {
+      nodes(ids: ["7", "8"]) {
+        ...observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment
+      }
+    }
+  `;
+
+  const fragment = graphql`
+    fragment observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment on User
+    @relay(plural: true)
+    @throwOnFieldError {
+      always_throws
+    }
+  `;
+
+  const environment = createMockEnvironment({
+    store: new LiveResolverStore(new RelayRecordSource()),
+  });
+  const variables = {};
+  const operation = createOperationDescriptor(query, variables);
+  environment.commitPayload(operation, {
+    nodes: [
+      {id: '7', __typename: 'User'},
+      {id: '8', __typename: 'User'},
+    ],
+  });
+  const {data} = environment.lookup(operation.fragment);
+  // $FlowFixMe Data is untyped
+  const observable = observeFragment(environment, fragment, data.nodes);
+  withObservableValues(observable, results => {
+    expect(results).toEqual([
+      {
+        error: new Error(
+          "Relay: Resolver error at path 'always_throws' in 'observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment'.",
+        ),
+        state: 'error',
+      },
+    ]);
+  });
+});
+
 test('data goes missing due to unrelated query response', async () => {
   const query = graphql`
     query observeFragmentTestMissingDataQuery {

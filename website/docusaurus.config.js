@@ -198,6 +198,12 @@ module.exports = {
         infoLink: 'https://www.rea-app.fr/',
         pinned: false,
       },
+      {
+        caption: 'Steep Wellness',
+        image: '/img/logos/steep.png',
+        infoLink: 'https://steepapp.com',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

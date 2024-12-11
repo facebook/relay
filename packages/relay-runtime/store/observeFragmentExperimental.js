@@ -183,6 +183,7 @@ function observePluralSelector<
   );
 
   return Observable.create(sink => {
+    // This array is mutable since each subscription updates the array in place.
     const states = snapshots.map((snapshot, index) =>
       snapshotToFragmentState(
         environment,
@@ -202,6 +203,8 @@ function observePluralSelector<
           fragmentSelector.selectors[index].owner,
           latestSnapshot,
         );
+        // This doesn't batch updates, so it will notify the subscriber multiple times
+        // if a store update impacting multiple items in the list is published.
         sink.next((mergeFragmentStates(states): $FlowFixMe));
       }),
     );

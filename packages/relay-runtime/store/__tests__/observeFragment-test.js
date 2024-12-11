@@ -520,6 +520,55 @@ test('Resolver error with @relay(plural: true) @throwOnFieldError', async () => 
   });
 });
 
+test('Store update across list items notifies multiple times', async () => {
+  const query = graphql`
+    query observeFragmentTestListUpdateQuery {
+      nodes(ids: ["1", "2"]) {
+        ...observeFragmentTestListUpdateFragment
+      }
+    }
+  `;
+
+  const fragment = graphql`
+    fragment observeFragmentTestListUpdateFragment on User
+    @relay(plural: true) {
+      name
+    }
+  `;
+
+  const environment = createMockEnvironment({
+    store: new LiveResolverStore(new RelayRecordSource()),
+  });
+  const variables = {};
+  const operation = createOperationDescriptor(query, variables);
+  environment.commitPayload(operation, {
+    nodes: [
+      {id: '1', __typename: 'User', name: 'Alice'},
+      {id: '2', __typename: 'User', name: 'Bob'},
+    ],
+  });
+  const {data} = environment.lookup(operation.fragment);
+  // $FlowFixMe Data is untyped
+  const observable = observeFragment(environment, fragment, data.nodes);
+  withObservableValues(observable, results => {
+    expect(results).toEqual([
+      {state: 'ok', value: [{name: 'Alice'}, {name: 'Bob'}]},
+    ]);
+
+    environment.commitPayload(operation, {
+      nodes: [
+        {id: '1', __typename: 'User', name: 'Alice updated'},
+        {id: '2', __typename: 'User', name: 'Bob updated'},
+      ],
+    });
+    expect(results).toEqual([
+      {state: 'ok', value: [{name: 'Alice'}, {name: 'Bob'}]},
+      {state: 'ok', value: [{name: 'Alice updated'}, {name: 'Bob'}]},
+      {state: 'ok', value: [{name: 'Alice updated'}, {name: 'Bob updated'}]},
+    ]);
+  });
+});
+
 test('data goes missing due to unrelated query response', async () => {
   const query = graphql`
     query observeFragmentTestMissingDataQuery {

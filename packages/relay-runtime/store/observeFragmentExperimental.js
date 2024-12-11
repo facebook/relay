@@ -187,7 +187,7 @@ function observePluralSelector<
       snapshotToFragmentState(
         environment,
         fragmentNode,
-        fragmentSelector.selectors[0].owner,
+        fragmentSelector.selectors[index].owner,
         snapshot,
       ),
     );
@@ -199,7 +199,7 @@ function observePluralSelector<
         states[index] = snapshotToFragmentState(
           environment,
           fragmentNode,
-          fragmentSelector.selectors[0].owner,
+          fragmentSelector.selectors[index].owner,
           latestSnapshot,
         );
         sink.next((mergeFragmentStates(states): $FlowFixMe));

@@ -192,28 +192,7 @@ function observePluralSelector<
       ),
     );
 
-    const reduceState = () =>
-      states.reduce<FragmentState<TData>>(
-        (acc, state) => {
-          if (acc.state !== 'ok') {
-            return acc;
-          }
-
-          if (state.state === 'ok') {
-            acc.value.push(state.value);
-            return acc;
-          } else {
-            return state;
-          }
-        },
-        {
-          state: 'ok',
-          // $FlowFixMe[incompatible-cast]: TData is enforced to be an array
-          value: ([]: TData),
-        },
-      );
-
-    sink.next(reduceState());
+    sink.next((mergeFragmentStates(states): $FlowFixMe));
 
     const subscriptions = snapshots.map((snapshot, index) =>
       environment.subscribe(snapshot, latestSnapshot => {
@@ -223,7 +202,7 @@ function observePluralSelector<
           fragmentSelector.selectors[0].owner,
           latestSnapshot,
         );
-        sink.next(reduceState());
+        sink.next((mergeFragmentStates(states): $FlowFixMe));
       }),
     );
 
@@ -285,6 +264,20 @@ function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
   invariant(snapshot.data != null, 'Expected data to be non-null.');
 
   return {state: 'ok', value: (snapshot.data: $FlowFixMe)};
+}
+
+function mergeFragmentStates<T>(
+  states: $ReadOnlyArray<FragmentState<T>>,
+): FragmentState<Array<T>> {
+  const value = [];
+  for (const state of states) {
+    if (state.state === 'ok') {
+      value.push(state.value);
+    } else {
+      return state;
+    }
+  }
+  return {state: 'ok', value};
 }
 
 module.exports = {

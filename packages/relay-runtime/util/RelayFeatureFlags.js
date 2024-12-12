@@ -70,6 +70,9 @@ export type FeatureFlags = {
 
   // Enable the fix for usePaginationFragment stucking in loading state
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean,
+
+  // Enable the fix for unsubscribing live queries
+  ENABLE_LIVE_QUERY_UNSUBSCRIBE_FIX: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -96,6 +99,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
   ENABLE_RESOURCE_EFFECTS: false,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
+  ENABLE_LIVE_QUERY_UNSUBSCRIBE_FIX: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -916,6 +916,131 @@ describe('partial rendering', () => {
   });
 });
 
+describe('live queries', () => {
+  beforeEach(() => {
+    gqlQuery = graphql`
+      query useLazyLoadQueryNodeTestUserLiveQuery($id: ID)
+      @live_query(polling_interval: 10000) {
+        node(id: $id) {
+          id
+          name
+        }
+      }
+    `;
+    variables = {id: 'user:1234'};
+    query = createOperationDescriptor(gqlQuery, variables);
+  });
+
+  it('does not cancel network request until all subscribing components unmount', () => {
+    let setIndexes;
+    function Component() {
+      const [indexes, _setIndexes] = React.useState([0]);
+      setIndexes = _setIndexes;
+
+      return (
+        <>
+          {[
+            <Container variables={variables} fetchPolicy="store-and-network" />,
+            <Container variables={variables} fetchPolicy="store-and-network" />,
+          ].filter((_, i) => indexes.includes(i))}
+        </>
+      );
+    }
+
+    // Fill the store so the query can be rendered without suspending
+    environment.commitUpdate(store => {
+      const user = store.create(variables.id, 'User');
+      user.setValue(variables.id, 'id');
+      user.setValue('Alice', 'name');
+      const root = store.getRoot();
+      root.setLinkedRecord(user, 'node', {id: variables.id});
+    });
+    // Component initially renders only one container, so only one subscription should be active
+    const instance = render(environment, <Component />);
+    const data = environment.lookup(query.fragment).data;
+    expect(renderFn).toBeCalledTimes(1);
+    expect(renderFn.mock.calls[0][0]).toEqual(data);
+    expect(instance?.toJSON()).toEqual('Alice');
+
+    // Mount the second container, two subscriptions should be active
+    ReactTestRenderer.act(() => {
+      setIndexes([0, 1]);
+    });
+
+    expect(renderFn).toBeCalledTimes(3);
+    expect(renderFn.mock.calls[1][0]).toEqual(data);
+    expect(renderFn.mock.calls[2][0]).toEqual(data);
+    expect(instance?.toJSON()).toEqual(['Alice', 'Alice']);
+
+    // Data update should be reflected properly
+    ReactTestRenderer.act(() => {
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Bob',
+          },
+        },
+      });
+      jest.runAllImmediates();
+    });
+
+    const data2 = environment.lookup(query.fragment).data;
+    expect(renderFn).toBeCalledTimes(5);
+    expect(renderFn.mock.calls[3][0]).toEqual(data2);
+    expect(renderFn.mock.calls[4][0]).toEqual(data2);
+    expect(instance?.toJSON()).toEqual(['Bob', 'Bob']);
+
+    // Unmount the first container, only one subscription should be active
+    ReactTestRenderer.act(() => {
+      setIndexes([1]);
+    });
+
+    expect(renderFn).toBeCalledTimes(6);
+    expect(renderFn.mock.calls[5][0]).toEqual(data2);
+    expect(instance?.toJSON()).toEqual('Bob');
+
+    // Data update should be reflected properly even after the first unmount
+    ReactTestRenderer.act(() => {
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Elizabeth',
+          },
+        },
+      });
+      jest.runAllImmediates();
+    });
+
+    const data3 = environment.lookup(query.fragment).data;
+    expect(renderFn).toBeCalledTimes(7);
+    expect(renderFn.mock.calls[6][0]).toEqual(data3);
+    expect(instance?.toJSON()).toEqual('Elizabeth');
+
+    // Unmount everything, no subscriptions should be active
+    ReactTestRenderer.act(() => {
+      setIndexes([]);
+    });
+
+    expect(renderFn).toBeCalledTimes(7);
+    // Fetch observable should have been unsubscribed
+    expect(() => {
+      environment.mock.nextValue(gqlQuery, {
+        data: {
+          node: {
+            __typename: 'User',
+            id: variables.id,
+            name: 'Joe',
+          },
+        },
+      });
+    }).toThrow('has not been requested');
+  });
+});
+
 describe('logging', () => {
   test.skip('simple fetch', () => {
     render(environment, <Container variables={variables} />);

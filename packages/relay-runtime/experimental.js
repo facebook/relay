@@ -43,13 +43,13 @@ export type IdOf<A: string, Typename: void | string = void> = [
 export type RelayResolverValue<A> = $NonMaybeType<A>;
 
 type ErrorResult<Error> = {
-  ok: false,
-  errors: $ReadOnlyArray<Error>,
+  +ok: false,
+  +errors: $ReadOnlyArray<Error>,
 };
 
 type OkayResult<T> = {
-  ok: true,
-  value: T,
+  +ok: true,
+  +value: T,
 };
 
 export type Result<T, Error> = OkayResult<T> | ErrorResult<Error>;

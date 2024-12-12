@@ -466,16 +466,10 @@ class QueryResourceImpl {
           }
           const observerStart = observer?.start;
           if (observerStart) {
-            const subscriptionWithConditionalCancelation = {
+            observerStart({
               ...subscription,
-              unsubscribe: () => {
-                // Only live queries should have their network requests canceled.
-                if (operationIsLiveQuery(operation)) {
-                  subscription.unsubscribe();
-                }
-              },
-            };
-            observerStart(subscriptionWithConditionalCancelation);
+              unsubscribe: () => {},
+            });
           }
         },
         next: () => {

@@ -71,7 +71,7 @@ type Traversable = {
   +args: ?{[string]: mixed, ...},
 };
 type MockData = {[string]: mixed, ...};
-type MockResolverContext = {
+export type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,

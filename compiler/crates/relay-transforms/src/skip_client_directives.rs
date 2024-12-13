@@ -28,7 +28,7 @@ impl<'s> SkipClientDirectives<'s> {
     }
 }
 
-impl<'s> Transformer for SkipClientDirectives<'s> {
+impl<'s> Transformer<'_> for SkipClientDirectives<'s> {
     const NAME: &'static str = "SkipClientDirectives";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;

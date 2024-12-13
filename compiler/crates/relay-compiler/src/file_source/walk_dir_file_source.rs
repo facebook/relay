@@ -77,8 +77,11 @@ impl WalkDirFileSource {
     }
 
     fn find_files(&self) -> Vec<File> {
-        WalkDir::new(self.config.root_dir.clone())
-            .into_iter()
+        self.config
+            .get_all_roots()
+            .iter()
+            .map(|source| self.config.root_dir.join(source))
+            .flat_map(WalkDir::new)
             .filter_map(|entry| {
                 let dir_entry = entry.ok()?;
                 let relative_path = dir_entry

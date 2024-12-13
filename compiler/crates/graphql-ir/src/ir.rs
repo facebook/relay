@@ -11,6 +11,7 @@ use std::fmt;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::hash::Hash;
+use std::hash::Hasher;
 use std::str::FromStr;
 use std::sync::Arc;
 
@@ -296,7 +297,7 @@ impl Named for VariableDefinition {
 // Selections
 
 /// A selection within an operation or fragment
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum Selection {
     FragmentSpread(Arc<FragmentSpread>),
     InlineFragment(Arc<InlineFragment>),
@@ -401,7 +402,7 @@ impl fmt::Debug for Selection {
 }
 
 /// ... Name
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FragmentSpread {
     pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
@@ -435,6 +436,16 @@ pub struct InlineFragment {
     pub selections: Vec<Selection>,
     /// Points to "..."
     pub spread_location: Location,
+}
+
+impl Hash for InlineFragment {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.type_condition.hash(state);
+        self.directives.hash(state);
+        self.spread_location.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
 }
 
 impl InlineFragment {
@@ -495,6 +506,17 @@ pub struct LinkedField {
     pub selections: Vec<Selection>,
 }
 
+impl Hash for LinkedField {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.alias.hash(state);
+        self.definition.hash(state);
+        self.arguments.hash(state);
+        self.directives.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
+}
+
 impl Field for LinkedField {
     fn alias(&self) -> Option<WithLocation<StringKey>> {
         self.alias
@@ -514,7 +536,7 @@ impl Field for LinkedField {
 }
 
 /// Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ScalarField {
     pub alias: Option<WithLocation<StringKey>>,
     pub definition: WithLocation<FieldID>,
@@ -547,6 +569,16 @@ pub struct Condition {
     pub value: ConditionValue,
     pub passing_value: bool,
     pub location: Location,
+}
+
+impl Hash for Condition {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.value.hash(state);
+        self.passing_value.hash(state);
+        self.location.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
 }
 
 impl Condition {
@@ -702,7 +734,7 @@ impl ConstantValue {
     generate_unwrap_fn!(unwrap_object, self, &Vec<ConstantArgument>, ConstantValue::Object(o) => o);
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum ConditionValue {
     Constant(bool),
     Variable(Variable),

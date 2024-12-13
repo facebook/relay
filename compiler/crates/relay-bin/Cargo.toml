@@ -19,5 +19,5 @@ relay-lsp = { path = "../relay-lsp" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.12.2"
-thiserror = "1.0.64"
+thiserror = "2"
 tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }

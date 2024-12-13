@@ -138,6 +138,8 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
     };
   }, [disposeFetch]);
 
+  const isRequestInvalid = fragmentData == null || isParentQueryActive;
+
   const loadMore = useCallback(
     (
       count: number,
@@ -166,11 +168,13 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
       }
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
-      if (
-        isFetchingRef.current === true ||
-        fragmentData == null ||
-        isParentQueryActive
-      ) {
+
+      const isRequestInvalidCheck =
+        RelayFeatureFlags.OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION
+          ? isRequestInvalid
+          : fragmentData == null || isParentQueryActive;
+
+      if (isFetchingRef.current === true || isRequestInvalidCheck) {
         if (fragmentSelector == null) {
           warning(
             false,
@@ -271,8 +275,10 @@ hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
       disposeFetch,
       completeFetch,
       isFetchingRef,
-      isParentQueryActive,
-      fragmentData,
+      isRequestInvalid,
+      ...(RelayFeatureFlags.OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION
+        ? [isRequestInvalid]
+        : [isParentQueryActive, fragmentData]),
       fragmentNode.name,
       fragmentRef,
       componentDisplayName,

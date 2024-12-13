@@ -1481,7 +1481,7 @@ export type ConcreteClientEdgeResolverReturnType<T = any> = {
  * returns a callback which should be called when the value _may_ have changed.
  *
  * While over-notification (subscription notifications when the read value has
- * not actually changed) is suported, for performance reasons, it is recommended
+ * not actually changed) is supported, for performance reasons, it is recommended
  * that the provider of the LiveState value confirms that the value has indeed
  * change before notifying Relay of the change.
  */

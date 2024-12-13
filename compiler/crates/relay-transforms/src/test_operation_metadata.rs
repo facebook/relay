@@ -86,7 +86,7 @@ impl<'a> GenerateTestOperationMetadata<'a> {
     }
 }
 
-impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
+impl<'a> Transformer<'_> for GenerateTestOperationMetadata<'a> {
     const NAME: &'static str = "GenerateTestOperationMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

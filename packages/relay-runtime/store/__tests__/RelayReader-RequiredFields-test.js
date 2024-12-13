@@ -21,6 +21,9 @@ const {
   LiveResolverCache,
 } = require('relay-runtime/store/live-resolvers/LiveResolverCache');
 const RelayModernStore = require('relay-runtime/store/RelayModernStore');
+const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
 
 describe('RelayReader @required', () => {
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
@@ -1056,7 +1059,7 @@ describe('RelayReader @required', () => {
       const snapshot = read(source, operation.fragment, resolverCache);
       expect(snapshot.errorResponseFields).toEqual(null);
       expect(snapshot.missingLiveResolverFields).toEqual([
-        'client:root:live_user_resolver_always_suspend',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}live_user_resolver_always_suspend`,
       ]);
     });
   });

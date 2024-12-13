@@ -19,6 +19,7 @@ const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 const Guides = {
   'Fetching Data': [
+    'guided-tour/list-data/introduction',
     ...fbContent({
       internal: [
         {
@@ -83,7 +84,9 @@ const Guides = {
     'guides/semantic-nullability',
   ],
   'Updating Data': [
-    'guided-tour/list-data/updating-connections',
+    'guided-tour/updating-data/introduction',
+    'guided-tour/updating-data/graphql-mutations',
+    'guided-tour/updating-data/updating-connections',
     'guided-tour/updating-data/imperatively-modifying-store-data',
     'guided-tour/updating-data/imperatively-modifying-linked-fields',
     'guided-tour/updating-data/typesafe-updaters-faq',

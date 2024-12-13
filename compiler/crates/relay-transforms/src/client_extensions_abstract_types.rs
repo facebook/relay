@@ -174,7 +174,7 @@ impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
     }
 }
 
-impl Transformer for ClientExtensionsAbstactTypesTransform<'_> {
+impl Transformer<'_> for ClientExtensionsAbstactTypesTransform<'_> {
     const NAME: &'static str = "ClientExtensionsAbstactTypesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

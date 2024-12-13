@@ -12,17 +12,17 @@ use common::WithLocation;
 use crate::ir::*;
 use crate::program::Program;
 
-pub trait Transformer {
+pub trait Transformer<'a> {
     const NAME: &'static str;
     const VISIT_ARGUMENTS: bool;
     const VISIT_DIRECTIVES: bool;
     const RETAIN_EMPTY_SELECTION_SETS: bool = false;
 
-    fn transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
+    fn transform_program(&mut self, program: &'a Program) -> TransformedValue<Program> {
         self.default_transform_program(program)
     }
 
-    fn default_transform_program(&mut self, program: &Program) -> TransformedValue<Program> {
+    fn default_transform_program(&mut self, program: &'a Program) -> TransformedValue<Program> {
         let mut next_program = Program::new(Arc::clone(&program.schema));
         let mut has_changes = false;
         for operation in program.operations() {
@@ -55,14 +55,14 @@ pub trait Transformer {
     // Fragment Definition
     fn transform_fragment(
         &mut self,
-        fragment: &FragmentDefinition,
+        fragment: &'a FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.default_transform_fragment(fragment)
     }
 
     fn default_transform_fragment(
         &mut self,
-        fragment: &FragmentDefinition,
+        fragment: &'a FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         let selections = self.transform_selections(&fragment.selections);
         let directives = self.transform_directives(&fragment.directives);
@@ -95,14 +95,14 @@ pub trait Transformer {
     // Operation Definition
     fn transform_operation(
         &mut self,
-        operation: &OperationDefinition,
+        operation: &'a OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.default_transform_operation(operation)
     }
 
     fn default_transform_operation(
         &mut self,
-        operation: &OperationDefinition,
+        operation: &'a OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         let selections = self.transform_selections(&operation.selections);
         let directives = self.transform_directives(&operation.directives);
@@ -172,16 +172,16 @@ pub trait Transformer {
     // Selection
     fn transform_selections(
         &mut self,
-        selections: &[Selection],
+        selections: &'a [Selection],
     ) -> TransformedValue<Vec<Selection>> {
         transform_list(selections, |selection| self.transform_selection(selection))
     }
 
-    fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
+    fn transform_selection(&mut self, selection: &'a Selection) -> Transformed<Selection> {
         self.default_transform_selection(selection)
     }
 
-    fn default_transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
+    fn default_transform_selection(&mut self, selection: &'a Selection) -> Transformed<Selection> {
         match selection {
             Selection::FragmentSpread(selection) => self.transform_fragment_spread(selection),
             Selection::InlineFragment(selection) => self.transform_inline_fragment(selection),
@@ -209,11 +209,11 @@ pub trait Transformer {
         })))
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+    fn transform_linked_field(&mut self, field: &'a LinkedField) -> Transformed<Selection> {
         self.default_transform_linked_field(field)
     }
 
-    fn default_transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+    fn default_transform_linked_field(&mut self, field: &'a LinkedField) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&field.selections);
         if let TransformedValue::Replace(selections) = &selections {
@@ -234,13 +234,16 @@ pub trait Transformer {
         })))
     }
 
-    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+    fn transform_inline_fragment(
+        &mut self,
+        fragment: &'a InlineFragment,
+    ) -> Transformed<Selection> {
         self.default_transform_inline_fragment(fragment)
     }
 
     fn default_transform_inline_fragment(
         &mut self,
-        fragment: &InlineFragment,
+        fragment: &'a InlineFragment,
     ) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
@@ -280,11 +283,11 @@ pub trait Transformer {
     }
 
     // Conditions
-    fn transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
+    fn transform_condition(&mut self, condition: &'a Condition) -> Transformed<Selection> {
         self.default_transform_condition(condition)
     }
 
-    fn default_transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
+    fn default_transform_condition(&mut self, condition: &'a Condition) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&condition.selections);
         if let TransformedValue::Replace(selections) = &selections {
@@ -399,10 +402,10 @@ pub trait Transformer {
 }
 
 // Helpers
-pub fn transform_list<T, F, R>(list: &[T], mut transform: F) -> TransformedValue<Vec<T>>
+pub fn transform_list<'a, T, F, R>(list: &'a [T], mut transform: F) -> TransformedValue<Vec<T>>
 where
     T: Clone,
-    F: FnMut(&T) -> R,
+    F: FnMut(&'a T) -> R,
     R: Into<Transformed<T>>,
 {
     let mut result = Vec::new();
@@ -519,7 +522,7 @@ impl TransformProgramPipe {
 
     pub fn pipe<T>(self, transformer: T) -> Self
     where
-        T: Transformer,
+        T: for<'a> Transformer<'a>,
     {
         let mut transformer = transformer;
         let initial = self.initial;
@@ -539,7 +542,7 @@ impl TransformProgramPipe {
 
     pub fn pipe_option<X, T, F>(self, option: Option<X>, get_transformer: F) -> Self
     where
-        T: Transformer,
+        T: for<'a> Transformer<'a>,
         F: FnOnce(X) -> T,
     {
         if let Some(x) = option {

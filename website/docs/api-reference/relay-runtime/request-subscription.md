@@ -15,8 +15,7 @@ import Disposable from '../types/Disposable.md';
 ## `requestSubscription`
 
 Imperative API for establishing a GraphQL Subscription.
-See also the [`useSubscription`](../use-subscription/) API and the [Guide to Updating Data](../../guided-tour/updating-data/).
-
+See also the [`useSubscription`](../use-subscription/) API and the [Guide to Updating Data](../../guided-tour/updating-data/introduction.md).
 ```js
 import {graphql, requestSubscription} from 'react-relay';
 

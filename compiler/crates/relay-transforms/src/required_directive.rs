@@ -319,7 +319,7 @@ impl<'program> RequiredDirective<'program> {
     }
 }
 
-impl<'s> Transformer for RequiredDirective<'s> {
+impl<'s> Transformer<'_> for RequiredDirective<'s> {
     const NAME: &'static str = "RequiredDirectiveTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

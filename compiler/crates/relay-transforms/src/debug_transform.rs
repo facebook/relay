@@ -40,7 +40,7 @@ const PRINTER_OPTIONS: PrinterOptions = PrinterOptions {
     debug_directive_data: false,
 };
 
-impl Transformer for DebugTransform {
+impl Transformer<'_> for DebugTransform {
     const NAME: &'static str = "DebugTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

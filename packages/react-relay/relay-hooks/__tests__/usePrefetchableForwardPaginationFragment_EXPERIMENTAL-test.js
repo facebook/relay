@@ -39,6 +39,7 @@ let isLoadingNextSpy;
 component Container(
   userRef: ?usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$key,
   minimalEdgesToFetch: number = 1,
+  UNSTABLE_extraVariables?: mixed,
 ) {
   const {
     edges,
@@ -70,7 +71,9 @@ component Container(
     userRef,
     BUFFER_SIZE,
     null,
-    {},
+    {
+      UNSTABLE_extraVariables,
+    },
     minimalEdgesToFetch,
   );
   loadMore = loadNext;
@@ -996,4 +999,110 @@ it('should fetch the amount of items enough to fulfill the product and cache', (
   expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
     4,
   );
+});
+
+it('getServerEdges should return all unfiltered server edges', () => {
+  const fragmentKey = environment.lookup(query.fragment).data?.node;
+  // render the initial page
+  let app;
+  const extraVariablesFn = jest.fn();
+  // $FlowFixMe[missing-local-annot]
+  const getExtraVariables = function ({hasNext, getServerEdges}) {
+    const edges = getServerEdges();
+    extraVariablesFn(hasNext, edges);
+  };
+  act(() => {
+    app = create(
+      <RelayEnvironmentProvider environment={environment}>
+        <Suspense fallback="Fallback">
+          <Container
+            // $FlowFixMe[incompatible-type]
+            userRef={fragmentKey}
+            UNSTABLE_extraVariables={getExtraVariables}
+          />
+        </Suspense>
+      </RelayEnvironmentProvider>,
+    );
+  });
+  if (app == null) {
+    throw new Error('app should not be null');
+  }
+  expect(app.toJSON()).toEqual('node1/0');
+
+  // Prefetches 2 more
+  expect(environment.mock.getAllOperations().length).toBe(1);
+  expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
+    2,
+  );
+
+  expect(extraVariablesFn).toBeCalledTimes(1);
+  expect(extraVariablesFn).toBeCalledWith(true, [
+    {
+      cursor: 'cursor:1',
+      node: {__typename: 'User', id: 'node:1', name: 'node1'},
+    },
+  ]);
+  extraVariablesFn.mockClear();
+
+  act(() => {
+    environment.mock.resolveMostRecentOperation({
+      data: {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:2',
+                node: {
+                  __typename: 'User',
+                  id: 'node:2',
+                  name: 'node2',
+                  username: 'username:node:2',
+                },
+              },
+              {
+                cursor: 'cursor:3',
+                node: {
+                  __typename: 'User',
+                  id: 'node:3',
+                  name: 'node3',
+                  username: 'username:node:3',
+                },
+              },
+            ],
+            pageInfo: {
+              startCursor: 'cursor:3',
+              endCursor: 'cursor:3',
+              hasNextPage: true,
+              hasPreviousPage: true,
+            },
+          },
+        },
+      },
+    });
+  });
+
+  act(() => {
+    loadMore(1);
+  });
+
+  // 2 edges in display but 3 server edges loaded in total
+  expect(app.toJSON()).toEqual('node1,node2/1');
+  expect(extraVariablesFn).toBeCalledTimes(1);
+  expect(extraVariablesFn).toBeCalledWith(true, [
+    {
+      cursor: 'cursor:1',
+      node: {__typename: 'User', id: 'node:1', name: 'node1'},
+    },
+    {
+      cursor: 'cursor:2',
+      node: {__typename: 'User', id: 'node:2', name: 'node2'},
+    },
+    {
+      cursor: 'cursor:3',
+      node: {__typename: 'User', id: 'node:3', name: 'node3'},
+    },
+  ]);
 });

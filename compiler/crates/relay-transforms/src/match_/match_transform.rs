@@ -865,7 +865,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
     }
 }
 
-impl Transformer for MatchTransform<'_, '_> {
+impl Transformer<'_> for MatchTransform<'_, '_> {
     const NAME: &'static str = "MatchTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -228,7 +228,7 @@ struct ProcessingItem<'a> {
     selections: &'a [Selection],
 }
 
-impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
+impl<'s> Transformer<'_> for GenerateDataDrivenDependencyMetadata<'s> {
     const NAME: &'static str = "GenerateDataDrivenDependencyMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -22,7 +22,7 @@ intern = { path = "../intern" }
 relay-config = { path = "../relay-config" }
 schema = { path = "../schema" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "1.0.64"
+thiserror = "2"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

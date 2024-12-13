@@ -286,7 +286,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
     }
 }
 
-impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
+impl<'program> Transformer<'_> for RelayResolverSpreadTransform<'program> {
     const NAME: &'static str = "RelayResolversSpreadTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -312,7 +312,7 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
         match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
-                    .transform_selection(&client_edge_metadata.backing_field)
+                    .transform_selection(client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
                 let selections_field = self
@@ -512,7 +512,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
     }
 }
 
-impl Transformer for RelayResolverFieldTransform<'_> {
+impl Transformer<'_> for RelayResolverFieldTransform<'_> {
     const NAME: &'static str = "RelayResolversFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -569,7 +569,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
         let transformed = match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
-                    .transform_selection(&client_edge_metadata.backing_field)
+                    .transform_selection(client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
                 let field_name = client_edge_metadata

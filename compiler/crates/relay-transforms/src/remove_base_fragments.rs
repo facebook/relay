@@ -47,7 +47,7 @@ struct StripBaseFragmentsTransform<'a> {
     base_fragment_names: &'a FragmentDefinitionNameSet,
 }
 
-impl<'a> Transformer for StripBaseFragmentsTransform<'a> {
+impl<'a> Transformer<'_> for StripBaseFragmentsTransform<'a> {
     const NAME: &'static str = "StripBaseFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

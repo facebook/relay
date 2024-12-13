@@ -26,6 +26,9 @@ const RelayStore = require('relay-runtime/store/RelayModernStore');
 const {read} = require('relay-runtime/store/RelayReader');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
+const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
@@ -154,7 +157,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -189,7 +192,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -289,7 +292,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -323,7 +326,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(me?.null_client_edge).toBe(null);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
-      'client:1:null_client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}null_client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -366,7 +369,7 @@ describe('RelayReader Client Edges behavior', () => {
       '1',
       '1337',
       '1338',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -451,8 +454,8 @@ describe('RelayReader Client Edges behavior', () => {
       '1',
       '1337',
       '1338',
-      'client:1337:another_client_edge',
-      'client:1:client_edge',
+      `client:1337:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}another_client_edge`,
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -504,7 +507,7 @@ describe('RelayReader Client Edges behavior', () => {
       '1',
       '1337',
       '1338',
-      'client:1338:client_edge',
+      `client:1338:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);

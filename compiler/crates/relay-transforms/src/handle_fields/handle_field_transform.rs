@@ -58,7 +58,7 @@ impl HandleFieldTransform {
     }
 }
 
-impl Transformer for HandleFieldTransform {
+impl Transformer<'_> for HandleFieldTransform {
     const NAME: &'static str = "HandleFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

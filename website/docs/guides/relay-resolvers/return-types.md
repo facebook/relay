@@ -109,6 +109,38 @@ function Post() {
 }
 ```
 
+## Abstract Types
+
+Resolvers may return some permutations of "abstract" types (GraphQL unions and interfaces). To use this feature simply use the abstract type's name in the docblock field description and include the typename in the object returned from your resolver. For "strong" types, that will look like: `{id: DataID, __typename: string}`. For "weak" types that will look like: `{__relay_model_instance: T, __typename: string}`.
+
+```tsx
+import {DataID} from 'relay-runtime';
+
+type AnimalTypenames = "Cat" | "Dog";
+/**
+ * @RelayResolver User.pet: Animal
+ */
+export function pet(user: User): {id: DataID, __typename: AnimalTypenames } {
+  return {id: "5", __typename: "Dog" }
+}
+```
+
+:::tip
+Relay will generate type assertions to ensure your resolver function returns the expected type. However, not all combinations are supported. For example, Relay does not yet support the following permutations of abstract types: Unions including weak types, abstract types which mix strong add weak types, and abstract types which include server-backed types.
+:::
+
+While abstract types themselves cannot be defined using Resolver syntax today, you may define interfaces and unions, as well as their members, using [Client Schema Extensions](../client-schema-extensions.md). For example:
+
+```graphql title="client-schema.graphql"
+interface Animal {
+ legs: Int
+}
+
+extend type Cat implements Animal {
+  __do_not_use: String # Placeholder because GraphQL does not allow empty field sets.
+}
+```
+
 ## JavaScript Values
 
 There are rare cases where you want to return an arbitrary JavaScript value from your Resolver schema, one which cannot not have a corresponding GraphQL type. As an escape hatch Relay supports a custom return type `RelayResolverValue` that allows you to return any JavaScript value from your resolver. **JavaScript values returned from resolvers should be immutable.**

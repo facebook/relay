@@ -16,7 +16,7 @@ import Disposable from '../types/Disposable.md';
 
 Imperatively execute a mutation.
 
-See also the [`useMutation`](../use-mutation/) API and [Guide to Updating Data](../../guided-tour/updating-data/).
+See also the [`useMutation`](../use-mutation/) API and [Guide to Updating Data](../../guided-tour/updating-data/introduction.md).
 
 ```js
 import type {FeedbackLikeMutation} from 'FeedbackLikeMutation.graphql';

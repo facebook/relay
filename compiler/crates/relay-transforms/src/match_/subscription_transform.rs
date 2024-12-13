@@ -242,7 +242,7 @@ struct ValidFieldResult<'operation> {
     fragment_spread: &'operation FragmentSpread,
 }
 
-impl Transformer for SubscriptionTransform<'_> {
+impl Transformer<'_> for SubscriptionTransform<'_> {
     const NAME: &'static str = "SubscriptionTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

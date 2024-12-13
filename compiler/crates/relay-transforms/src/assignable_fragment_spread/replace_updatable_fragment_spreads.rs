@@ -31,7 +31,7 @@ struct ReplaceAssignableFragmentSpreads<'s> {
     program: &'s Program,
 }
 
-impl<'s> Transformer for ReplaceAssignableFragmentSpreads<'s> {
+impl<'s> Transformer<'_> for ReplaceAssignableFragmentSpreads<'s> {
     const NAME: &'static str = "ReplaceAssignableFragmentSpreads";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

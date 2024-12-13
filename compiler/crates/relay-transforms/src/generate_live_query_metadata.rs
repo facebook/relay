@@ -57,7 +57,7 @@ struct GenerateLiveQueryMetadata {
     errors: Vec<Diagnostic>,
 }
 
-impl Transformer for GenerateLiveQueryMetadata {
+impl Transformer<'_> for GenerateLiveQueryMetadata {
     const NAME: &'static str = "GenerateLiveQueryMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

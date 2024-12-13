@@ -80,7 +80,7 @@ impl<'s> Mask<'s> {
     }
 }
 
-impl<'s> Transformer for Mask<'s> {
+impl<'s> Transformer<'_> for Mask<'s> {
     const NAME: &'static str = "MaskTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

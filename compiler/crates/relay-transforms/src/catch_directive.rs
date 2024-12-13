@@ -137,7 +137,7 @@ impl<'program> CatchDirective<'program> {
     }
 }
 
-impl<'s> Transformer for CatchDirective<'s> {
+impl<'s> Transformer<'_> for CatchDirective<'s> {
     const NAME: &'static str = "CatchDirectiveTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

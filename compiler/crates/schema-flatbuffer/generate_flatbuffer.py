@@ -42,9 +42,7 @@ new_header = """/*
  *
  * \x40generated
  */
-""".format(
-    flatc_version
-)
+""".format(flatc_version)
 
 content = content.replace(old_header, new_header)
 

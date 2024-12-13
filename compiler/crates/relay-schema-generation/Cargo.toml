@@ -35,7 +35,7 @@ relay-docblock = { path = "../relay-docblock" }
 rustc-hash = "1.1.0"
 schema-extractor = { path = "../schema-extractor" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "1.0.64"
+thiserror = "2"
 
 [dev-dependencies]
 extract-graphql = { path = "../extract-graphql" }

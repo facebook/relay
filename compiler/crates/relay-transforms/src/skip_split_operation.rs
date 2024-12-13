@@ -25,7 +25,7 @@ pub fn skip_split_operation(program: &Program) -> Program {
 
 pub struct SkipSplitOperation;
 
-impl Transformer for SkipSplitOperation {
+impl Transformer<'_> for SkipSplitOperation {
     const NAME: &'static str = "SkipSplitOperationTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

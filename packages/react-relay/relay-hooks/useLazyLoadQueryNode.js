@@ -25,7 +25,6 @@ const {
   getQueryCacheIdentifier,
   getQueryResourceForEnvironment,
 } = require('./QueryResource');
-const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useFragmentInternal = require('./useFragmentInternal');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const React = require('react');
@@ -52,7 +51,6 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
   const QueryResource = getQueryResourceForEnvironment(environment);
 
   const [forceUpdateKey, forceUpdate] = useState(0);
-  const {startFetch, completeFetch} = useFetchTrackingRef();
   const cacheBreaker = `${forceUpdateKey}-${fetchKey ?? ''}`;
   const cacheIdentifier = getQueryCacheIdentifier(
     environment,
@@ -69,7 +67,7 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
       fetchObservable,
       fetchPolicy,
       renderPolicy,
-      {start: startFetch, complete: completeFetch, error: completeFetch},
+      undefined,
       profilerContext,
     );
   });

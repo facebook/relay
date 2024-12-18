@@ -56,6 +56,7 @@ function getPaginationVariables(
       ...baseVariables,
       ...extraVariables,
       [backwardMetadata.cursor]: cursor,
+      // $FlowFixMe[incompatible-type]
       [backwardMetadata.count]: count,
     };
     if (forwardMetadata && forwardMetadata.cursor) {
@@ -92,6 +93,7 @@ function getPaginationVariables(
     ...baseVariables,
     ...extraVariables,
     [forwardMetadata.cursor]: cursor,
+    // $FlowFixMe[incompatible-type]
     [forwardMetadata.count]: count,
   };
   if (backwardMetadata && backwardMetadata.cursor) {

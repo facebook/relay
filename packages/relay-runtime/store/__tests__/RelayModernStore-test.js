@@ -2436,6 +2436,7 @@ function cloneEventWithSets(event: LogEvent) {
           [ROOT_ID]: {
             __id: ROOT_ID,
             __typename: ROOT_TYPE,
+            // $FlowFixMe[invalid-computed-prop]
             [`node(id:"${nodeID}")`]: {__ref: nodeID},
           },
         });

@@ -257,6 +257,7 @@ describe('check()', () => {
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -348,6 +349,7 @@ describe('check()', () => {
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -399,6 +401,7 @@ describe('check()', () => {
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -517,6 +520,7 @@ describe('check()', () => {
         id: '1',
         __typename: 'User',
         'profilePicture(size:32)': {__ref: 'client:1'},
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
       },
       'client:1': {
@@ -581,6 +585,7 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         uri: 'https://...',
+        // $FlowFixMe[invalid-computed-prop]
         [handleKey]: 'https://...',
       },
     };
@@ -2648,6 +2653,7 @@ describe('check()', () => {
           name: 'Alice',
           // no `id` value
         },
+        // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
           __typename: TYPE_SCHEMA_TYPE,
@@ -2703,6 +2709,7 @@ describe('check()', () => {
           name: 'Alice',
           id: '1',
         },
+        // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
           __typename: TYPE_SCHEMA_TYPE,
@@ -2759,6 +2766,7 @@ describe('check()', () => {
           // no 'id' bc not a Node
           name: 'Not a Node!',
         },
+        // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
           __typename: TYPE_SCHEMA_TYPE,
@@ -2862,6 +2870,7 @@ describe('check()', () => {
                 __typename: 'Text',
                 text: 'Hello, Antonio',
               },
+              // $FlowFixMe[invalid-computed-prop]
               [typeID]: {
                 __id: typeID,
                 __typename: TYPE_SCHEMA_TYPE,

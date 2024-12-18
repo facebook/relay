@@ -841,10 +841,12 @@ describe('RelayReferenceMarker', () => {
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
+          // $FlowFixMe[invalid-computed-prop]
           [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`]: {
             __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`,
           },
         },
+        // $FlowFixMe[invalid-computed-prop]
         [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`]:
           {},
       };
@@ -889,6 +891,7 @@ describe('RelayReferenceMarker', () => {
           __id: 'client:root',
           __typename: 'Query',
           me: {__ref: '1'},
+          // $FlowFixMe[invalid-computed-prop]
           [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`]: {
             __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`,
           },
@@ -897,6 +900,7 @@ describe('RelayReferenceMarker', () => {
           __id: '1',
           __typename: 'User',
         },
+        // $FlowFixMe[invalid-computed-prop]
         [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`]: {},
       };
       const nodes = {

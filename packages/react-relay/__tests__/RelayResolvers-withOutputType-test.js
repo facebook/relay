@@ -565,10 +565,12 @@ test('renders after GC', () => {
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
+      // $FlowFixMe[invalid-computed-prop]
       [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]: {
         __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
       },
     },
+    // $FlowFixMe[invalid-computed-prop]
     [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]: {
       __id: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
       __resolverError: null,
@@ -588,6 +590,7 @@ test('renders after GC', () => {
       __resolverValue: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
       __typename: '__RELAY_RESOLVER__',
     },
+    // $FlowFixMe[invalid-computed-prop]
     [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]:
       {
         __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
@@ -602,6 +605,7 @@ test('renders after GC', () => {
           __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,
         },
       },
+    // $FlowFixMe[invalid-computed-prop]
     [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`]:
       {
         __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`,
@@ -611,21 +615,26 @@ test('renders after GC', () => {
           __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
         },
       },
+    // $FlowFixMe[invalid-computed-prop]
     [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`]:
       {
         __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
         __typename: 'Todo',
+        // $FlowFixMe[invalid-computed-prop]
         [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}complete`]: {
           __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}complete`,
         },
+        // $FlowFixMe[invalid-computed-prop]
         [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}self`]: {
           __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}self`,
         },
+        // $FlowFixMe[invalid-computed-prop]
         [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}text`]: {
           __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}text`,
         },
         todo_id: 'todo-1',
       },
+    // $FlowFixMe[invalid-computed-prop]
     [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`]:
       {
         __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,

@@ -1,0 +1,27 @@
+{
+  "name": "relay-example-server",
+  "version": "1.0.0",
+  "description": "An example GraphQL server to back the example Relay client",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "npm run grats && node --experimental-strip-types server.ts",
+    "grats": "grats"
+  },
+  "dependencies": {
+    "graphql-yoga": "^5.10.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "grats": "^0.0.29",
+    "typescript": "^5.6.3"
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "bracketSameLine": true,
+    "bracketSpacing": false,
+    "requirePragma": true,
+    "singleQuote": true,
+    "trailingComma": "all"
+  }
+}

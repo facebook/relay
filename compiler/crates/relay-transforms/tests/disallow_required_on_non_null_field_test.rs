@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1aeb23bd73757d57be6f0348658290e5>>
+ * @generated SignedSource<<12d7bd117492254376fcbcd30baf95f6>>
  */
 
 mod disallow_required_on_non_null_field;
@@ -108,4 +108,11 @@ async fn query_with_semantic_field_no_explicit_errors() {
     let input = include_str!("disallow_required_on_non_null_field/fixtures/query_with_semantic_field_no_explicit_errors.graphql");
     let expected = include_str!("disallow_required_on_non_null_field/fixtures/query_with_semantic_field_no_explicit_errors.expected");
     test_fixture(transform_fixture, file!(), "query_with_semantic_field_no_explicit_errors.graphql", "disallow_required_on_non_null_field/fixtures/query_with_semantic_field_no_explicit_errors.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn required_bubbles_to_required_semantic_field() {
+    let input = include_str!("disallow_required_on_non_null_field/fixtures/required_bubbles_to_required_semantic_field.graphql");
+    let expected = include_str!("disallow_required_on_non_null_field/fixtures/required_bubbles_to_required_semantic_field.expected");
+    test_fixture(transform_fixture, file!(), "required_bubbles_to_required_semantic_field.graphql", "disallow_required_on_non_null_field/fixtures/required_bubbles_to_required_semantic_field.expected", input, expected).await;
 }

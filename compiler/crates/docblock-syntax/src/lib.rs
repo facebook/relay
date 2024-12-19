@@ -238,7 +238,11 @@ impl<'a> DocblockParser<'a> {
     /// Read until the end of the line.
     fn parse_free_text_line(&mut self) -> ParseResult<SpanString> {
         let start = self.offset;
-        let free_text = self.take_while(|c| c != &'\n');
+        let mut free_text: String = self.take_while(|c| c != &'\n');
+        // Handle CRLF by stripping `\r` suffix.
+        if free_text.ends_with('\r') {
+            free_text.pop();
+        }
         let end = self.offset;
         Ok(SpanString::new(Span::new(start, end), free_text))
     }

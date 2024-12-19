@@ -692,7 +692,9 @@ impl<'b> JSONPrinter<'b> {
                 js_module.import_name.clone(),
                 get_module_path(self.js_module_format, js_module.path),
             )?,
-            ResolverJSFunction::PropertyLookup(property) => write!(f, "(o) => o.{}", property)?,
+            ResolverJSFunction::PropertyLookup(property) => {
+                write_arrow_fn(f, &["o"], &format!("o.{}", property))?
+            }
         }
         if let Some((field_name, is_required_field)) = injected_field_name_details {
             write!(f, ", '{}'", field_name)?;
@@ -700,6 +702,11 @@ impl<'b> JSONPrinter<'b> {
         }
         write!(f, ")")
     }
+}
+
+fn write_arrow_fn(f: &mut String, params: &[&str], body: &str) -> FmtResult {
+    write!(f, "({}) => {}", params.join(", "), body)?;
+    Ok(())
 }
 
 pub fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {

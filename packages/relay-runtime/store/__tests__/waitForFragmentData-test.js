@@ -52,6 +52,39 @@ test('data ok', async () => {
   expect(result).toEqual({name: 'Elizabeth'});
 });
 
+test('data ok with plural fragment', async () => {
+  const query = graphql`
+    query waitForFragmentDataTestOkPluralQuery {
+      nodes(ids: ["1", "2"]) {
+        ...waitForFragmentDataTestOkPluralFragment
+      }
+    }
+  `;
+
+  const fragment = graphql`
+    fragment waitForFragmentDataTestOkPluralFragment on User
+    @relay(plural: true) {
+      name
+    }
+  `;
+
+  const environment = createMockEnvironment({
+    store: new LiveResolverStore(new RelayRecordSource()),
+  });
+  const variables = {};
+  const operation = createOperationDescriptor(query, variables);
+  environment.commitPayload(operation, {
+    nodes: [
+      {id: '1', __typename: 'User', name: 'Alice'},
+      {id: '2', __typename: 'User', name: 'Bob'},
+    ],
+  });
+  const {data} = environment.lookup(operation.fragment);
+  // $FlowFixMe - data is untyped
+  const result = await waitForFragmentData(environment, fragment, data.nodes);
+  expect(result).toEqual([{name: 'Alice'}, {name: 'Bob'}]);
+});
+
 test('Promise rejects with @throwOnFieldError', async () => {
   const query = graphql`
     query waitForFragmentDataTestThrowOnFieldErrorQuery {

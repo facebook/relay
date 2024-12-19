@@ -20,6 +20,10 @@ In some cases it can be useful to define data that you wish to read using a Grap
 
 To read a fragment's data just once, see [`waitForFragmentData`](./wait-for-fragment-data.md).
 
+:::caution
+When using `observeFragment` with a plural fragment, the current implementation notifies the subscription multiple times if a store update impacting multiple list items gets published. Since the notifications happen synchronously, it is advised to debounce for a tick and only use the last payload for batching.
+:::
+
 ### Example
 
 ```ts

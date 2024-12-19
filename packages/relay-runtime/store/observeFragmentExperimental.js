@@ -9,7 +9,7 @@
  * @oncall relay
  */
 
-import type {RequestDescriptor} from './RelayStoreTypes';
+import type {PluralReaderSelector, RequestDescriptor} from './RelayStoreTypes';
 import type {
   Fragment,
   FragmentType,
@@ -47,8 +47,7 @@ export type HasSpread<TFragmentType> = {
 
 /**
  * EXPERIMENTAL: This API is experimental and does not yet support all Relay
- * features. Notably, it does not correectly handle plural fragments or some
- * features of Relay Resolvers.
+ * features. Notably, it does not correctly handle some features of Relay Resolvers.
  *
  * Given a fragment and a fragment reference, returns a promise that resolves
  * once the fragment data is available, or rejects if the fragment has an error.
@@ -63,7 +62,9 @@ export type HasSpread<TFragmentType> = {
 async function waitForFragmentData<TFragmentType: FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
-  fragmentRef: HasSpread<TFragmentType>,
+  fragmentRef:
+    | HasSpread<TFragmentType>
+    | $ReadOnlyArray<HasSpread<TFragmentType>>,
 ): Promise<TData> {
   let subscription: ?Subscription;
 
@@ -94,13 +95,14 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
 declare function observeFragment<TFragmentType: FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
-  fragmentRef: HasSpread<TFragmentType>,
+  fragmentRef:
+    | HasSpread<TFragmentType>
+    | $ReadOnlyArray<HasSpread<TFragmentType>>,
 ): Observable<FragmentState<TData>>;
 
 /**
  * EXPERIMENTAL: This API is experimental and does not yet support all Relay
- * features. Notably, it does not correectly handle plural fragments or some
- * features of Relay Resolvers.
+ * features. Notably, it does not correctly handle some features of Relay Resolvers.
  *
  * Given a fragment and a fragment reference, returns an observable that emits
  * the state of the fragment over time. The observable will emit the following
@@ -114,7 +116,7 @@ function observeFragment<TFragmentType: FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef: mixed,
-): Observable<FragmentState<TData>> {
+): mixed {
   const fragmentNode = getFragment(fragment);
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
   invariant(
@@ -124,24 +126,19 @@ function observeFragment<TFragmentType: FragmentType, TData>(
   invariant(fragmentSelector != null, 'Expected a selector, got null.');
   switch (fragmentSelector.kind) {
     case 'SingularReaderSelector':
-      return observeSelector(environment, fragment, fragmentSelector);
+      return observeSingularSelector(environment, fragment, fragmentSelector);
     case 'PluralReaderSelector': {
-      // TODO: We could use something like this RXJS's combineLatest to create
-      // an observable for each selector and merge them.
-      // https://github.com/ReactiveX/rxjs/blob/master/packages/rxjs/src/internal/observable/combineLatest.ts
-      //
-      // Note that this problem is a bit tricky because Relay currently only
-      // lets you subscribe at a singular fragment granularity. This makes it
-      // hard to batch updates such that when a store update causes multiple
-      // fragments to change, we can only publish a single update to the
-      // fragment owner.
-      invariant(false, 'Plural fragments are not supported');
+      return observePluralSelector(
+        environment,
+        (fragment: $FlowFixMe),
+        fragmentSelector,
+      );
     }
   }
   invariant(false, 'Unsupported fragment selector kind');
 }
 
-function observeSelector<TFragmentType: FragmentType, TData>(
+function observeSingularSelector<TFragmentType: FragmentType, TData>(
   environment: IEnvironment,
   fragmentNode: Fragment<TFragmentType, TData>,
   fragmentSelector: SingularReaderSelector,
@@ -170,6 +167,49 @@ function observeSelector<TFragmentType: FragmentType, TData>(
     });
 
     return () => subscription.dispose();
+  });
+}
+
+function observePluralSelector<
+  TFragmentType: FragmentType,
+  TData: Array<mixed>,
+>(
+  environment: IEnvironment,
+  fragmentNode: Fragment<TFragmentType, TData>,
+  fragmentSelector: PluralReaderSelector,
+): Observable<FragmentState<TData>> {
+  const snapshots = fragmentSelector.selectors.map(selector =>
+    environment.lookup(selector),
+  );
+
+  return Observable.create(sink => {
+    // This array is mutable since each subscription updates the array in place.
+    const states = snapshots.map((snapshot, index) =>
+      snapshotToFragmentState(
+        environment,
+        fragmentNode,
+        fragmentSelector.selectors[index].owner,
+        snapshot,
+      ),
+    );
+
+    sink.next((mergeFragmentStates(states): $FlowFixMe));
+
+    const subscriptions = snapshots.map((snapshot, index) =>
+      environment.subscribe(snapshot, latestSnapshot => {
+        states[index] = snapshotToFragmentState(
+          environment,
+          fragmentNode,
+          fragmentSelector.selectors[index].owner,
+          latestSnapshot,
+        );
+        // This doesn't batch updates, so it will notify the subscriber multiple times
+        // if a store update impacting multiple items in the list is published.
+        sink.next((mergeFragmentStates(states): $FlowFixMe));
+      }),
+    );
+
+    return () => subscriptions.forEach(subscription => subscription.dispose());
   });
 }
 
@@ -227,6 +267,20 @@ function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
   invariant(snapshot.data != null, 'Expected data to be non-null.');
 
   return {state: 'ok', value: (snapshot.data: $FlowFixMe)};
+}
+
+function mergeFragmentStates<T>(
+  states: $ReadOnlyArray<FragmentState<T>>,
+): FragmentState<Array<T>> {
+  const value = [];
+  for (const state of states) {
+    if (state.state === 'ok') {
+      value.push(state.value);
+    } else {
+      return state;
+    }
+  }
+  return {state: 'ok', value};
 }
 
 module.exports = {

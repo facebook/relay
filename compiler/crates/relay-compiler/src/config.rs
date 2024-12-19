@@ -994,12 +994,12 @@ impl SingleProjectConfigFile {
                 }
             })?,
         );
-        for extension_dir in self.schema_extensions.iter() {
+        for extension_path in self.schema_extensions.iter() {
             paths.push(
-                canonicalize(root_dir.join(extension_dir.clone())).map_err(|_| {
-                    ConfigValidationError::ExtensionDirNotExistent {
+                canonicalize(root_dir.join(extension_path.clone())).map_err(|_| {
+                    ConfigValidationError::ExtensionPathNotExistent {
                         project_name: self.project_name,
-                        extension_dir: extension_dir.clone(),
+                        extension_path: extension_path.clone(),
                     }
                 })?,
             );

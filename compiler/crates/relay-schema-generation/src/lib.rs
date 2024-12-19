@@ -42,7 +42,7 @@ use find_resolver_imports::JSImportType;
 use find_resolver_imports::ModuleResolution;
 use find_resolver_imports::ModuleResolutionKey;
 use fnv::FnvBuildHasher;
-use fnv::FnvHashSet;
+use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
@@ -251,11 +251,10 @@ impl RelayResolverExtractor {
                 .into_iter()
                 .partition(|(comment, _, _, _)| comment.contains("@gqlField"));
 
-        let gql_comments = FnvHashSet::from_iter(
-            gql_field_comments
-                .into_iter()
-                .map(|(_, _, _, node_range)| node_range),
-        );
+        let gql_comments =
+            FnvHashMap::from_iter(gql_field_comments.into_iter().map(
+                |(comment, comment_range, _, node_range)| (node_range, (comment, comment_range)),
+            ));
 
         let result = try_all(
             attached_comments

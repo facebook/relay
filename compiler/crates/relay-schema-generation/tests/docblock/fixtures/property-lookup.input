@@ -13,10 +13,17 @@
 export type Cat = {
   /**
    * @gqlField
+   *
+   * This is the full name of the cat
    */
   name: string,
   /**
    * @gqlField
    */
-   color: string,
+  color: string,
+  /**
+   * @gqlField
+   * @deprecated Just use name instead
+   */
+  first_name: number,
 };

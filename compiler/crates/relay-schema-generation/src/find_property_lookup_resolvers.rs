@@ -16,12 +16,15 @@ use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
-use fnv::FnvHashSet;
+use docblock_syntax::parse_docblock;
+use fnv::FnvHashMap;
 use hermes_estree::ObjectTypePropertyKey;
 use hermes_estree::Range;
 use hermes_estree::SourceRange;
 use hermes_estree::Visitor;
 
+use crate::get_deprecated;
+use crate::get_description;
 use crate::FieldDefinitionInfo;
 use crate::SchemaGenerationError;
 use crate::UnresolvedFieldDefinition;
@@ -38,7 +41,7 @@ pub struct PropertyVisitor<'a> {
     source_hash: ResolverSourceHash,
     pub errors: Vec<Diagnostic>,
     entity_name: WithLocation<StringKey>,
-    resolver_node_ranges: &'a FnvHashSet<SourceRange>,
+    resolver_node_ranges: &'a FnvHashMap<SourceRange, (&'a str, SourceRange)>,
     pub field_definitions: Vec<UnresolvedFieldDefinition>,
 }
 
@@ -47,7 +50,7 @@ impl<'a> PropertyVisitor<'a> {
         source_module_path: &str,
         source_hash: ResolverSourceHash,
         entity_name: WithLocation<StringKey>,
-        resolver_node_ranges: &'a FnvHashSet<SourceRange>,
+        resolver_node_ranges: &'a FnvHashMap<SourceRange, (&'a str, SourceRange)>,
     ) -> Self {
         Self {
             location: SourceLocationKey::standalone(source_module_path),
@@ -62,7 +65,7 @@ impl<'a> PropertyVisitor<'a> {
 
 impl Visitor<'_> for PropertyVisitor<'_> {
     fn visit_object_type_property(&mut self, ast: &'_ hermes_estree::ObjectTypeProperty) {
-        if self.resolver_node_ranges.contains(&ast.range) {
+        if self.resolver_node_ranges.contains_key(&ast.range) {
             let field_name = match &ast.key {
                 ObjectTypePropertyKey::Identifier(id) => WithLocation::from_span(
                     self.location,
@@ -77,13 +80,29 @@ impl Visitor<'_> for PropertyVisitor<'_> {
                     return;
                 }
             };
+            let (comment, comment_range) = self.resolver_node_ranges.get(&ast.range).unwrap();
+            let docblock = match parse_docblock(comment, self.location) {
+                Ok(docblock) => docblock,
+                Err(err) => {
+                    self.errors.extend(err);
+                    return;
+                }
+            };
+            let description = match get_description(&docblock, *comment_range) {
+                Ok(description) => description,
+                Err(err) => {
+                    self.errors.extend(err);
+                    return;
+                }
+            };
+            let deprecated = get_deprecated(&docblock);
             let field_definition = UnresolvedFieldDefinition {
                 field_name,
                 entity_name: Some(self.entity_name),
                 return_type: ast.value.clone(),
                 source_hash: self.source_hash,
-                description: None, // TODO
-                deprecated: None,  // TODO
+                description,
+                deprecated,
                 entity_type: None,
                 field_info: FieldDefinitionInfo::PropertyLookupInfo,
             };

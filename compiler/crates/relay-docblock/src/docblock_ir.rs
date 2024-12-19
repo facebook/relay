@@ -404,6 +404,7 @@ fn parse_terse_relay_resolver_ir(
         fragment_arguments,
         source_hash,
         type_confirmed: false,
+        is_property_lookup: false,
     })
 }
 

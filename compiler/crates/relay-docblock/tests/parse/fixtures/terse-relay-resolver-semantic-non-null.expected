@@ -114,6 +114,7 @@ Field(
                 "ba2a3b6d7c4294fef33f921df3b20065",
             ),
             type_confirmed: false,
+            is_property_lookup: false,
         },
     ),
 )

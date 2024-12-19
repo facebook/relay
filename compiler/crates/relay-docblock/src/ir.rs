@@ -32,6 +32,7 @@ use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
+use docblock_shared::RESOLVER_IS_PROPERTY_LOOKUP;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
@@ -373,6 +374,7 @@ trait ResolverIr: Sized {
     fn source_hash(&self) -> ResolverSourceHash;
     fn semantic_non_null(&self) -> Option<ConstantDirective>;
     fn type_confirmed(&self) -> bool;
+    fn is_property_lookup(&self) -> bool;
 
     fn to_graphql_schema_ast(
         self,
@@ -514,7 +516,12 @@ trait ResolverIr: Sized {
                 }
             }
         }
-
+        if self.is_property_lookup() {
+            arguments.push(true_argument(
+                RESOLVER_IS_PROPERTY_LOOKUP.0,
+                Location::generated(),
+            ));
+        }
         let schema = project_config.schema;
 
         if let Some(output_type) = self.output_type() {
@@ -821,6 +828,7 @@ pub struct TerseRelayResolverIr {
     /// Indicates that the extraction method used has already validated that the
     /// implementaiton matches the GraphQL types.
     pub type_confirmed: bool,
+    pub is_property_lookup: bool,
 }
 
 impl ResolverIr for TerseRelayResolverIr {
@@ -925,6 +933,10 @@ impl ResolverIr for TerseRelayResolverIr {
 
     fn type_confirmed(&self) -> bool {
         self.type_confirmed
+    }
+
+    fn is_property_lookup(&self) -> bool {
+        self.is_property_lookup
     }
 }
 
@@ -1118,6 +1130,10 @@ impl ResolverIr for LegacyVerboseResolverIr {
     fn type_confirmed(&self) -> bool {
         false
     }
+
+    fn is_property_lookup(&self) -> bool {
+        false
+    }
 }
 
 impl ResolverTypeDefinitionIr for LegacyVerboseResolverIr {
@@ -1266,6 +1282,10 @@ impl ResolverIr for StrongObjectIr {
     }
     fn type_confirmed(&self) -> bool {
         self.type_confirmed
+    }
+
+    fn is_property_lookup(&self) -> bool {
+        false
     }
 }
 
@@ -1455,6 +1475,10 @@ impl ResolverIr for WeakObjectIr {
 
     fn type_confirmed(&self) -> bool {
         self.type_confirmed
+    }
+
+    fn is_property_lookup(&self) -> bool {
+        false
     }
 }
 

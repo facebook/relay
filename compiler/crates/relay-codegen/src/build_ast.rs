@@ -52,6 +52,7 @@ use relay_transforms::get_resolver_fragment_dependency_name;
 use relay_transforms::relay_resolvers::get_resolver_info;
 use relay_transforms::relay_resolvers::resolver_import_alias;
 use relay_transforms::relay_resolvers::ResolverInfo;
+use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use relay_transforms::remove_directive;
 use relay_transforms::CatchMetadataDirective;
 use relay_transforms::ClientEdgeMetadata;
@@ -94,6 +95,7 @@ use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
 use crate::ast::RequestParameters;
+use crate::ast::ResolverJSFunction;
 use crate::ast::ResolverModuleReference;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
@@ -1449,6 +1451,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 },
             )),
             type_confirmed: relay_resolver_metadata.type_confirmed,
+            resolver_type: ResolverSchemaGenType::ResolverModule,
         };
         let fragment_primitive = Primitive::Key(self.object(object! {
             args: Primitive::SkippableNull,
@@ -1534,10 +1537,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 ),
             );
 
+            let resolver_fn = match relay_resolver_metadata.resolver_type {
+                ResolverSchemaGenType::ResolverModule => {
+                    ResolverJSFunction::Module(resolver_js_module)
+                }
+                ResolverSchemaGenType::PropertyLookup => {
+                    ResolverJSFunction::PropertyLookup(field.name.item.to_string())
+                }
+            };
+
             Primitive::RelayResolverModel {
                 graphql_module_name: fragment_name.item.0,
                 graphql_module_path: fragment_import_path,
-                js_module: resolver_js_module,
+                resolver_fn,
                 injected_field_name_details: match injection_mode {
                     FragmentDataInjectionMode::Field { name, is_required } => {
                         Some((name, is_required))

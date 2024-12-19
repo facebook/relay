@@ -40,6 +40,7 @@ fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
       #     output_type_info: Legacy,
       #     fragment_data_injection_mode: None,
       #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
       # }
       
       __id @__RelayResolverMetadata
@@ -54,6 +55,7 @@ fragment conditionOnInlineFragmentWithoutTypeOnInterfaceFragment on Cat {
       #     output_type_info: Legacy,
       #     fragment_data_injection_mode: None,
       #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
       # }
       
     }

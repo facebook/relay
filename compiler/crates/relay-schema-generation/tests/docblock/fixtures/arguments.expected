@@ -123,6 +123,7 @@ Field(
                 "9eb0075d1ca5f38ce3ae8a364b4fb1be",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -236,6 +237,7 @@ Field(
                 "9eb0075d1ca5f38ce3ae8a364b4fb1be",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )

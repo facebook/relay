@@ -45,6 +45,7 @@ use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
+use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use relay_transforms::CatchMetadataDirective;
 use relay_transforms::CatchTo;
 use relay_transforms::ClientEdgeMetadata;
@@ -639,12 +640,13 @@ fn import_relay_resolver_function_type(
         None => None,
     };
 
-    let resolver_type = if resolver_metadata.type_confirmed
+    let resolver_type = if (resolver_metadata.type_confirmed
         && typegen_context
             .project_config
             .feature_flags
             .omit_resolver_type_assertions_for_confirmed_types
-            .is_fully_enabled()
+            .is_fully_enabled())
+        || resolver_metadata.resolver_type == ResolverSchemaGenType::PropertyLookup
     {
         None
     } else {
@@ -663,17 +665,19 @@ fn import_relay_resolver_function_type(
         ))
     };
 
-    let imported_resolver = ImportedResolver {
-        resolver_name,
-        resolver_type,
-        import_path,
-        context_import,
-    };
+    if resolver_metadata.resolver_type != ResolverSchemaGenType::PropertyLookup {
+        let imported_resolver = ImportedResolver {
+            resolver_name,
+            resolver_type,
+            import_path,
+            context_import,
+        };
 
-    imported_resolvers
-        .0
-        .entry(local_resolver_name)
-        .or_insert(imported_resolver);
+        imported_resolvers
+            .0
+            .entry(local_resolver_name)
+            .or_insert(imported_resolver);
+    }
 }
 
 /// Check if the scalar field has the special type `RelayResolverValue`. This is a type that

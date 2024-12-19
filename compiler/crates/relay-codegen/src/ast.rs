@@ -98,6 +98,12 @@ pub enum GraphQLModuleDependency {
 }
 
 #[derive(Eq, PartialEq, Hash, Debug)]
+pub enum ResolverJSFunction {
+    Module(JSModuleDependency),
+    PropertyLookup(String),
+}
+
+#[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
     Variable(StringKey),
@@ -122,7 +128,7 @@ pub enum Primitive {
     RelayResolverModel {
         graphql_module_name: StringKey,
         graphql_module_path: StringKey,
-        js_module: JSModuleDependency,
+        resolver_fn: ResolverJSFunction,
         injected_field_name_details: Option<(StringKey, bool)>,
     },
 }

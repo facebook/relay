@@ -52,6 +52,7 @@ query edgeToAbstractTypeWithInlineFragmentQuery {
         #     output_type_info: Legacy,
         #     fragment_data_injection_mode: None,
         #     type_confirmed: false,
+        #     resolver_type: ResolverModule,
         # }
         
       }

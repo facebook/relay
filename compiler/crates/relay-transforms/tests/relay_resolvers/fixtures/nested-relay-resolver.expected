@@ -38,6 +38,7 @@ fragment Foo_user on User {
   #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
   #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
   # }
   
 }
@@ -56,6 +57,7 @@ fragment HobbitNameResolverFragment_name on User {
   #     output_type_info: Legacy,
   #     fragment_data_injection_mode: None,
   #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
   # }
   
 }

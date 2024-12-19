@@ -53,6 +53,7 @@ fragment Foo_user on ClientUser {
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
     #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
     # }
     
     best_friend {
@@ -79,6 +80,7 @@ fragment Foo_user on ClientUser {
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
         #     type_confirmed: false,
+        #     resolver_type: ResolverModule,
         # }
         
         best_friend {

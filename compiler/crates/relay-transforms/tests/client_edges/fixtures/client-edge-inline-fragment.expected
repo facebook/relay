@@ -53,6 +53,7 @@ fragment Foo_node on Node {
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
         #     type_confirmed: false,
+        #     resolver_type: ResolverModule,
         # }
          @waterfall
         best_friend @waterfall {
@@ -83,6 +84,7 @@ fragment Foo_node on Node {
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
         #     type_confirmed: false,
+        #     resolver_type: ResolverModule,
         # }
          @waterfall
         best_friend @waterfall {

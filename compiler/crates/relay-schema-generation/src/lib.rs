@@ -59,6 +59,7 @@ use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
 use hermes_comments::find_nodes_after_comments;
+use hermes_comments::AttachedComments;
 use hermes_estree::Declaration;
 use hermes_estree::FlowTypeAnnotation;
 use hermes_estree::Function;
@@ -134,17 +135,24 @@ pub struct RelayResolverExtractor {
     custom_scalar_map: FnvIndexMap<CustomType, ScalarName>,
 }
 
+enum FieldDefinitionInfo {
+    ResolverFunctionInfo {
+        arguments: Option<FlowTypeAnnotation>,
+        is_live: Option<Location>,
+        root_fragment: Option<(WithLocation<FragmentDefinitionName>, Vec<Argument>)>,
+    },
+    PropertyLookupInfo,
+}
+
 struct UnresolvedFieldDefinition {
     entity_name: Option<WithLocation<StringKey>>,
     field_name: WithLocation<StringKey>,
     return_type: FlowTypeAnnotation,
-    arguments: Option<FlowTypeAnnotation>,
     source_hash: ResolverSourceHash,
-    is_live: Option<Location>,
     description: Option<WithLocation<StringKey>>,
     deprecated: Option<IrField>,
-    root_fragment: Option<(WithLocation<FragmentDefinitionName>, Vec<Argument>)>,
     entity_type: Option<WithLocation<StringKey>>,
+    field_info: FieldDefinitionInfo,
 }
 
 impl Default for RelayResolverExtractor {
@@ -233,6 +241,11 @@ impl RelayResolverExtractor {
         let module_resolution = import_export_visitor.get_module_resolution(&ast)?;
 
         let attached_comments = find_nodes_after_comments(&ast, &comments);
+        // TODO: use the gqlField comments
+        let (_gql_field_comments, attached_comments): (AttachedComments<'_>, AttachedComments<'_>) =
+            attached_comments
+                .into_iter()
+                .partition(|(comment, _, _, _)| comment.contains("@gqlField"));
 
         let result = try_all(
             attached_comments
@@ -280,13 +293,15 @@ impl RelayResolverExtractor {
                                         entity_name,
                                         field_name: name,
                                         return_type,
-                                        arguments,
                                         source_hash,
-                                        is_live,
                                         description,
                                         deprecated,
-                                        root_fragment: None,
                                         entity_type: None,
+                                        field_info: FieldDefinitionInfo::ResolverFunctionInfo {
+                                            arguments,
+                                            is_live,
+                                            root_fragment: None,
+                                        },
                                     },
                                 )?
                             } else {
@@ -379,27 +394,47 @@ impl RelayResolverExtractor {
                         // Special case: we attach the field to the `Query` type when there is no entity
                         WithLocation::new(field.field_name.location, intern!("Query"))
                     };
-                    let arguments = if let Some(args) = field.arguments {
-                        Some(flow_type_to_field_arguments(
-                            source_location,
-                            &self.custom_scalar_map,
-                            &args,
-                            module_resolution,
-                            &self.type_definitions,
-                        )?)
-                    } else {
-                        None
+                    let is_property_lookup = match field.field_info {
+                        FieldDefinitionInfo::PropertyLookupInfo => true,
+                        FieldDefinitionInfo::ResolverFunctionInfo { .. } => false,
                     };
-                    if let (Some(field_arguments), Some((root_fragment, fragment_arguments))) =
-                        (&arguments, &field.root_fragment)
-                    {
-                        relay_docblock::validate_fragment_arguments(
-                            source_location,
-                            field_arguments,
-                            root_fragment.location.source_location(),
-                            fragment_arguments,
-                        )?;
-                    }
+                    let (arguments, is_live, (root_fragment, fragment_arguments)) =
+                        match field.field_info {
+                            FieldDefinitionInfo::ResolverFunctionInfo {
+                                arguments,
+                                is_live,
+                                root_fragment,
+                            } => {
+                                let args = if let Some(args) = arguments {
+                                    Some(flow_type_to_field_arguments(
+                                        source_location,
+                                        &self.custom_scalar_map,
+                                        &args,
+                                        module_resolution,
+                                        &self.type_definitions,
+                                    )?)
+                                } else {
+                                    None
+                                };
+
+                                if let (
+                                    Some(field_arguments),
+                                    Some((root_fragment, fragment_arguments)),
+                                ) = (&args, &root_fragment)
+                                {
+                                    relay_docblock::validate_fragment_arguments(
+                                        source_location,
+                                        field_arguments,
+                                        root_fragment.location.source_location(),
+                                        fragment_arguments,
+                                    )?;
+                                }
+
+                                (args, is_live, root_fragment.unzip())
+                            }
+                            FieldDefinitionInfo::PropertyLookupInfo => (None, None, (None, None)),
+                        };
+                    let live = is_live.map(|loc| UnpopulatedIrField { key_location: loc });
                     let description_node = field.description.map(|desc| StringNode {
                         token: Token {
                             span: desc.location.span(),
@@ -425,10 +460,6 @@ impl RelayResolverExtractor {
                         hack_source: None,
                         span: field.field_name.location.span(),
                     };
-                    let live = field
-                        .is_live
-                        .map(|loc| UnpopulatedIrField { key_location: loc });
-                    let (root_fragment, fragment_arguments) = field.root_fragment.unzip();
                     self.resolved_field_definitions.push(TerseRelayResolverIr {
                         field: field_definition,
                         type_,
@@ -443,6 +474,7 @@ impl RelayResolverExtractor {
                             field.field_name.location,
                         ),
                         type_confirmed: true,
+                        is_property_lookup,
                     });
                     Ok(())
                 }),
@@ -489,8 +521,23 @@ impl RelayResolverExtractor {
                 );
                 let fragment_arguments =
                     relay_docblock::extract_fragment_arguments(&fragment_definition).transpose()?;
-                field_definition.root_fragment =
-                    Some((fragment, fragment_arguments.unwrap_or(vec![])));
+                field_definition.field_info = match field_definition.field_info {
+                    FieldDefinitionInfo::ResolverFunctionInfo {
+                        arguments,
+                        is_live,
+                        root_fragment: _,
+                    } => FieldDefinitionInfo::ResolverFunctionInfo {
+                        arguments,
+                        is_live,
+                        root_fragment: Some((fragment, fragment_arguments.unwrap_or(vec![]))),
+                    },
+                    FieldDefinitionInfo::PropertyLookupInfo => {
+                        return Err(vec![Diagnostic::error(
+                            SchemaGenerationError::ExpectedResolverFunctionWithRootFragment,
+                            entity_name.location,
+                        )]);
+                    }
+                }
             }
         }
         self.unresolved_field_definitions
@@ -623,17 +670,15 @@ impl RelayResolverExtractor {
                                 entity_name: Some(name),
                                 field_name,
                                 return_type: field_type.clone(),
-                                arguments: None,
                                 source_hash,
-                                is_live: None,
                                 description,
                                 deprecated: None,
-                                root_fragment: None,
                                 entity_type: Some(
                                     weak_object
                                         .type_name
                                         .name_with_location(weak_object.location.source_location()),
                                 ),
+                                field_info: FieldDefinitionInfo::PropertyLookupInfo,
                             },
                             self.current_location,
                         ));

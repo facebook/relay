@@ -97,6 +97,7 @@ Field(
                 "dcf10bac1041d7f30f36c2bd311d01b8",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -155,6 +156,7 @@ Field(
                 "dcf10bac1041d7f30f36c2bd311d01b8",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )

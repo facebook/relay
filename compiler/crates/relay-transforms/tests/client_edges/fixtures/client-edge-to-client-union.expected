@@ -64,6 +64,7 @@ fragment FeedbackFragmentType on User {
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
     #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
     # }
     
     feedback_as_union {

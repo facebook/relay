@@ -92,6 +92,7 @@ Field(
                 "78b9d79fcbb849dee2ae7a1d6d275e22",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -144,6 +145,7 @@ Field(
                 "78b9d79fcbb849dee2ae7a1d6d275e22",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )

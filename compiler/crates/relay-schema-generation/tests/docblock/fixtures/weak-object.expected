@@ -88,6 +88,7 @@ Field(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -140,6 +141,7 @@ Field(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -192,6 +194,7 @@ Field(
                 "67480ced829a656aa50d7f407d9529d0",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )

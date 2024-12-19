@@ -81,6 +81,7 @@ Field(
                 "7bd696850a88d12b6ebff3689599d699",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -133,6 +134,7 @@ Field(
                 "179d2d09d0726f713ad290a603cc35c6",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )

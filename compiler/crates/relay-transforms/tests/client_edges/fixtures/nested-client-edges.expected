@@ -42,6 +42,7 @@ fragment Foo_user on User {
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
     #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
     # }
      @waterfall
     best_friend @waterfall {
@@ -65,6 +66,7 @@ fragment Foo_user on User {
         #     output_type_info: EdgeTo,
         #     fragment_data_injection_mode: None,
         #     type_confirmed: false,
+        #     resolver_type: ResolverModule,
         # }
          @waterfall
         best_friend @waterfall {
@@ -123,6 +125,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
     #     output_type_info: EdgeTo,
     #     fragment_data_injection_mode: None,
     #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
     # }
      @waterfall
     best_friend @waterfall {

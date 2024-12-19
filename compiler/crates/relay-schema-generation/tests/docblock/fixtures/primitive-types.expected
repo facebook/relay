@@ -91,6 +91,7 @@ Field(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -143,6 +144,7 @@ Field(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -195,6 +197,7 @@ Field(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -247,6 +250,7 @@ Field(
                 "41bd781893c904ec9352255c4f6e974e",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )

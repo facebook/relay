@@ -101,6 +101,7 @@ Field(
                 "fc15c065174264428a3632fe9cf329d6",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -153,6 +154,7 @@ Field(
                 "fc15c065174264428a3632fe9cf329d6",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )
@@ -205,6 +207,7 @@ Field(
                 "fc15c065174264428a3632fe9cf329d6",
             ),
             type_confirmed: true,
+            is_property_lookup: false,
         },
     ),
 )

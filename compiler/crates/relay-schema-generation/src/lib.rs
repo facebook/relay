@@ -10,6 +10,7 @@
 #![deny(clippy::all)]
 
 mod errors;
+mod find_property_lookup_resolvers;
 mod find_resolver_imports;
 
 use std::collections::hash_map::Entry;
@@ -41,6 +42,7 @@ use find_resolver_imports::JSImportType;
 use find_resolver_imports::ModuleResolution;
 use find_resolver_imports::ModuleResolutionKey;
 use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
@@ -72,6 +74,7 @@ use hermes_estree::Range;
 use hermes_estree::SourceRange;
 use hermes_estree::TypeAlias;
 use hermes_estree::TypeAnnotationEnum;
+use hermes_estree::Visitor;
 use hermes_parser::parse;
 use hermes_parser::ParseResult;
 use hermes_parser::ParserDialect;
@@ -91,6 +94,8 @@ use relay_docblock::UnpopulatedIrField;
 use relay_docblock::WeakObjectIr;
 use rustc_hash::FxHashMap;
 use schema_extractor::SchemaExtractor;
+
+use crate::find_property_lookup_resolvers::PropertyVisitor;
 
 pub static LIVE_FLOW_TYPE_NAME: &str = "LiveState";
 
@@ -241,11 +246,16 @@ impl RelayResolverExtractor {
         let module_resolution = import_export_visitor.get_module_resolution(&ast)?;
 
         let attached_comments = find_nodes_after_comments(&ast, &comments);
-        // TODO: use the gqlField comments
-        let (_gql_field_comments, attached_comments): (AttachedComments<'_>, AttachedComments<'_>) =
+        let (gql_field_comments, attached_comments): (AttachedComments<'_>, AttachedComments<'_>) =
             attached_comments
                 .into_iter()
                 .partition(|(comment, _, _, _)| comment.contains("@gqlField"));
+
+        let gql_comments = FnvHashSet::from_iter(
+            gql_field_comments
+                .into_iter()
+                .map(|(_, _, _, node_range)| node_range),
+        );
 
         let result = try_all(
             attached_comments
@@ -320,6 +330,25 @@ impl RelayResolverExtractor {
                             type_alias,
                         }) => {
                             let name = resolver_value.field_value.unwrap_or(field_name);
+                            let mut prop_visitor = PropertyVisitor::new(
+                                source_module_path,
+                                source_hash,
+                                name,
+                                &gql_comments,
+                            );
+                            prop_visitor.visit_flow_type_annotation(&type_alias);
+                            if !prop_visitor.errors.is_empty() {
+                                return Err(prop_visitor.errors);
+                            }
+                            let field_definitions: Vec<(
+                                UnresolvedFieldDefinition,
+                                SourceLocationKey,
+                            )> = prop_visitor
+                                .field_definitions
+                                .into_iter()
+                                .map(|def| (def, prop_visitor.location))
+                                .collect();
+
                             self.add_weak_type_definition(
                                 name,
                                 type_alias,
@@ -327,7 +356,8 @@ impl RelayResolverExtractor {
                                 source_module_path,
                                 description,
                                 false,
-                            )?
+                            )?;
+                            self.unresolved_field_definitions.extend(field_definitions);
                         }
                     }
                     Ok(())

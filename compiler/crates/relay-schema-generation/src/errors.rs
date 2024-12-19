@@ -99,6 +99,10 @@ pub enum SchemaGenerationError {
         import_type: JSImportType,
     },
     #[error(
+        "The key of a property lookup resolver defined with @gqlField must be an identifier (not a string or computed value)."
+    )]
+    ExpectedPropertyLookupToBeIdentifer,
+    #[error(
         "This field is a property lookup but has an import for a GraphQL fragment used in the resolver. This is not allowed."
     )]
     ExpectedResolverFunctionWithRootFragment,

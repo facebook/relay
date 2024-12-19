@@ -25,7 +25,7 @@ const MIN_SHIFT: u32 = 7;
 const U32_BITS: usize = 32;
 const MIN_SIZE: u32 = 1 << MIN_SHIFT;
 const NUM_SIZES: usize = U32_BITS - MIN_SHIFT as usize;
-const MAX_INDEX: u32 = std::u32::MAX - MIN_SIZE;
+const MAX_INDEX: u32 = u32::MAX - MIN_SIZE;
 
 // Memory consistency assertions provide a lot of checking of the internals,
 // but have a huge runtime cost.  Be warned!  These are really for active
@@ -207,7 +207,7 @@ fn bucket_capacity(a: usize) -> usize {
 fn index(i: u32) -> (usize, usize) {
     memory_consistency_assert!(i >= MIN_SIZE);
     memory_consistency_assert!(i - MIN_SIZE <= MAX_INDEX);
-    memory_consistency_assert!(i as u64 <= std::usize::MAX as u64);
+    memory_consistency_assert!(i as u64 <= usize::MAX as u64);
     let a = i.leading_zeros() as usize;
     memory_consistency_assert!(a < NUM_SIZES, "{} < {}", a, NUM_SIZES);
     let b = (i & ((bucket_capacity(0) as u32 - 1) >> a)) as usize;
@@ -703,7 +703,7 @@ mod tests {
         let (a, b) = index(MIN_SIZE);
         assert_eq!(a, NUM_SIZES - 1);
         assert_eq!(b, 0);
-        let (a, b) = index(std::u32::MAX);
+        let (a, b) = index(u32::MAX);
         assert_eq!(a, 0);
         assert_eq!(b, (1 << 31) - 1);
         assert_eq!(b, bucket_capacity(0) - 1);

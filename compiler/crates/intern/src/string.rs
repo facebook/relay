@@ -380,7 +380,6 @@ mod tests {
         use std::sync::atomic::Ordering;
         use std::sync::Arc;
         use std::thread;
-        use std::u32;
 
         use rand::thread_rng;
         use rand::Rng;

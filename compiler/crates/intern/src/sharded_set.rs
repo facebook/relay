@@ -376,10 +376,7 @@ impl<T: Eq + Hash, S: BuildHasher> ShardedSet<T, S> {
         Q: ?Sized + Hash + Eq,
     {
         let (hash, shard) = self.hash_and_shard(q);
-        shard
-            .read()
-            .get(hash, |other| q == other.borrow())
-            .map(Clone::clone)
+        shard.read().get(hash, |other| q == other.borrow()).cloned()
     }
 
     /// Unconditionally insert `t` without checking if it's in the set.

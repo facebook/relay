@@ -35,6 +35,7 @@ use crate::build::build_variable_definitions;
 use crate::build::ValidationLevel;
 use crate::build_directive;
 use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::MachineMetadataKey;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::ConstantValue;
@@ -151,7 +152,7 @@ fn build_fragment_signature(
                 .location
                 .with_span(fragment.type_condition.type_.span),
         )
-        .metadata_for_machine("unknown_type", type_name.lookup())
+        .metadata_for_machine(MachineMetadataKey::UnknownType, type_name.lookup())
         .into()),
     };
     let argument_definition_directives = fragment

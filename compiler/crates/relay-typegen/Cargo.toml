@@ -19,7 +19,7 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
-itertools = "0.13.0"
+itertools = "0.14.0"
 lazy_static = "1.4"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }

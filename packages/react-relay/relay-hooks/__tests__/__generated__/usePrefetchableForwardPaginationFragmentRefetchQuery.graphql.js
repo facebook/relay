@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<569024641be3b0efc2ca9e9f5b020b7e>>
+ * @generated SignedSource<<919069c963b6880374b876874c00ed31>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-import type { usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$fragmentType } from "./usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user.graphql";
+import type { usePrefetchableForwardPaginationFragmentTest_user$fragmentType } from "./usePrefetchableForwardPaginationFragmentTest_user.graphql";
 export type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = {|
   after?: ?string,
   before?: ?string,
@@ -29,7 +29,7 @@ export type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = {|
 |};
 export type usePrefetchableForwardPaginationFragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentSpreads: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$fragmentType,
+    +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
   |},
 |};
 export type usePrefetchableForwardPaginationFragmentRefetchQuery = {|
@@ -131,7 +131,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user"
+            "name": "usePrefetchableForwardPaginationFragmentTest_user"
           }
         ],
         "storageKey": null
@@ -272,18 +272,18 @@ return {
     ]
   },
   "params": {
-    "cacheID": "392f33f21d5b262df1a92d3547ae09bc",
+    "cacheID": "2f9567322cbafd63725e67eac1c69356",
     "id": null,
     "metadata": {},
     "name": "usePrefetchableForwardPaginationFragmentRefetchQuery",
     "operationKind": "query",
-    "text": "query usePrefetchableForwardPaginationFragmentRefetchQuery(\n  $after: ID\n  $before: ID\n  $first: Int\n  $last: Int\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user\n    id\n  }\n}\n\nfragment usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user on User {\n  friends(after: $after, first: $first, before: $before, last: $last) {\n    edges {\n      ...usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n      hasPreviousPage\n      startCursor\n    }\n  }\n  id\n}\n\nfragment usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges on FriendsEdge {\n  node {\n    id\n    name\n    __typename\n  }\n  cursor\n}\n"
+    "text": "query usePrefetchableForwardPaginationFragmentRefetchQuery(\n  $after: ID\n  $before: ID\n  $first: Int\n  $last: Int\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...usePrefetchableForwardPaginationFragmentTest_user\n    id\n  }\n}\n\nfragment usePrefetchableForwardPaginationFragmentTest_user on User {\n  friends(after: $after, first: $first, before: $before, last: $last) {\n    edges {\n      ...usePrefetchableForwardPaginationFragmentTest_user__edges\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n      hasPreviousPage\n      startCursor\n    }\n  }\n  id\n}\n\nfragment usePrefetchableForwardPaginationFragmentTest_user__edges on FriendsEdge {\n  node {\n    id\n    name\n    __typename\n  }\n  cursor\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "809455a8d7ada67cb84f3d111f6c6010";
+  (node/*: any*/).hash = "b556c89ea274871519ed4779f197956d";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

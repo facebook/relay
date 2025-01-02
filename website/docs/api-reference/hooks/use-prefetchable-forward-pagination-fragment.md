@@ -2,7 +2,7 @@
 id: use-prefetchable-forward-pagination-fragment
 title: usePrefetchableForwardPaginationFragment
 slug: /api-reference/use-prefetchable-forward-pagination-fragment/
-description: API reference for usePrefetchableForwardPaginationFragment_EXPERIMENTAL, an experimental React hook used to paginate a connection and automatically prefetches
+description: API reference for usePrefetchableForwardPaginationFragment, an experimental React hook used to paginate a connection and automatically prefetches
 keywords:
   - pagination
   - connection
@@ -12,14 +12,14 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 
 NOTE: This is an experimental API and may be subject to change.
-`usePrefetchableForwardPaginationFragment_EXPERIMENTAL` is similar to [`usePaginationFragment`](../use-pagination-fragment). It adds the capability to automatically prefetch a `bufferSize` number of items to fill the buffer without displaying the items. And when `loadNext` is called, it vends from the buffer first to achieve faster pagination. It only supports forward pagination (provides APIs for `loadNext`, `hasNext` and `isLoadingNext`) for now.
+`usePrefetchableForwardPaginationFragment` is similar to [`usePaginationFragment`](../use-pagination-fragment). It adds the capability to automatically prefetch a `bufferSize` number of items to fill the buffer without displaying the items. And when `loadNext` is called, it vends from the buffer first to achieve faster pagination. It only supports forward pagination (provides APIs for `loadNext`, `hasNext` and `isLoadingNext`) for now.
 
 ```js
 import type {FriendsList_user$key} from 'FriendsList_user.graphql';
 
 const React = require('React');
 
-const {graphql, usePrefetchableForwardPaginationFragment_EXPERIMENTAL} = require('react-relay');
+const {graphql, usePrefetchableForwardPaginationFragment} = require('react-relay');
 
 type Props = {
   user: FriendsList_user$key,
@@ -33,7 +33,7 @@ function FriendsList(props: Props) {
     hasNext,
     isLoadingNext,
     refetch, // For refetching connection
-  } = usePrefetchableForwardPaginationFragment_EXPERIMENTAL(
+  } = usePrefetchableForwardPaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User
       @refetchable(queryName: "FriendsListPaginationQuery") {

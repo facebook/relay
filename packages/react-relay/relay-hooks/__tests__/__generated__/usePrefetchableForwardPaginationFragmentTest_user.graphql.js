@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<369c689b8624b2aa4e3cea4ad88d864a>>
+ * @generated SignedSource<<8becc1a8ce7b77e8e0c4d71b66d7450f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,15 +18,15 @@
 
 /*::
 import type { ReaderFragment, PrefetchableRefetchableFragment } from 'relay-runtime';
-import type { usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$fragmentType } from "./usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges.graphql";
+import type { usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType } from "./usePrefetchableForwardPaginationFragmentTest_user__edges.graphql";
 import type { FragmentType } from "relay-runtime";
-declare export opaque type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$fragmentType: FragmentType;
+declare export opaque type usePrefetchableForwardPaginationFragmentTest_user$fragmentType: FragmentType;
 type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = any;
-type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$data = any;
-export type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$data = {|
+type usePrefetchableForwardPaginationFragmentTest_user__edges$data = any;
+export type usePrefetchableForwardPaginationFragmentTest_user$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
-      +$fragmentSpreads: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$fragmentType,
+      +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
     |}>,
     +pageInfo: ?{|
       +endCursor: ?string,
@@ -36,11 +36,11 @@ export type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$data =
     |},
   |},
   +id: string,
-  +$fragmentType: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$fragmentType,
+  +$fragmentType: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
 |};
-export type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$key = {
-  +$data?: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$data,
-  +$fragmentSpreads: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$fragmentType,
+export type usePrefetchableForwardPaginationFragmentTest_user$key = {
+  +$data?: usePrefetchableForwardPaginationFragmentTest_user$data,
+  +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
   ...
 };
 */
@@ -98,10 +98,10 @@ return {
         "identifierField": "id",
         "identifierQueryVariableName": "id"
       },
-      "edgesFragment": require('./usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges.graphql')
+      "edgesFragment": require('./usePrefetchableForwardPaginationFragmentTest_user__edges.graphql')
     }
   },
-  "name": "usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user",
+  "name": "usePrefetchableForwardPaginationFragmentTest_user",
   "selections": [
     {
       "alias": "friends",
@@ -122,7 +122,7 @@ return {
             {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges"
+              "name": "usePrefetchableForwardPaginationFragmentTest_user__edges"
             }
           ],
           "storageKey": null
@@ -183,12 +183,12 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "809455a8d7ada67cb84f3d111f6c6010";
+  (node/*: any*/).hash = "b556c89ea274871519ed4779f197956d";
 }
 
 module.exports = ((node/*: any*/)/*: PrefetchableRefetchableFragment<
-  usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$fragmentType,
-  usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$data,
-  usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$data,
+  usePrefetchableForwardPaginationFragmentTest_user$fragmentType,
+  usePrefetchableForwardPaginationFragmentTest_user$data,
+  usePrefetchableForwardPaginationFragmentTest_user__edges$data,
   usePrefetchableForwardPaginationFragmentRefetchQuery$variables,
 >*/);

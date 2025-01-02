@@ -11,9 +11,9 @@
 
 'use strict';
 
-import type {usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$key} from './__generated__/usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user.graphql';
+import type {usePrefetchableForwardPaginationFragmentTest_user$key} from './__generated__/usePrefetchableForwardPaginationFragmentTest_user.graphql';
 
-const usePrefetchableForwardPaginationFragment_EXPERIMENTAL = require('../usePrefetchableForwardPaginationFragment_EXPERIMENTAL');
+const usePrefetchableForwardPaginationFragment = require('../usePrefetchableForwardPaginationFragment');
 const React = require('react');
 const {RelayEnvironmentProvider} = require('react-relay/hooks');
 const {act, create} = require('react-test-renderer');
@@ -37,7 +37,7 @@ let hasNextSpy;
 let isLoadingNextSpy;
 
 component Container(
-  userRef: ?usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user$key,
+  userRef: ?usePrefetchableForwardPaginationFragmentTest_user$key,
   minimalEdgesToFetch: number = 1,
   UNSTABLE_extraVariables?: mixed,
 ) {
@@ -48,9 +48,9 @@ component Container(
     refetch: _refetch,
     hasNext,
     isLoadingNext,
-  } = usePrefetchableForwardPaginationFragment_EXPERIMENTAL(
+  } = usePrefetchableForwardPaginationFragment(
     graphql`
-      fragment usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user on User
+      fragment usePrefetchableForwardPaginationFragmentTest_user on User
       @refetchable(
         queryName: "usePrefetchableForwardPaginationFragmentRefetchQuery"
       ) {
@@ -105,7 +105,7 @@ beforeEach(() => {
 
   query = createOperationDescriptor(
     graphql`
-      query usePrefetchableForwardPaginationFragmentEXPERIMENTALTestQuery(
+      query usePrefetchableForwardPaginationFragmentTestQuery(
         $id: ID!
         $after: ID
         $first: Int
@@ -113,7 +113,7 @@ beforeEach(() => {
         $last: Int
       ) {
         node(id: $id) {
-          ...usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user
+          ...usePrefetchableForwardPaginationFragmentTest_user
         }
       }
     `,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b673277e713696a12a7a8801c17ac46a>>
+ * @generated SignedSource<<cd23e87152132054c21d7b0c7c40aa70>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,19 +19,19 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-declare export opaque type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$fragmentType: FragmentType;
-export type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$data = $ReadOnlyArray<{|
+declare export opaque type usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType: FragmentType;
+export type usePrefetchableForwardPaginationFragmentTest_user__edges$data = $ReadOnlyArray<{|
   +cursor: ?string,
   +node: ?{|
     +__typename: "User",
     +id: string,
     +name: ?string,
   |},
-  +$fragmentType: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$fragmentType,
+  +$fragmentType: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
 |}>;
-export type usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$key = $ReadOnlyArray<{
-  +$data?: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$data,
-  +$fragmentSpreads: usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$fragmentType,
+export type usePrefetchableForwardPaginationFragmentTest_user__edges$key = $ReadOnlyArray<{
+  +$data?: usePrefetchableForwardPaginationFragmentTest_user__edges$data,
+  +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
   ...
 }>;
 */
@@ -42,7 +42,7 @@ var node/*: ReaderFragment*/ = {
   "metadata": {
     "plural": true
   },
-  "name": "usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges",
+  "name": "usePrefetchableForwardPaginationFragmentTest_user__edges",
   "selections": [
     {
       "alias": null,
@@ -89,6 +89,6 @@ var node/*: ReaderFragment*/ = {
 };
 
 module.exports = ((node/*: any*/)/*: Fragment<
-  usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$fragmentType,
-  usePrefetchableForwardPaginationFragmentEXPERIMENTALTest_user__edges$data,
+  usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
+  usePrefetchableForwardPaginationFragmentTest_user__edges$data,
 >*/);

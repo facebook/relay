@@ -69,7 +69,7 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   [string]
 - `excludes` Directories to ignore under `src`. [array] [default:
   ["\*\*/node_modules/\*\*", "\*\*/__mocks__/\*\*", "\*\*/__generated__/\*\*"]]
-- `schemaExtensions` List of directories with schema extensions. [array]
+- `schemaExtensions` List of files or directories with schema extensions. [array]
 - `schemaConfig`
   - `nodeInterfaceIdField` Configure the name of the globally unique ID field on
     the Node interface. Useful if you can't use the default `id` field name.

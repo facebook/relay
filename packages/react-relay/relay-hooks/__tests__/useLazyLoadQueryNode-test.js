@@ -195,6 +195,7 @@ beforeEach(() => {
     const originalDisposable = originalRetain(...args);
     return {
       dispose: () => {
+        // $FlowFixMe[prop-missing]
         release(args[0].variables);
         originalDisposable.dispose();
       },

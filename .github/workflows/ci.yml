@@ -96,7 +96,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
-          # And other similar references in this file
+          # And other similar references in this file and
+          # docusaurus.yml
           toolchain: nightly-2024-10-13
           override: true
       - name: "Run tests"
@@ -121,7 +122,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
-          # And other similar references in this file
+         # And other similar references in this file and
+          # docusaurus.yml
           toolchain: nightly-2024-10-13
           override: true
       - name: "Update fixture tests"
@@ -183,7 +185,8 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
-          # And other similar references in this file
+          # And other similar references in this file and
+          # docusaurus.yml
           toolchain: nightly-2024-10-13
           override: true
           target: ${{ matrix.target.target }}

@@ -51,8 +51,8 @@ lazy_static! {
         ArgumentName("type_confirmed".intern());
     /// Indicates that the resolver is just a property lookup on the underlying model (and we need to generate
     /// code to do this lookup)
-    pub static ref RESOLVER_IS_PROPERTY_LOOKUP: ArgumentName =
-        ArgumentName("is_property_lookup".intern());
+    pub static ref RESOLVER_PROPERTY_LOOKUP_NAME: ArgumentName =
+        ArgumentName("property_lookup_name".intern());
     /// "Weak" resolver types are types which are backed by a JS model value, but which don't have a stable
     /// identity. Types in the generated schema are annotated with a directive using this name to signal
     /// to the rest of Relay that they are backed by a "weak" Relay Resolver model.

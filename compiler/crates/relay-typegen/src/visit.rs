@@ -640,13 +640,17 @@ fn import_relay_resolver_function_type(
         None => None,
     };
 
+    let is_property_lookup = match resolver_metadata.resolver_type {
+        ResolverSchemaGenType::PropertyLookup { .. } => true,
+        ResolverSchemaGenType::ResolverModule => false,
+    };
     let resolver_type = if (resolver_metadata.type_confirmed
         && typegen_context
             .project_config
             .feature_flags
             .omit_resolver_type_assertions_for_confirmed_types
             .is_fully_enabled())
-        || resolver_metadata.resolver_type == ResolverSchemaGenType::PropertyLookup
+        || is_property_lookup
     {
         None
     } else {
@@ -665,7 +669,7 @@ fn import_relay_resolver_function_type(
         ))
     };
 
-    if resolver_metadata.resolver_type != ResolverSchemaGenType::PropertyLookup {
+    if !is_property_lookup {
         let imported_resolver = ImportedResolver {
             resolver_name,
             resolver_type,

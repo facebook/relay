@@ -74,7 +74,7 @@ Field(
                 "ac789e28bceef3eeaab77ae5203f43a6",
             ),
             type_confirmed: false,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )

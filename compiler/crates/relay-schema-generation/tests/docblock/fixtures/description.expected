@@ -93,7 +93,7 @@ Field(
                 "77d8976fca517fd3aea7ae4517ed9579",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -154,7 +154,7 @@ Field(
                 "77d8976fca517fd3aea7ae4517ed9579",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )

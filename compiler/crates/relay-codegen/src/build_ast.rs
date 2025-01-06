@@ -1541,8 +1541,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 ResolverSchemaGenType::ResolverModule => {
                     ResolverJSFunction::Module(resolver_js_module)
                 }
-                ResolverSchemaGenType::PropertyLookup => {
-                    ResolverJSFunction::PropertyLookup(field.name.item.to_string())
+                ResolverSchemaGenType::PropertyLookup { property_name } => {
+                    ResolverJSFunction::PropertyLookup(property_name.to_string())
                 }
             };
 

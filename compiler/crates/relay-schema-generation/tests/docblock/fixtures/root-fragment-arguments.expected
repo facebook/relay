@@ -113,7 +113,7 @@ Field(
                 "d534da5736dd3e656f91a8593a50b413",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )

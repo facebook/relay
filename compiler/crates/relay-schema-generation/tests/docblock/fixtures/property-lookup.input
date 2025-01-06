@@ -26,4 +26,8 @@ export type Cat = {
    * @deprecated Just use name instead
    */
   first_name: number,
+  /**
+   * @gqlField other_name
+   */
+  alias: number,
 };

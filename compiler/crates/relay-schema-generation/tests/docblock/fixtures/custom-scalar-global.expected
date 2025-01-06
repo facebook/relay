@@ -68,7 +68,7 @@ Field(
                 "dfc8ee95a857f2fd4e31a1f955c041c9",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )

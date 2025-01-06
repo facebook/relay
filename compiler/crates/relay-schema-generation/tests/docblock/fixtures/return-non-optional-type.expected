@@ -171,7 +171,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -241,7 +241,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -324,7 +324,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -399,7 +399,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -465,7 +465,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -535,7 +535,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -605,7 +605,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -679,7 +679,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -771,7 +771,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -867,7 +867,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )
@@ -954,7 +954,7 @@ Field(
                 "b97d5d4b012e01a0c3070bd919062a36",
             ),
             type_confirmed: true,
-            is_property_lookup: false,
+            property_lookup_name: None,
         },
     ),
 )

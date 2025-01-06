@@ -146,7 +146,10 @@ enum FieldDefinitionInfo {
         is_live: Option<Location>,
         root_fragment: Option<(WithLocation<FragmentDefinitionName>, Vec<Argument>)>,
     },
-    PropertyLookupInfo,
+    PropertyLookupInfo {
+        // If an alias is used, this may differ from the field name
+        property_name: WithLocation<StringKey>,
+    },
 }
 
 struct UnresolvedFieldDefinition {
@@ -423,9 +426,11 @@ impl RelayResolverExtractor {
                         // Special case: we attach the field to the `Query` type when there is no entity
                         WithLocation::new(field.field_name.location, intern!("Query"))
                     };
-                    let is_property_lookup = match field.field_info {
-                        FieldDefinitionInfo::PropertyLookupInfo => true,
-                        FieldDefinitionInfo::ResolverFunctionInfo { .. } => false,
+                    let property_lookup_name = match field.field_info {
+                        FieldDefinitionInfo::PropertyLookupInfo { property_name } => {
+                            Some(property_name)
+                        }
+                        FieldDefinitionInfo::ResolverFunctionInfo { .. } => None,
                     };
                     let (arguments, is_live, (root_fragment, fragment_arguments)) =
                         match field.field_info {
@@ -461,7 +466,9 @@ impl RelayResolverExtractor {
 
                                 (args, is_live, root_fragment.unzip())
                             }
-                            FieldDefinitionInfo::PropertyLookupInfo => (None, None, (None, None)),
+                            FieldDefinitionInfo::PropertyLookupInfo { .. } => {
+                                (None, None, (None, None))
+                            }
                         };
                     let live = is_live.map(|loc| UnpopulatedIrField { key_location: loc });
                     let description_node = field.description.map(|desc| StringNode {
@@ -503,7 +510,7 @@ impl RelayResolverExtractor {
                             field.field_name.location,
                         ),
                         type_confirmed: true,
-                        is_property_lookup,
+                        property_lookup_name,
                     });
                     Ok(())
                 }),
@@ -560,7 +567,7 @@ impl RelayResolverExtractor {
                         is_live,
                         root_fragment: Some((fragment, fragment_arguments.unwrap_or(vec![]))),
                     },
-                    FieldDefinitionInfo::PropertyLookupInfo => {
+                    FieldDefinitionInfo::PropertyLookupInfo { .. } => {
                         return Err(vec![Diagnostic::error(
                             SchemaGenerationError::ExpectedResolverFunctionWithRootFragment,
                             entity_name.location,
@@ -707,7 +714,9 @@ impl RelayResolverExtractor {
                                         .type_name
                                         .name_with_location(weak_object.location.source_location()),
                                 ),
-                                field_info: FieldDefinitionInfo::PropertyLookupInfo,
+                                field_info: FieldDefinitionInfo::PropertyLookupInfo {
+                                    property_name: field_name,
+                                },
                             },
                             self.current_location,
                         ));

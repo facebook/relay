@@ -22,7 +22,7 @@ use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
-use docblock_shared::RESOLVER_IS_PROPERTY_LOOKUP;
+use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -113,7 +113,7 @@ pub enum FragmentDataInjectionMode {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ResolverSchemaGenType {
     ResolverModule,
-    PropertyLookup,
+    PropertyLookup { property_name: StringKey },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -659,10 +659,11 @@ pub fn get_resolver_info(
             let type_confirmed =
                 get_bool_argument_is_true(arguments, *TYPE_CONFIRMED_ARGUMENT_NAME);
             let resolver_type =
-                if get_bool_argument_is_true(arguments, *RESOLVER_IS_PROPERTY_LOOKUP) {
-                    ResolverSchemaGenType::PropertyLookup
-                } else {
-                    ResolverSchemaGenType::ResolverModule
+                match get_argument_value(arguments, *RESOLVER_PROPERTY_LOOKUP_NAME, error_location)
+                    .ok()
+                {
+                    Some(property_name) => ResolverSchemaGenType::PropertyLookup { property_name },
+                    None => ResolverSchemaGenType::ResolverModule,
                 };
 
             Ok(ResolverInfo {

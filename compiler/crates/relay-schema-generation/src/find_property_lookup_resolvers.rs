@@ -17,6 +17,7 @@ use common::Span;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
 use docblock_syntax::parse_docblock;
+use docblock_syntax::DocblockAST;
 use fnv::FnvHashMap;
 use hermes_estree::ObjectTypePropertyKey;
 use hermes_estree::Range;
@@ -96,17 +97,25 @@ impl Visitor<'_> for PropertyVisitor<'_> {
                 }
             };
             let deprecated = get_deprecated(&docblock);
+            let alias = get_aliased_field_name(&docblock);
             let field_definition = UnresolvedFieldDefinition {
-                field_name,
+                field_name: alias.unwrap_or(field_name),
                 entity_name: Some(self.entity_name),
                 return_type: ast.value.clone(),
                 source_hash: self.source_hash,
                 description,
                 deprecated,
                 entity_type: None,
-                field_info: FieldDefinitionInfo::PropertyLookupInfo,
+                field_info: FieldDefinitionInfo::PropertyLookupInfo {
+                    property_name: field_name,
+                },
             };
             self.field_definitions.push(field_definition);
         }
     }
+}
+
+fn get_aliased_field_name(docblock: &DocblockAST) -> Option<WithLocation<StringKey>> {
+    let aliased_field = docblock.find_field("gqlField".intern());
+    aliased_field.and_then(|f| f.field_value)
 }

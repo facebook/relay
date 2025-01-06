@@ -33,7 +33,7 @@ use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
-use docblock_shared::RESOLVER_IS_PROPERTY_LOOKUP;
+use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
@@ -375,7 +375,7 @@ trait ResolverIr: Sized {
     fn source_hash(&self) -> ResolverSourceHash;
     fn semantic_non_null(&self) -> Option<ConstantDirective>;
     fn type_confirmed(&self) -> bool;
-    fn is_property_lookup(&self) -> bool;
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>>;
 
     fn to_graphql_schema_ast(
         self,
@@ -517,10 +517,11 @@ trait ResolverIr: Sized {
                 }
             }
         }
-        if self.is_property_lookup() {
-            arguments.push(true_argument(
-                RESOLVER_IS_PROPERTY_LOOKUP.0,
-                Location::generated(),
+        let property_lookup = self.property_lookup_name();
+        if property_lookup.is_some() {
+            arguments.push(string_argument(
+                RESOLVER_PROPERTY_LOOKUP_NAME.0,
+                property_lookup.unwrap(),
             ));
         }
         let schema = project_config.schema;
@@ -829,7 +830,7 @@ pub struct TerseRelayResolverIr {
     /// Indicates that the extraction method used has already validated that the
     /// implementaiton matches the GraphQL types.
     pub type_confirmed: bool,
-    pub is_property_lookup: bool,
+    pub property_lookup_name: Option<WithLocation<StringKey>>,
 }
 
 impl ResolverIr for TerseRelayResolverIr {
@@ -936,8 +937,8 @@ impl ResolverIr for TerseRelayResolverIr {
         self.type_confirmed
     }
 
-    fn is_property_lookup(&self) -> bool {
-        self.is_property_lookup
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        self.property_lookup_name
     }
 }
 
@@ -1132,8 +1133,8 @@ impl ResolverIr for LegacyVerboseResolverIr {
         false
     }
 
-    fn is_property_lookup(&self) -> bool {
-        false
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
     }
 }
 
@@ -1292,8 +1293,8 @@ impl ResolverIr for StrongObjectIr {
         self.type_confirmed
     }
 
-    fn is_property_lookup(&self) -> bool {
-        false
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
     }
 }
 
@@ -1485,8 +1486,8 @@ impl ResolverIr for WeakObjectIr {
         self.type_confirmed
     }
 
-    fn is_property_lookup(&self) -> bool {
-        false
+    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
     }
 }
 

@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
 use std::sync::Arc;
 use std::sync::Mutex;
 
 use common::PerfLogger;
+use relay_config::ProjectName;
 use relay_transforms::Programs;
 
 use crate::compiler::Compiler;
@@ -24,19 +26,24 @@ use crate::NoopArtifactWriter;
 pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
     mut config: Config,
     perf_logger: Arc<TPerfLogger>,
-) -> (Vec<Arc<Programs>>, CompilerState, Arc<Config>) {
-    let raw_programs: Arc<Mutex<Vec<Arc<Programs>>>> = Arc::new(Mutex::new(vec![]));
+) -> (
+    HashMap<ProjectName, Arc<Programs>>,
+    CompilerState,
+    Arc<Config>,
+) {
+    let raw_programs: Arc<Mutex<HashMap<ProjectName, Arc<Programs>>>> =
+        Arc::new(Mutex::new(HashMap::new()));
     let raw_programs_cloned = raw_programs.clone();
 
     config.compile_everything = true;
     config.generate_virtual_id_file_name = None;
     config.artifact_writer = Box::new(NoopArtifactWriter);
     config.generate_extra_artifacts = Some(Box::new(
-        move |_config, _project_config, _schema, programs, _artifacts| {
+        move |_config, project_config, _schema, programs, _artifacts| {
             raw_programs_cloned
                 .lock()
                 .unwrap()
-                .push(Arc::new(programs.clone()));
+                .insert(project_config.name, Arc::new(programs.clone()));
             vec![]
         },
     ));

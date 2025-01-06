@@ -286,6 +286,7 @@ async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
     let mut config = get_config(command.config)?;
     set_project_flag(&mut config, command.projects)?;
     let (programs, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
+    let programs = programs.values().cloned().collect();
 
     match run_codemod(programs, Arc::clone(&config), command.codemod).await {
         Ok(_) => Ok(()),

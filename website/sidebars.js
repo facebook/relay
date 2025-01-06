@@ -238,6 +238,7 @@ module.exports = {
             'debugging/fb/debugging-and-troubleshooting',
             'debugging/relay-devtools',
             'debugging/fb/network-logger',
+            'debugging/fb/performance-logger',
             'debugging/inconsistent-typename-error',
             'debugging/declarative-mutation-directives',
             'debugging/fb/debugging-suspense',

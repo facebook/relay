@@ -21,8 +21,7 @@ const {observeFragment} = require('./observeFragmentExperimental');
 
 /**
  * EXPERIMENTAL: This API is experimental and does not yet support all Relay
- * features. Notably, it does not correectly handle plural fragments or some
- * features of Relay Resolvers.
+ * features. Notably, it does not correctly handle some features of Relay Resolvers.
  *
  * Given a fragment and a fragment reference, returns a promise that resolves
  * once the fragment data is available, or rejects if the fragment has an error.
@@ -37,7 +36,9 @@ const {observeFragment} = require('./observeFragmentExperimental');
 async function waitForFragmentData<TFragmentType: FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
-  fragmentRef: HasSpread<TFragmentType>,
+  fragmentRef:
+    | HasSpread<TFragmentType>
+    | $ReadOnlyArray<HasSpread<TFragmentType>>,
 ): Promise<TData> {
   let subscription: ?Subscription;
 

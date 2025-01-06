@@ -428,7 +428,8 @@ describe('RelayReader error fields', () => {
       @throwOnFieldError {
         me {
           astrological_sign {
-            notes # Not in the store!
+            # Compiler forces us to use @catch here
+            notes @catch(to: NULL) # Not in the store!
           }
         }
       }
@@ -441,7 +442,7 @@ describe('RelayReader error fields', () => {
       {
         fieldPath: 'me.astrological_sign.notes',
         kind: 'missing_expected_data.throw',
-        handled: false,
+        handled: true,
         owner:
           'RelayReaderRelayErrorHandlingTestResolverClientEdgeClientObjectWithMissingDataQuery',
       },
@@ -466,7 +467,8 @@ describe('RelayReader error fields', () => {
       query RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery
       @throwOnFieldError {
         all_astrological_signs {
-          notes # Not in the store!
+          # Compiler forces us to use @catch here
+          notes @catch(to: NULL) # Not in the store!
         }
       }
     `;
@@ -476,7 +478,7 @@ describe('RelayReader error fields', () => {
       expect(errorResponseFields[i]).toEqual({
         fieldPath: `all_astrological_signs.${i}.notes`,
         kind: 'missing_expected_data.throw',
-        handled: false,
+        handled: true,
         owner:
           'RelayReaderRelayErrorHandlingTestResolverClientPluralEdgeClientObjectWithMissingDataQuery',
       });

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d6630ed382da6036aa01ec801c665bad>>
+ * @generated SignedSource<<9f99ce813649707c96a87f5ada94fd01>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -93,7 +93,11 @@ return {
           "name": "all_astrological_signs",
           "plural": true,
           "selections": [
-            (v0/*: any*/)
+            {
+              "kind": "CatchField",
+              "field": (v0/*: any*/),
+              "to": "NULL"
+            }
           ],
           "storageKey": null
         }
@@ -171,7 +175,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "301d67aac4a492fec857e800bb8ce687";
+  (node/*: any*/).hash = "643cec3823d195129218fe86f024fb41";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

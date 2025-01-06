@@ -1,0 +1,11 @@
+query MyQuery @throwOnFieldError {
+  me @catch {
+    client_field
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_field: String
+}

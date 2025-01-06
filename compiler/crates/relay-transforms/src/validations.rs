@@ -12,6 +12,7 @@ mod disallow_readtime_features_in_mutations;
 mod disallow_required_on_non_null_field;
 mod disallow_reserved_aliases;
 mod disallow_typename_on_root;
+mod validate_client_schema_extensions_use_catch;
 mod validate_connections;
 mod validate_fragment_alias_conflict;
 mod validate_global_variable_names;
@@ -37,6 +38,7 @@ pub use disallow_required_on_non_null_field::disallow_required_on_non_null_field
 pub use disallow_required_on_non_null_field::disallow_required_on_non_null_field_for_executable_definition;
 pub use disallow_reserved_aliases::disallow_reserved_aliases;
 pub use disallow_typename_on_root::disallow_typename_on_root;
+pub use validate_client_schema_extensions_use_catch::validate_client_schema_extensions_use_catch;
 pub use validate_connections::validate_connections;
 pub use validate_fragment_alias_conflict::validate_fragment_alias_conflict;
 pub use validate_global_variable_names::validate_global_variable_names;

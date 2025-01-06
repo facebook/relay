@@ -1,0 +1,10 @@
+# expected-to-throw
+query MyQuery @throwOnFieldError {
+  client_field
+}
+
+# %extensions%
+
+extend type Query {
+  client_field: String
+}

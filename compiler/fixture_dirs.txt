@@ -94,6 +94,7 @@ crates/relay-transforms/tests/validate_no_unselectable_selections
 crates/relay-transforms/tests/validate_module_names
 crates/relay-transforms/tests/validate_relay_directives
 crates/relay-transforms/tests/validate_required_arguments
+crates/relay-transforms/tests/validate_client_schema_extensions_use_catch
 crates/relay-transforms/tests/validate_server_only_directives
 crates/relay-transforms/tests/validate_static_args
 crates/relay-transforms/tests/validate_unused_variables

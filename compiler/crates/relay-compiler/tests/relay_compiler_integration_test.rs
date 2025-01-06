@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44313b4ad0ca41fac58e6a820c78a157>>
+ * @generated SignedSource<<73cd290ab5054a643e2e27b6b67d7d1b>>
  */
 
 mod relay_compiler_integration;
@@ -45,6 +45,13 @@ async fn client_mutation_resolver_invalid_nonscalar() {
     let input = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected");
     test_fixture(transform_fixture, file!(), "client_mutation_resolver_invalid_nonscalar.input", "relay_compiler_integration/fixtures/client_mutation_resolver_invalid_nonscalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn client_schema_extension_in_throw_on_field_error() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_schema_extension_in_throw_on_field_error.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_schema_extension_in_throw_on_field_error.expected");
+    test_fixture(transform_fixture, file!(), "client_schema_extension_in_throw_on_field_error.input", "relay_compiler_integration/fixtures/client_schema_extension_in_throw_on_field_error.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -143,6 +150,13 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolvers_in_throw_on_field_error() {
+    let input = include_str!("relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.expected");
+    test_fixture(transform_fixture, file!(), "relay_resolvers_in_throw_on_field_error.input", "relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.expected", input, expected).await;
 }
 
 #[tokio::test]

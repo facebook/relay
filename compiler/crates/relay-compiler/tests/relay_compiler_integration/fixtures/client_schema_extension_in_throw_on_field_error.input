@@ -1,0 +1,25 @@
+//- foo.js
+graphql`query fooQuery @throwOnFieldError {
+  client_field
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ]
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+
+extend type Query {
+  client_field: String
+}

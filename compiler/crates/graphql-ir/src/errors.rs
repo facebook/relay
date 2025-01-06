@@ -18,13 +18,17 @@ use intern::Lookup;
 use schema::suggestion_list::did_you_mean;
 use schema::Type;
 use schema::TypeReference;
+use serde::Deserialize;
 use thiserror::Error;
 
 use crate::ir::FragmentDefinitionName;
 use crate::VariableName;
 
 #[derive(
+    Debug,
+    Deserialize,
     Eq,
+    Hash,
     Ord,
     PartialEq,
     PartialOrd,

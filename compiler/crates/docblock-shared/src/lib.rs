@@ -38,6 +38,9 @@ lazy_static! {
     /// a Relay Resolver model.
     pub static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__RelayResolverModel".intern());
+    /// A field directive which indicates that the field is the generated ID field for a model type.
+    pub static ref RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__RelayResolverModelGeneratedIDField".intern());
     /// If a field or model type has a @relay_resolver directive (see above)
     /// this argument name is used to track its @rootFragment (if any).
     pub static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName =

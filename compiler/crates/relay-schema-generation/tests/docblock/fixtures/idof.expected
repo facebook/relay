@@ -186,7 +186,7 @@ Type(
     ),
 )
 type Cat @__RelayResolverModel {
-  id: ID!
+  id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
@@ -223,7 +223,7 @@ Type(
     ),
 )
 type Dog @__RelayResolverModel {
-  id: ID!
+  id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Dog__id", import_name: "Dog", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "08165d712e1fcab6840e997daaebf69e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 

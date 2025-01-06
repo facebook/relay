@@ -11,6 +11,6 @@
  */
 ==================================== OUTPUT ===================================
 type ClientUser @__RelayResolverModel {
-  id: ID!
+  id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(fragment_name: "ClientUser__id", generated_fragment: true, inject_fragment_data: "id", import_name: "ClientUser", import_path: "/path/to/test/fixture/relay-resolver-strong-object.js") @resolver_source_hash(value: "b1c8ae1937aed7425f5a87a4762ad83d") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

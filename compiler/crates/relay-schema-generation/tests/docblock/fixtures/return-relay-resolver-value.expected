@@ -248,6 +248,6 @@ Type(
     ),
 )
 type Cat @__RelayResolverModel {
-  id: ID!
+  id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "fc15c065174264428a3632fe9cf329d6") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

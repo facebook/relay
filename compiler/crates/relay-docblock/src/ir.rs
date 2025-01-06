@@ -28,6 +28,7 @@ use docblock_shared::INJECT_FRAGMENT_DATA_ARGUMENT_NAME;
 use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
+use docblock_shared::RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH;
 use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
@@ -1193,7 +1194,14 @@ impl StrongObjectIr {
                     exclamation: dummy_token(span),
                 })),
                 arguments: None,
-                directives: vec![],
+                directives: vec![ConstantDirective {
+                    span,
+                    at: dummy_token(span),
+                    name: string_key_as_identifier(
+                        RELAY_RESOLVER_MODEL_GENERATED_ID_FIELD_DIRECTIVE_NAME.0,
+                    ),
+                    arguments: None,
+                }],
                 description: None,
                 hack_source: None,
                 span,

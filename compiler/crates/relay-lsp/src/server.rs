@@ -50,6 +50,7 @@ use lsp_types::request::References;
 use lsp_types::request::Rename;
 use lsp_types::request::ResolveCompletionItem;
 use lsp_types::request::Shutdown;
+use lsp_types::CodeActionOptions;
 use lsp_types::CodeActionProviderCapability;
 use lsp_types::CompletionOptions;
 use lsp_types::InitializeParams;
@@ -132,7 +133,10 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
         hover_provider: Some(lsp_types::HoverProviderCapability::Simple(true)),
         definition_provider: Some(lsp_types::OneOf::Left(true)),
         references_provider: Some(lsp_types::OneOf::Left(true)),
-        code_action_provider: Some(CodeActionProviderCapability::Simple(true)),
+        code_action_provider: Some(CodeActionProviderCapability::Options(CodeActionOptions {
+            code_action_kinds: Some(vec![lsp_types::CodeActionKind::QUICKFIX]),
+            ..Default::default()
+        })),
         inlay_hint_provider: Some(lsp_types::OneOf::Left(true)),
         ..Default::default()
     };

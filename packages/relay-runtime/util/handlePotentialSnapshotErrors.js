@@ -12,8 +12,8 @@
 'use strict';
 
 import type {
-  ErrorResponseField,
-  ErrorResponseFields,
+  FieldError,
+  FieldErrors,
   IEnvironment,
 } from '../store/RelayStoreTypes';
 
@@ -21,16 +21,16 @@ const invariant = require('invariant');
 
 function handleFieldErrors(
   environment: IEnvironment,
-  errorResponseFields: ErrorResponseFields,
+  fieldErrors: FieldErrors,
 ) {
-  for (const fieldError of errorResponseFields) {
+  for (const fieldError of fieldErrors) {
     // First we log all events. Note that the logger may opt to throw its own
     // error here if it wants to throw an error that is better integrated into
     // site's error handling infrastructure.
     environment.relayFieldLogger(fieldError);
   }
 
-  for (const fieldError of errorResponseFields) {
+  for (const fieldError of fieldErrors) {
     if (eventShouldThrow(fieldError)) {
       switch (fieldError.kind) {
         case 'relay_resolver.error':
@@ -63,7 +63,7 @@ function handleFieldErrors(
   }
 }
 
-function eventShouldThrow(event: ErrorResponseField): boolean {
+function eventShouldThrow(event: FieldError): boolean {
   switch (event.kind) {
     case 'relay_resolver.error':
     case 'relay_field_payload.error':
@@ -82,14 +82,14 @@ function eventShouldThrow(event: ErrorResponseField): boolean {
 
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
-  errorResponseFields: ?ErrorResponseFields,
+  fieldErrors: ?FieldErrors,
 ) {
   /**
    * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
    * which is why this still should run in any case there's errors.
    */
-  if (errorResponseFields != null) {
-    handleFieldErrors(environment, errorResponseFields);
+  if (fieldErrors != null) {
+    handleFieldErrors(environment, fieldErrors);
   }
 }
 

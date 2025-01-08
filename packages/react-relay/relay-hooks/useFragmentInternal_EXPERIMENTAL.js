@@ -131,13 +131,10 @@ function handlePotentialSnapshotErrorsForState(
   state: FragmentState,
 ): void {
   if (state.kind === 'singular') {
-    handlePotentialSnapshotErrors(
-      environment,
-      state.snapshot.errorResponseFields,
-    );
+    handlePotentialSnapshotErrors(environment, state.snapshot.fieldErrors);
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
+      handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
     }
   }
 }
@@ -173,7 +170,7 @@ function handleMissedUpdates(
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      errorResponseFields: currentSnapshot.errorResponseFields,
+      fieldErrors: currentSnapshot.fieldErrors,
     };
     return [
       updatedData !== state.snapshot.data,
@@ -199,7 +196,7 @@ function handleMissedUpdates(
         missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
         seenRecords: currentSnapshot.seenRecords,
         selector: currentSnapshot.selector,
-        errorResponseFields: currentSnapshot.errorResponseFields,
+        fieldErrors: currentSnapshot.fieldErrors,
       };
       if (updatedData !== snapshot.data) {
         didMissUpdates = true;

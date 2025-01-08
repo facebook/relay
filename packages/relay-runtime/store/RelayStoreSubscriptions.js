@@ -115,7 +115,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           missingLiveResolverFields: backup.missingLiveResolverFields,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
-          errorResponseFields: backup.errorResponseFields,
+          fieldErrors: backup.fieldErrors,
         };
       } else {
         // This subscription was created during the optimisitic state. We should
@@ -185,7 +185,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       missingLiveResolverFields: nextSnapshot.missingLiveResolverFields,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
-      errorResponseFields: nextSnapshot.errorResponseFields,
+      fieldErrors: nextSnapshot.fieldErrors,
     }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);

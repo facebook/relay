@@ -906,8 +906,8 @@ describe('Inline Fragments', () => {
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const snapshot = read(source, operation.fragment);
-    const {data, isMissingData, errorResponseFields} = snapshot;
-    expect(errorResponseFields).toBe(null);
+    const {data, isMissingData, fieldErrors} = snapshot;
+    expect(fieldErrors).toBe(null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -1035,11 +1035,8 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, errorResponseFields} = read(
-      source,
-      operation.fragment,
-    );
-    expect(errorResponseFields).toEqual([
+    const {data, isMissingData, fieldErrors} = read(source, operation.fragment);
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'node.aliased_fragment.name',
         kind: 'missing_expected_data.log',
@@ -1095,11 +1092,8 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, errorResponseFields} = read(
-      source,
-      operation.fragment,
-    );
-    expect(errorResponseFields).toEqual([
+    const {data, isMissingData, fieldErrors} = read(source, operation.fragment);
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'node.aliased_fragment.<abstract-type-hint>',
         kind: 'missing_expected_data.log',

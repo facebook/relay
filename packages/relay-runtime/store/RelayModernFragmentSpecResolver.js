@@ -14,7 +14,7 @@
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  ErrorResponseFields,
+  FieldErrors,
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
@@ -228,7 +228,7 @@ class SelectorResolver {
   _data: ?SelectorData;
   _environment: IEnvironment;
   _isMissingData: boolean;
-  _errorResponseFields: ?ErrorResponseFields;
+  _fieldErrors: ?FieldErrors;
   _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
@@ -244,7 +244,7 @@ class SelectorResolver {
     this._callback = callback;
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
-    this._errorResponseFields = snapshot.errorResponseFields;
+    this._fieldErrors = snapshot.fieldErrors;
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
@@ -325,7 +325,7 @@ class SelectorResolver {
         }
       }
     }
-    handlePotentialSnapshotErrors(this._environment, this._errorResponseFields);
+    handlePotentialSnapshotErrors(this._environment, this._fieldErrors);
     return this._data;
   }
 
@@ -340,7 +340,7 @@ class SelectorResolver {
     const snapshot = this._environment.lookup(selector);
     this._data = recycleNodesInto(this._data, snapshot.data);
     this._isMissingData = snapshot.isMissingData;
-    this._errorResponseFields = snapshot.errorResponseFields;
+    this._fieldErrors = snapshot.fieldErrors;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -376,7 +376,7 @@ class SelectorResolver {
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
-    this._errorResponseFields = snapshot.errorResponseFields;
+    this._fieldErrors = snapshot.fieldErrors;
     this._callback();
   };
 }

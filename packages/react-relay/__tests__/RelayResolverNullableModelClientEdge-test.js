@@ -493,7 +493,7 @@ test('Errors thrown when reading the model a client edge points to are caught as
     {},
   );
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual([
+  expect(snapshot.fieldErrors).toEqual([
     {
       error: Error(ERROR_MESSAGE),
       owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
@@ -519,7 +519,7 @@ test('Errors thrown when reading plural client edge are caught as resolver error
     {},
   );
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual([
+  expect(snapshot.fieldErrors).toEqual([
     {
       error: Error(ERROR_MESSAGE),
       owner: 'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
@@ -553,7 +553,7 @@ test('Errors thrown when reading plural client edge are caught as resolver error
     {},
   );
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual([
+  expect(snapshot.fieldErrors).toEqual([
     {
       error: Error(ERROR_MESSAGE),
       owner:

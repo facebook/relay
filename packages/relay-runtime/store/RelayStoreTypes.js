@@ -116,7 +116,7 @@ export type NormalizationSelector = {
   +variables: Variables,
 };
 
-export type ErrorResponseField =
+export type FieldError =
   | RelayFieldPayloadErrorEvent
   | MissingExpectedDataLogEvent
   | MissingExpectedDataThrowEvent
@@ -124,7 +124,7 @@ export type ErrorResponseField =
   | MissingRequiredFieldLogEvent
   | MissingRequiredFieldThrowEvent;
 
-export type ErrorResponseFields = Array<ErrorResponseField>;
+export type FieldErrors = Array<FieldError>;
 
 export type ClientEdgeTraversalInfo = {
   +readerClientEdge: ReaderClientEdgeToServerObject,
@@ -149,7 +149,7 @@ export type Snapshot = {
   +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
-  +errorResponseFields: ?ErrorResponseFields,
+  +fieldErrors: ?FieldErrors,
 };
 
 /**

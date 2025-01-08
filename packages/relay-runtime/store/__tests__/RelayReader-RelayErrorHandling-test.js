@@ -20,7 +20,7 @@ const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
 
 describe('RelayReader error fields', () => {
-  it('adds the errors to errorResponseFields', () => {
+  it('adds the errors to fieldErrors', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -51,9 +51,9 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({me: {lastName: null}});
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest1Query',
         fieldPath: 'me.lastName',
@@ -68,7 +68,7 @@ describe('RelayReader error fields', () => {
     ]);
   });
 
-  it('adds the errors to errorResponseFields including missingData - without @catch', () => {
+  it('adds the errors to fieldErrors including missingData - without @catch', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -103,9 +103,9 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTest4Query',
         fieldPath: 'me.lastName',
@@ -126,7 +126,7 @@ describe('RelayReader error fields', () => {
     ]);
   });
 
-  it('adds the errors to errorResponseFields including missingData within plural fields - without @catch', () => {
+  it('adds the errors to fieldErrors including missingData within plural fields - without @catch', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -161,9 +161,9 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         owner: 'RelayReaderRelayErrorHandlingTestMissingPluralQuery',
         fieldPath: 'me.lastName',
@@ -184,7 +184,7 @@ describe('RelayReader error fields', () => {
     ]);
   });
 
-  it('adds the errors to errorResponseFields including missingData - with @catch', () => {
+  it('adds the errors to fieldErrors including missingData - with @catch', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -218,7 +218,7 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
 
     // we have a task out for adding path to missingData. Meantime that array is empty.
     expect(data).toEqual({
@@ -235,7 +235,7 @@ describe('RelayReader error fields', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -283,7 +283,7 @@ describe('RelayReader error fields', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
 
     expect(data).toEqual({
       me: {
@@ -291,7 +291,7 @@ describe('RelayReader error fields', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -337,9 +337,9 @@ describe('RelayReader error fields', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -386,9 +386,9 @@ describe('RelayReader error fields', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {size: 42});
-    const {errorResponseFields} = read(source, operation.fragment);
+    const {fieldErrors} = read(source, operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.client_edge.firstName',
         kind: 'missing_expected_data.throw',
@@ -436,9 +436,9 @@ describe('RelayReader error fields', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields} = store.lookup(operation.fragment);
+    const {fieldErrors} = store.lookup(operation.fragment);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.astrological_sign.notes',
         kind: 'missing_expected_data.throw',
@@ -473,9 +473,9 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields} = store.lookup(operation.fragment);
-    for (let i = 0; i < errorResponseFields.length; i++) {
-      expect(errorResponseFields[i]).toEqual({
+    const {fieldErrors} = store.lookup(operation.fragment);
+    for (let i = 0; i < fieldErrors.length; i++) {
+      expect(fieldErrors[i]).toEqual({
         fieldPath: `all_astrological_signs.${i}.notes`,
         kind: 'missing_expected_data.throw',
         handled: true,
@@ -515,13 +515,10 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(isMissingData).toBe(false);
-    expect(errorResponseFields).toEqual(null);
+    expect(fieldErrors).toEqual(null);
   });
 
   it('does report missing data within an inline fragment that does match', () => {
@@ -555,13 +552,10 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(isMissingData).toBe(true);
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       // We are missing the metadata bout the interface
       {
         fieldPath: 'node.<abstract-type-hint>',
@@ -611,13 +605,10 @@ describe('RelayReader error fields', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(isMissingData).toBe(true);
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'also_me.name',
         handled: false,
@@ -705,9 +696,9 @@ describe('RelayReader error fields', () => {
           }
         `;
         const operation = createOperationDescriptor(FooQuery, {});
-        const {errorResponseFields} = read(source, operation.fragment);
+        const {fieldErrors} = read(source, operation.fragment);
 
-        expect(errorResponseFields).toEqual([
+        expect(fieldErrors).toEqual([
           {
             fieldPath: '',
             handled: false,
@@ -755,9 +746,9 @@ describe('RelayReader error fields', () => {
           }
         `;
         const operation = createOperationDescriptor(FooQuery, {});
-        const {errorResponseFields} = read(source, operation.fragment);
+        const {fieldErrors} = read(source, operation.fragment);
 
-        expect(errorResponseFields).toEqual([
+        expect(fieldErrors).toEqual([
           {
             fieldPath: '',
             handled: false,
@@ -819,10 +810,10 @@ describe('RelayReader error fields', () => {
           }
         `;
         const operation = createOperationDescriptor(FooQuery, {});
-        const {data, errorResponseFields} = read(source, operation.fragment);
+        const {data, fieldErrors} = read(source, operation.fragment);
 
         expect(data.node.friends.edges).toEqual([]);
-        expect(errorResponseFields).toEqual([
+        expect(fieldErrors).toEqual([
           {
             fieldPath: '',
             handled: false,
@@ -869,9 +860,9 @@ describe('RelayReader error fields', () => {
           }
         `;
         const operation = createOperationDescriptor(FooQuery, {});
-        const {data, errorResponseFields} = read(source, operation.fragment);
+        const {data, fieldErrors} = read(source, operation.fragment);
         expect(data.node.emailAddresses).toEqual([]);
-        expect(errorResponseFields).toEqual([
+        expect(fieldErrors).toEqual([
           {
             fieldPath: '',
             handled: false,

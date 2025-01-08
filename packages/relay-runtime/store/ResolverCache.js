@@ -18,7 +18,7 @@ import type {
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
   DataIDSet,
-  ErrorResponseFields,
+  FieldErrors,
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
@@ -35,7 +35,7 @@ export type EvaluationResult<T> = {
 export type ResolverFragmentResult = {
   data: mixed,
   isMissingData: boolean,
-  errorResponseFields: ?ErrorResponseFields,
+  fieldErrors: ?FieldErrors,
 };
 
 export type GetDataForResolverFragmentFn =

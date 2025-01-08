@@ -138,7 +138,7 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   const fetchPolicy = options?.fetchPolicy ?? 'network-only';
 
   function readData(snapshot: Snapshot): TData {
-    handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
+    handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
     /* $FlowFixMe[incompatible-return] we assume readData returns the right
      * data just having written it from network or checked availability. */
     return snapshot.data;

@@ -295,7 +295,7 @@ function cloneEventWithSets(event: LogEvent) {
             },
           },
           seenRecords: new Set(Object.keys(data)),
-          errorResponseFields: null,
+          fieldErrors: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
           isMissingData: false,
@@ -348,7 +348,7 @@ function cloneEventWithSets(event: LogEvent) {
             __fragmentOwner: owner.request,
           },
           seenRecords: new Set(Object.keys(data)),
-          errorResponseFields: null,
+          fieldErrors: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
           isMissingData: false,
@@ -405,7 +405,7 @@ function cloneEventWithSets(event: LogEvent) {
             },
           },
           seenRecords: new Set(['client:2', '4']),
-          errorResponseFields: null,
+          fieldErrors: null,
           missingLiveResolverFields: [],
           missingClientEdges: null,
           isMissingData: false,
@@ -693,7 +693,7 @@ function cloneEventWithSets(event: LogEvent) {
           ...snapshot,
           missingClientEdges: null,
           isMissingData: false,
-          errorResponseFields: null,
+          fieldErrors: null,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -735,7 +735,7 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          errorResponseFields: [
+          fieldErrors: [
             {
               owner: 'RelayModernStoreTest5Fragment',
               kind: 'missing_expected_data.log',
@@ -789,7 +789,7 @@ function cloneEventWithSets(event: LogEvent) {
           },
           missingClientEdges: null,
           isMissingData: true,
-          errorResponseFields: [
+          fieldErrors: [
             {
               owner: 'RelayModernStoreTest5Fragment',
               kind: 'missing_expected_data.log',

@@ -125,8 +125,8 @@ describe('Relay Resolver', () => {
 
     environment.commitPayload(operation, {});
 
-    const {data, errorResponseFields} = environment.lookup(operation.fragment);
-    expect(errorResponseFields).toBe(null);
+    const {data, fieldErrors} = environment.lookup(operation.fragment);
+    expect(fieldErrors).toBe(null);
 
     // $FlowFixMe[incompatible-use] Lookup is untyped
     expect(data.hello_optional_world).toEqual('Hello, Default!');

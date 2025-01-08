@@ -1701,7 +1701,7 @@ test('Errors when reading a @live resolver that does not return a LiveState obje
   });
 
   const data = environment.lookup(operation.fragment);
-  expect(data.errorResponseFields).toEqual([
+  expect(data.fieldErrors).toEqual([
     {
       kind: 'relay_resolver.error',
       owner: 'LiveResolversTest18Query',
@@ -1757,7 +1757,7 @@ test('provided variables and resolvers', () => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual(null);
+  expect(snapshot.fieldErrors).toEqual(null);
   expect(snapshot.data).toEqual({
     hello_world_with_provided_variable: 'Hello, Hello, World!!',
   });
@@ -1782,7 +1782,7 @@ test('allows dependencies to be provided through the store', () => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual(null);
+  expect(snapshot.fieldErrors).toEqual(null);
   expect(snapshot.data).toEqual({
     hello_world_with_context: 'Hello Hello Allemaal!!',
   });
@@ -1809,7 +1809,7 @@ test('allows objects to be provided to be provided through the store', () => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual(null);
+  expect(snapshot.fieldErrors).toEqual(null);
   expect(snapshot.data).toEqual({
     hello_world_with_context_object: 'Hello Hello Allemaal!!',
   });

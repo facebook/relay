@@ -602,10 +602,9 @@ impl DirectiveFinder for RequiredDirectiveVisitor<'_> {
         if let Some(frag) = fragment {
             self.visit_fragment(frag)
         } else {
-            println!(
-                "required_directive: Could not find fragment for fragment spread: {}",
-                fragment_spread.fragment.item
-            );
+            // Could not find fragment spread. This can happen if we are running
+            // this transform via LSP validation where we only validate a single
+            // tagged template literal in isolation.
             false
         }
     }

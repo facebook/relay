@@ -158,6 +158,11 @@ class LiveResolverCache implements ResolverCache {
 
       RelayModernRecord.setValue(
         linkedRecord,
+        RELAY_RESOLVER_VALUE_KEY,
+        evaluationResult.resolverResult,
+      );
+      RelayModernRecord.setValue(
+        linkedRecord,
         RELAY_RESOLVER_SNAPSHOT_KEY,
         evaluationResult.snapshot,
       );

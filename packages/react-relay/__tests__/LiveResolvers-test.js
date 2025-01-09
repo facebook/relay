@@ -749,7 +749,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     );
   });
 
-  it('should render undefined value for missing data in live resolver field', () => {
+  it('should render null value for missing data in live resolver field', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -794,10 +794,10 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       renderer.update(<TestComponent environment={environment} scale={2} />);
     });
     // the data for scale 2 is missing in the store
-    expect(renderer.toJSON()).toEqual('Alice: undefined');
+    expect(renderer.toJSON()).toEqual('Alice: null');
   });
 
-  it('should render undefined value for missing data in live resolver field and trigger different states of suspense ', () => {
+  it('should render null value for missing data in live resolver field and trigger different states of suspense ', () => {
     const source = RelayRecordSource.create({
       'client:root': {
         __id: 'client:root',
@@ -845,14 +845,14 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     TestRenderer.act(() => {
       renderer.update(<TestComponent environment={environment} scale={2} />);
     });
-    // Now, the whole live field became undefined, as some of
+    // Now, the whole live field became null, as some of
     // the data in the live field resolver fragment is missing
-    expect(renderer.toJSON()).toEqual('Alice: undefined');
+    expect(renderer.toJSON()).toEqual('Alice: null');
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
     TestRenderer.act(() => jest.runAllImmediates());
-    expect(renderer.toJSON()).toEqual('Alice: undefined');
+    expect(renderer.toJSON()).toEqual('Alice: null');
 
     // Next, we're re-rendering with new `scale`, and for this value (3) we have the data in
     // the store (no missing data)
@@ -868,7 +868,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
     TestRenderer.act(() => {
       renderer.update(<TestComponent environment={environment} scale={2} />);
     });
-    expect(renderer.toJSON()).toEqual('Alice: undefined');
+    expect(renderer.toJSON()).toEqual('Alice: null');
 
     TestRenderer.act(() => {
       renderer.update(<TestComponent environment={environment} scale={3} />);
@@ -1506,7 +1506,7 @@ describe('client-only fragments', () => {
     expect(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     }).toThrowError(
-      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:read_time_resolver:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
+      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:read_time_resolver:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverError":null,"__resolverLiveStateDirty":true}`.',
     );
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
@@ -1605,7 +1605,7 @@ test('Subscriptions cleaned up correctly after GC', () => {
   // The data for the live resolver is missing (it has missing dependecies)
   snapshot = environment.lookup(operation.fragment);
   expect(snapshot.data).toEqual({
-    live_counter_with_possible_missing_fragment_data: undefined,
+    live_counter_with_possible_missing_fragment_data: null,
   });
   expect(snapshot.isMissingData).toBe(true);
 

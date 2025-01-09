@@ -180,7 +180,7 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
     },
     afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
       expect(snapshot.data).toEqual({counter_plus_one: null});
-      expect(snapshot.errorResponseFields).toEqual([
+      expect(snapshot.fieldErrors).toEqual([
         {
           fieldPath: 'me.<record>',
           kind: 'missing_expected_data.log',
@@ -735,7 +735,7 @@ test('Resolver reading a plural client-edge to a client type', async () => {
     afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
       // Note that we _can't_ recreate the Resolver value because it's root fragment has been GGed.
       expect(snapshot.data).toEqual({all_astrological_signs: null});
-      expect(snapshot.errorResponseFields).toEqual([
+      expect(snapshot.fieldErrors).toEqual([
         {
           fieldPath: 'me.<record>',
           kind: 'missing_expected_data.log',

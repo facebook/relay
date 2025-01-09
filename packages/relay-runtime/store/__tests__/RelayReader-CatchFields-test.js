@@ -41,8 +41,8 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
-    expect(errorResponseFields).toEqual(null);
+    const {data, fieldErrors} = read(source, operation.fragment);
+    expect(fieldErrors).toEqual(null);
     expect(data).toEqual({me: {lastName: null}});
   });
 
@@ -77,7 +77,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       me: {
         lastName: {
@@ -91,7 +91,7 @@ describe('RelayReader @catch', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -136,7 +136,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       me: {
         lastName: null,
@@ -147,7 +147,7 @@ describe('RelayReader @catch', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.lastName',
         error: {
@@ -191,7 +191,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       alsoMe: null,
       me: {
@@ -205,7 +205,7 @@ describe('RelayReader @catch', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         kind: 'missing_required_field.log',
         fieldPath: 'alsoMe.lastName',
@@ -243,12 +243,12 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       me: null,
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.firstName',
         handled: true,
@@ -281,17 +281,14 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(data).toEqual({me: null});
 
     // We still need to ensure that we will suspend if there is a request in flight.
     expect(isMissingData).toEqual(true);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.firstName',
         kind: 'missing_expected_data.log',
@@ -324,17 +321,14 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(data).toEqual(null);
 
     // We still need to ensure that we will suspend if there is a request in flight.
     expect(isMissingData).toEqual(true);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.firstName',
         kind: 'missing_expected_data.log',
@@ -367,17 +361,14 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(data).toEqual({errors: [{path: ['me', 'firstName']}], ok: false});
 
     // We still need to ensure that we will suspend if there is a request in flight.
     expect(isMissingData).toEqual(true);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.firstName',
         kind: 'missing_expected_data.log',
@@ -417,7 +408,7 @@ describe('RelayReader @catch', () => {
     `;
 
     const owner = createOperationDescriptor(FooQuery, {});
-    const {data, errorResponseFields, isMissingData} = read(
+    const {data, fieldErrors, isMissingData} = read(
       source,
       createReaderSelector(FooFragment, 'client:root', {}, owner.request),
     );
@@ -427,7 +418,7 @@ describe('RelayReader @catch', () => {
     // We still need to ensure that we will suspend if there is a request in flight.
     expect(isMissingData).toEqual(true);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.firstName',
         kind: 'missing_expected_data.log',
@@ -465,7 +456,7 @@ describe('RelayReader @catch', () => {
     `;
 
     const owner = createOperationDescriptor(FooQuery, {});
-    const {data, errorResponseFields, isMissingData} = read(
+    const {data, fieldErrors, isMissingData} = read(
       source,
       createReaderSelector(FooFragment, 'client:root', {}, owner.request),
     );
@@ -475,7 +466,7 @@ describe('RelayReader @catch', () => {
     // We still need to ensure that we will suspend if there is a request in flight.
     expect(isMissingData).toEqual(true);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.firstName',
         kind: 'missing_expected_data.log',
@@ -509,17 +500,14 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(data).toEqual({me: {myAlias: null}});
 
     // We still need to ensure that we will suspend if there is a request in flight.
     expect(isMissingData).toEqual(true);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.myAlias.firstName',
         kind: 'missing_expected_data.log',
@@ -554,10 +542,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, errorResponseFields, isMissingData} = read(
-      source,
-      operation.fragment,
-    );
+    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
 
     expect(data).toEqual({
       me: {myAlias: {ok: false, errors: [{path: ['myAlias', 'firstName']}]}},
@@ -566,7 +551,7 @@ describe('RelayReader @catch', () => {
     // We still need to ensure that we will suspend if there is a request in flight.
     expect(isMissingData).toEqual(true);
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.myAlias.firstName',
         kind: 'missing_expected_data.log',
@@ -599,7 +584,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       me: {
         lastName: {
@@ -609,7 +594,7 @@ describe('RelayReader @catch', () => {
       },
     });
 
-    expect(errorResponseFields).toBeNull();
+    expect(fieldErrors).toBeNull();
   });
 
   it('if linked has catch to RESULT - but no error, response should reflect', () => {
@@ -635,7 +620,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       me: {
         ok: true,
@@ -645,7 +630,7 @@ describe('RelayReader @catch', () => {
       },
     });
 
-    expect(errorResponseFields).toBeNull();
+    expect(fieldErrors).toBeNull();
   });
 
   it('if linked has catch to RESULT - with error, response should reflect', () => {
@@ -679,7 +664,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       me: {
         ok: false,
@@ -691,7 +676,7 @@ describe('RelayReader @catch', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         error: {message: 'There was an error!', path: ['me', 'lastName']},
         fieldPath: 'me.lastName',
@@ -726,7 +711,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, errorResponseFields} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment);
     expect(data).toEqual({
       me: {
         errors: [
@@ -739,7 +724,7 @@ describe('RelayReader @catch', () => {
       },
     });
 
-    expect(errorResponseFields).toEqual([
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.lastName',
         handled: true,

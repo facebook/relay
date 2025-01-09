@@ -558,13 +558,10 @@ class FragmentResourceImpl {
   _throwOrLogErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
-        handlePotentialSnapshotErrors(this._environment, s.errorResponseFields);
+        handlePotentialSnapshotErrors(this._environment, s.fieldErrors);
       });
     } else {
-      handlePotentialSnapshotErrors(
-        this._environment,
-        snapshot.errorResponseFields,
-      );
+      handlePotentialSnapshotErrors(this._environment, snapshot.fieldErrors);
     }
   }
 
@@ -763,7 +760,7 @@ class FragmentResourceImpl {
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      errorResponseFields: currentSnapshot.errorResponseFields,
+      fieldErrors: currentSnapshot.fieldErrors,
     };
     if (updatedData !== renderData) {
       const result = getFragmentResult(

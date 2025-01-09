@@ -185,8 +185,8 @@ describe('Relay resolver - Field Error Handling', () => {
 
     const operation = createOperationDescriptor(FooQuery, {});
     const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-    const {errorResponseFields} = store.lookup(operation.fragment);
-    expect(errorResponseFields).toEqual([
+    const {fieldErrors} = store.lookup(operation.fragment);
+    expect(fieldErrors).toEqual([
       {
         fieldPath: 'me.lastName',
         kind: 'relay_field_payload.error',
@@ -223,8 +223,8 @@ it('propagates @required errors from the resolver up to the reader', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
   const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-  const {errorResponseFields} = store.lookup(operation.fragment);
-  expect(errorResponseFields).toEqual([
+  const {fieldErrors} = store.lookup(operation.fragment);
+  expect(fieldErrors).toEqual([
     {
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
@@ -242,7 +242,7 @@ it('propagates @required errors from the resolver up to the reader', () => {
 
   // Lookup a second time to ensure that we still report the missing fields when
   // reading from the cache.
-  const {errorResponseFields: missingRequiredFieldsTakeTwo} = store.lookup(
+  const {fieldErrors: missingRequiredFieldsTakeTwo} = store.lookup(
     operation.fragment,
   );
 
@@ -322,8 +322,8 @@ it('merges @required logs from resolver field with parent', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
   const store = new RelayStore(source, {gcReleaseBufferSize: 0});
-  const {errorResponseFields} = store.lookup(operation.fragment);
-  expect(errorResponseFields).toEqual([
+  const {fieldErrors} = store.lookup(operation.fragment);
+  expect(fieldErrors).toEqual([
     {
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
@@ -346,7 +346,7 @@ it('merges @required logs from resolver field with parent', () => {
 
   // Lookup a second time to ensure that we still report the missing fields when
   // reading from the cache.
-  const {errorResponseFields: missingRequiredFieldsTakeTwo} = store.lookup(
+  const {fieldErrors: missingRequiredFieldsTakeTwo} = store.lookup(
     operation.fragment,
   );
 
@@ -398,10 +398,10 @@ it('propagates @required(action: THROW) errors from the resolver up to the reade
   const store = new RelayStore(source, {gcReleaseBufferSize: 0});
 
   const beforeCallCount = requiredThrowNameCalls.count;
-  const {errorResponseFields, data} = store.lookup(operation.fragment);
+  const {fieldErrors, data} = store.lookup(operation.fragment);
   expect(data).toEqual({me: {required_throw_name: null}});
   expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
-  expect(errorResponseFields).toEqual([
+  expect(fieldErrors).toEqual([
     {
       kind: 'missing_required_field.throw',
       owner: 'UserRequiredThrowNameResolver',
@@ -412,7 +412,7 @@ it('propagates @required(action: THROW) errors from the resolver up to the reade
 
   // Lookup a second time to ensure that we still report the missing fields when
   // reading from the cache.
-  const {errorResponseFields: missingRequiredFieldsTakeTwo, data: dataTakeTwo} =
+  const {fieldErrors: missingRequiredFieldsTakeTwo, data: dataTakeTwo} =
     store.lookup(operation.fragment);
 
   expect(dataTakeTwo).toEqual({me: {required_throw_name: null}});
@@ -1040,14 +1040,10 @@ it('Returns null and includes errors when the resolver throws', () => {
 
   const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-  const {data, errorResponseFields} = read(
-    source,
-    operation.fragment,
-    resolverCache,
-  );
+  const {data, fieldErrors} = read(source, operation.fragment, resolverCache);
 
   expect(data).toEqual({me: {always_throws: null}}); // Resolver result
-  expect(errorResponseFields).toMatchInlineSnapshot(`
+  expect(fieldErrors).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
@@ -1061,7 +1057,7 @@ it('Returns null and includes errors when the resolver throws', () => {
     `);
 
   // Subsequent read should also read the same error/path
-  const {data: data2, errorResponseFields: relayResolverErrors2} = read(
+  const {data: data2, fieldErrors: relayResolverErrors2} = read(
     source,
     operation.fragment,
     resolverCache,
@@ -1108,14 +1104,10 @@ it('Returns null and includes errors when a transitive resolver throws', () => {
 
   const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-  const {data, errorResponseFields} = read(
-    source,
-    operation.fragment,
-    resolverCache,
-  );
+  const {data, fieldErrors} = read(source, operation.fragment, resolverCache);
 
   expect(data).toEqual({me: {always_throws_transitively: null}}); // Resolver result
-  expect(errorResponseFields).toMatchInlineSnapshot(`
+  expect(fieldErrors).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: I always throw. What did you expect?],
@@ -1129,7 +1121,7 @@ it('Returns null and includes errors when a transitive resolver throws', () => {
     `);
 
   // Subsequent read should also read the same error/path
-  const {data: data2, errorResponseFields: relayResolverErrors2} = read(
+  const {data: data2, fieldErrors: relayResolverErrors2} = read(
     source,
     operation.fragment,
     resolverCache,
@@ -1170,14 +1162,10 @@ it('Catches errors thrown before calling readFragment', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
 
-  const {data, errorResponseFields} = read(
-    source,
-    operation.fragment,
-    resolverCache,
-  );
+  const {data, fieldErrors} = read(source, operation.fragment, resolverCache);
 
   expect(data).toEqual({throw_before_read: null}); // Resolver result
-  expect(errorResponseFields).toMatchInlineSnapshot(`
+  expect(fieldErrors).toMatchInlineSnapshot(`
       Array [
         Object {
           "error": [Error: Purposefully throwing before reading to exercise an edge case.],

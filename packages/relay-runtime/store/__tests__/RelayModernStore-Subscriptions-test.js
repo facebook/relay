@@ -371,7 +371,7 @@ function cloneEventWithSets(event: LogEvent) {
           ...snapshot,
           missingLiveResolverFields: [],
           isMissingData: false,
-          errorResponseFields: null,
+          fieldErrors: null,
           data: {
             name: 'Zuck',
             profilePicture: {
@@ -415,7 +415,7 @@ function cloneEventWithSets(event: LogEvent) {
           },
           missingLiveResolverFields: [],
           isMissingData: true,
-          errorResponseFields: [
+          fieldErrors: [
             {
               fieldPath: 'profilePicture',
               kind: 'missing_expected_data.log',
@@ -464,7 +464,7 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          errorResponseFields: [
+          fieldErrors: [
             {
               fieldPath: 'profilePicture',
               kind: 'missing_expected_data.log',

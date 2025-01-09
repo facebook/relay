@@ -83,13 +83,10 @@ function handlePotentialSnapshotErrorsForState(
   state: FragmentState,
 ): void {
   if (state.kind === 'singular') {
-    handlePotentialSnapshotErrors(
-      environment,
-      state.snapshot.errorResponseFields,
-    );
+    handlePotentialSnapshotErrors(environment, state.snapshot.fieldErrors);
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(environment, snapshot.errorResponseFields);
+      handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
     }
   }
 }

@@ -343,7 +343,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -456,7 +456,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -525,7 +525,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -629,7 +629,7 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      errorResponseFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),

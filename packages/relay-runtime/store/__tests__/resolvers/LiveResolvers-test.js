@@ -256,7 +256,7 @@ test('Errors thrown during _initial_ read() are caught as resolver errors', () =
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.errorResponseFields).toEqual([
+  expect(snapshot.fieldErrors).toEqual([
     {
       kind: 'relay_resolver.error',
       error: Error('What?'),
@@ -299,7 +299,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
   environment.subscribe(snapshot, handler);
 
   // Confirm there are no initial errors
-  expect(snapshot.errorResponseFields).toEqual(null);
+  expect(snapshot.fieldErrors).toEqual(null);
   const data: $FlowExpectedError = snapshot.data;
   expect(data.counter_throws_when_odd).toBe(0);
 
@@ -310,7 +310,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
 
   const nextSnapshot = handler.mock.calls[0][0];
 
-  expect(nextSnapshot.errorResponseFields).toEqual([
+  expect(nextSnapshot.fieldErrors).toEqual([
     {
       kind: 'relay_resolver.error',
       error: Error('What?'),
@@ -331,7 +331,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
   const finalSnapshot = handler.mock.calls[0][0];
 
   // Confirm there are no initial errors
-  expect(finalSnapshot.errorResponseFields).toEqual(null);
+  expect(finalSnapshot.fieldErrors).toEqual(null);
   const finalData: $FlowExpectedError = finalSnapshot.data;
   expect(finalData.counter_throws_when_odd).toBe(2);
 });

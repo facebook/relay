@@ -142,7 +142,7 @@ parking_lot = { version = "0.12.1", features = ["send_guard"] }
 regex = "1.9.2"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
-rustc-hash = "1.1.0"
+rustc-hash = "2.1.0"
 schema = { path = "../schema" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 thiserror = "2"

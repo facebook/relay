@@ -684,6 +684,11 @@ export type ExecuteCompleteLogEvent = {
   +executeId: number,
 };
 
+export type ExecuteUnsubscribeLogEvent = {
+  +name: 'execute.unsubscribe',
+  +executeId: number,
+};
+
 export type ExecuteNormalizeStart = {
   +name: 'execute.normalize.start',
   +operation: OperationDescriptor,
@@ -800,6 +805,7 @@ export type LogEvent =
   | ExecuteAsyncModuleLogEvent
   | ExecuteErrorLogEvent
   | ExecuteCompleteLogEvent
+  | ExecuteUnsubscribeLogEvent
   | ExecuteNormalizeStart
   | ExecuteNormalizeEnd
   | StoreDataCheckerStartEvent

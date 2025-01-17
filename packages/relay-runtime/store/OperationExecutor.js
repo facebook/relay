@@ -245,6 +245,12 @@ class Executor<TMutation: MutationParameters> {
           cacheConfig: this._operation.request.cacheConfig ?? {},
         });
       },
+      unsubscribe: () => {
+        this._log({
+          name: 'execute.unsubscribe',
+          executeId: this._executeId,
+        });
+      },
     });
 
     if (

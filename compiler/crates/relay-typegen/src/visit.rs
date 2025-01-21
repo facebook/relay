@@ -30,6 +30,7 @@ use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use indexmap::map::Entry;
@@ -71,6 +72,7 @@ use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::TypeWithFields;
 
 use crate::type_selection::ModuleDirective;
 use crate::type_selection::RawResponseFragmentSpread;
@@ -328,6 +330,7 @@ fn visit_fragment_spread(
             fragment_name: name,
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
             type_condition_info: get_type_condition_info(fragment_spread),
             is_updatable_fragment_spread: fragment_spread
                 .directives
@@ -814,6 +817,7 @@ fn visit_relay_resolver(
         value: resolver_type,
         conditional: false,
         concrete_type: None,
+        abstract_type: None,
         is_result_type: false,
     }));
 }
@@ -911,6 +915,7 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
             is_result_type: false,
         }));
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
@@ -919,12 +924,14 @@ fn visit_inline_fragment(
             value: AST::Nullable(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
             is_result_type: false,
         }));
         type_selections.push(TypeSelection::InlineFragment(TypeSelectionInlineFragment {
             fragment_name: name,
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
         }));
     } else if inline_fragment
         .directives
@@ -1010,6 +1017,7 @@ fn visit_inline_fragment(
                 node_selections: selections_to_map(inline_selections.into_iter(), true),
                 conditional: coerce_to_nullable,
                 concrete_type: None,
+                abstract_type: None,
                 is_result_type,
             })]
         } else {
@@ -1105,6 +1113,7 @@ fn visit_actor_change(
         )))),
         conditional: false,
         concrete_type: None,
+        abstract_type: None,
         is_result_type: false,
     }));
 }
@@ -1112,6 +1121,7 @@ fn visit_actor_change(
 #[allow(clippy::too_many_arguments)]
 fn raw_response_visit_inline_fragment(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     type_selections: &mut Vec<TypeSelection>,
     inline_fragment: &InlineFragment,
     encountered_enums: &mut EncounteredEnums,
@@ -1125,6 +1135,7 @@ fn raw_response_visit_inline_fragment(
 ) {
     let mut selections = raw_response_visit_selections(
         typegen_context,
+        operation_name,
         &inline_fragment.selections,
         encountered_enums,
         match_fields,
@@ -1150,6 +1161,7 @@ fn raw_response_visit_inline_fragment(
         if !match_fields.0.contains_key(&fragment_name.0) {
             let match_field = raw_response_selections_to_babel(
                 typegen_context,
+                operation_name,
                 selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
                 None,
                 encountered_enums,
@@ -1166,11 +1178,17 @@ fn raw_response_visit_inline_fragment(
             document_name: module_metadata.key,
             conditional: false,
             concrete_type: None,
+            abstract_type: None,
         }));
         return;
     }
+
     if let Some(type_condition) = inline_fragment.type_condition {
-        if !type_condition.is_abstract_type() {
+        if type_condition.is_abstract_type() {
+            for selection in &mut selections {
+                selection.set_abstract_type(type_condition);
+            }
+        } else {
             for selection in &mut selections {
                 selection.set_concrete_type(type_condition);
             }
@@ -1215,6 +1233,7 @@ fn gen_visit_linked_field(
         node_selections: selections_to_map(selections.into_iter(), true),
         conditional: false,
         concrete_type: None,
+        abstract_type: None,
         is_result_type,
     }));
 }
@@ -1276,6 +1295,7 @@ fn visit_scalar_field(
                 )),
                 conditional: false,
                 concrete_type: None,
+                abstract_type: None,
                 is_result_type: is_result_type_directive(&scalar_field.directives),
             }));
         }
@@ -1291,6 +1311,7 @@ fn visit_scalar_field(
         value: ast,
         conditional: false,
         concrete_type: None,
+        abstract_type: None,
         is_result_type,
     }));
 }
@@ -1641,6 +1662,7 @@ fn should_emit_discriminated_union(
 
 pub(crate) fn raw_response_selections_to_babel(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     selections: impl Iterator<Item = TypeSelection>,
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
@@ -1649,6 +1671,7 @@ pub(crate) fn raw_response_selections_to_babel(
 ) -> AST {
     let mut base_fields = Vec::new();
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
+    let mut by_abstract_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
         if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
@@ -1656,14 +1679,29 @@ pub(crate) fn raw_response_selections_to_babel(
                 .entry(concrete_type)
                 .or_default()
                 .push(selection);
+        } else if let Some(abstract_type) = selection.get_enclosing_abstract_type() {
+            if typegen_context
+                .project_config
+                .feature_flags
+                .disable_more_precise_abstract_selection_raw_response_type
+                .is_enabled_for(operation_name.0)
+            {
+                base_fields.push(selection);
+            } else {
+                by_abstract_type
+                    .entry(abstract_type)
+                    .or_default()
+                    .push(selection);
+            }
         } else {
             base_fields.push(selection);
         }
     }
 
-    if base_fields.is_empty() && by_concrete_type.is_empty() {
-        // base fields and per-type fields are all empty: this can only occur because the only selection was a
-        // @no_inline fragment. in this case, emit a single, empty ExactObject since nothing was selected
+    if base_fields.is_empty() && by_abstract_type.is_empty() && by_concrete_type.is_empty() {
+        // base fields, fields on abstract types and per-type fields are all empty:
+        // this can only occur because the only selection was a  @no_inline fragment.
+        // in this case, emit a single, empty ExactObject since nothing was selected.
         return AST::ExactObject(ExactObject::new(Default::default()));
     }
 
@@ -1678,6 +1716,29 @@ pub(crate) fn raw_response_selections_to_babel(
                 selections_to_map(selections.into_iter(), false),
                 false,
             );
+
+            if !by_abstract_type.is_empty() {
+                if let Some(object) = concrete_type
+                    .get_object_id()
+                    .map(|id| typegen_context.schema.object(id))
+                {
+                    for (abstract_type, abstract_selections) in &by_abstract_type {
+                        if let Some(interface_id) = abstract_type.get_interface_id() {
+                            if object.interfaces().contains(&interface_id) {
+                                merge_selection_maps(
+                                    &mut base_fields_map,
+                                    selections_to_map(
+                                        abstract_selections.clone().into_iter(),
+                                        false,
+                                    ),
+                                    false,
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
             let merged_selections: Vec<_> = hashmap_into_values(base_fields_map).collect();
             types.push(AST::ExactObject(ExactObject::new(
                 merged_selections
@@ -1686,6 +1747,7 @@ pub(crate) fn raw_response_selections_to_babel(
                     .map(|selection| {
                         raw_response_make_prop(
                             typegen_context,
+                            operation_name,
                             selection,
                             Some(concrete_type),
                             encountered_enums,
@@ -1697,6 +1759,7 @@ pub(crate) fn raw_response_selections_to_babel(
             )));
             append_local_3d_payload(
                 typegen_context,
+                operation_name,
                 &mut types,
                 &merged_selections,
                 Some(concrete_type),
@@ -1707,14 +1770,47 @@ pub(crate) fn raw_response_selections_to_babel(
         }
     }
 
-    if !base_fields.is_empty() {
+    if !base_fields.is_empty() || !by_abstract_type.is_empty() {
+        let mut base_fields_map = selections_to_map(base_fields.clone().into_iter(), false);
+
+        if !by_abstract_type.is_empty() {
+            for (abstract_type, abstract_selections) in by_abstract_type {
+                let mut is_conditional = true;
+
+                if let Some(concrete_type) = concrete_type {
+                    if abstract_type == concrete_type {
+                        is_conditional = false;
+                    } else {
+                        if let Some(object) = concrete_type
+                            .get_object_id()
+                            .map(|id| typegen_context.schema.object(id))
+                        {
+                            if let Some(interface_id) = abstract_type.get_interface_id() {
+                                if object.interfaces().contains(&interface_id) {
+                                    is_conditional = false;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                merge_selection_maps(
+                    &mut base_fields_map,
+                    selections_to_map(abstract_selections.into_iter(), false),
+                    is_conditional,
+                );
+            }
+        }
+
+        let merged_selections: Vec<_> = hashmap_into_values(base_fields_map).collect();
         types.push(AST::ExactObject(ExactObject::new(
-            base_fields
+            merged_selections
                 .iter()
                 .cloned()
                 .map(|selection| {
                     raw_response_make_prop(
                         typegen_context,
+                        operation_name,
                         selection,
                         concrete_type,
                         encountered_enums,
@@ -1726,6 +1822,7 @@ pub(crate) fn raw_response_selections_to_babel(
         )));
         append_local_3d_payload(
             typegen_context,
+            operation_name,
             &mut types,
             &base_fields,
             concrete_type,
@@ -1740,6 +1837,7 @@ pub(crate) fn raw_response_selections_to_babel(
 
 fn append_local_3d_payload(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     types: &mut Vec<AST>,
     type_selections: &[TypeSelection],
     concrete_type: Option<Type>,
@@ -1765,6 +1863,7 @@ fn append_local_3d_payload(
                     .map(|sel| {
                         raw_response_make_prop(
                             typegen_context,
+                            operation_name,
                             sel.clone(),
                             concrete_type,
                             encountered_enums,
@@ -2036,6 +2135,7 @@ fn make_prop(
 
 fn raw_response_make_prop(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     type_selection: TypeSelection,
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
@@ -2062,6 +2162,7 @@ fn raw_response_make_prop(
             };
             let object_props = raw_response_selections_to_babel(
                 typegen_context,
+                operation_name,
                 hashmap_into_values(linked_field.node_selections),
                 inner_concrete_type,
                 encountered_enums,
@@ -2239,6 +2340,7 @@ fn transform_graphql_enum_type(
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn raw_response_visit_selections(
     typegen_context: &'_ TypegenContext<'_>,
+    operation_name: OperationDefinitionName,
     selections: &[Selection],
     encountered_enums: &mut EncounteredEnums,
     match_fields: &mut MatchFields,
@@ -2267,12 +2369,14 @@ pub(crate) fn raw_response_visit_selections(
                             value: spread_type,
                             conditional: false,
                             concrete_type: None,
+                            abstract_type: None,
                         },
                     ))
                 }
             }
             Selection::InlineFragment(inline_fragment) => raw_response_visit_inline_fragment(
                 typegen_context,
+                operation_name,
                 &mut type_selections,
                 inline_fragment,
                 encountered_enums,
@@ -2315,6 +2419,7 @@ pub(crate) fn raw_response_visit_selections(
                     |selections| {
                         raw_response_visit_selections(
                             typegen_context,
+                            operation_name,
                             selections,
                             encountered_enums,
                             match_fields,
@@ -2341,6 +2446,7 @@ pub(crate) fn raw_response_visit_selections(
             Selection::Condition(condition) => {
                 type_selections.extend(raw_response_visit_selections(
                     typegen_context,
+                    operation_name,
                     &condition.selections,
                     encountered_enums,
                     match_fields,
@@ -2624,6 +2730,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                abstract_type: None,
                 is_result_type: false,
             }));
         }
@@ -2635,6 +2742,7 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
+                abstract_type: None,
                 is_result_type: false,
             }));
         }

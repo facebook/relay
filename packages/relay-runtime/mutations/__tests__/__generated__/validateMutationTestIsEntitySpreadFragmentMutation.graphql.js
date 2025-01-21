@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0248d6513837bacbfbff93448840442e>>
+ * @generated SignedSource<<9cfd324f1baacdd1c6b44d590aa8dee7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,9 +36,9 @@ export type validateMutationTestIsEntitySpreadFragmentMutation$rawResponse = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +__typename: string,
-      +__isEntity: string,
+      +__isEntity?: string,
       +id: string,
-      +url: ?string,
+      +url?: ?string,
     |},
   |},
 |};

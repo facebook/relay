@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7c4bbd43433461799f4caf7a6320fa4e>>
+ * @generated SignedSource<<4ac1d657f302cab68f76d9dfb0b04a30>>
  */
 
 mod generate_flow;
@@ -377,6 +377,27 @@ async fn query_with_multiple_match_fields() {
 }
 
 #[tokio::test]
+async fn query_with_raw_response_interface() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-interface.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-interface.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-interface.graphql", "generate_flow/fixtures/query-with-raw-response-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_interface_inline_fragment_on_interface() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-interface-inline-fragment-on-interface.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-interface-inline-fragment-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-interface-inline-fragment-on-interface.graphql", "generate_flow/fixtures/query-with-raw-response-interface-inline-fragment-on-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_object_inline_fragment_on_interface() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-object-inline-fragment-on-interface.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-object-inline-fragment-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-object-inline-fragment-on-interface.graphql", "generate_flow/fixtures/query-with-raw-response-object-inline-fragment-on-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn query_with_raw_response_on_conditional() {
     let input = include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-raw-response-on-conditional.expected");
@@ -388,6 +409,13 @@ async fn query_with_raw_response_on_literal_conditional() {
     let input = include_str!("generate_flow/fixtures/query-with-raw-response-on-literal-conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected");
     test_fixture(transform_fixture, file!(), "query-with-raw-response-on-literal-conditional.graphql", "generate_flow/fixtures/query-with-raw-response-on-literal-conditional.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn query_with_raw_response_union() {
+    let input = include_str!("generate_flow/fixtures/query-with-raw-response-union.graphql");
+    let expected = include_str!("generate_flow/fixtures/query-with-raw-response-union.expected");
+    test_fixture(transform_fixture, file!(), "query-with-raw-response-union.graphql", "generate_flow/fixtures/query-with-raw-response-union.expected", input, expected).await;
 }
 
 #[tokio::test]

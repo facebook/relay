@@ -69,7 +69,7 @@ schema-diff = { path = "../schema-diff" }
 schema-validate-lib = { path = "../schema-validate" }
 schemars = { version = "0.8.21", features = ["indexmap2"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_bser = "0.3"
+serde_bser = "0.4"
 serde_json = { version = "1.0.132", features = ["float_roundtrip", "unbounded_depth"] }
 sha1 = "0.10.5"
 sha2 = "0.10.6"
@@ -77,7 +77,7 @@ signedsource = { path = "../signedsource" }
 thiserror = "2"
 tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }
 walkdir = "2.3"
-watchman_client = "0.8.0"
+watchman_client = "0.9.0"
 zstd = { version = "0.13", features = ["experimental", "zstdmt"] }
 
 [dev-dependencies]

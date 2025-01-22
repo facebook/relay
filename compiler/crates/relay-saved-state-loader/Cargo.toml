@@ -10,4 +10,4 @@ license = "MIT"
 
 [dependencies]
 async-trait = "0.1.71"
-serde_bser = "0.3"
+serde_bser = "0.4"

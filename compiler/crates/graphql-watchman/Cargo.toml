@@ -11,5 +11,5 @@ license = "MIT"
 [dependencies]
 log = { version = "0.4.22", features = ["kv_unstable"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_bser = "0.3"
-watchman_client = "0.8.0"
+serde_bser = "0.4"
+watchman_client = "0.9.0"

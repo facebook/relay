@@ -145,6 +145,35 @@ test('Missing required data', async () => {
   });
 });
 
+test('Keep loading on network error', async () => {
+  const query = graphql`
+    query observeFragmentTestNetworkErrorQuery {
+      ...observeFragmentTestNetworkErrorFragment
+    }
+  `;
+
+  const fragment = graphql`
+    fragment observeFragmentTestNetworkErrorFragment on Query {
+      me {
+        name
+      }
+    }
+  `;
+
+  const environment = createMockEnvironment();
+  const variables = {};
+  const operation = createOperationDescriptor(query, variables);
+  fetchQuery(environment, query, variables).subscribe({});
+  const {data} = environment.lookup(operation.fragment);
+  // $FlowFixMe Data is untyped
+  const observable = observeFragment(environment, fragment, data);
+  withObservableValues(observable, results => {
+    expect(results).toEqual([{state: 'loading'}]);
+    environment.mock.reject(operation, new Error('Network error'));
+    expect(results).toEqual([{state: 'loading'}]);
+  });
+});
+
 test('Field error with @throwOnFieldError', async () => {
   const query = graphql`
     query observeFragmentTestThrowOnFieldErrorQuery {

@@ -127,12 +127,6 @@ module.exports = {
         description: 'Used at autoguru.com.au, and affiliates',
       },
       {
-        caption: 'Foton',
-        image: '/img/logos/foton.png',
-        infoLink: 'https://fotontech.io',
-        pinned: false,
-      },
-      {
         caption: 'M1 Finance',
         image: '/img/logos/m1finance.png',
         infoLink: 'https://www.m1finance.com/',
@@ -154,12 +148,6 @@ module.exports = {
         caption: 'Habilelabs',
         image: '/img/logos/habilelabs.png',
         infoLink: 'http://www.habilelabs.io/',
-        pinned: false,
-      },
-      {
-        caption: 'Quanto',
-        image: '/img/logos/quanto.png',
-        infoLink: 'https://www.contaquanto.com.br/',
         pinned: false,
       },
       {

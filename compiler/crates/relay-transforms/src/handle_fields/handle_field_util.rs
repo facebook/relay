@@ -7,6 +7,7 @@
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::Location;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -140,6 +141,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
         name: WithLocation::generated(*HANDLE_FIELD_DIRECTIVE_NAME),
         arguments: directive_arguments,
         data: None,
+        location: Location::generated(),
     }
 }
 

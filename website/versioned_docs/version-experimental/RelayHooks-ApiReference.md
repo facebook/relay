@@ -381,7 +381,7 @@ type Props = {|
 |};
 
 function CommentBody(props: Props) {
-  const [startTransition] = useTransition();
+  const [_, startTransition] = useTransition();
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
     graphql`
       fragment CommentBody_comment on Comment

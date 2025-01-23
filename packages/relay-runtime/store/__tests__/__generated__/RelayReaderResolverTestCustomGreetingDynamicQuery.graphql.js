@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1aba9b07c641d36e60acc46f1a0f1c38>>
+ * @generated SignedSource<<0d2e5e18104d446088f8d64b7418c8a7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,6 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserCustomGreetingResolver$key } from "./../resolvers/__generated__/UserCustomGreetingResolver.graphql";
 import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/UserCustomGreetingResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userCustomGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCustomGreetingResolverType: (
@@ -27,15 +28,16 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
   args: {|
     salutation: string,
   |},
-) => mixed);
+  context: TestResolverContextType,
+) => ?string);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
 |};
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$data = {|
   +me: ?{|
-    +dynamic_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
-    +greetz: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
-    +willkommen: ?$Call<<R>((...empty[]) => R) => R, typeof userCustomGreetingResolverType>,
+    +dynamic_greeting: ?string,
+    +greetz: ?string,
+    +willkommen: ?string,
   |},
 |};
 export type RelayReaderResolverTestCustomGreetingDynamicQuery = {|
@@ -161,7 +163,7 @@ return {
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "name": "custom_greeting",
@@ -169,7 +171,7 @@ return {
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
             "storageKey": "custom_greeting(salutation:\"Greetz\")",
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "name": "custom_greeting",
@@ -177,7 +179,7 @@ return {
             "fragment": (v5/*: any*/),
             "kind": "RelayResolver",
             "storageKey": "custom_greeting(salutation:\"Willkommen\")",
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "alias": null,

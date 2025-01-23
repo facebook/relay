@@ -36,8 +36,10 @@ const nullthrows = require('nullthrows');
 const {
   cannotReadPropertyOfUndefined__DEPRECATED,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with @match with additional arguments', () => {
@@ -200,7 +202,7 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRendererForContext: {
-          __id: 'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRendererForContext(context:"HEADER",supported:"34hjiS")',
 
           __fragmentPropName: 'name',
 
@@ -210,7 +212,6 @@ describe('execute() a query with @match with additional arguments', () => {
           },
 
           __fragmentOwner: operation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },

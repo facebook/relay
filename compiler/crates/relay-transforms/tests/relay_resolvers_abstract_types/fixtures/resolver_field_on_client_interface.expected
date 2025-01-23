@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment resolverFieldOnClientInterfaceFragment on Cat {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    description: String @relay_resolver(import_path: "CatResolver")
+}
+
+type Tabby implements Cat {
+    description: String
+}
+
+type Persian implements Cat {
+    description: String
+}
+==================================== OUTPUT ===================================
+fragment resolverFieldOnClientInterfaceFragment on Cat {
+  __id @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(526),
+  #     import_path: "CatResolver",
+  #     import_name: None,
+  #     field_alias: None,
+  #     field_path: "description",
+  #     field_arguments: [],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
+  # }
+  
+}

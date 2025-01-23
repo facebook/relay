@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-# expected-to-throw
 query matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
     ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment
@@ -30,19 +29,359 @@ fragment matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name on Markd
     markup
   }
 }
-==================================== ERROR ====================================
-✖︎ Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases.
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
 
-  match-field-overlap-across-documents.graphql:22:7
-   21 │     ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
-   22 │       @module(name: "BarMarkdownUserNameRenderer.react")
-      │       ^^^^^^^
-   23 │   }
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "matchFieldOverlapAcrossDocuments_FooNameRendererFragment"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "matchFieldOverlapAcrossDocuments_BarNameRendererFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": "2aTHRe"
+                  }
+                ],
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "matchFieldOverlapAcrossDocuments_FooNameRendererFragment",
+                        "fragmentName": "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+                        "fragmentPropName": "MarkdownUserNameRenderer_name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": "nameRenderer(supported:\"2aTHRe\")"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "ac2040aee7e7ef95539ca188aceb2c93",
+    "id": null,
+    "metadata": {},
+    "name": "matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
 
-  ℹ︎ conflicts with
+QUERY:
 
-  match-field-overlap-across-documents.graphql:13:7
-   12 │     ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
-   13 │       @module(name: "FooMarkdownUserNameRenderer.react")
-      │       ^^^^^^^
-   14 │   }
+query matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment
+    ...matchFieldOverlapAcrossDocuments_BarNameRendererFragment
+    id
+  }
+}
+
+fragment matchFieldOverlapAcrossDocuments_BarNameRendererFragment on User {
+  nameRenderer(supported: ["MarkdownUserNameRenderer"]) {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+      __module_operation_matchFieldOverlapAcrossDocuments_BarNameRendererFragment: js(module: "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "matchFieldOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_matchFieldOverlapAcrossDocuments_BarNameRendererFragment: js(module: "BarMarkdownUserNameRenderer.react", id: "matchFieldOverlapAcrossDocuments_BarNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+  }
+}
+
+fragment matchFieldOverlapAcrossDocuments_FooNameRendererFragment on User {
+  id
+  nameRenderer(supported: ["MarkdownUserNameRenderer"]) {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name
+      __module_operation_matchFieldOverlapAcrossDocuments_FooNameRendererFragment: js(module: "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name$normalization.graphql", id: "matchFieldOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_matchFieldOverlapAcrossDocuments_FooNameRendererFragment: js(module: "FooMarkdownUserNameRenderer.react", id: "matchFieldOverlapAcrossDocuments_FooNameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+  }
+}
+
+fragment matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "matchFieldOverlapAcrossDocuments_BarNameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": "2aTHRe"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "matchFieldOverlapAcrossDocuments_BarNameRendererFragment",
+              "fragmentName": "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": "nameRenderer(supported:\"2aTHRe\")"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "matchFieldOverlapAcrossDocuments_FooNameRendererFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": "2aTHRe"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "matchFieldOverlapAcrossDocuments_FooNameRendererFragment",
+              "fragmentName": "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+              "fragmentPropName": "MarkdownUserNameRenderer_name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": "nameRenderer(supported:\"2aTHRe\")"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}

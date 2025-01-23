@@ -1,0 +1,57 @@
+==================================== INPUT ====================================
+fragment MyFragment on ClientUser @throwOnFieldError {
+  best_friend @waterfall {
+    name
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  best_friend: User @semanticNonNull @relay_resolver(
+      import_path: "./foo/bar.js"
+    )
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type ClientEdgeQuery_MyFragment_best_friend$variables = {
+  id: string;
+};
+export type ClientEdgeQuery_MyFragment_best_friend$data = {
+  readonly node: {
+    readonly " $fragmentSpreads": FragmentRefs<"RefetchableClientEdgeQuery_MyFragment_best_friend">;
+  } | null | undefined;
+};
+export type ClientEdgeQuery_MyFragment_best_friend = {
+  response: ClientEdgeQuery_MyFragment_best_friend$data;
+  variables: ClientEdgeQuery_MyFragment_best_friend$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs, DataID } from "relay-runtime";
+import clientUserBestFriendResolverType from "bar";
+// Type assertion validating that `clientUserBestFriendResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(clientUserBestFriendResolverType satisfies () => {
+  readonly id: DataID;
+});
+export type MyFragment$data = {
+  readonly best_friend: {
+    readonly name: string | null | undefined;
+  };
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RefetchableClientEdgeQuery_MyFragment_best_friend$data = {
+  readonly id: string;
+  readonly name: string | null | undefined;
+  readonly " $fragmentType": "RefetchableClientEdgeQuery_MyFragment_best_friend";
+};
+export type RefetchableClientEdgeQuery_MyFragment_best_friend$key = {
+  readonly " $data"?: RefetchableClientEdgeQuery_MyFragment_best_friend$data;
+  readonly " $fragmentSpreads": FragmentRefs<"RefetchableClientEdgeQuery_MyFragment_best_friend">;
+};

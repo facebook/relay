@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
 import type {CacheConfig} from '../../../relay-runtime/util/RelayRuntimeTypes';
@@ -32,8 +33,7 @@ import type {
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const usePaginationFragmentInternal_REACT_CACHE = require('../react-cache/usePaginationFragment_REACT_CACHE');
-const usePaginationFragment_LEGACY = require('../usePaginationFragment');
+const usePaginationFragmentImpl = require('../usePaginationFragment');
 const areEqual = require('areEqual');
 const invariant = require('invariant');
 const React = require('react');
@@ -54,577 +54,413 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useMemo, useState} = React;
 
-describe.each([
-  ['React Cache', usePaginationFragmentInternal_REACT_CACHE],
-  ['Legacy', usePaginationFragment_LEGACY],
-])('usePaginationFragment (%s)', (_hookName, usePaginationFragmentOriginal) => {
-  let isUsingReactCacheImplementation;
-  let originalReactCacheFeatureFlag;
-  beforeEach(() => {
-    isUsingReactCacheImplementation =
-      usePaginationFragmentOriginal ===
-      usePaginationFragmentInternal_REACT_CACHE;
-    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
-    RelayFeatureFlags.USE_REACT_CACHE = isUsingReactCacheImplementation;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
-  });
+let environment;
+let initialUser;
+let gqlQuery:
+  | Query<
+      usePaginationFragmentTestStoryQuery$variables,
+      usePaginationFragmentTestStoryQuery$data,
+    >
+  | Query<
+      usePaginationFragmentTestUserQuery$variables,
+      usePaginationFragmentTestUserQuery$data,
+    >;
+let gqlQueryNestedFragment;
+let gqlQueryWithoutID;
+let gqlQueryWithLiteralArgs;
+let gqlQueryWithStreaming;
+let gqlPaginationQuery:
+  | Query<
+      usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
+      usePaginationFragmentTestStoryFragmentRefetchQuery$data,
+    >
+  | Query<
+      usePaginationFragmentTestUserFragmentPaginationQuery$variables,
+      usePaginationFragmentTestUserFragmentPaginationQuery$data,
+    >;
+let gqlFragment;
+let gqlFragmentWithStreaming;
+let query;
+let queryNestedFragment;
+let queryWithoutID;
+let queryWithLiteralArgs;
+let queryWithStreaming;
+let paginationQuery;
+let variables;
+let variablesNestedFragment;
+let variablesWithoutID;
+let setEnvironment;
+let setOwner;
+let renderFragment;
+let renderSpy;
+let loadNext;
+let refetch;
+let Renderer;
+let fetch;
+let dataSource;
+let unsubscribe;
 
-  let environment;
-  let initialUser;
-  let gqlQuery:
-    | Query<
-        usePaginationFragmentTestStoryQuery$variables,
-        usePaginationFragmentTestStoryQuery$data,
-      >
-    | Query<
-        usePaginationFragmentTestUserQuery$variables,
-        usePaginationFragmentTestUserQuery$data,
-      >;
-  let gqlQueryNestedFragment;
-  let gqlQueryWithoutID;
-  let gqlQueryWithLiteralArgs;
-  let gqlQueryWithStreaming;
-  let gqlPaginationQuery:
-    | Query<
-        usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
-        usePaginationFragmentTestStoryFragmentRefetchQuery$data,
-      >
-    | Query<
-        usePaginationFragmentTestUserFragmentPaginationQuery$variables,
-        usePaginationFragmentTestUserFragmentPaginationQuery$data,
-      >;
-  let gqlFragment;
-  let gqlFragmentWithStreaming;
-  let query;
-  let queryNestedFragment;
-  let queryWithoutID;
-  let queryWithLiteralArgs;
-  let queryWithStreaming;
-  let paginationQuery;
-  let variables;
-  let variablesNestedFragment;
-  let variablesWithoutID;
-  let setEnvironment;
-  let setOwner;
-  let renderFragment;
-  let renderSpy;
-  let loadNext;
-  let refetch;
-  let Renderer;
-  let fetch;
-  let dataSource;
-  let unsubscribe;
-
-  class ErrorBoundary extends React.Component<any, any> {
-    state: {error: ?Error} = {error: null};
-    componentDidCatch(error: Error) {
-      this.setState({error});
+class ErrorBoundary extends React.Component<any, any> {
+  state: {error: ?Error} = {error: null};
+  componentDidCatch(error: Error) {
+    this.setState({error});
+  }
+  render(): React.Node {
+    const {children, fallback: Fallback} = this.props;
+    const {error} = this.state;
+    if (error) {
+      return <Fallback error={error} />;
     }
-    render(): React.Node {
-      const {children, fallback} = this.props;
-      const {error} = this.state;
-      if (error) {
-        return React.createElement(fallback, {error});
-      }
-      return children;
-    }
+    return children;
   }
+}
 
-  function usePaginationFragment(fragmentNode: any, fragmentRef: any) {
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
-    const {data, ...result} = usePaginationFragmentOriginal(
-      fragmentNode,
-      fragmentRef,
-    );
-    loadNext = result.loadNext;
-    refetch = result.refetch;
-    renderSpy(data, result);
-    return {data, ...result};
-  }
+hook usePaginationFragment(fragmentNode: any, fragmentRef: any) {
+  /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+   * enabling Flow LTI mode */
+  const {data, ...result} = usePaginationFragmentImpl(
+    fragmentNode,
+    fragmentRef,
+  );
+  loadNext = result.loadNext;
+  refetch = result.refetch;
+  renderSpy(data, result);
+  return {data, ...result};
+}
 
-  function assertCall(
-    expected: {
-      data: any,
-      hasNext: boolean,
-      hasPrevious: boolean,
-      isLoadingNext: boolean,
-      isLoadingPrevious: boolean,
-    },
-    idx: number,
-  ) {
-    const actualData = renderSpy.mock.calls[idx][0];
-    const actualResult = renderSpy.mock.calls[idx][1];
-    const actualIsLoadingNext = actualResult.isLoadingNext;
-    const actualIsLoadingPrevious = actualResult.isLoadingPrevious;
-    const actualHasNext = actualResult.hasNext;
-    const actualHasPrevious = actualResult.hasPrevious;
+function assertCall(
+  expected: {
+    data: any,
+    hasNext: boolean,
+    hasPrevious: boolean,
+    isLoadingNext: boolean,
+    isLoadingPrevious: boolean,
+  },
+  idx: number,
+) {
+  const actualData = renderSpy.mock.calls[idx][0];
+  const actualResult = renderSpy.mock.calls[idx][1];
+  const actualIsLoadingNext = actualResult.isLoadingNext;
+  const actualIsLoadingPrevious = actualResult.isLoadingPrevious;
+  const actualHasNext = actualResult.hasNext;
+  const actualHasPrevious = actualResult.hasPrevious;
 
-    expect(actualData).toEqual(expected.data);
-    expect(actualIsLoadingNext).toEqual(expected.isLoadingNext);
-    expect(actualIsLoadingPrevious).toEqual(expected.isLoadingPrevious);
-    expect(actualHasNext).toEqual(expected.hasNext);
-    expect(actualHasPrevious).toEqual(expected.hasPrevious);
-  }
+  expect(actualData).toEqual(expected.data);
+  expect(actualIsLoadingNext).toEqual(expected.isLoadingNext);
+  expect(actualIsLoadingPrevious).toEqual(expected.isLoadingPrevious);
+  expect(actualHasNext).toEqual(expected.hasNext);
+  expect(actualHasPrevious).toEqual(expected.hasPrevious);
+}
 
-  function expectFragmentResults(
-    expectedCalls: $ReadOnlyArray<{
-      data: $FlowFixMe,
-      isLoadingNext: boolean,
-      isLoadingPrevious: boolean,
-      hasNext: boolean,
-      hasPrevious: boolean,
-    }>,
-  ) {
-    // This ensures that useEffect runs
-    TestRenderer.act(() => jest.runAllImmediates());
-    expect(renderSpy).toBeCalledTimes(expectedCalls.length);
-    expectedCalls.forEach((expected, idx) => assertCall(expected, idx));
-    renderSpy.mockClear();
-  }
+function expectFragmentResults(
+  expectedCalls: $ReadOnlyArray<{
+    data: $FlowFixMe,
+    isLoadingNext: boolean,
+    isLoadingPrevious: boolean,
+    hasNext: boolean,
+    hasPrevious: boolean,
+  }>,
+) {
+  // This ensures that useEffect runs
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderSpy).toBeCalledTimes(expectedCalls.length);
+  expectedCalls.forEach((expected, idx) => assertCall(expected, idx));
+  renderSpy.mockClear();
+}
 
-  function resolveQuery(payload: mixed) {
+function expectFragmentLastResult(expectedCall: {
+  data: $FlowFixMe,
+  isLoadingNext: boolean,
+  isLoadingPrevious: boolean,
+  hasNext: boolean,
+  hasPrevious: boolean,
+}) {
+  TestRenderer.act(() => jest.runAllImmediates());
+  const lastIdx = renderSpy.mock.calls.length - 1;
+  assertCall(expectedCall, lastIdx);
+  renderSpy.mockClear();
+}
+
+function resolveQuery(payload: mixed) {
+  TestRenderer.act(() => {
     dataSource.next(payload);
+  });
+
+  TestRenderer.act(() => {
     dataSource.complete();
-  }
+  });
+}
 
-  function createFragmentRef(
-    id:
-      | $TEMPORARY$string<'node:1'>
-      | $TEMPORARY$string<'node:100'>
-      | $TEMPORARY$string<'node:2'>
-      | $TEMPORARY$string<'node:200'>,
-    owner: OperationDescriptor,
-    fragmentName: string = 'usePaginationFragmentTestNestedUserFragment',
-  ) {
-    return {
-      [ID_KEY]: id,
-      [FRAGMENTS_KEY]: {
-        [fragmentName]: {},
-      },
-      [FRAGMENT_OWNER_KEY]: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
-    };
-  }
+function createFragmentRef(
+  id: string,
+  owner: OperationDescriptor,
+  fragmentName: string = 'usePaginationFragmentTestNestedUserFragment',
+) {
+  return {
+    [ID_KEY]: id,
+    [FRAGMENTS_KEY]: {
+      [fragmentName]: {},
+    },
+    [FRAGMENT_OWNER_KEY]: owner.request,
+  };
+}
 
-  function createMockEnvironment() {
-    const source = RecordSource.create();
-    const store = new Store(source);
-    const fetchFn = jest.fn(
-      (
-        _query: RequestParameters,
-        _variables: Variables,
-        _cacheConfig: CacheConfig,
-      ) => {
-        return Observable.create((sink: Sink<mixed>) => {
-          dataSource = sink;
-          unsubscribe = jest.fn<[], mixed>();
-          // $FlowFixMe[incompatible-call]
-          return unsubscribe;
-        });
-      },
-    );
-    const environment = new Environment({
-      getDataID: (data: {[string]: mixed}, typename: string) => {
-        // This is the default, but making it explicit in case we need to override
-        return data.id;
-      },
-      // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-      // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
-      network: Network.create(fetchFn),
-      store,
-      handlerProvider: _name => {
-        return ConnectionHandler;
-      },
-    });
-    // $FlowFixMe[method-unbinding]
-    const originalRetain = environment.retain;
-    // $FlowFixMe[cannot-write]
-    environment.retain = jest.fn((...args: any) =>
-      originalRetain.apply(environment, args),
-    );
-    return [environment, fetchFn];
-  }
-
-  beforeEach(() => {
-    // Set up mocks
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    jest.mock('warning');
-    /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
-     * enabling Flow LTI mode */
-    renderSpy = jest.fn<_, mixed>();
-    // Set up environment and base data
-    [environment, fetch] = createMockEnvironment();
-
-    variablesWithoutID = {
-      after: null,
-      first: 1,
-      before: null,
-      last: null,
-      isViewerFriend: false,
-      orderby: ['name'],
-    };
-    variables = {
-      ...variablesWithoutID,
-      id: '1',
-    };
-    variablesNestedFragment = {
-      ...variablesWithoutID,
-      id: '<feedbackid>',
-    };
-    graphql`
-      fragment usePaginationFragmentTestNestedUserFragment on User {
-        username
-      }
-    `;
-
-    gqlQuery = graphql`
-      query usePaginationFragmentTestUserQuery(
-        $id: ID!
-        $after: ID
-        $first: Int
-        $before: ID
-        $last: Int
-        $orderby: [String]
-        $isViewerFriend: Boolean
-      ) {
-        node(id: $id) {
-          ...usePaginationFragmentTestUserFragment
-            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-        }
-      }
-    `;
-    gqlQueryNestedFragment = graphql`
-      query usePaginationFragmentTestUserQueryNestedFragmentQuery(
-        $id: ID!
-        $after: ID
-        $first: Int
-        $before: ID
-        $last: Int
-        $orderby: [String]
-        $isViewerFriend: Boolean
-      ) {
-        node(id: $id) {
-          actor {
-            ...usePaginationFragmentTestUserFragment
-              @arguments(
-                isViewerFriendLocal: $isViewerFriend
-                orderby: $orderby
-              )
-          }
-        }
-      }
-    `;
-    gqlQueryWithoutID = graphql`
-      query usePaginationFragmentTestUserQueryWithoutIDQuery(
-        $after: ID
-        $first: Int
-        $before: ID
-        $last: Int
-        $orderby: [String]
-        $isViewerFriend: Boolean
-      ) {
-        viewer {
-          actor {
-            ...usePaginationFragmentTestUserFragment
-              @arguments(
-                isViewerFriendLocal: $isViewerFriend
-                orderby: $orderby
-              )
-          }
-        }
-      }
-    `;
-    gqlQueryWithLiteralArgs = graphql`
-      query usePaginationFragmentTestUserQueryWithLiteralArgsQuery(
-        $id: ID!
-        $after: ID
-        $first: Int
-        $before: ID
-        $last: Int
-      ) {
-        node(id: $id) {
-          ...usePaginationFragmentTestUserFragment
-            @arguments(isViewerFriendLocal: true, orderby: ["name"])
-        }
-      }
-    `;
-    gqlQueryWithStreaming = graphql`
-      query usePaginationFragmentTestUserQueryWithStreamingQuery(
-        $id: ID!
-        $after: ID
-        $first: Int
-        $before: ID
-        $last: Int
-        $orderby: [String]
-        $isViewerFriend: Boolean
-      ) {
-        node(id: $id) {
-          ...usePaginationFragmentTestUserFragmentWithStreaming
-            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
-        }
-      }
-    `;
-    gqlFragment = graphql`
-      fragment usePaginationFragmentTestUserFragment on User
-      @refetchable(
-        queryName: "usePaginationFragmentTestUserFragmentPaginationQuery"
-      )
-      @argumentDefinitions(
-        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-        orderby: {type: "[String]"}
-        scale: {type: "Float"}
-      ) {
-        id
-        name
-        friends(
-          after: $after
-          first: $first
-          before: $before
-          last: $last
-          orderby: $orderby
-          isViewerFriend: $isViewerFriendLocal
-          scale: $scale
-        )
-          @connection(
-            key: "UserFragment_friends"
-            filters: ["orderby", "isViewerFriend"]
-          ) {
-          edges {
-            node {
-              id
-              name
-              ...usePaginationFragmentTestNestedUserFragment
-            }
-          }
-        }
-      }
-    `;
-    gqlFragmentWithStreaming = graphql`
-      fragment usePaginationFragmentTestUserFragmentWithStreaming on User
-      @refetchable(
-        queryName: "usePaginationFragmentTestUserFragmentStreamingPaginationQuery"
-      )
-      @argumentDefinitions(
-        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-        orderby: {type: "[String]"}
-        scale: {type: "Float"}
-      ) {
-        id
-        name
-        friends(
-          after: $after
-          first: $first
-          before: $before
-          last: $last
-          orderby: $orderby
-          isViewerFriend: $isViewerFriendLocal
-          scale: $scale
-        )
-          @stream_connection(
-            initial_count: 1
-            key: "UserFragment_friends"
-            filters: ["orderby", "isViewerFriend"]
-          ) {
-          edges {
-            node {
-              id
-              name
-              ...usePaginationFragmentTestNestedUserFragment
-            }
-          }
-        }
-      }
-    `;
-    gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestUserFragmentPaginationQuery.graphql');
-
-    query = createOperationDescriptor(gqlQuery, variables);
-    queryNestedFragment = createOperationDescriptor(
-      gqlQueryNestedFragment,
-      variablesNestedFragment,
-    );
-    queryWithoutID = createOperationDescriptor(
-      gqlQueryWithoutID,
-      variablesWithoutID,
-    );
-    queryWithLiteralArgs = createOperationDescriptor(
-      gqlQueryWithLiteralArgs,
-      variables,
-    );
-    queryWithStreaming = createOperationDescriptor(
-      gqlQueryWithStreaming,
-      variables,
-    );
-    paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables, {
-      force: true,
-    });
-    environment.commitPayload(query, {
-      node: {
-        __typename: 'User',
-        id: '1',
-        name: 'Alice',
-        friends: {
-          edges: [
-            {
-              cursor: 'cursor:1',
-              node: {
-                __typename: 'User',
-                id: 'node:1',
-                name: 'name:node:1',
-                username: 'username:node:1',
-              },
-            },
-          ],
-          pageInfo: {
-            endCursor: 'cursor:1',
-            hasNextPage: true,
-            hasPreviousPage: false,
-            startCursor: 'cursor:1',
-          },
-        },
-      },
-    });
-    environment.commitPayload(queryWithoutID, {
-      viewer: {
-        actor: {
-          __typename: 'User',
-          id: '1',
-          name: 'Alice',
-          friends: {
-            edges: [
-              {
-                cursor: 'cursor:1',
-                node: {
-                  __typename: 'User',
-                  id: 'node:1',
-                  name: 'name:node:1',
-                  username: 'username:node:1',
-                },
-              },
-            ],
-            pageInfo: {
-              endCursor: 'cursor:1',
-              hasNextPage: true,
-              hasPreviousPage: false,
-              startCursor: 'cursor:1',
-            },
-          },
-        },
-      },
-    });
-    environment.commitPayload(queryWithLiteralArgs, {
-      node: {
-        __typename: 'User',
-        id: '1',
-        name: 'Alice',
-        friends: {
-          edges: [
-            {
-              cursor: 'cursor:1',
-              node: {
-                __typename: 'User',
-                id: 'node:1',
-                name: 'name:node:1',
-                username: 'username:node:1',
-              },
-            },
-          ],
-          pageInfo: {
-            endCursor: 'cursor:1',
-            hasNextPage: true,
-            hasPreviousPage: false,
-            startCursor: 'cursor:1',
-          },
-        },
-      },
-    });
-
-    // Set up renderers
-    Renderer = (props: {user: any}) => null;
-
-    const Container = (props: {
-      userRef?: {...},
-      owner: $FlowFixMe,
-      fragment?: $FlowFixMe,
-      ...
-    }) => {
-      // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState(props.owner);
-      const fragment = props.fragment ?? gqlFragment;
-      const nodeUserRef = useMemo(
-        () => environment.lookup(owner.fragment).data?.node,
-        [owner],
-      );
-      const ownerOperationRef = useMemo(
-        () => ({
-          [ID_KEY]:
-            owner.request.variables.id ?? owner.request.variables.nodeID,
-          [FRAGMENTS_KEY]: {
-            // $FlowFixMe[invalid-computed-prop] Error found while enabling LTI on this file
-            [fragment.name]: {},
-          },
-          [FRAGMENT_OWNER_KEY]: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
-        }),
-        [owner, fragment.name],
-      );
-      const userRef = props.hasOwnProperty('userRef')
-        ? props.userRef
-        : nodeUserRef ?? ownerOperationRef;
-
-      setOwner = _setOwner;
-
-      const {data: userData} = usePaginationFragment(
-        fragment,
-        (userRef: $FlowFixMe),
-      );
-      return <Renderer user={userData} />;
-    };
-
-    const ContextProvider = ({children}: {children: React.Node}) => {
-      const [env, _setEnv] = useState(environment);
-      const relayContext = useMemo(() => ({environment: env}), [env]);
-
-      setEnvironment = _setEnv;
-
-      return (
-        <ReactRelayContext.Provider value={relayContext}>
-          {children}
-        </ReactRelayContext.Provider>
-      );
-    };
-
-    renderFragment = (args?: {
-      isConcurrent?: boolean,
-      owner?: $FlowFixMe,
-      userRef?: $FlowFixMe,
-      fragment?: $FlowFixMe,
-      ...
-    }): $FlowFixMe => {
-      const {isConcurrent = false, ...props} = args ?? {};
-      let renderer;
-      TestRenderer.act(() => {
-        renderer = TestRenderer.create(
-          <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
-            <React.Suspense fallback="Fallback">
-              <ContextProvider>
-                <Container owner={query} {...props} />
-              </ContextProvider>
-            </React.Suspense>
-          </ErrorBoundary>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
-          {unstable_isConcurrent: isConcurrent},
-        );
+function createMockEnvironment() {
+  const source = RecordSource.create();
+  const store = new Store(source);
+  const fetchFn = jest.fn(
+    (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
+      return Observable.create((sink: Sink<mixed>) => {
+        dataSource = sink;
+        unsubscribe = jest.fn<[], mixed>();
+        // $FlowFixMe[incompatible-call]
+        return unsubscribe;
       });
-      return renderer;
-    };
+    },
+  );
+  const environment = new Environment({
+    getDataID: (data: {[string]: mixed}, typename: string) => {
+      // This is the default, but making it explicit in case we need to override
+      return data.id;
+    },
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+    network: Network.create(fetchFn),
+    store,
+    handlerProvider: _name => {
+      return ConnectionHandler;
+    },
+  });
+  // $FlowFixMe[method-unbinding]
+  const originalRetain = environment.retain;
+  // $FlowFixMe[cannot-write]
+  environment.retain = jest.fn((...args: any) =>
+    originalRetain.apply(environment, args),
+  );
+  return [environment, fetchFn];
+}
 
-    initialUser = {
+beforeEach(() => {
+  // Set up mocks
+  jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
+  jest.mock('warning');
+  /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
+   * enabling Flow LTI mode */
+  renderSpy = jest.fn<_, mixed>();
+  // Set up environment and base data
+  [environment, fetch] = createMockEnvironment();
+
+  variablesWithoutID = {
+    after: null,
+    first: 1,
+    before: null,
+    last: null,
+    isViewerFriend: false,
+    orderby: ['name'],
+  };
+  variables = {
+    ...variablesWithoutID,
+    id: '1',
+  };
+  variablesNestedFragment = {
+    ...variablesWithoutID,
+    id: '<feedbackid>',
+  };
+  graphql`
+    fragment usePaginationFragmentTestNestedUserFragment on User {
+      username
+    }
+  `;
+
+  gqlQuery = graphql`
+    query usePaginationFragmentTestUserQuery(
+      $id: ID!
+      $after: ID
+      $first: Int
+      $before: ID
+      $last: Int
+      $orderby: [String]
+      $isViewerFriend: Boolean
+    ) {
+      node(id: $id) {
+        ...usePaginationFragmentTestUserFragment
+          @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+      }
+    }
+  `;
+  gqlQueryNestedFragment = graphql`
+    query usePaginationFragmentTestUserQueryNestedFragmentQuery(
+      $id: ID!
+      $after: ID
+      $first: Int
+      $before: ID
+      $last: Int
+      $orderby: [String]
+      $isViewerFriend: Boolean
+    ) {
+      node(id: $id) {
+        actor {
+          ...usePaginationFragmentTestUserFragment
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+        }
+      }
+    }
+  `;
+  gqlQueryWithoutID = graphql`
+    query usePaginationFragmentTestUserQueryWithoutIDQuery(
+      $after: ID
+      $first: Int
+      $before: ID
+      $last: Int
+      $orderby: [String]
+      $isViewerFriend: Boolean
+    ) {
+      viewer {
+        actor {
+          ...usePaginationFragmentTestUserFragment
+            @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+        }
+      }
+    }
+  `;
+  gqlQueryWithLiteralArgs = graphql`
+    query usePaginationFragmentTestUserQueryWithLiteralArgsQuery(
+      $id: ID!
+      $after: ID
+      $first: Int
+      $before: ID
+      $last: Int
+    ) {
+      node(id: $id) {
+        ...usePaginationFragmentTestUserFragment
+          @arguments(isViewerFriendLocal: true, orderby: ["name"])
+      }
+    }
+  `;
+  gqlQueryWithStreaming = graphql`
+    query usePaginationFragmentTestUserQueryWithStreamingQuery(
+      $id: ID!
+      $after: ID
+      $first: Int
+      $before: ID
+      $last: Int
+      $orderby: [String]
+      $isViewerFriend: Boolean
+    ) {
+      node(id: $id) {
+        ...usePaginationFragmentTestUserFragmentWithStreaming
+          @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
+      }
+    }
+  `;
+  gqlFragment = graphql`
+    fragment usePaginationFragmentTestUserFragment on User
+    @refetchable(
+      queryName: "usePaginationFragmentTestUserFragmentPaginationQuery"
+    )
+    @argumentDefinitions(
+      isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+      orderby: {type: "[String]"}
+      scale: {type: "Float"}
+    ) {
+      id
+      name
+      friends(
+        after: $after
+        first: $first
+        before: $before
+        last: $last
+        orderby: $orderby
+        isViewerFriend: $isViewerFriendLocal
+        scale: $scale
+      )
+        @connection(
+          key: "UserFragment_friends"
+          filters: ["orderby", "isViewerFriend"]
+        ) {
+        edges {
+          node {
+            id
+            name
+            ...usePaginationFragmentTestNestedUserFragment
+          }
+        }
+      }
+    }
+  `;
+  gqlFragmentWithStreaming = graphql`
+    fragment usePaginationFragmentTestUserFragmentWithStreaming on User
+    @refetchable(
+      queryName: "usePaginationFragmentTestUserFragmentStreamingPaginationQuery"
+    )
+    @argumentDefinitions(
+      isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+      orderby: {type: "[String]"}
+      scale: {type: "Float"}
+    ) {
+      id
+      name
+      friends(
+        after: $after
+        first: $first
+        before: $before
+        last: $last
+        orderby: $orderby
+        isViewerFriend: $isViewerFriendLocal
+        scale: $scale
+      )
+        @stream_connection(
+          initial_count: 1
+          key: "UserFragment_friends"
+          filters: ["orderby", "isViewerFriend"]
+        ) {
+        edges {
+          node {
+            id
+            name
+            ...usePaginationFragmentTestNestedUserFragment
+          }
+        }
+      }
+    }
+  `;
+  gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestUserFragmentPaginationQuery.graphql');
+
+  query = createOperationDescriptor(gqlQuery, variables);
+  queryNestedFragment = createOperationDescriptor(
+    gqlQueryNestedFragment,
+    variablesNestedFragment,
+  );
+  queryWithoutID = createOperationDescriptor(
+    gqlQueryWithoutID,
+    variablesWithoutID,
+  );
+  queryWithLiteralArgs = createOperationDescriptor(
+    gqlQueryWithLiteralArgs,
+    variables,
+  );
+  queryWithStreaming = createOperationDescriptor(
+    gqlQueryWithStreaming,
+    variables,
+  );
+  paginationQuery = createOperationDescriptor(gqlPaginationQuery, variables, {
+    force: true,
+  });
+  environment.commitPayload(query, {
+    node: {
+      __typename: 'User',
       id: '1',
       name: 'Alice',
       friends: {
@@ -635,7 +471,7 @@ describe.each([
               __typename: 'User',
               id: 'node:1',
               name: 'name:node:1',
-              ...createFragmentRef('node:1', query),
+              username: 'username:node:1',
             },
           },
         ],
@@ -646,11 +482,180 @@ describe.each([
           startCursor: 'cursor:1',
         },
       },
-    };
+    },
+  });
+  environment.commitPayload(queryWithoutID, {
+    viewer: {
+      actor: {
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+        friends: {
+          edges: [
+            {
+              cursor: 'cursor:1',
+              node: {
+                __typename: 'User',
+                id: 'node:1',
+                name: 'name:node:1',
+                username: 'username:node:1',
+              },
+            },
+          ],
+          pageInfo: {
+            endCursor: 'cursor:1',
+            hasNextPage: true,
+            hasPreviousPage: false,
+            startCursor: 'cursor:1',
+          },
+        },
+      },
+    },
+  });
+  environment.commitPayload(queryWithLiteralArgs, {
+    node: {
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+      friends: {
+        edges: [
+          {
+            cursor: 'cursor:1',
+            node: {
+              __typename: 'User',
+              id: 'node:1',
+              name: 'name:node:1',
+              username: 'username:node:1',
+            },
+          },
+        ],
+        pageInfo: {
+          endCursor: 'cursor:1',
+          hasNextPage: true,
+          hasPreviousPage: false,
+          startCursor: 'cursor:1',
+        },
+      },
+    },
   });
 
+  // Set up renderers
+  Renderer = (props: {user: any}) => null;
+
+  const Container = (props: {
+    userRef?: {...},
+    owner: $FlowFixMe,
+    fragment?: $FlowFixMe,
+    ...
+  }) => {
+    // We need a render a component to run a Hook
+    const [owner, _setOwner] = useState(props.owner);
+    const fragment = props.fragment ?? gqlFragment;
+    const nodeUserRef = useMemo(
+      () => environment.lookup(owner.fragment).data?.node,
+      [owner],
+    );
+    const ownerOperationRef = useMemo(
+      () => ({
+        [ID_KEY]: owner.request.variables.id ?? owner.request.variables.nodeID,
+        [FRAGMENTS_KEY]: {
+          // $FlowFixMe[invalid-computed-prop] Error found while enabling LTI on this file
+          [fragment.name]: {},
+        },
+        [FRAGMENT_OWNER_KEY]: owner.request,
+      }),
+      [owner, fragment.name],
+    );
+    const userRef = props.hasOwnProperty('userRef')
+      ? props.userRef
+      : nodeUserRef ?? ownerOperationRef;
+
+    setOwner = _setOwner;
+
+    const {data: userData} = usePaginationFragment(
+      fragment,
+      (userRef: $FlowFixMe),
+    );
+    return <Renderer user={userData} />;
+  };
+
+  const ContextProvider = ({children}: {children: React.Node}) => {
+    const [env, _setEnv] = useState(environment);
+    const relayContext = useMemo(() => ({environment: env}), [env]);
+
+    setEnvironment = _setEnv;
+
+    return (
+      <ReactRelayContext.Provider value={relayContext}>
+        {children}
+      </ReactRelayContext.Provider>
+    );
+  };
+
+  renderFragment = (args?: {
+    isConcurrent?: boolean,
+    owner?: $FlowFixMe,
+    userRef?: $FlowFixMe,
+    fragment?: $FlowFixMe,
+    ...
+  }): $FlowFixMe => {
+    const {isConcurrent = false, ...props} = args ?? {};
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <ErrorBoundary fallback={({error}) => `Error: ${error.message}`}>
+          <React.Suspense fallback="Fallback">
+            <ContextProvider>
+              <Container owner={query} {...props} />
+            </ContextProvider>
+          </React.Suspense>
+        </ErrorBoundary>,
+        // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+        {unstable_isConcurrent: isConcurrent},
+      );
+    });
+    return renderer;
+  };
+
+  initialUser = {
+    id: '1',
+    name: 'Alice',
+    friends: {
+      edges: [
+        {
+          cursor: 'cursor:1',
+          node: {
+            __typename: 'User',
+            id: 'node:1',
+            name: 'name:node:1',
+            ...createFragmentRef('node:1', query),
+          },
+        },
+      ],
+      pageInfo: {
+        endCursor: 'cursor:1',
+        hasNextPage: true,
+        hasPreviousPage: false,
+        startCursor: 'cursor:1',
+      },
+    },
+  };
+});
+
+afterEach(() => {
+  renderSpy.mockClear();
+});
+
+describe.each([
+  ['Experimental', true],
+  ['Current', false],
+])('usePaginationFragment (%s)', (_name, ENABLE_ACTIVITY_COMPATIBILITY) => {
+  beforeEach(() => {
+    RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY =
+      ENABLE_ACTIVITY_COMPATIBILITY;
+  });
   afterEach(() => {
-    renderSpy.mockClear();
+    RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = false;
   });
 
   describe('initial render', () => {
@@ -766,13 +771,15 @@ describe.each([
       ]);
 
       // Update parent record
-      environment.commitPayload(query, {
-        node: {
-          __typename: 'User',
-          id: '1',
-          // Update name
-          name: 'Alice in Wonderland',
-        },
+      TestRenderer.act(() => {
+        environment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: '1',
+            // Update name
+            name: 'Alice in Wonderland',
+          },
+        });
       });
       expectFragmentResults([
         {
@@ -789,14 +796,17 @@ describe.each([
       ]);
 
       // Update edge
-      environment.commitPayload(query, {
-        node: {
-          __typename: 'User',
-          id: 'node:1',
-          // Update name
-          name: 'name:node:1-updated',
-        },
+      TestRenderer.act(() => {
+        environment.commitPayload(query, {
+          node: {
+            __typename: 'User',
+            id: 'node:1',
+            // Update name
+            name: 'name:node:1-updated',
+          },
+        });
       });
+
       expectFragmentResults([
         {
           data: {
@@ -1773,6 +1783,7 @@ describe.each([
         const error = new Error('Oops');
         dataSource.error(error);
 
+        TestRenderer.act(() => jest.runAllImmediates());
         // We pass the error in the callback, but do not throw during render
         // since we want to continue rendering the existing items in the
         // connection
@@ -2159,51 +2170,219 @@ describe.each([
       });
 
       describe('disposing', () => {
-        it('cancels load more if component unmounts', () => {
-          unsubscribe.mockClear();
-          const callback = jest.fn<[Error | null], void>();
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
+        if (!ENABLE_ACTIVITY_COMPATIBILITY) {
+          it('cancels load more if component unmounts (legacy behavior, incompatible with <Activity>)', () => {
+            unsubscribe.mockClear();
+            const callback = jest.fn<[Error | null], void>();
+            const renderer = renderFragment();
+            expectFragmentResults([
+              {
+                data: initialUser,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+            ]);
+
+            TestRenderer.act(() => {
+              loadNext(1, {onComplete: callback});
+            });
+            const paginationVariables = {
+              id: '1',
+              after: 'cursor:1',
+              first: 1,
+              before: null,
+              last: null,
+              isViewerFriendLocal: false,
+              orderby: ['name'],
+              scale: null,
+            };
+            expectFragmentIsLoadingMore(renderer, direction, {
               data: initialUser,
-              isLoadingNext: false,
-              isLoadingPrevious: false,
               hasNext: true,
               hasPrevious: false,
-            },
-          ]);
+              paginationVariables,
+              gqlPaginationQuery,
+            });
+            expect(unsubscribe).toHaveBeenCalledTimes(0);
 
-          TestRenderer.act(() => {
-            loadNext(1, {onComplete: callback});
-          });
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-            scale: null,
-          };
-          expectFragmentIsLoadingMore(renderer, direction, {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(unsubscribe).toHaveBeenCalledTimes(0);
+            TestRenderer.act(() => {
+              renderer.unmount();
+              jest.runAllTimers();
+            });
+            expect(unsubscribe).toHaveBeenCalledTimes(1);
+            // Resolve the query and make sure the callback is not called
+            resolveQuery({
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '1',
+                  name: 'Alice',
+                  friends: {
+                    edges: [
+                      {
+                        cursor: 'cursor:2',
+                        node: {
+                          __typename: 'User',
+                          id: 'node:2',
+                          name: 'name:node:2',
+                          username: 'username:node:2',
+                        },
+                      },
+                    ],
+                    pageInfo: {
+                      startCursor: 'cursor:2',
+                      endCursor: 'cursor:2',
+                      hasNextPage: true,
+                      hasPreviousPage: true,
+                    },
+                  },
+                },
+              },
+            });
+            expect(callback).toBeCalledTimes(0); // callback is still called
+            expect(fetch).toBeCalledTimes(1);
+            expect(renderSpy).toBeCalledTimes(0);
+            // unsubscribe runs as part of the observable completing, note this is
+            // not called above after unmount
+            expect(unsubscribe).toHaveBeenCalledTimes(1);
 
-          TestRenderer.act(() => {
-            renderer.unmount();
-            jest.runAllTimers();
+            // Check that the pagination data was not written to the store
+            renderFragment();
+            expectFragmentResults([
+              {
+                data: initialUser,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+            ]);
           });
-          expect(unsubscribe).toHaveBeenCalledTimes(1);
-          expect(fetch).toBeCalledTimes(1);
-          expect(callback).toBeCalledTimes(0);
-          expect(renderSpy).toBeCalledTimes(0);
-        });
+        } else {
+          it('cancels load more if component unmounts (new behavior, compatible with <Activity>)', () => {
+            unsubscribe.mockClear();
+            const callback = jest.fn<[Error | null], void>();
+            const renderer = renderFragment();
+            expectFragmentResults([
+              {
+                data: initialUser,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+            ]);
+
+            TestRenderer.act(() => {
+              loadNext(1, {onComplete: callback});
+            });
+            const paginationVariables = {
+              id: '1',
+              after: 'cursor:1',
+              first: 1,
+              before: null,
+              last: null,
+              isViewerFriendLocal: false,
+              orderby: ['name'],
+              scale: null,
+            };
+            expectFragmentIsLoadingMore(renderer, direction, {
+              data: initialUser,
+              hasNext: true,
+              hasPrevious: false,
+              paginationVariables,
+              gqlPaginationQuery,
+            });
+            expect(unsubscribe).toHaveBeenCalledTimes(0);
+
+            TestRenderer.act(() => {
+              renderer.unmount();
+              jest.runAllTimers();
+            });
+            expect(unsubscribe).toHaveBeenCalledTimes(0);
+            // Resolve the query and make sure the callback is not called
+            resolveQuery({
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '1',
+                  name: 'Alice',
+                  friends: {
+                    edges: [
+                      {
+                        cursor: 'cursor:2',
+                        node: {
+                          __typename: 'User',
+                          id: 'node:2',
+                          name: 'name:node:2',
+                          username: 'username:node:2',
+                        },
+                      },
+                    ],
+                    pageInfo: {
+                      startCursor: 'cursor:2',
+                      endCursor: 'cursor:2',
+                      hasNextPage: true,
+                      hasPreviousPage: true,
+                    },
+                  },
+                },
+              },
+            });
+            expect(callback).toBeCalledTimes(1); // callback is still called
+            expect(fetch).toBeCalledTimes(1);
+            expect(renderSpy).toBeCalledTimes(0);
+            // unsubscribe runs as part of the observable completing, note this is
+            // not called above after unmount
+            expect(unsubscribe).toHaveBeenCalledTimes(1);
+
+            // Check that the pagination data was written to the store
+            const expectedUser = {
+              ...initialUser,
+              friends: {
+                ...initialUser.friends,
+                edges: [
+                  {
+                    cursor: 'cursor:1',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:1',
+                      name: 'name:node:1',
+                      ...createFragmentRef('node:1', query),
+                    },
+                  },
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'name:node:2',
+                      ...createFragmentRef('node:2', query),
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: false,
+                  startCursor: 'cursor:1',
+                },
+              },
+            };
+            renderFragment();
+            expectFragmentResults([
+              {
+                data: expectedUser,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+            ]);
+          });
+        }
 
         it('cancels load more if refetch is called', () => {
           unsubscribe.mockClear();
@@ -2467,98 +2646,213 @@ describe.each([
           ]);
         });
 
-        it('disposes ongoing request on unmount', () => {
-          const callback = jest.fn<[Error | null], void>();
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
+        if (!ENABLE_ACTIVITY_COMPATIBILITY) {
+          it('disposes ongoing request if dispose is called manually', () => {
+            const callback = jest.fn<[Error | null], void>();
+            const renderer = renderFragment();
+            expectFragmentResults([
+              {
+                data: initialUser,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+            ]);
+
+            let disposable;
+            TestRenderer.act(() => {
+              disposable = loadNext(1, {onComplete: callback});
+            });
+
+            // Assert request is started
+            const paginationVariables = {
+              id: '1',
+              after: 'cursor:1',
+              first: 1,
+              before: null,
+              last: null,
+              isViewerFriendLocal: false,
+              orderby: ['name'],
+              scale: null,
+            };
+            expectFragmentIsLoadingMore(renderer, direction, {
               data: initialUser,
-              isLoadingNext: false,
-              isLoadingPrevious: false,
               hasNext: true,
               hasPrevious: false,
-            },
-          ]);
+              paginationVariables,
+              gqlPaginationQuery,
+            });
+            expect(callback).toBeCalledTimes(0);
 
-          TestRenderer.act(() => {
-            loadNext(1, {onComplete: callback});
+            expect(disposable).toBeTruthy();
+            disposable?.dispose();
+
+            // Assert request was cancelled
+            expect(callback).toBeCalledTimes(0);
+            expect(unsubscribe).toBeCalledTimes(1);
+            expect(fetch).toBeCalledTimes(1); // the loadNext call
+            expect(renderSpy).toHaveBeenCalledTimes(0);
+
+            resolveQuery({
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '1',
+                  name: 'Alice',
+                  friends: {
+                    edges: [
+                      {
+                        cursor: 'cursor:2',
+                        node: {
+                          __typename: 'User',
+                          id: 'node:2',
+                          name: 'name:node:2',
+                          username: 'username:node:2',
+                        },
+                      },
+                    ],
+                    pageInfo: {
+                      startCursor: 'cursor:2',
+                      endCursor: 'cursor:2',
+                      hasNextPage: true,
+                      hasPreviousPage: true,
+                    },
+                  },
+                },
+              },
+            });
+            expect(callback).toBeCalledTimes(0); // callback is not called
           });
+        } else {
+          it('does not dispose ongoing request even if dispose is called manually', () => {
+            const callback = jest.fn<[Error | null], void>();
+            const renderer = renderFragment();
+            expectFragmentResults([
+              {
+                data: initialUser,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+            ]);
 
-          // Assert request is started
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-            scale: null,
-          };
-          expectFragmentIsLoadingMore(renderer, direction, {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(callback).toBeCalledTimes(0);
+            let disposable;
+            TestRenderer.act(() => {
+              disposable = loadNext(1, {onComplete: callback});
+            });
 
-          TestRenderer.act(() => {
-            renderer.unmount();
-          });
-
-          // Assert request was canceled
-          expect(unsubscribe).toBeCalledTimes(1);
-          expect(fetch).toBeCalledTimes(1); // the loadNext call
-        });
-
-        it('disposes ongoing request if it is manually disposed', () => {
-          const callback = jest.fn<[Error | null], void>();
-          const renderer = renderFragment();
-          expectFragmentResults([
-            {
+            // Assert request is started
+            const paginationVariables = {
+              id: '1',
+              after: 'cursor:1',
+              first: 1,
+              before: null,
+              last: null,
+              isViewerFriendLocal: false,
+              orderby: ['name'],
+              scale: null,
+            };
+            expectFragmentIsLoadingMore(renderer, direction, {
               data: initialUser,
-              isLoadingNext: false,
-              isLoadingPrevious: false,
               hasNext: true,
               hasPrevious: false,
-            },
-          ]);
+              paginationVariables,
+              gqlPaginationQuery,
+            });
+            expect(callback).toBeCalledTimes(0);
 
-          let disposable;
-          TestRenderer.act(() => {
-            disposable = loadNext(1, {onComplete: callback});
+            expect(disposable).toBeTruthy();
+            disposable?.dispose();
+
+            // Assert request was not cancelled
+            expect(callback).toBeCalledTimes(0);
+            expect(unsubscribe).toBeCalledTimes(0);
+            expect(fetch).toBeCalledTimes(1); // the loadNext call
+            expect(renderSpy).toHaveBeenCalledTimes(0);
+
+            resolveQuery({
+              data: {
+                node: {
+                  __typename: 'User',
+                  id: '1',
+                  name: 'Alice',
+                  friends: {
+                    edges: [
+                      {
+                        cursor: 'cursor:2',
+                        node: {
+                          __typename: 'User',
+                          id: 'node:2',
+                          name: 'name:node:2',
+                          username: 'username:node:2',
+                        },
+                      },
+                    ],
+                    pageInfo: {
+                      startCursor: 'cursor:2',
+                      endCursor: 'cursor:2',
+                      hasNextPage: true,
+                      hasPreviousPage: true,
+                    },
+                  },
+                },
+              },
+            });
+            expect(callback).toBeCalledTimes(1); // callback is still called
+
+            // Check that the pagination data was written to the store
+            const expectedUser = {
+              ...initialUser,
+              friends: {
+                ...initialUser.friends,
+                edges: [
+                  {
+                    cursor: 'cursor:1',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:1',
+                      name: 'name:node:1',
+                      ...createFragmentRef('node:1', query),
+                    },
+                  },
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                      name: 'name:node:2',
+                      ...createFragmentRef('node:2', query),
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
+                  hasPreviousPage: false,
+                  startCursor: 'cursor:1',
+                },
+              },
+            };
+            expectFragmentResults([
+              {
+                data: expectedUser,
+                isLoadingNext: true,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+              {
+                data: expectedUser,
+                isLoadingNext: false,
+                isLoadingPrevious: false,
+                hasNext: true,
+                hasPrevious: false,
+              },
+            ]);
           });
-
-          // Assert request is started
-          const paginationVariables = {
-            id: '1',
-            after: 'cursor:1',
-            first: 1,
-            before: null,
-            last: null,
-            isViewerFriendLocal: false,
-            orderby: ['name'],
-            scale: null,
-          };
-          expectFragmentIsLoadingMore(renderer, direction, {
-            data: initialUser,
-            hasNext: true,
-            hasPrevious: false,
-            paginationVariables,
-            gqlPaginationQuery,
-          });
-          expect(callback).toBeCalledTimes(0);
-
-          expect(disposable).toBeTruthy();
-          disposable?.dispose();
-
-          // Assert request was canceled
-          expect(unsubscribe).toBeCalledTimes(1);
-          expect(fetch).toBeCalledTimes(1); // the loadNext call
-          expect(renderSpy).toHaveBeenCalledTimes(0);
-        });
+        }
       });
 
       describe('when parent query is streaming', () => {
@@ -4030,6 +4324,152 @@ describe.each([
             hasPrevious: false,
           },
         ]);
+      });
+
+      it('resets `isLoading` to false, hen loadMore gets interrupted by refresh, and useLoadMore does not trigger a reset', () => {
+        RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX = true;
+        renderFragment();
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isLoadingNext: false,
+            isLoadingPrevious: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+
+        TestRenderer.act(() => {
+          loadNext(1);
+        });
+
+        expectFragmentResults([
+          {
+            data: initialUser,
+            isLoadingNext: true,
+            isLoadingPrevious: false,
+            hasNext: true,
+            hasPrevious: false,
+          },
+        ]);
+        fetch.mockClear();
+
+        TestRenderer.act(() => {
+          refetch(
+            {
+              cursor: null,
+            },
+            {
+              fetchPolicy: 'network-only',
+            },
+          );
+        });
+
+        const refetchVariables = {
+          after: null,
+          before: null,
+          first: 1,
+          isViewerFriendLocal: false,
+          last: null,
+          orderby: ['name'],
+          scale: null,
+          id: '1',
+        };
+        paginationQuery = createOperationDescriptor(
+          gqlPaginationQuery,
+          refetchVariables,
+          {force: true},
+        );
+
+        const REFETCH_DATA = {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:100',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:100',
+                      name: 'name:node:100',
+                      username: 'username:node:100',
+                    },
+                  },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:100',
+                  hasNextPage: true,
+                  hasPreviousPage: false,
+                  startCursor: 'cursor:100',
+                },
+              },
+            },
+          },
+        };
+        resolveQuery(REFETCH_DATA);
+
+        const expectedUser = {
+          id: '1',
+          name: 'Alice',
+          friends: {
+            edges: [
+              {
+                cursor: 'cursor:100',
+                node: {
+                  __typename: 'User',
+                  id: 'node:100',
+                  name: 'name:node:100',
+                  ...createFragmentRef('node:100', paginationQuery),
+                },
+              },
+            ],
+            pageInfo: {
+              endCursor: 'cursor:100',
+              hasNextPage: true,
+              hasPreviousPage: false,
+              startCursor: 'cursor:100',
+            },
+          },
+        };
+
+        // loadNext gets interrupted by refetch, and `reset()` in useLoadMore triggers
+        expectFragmentLastResult({
+          data: expectedUser,
+          isLoadingNext: false,
+          isLoadingPrevious: false,
+          hasNext: true,
+          hasPrevious: false,
+        });
+
+        // loadNext gets interrupted by refetch, and `reset()` in useLoadMore doesn't trigger
+        // because fragmentIdentifier doesn't change
+        TestRenderer.act(() => {
+          loadNext(1);
+        });
+        TestRenderer.act(() => {
+          refetch(
+            {
+              cursor: null,
+            },
+            {
+              fetchPolicy: 'network-only',
+            },
+          );
+        });
+
+        resolveQuery(REFETCH_DATA);
+        expectFragmentLastResult({
+          data: expectedUser,
+          isLoadingNext: false,
+          isLoadingPrevious: false,
+          hasNext: true,
+          hasPrevious: false,
+        });
+
+        RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX = false;
       });
     });
 

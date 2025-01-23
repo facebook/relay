@@ -12,17 +12,22 @@
 'use strict';
 
 const nullthrows = require('nullthrows');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {getFragment, graphql} = require('relay-runtime/query/GraphQLTag');
+const {
+  LiveResolverCache,
+} = require('relay-runtime/store/live-resolvers/LiveResolverCache');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
 const {
   getSingularSelector,
 } = require('relay-runtime/store/RelayModernSelector');
+const RelayStore = require('relay-runtime/store/RelayModernStore');
 const {read} = require('relay-runtime/store/RelayReader');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
-const {RecordResolverCache} = require('relay-runtime/store/ResolverCache');
+const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -30,16 +35,6 @@ const {
 
 disallowConsoleErrors();
 disallowWarnings();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
-});
 
 const BASIC_QUERY = graphql`
   query RelayReaderClientEdgesTest1Query {
@@ -147,7 +142,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Bob',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = BASIC_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -156,12 +152,12 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual('Bob');
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -181,7 +177,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Alice',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = BASIC_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -190,12 +187,12 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -279,7 +276,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Bob',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = QUERY_WITH_ALIAS;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -288,13 +286,13 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.the_alias?.name).toEqual('Bob');
     expect(me?.client_edge).toBeUndefined();
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -314,7 +312,8 @@ describe('RelayReader Client Edges behavior', () => {
         name: 'Alice',
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = NULL_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -323,11 +322,11 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.null_client_edge).toBe(null);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
-      'client:1:null_client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}null_client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -354,7 +353,8 @@ describe('RelayReader Client Edges behavior', () => {
         author: {__ref: '1338'}, // missing
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = LINKED_FIELD_WITHIN_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -363,13 +363,13 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.author).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
       '1338',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -395,7 +395,8 @@ describe('RelayReader Client Edges behavior', () => {
         // name is missing
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = FRAGMENT_SPREAD_WITHIN_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data: parentData} = read(source, operation.fragment, resolverCache);
@@ -411,7 +412,7 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual(['1337']);
     expect(missingClientEdges?.length).toEqual(1);
@@ -437,7 +438,8 @@ describe('RelayReader Client Edges behavior', () => {
         // name is missing
       },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = NESTED_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -446,14 +448,14 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.name).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
       '1338',
-      'client:1337:another_client_edge',
-      'client:1:client_edge',
+      `client:1337:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}another_client_edge`,
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -489,7 +491,8 @@ describe('RelayReader Client Edges behavior', () => {
       },
       // 1337 (the client edge destination) is missing.
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = CLIENT_EDGE_WITHIN_CLIENT_EXTENSION;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
@@ -498,13 +501,13 @@ describe('RelayReader Client Edges behavior', () => {
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-    const {me} = (data: any);
+    const {me}: any = data;
     expect(me?.client_edge?.author).toEqual(undefined);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
       '1338',
-      'client:1338:client_edge',
+      `client:1338:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -540,7 +543,8 @@ describe('RelayReader Client Edges behavior', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const {missingClientEdges} = read(
       source,
       operation.fragment,

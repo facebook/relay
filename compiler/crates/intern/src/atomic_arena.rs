@@ -25,7 +25,7 @@ const MIN_SHIFT: u32 = 7;
 const U32_BITS: usize = 32;
 const MIN_SIZE: u32 = 1 << MIN_SHIFT;
 const NUM_SIZES: usize = U32_BITS - MIN_SHIFT as usize;
-const MAX_INDEX: u32 = std::u32::MAX - MIN_SIZE;
+const MAX_INDEX: u32 = u32::MAX - MIN_SIZE;
 
 // Memory consistency assertions provide a lot of checking of the internals,
 // but have a huge runtime cost.  Be warned!  These are really for active
@@ -121,7 +121,7 @@ pub struct AtomicArena<'a, T> {
     next_biased_index: AtomicU32,
     /// buckets in reverse order, starting from the back and working
     /// forwards.  Capacity for bucket i is bucket_capacity(i).
-    buckets: [AtomicPtr<MaybeUninit<T>>; NUM_SIZES as usize],
+    buckets: [AtomicPtr<MaybeUninit<T>>; NUM_SIZES],
     bucket_alloc_mutex: Mutex<()>,
 }
 
@@ -207,7 +207,7 @@ fn bucket_capacity(a: usize) -> usize {
 fn index(i: u32) -> (usize, usize) {
     memory_consistency_assert!(i >= MIN_SIZE);
     memory_consistency_assert!(i - MIN_SIZE <= MAX_INDEX);
-    memory_consistency_assert!(i as u64 <= std::usize::MAX as u64);
+    memory_consistency_assert!(i as u64 <= usize::MAX as u64);
     let a = i.leading_zeros() as usize;
     memory_consistency_assert!(a < NUM_SIZES, "{} < {}", a, NUM_SIZES);
     let b = (i & ((bucket_capacity(0) as u32 - 1) >> a)) as usize;
@@ -264,7 +264,7 @@ impl<'a, T> AtomicArena<'a, T> {
     /// it calls `slice_for_slot_slow` to allocate it.
     #[inline]
     fn slice_for_slot(&self, a: usize) -> NonNull<MaybeUninit<T>> {
-        if let Some(curr) = NonNull::new(self.buckets[a as usize].load(Ordering::Acquire)) {
+        if let Some(curr) = NonNull::new(self.buckets[a].load(Ordering::Acquire)) {
             curr
         } else {
             self.slice_for_slot_slow(a)
@@ -281,10 +281,10 @@ impl<'a, T> AtomicArena<'a, T> {
         // as an `Acquire / Release` pair.
         let lock = self.bucket_alloc_mutex.lock();
         // Relaxed load because we know we're competing with prior lock holders now.
-        if let Some(curr) = NonNull::new(self.buckets[a as usize].load(Ordering::Relaxed)) {
+        if let Some(curr) = NonNull::new(self.buckets[a].load(Ordering::Relaxed)) {
             return curr;
         }
-        let cap = bucket_capacity(a) as usize;
+        let cap = bucket_capacity(a);
         // Allocate bucket as vector, then prise it apart since we
         // only care about capacity and pointer.  We use MaybeUninit
         // because we are tracking slot validity across all buckets
@@ -300,7 +300,7 @@ impl<'a, T> AtomicArena<'a, T> {
         memory_consistency_assert!(acap == cap || std::mem::size_of::<T>() == 0);
         memory_consistency_assert_eq!(len, 0);
         if let Some(nn_ptr) = NonNull::new(ptr) {
-            self.buckets[a as usize].store(ptr, Ordering::Release);
+            self.buckets[a].store(ptr, Ordering::Release);
             drop(lock);
             nn_ptr
         } else {
@@ -344,11 +344,11 @@ impl<'a, T> AtomicArena<'a, T> {
         // the current (uninitialized) contents of this bucket
         // entry before writing the new contents.  This can yield
         // a hard-to-debug segfault in the internals of malloc.
-        let e_ptr: *mut MaybeUninit<T> = unsafe { e_ptr.add(b as usize) };
+        let e_ptr: *mut MaybeUninit<T> = unsafe { e_ptr.add(b) };
         unsafe {
             *e_ptr = MaybeUninit::new(element);
         }
-        let e: &T = unsafe { &*(&*e_ptr).as_ptr() };
+        let e: &T = unsafe { &*(*e_ptr).as_ptr() };
         (
             Ref {
                 phantom: PhantomData,
@@ -383,15 +383,13 @@ impl<'a, T> AtomicArena<'a, T> {
             // Get bucket address, but do *not* allocate a bucket.
             // Ordering::Relaxed is OK because we got a Ref in a
             // thread-safe way in get(..).
-            self.buckets
-                .get_unchecked(a as usize)
-                .load(Ordering::Relaxed)
+            self.buckets.get_unchecked(a).load(Ordering::Relaxed)
         };
         // Sanity check bucket.  Again, won't catch all unsafe accesses.
         memory_consistency_assert!(!e_ptr.is_null());
         unsafe {
             // Read the added element, and strip the MaybeUnit wrapper to yield a &T.
-            let r: &MaybeUninit<T> = &*e_ptr.add(b as usize);
+            let r: &MaybeUninit<T> = &*e_ptr.add(b);
             &*r.as_ptr()
         }
     }
@@ -443,7 +441,7 @@ impl<'a, T> Drop for AtomicArena<'a, T> {
                 // efficient as simply calling Drop on individual
                 // elements, and is vastly simpler than calling the
                 // mem apis directly.
-                Vec::from_raw_parts(b_ptr, sz as usize, cap as usize)
+                Vec::from_raw_parts(b_ptr, sz, cap)
             };
             drop(iv);
             bucket.store(ptr::null_mut(), Ordering::Relaxed)
@@ -672,8 +670,8 @@ mod tests {
 
     use super::*;
 
-    static mut ZERO: Zero<&str> = Zero::new("zero");
-    static STRING_ARENA: AtomicArena<'static, &str> = AtomicArena::with_zero(unsafe { &ZERO });
+    static ZERO: Zero<&str> = Zero::new("zero");
+    static STRING_ARENA: AtomicArena<'static, &str> = AtomicArena::with_zero(&ZERO);
 
     /// For internal testing purposes we permit the unsafe synthesis of Refs.
     fn mk_ref<'a, T>(index: u32) -> Ref<'a, T> {
@@ -705,13 +703,13 @@ mod tests {
         let (a, b) = index(MIN_SIZE);
         assert_eq!(a, NUM_SIZES - 1);
         assert_eq!(b, 0);
-        let (a, b) = index(std::u32::MAX);
+        let (a, b) = index(u32::MAX);
         assert_eq!(a, 0);
         assert_eq!(b, (1 << 31) - 1);
         assert_eq!(b, bucket_capacity(0) - 1);
         // Check thresholds
         for s in (MIN_SHIFT + 1)..(U32_BITS as u32) {
-            let i = 1 << (s as u32);
+            let i = 1 << s;
             let (a0, b0) = index(i - 1);
             let (a1, b1) = index(i);
             assert_eq!(a0, U32_BITS - s as usize);
@@ -867,7 +865,7 @@ mod tests {
         let mut avail: Arc<Vec<AtomicU32>> = Arc::new(Vec::with_capacity(N as usize));
         Arc::get_mut(&mut avail)
             .unwrap()
-            .resize_with(N as usize, || AtomicU32::new(10 * N as u32));
+            .resize_with(N as usize, || AtomicU32::new(10 * N));
         // Make sure we don't just run the producer or all the
         // consumers without interleaving them.
         let progress = Arc::new((Mutex::new(0u32), Condvar::new()));
@@ -883,11 +881,8 @@ mod tests {
                     let n = i * WRITERS + k;
                     let id = arena.add(n as usize);
                     assert!(id.index() < N);
-                    assert_eq!(
-                        avail[id.index() as usize].load(Ordering::Acquire),
-                        10 * N as u32
-                    );
-                    avail[id.index() as usize].store(n as u32, Ordering::Release);
+                    assert_eq!(avail[id.index() as usize].load(Ordering::Acquire), 10 * N);
+                    avail[id.index() as usize].store(n, Ordering::Release);
                     if k == 0 && i == next_poke {
                         let (lock, cvar) = &*progress;
                         *lock.lock() = i;
@@ -939,7 +934,7 @@ mod tests {
         for i in 0..N {
             let a = avail[i as usize].load(Ordering::Relaxed);
             if a >= N {
-                fail.push((a, i as u32));
+                fail.push((a, i));
             }
         }
         assert!(fail.is_empty(), "{:?}", fail);

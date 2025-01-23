@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment resolverFieldOnClientTypeImplementingServerInterfaceFragment on FeedUnit {
+    tracking
+}
+
+# %extensions%
+
+type NewsStory implements FeedUnit {
+    # Interface fields
+    actor: Actor
+    actorCount: Int
+    feedback: Feedback
+    id: ID!
+    message: Text
+    tracking: String @relay_resolver(import_path: "TrackingResolver", live: true)
+    actor_key: ID!
+}
+==================================== OUTPUT ===================================
+fragment resolverFieldOnClientTypeImplementingServerInterfaceFragment on FeedUnit {
+  ... on NonNodeStory {
+    tracking
+  }
+  ... on PhotoStory {
+    tracking
+  }
+  ... on Story {
+    tracking
+  }
+  ... on NewsStory {
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(531),
+    #     import_path: "TrackingResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "tracking",
+    #     field_arguments: [],
+    #     live: true,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    # }
+    
+  }
+}

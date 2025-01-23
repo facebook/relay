@@ -57,7 +57,7 @@ impl<'program> SubscriptionTransform<'program> {
     /// - is a linked field, whose type
     /// - is an object with a js: JSDependency field; and
     /// - the linked field has a single selection, which is a fragment spread
-    /// These restrictions may be loosened over time.
+    ///   These restrictions may be loosened over time.
     ///
     /// Return Some(Vec<ValidFieldResult>) if the operation is valid
     /// (i.e. if each field is valid), or None otherwise.
@@ -96,8 +96,8 @@ impl<'program> SubscriptionTransform<'program> {
                             let object_field = self.program.schema.field(*object_field_id);
                             if object_field.name.item == MATCH_CONSTANTS.js_field_name {
                                 // if we find a js field, it must be valid
-                                return self.is_valid_js_dependency(&object_field.type_).then(
-                                    || ValidFieldResult {
+                                return self.is_valid_js_dependency(&object_field.type_).then_some(
+                                    ValidFieldResult {
                                         linked_field,
                                         js_field_id: *object_field_id,
                                         fragment_spread,
@@ -122,7 +122,7 @@ impl<'program> SubscriptionTransform<'program> {
         if linked_field.selections.len() != 1 {
             return None;
         }
-        let first_item = linked_field.selections.get(0).unwrap();
+        let first_item = linked_field.selections.first().unwrap();
         match first_item {
             Selection::FragmentSpread(fragment_spread) => Some(fragment_spread),
             _ => None,
@@ -139,10 +139,10 @@ impl<'program> SubscriptionTransform<'program> {
         }
     }
 
-    fn get_replacement_selection<'operation>(
+    fn get_replacement_selection(
         &self,
         operation: &OperationDefinition,
-        valid_result: ValidFieldResult<'operation>,
+        valid_result: ValidFieldResult<'_>,
     ) -> Selection {
         let ValidFieldResult {
             linked_field,
@@ -176,7 +176,8 @@ impl<'program> SubscriptionTransform<'program> {
         })));
 
         let type_condition = Some(
-            (&self.program.schema)
+            self.program
+                .schema
                 .field(linked_field.definition.item)
                 .type_
                 .inner(),
@@ -199,6 +200,7 @@ impl<'program> SubscriptionTransform<'program> {
                         .intern(),
                         module_name: normalization_operation_name,
                         source_document_name: operation.name.item.into(),
+                        read_time_resolvers: false,
                         fragment_name: fragment_spread.fragment.item,
                         fragment_source_location: self
                             .program
@@ -240,7 +242,7 @@ struct ValidFieldResult<'operation> {
     fragment_spread: &'operation FragmentSpread,
 }
 
-impl Transformer for SubscriptionTransform<'_> {
+impl Transformer<'_> for SubscriptionTransform<'_> {
     const NAME: &'static str = "SubscriptionTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -22,14 +22,13 @@ import type {
   MissingFieldHandler,
   MutableRecordSource,
   MutationParameters,
+  NormalizeResponseFunction,
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
   OptimisticResponseConfig,
   OptimisticUpdateFunction,
-  ReactFlightPayloadDeserializer,
-  ReactFlightServerErrorHandler,
-  RequiredFieldLogger,
+  RelayFieldLogger,
   SelectorStoreUpdater,
   SingularReaderSelector,
   Snapshot,
@@ -49,7 +48,8 @@ import type {
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const RelayObservable = require('../network/RelayObservable');
 const defaultGetDataID = require('../store/defaultGetDataID');
-const defaultRequiredFieldLogger = require('../store/defaultRequiredFieldLogger');
+const defaultRelayFieldLogger = require('../store/defaultRelayFieldLogger');
+const normalizeResponse = require('../store/normalizeResponse');
 const OperationExecutor = require('../store/OperationExecutor');
 const RelayModernStore = require('../store/RelayModernStore');
 const RelayRecordSource = require('../store/RelayRecordSource');
@@ -65,10 +65,9 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   isServer?: ?boolean,
   logFn?: ?LogFunction,
   missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  normalizeResponse?: NormalizeResponseFunction,
   operationLoader?: ?OperationLoader,
-  reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
-  reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
-  requiredFieldLogger?: ?RequiredFieldLogger,
+  relayFieldLogger?: ?RelayFieldLogger,
   scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
@@ -85,11 +84,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_isServer: boolean;
   +_logFn: LogFunction;
   +_missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  +_normalizeResponse: NormalizeResponseFunction;
   +_operationExecutions: Map<string, ActiveState>;
   +_operationLoader: ?OperationLoader;
-  +_reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
-  +_reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
-  +_requiredFieldLogger: RequiredFieldLogger;
+  +_relayFieldLogger: RelayFieldLogger;
   +_scheduler: ?TaskScheduler;
   +_shouldProcessClientComponents: ?boolean;
   +_treatMissingFieldsAsNull: boolean;
@@ -105,18 +103,15 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       : RelayDefaultHandlerProvider;
     this._logFn = config.logFn ?? emptyFunction;
     this._operationExecutions = new Map();
-    this._requiredFieldLogger =
-      config.requiredFieldLogger ?? defaultRequiredFieldLogger;
+    this._relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
     this._isServer = config.isServer ?? false;
     this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._createStoreForActor = config.createStoreForActor;
-    this._reactFlightPayloadDeserializer =
-      config.reactFlightPayloadDeserializer;
-    this._reactFlightServerErrorHandler = config.reactFlightServerErrorHandler;
     this._createConfigNameForActor = config.createConfigNameForActor;
     this._defaultRenderPolicy = config.defaultRenderPolicy ?? 'partial';
+    this._normalizeResponse = config.normalizeResponse ?? normalizeResponse;
   }
 
   /**
@@ -134,7 +129,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         actorIdentifier,
         multiActorEnvironment: this,
         logFn: this._logFn,
-        requiredFieldLogger: this._requiredFieldLogger,
+        relayFieldLogger: this._relayFieldLogger,
         store:
           this._createStoreForActor != null
             ? this._createStoreForActor(actorIdentifier)
@@ -466,8 +461,6 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         getPublishQueue: (actorIdentifier: ActorIdentifier) => {
           return this.forActor(actorIdentifier).getPublishQueue();
         },
-        reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
-        reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
         scheduler: this._scheduler,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
         sink,
@@ -480,6 +473,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
         log: this._logFn,
+        normalizeResponse: this._normalizeResponse,
       });
       return () => executor.cancel();
     });

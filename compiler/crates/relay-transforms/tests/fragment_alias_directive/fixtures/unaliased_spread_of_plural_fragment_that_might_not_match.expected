@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_user on User @relay(plural: true) {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  nodes {
+    # This might not match due to type conditions, but that optionality will be
+    # handled when the plural fragment is read. The array read out from this plural
+    # fragment key may be sparse.
+    ...RelayReaderNamedFragmentsTest_user
+  }
+}
+==================================== OUTPUT ===================================
+query RelayReaderNamedFragmentsTest2Query {
+  nodes {
+    ...RelayReaderNamedFragmentsTest_user
+  }
+}
+
+fragment RelayReaderNamedFragmentsTest_user on User @relay(plural: true) {
+  name
+}

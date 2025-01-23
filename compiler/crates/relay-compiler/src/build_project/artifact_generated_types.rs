@@ -9,6 +9,7 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_syntax::OperationKind;
+use relay_config::TypegenLanguage;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::INLINE_DIRECTIVE_NAME;
 use relay_transforms::UPDATABLE_DIRECTIVE;
@@ -27,8 +28,9 @@ impl ArtifactGeneratedTypes {
         operation: &OperationDefinition,
         skip_types: bool,
         is_client_only: bool,
+        language: TypegenLanguage,
     ) -> Self {
-        if skip_types {
+        if skip_types || language == TypegenLanguage::TypeScript {
             Self {
                 imported_types: "ConcreteRequest",
                 ast_type: "ConcreteRequest",
@@ -43,7 +45,13 @@ impl ArtifactGeneratedTypes {
                         ("Query", "ConcreteRequest, Query")
                     }
                 }
-                OperationKind::Mutation => ("Mutation", "ConcreteRequest, Mutation"),
+                OperationKind::Mutation => {
+                    if is_client_only {
+                        ("Mutation", "ClientRequest, Mutation")
+                    } else {
+                        ("Mutation", "ConcreteRequest, Mutation")
+                    }
+                }
                 OperationKind::Subscription => (
                     "GraphQLSubscription",
                     "ConcreteRequest, GraphQLSubscription",
@@ -74,8 +82,12 @@ impl ArtifactGeneratedTypes {
         }
     }
 
-    pub fn from_updatable_query(typegen_operation: &OperationDefinition, skip_types: bool) -> Self {
-        if skip_types {
+    pub fn from_updatable_query(
+        typegen_operation: &OperationDefinition,
+        skip_types: bool,
+        language: TypegenLanguage,
+    ) -> Self {
+        if skip_types || language == TypegenLanguage::TypeScript {
             Self {
                 imported_types: "ConcreteUpdatableQuery",
                 ast_type: "ConcreteUpdatableQuery",
@@ -94,11 +106,15 @@ impl ArtifactGeneratedTypes {
         }
     }
 
-    pub fn from_fragment(fragment: &FragmentDefinition, skip_types: bool) -> Self {
+    pub fn from_fragment(
+        fragment: &FragmentDefinition,
+        skip_types: bool,
+        language: TypegenLanguage,
+    ) -> Self {
         let is_inline_data_fragment = fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some();
         let is_updatable_fragment = fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some();
 
-        if skip_types {
+        if skip_types || language == TypegenLanguage::TypeScript {
             if is_inline_data_fragment {
                 Self {
                     imported_types: "ReaderInlineDataFragment",
@@ -122,14 +138,26 @@ impl ArtifactGeneratedTypes {
                 )),
             }
         } else if let Some(refetchable_metadata) = RefetchableMetadata::find(&fragment.directives) {
-            Self {
-                imported_types: "ReaderFragment, RefetchableFragment",
-                ast_type: "ReaderFragment",
-                exported_type: Some(format!(
-                    "RefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {refetchable_name}$variables,\n>",
-                    name = fragment.name.item,
-                    refetchable_name = refetchable_metadata.operation_name
-                )),
+            if refetchable_metadata.is_prefetchable_pagination {
+                Self {
+                    imported_types: "ReaderFragment, PrefetchableRefetchableFragment",
+                    ast_type: "ReaderFragment",
+                    exported_type: Some(format!(
+                        "PrefetchableRefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {name}__edges$data,\n  {refetchable_name}$variables,\n>",
+                        name = fragment.name.item,
+                        refetchable_name = refetchable_metadata.operation_name
+                    )),
+                }
+            } else {
+                Self {
+                    imported_types: "ReaderFragment, RefetchableFragment",
+                    ast_type: "ReaderFragment",
+                    exported_type: Some(format!(
+                        "RefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {refetchable_name}$variables,\n>",
+                        name = fragment.name.item,
+                        refetchable_name = refetchable_metadata.operation_name
+                    )),
+                }
             }
         } else if is_updatable_fragment {
             Self {

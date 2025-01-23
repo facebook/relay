@@ -74,7 +74,7 @@ impl Validator for ValidateUnusedVariables<'_> {
                     ValidationMessage::UnusedIgnoreUnusedVariablesDirective {
                         operation_name: operation.name.item.0,
                     },
-                    directive.name.location,
+                    directive.location,
                 )]);
             }
         }

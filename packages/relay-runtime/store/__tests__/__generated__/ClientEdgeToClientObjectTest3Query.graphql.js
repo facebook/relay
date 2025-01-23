@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d9a1ffe0ea64b857ab56f2e2d080096>>
+ * @generated SignedSource<<ada75ff503c43e26ca072d4762ee2db3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,16 +22,21 @@ import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?string);
 import {astrological_sign as userAstrologicalSignResolverType} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -40,7 +45,7 @@ export type ClientEdgeToClientObjectTest3Query$data = {|
   +me: ?{|
     +astrological_sign: ?{|
       +__id: string,
-      +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+      +name: ?string,
       +notes: ?string,
     |},
   |},
@@ -93,6 +98,7 @@ return {
           {
             "kind": "ClientEdgeToClientObject",
             "concreteType": "AstrologicalSign",
+            "modelResolvers": null,
             "backingField": {
               "alias": null,
               "args": null,
@@ -126,7 +132,7 @@ return {
                   "kind": "RelayResolver",
                   "name": "name",
                   "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
-                  "path": "me.name"
+                  "path": "me.astrological_sign.name"
                 },
                 (v1/*: any*/)
               ],
@@ -223,7 +229,7 @@ return {
                         },
                         "kind": "RelayResolver",
                         "storageKey": null,
-                        "isOutputType": false
+                        "isOutputType": true
                       }
                     ],
                     "type": "AstrologicalSign",
@@ -231,7 +237,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "storageKey": null,
-                  "isOutputType": false
+                  "isOutputType": true
                 },
                 (v1/*: any*/),
                 (v2/*: any*/)

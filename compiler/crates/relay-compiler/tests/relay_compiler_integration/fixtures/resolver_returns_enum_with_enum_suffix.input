@@ -1,0 +1,44 @@
+//- UserTypeResolvers.js
+/**
+ * @RelayResolver User
+ */
+// Impl omitted for test
+
+type FlowVersionOfStatusEnum = "AMDIN" | "USER";
+
+/**
+ * @RelayResolver User.status: Status
+ */
+export function status(user: User): FlowVersionOfStatusEnum {
+  return "ADMIN";
+}
+
+//- SomeComponent.js
+graphql`fragment SomeComponentFragment on User {
+  status
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "enumModuleSuffix": ".LOL_WHAT",
+  "featureFlags": {
+    "enable_resolver_normalization_ast": true
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+enum Status {
+  ADMIN
+  USER
+}

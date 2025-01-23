@@ -8,6 +8,7 @@
 use std::sync::Arc;
 
 use common::DirectiveName;
+use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -70,7 +71,7 @@ struct AssignableFragmentSpreadForUpdatable<'s> {
     program: &'s Program,
 }
 
-impl<'s> Transformer for AssignableFragmentSpreadForUpdatable<'s> {
+impl<'s> Transformer<'_> for AssignableFragmentSpreadForUpdatable<'s> {
     const NAME: &'static str = "AssignableFragmentTransformForUpdatable";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -122,6 +123,7 @@ fn get_directive(type_condition: Type, schema: &SDLSchema) -> Directive {
         name: WithLocation::generated(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN),
         arguments: vec![],
         data: Some(Box::new(get_associated_data(type_condition, schema))),
+        location: Location::generated(),
     }
 }
 

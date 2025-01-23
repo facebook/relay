@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {TRelayFieldError} from '../store/RelayErrorTrie';
 import type {RecordProxy} from '../store/RelayStoreTypes';
 import type {Arguments} from '../store/RelayStoreUtils';
 import type {DataID} from '../util/RelayRuntimeTypes';
@@ -65,22 +66,48 @@ class RelayRecordProxy implements RecordProxy {
     return this._mutator.getValue(this._dataID, storageKey);
   }
 
-  setValue(value: mixed, name: string, args?: ?Arguments): RecordProxy {
+  setValue(
+    value: mixed,
+    name: string,
+    args?: ?Arguments,
+    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+  ): RecordProxy {
     invariant(
       isValidLeafValue(value),
       'RelayRecordProxy#setValue(): Expected a scalar or array of scalars, ' +
         'got `%s`.',
       JSON.stringify(value),
     );
-    return this.setValue__UNSAFE(value, name, args);
+
+    return this.setValue__UNSAFE(value, name, args, errors);
+  }
+
+  getErrors(
+    name: string,
+    args?: ?Arguments,
+  ): ?$ReadOnlyArray<TRelayFieldError> {
+    const storageKey = getStableStorageKey(name, args);
+    return this._mutator.getErrors(this._dataID, storageKey);
   }
 
   // This is used in the typesafe updaters.
   // We already validated that the value has the correct type
   // so it should be safe to store complex structures as scalar values (custom scalars)
-  setValue__UNSAFE(value: mixed, name: string, args?: ?Arguments): RecordProxy {
+  setValue__UNSAFE(
+    value: mixed,
+    name: string,
+    args?: ?Arguments,
+    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+  ): RecordProxy {
     const storageKey = getStableStorageKey(name, args);
     this._mutator.setValue(this._dataID, storageKey, value);
+    if (errors != null) {
+      if (errors.length === 0) {
+        this._mutator.setErrors(this._dataID, storageKey);
+      } else {
+        this._mutator.setErrors(this._dataID, storageKey, errors);
+      }
+    }
     return this;
   }
 
@@ -139,7 +166,7 @@ class RelayRecordProxy implements RecordProxy {
   }
 
   setLinkedRecords(
-    records: Array<?RecordProxy>,
+    records: $ReadOnlyArray<?RecordProxy>,
     name: string,
     args?: ?Arguments,
   ): RecordProxy {

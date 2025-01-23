@@ -1,0 +1,93 @@
+# Reports full type, not just inner type
+
+interface Node {
+  id: ID!
+}
+
+type Pet implements Node {
+  id: ID # <--- Missing !
+}
+
+# Subtypes for fields are allowed
+
+interface InterfaceA {
+  some_field: String
+}
+
+type TypeA implements InterfaceA {
+  some_field: String! # More specific type of String! should be allowed
+}
+
+# Checks multiple interfaces
+
+interface InterfaceB {
+  some_field: String
+}
+
+interface InterfaceC {
+  another_field: String
+}
+
+type TypeB implements InterfaceB & InterfaceC {
+  some_field: String
+  # Oops! Does not implement InterfaceC's field!
+}
+
+# Checks interface implements interface
+
+interface InterfaceD {
+  some_field: String
+}
+
+interface InterfaceE implements InterfaceD {
+  # Oops! Does not implement InterfaceD's field
+  another_field: String
+}
+
+# Checks multi-dimensional lists
+
+interface InterfaceF {
+  some_field: [[[String]]]
+}
+
+type TypeC implements InterfaceF {
+  some_field: [[[Int]]] # Oops! Should be String in there
+}
+
+# Required for global validation
+
+type Query {
+  node: Node
+}
+
+# Checks semantic nullability
+
+interface InterfaceG {
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [0, 1])
+}
+
+interface InterfaceH implements InterfaceG {
+  # Oops! some_field does not specify @semanticNonNull or non-null (!)
+  # and some_field does not specify @semanticNonNull(levels: [0, 1]) or non-null ([!]!)
+  some_field: String
+  some_list: [String]
+}
+
+interface InterfaceI implements InterfaceG {
+  # Oops! some_list is semanticNonNull but lacks the same levels as the interface.
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [1])
+}
+
+interface InterfaceJ implements InterfaceG {
+  # OK
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [0, 1])
+}
+
+interface InterfaceK implements InterfaceG {
+  # OK
+  some_field: String!
+  some_list: [String!]!
+}

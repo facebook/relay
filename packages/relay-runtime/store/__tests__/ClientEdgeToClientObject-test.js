@@ -13,14 +13,14 @@
 
 import type {ClientEdgeToClientObjectTest3Query$data} from './__generated__/ClientEdgeToClientObjectTest3Query.graphql';
 
-const {RelayFeatureFlags, commitLocalUpdate} = require('relay-runtime');
+const {commitLocalUpdate} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -29,16 +29,6 @@ const {
 
 disallowConsoleErrors();
 disallowWarnings();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
-});
 
 test('Can read a deep portion of the schema that is backed by client edges to client objects.', () => {
   const source = RelayRecordSource.create({
@@ -83,7 +73,7 @@ test('Can read a deep portion of the schema that is backed by client edges to cl
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -93,7 +83,7 @@ test('Can read a deep portion of the schema that is backed by client edges to cl
   });
 
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  const {me} = (environment.lookup(operation.fragment).data: any);
+  const {me}: any = environment.lookup(operation.fragment).data;
 
   expect(me).toMatchInlineSnapshot(`
     Object {
@@ -137,7 +127,7 @@ test('Can read a plural client edge to list of client defined types', () => {
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -227,7 +217,7 @@ test('Uses an existing client record if it already exists', () => {
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const liveStore = new LiveResolverStore(source, {
+  const liveStore = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 

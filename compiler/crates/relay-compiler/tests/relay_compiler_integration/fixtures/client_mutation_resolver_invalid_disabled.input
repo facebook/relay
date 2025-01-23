@@ -1,0 +1,20 @@
+//- foo.js
+/**
+ * @RelayResolver Mutation.foo_mutation: Boolean
+ */
+
+//- bar.js
+graphql`mutation barMutation {
+   foo_mutation
+}`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "eagerEsModules": true
+}
+
+//- schema.graphql
+
+type Mutation

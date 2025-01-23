@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment MyFragmentFirst on User {
+  parents @catch {
+    lastName @catch
+  }
+}
+==================================== OUTPUT ===================================
+fragment MyFragmentFirst on User {
+  parents @catch @__CatchMetadataDirective
+  # CatchMetadataDirective {
+  #     to: Result,
+  # }
+   {
+    lastName @catch @__CatchMetadataDirective
+    # CatchMetadataDirective {
+    #     to: Result,
+    # }
+    
+  }
+}

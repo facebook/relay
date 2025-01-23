@@ -1,0 +1,64 @@
+//- User_foo.js
+/**
+ * @RelayResolver User.foo: String @semanticNonNull
+ * @rootFragment UserFooFragment
+ */
+graphql`fragment UserFooFragment on User @throwOnFieldError {
+  bar
+  bar_live
+  bar_plural
+  bar_live_plural
+}`
+
+//- User_bar.js
+/**
+ * @RelayResolver User.bar: CustomScalarType @semanticNonNull
+ */
+
+ /**
+ * @RelayResolver User.bar_live: CustomScalarType @semanticNonNull
+ * @live
+ */
+
+/**
+ * @RelayResolver User.bar_plural: [CustomScalarType] @semanticNonNull(levels: [0, 1])
+ */
+
+ /**
+ * @RelayResolver User.bar_live_plural: [CustomScalarType] @semanticNonNull(levels: [0, 1])
+ * @live
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_resolver_normalization_ast": true,
+    "allow_resolver_non_nullable_return_type": { "kind": "enabled" }
+  },
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  },
+  "schemaExtensions": [
+    "./extensions.graphql"
+  ],
+  "customScalarTypes": {
+    "CustomScalarType": {
+      "name": "CustomScalarTypeFlowType",
+      "path": "CustomScalarTypeFlowTypeModule"
+    }
+  }
+}
+
+//- extensions.graphql
+
+scalar CustomScalarType
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+type User { name: String }

@@ -1,0 +1,7 @@
+fragment User on User {
+  ...UserName @alias
+}
+
+fragment UserName on User @inline {
+  name
+}

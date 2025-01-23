@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::PerfLogEvent;
 use common::PerfLogger;
 use graphql_watchman::WatchmanFile;
@@ -13,29 +15,29 @@ use graphql_watchman::WatchmanFileSourceSubscription;
 use log::debug;
 use log::info;
 use log::warn;
+use relay_saved_state_loader::SavedStateConfig;
+use relay_saved_state_loader::SavedStateLoader;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 
-use super::watchman_query_builder::get_all_roots;
 use super::watchman_query_builder::get_watchman_expr;
 use super::FileSourceResult;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::saved_state::SavedStateLoader;
 
-pub struct WatchmanFileSource<'config> {
-    client: Client,
-    config: &'config Config,
+pub struct WatchmanFileSource {
+    client: Arc<Client>,
+    config: Arc<Config>,
     resolved_root: ResolvedRoot,
 }
 
-impl<'config> WatchmanFileSource<'config> {
+impl WatchmanFileSource {
     pub async fn connect(
-        config: &'config Config,
+        config: &Arc<Config>,
         perf_logger_event: &impl PerfLogEvent,
-    ) -> Result<WatchmanFileSource<'config>> {
+    ) -> Result<WatchmanFileSource> {
         let connect_timer = perf_logger_event.start("file_source_connect_time");
         let client = Connector::new().connect().await?;
         let canonical_root = CanonicalPath::canonicalize(&config.root_dir).map_err(|err| {
@@ -51,8 +53,8 @@ impl<'config> WatchmanFileSource<'config> {
             resolved_root
         );
         Ok(Self {
-            client,
-            config,
+            client: Arc::new(client),
+            config: config.clone(),
             resolved_root,
         })
     }
@@ -64,7 +66,7 @@ impl<'config> WatchmanFileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
-        info!("querying files to compile...");
+        info!("Querying files to compile...");
         let query_time = perf_logger_event.start("file_source_query_time");
         // If the saved state flag is passed, load from it or fail.
         if let Some(saved_state_path) = &self.config.load_saved_state_file {
@@ -72,14 +74,21 @@ impl<'config> WatchmanFileSource<'config> {
                 CompilerState::deserialize_from_file(saved_state_path)
             })?;
             let query_timer = perf_logger_event.start("watchman_query_time");
-            let file_source_result = self.query_file_result(compiler_state.clock.clone()).await?;
+            let file_source_result = query_file_result(
+                &self.config,
+                &self.client,
+                &self.resolved_root.clone(),
+                compiler_state.clock.clone(),
+                false,
+            )
+            .await?;
             perf_logger_event.stop(query_timer);
             compiler_state
                 .pending_file_source_changes
                 .write()
                 .unwrap()
                 .push(file_source_result);
-            compiler_state.merge_file_source_changes(self.config, perf_logger, true)?;
+            compiler_state.merge_file_source_changes(&self.config, perf_logger, true)?;
             perf_logger_event.stop(query_time);
             return Ok(compiler_state);
         }
@@ -92,7 +101,7 @@ impl<'config> WatchmanFileSource<'config> {
             saved_state_loader: Some(saved_state_loader),
             saved_state_version,
             ..
-        } = self.config
+        } = self.config.as_ref()
         {
             match self
                 .try_saved_state(
@@ -106,9 +115,12 @@ impl<'config> WatchmanFileSource<'config> {
             {
                 Ok(load_result) => {
                     perf_logger_event.stop(query_time);
+                    perf_logger_event.string("try_saved_state_result", "success".to_owned());
                     return load_result;
                 }
                 Err(saved_state_failure) => {
+                    perf_logger_event
+                        .string("try_saved_state_result", saved_state_failure.to_owned());
                     warn!(
                         "Unable to load saved state, falling back to full build: {}",
                         saved_state_failure
@@ -129,10 +141,17 @@ impl<'config> WatchmanFileSource<'config> {
         perf_logger_event: &impl PerfLogEvent,
         perf_logger: &impl PerfLogger,
     ) -> Result<CompilerState> {
-        let file_source_result = self.query_file_result(None).await?;
+        let file_source_result = query_file_result(
+            &self.config,
+            &self.client,
+            &self.resolved_root.clone(),
+            None,
+            false,
+        )
+        .await?;
         let compiler_state = perf_logger_event.time("from_file_source_changes", || {
             CompilerState::from_file_source_changes(
-                self.config,
+                &self.config,
                 &file_source_result,
                 perf_logger_event,
                 perf_logger,
@@ -150,10 +169,17 @@ impl<'config> WatchmanFileSource<'config> {
         let timer = perf_logger_event.start("file_source_subscribe_time");
         let compiler_state = self.query(perf_logger_event, perf_logger).await?;
 
-        let expression = get_watchman_expr(self.config);
+        let expression = get_watchman_expr(&self.config);
 
         let query_timer = perf_logger_event.start("watchman_query_time_before_subscribe");
-        let file_source_result = self.query_file_result(compiler_state.clock.clone()).await?;
+        let file_source_result = query_file_result(
+            &self.config,
+            &self.client,
+            &self.resolved_root.clone(),
+            compiler_state.clock.clone(),
+            true,
+        )
+        .await?;
         perf_logger_event.stop(query_timer);
 
         let query_timer = perf_logger_event.start("watchman_query_time_subscribe");
@@ -179,57 +205,6 @@ impl<'config> WatchmanFileSource<'config> {
         ))
     }
 
-    /// Internal method to issue a watchman query, returning a raw
-    /// WatchmanFileSourceResult.
-    async fn query_file_result(&self, since_clock: Option<Clock>) -> Result<FileSourceResult> {
-        let expression = get_watchman_expr(self.config);
-        debug!(
-            "WatchmanFileSource::query_file_result(...) get_watchman_expr = {:?}",
-            &expression
-        );
-
-        // If `since` is available, we should not pass the `path` parameter.
-        // Watchman ignores `since` parameter if both `path` and `since` are
-        // passed as the request params
-        let request = if since_clock.is_some() {
-            QueryRequestCommon {
-                expression: Some(expression),
-                since: since_clock,
-                ..Default::default()
-            }
-        } else {
-            let query_roots = get_all_roots(self.config)
-                .into_iter()
-                .map(PathGeneratorElement::RecursivePath)
-                .collect();
-            QueryRequestCommon {
-                expression: Some(expression),
-                path: Some(query_roots),
-                ..Default::default()
-            }
-        };
-        debug!(
-            "WatchmanFileSource::query_file_result(...) request = {:?}",
-            &request
-        );
-        let query_result = self
-            .client
-            .query::<WatchmanFile>(&self.resolved_root, request)
-            .await?;
-
-        // print debug information for this result
-        // (file list will include only files with specified extension)
-        debug_query_results(&query_result, "graphql");
-
-        let files = query_result.files.ok_or(Error::EmptyQueryResult)?;
-        Ok(FileSourceResult::Watchman(WatchmanFileSourceResult {
-            files,
-            resolved_root: self.resolved_root.clone(),
-            clock: query_result.clock,
-            saved_state_info: query_result.saved_state_info,
-        }))
-    }
-
     /// Tries to load saved state with a watchman query.
     /// The return value is a nested Result:
     /// The outer Result indicates the result of a possible saved state infrastructure failure.
@@ -242,6 +217,7 @@ impl<'config> WatchmanFileSource<'config> {
         saved_state_loader: &'_ (dyn SavedStateLoader + Send + Sync),
         saved_state_version: &str,
     ) -> std::result::Result<Result<CompilerState>, &'static str> {
+        let try_saved_state_event = perf_logger_event.start("try_saved_state_time");
         let scm_since = Clock::ScmAware(FatClockData {
             clock: ClockSpec::null(),
             scm: Some(saved_state_config),
@@ -250,18 +226,32 @@ impl<'config> WatchmanFileSource<'config> {
             "WatchmanFileSource::try_saved_state(...) scm_since = {:?}",
             &scm_since
         );
-        let query_timer = perf_logger_event.start("watchman_query_time_try_saved_state");
-        let file_source_result = self
-            .query_file_result(Some(scm_since))
+
+        // Issue two watchman queries: One to get the saved state info, and one to get the changed files.
+        // We'll download and deserialize saved state from manifold while the second watchman query executes.
+
+        let since = Some(scm_since.clone());
+        let root = self.resolved_root.clone();
+        let saved_state_result = query_file_result(&self.config, &self.client, &root, since, true)
             .await
             .map_err(|_| "query failed")?;
-        perf_logger_event.stop(query_timer);
 
+        let since = Some(scm_since.clone());
+        let config = Arc::clone(&self.config);
+        let client = Arc::clone(&self.client);
+        let root = self.resolved_root.clone();
+        let changed_files_result_future = tokio::task::spawn(async move {
+            query_file_result(&config, &client, &root, since, false)
+                .await
+                .map_err(|_| "query failed")
+        });
+
+        // First, use saved state query to download saved state from manifold.
         debug!(
-            "WatchmanFileSource::try_saved_state(...) file_source_result = {:?}",
-            &file_source_result
+            "WatchmanFileSource::try_saved_state(...) saved_state_result = {:?}",
+            &saved_state_result
         );
-        let saved_state_info = file_source_result
+        let saved_state_info = saved_state_result
             .saved_state_info()
             .as_ref()
             .ok_or("no saved state in watchman response")?;
@@ -269,11 +259,19 @@ impl<'config> WatchmanFileSource<'config> {
             "WatchmanFileSource::saved_state_info(...) file_source_result = {:?}",
             &saved_state_info
         );
-        let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
-            saved_state_loader
-                .load(saved_state_info, self.config)
-                .ok_or("unable to load")
-        })?;
+
+        let saved_state_load_timer = perf_logger_event.start("saved_state_loading_time");
+        let saved_state_path = saved_state_loader
+            .load(
+                saved_state_info,
+                &SavedStateConfig {
+                    saved_state_version: self.config.saved_state_version.clone(),
+                },
+            )
+            .await
+            .ok_or("unable to load")?;
+        perf_logger_event.stop(saved_state_load_timer);
+
         let mut compiler_state = perf_logger_event
             .time("deserialize_saved_state", || {
                 CompilerState::deserialize_from_file(&saved_state_path)
@@ -291,19 +289,91 @@ impl<'config> WatchmanFileSource<'config> {
         {
             return Err("Saved state version doesn't match.");
         }
+
+        // Then await the changed files query.
+        let file_source_result = changed_files_result_future
+            .await
+            .map_err(|_| "query failed")??;
+
         compiler_state
             .pending_file_source_changes
             .write()
             .unwrap()
             .push(file_source_result);
+
+        if let Some(update_compiler_state_from_saved_state) =
+            &self.config.update_compiler_state_from_saved_state
+        {
+            update_compiler_state_from_saved_state(&mut compiler_state, &self.config);
+        }
+
         if let Err(parse_error) = perf_logger_event.time("merge_file_source_changes", || {
-            compiler_state.merge_file_source_changes(self.config, perf_logger, true)
+            let result = compiler_state.merge_file_source_changes(&self.config, perf_logger, true);
+            perf_logger_event.stop(try_saved_state_event);
+            result
         }) {
             Ok(Err(parse_error))
         } else {
             Ok(Ok(compiler_state))
         }
     }
+}
+
+async fn query_file_result(
+    config: &Config,
+    client: &Client,
+    resolved_root: &ResolvedRoot,
+    since_clock: Option<Clock>,
+    omit_changed_files: bool,
+) -> Result<FileSourceResult> {
+    let expression = get_watchman_expr(config);
+    debug!(
+        "WatchmanFileSource::query_file_result(...) get_watchman_expr = {:?}",
+        &expression
+    );
+
+    // If `since` is available, we should not pass the `path` parameter.
+    // Watchman ignores `since` parameter if both `path` and `since` are
+    // passed as the request params
+    let request = if since_clock.is_some() {
+        QueryRequestCommon {
+            omit_changed_files,
+            empty_on_fresh_instance: omit_changed_files,
+            expression: Some(expression),
+            since: since_clock,
+            ..Default::default()
+        }
+    } else {
+        let query_roots = config
+            .get_all_roots()
+            .into_iter()
+            .map(PathGeneratorElement::RecursivePath)
+            .collect();
+        QueryRequestCommon {
+            omit_changed_files,
+            empty_on_fresh_instance: omit_changed_files,
+            expression: Some(expression),
+            path: Some(query_roots),
+            ..Default::default()
+        }
+    };
+    debug!(
+        "WatchmanFileSource::query_file_result(...) request = {:?}",
+        &request
+    );
+    let query_result = client.query::<WatchmanFile>(resolved_root, request).await?;
+
+    // print debug information for this result
+    // (file list will include only files with specified extension)
+    debug_query_results(&query_result, "graphql");
+
+    let files = query_result.files.ok_or(Error::EmptyQueryResult)?;
+    Ok(FileSourceResult::Watchman(WatchmanFileSourceResult {
+        files,
+        resolved_root: resolved_root.clone(),
+        clock: query_result.clock,
+        saved_state_info: query_result.saved_state_info,
+    }))
 }
 
 fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filter: &str) {

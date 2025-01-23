@@ -1,0 +1,80 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// relay:allow_resolver_non_nullable_return_type
+
+/**
+ * @RelayResolver User.mandatory_greeting: String!
+ * Non-nullable
+ */
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 25:43,
+                    token: Token {
+                        span: 25:43,
+                        kind: Identifier,
+                    },
+                    value: "mandatory_greeting",
+                },
+                type_: NonNull(
+                    NonNullTypeAnnotation {
+                        span: 45:52,
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 45:51,
+                                    token: Token {
+                                        span: 45:51,
+                                        kind: Identifier,
+                                    },
+                                    value: "String",
+                                },
+                            },
+                        ),
+                        exclamation: Token {
+                            span: 51:52,
+                            kind: Exclamation,
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 56:68,
+                            kind: Empty,
+                        },
+                        value: "Non-nullable",
+                    },
+                ),
+                hack_source: None,
+                span: 25:52,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/terse-relay-resolver-non-nullable.js:20:24,
+                item: "User",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: /path/to/test/fixture/terse-relay-resolver-non-nullable.js:0:69,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "ac789e28bceef3eeaab77ae5203f43a6",
+            ),
+            type_confirmed: false,
+            property_lookup_name: None,
+        },
+    ),
+)

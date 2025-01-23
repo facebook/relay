@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f8ca868dc2c12c161dc6f93d3c6adaea>>
+ * @generated SignedSource<<202e4fac8401882f52063c14c4da0afc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,16 +31,14 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleF
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$data,
   variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$variables,
 |};
-type ProvidedVariablesType = {|
+({
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider')
+}: {|
   +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
-|};
+|});
 */
-
-var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider')
-};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
@@ -184,7 +182,9 @@ return {
     "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery",
     "operationKind": "query",
     "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  profilePicture {\n    uri\n  }\n}\n",
-    "providedVariables": providedVariablesDefinition
+    "providedVariables": {
+      "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider')
+    }
   }
 };
 })();

@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+query MyQuery @throwOnFieldError {
+  ... @catch @alias(as: "my_alias") {
+    client_field
+  }
+}
+
+# %extensions%
+
+extend type Query {
+  client_field: String
+}
+==================================== OUTPUT ===================================
+OK

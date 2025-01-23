@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+//- Cat.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+//- Query-name.js
+
+/**
+ * @RelayResolver
+ */
+export function name(): ?string {
+  return "mark";
+}
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 43:47,
+                    token: Token {
+                        span: 43:47,
+                        kind: Identifier,
+                    },
+                    value: "name",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 52:58,
+                            token: Token {
+                                span: 52:58,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 43:47,
+            },
+            type_: WithLocation {
+                location: Query-name.js:43:47,
+                item: "Query",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Query-name.js:43:47,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "38a7a82b77c64472c7bf872babfeece3",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Query {
+  name: String @relay_resolver(has_output_type: true, import_name: "name", import_path: "Query-name.js") @resolver_source_hash(value: "38a7a82b77c64472c7bf872babfeece3")
+}

@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment relayResolverWithArgsFragmentSpreadUsingUndefinedGlobalVariable_PopStarNameResolverFragment_name on ClientType @argumentDefinitions(scale: {type: "Float!"}) {
+  name
+  profile_picture(scale: $scale)
+}
+
+query relayResolverWithArgsFragmentSpreadUsingUndefinedGlobalVariable_Query {
+  ...relayResolverWithArgsFragmentSpreadUsingUndefinedGlobalVariable_Fragment
+}
+
+fragment relayResolverWithArgsFragmentSpreadUsingUndefinedGlobalVariable_Fragment on Query {
+  pop_star {
+    pop_star_name(scale: $scale)
+  }
+}
+
+
+# %extensions%
+
+type ClientType {
+  name: String
+  profile_picture(scale: Float!): String
+  pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "relayResolverWithArgsFragmentSpreadUsingUndefinedGlobalVariable_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js", , import_name: "pop_star_name")
+}
+
+extend type Query {
+  pop_star: ClientType @relay_resolver(import_path: "./path/to/PopStarNameResolver.js", import_name: "pop_star")
+}
+==================================== ERROR ====================================
+✖︎ Operation 'relayResolverWithArgsFragmentSpreadUsingUndefinedGlobalVariable_Query' references undefined variable: '$scale'.
+
+  relay-resolver-with-args-fragment-spread-using-undefined-global-variable.invalid.graphql:14:26
+   13 │   pop_star {
+   14 │     pop_star_name(scale: $scale)
+      │                          ^^^^^^
+   15 │   }

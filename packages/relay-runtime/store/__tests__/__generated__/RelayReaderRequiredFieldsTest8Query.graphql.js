@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a8a52f9c4c881ec9390ccca9b963266>>
+ * @generated SignedSource<<ac62b955afdbd47a32c1c8e6bb5ba5d9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,8 +75,7 @@ return {
               {
                 "kind": "RequiredField",
                 "field": (v1/*: any*/),
-                "action": "LOG",
-                "path": "me.screennames.service"
+                "action": "LOG"
               }
             ],
             "storageKey": null

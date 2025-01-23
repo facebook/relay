@@ -16,7 +16,7 @@ use common::Location;
 use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
-use errors::try2;
+use errors::try3;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::Lookup;
@@ -29,11 +29,13 @@ use schema::TypeReference;
 
 use crate::associated_data_impl;
 use crate::build::build_constant_value;
+use crate::build::build_directives;
 use crate::build::build_type_annotation;
 use crate::build::build_variable_definitions;
 use crate::build::ValidationLevel;
 use crate::build_directive;
 use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::MachineMetadataKey;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::ConstantValue;
@@ -81,11 +83,12 @@ associated_data_impl!(ProvidedVariableMetadata);
 /// would depend on having checked its body! Since recursive fragments
 /// are allowed, we break the cycle by first computing signatures
 /// and using these to type check fragment spreads in selections.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FragmentSignature {
     pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
+    pub directives: Vec<crate::Directive>,
 }
 
 pub fn build_signatures(
@@ -149,6 +152,7 @@ fn build_fragment_signature(
                 .location
                 .with_span(fragment.type_condition.type_.span),
         )
+        .metadata_for_machine(MachineMetadataKey::UnknownType, type_name.lookup())
         .into()),
     };
     let argument_definition_directives = fragment
@@ -191,12 +195,20 @@ fn build_fragment_signature(
         })
         .or_else(|| {
             argument_definition_directives
-                .get(0)
+                .first()
                 .map(|x| build_fragment_variable_definitions(schema, fragment, x))
         })
         .unwrap_or_else(|| Ok(Default::default()));
 
-    let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
+    let directives = build_directives(
+        schema,
+        &fragment.directives,
+        graphql_syntax::DirectiveLocation::FragmentDefinition,
+        fragment.location,
+    );
+
+    let (type_condition, variable_definitions, directives) =
+        try3(type_condition, variable_definitions, directives)?;
 
     Ok(FragmentSignature {
         name: WithLocation::from_span(
@@ -206,6 +218,7 @@ fn build_fragment_signature(
         ),
         type_condition,
         variable_definitions,
+        directives,
     })
 }
 
@@ -299,6 +312,7 @@ fn build_fragment_variable_definitions(
                             ),
                             arguments: Vec::new(),
                             data: None,
+                            location: fragment.location.with_span(unused_local_variable_arg.span)
                         });
                     }
 
@@ -333,6 +347,7 @@ fn build_fragment_variable_definitions(
                                 original_variable_name: VariableName(variable_name.value),
                                 fragment_source_location: fragment.location.source_location(),
                             })),
+                            location: fragment.location.with_span(provider_arg.span),
                         });
                     }
 

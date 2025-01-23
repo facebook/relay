@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query validateGlobalVariablesUndefinedQuery {
+  me {
+    ...validateGlobalVariablesUndefined_user
+  }
+}
+
+fragment validateGlobalVariablesUndefined_user on User {
+  id
+  ... @include(if: $condition) {
+    lastName
+  }
+}
+==================================== ERROR ====================================
+✖︎ Operation 'validateGlobalVariablesUndefinedQuery' references undefined variable: '$condition'.
+
+  validate-global-variables-undefined.invalid.graphql:10:20
+    9 │   id
+   10 │   ... @include(if: $condition) {
+      │                    ^^^^^^^^^^
+   11 │     lastName

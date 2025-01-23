@@ -14,29 +14,32 @@ use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use intern::string_key::StringKey;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::build_project::get_project_asts;
+use relay_compiler::build_project::BuildMode;
 use relay_compiler::build_project::ProjectAstData;
 use relay_compiler::build_project::ProjectAsts;
 use relay_compiler::build_raw_program;
 use relay_compiler::build_schema;
 use relay_compiler::compiler_state::CompilerState;
-use relay_compiler::compiler_state::ProjectName;
+use relay_compiler::config::Config;
 use relay_compiler::config::ProjectConfig;
 use relay_compiler::errors::BuildProjectError;
 use relay_compiler::errors::Error;
 use relay_compiler::transform_program;
 use relay_compiler::validate_program;
+use relay_compiler::ArtifactSourceKey;
 use relay_compiler::BuildProjectFailure;
 use relay_compiler::FileSource;
 use relay_compiler::FileSourceResult;
 use relay_compiler::FileSourceSubscription;
 use relay_compiler::FileSourceSubscriptionNextChange;
 use relay_compiler::GraphQLAsts;
+use relay_compiler::ProjectName;
 use relay_compiler::SourceControlUpdateStatus;
 use schema::SDLSchema;
+use schema_diff::check::SchemaChangeSafety;
 use schema_documentation::SchemaDocumentation;
 use tokio::task;
 use tokio::task::JoinHandle;
@@ -239,7 +242,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let graphql_asts = log_event.time("parse_sources_time", || {
             GraphQLAsts::from_graphql_sources_map(
                 &compiler_state.graphql_sources,
-                &compiler_state.get_dirty_definitions(&self.lsp_state.config),
+                &compiler_state.get_dirty_artifact_sources(&self.lsp_state.config),
+                &self.lsp_state.config,
             )
         })?;
 
@@ -258,7 +262,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !self
                     .lsp_state
                     .project_status
-                    .contains_key(&project_config.name)
+                    .contains_key(&project_config.name.into())
                 {
                     return false;
                 }
@@ -266,7 +270,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !self
                     .lsp_state
                     .source_programs
-                    .contains_key(&project_config.name)
+                    .contains_key(&project_config.name.into())
                 {
                     return true;
                 }
@@ -277,17 +281,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 }
                 compiler_state.project_has_pending_changes(project_config.name)
             })
-            .map(|project_config| self.build_project(project_config, compiler_state, &graphql_asts))
+            .map(|project_config| {
+                self.build_project(
+                    &self.lsp_state.config,
+                    project_config,
+                    compiler_state,
+                    &graphql_asts,
+                )
+            })
             .collect();
         log_event.stop(timer);
 
         let mut errors = vec![];
         for build_result in build_results {
-            match build_result {
-                Err(BuildProjectFailure::Error(err)) => {
-                    errors.push(err);
-                }
-                _ => {}
+            if let Err(BuildProjectFailure::Error(err)) = build_result {
+                errors.push(err);
             }
         }
         if errors.is_empty() {
@@ -300,20 +308,27 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn build_project(
         &self,
+        config: &Config,
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
-    ) -> Result<StringKey, BuildProjectFailure> {
+    ) -> Result<ProjectName, BuildProjectFailure> {
         self.lsp_state
             .project_status
-            .insert(project_config.name, ProjectStatus::Completed);
+            .insert(project_config.name.into(), ProjectStatus::Completed);
         let log_event = self.lsp_state.perf_logger.create_event("build_lsp_project");
         let project_name = project_config.name;
         let build_time = log_event.start("build_lsp_project_time");
         log_event.string("project", project_name.to_string());
 
         let schema = log_event.time("build_schema_time", || {
-            self.build_schema(compiler_state, project_config, graphql_asts_map)
+            self.build_schema(
+                compiler_state,
+                config,
+                project_config,
+                graphql_asts_map,
+                &log_event,
+            )
         })?;
 
         let ProjectAstData {
@@ -321,8 +336,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             base_fragment_names,
         } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
-        // This will kick-off the validation for all synced sources
-        self.lsp_state.schedule_task(Task::ValidateSyncedSources);
+        // This will kick-off the validation of all synced documents
+        self.lsp_state.schedule_task(Task::SyncedDocuments);
 
         self.build_programs(
             project_config,
@@ -341,18 +356,26 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn build_schema(
         &self,
         compiler_state: &CompilerState,
+        config: &Config,
         project_config: &ProjectConfig,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
+        log_event: &impl PerfLogEvent,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
-        match self.lsp_state.schemas.entry(project_config.name) {
+        match self.lsp_state.schemas.entry(project_config.name.into()) {
             Entry::Vacant(e) => {
-                let schema = build_schema(compiler_state, project_config, graphql_asts_map)
-                    .map_err(|errors| {
-                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                            errors,
-                            project_name: project_config.name,
-                        })
-                    })?;
+                let schema = build_schema(
+                    compiler_state,
+                    config,
+                    project_config,
+                    graphql_asts_map,
+                    log_event,
+                )
+                .map_err(|errors| {
+                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                        errors,
+                        project_name: project_config.name,
+                    })
+                })?;
                 e.insert(Arc::clone(&schema));
                 Ok(schema)
             }
@@ -360,14 +383,20 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) {
                     Ok(Arc::clone(e.get()))
                 } else {
-                    let schema = build_schema(compiler_state, project_config, graphql_asts_map)
-                        .map_err(|errors| {
-                            debug!("build error");
-                            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                                errors,
-                                project_name: project_config.name,
-                            })
-                        })?;
+                    let schema = build_schema(
+                        compiler_state,
+                        config,
+                        project_config,
+                        graphql_asts_map,
+                        log_event,
+                    )
+                    .map_err(|errors| {
+                        debug!("build error");
+                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                            errors,
+                            project_name: project_config.name,
+                        })
+                    })?;
                     e.insert(Arc::clone(&schema));
                     Ok(schema)
                 }
@@ -375,6 +404,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn build_programs(
         &self,
         project_config: &ProjectConfig,
@@ -385,41 +415,111 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {
-        let is_incremental_build = self
+        let mut build_mode = if !self
             .lsp_state
             .source_programs
-            .contains_key(&project_config.name)
-            && compiler_state.has_processed_changes()
-            && !compiler_state
-                .has_breaking_schema_change(project_config.name, &project_config.schema_config)
-            && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
+            .contains_key(&project_config.name.into())
+            || !compiler_state.has_processed_changes()
+        {
+            BuildMode::Full
+        } else {
+            let project_schema_change = compiler_state.schema_change_safety(
+                log_event,
+                project_config.name,
+                &project_config.schema_config,
+            );
+            match project_schema_change {
+                SchemaChangeSafety::Unsafe => BuildMode::Full,
+                SchemaChangeSafety::Safe | SchemaChangeSafety::SafeWithIncrementalBuild(_) => {
+                    let base_schema_change = if let Some(base) = project_config.base {
+                        compiler_state.schema_change_safety(
+                            log_event,
+                            base,
+                            &project_config.schema_config,
+                        )
+                    } else {
+                        SchemaChangeSafety::Safe
+                    };
+                    match (project_schema_change, base_schema_change) {
+                        (SchemaChangeSafety::Unsafe, _) => BuildMode::Full,
+                        (_, SchemaChangeSafety::Unsafe) => BuildMode::Full,
+                        (SchemaChangeSafety::Safe, SchemaChangeSafety::Safe) => {
+                            BuildMode::Incremental
+                        }
+                        (
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c),
+                            SchemaChangeSafety::Safe,
+                        ) => BuildMode::IncrementalWithSchemaChanges(c),
+                        (
+                            SchemaChangeSafety::Safe,
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c),
+                        ) => BuildMode::IncrementalWithSchemaChanges(c),
+                        (
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c1),
+                            SchemaChangeSafety::SafeWithIncrementalBuild(c2),
+                        ) => BuildMode::IncrementalWithSchemaChanges(
+                            c1.into_iter().chain(c2).collect(),
+                        ),
+                    }
+                }
+            }
+        };
+        if !self.lsp_state.config.has_schema_change_incremental_build {
+            // Killswitch here to bail out of schema based incremental builds
+            build_mode = if let BuildMode::IncrementalWithSchemaChanges(_) = build_mode {
+                BuildMode::Full
             } else {
-                true
-            };
+                build_mode
+            }
+        }
+        log_event.bool(
+            "is_incremental_build",
+            match build_mode {
+                BuildMode::Incremental | BuildMode::IncrementalWithSchemaChanges(_) => true,
+                BuildMode::Full => false,
+            },
+        );
+        log_event.string(
+            "build_mode",
+            match build_mode {
+                BuildMode::Full => String::from("Full"),
+                BuildMode::Incremental => String::from("Incremental"),
+                BuildMode::IncrementalWithSchemaChanges(_) => {
+                    String::from("IncrementalWithSchemaChanges")
+                }
+            },
+        );
 
-        let (base_program, _) = build_raw_program(
-            project_config,
-            project_asts,
-            schema,
-            log_event,
-            is_incremental_build,
-        )?;
+        let (base_program, _) =
+            build_raw_program(project_config, project_asts, schema, log_event, build_mode)?;
 
         if compiler_state.should_cancel_current_build() {
             debug!("Build is cancelled: updates in source code/or new file changes are pending.");
             return Err(BuildProjectFailure::Cancelled);
         }
 
-        match self.lsp_state.source_programs.entry(project_config.name) {
+        match self
+            .lsp_state
+            .source_programs
+            .entry(project_config.name.into())
+        {
             Entry::Vacant(e) => {
                 e.insert(base_program.clone());
             }
             Entry::Occupied(mut e) => {
                 let program = e.get_mut();
-                let removed_definition_names = graphql_asts
-                    .get(&project_config.name)
-                    .map(|ast| ast.removed_definition_names.as_ref());
+                let removed_definition_names = graphql_asts.get(&project_config.name).map(|ast| {
+                    ast.removed_definition_names
+                        .iter()
+                        .filter_map(|artifact_source| match artifact_source {
+                            ArtifactSourceKey::ExecutableDefinition(name) => Some(*name),
+                            ArtifactSourceKey::Schema() | ArtifactSourceKey::ResolverHash(_) => {
+                                // In the LSP program, we only care about tracking user-editable ExecutableDefinitions
+                                None
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                });
                 program.merge_program(&base_program, removed_definition_names);
             }
         }
@@ -430,7 +530,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             project_config,
             &base_program,
             log_event,
-        )?;
+        )
+        .map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name: project_config.name,
+            })
+        })?;
 
         transform_program(
             project_config,
@@ -439,7 +545,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Arc::clone(&self.lsp_state.perf_logger),
             log_event,
             self.lsp_state.config.custom_transforms.as_ref(),
-        )?;
+            self.lsp_state
+                .config
+                .transferrable_refetchable_query_directives
+                .clone(),
+        )
+        .map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name: project_config.name,
+            })
+        })?;
         Ok(())
     }
 

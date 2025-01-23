@@ -59,7 +59,9 @@ describe('ReactRelayPaginationContainer', () => {
     }
 
     setProps(props) {
-      this.setState({props});
+      ReactTestRenderer.act(() => {
+        this.setState({props});
+      });
     }
     setContext(env) {
       this.__relayContext = {
@@ -148,7 +150,10 @@ describe('ReactRelayPaginationContainer', () => {
         count,
       };
     });
-    TestComponent = render;
+    TestComponent = ({ref, ...props}) => {
+      // Omit `ref` for forward-compatibility with `enableRefAsProp`.
+      return render(props);
+    };
     TestComponent.displayName = 'TestComponent';
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
@@ -245,11 +250,13 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('passes non-fragment props to the component', () => {
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer bar={1} foo="foo" />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer bar={1} foo="foo" />
+        </ContextSetter>,
+      );
+    });
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
       bar: 1,
@@ -268,11 +275,13 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('passes through null props', () => {
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={null} />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={null} />
+        </ContextSetter>,
+      );
+    });
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -293,11 +302,13 @@ describe('ReactRelayPaginationContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     // Data & Variables are passed to component
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0]).toEqual({
@@ -332,9 +343,8 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      missingRequiredFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -355,26 +365,29 @@ describe('ReactRelayPaginationContainer', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const callback = environment.subscribe.mock.calls[0][1];
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
-    callback({
-      dataID: '4',
-      node: UserFragment,
-      variables,
-      data: {
-        id: '4',
-        friends: null, // set to null
-      },
-      seenRecords: {},
-      relayResolverErrors: [],
+    ReactTestRenderer.act(() => {
+      callback({
+        dataID: '4',
+        node: UserFragment,
+        variables,
+        data: {
+          id: '4',
+          friends: null, // set to null
+        },
+        seenRecords: {},
+      });
     });
 
     // No need to resolve props or resubscribe
@@ -400,11 +413,14 @@ describe('ReactRelayPaginationContainer', () => {
   it('resolves new props', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
@@ -440,9 +456,8 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      missingRequiredFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -463,11 +478,14 @@ describe('ReactRelayPaginationContainer', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
 
     render.mockClear();
     environment.lookup.mockClear();
@@ -507,9 +525,8 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      missingRequiredFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -530,40 +547,47 @@ describe('ReactRelayPaginationContainer', () => {
     let userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
 
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
 
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
 
     // Paginate first
-    loadMore(1, jest.fn());
-    environment.mock.resolve(UserQuery, {
-      data: {
-        node: {
-          id: '4',
-          __typename: 'User',
-          friends: {
-            edges: [
-              {
-                cursor: 'cursor:2',
-                node: {
-                  __typename: 'User',
-                  id: 'node:2',
+    ReactTestRenderer.act(() => {
+      loadMore(1, jest.fn());
+    });
+    ReactTestRenderer.act(() => {
+      environment.mock.resolve(UserQuery, {
+        data: {
+          node: {
+            id: '4',
+            __typename: 'User',
+            friends: {
+              edges: [
+                {
+                  cursor: 'cursor:2',
+                  node: {
+                    __typename: 'User',
+                    id: 'node:2',
+                  },
                 },
+              ],
+              pageInfo: {
+                endCursor: 'cursor:2',
+                hasNextPage: true,
               },
-            ],
-            pageInfo: {
-              endCursor: 'cursor:2',
-              hasNextPage: true,
             },
           },
         },
-      },
+      });
     });
     expect(render.mock.calls.length).toBe(1);
     expect(render.mock.calls[0][0].user.friends.edges.length).toBe(2);
@@ -605,9 +629,8 @@ describe('ReactRelayPaginationContainer', () => {
     expect(environment.subscribe.mock.calls[0][0]).toEqual({
       data: expect.any(Object),
       isMissingData: false,
-      missingRequiredFields: null,
+      fieldErrors: null,
       missingLiveResolverFields: [],
-      relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -627,11 +650,14 @@ describe('ReactRelayPaginationContainer', () => {
   it('does not update for same props/data', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
@@ -650,11 +676,19 @@ describe('ReactRelayPaginationContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} nil={null} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer
+            fn={fn}
+            nil={null}
+            scalar={scalar}
+            user={userPointer}
+          />
+        </ContextSetter>,
+      );
+    });
     render.mockClear();
     environment.lookup.mockClear();
     environment.subscribe.mockClear();
@@ -676,11 +710,14 @@ describe('ReactRelayPaginationContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
     environment.lookup.mockClear();
@@ -707,11 +744,14 @@ describe('ReactRelayPaginationContainer', () => {
       .node;
     const scalar = 42;
     const fn = () => null;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer fn={fn} scalar={scalar} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer fn={fn} scalar={scalar} user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
     environment.lookup.mockClear();
@@ -735,11 +775,14 @@ describe('ReactRelayPaginationContainer', () => {
   it('always updates for non-scalar props', () => {
     const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1).data
       .node;
-    const instance = ReactTestRenderer.create(
-      <ContextSetter environment={environment}>
-        <TestContainer arr={[]} obj={{}} user={userPointer} />
-      </ContextSetter>,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ContextSetter environment={environment}>
+          <TestContainer arr={[]} obj={{}} user={userPointer} />
+        </ContextSetter>,
+      );
+    });
     const initialProps = render.mock.calls[0][0];
     render.mockClear();
     environment.lookup.mockClear();
@@ -874,23 +917,27 @@ describe('ReactRelayPaginationContainer', () => {
     );
 
     expect(() => {
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer />
-        </ContextSetter>,
-      );
-    }).not.toThrow();
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer />
+          </ContextSetter>,
+        );
+      }).not.toThrow();
+    });
   });
 
   describe('hasMore()', () => {
     beforeEach(() => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
     });
 
     it('returns true if there are more items', () => {
@@ -939,58 +986,66 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('updates after pagination (if more results)', () => {
       expect.assertions(1);
-      loadMore(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true, // <-- has more results
                 },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true, // <-- has more results
               },
             },
           },
-        },
+        });
       });
       expect(hasMore()).toBe(true);
     });
 
     it('updates after pagination (if no more results)', () => {
       expect.assertions(1);
-      loadMore(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: false, // <-- end of list
                 },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: false, // <-- end of list
               },
             },
           },
-        },
+        });
       });
       expect(hasMore()).toBe(false);
     });
@@ -1001,11 +1056,13 @@ describe('ReactRelayPaginationContainer', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
       environment.mock.clearCache();
-      ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
     });
 
     it('returns false initially', () => {
@@ -1025,16 +1082,20 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('returns false once a fetch completes', () => {
       expect.assertions(1);
-      loadMore(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that the fetch resolved
-            friends: null,
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that the fetch resolved
+              friends: null,
+            },
           },
-        },
+        });
       });
       expect(isLoading()).toBe(false);
     });
@@ -1044,15 +1105,17 @@ describe('ReactRelayPaginationContainer', () => {
       loadMore(1, () => {
         expect(isLoading()).toBe(false);
       });
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that the fetch resolved
-            friends: null,
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that the fetch resolved
+              friends: null,
+            },
           },
-        },
+        });
       });
       expect(isLoading()).toBe(false);
     });
@@ -1093,7 +1156,9 @@ describe('ReactRelayPaginationContainer', () => {
           },
         },
       );
-      loadMore(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
       expect(isLoading()).toBe(false);
     });
   });
@@ -1114,11 +1179,13 @@ describe('ReactRelayPaginationContainer', () => {
         .data.node;
 
       environment.mock.clearCache();
-      instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
     });
 
     it('returns null if there are no more items to fetch', () => {
@@ -1167,7 +1234,9 @@ describe('ReactRelayPaginationContainer', () => {
     });
 
     it('calls `getVariables` with props, count/cursor, and the previous variables', () => {
-      loadMore(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
       expect(getVariables).toBeCalledWith(
         {
           user: {
@@ -1210,7 +1279,10 @@ describe('ReactRelayPaginationContainer', () => {
         count: 1,
         id: '4',
       };
-      const {dispose} = loadMore(1, jest.fn());
+      let dispose;
+      ReactTestRenderer.act(() => {
+        dispose = loadMore(1, jest.fn()).dispose;
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       expect(subscription.closed).toBe(false);
       dispose();
@@ -1225,7 +1297,9 @@ describe('ReactRelayPaginationContainer', () => {
         orderby: ['name'],
         isViewerFriend: false,
       };
-      loadMore(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
       expect(environment.mock.isLoading(UserQuery, variables)).toBe(true);
     });
 
@@ -1238,7 +1312,9 @@ describe('ReactRelayPaginationContainer', () => {
         isViewerFriend: false,
       };
       const fetchOption = {force: true};
-      loadMore(1, jest.fn(), fetchOption);
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn(), fetchOption);
+      });
       expect(
         environment.mock.isLoading(UserQuery, variables, fetchOption),
       ).toBe(true);
@@ -1254,11 +1330,15 @@ describe('ReactRelayPaginationContainer', () => {
         orderby: ['name'],
         isViewerFriend: false,
       };
-      loadMore(1, callback);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: null,
-        },
+      ReactTestRenderer.act(() => {
+        loadMore(1, callback);
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: null,
+          },
+        });
       });
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0].length).toBe(0);
@@ -1267,7 +1347,9 @@ describe('ReactRelayPaginationContainer', () => {
     it('calls the callback when the fetch fails', () => {
       expect.assertions(2);
       const callback = jest.fn();
-      loadMore(1, callback);
+      ReactTestRenderer.act(() => {
+        loadMore(1, callback);
+      });
       const error = new Error('oops');
       environment.mock.reject(UserQuery, error);
       expect(callback.mock.calls.length).toBe(1);
@@ -1311,7 +1393,9 @@ describe('ReactRelayPaginationContainer', () => {
         },
       );
       const callback = jest.fn();
-      loadMore(1, callback);
+      ReactTestRenderer.act(() => {
+        loadMore(1, callback);
+      });
       expect(callback).toHaveBeenCalled();
     });
 
@@ -1319,30 +1403,34 @@ describe('ReactRelayPaginationContainer', () => {
       expect.assertions(5);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
-      loadMore(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
       expect(render.mock.calls.length).toBe(1);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
                 },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true,
               },
             },
           },
-        },
+        });
       });
       expect(render.mock.calls.length).toBe(2);
       expect(render.mock.calls[1][0].user.friends.edges.length).toBe(2);
@@ -1351,13 +1439,17 @@ describe('ReactRelayPaginationContainer', () => {
     it('does not update variables on failure', () => {
       expect.assertions(1);
       render.mockClear();
-      loadMore(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
       environment.mock.reject(UserQuery, new Error('oops'));
       expect(render.mock.calls.length).toBe(0);
     });
 
     it('continues the fetch if new props refer to the same records', () => {
-      loadMore(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
@@ -1366,7 +1458,9 @@ describe('ReactRelayPaginationContainer', () => {
     });
 
     it('cancels the fetch if new props refer to different records', () => {
-      loadMore(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
         .data.node;
@@ -1376,16 +1470,20 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('holds pagination results if new props refer to the same records', () => {
       expect.assertions(2);
-      loadMore(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that their results are retained
-            friends: null,
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that their results are retained
+              friends: null,
+            },
           },
-        },
+        });
       });
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
@@ -1396,16 +1494,20 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('releases pagination results if new props refer to different records', () => {
       expect.assertions(2);
-      loadMore(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that their results are retained
-            friends: null,
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that their results are retained
+              friends: null,
+            },
           },
-        },
+        });
       });
       const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
         .data.node;
@@ -1416,18 +1518,24 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('releases pagination results if unmounted', () => {
       expect.assertions(2);
-      loadMore(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that their results are retained
-            friends: null,
-          },
-        },
+      ReactTestRenderer.act(() => {
+        loadMore(1, jest.fn());
       });
-      instance.unmount();
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that their results are retained
+              friends: null,
+            },
+          },
+        });
+      });
+      ReactTestRenderer.act(() => {
+        instance.unmount();
+      });
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
     });
@@ -1435,15 +1543,21 @@ describe('ReactRelayPaginationContainer', () => {
     it('should not load more data if container is unmounted', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
-      instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
       variables = {};
-      instance.unmount();
+      ReactTestRenderer.act(() => {
+        instance.unmount();
+      });
       const callback = jest.fn();
-      loadMore(1, callback);
+      ReactTestRenderer.act(() => {
+        loadMore(1, callback);
+      });
       expect(callback).not.toBeCalled();
     });
   });
@@ -1462,15 +1576,19 @@ describe('ReactRelayPaginationContainer', () => {
       };
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
-      instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
     });
 
     it('calls `getVariables` with props, totalCount, and the previous variables', () => {
-      refetchConnection(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
       expect(getVariables).toBeCalledWith(
         {
           user: {
@@ -1512,7 +1630,10 @@ describe('ReactRelayPaginationContainer', () => {
         count: 1,
         id: '4',
       };
-      const {dispose} = refetchConnection(1, jest.fn());
+      let dispose;
+      ReactTestRenderer.act(() => {
+        dispose = refetchConnection(1, jest.fn()).dispose;
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       expect(subscription.closed).toBe(false);
       dispose();
@@ -1530,7 +1651,9 @@ describe('ReactRelayPaginationContainer', () => {
       const cacheConfig = {
         force: true,
       };
-      refetchConnection(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
       expect(
         environment.mock.isLoading(UserQuery, variables, cacheConfig),
       ).toBe(true);
@@ -1543,11 +1666,15 @@ describe('ReactRelayPaginationContainer', () => {
         count: 1,
         id: '4',
       };
-      refetchConnection(1, callback);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: null,
-        },
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, callback);
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: null,
+          },
+        });
       });
       expect(callback.mock.calls.length).toBe(1);
       expect(callback.mock.calls[0].length).toBe(0);
@@ -1556,7 +1683,9 @@ describe('ReactRelayPaginationContainer', () => {
     it('calls the callback when the fetch fails', () => {
       expect.assertions(2);
       const callback = jest.fn();
-      refetchConnection(1, callback);
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, callback);
+      });
       const error = new Error('oops');
       environment.mock.reject(UserQuery, error);
       expect(callback.mock.calls.length).toBe(1);
@@ -1567,30 +1696,34 @@ describe('ReactRelayPaginationContainer', () => {
       expect.assertions(6);
       expect(render.mock.calls.length).toBe(1);
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
-      refetchConnection(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
       expect(render.mock.calls.length).toBe(1);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:2',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:2',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:2',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:2',
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:2',
+                  hasNextPage: true,
                 },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:2',
-                hasNextPage: true,
               },
             },
           },
-        },
+        });
       });
       expect(render.mock.calls.length).toBe(2);
       expect(render.mock.calls[1][0].user.friends.edges.length).toBe(1);
@@ -1629,24 +1762,28 @@ describe('ReactRelayPaginationContainer', () => {
       // By default friends list should have 1 item
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       // Let's refetch with new variables
-      refetchConnection(1, jest.fn(), {
-        isViewerFriend: true,
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn(), {
+          isViewerFriend: true,
+        });
       });
       expect(render.mock.calls.length).toBe(1);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            __typename: 'User',
-            id: '4',
-            friends: {
-              edges: [],
-              pageInfo: {
-                endCursor: null,
-                hasNextPage: false,
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '4',
+              friends: {
+                edges: [],
+                pageInfo: {
+                  endCursor: null,
+                  hasNextPage: false,
+                },
               },
             },
           },
-        },
+        });
       });
       expect(render.mock.calls.length).toBe(2);
       expect(render.mock.calls[1][0].user.friends.edges.length).toBe(0);
@@ -1701,13 +1838,17 @@ describe('ReactRelayPaginationContainer', () => {
     it('does not update variables on failure', () => {
       expect.assertions(1);
       render.mockClear();
-      refetchConnection(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
       environment.mock.reject(UserQuery, new Error('oops'));
       expect(render.mock.calls.length).toBe(0);
     });
 
     it('continues the fetch if new props refer to the same records', () => {
-      refetchConnection(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
@@ -1716,7 +1857,9 @@ describe('ReactRelayPaginationContainer', () => {
     });
 
     it('cancels the fetch if new props refer to different records', () => {
-      refetchConnection(1, jest.fn());
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
       const subscription = environment.execute.mock.subscriptions[0];
       const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
         .data.node;
@@ -1726,16 +1869,20 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('holds pagination results if new props refer to the same records', () => {
       expect.assertions(2);
-      refetchConnection(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that their results are retained
-            friends: null,
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that their results are retained
+              friends: null,
+            },
           },
-        },
+        });
       });
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
@@ -1746,16 +1893,20 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('releases pagination results if new props refer to different records', () => {
       expect.assertions(2);
-      refetchConnection(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that their results are retained
-            friends: null,
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
+      });
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that their results are retained
+              friends: null,
+            },
           },
-        },
+        });
       });
       const userPointer = environment.lookup(ownerUser2.fragment, ownerUser2)
         .data.node;
@@ -1766,18 +1917,24 @@ describe('ReactRelayPaginationContainer', () => {
 
     it('releases pagination results if unmounted', () => {
       expect.assertions(2);
-      refetchConnection(1, jest.fn());
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            // The resuls don't matter, only that their results are retained
-            friends: null,
-          },
-        },
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, jest.fn());
       });
-      instance.unmount();
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              // The resuls don't matter, only that their results are retained
+              friends: null,
+            },
+          },
+        });
+      });
+      ReactTestRenderer.act(() => {
+        instance.unmount();
+      });
       expect(references.length).toBe(1);
       expect(references[0].dispose).toBeCalled();
     });
@@ -1788,28 +1945,30 @@ describe('ReactRelayPaginationContainer', () => {
       expect(render.mock.calls[0][0].user.friends.edges.length).toBe(1);
       refetchConnection(1, jest.fn(), {orderby: ['last_name']});
       expect(render.mock.calls.length).toBe(1);
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:7',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:7',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:7',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:7',
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:7',
+                  hasNextPage: true,
                 },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:7',
-                hasNextPage: true,
               },
             },
           },
-        },
+        });
       });
       expect(references.length).toBe(1);
       expect(references[0].dispose).not.toBeCalled();
@@ -1849,28 +2008,30 @@ describe('ReactRelayPaginationContainer', () => {
         orderby: ['last_name'],
         isViewerFriend: true,
       });
-      environment.mock.resolve(UserQuery, {
-        data: {
-          node: {
-            id: '4',
-            __typename: 'User',
-            friends: {
-              edges: [
-                {
-                  cursor: 'cursor:7',
-                  node: {
-                    __typename: 'User',
-                    id: 'node:7',
+      ReactTestRenderer.act(() => {
+        environment.mock.resolve(UserQuery, {
+          data: {
+            node: {
+              id: '4',
+              __typename: 'User',
+              friends: {
+                edges: [
+                  {
+                    cursor: 'cursor:7',
+                    node: {
+                      __typename: 'User',
+                      id: 'node:7',
+                    },
                   },
+                ],
+                pageInfo: {
+                  endCursor: 'cursor:7',
+                  hasNextPage: true,
                 },
-              ],
-              pageInfo: {
-                endCursor: 'cursor:7',
-                hasNextPage: true,
               },
             },
           },
-        },
+        });
       });
 
       loadMore(2, jest.fn());
@@ -1887,14 +2048,20 @@ describe('ReactRelayPaginationContainer', () => {
     it('should not refetch connection if container is unmounted', () => {
       const userPointer = environment.lookup(ownerUser1.fragment, ownerUser1)
         .data.node;
-      instance = ReactTestRenderer.create(
-        <ContextSetter environment={environment}>
-          <TestContainer user={userPointer} />
-        </ContextSetter>,
-      );
-      instance.unmount();
+      ReactTestRenderer.act(() => {
+        instance = ReactTestRenderer.create(
+          <ContextSetter environment={environment}>
+            <TestContainer user={userPointer} />
+          </ContextSetter>,
+        );
+      });
+      ReactTestRenderer.act(() => {
+        instance.unmount();
+      });
       const callback = jest.fn();
-      refetchConnection(1, callback);
+      ReactTestRenderer.act(() => {
+        refetchConnection(1, callback);
+      });
       expect(callback).not.toBeCalled();
     });
   });
@@ -1925,9 +2092,12 @@ describe('ReactRelayPaginationContainer', () => {
 
     const UnwrappedComponent = unwrapContainer(TestUnwrappingContainer);
 
-    const renderer = ReactTestRenderer.create(
-      <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
-    );
+    let renderer;
+    ReactTestRenderer.act(() => {
+      renderer = ReactTestRenderer.create(
+        <UnwrappedComponent user={{id: '4', name: 'Mark'}} />,
+      );
+    });
 
     expect(renderer.toJSON()).toMatchSnapshot();
   });

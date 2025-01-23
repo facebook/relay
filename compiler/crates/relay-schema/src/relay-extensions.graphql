@@ -3,7 +3,9 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-directive @relay_test_operation on QUERY | MUTATION | SUBSCRIPTION
+directive @relay_test_operation(
+  DO_NOT_USE_use_in_production: Boolean = false @static
+) on QUERY | MUTATION | SUBSCRIPTION
 
 """
 (Relay only)
@@ -18,6 +20,19 @@ data from a fragment annotated with `@inline` can be read using `readInlineData`
 directive @inline on FRAGMENT_DEFINITION
 
 directive @no_inline(raw_response_type: Boolean) on FRAGMENT_DEFINITION
+
+"""
+(Relay only)
+
+A directive added to queries and fragments which causes the Relay client to throw
+if reading a field that has an error. Relay will also honor the @semanticNonNull
+direcitve on fields read from that query or fragment. Emitted types for such
+fields will be non-null. Requires the `experimental_emit_semantic_nullability_types`
+typegen configuration to be enabled.
+
+[Read More](https://relay.dev/docs/api-reference/graphql-and-directives/)
+"""
+directive @throwOnFieldError on QUERY | FRAGMENT_DEFINITION
 
 """
 (Relay only)
@@ -45,6 +60,7 @@ types, or on a type that implements `Node` (i.e. a type that has an id).
 directive @refetchable(
   queryName: String!
   directives: [String!]
+  preferFetchable: Boolean
 ) on FRAGMENT_DEFINITION
 
 """
@@ -121,6 +137,7 @@ directive @connection(
   filters: [String]
   handler: String
   dynamicKey_UNSTABLE: String
+  prefetchable_pagination: Boolean = false
 ) on FIELD
 
 directive @stream_connection(
@@ -132,6 +149,7 @@ directive @stream_connection(
   if: Boolean = true
   use_customized_batch: Boolean = false
   dynamicKey_UNSTABLE: String
+  prefetchable_pagination: Boolean = false
 ) on FIELD
 
 # RequiredTransform
@@ -139,6 +157,17 @@ enum RequiredFieldAction {
   NONE
   LOG
   THROW
+}
+
+# CatchTransform
+"""
+(Relay Only)
+
+NULL and RESULT are the `to` values you can use in the @catch directive to tell relay how to treat field-level errors
+"""
+enum CatchFieldTo {
+  NULL
+  RESULT
 }
 
 """
@@ -149,9 +178,22 @@ declare how null values should be handled at runtime. You can think of it as
 saying "if this field is ever null, its parent field is invalid and should be
 null".
 
-[Read More](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/required-directive/) (FB only)
+[Read More](https://relay.dev/docs/guides/required-directive/)
 """
 directive @required(action: RequiredFieldAction! @static) on FIELD
+
+"""
+(Relay Only)
+
+`@catch` is a directive you can add to fields, fragment definitions, queries,
+mutations, and aliased inline fragments to opt into explicitly handling field
+errors.
+
+[Read More](https://relay.dev/docs/guides/catch-directive/)
+"""
+directive @catch(
+  to: CatchFieldTo! = RESULT @static
+) on FIELD | FRAGMENT_DEFINITION | QUERY | MUTATION | INLINE_FRAGMENT
 
 # DeclarativeConnection
 """
@@ -180,7 +222,7 @@ directive @deleteEdge(connections: [ID!]!) on FIELD
 For use within mutations. After the mutation request is complete, this edge
 will be appended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendedge--prependedge)
 """
 directive @appendEdge(connections: [ID!]!) on FIELD
 
@@ -190,7 +232,7 @@ directive @appendEdge(connections: [ID!]!) on FIELD
 For use within mutations. After the mutation request is complete, this edge
 will be prepended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendedge--prependedge)
 """
 directive @prependEdge(connections: [ID!]!) on FIELD
 
@@ -200,7 +242,7 @@ directive @prependEdge(connections: [ID!]!) on FIELD
 For use within mutations. After the mutation request is complete, this node
 will be appended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendnode--prependnode)
 """
 directive @appendNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 
@@ -210,12 +252,9 @@ directive @appendNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
 For use within mutations. After the mutation request is complete, this node
 will be prepended to its parent connection.
 
-[Read More](https://relay.dev/docs/guided-tour/updating-data/graphql-mutations/#updating-data-once-a-request-is-complete)
+[Read More](https://relay.dev/docs/guided-tour/list-data/updating-connections/#appendnode--prependnode)
 """
 directive @prependNode(connections: [ID!]!, edgeTypeName: String!) on FIELD
-
-# RelayClientComponentTransform
-directive @relay_client_component on FRAGMENT_SPREAD
 
 # RelayResolver
 directive @relay_resolver(
@@ -239,7 +278,7 @@ A special scalar type which can be used as the return type of a Relay Resolver.
 When used, the resolver field will derive its TypeScript/Flow type from the
 return value of the Resolver function.
 
-[Learn More](https://relay.dev/docs/next/guides/relay-resolvers/)
+[Learn More](https://relay.dev/docs/guides/relay-resolvers/return-types/#javascript-values)
 """
 scalar RelayResolverValue
 
@@ -260,7 +299,7 @@ directive @RelayOutputType on OBJECT
 
 Marks a given query or fragment as updatable.
 
-[Read More](https://fb.quip.com/4FZaADvkQPPl)
+[Read More](https://relay.dev/docs/guided-tour/updating-data/imperatively-modifying-linked-fields/)
 """
 directive @updatable on QUERY | FRAGMENT_DEFINITION
 
@@ -269,7 +308,7 @@ directive @updatable on QUERY | FRAGMENT_DEFINITION
 
 Marks a given fragment as assignable.
 
-[Read More](https://fb.quip.com/4FZaADvkQPPl)
+[Read More](https://relay.dev/docs/guided-tour/updating-data/imperatively-modifying-linked-fields/)
 """
 directive @assignable on FRAGMENT_DEFINITION
 
@@ -278,8 +317,31 @@ directive @assignable on FRAGMENT_DEFINITION
 
 Exposes a fragment's data as a new field which can be null checked to ensure it
 matches the parent selection.
+
+[Read More](https://relay.dev/docs/guides/alias-directive/)
 """
 directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+(Relay Only)
+
+**To resolve, replace `@dangerously_unaliased_fixme` with `@alias`**
+
+This fragment spread will only conditionally be fetched, either due to
+`@skip`/@include` or its type condition. Conditionally fetched fragments without
+an `@alias` are unsafe because they don't expose any mechanism for the user to
+check if the data was fetched before using the fragment. In these cases `@alias`
+will materialize the fragment as a nullable named property, ensuring the proper
+null checks are performed.
+
+We now require all such fragment spreads to use `@alias`, and have marked
+existing unsafe spreads with `@dangerously_unaliased_fixme`.
+
+DO NOT ADD NEW USES OF THIS DIRECTIVE.
+
+[Read More](https://relay.dev/docs/guides/alias-directive/)
+"""
+directive @dangerously_unaliased_fixme on FRAGMENT_SPREAD
 
 """
 (Relay Only)
@@ -290,3 +352,19 @@ If a non-static value is provided, it will result in a validation error.
 Used for arguments which are expected to be read by the Relay compiler.
 """
 directive @static on ARGUMENT_DEFINITION
+
+"""
+(Relay Only)
+
+Used for printing a query, need to be used with `debug_transform`
+"""
+directive @__debug on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+"""
+(Relay Only)
+
+If added to a query, resolvers in that query to run at exec-time, rather than read-time.
+This means the resolvers are run when the query data is requested rather than when the
+query is used (i.e. when the network request is made instead of at render time).
+"""
+directive @exec_time_resolvers on QUERY

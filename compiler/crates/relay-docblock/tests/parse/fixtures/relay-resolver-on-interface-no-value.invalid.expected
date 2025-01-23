@@ -7,6 +7,7 @@
  */
 
 // expected-to-throw
+// relay:allow_legacy_verbose_syntax
 
 /**
  * @RelayResolver
@@ -25,8 +26,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Expected docblock field `@onInterface` to have specified a value.
 
-  /path/to/test/fixture/relay-resolver-on-interface-no-value.invalid.js:13:5
-   12 │  *
-   13 │  * @onInterface
+  /path/to/test/fixture/relay-resolver-on-interface-no-value.invalid.js:14:5
+   13 │  *
+   14 │  * @onInterface
       │     ^^^^^^^^^^^
-   14 │  * @fieldName favorite_page
+   15 │  * @fieldName favorite_page

@@ -57,6 +57,7 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 #                 "cursor",
 #             ),
 #             is_stream_connection: true,
+#             is_prefetchable_pagination: false,
 #         },
 #     ],
 # )
@@ -68,16 +69,20 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   id
   ... on User {
     name
     friends(after: $cursor, first: $count) @__clientField(key: "PaginationFragment_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
-      edges @stream(label: "PaginationFragment_friends", initial_count: 1) {
+      edges @stream(label: "PaginationFragment_friends", initialCount: 1) {
         node {
           id
         }

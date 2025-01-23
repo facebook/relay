@@ -34,6 +34,22 @@ type Human implements Hominid @fetchable(field_name: "id") {
   other_friends(location: Location, location: Location): [Human]
 }
 
+type Ape implements Hominid {
+  pet: Canine
+  friends: [Hominid] # Missing argument
+}
+
+type Chimp implements Hominid {
+  pet: Canine
+  friends(location: String): [Hominid] # Missing argument
+}
+
+# Implement Hominid twice
+type Bonobo implements Hominid & Hominid {
+  pet: Canine
+  friends(location: Location): [Hominid]
+}
+
 type Query {
   fetch__Human(id: ID!): Human
   user: Human
@@ -63,33 +79,146 @@ type Fur {
   color: String
 }
 ==================================== OUTPUT ===================================
-Type EmptyFurType with definition:
-	union EmptyFurType
-had errors:
-	* Union type must define one or more member types.
+✖︎ Type 'Bonobo' can only implement 'Hominid' once.
 
-Type Human with definition:
-	type Human implements Hominid @fetchable(field_name: "id") {
-  id: ID
-  pet: OtherPet
-  friends(location: Location, radius: Int!, Country: String): [Human]
-  location: Location
-  location: ID
-  other_friends(location: Location, location: Location): [Human]
-}
-had errors:
-	* Duplicate argument 'location' found on field/directive 'other_friends'.
-	* Duplicate field 'location' found.
-	* Interface field 'Hominid.pet' expects type 'Canine' but 'Human.pet' is of type 'OtherPet'.
-	* Object field 'Human.friends' includes required argument 'radius' that is missing from the Interface field 'Hominid.friends'.
-	* The type of 'Human.location' must be Output Type but got: 'Named(InputObject(0))'.
+  validate_object.graphql:3:11
+    2 │ 
+    3 │ interface Hominid {
+      │           ^^^^^^^
+    4 │   pet: Canine
 
-Type Pet with definition:
-	type Pet implements Canine @fetchable(field_name: "id") {
-  id: ID
-  owner: Human
-  type: PetType
-  fur: FurType
-}
-had errors:
-	* Interface field 'Canine.name' expected but 'Pet' does not provide it.
+  ℹ︎ Previously defined here:
+
+  validate_object.graphql:3:11
+    2 │ 
+    3 │ interface Hominid {
+      │           ^^^^^^^
+    4 │   pet: Canine
+
+✖︎ Interface field 'Canine.name' expected but type 'Pet' does not provide it.
+
+  validate_object.graphql:13:6
+   12 │ 
+   13 │ type Pet implements Canine @fetchable(field_name: "id") {
+      │      ^^^
+   14 │   id: ID
+
+  ℹ︎ The interface field is defined here:
+
+  validate_object.graphql:10:3
+    9 │   owner: Human
+   10 │   name: String
+      │   ^^^^
+   11 │ }
+
+✖︎ Interface field 'Hominid.pet' expects type 'Canine' but 'Human.pet' is of type 'OtherPet'.
+
+  validate_object.graphql:29:3
+   28 │   id: ID
+   29 │   pet: OtherPet
+      │   ^^^
+   30 │   friends(location: Location, radius: Int!, Country: String): [Human]
+
+  ℹ︎ The interface field is defined here:
+
+  validate_object.graphql:4:3
+    3 │ interface Hominid {
+    4 │   pet: Canine
+      │   ^^^
+    5 │   friends(location: Location): [Hominid]
+
+✖︎ Object field 'Human.friends' includes required argument 'radius' that is missing from the Interface field 'Hominid.friends'.
+
+  validate_object.graphql:30:31
+   29 │   pet: OtherPet
+   30 │   friends(location: Location, radius: Int!, Country: String): [Human]
+      │                               ^^^^^^
+   31 │   location: Location
+
+  ℹ︎ The interface field is define here:
+
+  validate_object.graphql:5:3
+    4 │   pet: Canine
+    5 │   friends(location: Location): [Hominid]
+      │   ^^^^^^^
+    6 │ }
+
+✖︎ The type of 'Human.location' must be Output Type but got an input object.
+
+  validate_object.graphql:31:3
+   30 │   friends(location: Location, radius: Int!, Country: String): [Human]
+   31 │   location: Location
+      │   ^^^^^^^^
+   32 │   location: ID
+
+✖︎ Duplicate field 'location' found.
+
+  validate_object.graphql:32:3
+   31 │   location: Location
+   32 │   location: ID
+      │   ^^^^^^^^
+   33 │   other_friends(location: Location, location: Location): [Human]
+
+  ℹ︎ Previously defined here:
+
+  validate_object.graphql:31:3
+   30 │   friends(location: Location, radius: Int!, Country: String): [Human]
+   31 │   location: Location
+      │   ^^^^^^^^
+   32 │   location: ID
+
+✖︎ Duplicate argument 'location' found on field/directive 'other_friends'.
+
+  validate_object.graphql:33:3
+   32 │   location: ID
+   33 │   other_friends(location: Location, location: Location): [Human]
+      │   ^^^^^^^^^^^^^
+   34 │ }
+
+  ℹ︎ Previously defined here:
+
+  validate_object.graphql:33:17
+   32 │   location: ID
+   33 │   other_friends(location: Location, location: Location): [Human]
+      │                 ^^^^^^^^
+   34 │ }
+
+✖︎ Interface field argument 'Hominid.friends(location:)' expected but 'Ape.friends' does not provide it.
+
+  validate_object.graphql:38:3
+   37 │   pet: Canine
+   38 │   friends: [Hominid] # Missing argument
+      │   ^^^^^^^
+   39 │ }
+
+  ℹ︎ The interface field argument is defined here:
+
+  validate_object.graphql:5:11
+    4 │   pet: Canine
+    5 │   friends(location: Location): [Hominid]
+      │           ^^^^^^^^
+    6 │ }
+
+✖︎ Interface field argument 'Hominid.friends(location:)' expects type 'Location' but 'Chimp.friends(location:)' is type 'String'.
+
+  validate_object.graphql:43:11
+   42 │   pet: Canine
+   43 │   friends(location: String): [Hominid] # Missing argument
+      │           ^^^^^^^^
+   44 │ }
+
+  ℹ︎ The interface field argument is defined here:
+
+  validate_object.graphql:5:11
+    4 │   pet: Canine
+    5 │   friends(location: Location): [Hominid]
+      │           ^^^^^^^^
+    6 │ }
+
+✖︎ Union type EmptyFurType must define one or more member types.
+
+  validate_object.graphql:69:7
+   68 │ 
+   69 │ union EmptyFurType
+      │       ^^^^^^^^^^^^
+   70 │

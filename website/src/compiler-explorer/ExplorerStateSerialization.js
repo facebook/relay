@@ -30,6 +30,8 @@ export function serializeState(state) {
         // If we ever have a feature flag which conflicts with a top-level state value
         // we will need to find a way to deal with that. However, it's unlikely
         // and it makes the URL easier to read.
+        //
+        // Note: URLSearchParam values are always strings, so this will be "true" or "false".
         params.set(flag, enabled);
       }
     } else {
@@ -44,7 +46,7 @@ export function deserializeState(params) {
     console.warn('Unexpected encoding version: ' + params.get('enc'));
     return null;
   }
-  const state = {};
+  const state = DEFAULT_STATE;
   for (const key of Object.keys(DEFAULT_STATE)) {
     const value = params.get(key);
     if (key == 'schemaText' || key == 'documentText') {
@@ -52,7 +54,8 @@ export function deserializeState(params) {
     } else if (key == 'featureFlags') {
       const featureFlags = {};
       for (const {key} of FEATURE_FLAGS) {
-        featureFlags[key] = Boolean(params.get(key));
+        // Decode string boolean values into boolean.
+        featureFlags[key] = params.get(key) === 'true';
       }
       state[key] = featureFlags;
     } else {

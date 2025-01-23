@@ -27,9 +27,9 @@ extend type User {
   pop_star_name: ClientUser @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
-export type User__pop_star_name$normalization$variables = {};
+export type User__pop_star_name$normalization$variables = Record<PropertyKey, never>;
 export type User__pop_star_name$normalization$data = {
-  readonly name: string | null;
+  readonly name: string | null | undefined;
 };
 export type User__pop_star_name$normalization = {
   response: User__pop_star_name$normalization$data;
@@ -37,10 +37,16 @@ export type User__pop_star_name$normalization = {
 };
 -------------------------------------------------------------------------------
 import type { FragmentRefs } from "relay-runtime";
+import userPopStarNameResolverType from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolverType satisfies (
+  rootKey: PopStarNameResolverFragment_name$key,
+) => User__pop_star_name$normalization | null | undefined);
 export type Foo_user$data = {
   readonly poppy: {
-    readonly name: string | null;
-  } | null;
+    readonly name: string | null | undefined;
+  } | null | undefined;
   readonly " $fragmentType": "Foo_user";
 };
 export type Foo_user$key = {
@@ -51,11 +57,11 @@ export type Foo_user$key = {
 import type { FragmentRefs } from "relay-runtime";
 export type PopStarNameResolverFragment_name$data = {
   readonly address: {
-    readonly street: string | null;
-  } | null;
-  readonly name: string | null;
+    readonly street: string | null | undefined;
+  } | null | undefined;
+  readonly name: string | null | undefined;
   readonly parents: ReadonlyArray<{
-    readonly lastName: string | null;
+    readonly lastName: string | null | undefined;
   }>;
   readonly " $fragmentType": "PopStarNameResolverFragment_name";
 };

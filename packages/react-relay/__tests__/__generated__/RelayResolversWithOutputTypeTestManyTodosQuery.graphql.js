@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4312060e4773e8d091cd4f42e5bebf10>>
+ * @generated SignedSource<<625f3d3da7a67e9fc7e7aeacf719b5c1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,13 +20,15 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {many_todos as queryManyTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryManyTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryManyTodosResolverType: (
   args: {|
     todo_ids: $ReadOnlyArray<?string>,
   |},
-) => $ReadOnlyArray<?Query__many_todos$normalization>);
+  context: TestResolverContextType,
+) => ?$ReadOnlyArray<?Query__many_todos$normalization>);
 import type { Query__many_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyTodosQuery$variables = {|
   todos: $ReadOnlyArray<?string>,
@@ -79,7 +81,7 @@ v2 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": false
+      "isOutputType": true
     }
   ],
   "type": "Todo",
@@ -97,6 +99,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),
@@ -106,6 +109,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos').many_todos,
           "path": "many_todos",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "Todo",
             "plural": true,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql')
@@ -223,7 +227,7 @@ return {
                             },
                             "kind": "RelayResolver",
                             "storageKey": null,
-                            "isOutputType": false
+                            "isOutputType": true
                           }
                         ],
                         "storageKey": null
@@ -241,7 +245,7 @@ return {
               "fragment": (v2/*: any*/),
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": false
+              "isOutputType": true
             }
           ],
           "storageKey": null

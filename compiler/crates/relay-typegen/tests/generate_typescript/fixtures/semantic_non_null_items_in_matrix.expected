@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment MyFragment on Screen @throwOnFieldError {
+  pixels
+}
+
+%extensions%
+
+type Screen {
+  pixels: [[Int]] @semanticNonNull(levels: [2])
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MyFragment$data = {
+  readonly pixels: ReadonlyArray<ReadonlyArray<number> | null | undefined> | null | undefined;
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

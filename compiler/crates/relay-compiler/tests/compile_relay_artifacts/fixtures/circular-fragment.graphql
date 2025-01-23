@@ -1,0 +1,15 @@
+# expected-to-throw
+
+query circularFragmentQuery {
+  story {
+    feedback {
+      ...circularFragment_feedback
+    }
+  }
+}
+
+fragment circularFragment_feedback on Feedback {
+  feedback {
+    ...circularFragment_feedback
+  }
+}

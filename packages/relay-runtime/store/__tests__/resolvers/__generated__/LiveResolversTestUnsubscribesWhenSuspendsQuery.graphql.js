@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d3c2a0c72e60755fd27cd45811f19080>>
+ * @generated SignedSource<<9fa3d676b0a5167cb3ce46e406259bd3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,24 +18,29 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { DataID } from "relay-runtime";
+import type { LiveState, DataID } from "relay-runtime";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
 import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolverType: (
   rootKey: LiveExternalGreetingFragment$key,
-) => LiveState<mixed>);
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?string>);
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<?{|
+(queryLiveUserSuspendsWhenOddResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?{|
   +id: DataID,
 |}>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$data = {|
-  +greeting: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryLiveExternalGreetingResolverType>["read"]>,
+  +greeting: ?string,
   +user: ?{|
     +id: string,
   |},
@@ -132,7 +137,7 @@ return {
         },
         "kind": "RelayResolver",
         "storageKey": null,
-        "isOutputType": false
+        "isOutputType": true
       }
     ]
   },

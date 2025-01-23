@@ -21,11 +21,12 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
+use relay_config::DeferStreamInterface;
 use schema::SDLSchema;
 
 use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::ClientEdgeMetadataDirective;
 use crate::RelayLocationAgnosticBehavior;
-use crate::DEFER_STREAM_CONSTANTS;
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is
@@ -53,8 +54,8 @@ use crate::DEFER_STREAM_CONSTANTS;
  *
  *
  * 2. Inline fragments and conditions introduce the possibility for duplication
- * at different levels of the tree. Whenever a selection is fetched in a parent,
- * it is redundant to also fetch it in a child:
+ *    at different levels of the tree. Whenever a selection is fetched in a parent,
+ *    it is redundant to also fetch it in a child:
  *
  *
  * fragment Foo on FooType {
@@ -118,8 +119,11 @@ use crate::DEFER_STREAM_CONSTANTS;
  *
  * 1 can be skipped because it is already fetched at the outer level.
  */
-pub fn skip_redundant_nodes(program: &Program) -> Program {
-    let transform = SkipRedundantNodesTransform::new(program);
+pub fn skip_redundant_nodes(
+    program: &Program,
+    defer_stream_interface: DeferStreamInterface,
+) -> Program {
+    let transform = SkipRedundantNodesTransform::new(program, defer_stream_interface);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -133,20 +137,26 @@ type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 pub struct SkipRedundantNodesTransform {
     schema: Arc<SDLSchema>,
     cache: Cache,
+    defer_stream_interface: DeferStreamInterface,
 }
 
-impl<'s> SkipRedundantNodesTransform {
-    fn new(program: &'_ Program) -> Self {
+impl SkipRedundantNodesTransform {
+    fn new(program: &'_ Program, defer_stream_interface: DeferStreamInterface) -> Self {
         Self {
             schema: Arc::clone(&program.schema),
             cache: DashMap::new(),
+            defer_stream_interface,
         }
     }
 
-    pub fn from_schema(schema: &Arc<SDLSchema>) -> Self {
+    pub fn from_schema(
+        schema: &Arc<SDLSchema>,
+        defer_stream_interface: DeferStreamInterface,
+    ) -> Self {
         Self {
             schema: Arc::clone(schema),
             cache: DashMap::new(),
+            defer_stream_interface,
         }
     }
 
@@ -277,7 +287,10 @@ impl<'s> SkipRedundantNodesTransform {
         field: &LinkedField,
         selection_map: &mut SelectionMap,
     ) -> Transformed<Arc<LinkedField>> {
-        let selections = self.transform_selections(&field.selections, selection_map);
+        let selections = self.transform_selections(
+            self.get_partitioned_selections(&field.selections),
+            selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => {
@@ -298,7 +311,10 @@ impl<'s> SkipRedundantNodesTransform {
         condition: &Condition,
         selection_map: &mut SelectionMap,
     ) -> Transformed<Arc<Condition>> {
-        let selections = self.transform_selections(&condition.selections, selection_map);
+        let selections = self.transform_selections(
+            self.get_partitioned_selections(&condition.selections),
+            selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => {
@@ -319,7 +335,19 @@ impl<'s> SkipRedundantNodesTransform {
         fragment: &InlineFragment,
         selection_map: &mut SelectionMap,
     ) -> Transformed<Arc<InlineFragment>> {
-        let selections = self.transform_selections(&fragment.selections, selection_map);
+        let selections = self.transform_selections(
+            // we must not change the order of selections within inline fragments with ClientEdgeMetadataDirective
+            if fragment
+                .directives
+                .named(ClientEdgeMetadataDirective::directive_name())
+                .is_some()
+            {
+                Vec::from_iter(&fragment.selections)
+            } else {
+                self.get_partitioned_selections(&fragment.selections)
+            },
+            selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => {
@@ -335,10 +363,10 @@ impl<'s> SkipRedundantNodesTransform {
         }
     }
 
-    // Mostly a copy from Transformer::transform_list, but does partition and pass down `selection_map`.
+    // Mostly a copy from Transformer::transform_list, but with `selection_map` passed down
     fn transform_selections(
         &self,
-        selections: &[Selection],
+        selections: Vec<&Selection>,
         selection_map: &mut SelectionMap,
     ) -> TransformedValue<Vec<Selection>> {
         if selections.is_empty() {
@@ -346,7 +374,6 @@ impl<'s> SkipRedundantNodesTransform {
         }
         let mut result: Vec<Selection> = Vec::new();
         let mut has_changes = false;
-        let selections = get_partitioned_selections(selections);
 
         for (index, prev_item) in selections.iter().enumerate() {
             let next_item = self.transform_selection(prev_item, selection_map);
@@ -389,7 +416,10 @@ impl<'s> SkipRedundantNodesTransform {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         let mut selection_map = Default::default();
-        let selections = self.transform_selections(&operation.selections, &mut selection_map);
+        let selections = self.transform_selections(
+            self.get_partitioned_selections(&operation.selections),
+            &mut selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => Transformed::Replace(OperationDefinition {
@@ -404,7 +434,10 @@ impl<'s> SkipRedundantNodesTransform {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         let mut selection_map = Default::default();
-        let selections = self.transform_selections(&fragment.selections, &mut selection_map);
+        let selections = self.transform_selections(
+            self.get_partitioned_selections(&fragment.selections),
+            &mut selection_map,
+        );
         match selections {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(selections) => Transformed::Replace(FragmentDefinition {
@@ -438,41 +471,35 @@ impl<'s> SkipRedundantNodesTransform {
         }
         TransformedValue::Replace(next_program)
     }
-}
 
-/* Selections are sorted with fields first, "conditionals"
- * (inline fragments & conditions) last. This means that all fields that are
- * guaranteed to be fetched are encountered prior to any duplicates that may be
- * fetched within a conditional.
- */
-fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
-    let mut result = Vec::with_capacity(selections.len());
-    unsafe { result.set_len(selections.len()) };
-    let mut non_field_index = selections
-        .iter()
-        .filter(|sel| is_selection_linked_or_scalar(sel))
-        .count();
-    let mut field_index = 0;
-    for sel in selections.iter() {
-        if is_selection_linked_or_scalar(sel) {
-            result[field_index] = sel;
-            field_index += 1;
-        } else {
-            result[non_field_index] = sel;
-            non_field_index += 1;
+    /* Selections are sorted with fields first, "conditionals"
+     * (inline fragments & conditions) last. This means that all fields that are
+     * guaranteed to be fetched are encountered prior to any duplicates that may be
+     * fetched within a conditional.
+     */
+    fn get_partitioned_selections<'a>(&self, selections: &'a [Selection]) -> Vec<&'a Selection> {
+        let mut result = Vec::with_capacity(selections.len());
+        let mut non_field_selections = Vec::new();
+        for sel in selections.iter() {
+            if self.is_selection_linked_or_scalar(sel) {
+                result.push(sel);
+            } else {
+                non_field_selections.push(sel);
+            }
         }
+        result.extend(non_field_selections);
+        result
     }
-    result
-}
 
-fn is_selection_linked_or_scalar(selection: &Selection) -> bool {
-    match selection {
-        Selection::LinkedField(field) => field
-            .directives
-            .named(DEFER_STREAM_CONSTANTS.stream_name)
-            .is_none(),
-        Selection::ScalarField(_) => true,
-        _ => false,
+    fn is_selection_linked_or_scalar(&self, selection: &Selection) -> bool {
+        match selection {
+            Selection::LinkedField(field) => field
+                .directives
+                .named(self.defer_stream_interface.stream_name)
+                .is_none(),
+            Selection::ScalarField(_) => true,
+            _ => false,
+        }
     }
 }
 

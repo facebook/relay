@@ -1,0 +1,47 @@
+//- PersonComponent.js
+graphql`fragment PersonComponentFragment on IPerson {
+  name
+}`
+
+//- UserTypeResolvers.js
+/**
+ * @RelayResolver User implements IPerson
+ */
+
+ /**
+  * @RelayResolver User.name: String
+  */
+
+//- AdminTypeResolvers.js
+/**
+ * @RelayResolver Admin implements IPerson
+ */
+
+ /**
+  * @RelayResolver Admin.name: String
+  */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "enable_resolver_normalization_ast": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  some_field: Boolean
+}
+
+//- schema-extensions/extension.graphql
+interface IPerson {
+  id: ID!
+  name: String
+}

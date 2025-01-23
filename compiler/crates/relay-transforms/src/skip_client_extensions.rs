@@ -52,7 +52,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
     }
 }
 
-impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
+impl<'s> Transformer<'_> for SkipClientExtensionsTransform<'s> {
     const NAME: &'static str = "SkipClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;
@@ -61,8 +61,7 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        let transformed = self.default_transform_operation(operation);
-        transformed
+        self.default_transform_operation(operation)
     }
 
     fn transform_fragment(

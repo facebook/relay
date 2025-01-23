@@ -35,8 +35,12 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
@@ -453,7 +457,6 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             user: {
               innerRenderer: {
                 __fragmentOwner: operation.request,
-                __isWithinUnmatchedTypeRefinement: false,
                 __fragmentPropName: 'name',
                 __fragments: {
                   RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name:

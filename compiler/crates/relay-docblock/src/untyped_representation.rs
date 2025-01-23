@@ -12,6 +12,7 @@ use std::hash::Hash;
 
 use common::Diagnostic;
 use common::WithLocation;
+use docblock_shared::ResolverSourceHash;
 use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockSection;
 use graphql_ir::reexport::StringKey;
@@ -28,10 +29,21 @@ use crate::ON_TYPE_FIELD;
 use crate::OUTPUT_TYPE_FIELD;
 use crate::RELAY_RESOLVER_FIELD;
 use crate::ROOT_FRAGMENT_FIELD;
+use crate::SEMANTIC_NON_NULL_FIELD;
 use crate::WEAK_FIELD;
 
 /// All fields which are allowed in RelayResolver docblocks.
-#[derive(Clone, Copy, Eq, Debug, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(
+    Clone,
+    Copy,
+    Eq,
+    Debug,
+    PartialEq,
+    Hash,
+    Ord,
+    PartialOrd,
+    serde::Serialize
+)]
 pub enum AllowedFieldName {
     RelayResolverField,
     FieldNameField,
@@ -43,6 +55,7 @@ pub enum AllowedFieldName {
     LiveField,
     OutputTypeField,
     WeakField,
+    SemanticNonNullField,
 }
 
 impl Display for AllowedFieldName {
@@ -58,6 +71,7 @@ impl Display for AllowedFieldName {
             AllowedFieldName::LiveField => write!(f, "{}", *LIVE_FIELD),
             AllowedFieldName::OutputTypeField => write!(f, "{}", *OUTPUT_TYPE_FIELD),
             AllowedFieldName::WeakField => write!(f, "{}", *WEAK_FIELD),
+            AllowedFieldName::SemanticNonNullField => write!(f, "{}", *SEMANTIC_NON_NULL_FIELD),
         }
     }
 }
@@ -75,6 +89,9 @@ impl TryFrom<WithLocation<StringKey>> for AllowedFieldName {
             value if value == *EDGE_TO_FIELD => Ok(AllowedFieldName::EdgeToField),
             value if value == *DEPRECATED_FIELD => Ok(AllowedFieldName::DeprecatedField),
             value if value == *LIVE_FIELD => Ok(AllowedFieldName::LiveField),
+            value if value == *SEMANTIC_NON_NULL_FIELD => {
+                Ok(AllowedFieldName::SemanticNonNullField)
+            }
             value if value == *OUTPUT_TYPE_FIELD => Ok(AllowedFieldName::OutputTypeField),
             value if value == *WEAK_FIELD => Ok(AllowedFieldName::WeakField),
             invalid_value => Err(Diagnostic::error(
@@ -94,13 +111,15 @@ impl TryFrom<WithLocation<StringKey>> for AllowedFieldName {
 pub(crate) struct UntypedDocblockRepresentation {
     pub(crate) description: Option<WithLocation<StringKey>>,
     pub(crate) fields: HashMap<AllowedFieldName, IrField>,
+    pub(crate) source_hash: ResolverSourceHash,
 }
 
 impl UntypedDocblockRepresentation {
-    fn new() -> Self {
+    fn new(source_hash: ResolverSourceHash) -> Self {
         Self {
             description: None,
             fields: HashMap::new(),
+            source_hash,
         }
     }
 }
@@ -108,7 +127,8 @@ impl UntypedDocblockRepresentation {
 pub(crate) fn parse_untyped_docblock_representation(
     ast: &DocblockAST,
 ) -> Result<UntypedDocblockRepresentation, Vec<Diagnostic>> {
-    let mut untyped_repr: UntypedDocblockRepresentation = UntypedDocblockRepresentation::new();
+    let mut untyped_repr: UntypedDocblockRepresentation =
+        UntypedDocblockRepresentation::new(ast.source_hash);
     let mut errors = vec![];
     for section in &ast.sections {
         match section {

@@ -1,0 +1,135 @@
+---
+title: Relay v15.0
+author: The Relay Team
+hide_table_of_contents: false
+---
+
+The Relay team is happy to announce the release of Relay v15. While this release is a major version bump and includes a couple of breaking changes, we expect that most users will be unaffected and will experience a seamless upgrade. You can find the full list of changes in the [v15 Release Notes](https://github.com/facebook/relay/releases/tag/v15.0.0).
+
+## What's new in Relay 15?
+
+### Support for `@refetchable` on interfaces
+
+Previously it wasn't possible to add the `@refetchable` directive on fragment definitions on server interface types.
+
+```
+// schema.graphql
+
+interface RefetchableInterfaceFoo @fetchable(field_name: "id") {
+    id: ID!
+}
+
+extend type Query {
+  fetch__RefetchableInterfaceFoo(id: ID!): RefetchableInterfaceFoo
+}
+
+// fragment
+
+fragment RefetchableFragmentFoo on RefetchableInterfaceFoo
+  @refetchable(queryName: "RefetchableFragmentFooQuery") {
+  id
+}
+```
+
+### Persisted query improvements
+
+If you use URL-based persisted queries, you can now specify custom headers to send with the request that persists the query. For example, this can be used to send auth headers to your query persistence URL endpoint.
+
+```js
+persistConfig: {
+  url: 'example.com/persist',
+  headers: {
+    Authorization: 'bearer TOKEN'
+  }
+}
+```
+
+For file-based persisted queries, we added a new feature flag, `compact_query_text`, that removes all whitespace from the persisted query text. This can make the file more than 60% smaller. This new feature flag can be enabled within your Relay config file.
+
+```js
+persistConfig: {
+  file: 'path/to/file.json',
+  algorithm: 'SHA256'
+},
+featureFlags: {
+  compact_query_text: true
+}
+```
+
+### Typesafe updates now support missing field handlers
+
+Typesafe updaters now support missing field handlers. Previously, if you selected `node(id: 4) { ... on User { name, __typename } }` in a typesafe updater, but that user was fetched in a different way (e.g. with `best_friend { name }`), you would not be able to access and mutate that user using the typesafe updater.
+
+In this release, we add support for missing field handlers in typesafe updaters, meaning that if a missing field handler is set up for node (as in [this example](https://relay.dev/docs/next/guided-tour/reusing-cached-data/filling-in-missing-data/#internaldocs-banner)), you will be able to update the user's name with this missing field handler.
+
+In order to support this, the signature of [missing field handlers](https://relay.dev/docs/guided-tour/reusing-cached-data/filling-in-missing-data) has been changed. The `record` argument to the handler used to recieve a `Record` type (which is an untyped grab-bag of data). It now receives a `ReadOnlyRecordProxy`. Furthermore, the field argument of type `NormalizationLinkedField` is now `CommonLinkedField`, which is a type containing the properties found in both `ReaderLinkedField` and `NormalizationLinkedField`.
+
+### Flow type improvements
+
+Flow users will now get types inferred from `graphql` literals with more Relay APIs. No longer do Flow users need to explicitly type the return value of the `usePreloadedQuery`, `useQueryLoader`, `useRefetchableFragment`, `usePaginationFragment`, and `useBlockingPaginationFragment` API methods.
+
+### Relay Resolver improvements
+
+A significant portion of our development effort since our last release has gone into improving [Relay Resolvers](https://relay.dev/api-reference/relay-resolvers/introduction/) (a mechanism for exposing derived data in the graph). It is worth noting that Relay Resolvers are still experimental and API changes might occur in the future.
+
+#### Terser docblock tags
+
+The annotation for Relay Resolver functions has been simplified. In many scenarios you can now use the `ParentType.field_name: ReturnType` syntax to define what new field your Relay Resolver exposes.
+
+Before:
+
+```js
+/**
+ * @RelayResolver
+ * @onType User
+ * @fieldName favorite_page
+ * @rootFragment myRootFragment
+ */
+```
+
+After:
+
+```js
+/**
+ * @RelayResolver User.favorite_page: Page
+ * @rootFragment myRootFragment
+ */
+```
+
+In the above example, the `Page` type is a schema type. If your Relay Resolver doesn't return a schema type, you can use fixed `RelayResolverValue` value as your return type
+
+```js
+/**
+ * @RelayResolver User.best_friend: RelayResolverValue
+ * @rootFragment myRootFragment
+ */
+```
+
+#### Define multiple resolvers per file
+
+Prior to this release we only allowed a single Relay Resolver per file and required the Relay Resolver function to be the default export. In Relay 15 you're now able to define multiple Relay Resolvers per file and use named exports.
+
+```js
+/**
+ * @RelayResolver User.favorite_page: Page
+ * @rootFragment favoritePageFragment
+ */
+function usersFavoritePage(){
+  ...
+}
+
+/**
+ * @RelayResolver User.best_friend: RelayResolverValue
+ * @rootFragment bestFriendFragment
+ */
+function usersBestFriend(){
+  ...
+}
+
+module.exports = {
+  usersFavoritePage,
+  usersBestFriend
+}
+```
+
+Happy Querying!

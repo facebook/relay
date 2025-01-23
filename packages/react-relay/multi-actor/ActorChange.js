@@ -32,7 +32,7 @@ type ActorChangeProps<TFragmentRef> = {
 
 function ActorChange<TFragmentRef>(
   props: ActorChangeProps<TFragmentRef>,
-): React.Element<typeof RelayEnvironmentProvider> {
+): React.MixedElement {
   const actorEnvironment = useRelayActorEnvironment(
     props.actorChangePoint.__viewer,
   );

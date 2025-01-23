@@ -1,0 +1,55 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type Cat from 'Cat.js';
+import type {CatIsHungryFragment$key} from 'CatIsHungryFragment.graphql';
+
+import {graphql} from 'relay-runtime';
+import {readFragment} from 'relay-runtime/store/ResolverFragments';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): Cat {
+  return {}
+}
+
+/**
+ * @RelayResolver
+ */
+export function picture(key: CatIsHungryFragment$key, args: {size: number}): ?string {
+  const cat = readFragment(graphql`
+    fragment CatIsHungryFragment on Cat @argumentDefinitions(
+      size: {type: "Int"},
+    ) {
+        picture_url(size: $size)
+    }
+  `, key);
+
+  return cat.picture_url;
+}
+==================================== OUTPUT ===================================
+
+
+✖︎ Unexpected conflicting argument name. This field argument
+
+  module.js:25:62
+   24 │  */
+   25 │ export function picture(key: CatIsHungryFragment$key, args: {size: number}): ?string {
+      │                                                              ^^^^
+   26 │   const cat = readFragment(graphql`
+
+  ℹ︎ conflicts with this fragment argument
+
+  module.js:28:7
+   27 │     fragment CatIsHungryFragment on Cat @argumentDefinitions(
+   28 │       size: {type: "Int"},
+      │       ^^^^
+   29 │     ) {

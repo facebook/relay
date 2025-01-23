@@ -18,11 +18,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @onType Todo
+ * @RelayResolver Todo.text: TodoText
  * @rootFragment TodoTextResolverFragment
- * @fieldName text
- * @outputType TodoText
  */
 function text(rootKey: TodoTextResolverFragment$key): ?ReturnType {
   const data = readFragment(

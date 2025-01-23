@@ -37,18 +37,6 @@ fragment AgeFragment on User {
  `.trim();
 
 export const FEATURE_FLAGS = [
-  {
-    key: 'enable_flight_transform',
-    label: 'Flight Transforms',
-    kind: 'bool',
-    default: true,
-  },
-  {
-    key: 'hash_supported_argument',
-    label: 'Hash Supported Argument',
-    kind: 'enum',
-    default: true,
-  },
   {key: 'no_inline', label: '@no_inline', kind: 'enum', default: true},
   {
     key: 'enable_3d_branch_arg_generation',
@@ -69,8 +57,20 @@ export const FEATURE_FLAGS = [
     default: true,
   },
   {
-    key: 'enable_client_edges',
-    label: 'Client Edges',
+    key: 'skip_printing_nulls',
+    label: 'Skip Printing Nulls',
+    kind: 'enum',
+    default: false,
+  },
+  {
+    key: 'compact_query_text',
+    label: 'Compact Query Text',
+    kind: 'enum',
+    default: false,
+  },
+  {
+    key: 'enforce_fragment_alias_where_ambiguous',
+    label: 'Enforce @alias where ambiguous',
     kind: 'enum',
     default: true,
   },
@@ -79,6 +79,7 @@ export const FEATURE_FLAGS = [
 export const DEFAULT_STATE = {
   schemaText: DEFAULT_SCHEMA,
   documentText: DEFAULT_DOCUMENT,
+  inputWindow: 'schema',
   outputType: 'operation',
   featureFlags: Object.fromEntries(FEATURE_FLAGS.map(f => [f.key, f.default])),
   language: 'typescript',

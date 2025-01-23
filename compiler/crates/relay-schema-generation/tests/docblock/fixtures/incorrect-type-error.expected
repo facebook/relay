@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+//- module.js
+
+import type CatFlowType from "Cat";
+
+/**
+ * @RelayResolver
+ */
+export const MyResolver = string;
+==================================== OUTPUT ===================================
+
+
+✖︎ @RelayResolver annotation is expected to be on a named function or type alias
+
+  module.js:15:1
+   13 │  * @RelayResolver
+   14 │  */
+   15 │ export const MyResolver = string;
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

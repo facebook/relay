@@ -11,7 +11,7 @@ query EnabledUserQuery {
   multiple-required-fields.invalid.graphql:3:30
     2 │ query EnabledUserQuery {
     3 │   me @required(action: NONE) @required(action: NONE) {
-      │                              ^^^^^^^^^
+      │                              ^^^^^^^^^^^^^^^^^^^^^^^
     4 │     id
 
   ℹ︎ previously used here
@@ -19,5 +19,5 @@ query EnabledUserQuery {
   multiple-required-fields.invalid.graphql:3:6
     2 │ query EnabledUserQuery {
     3 │   me @required(action: NONE) @required(action: NONE) {
-      │      ^^^^^^^^^
+      │      ^^^^^^^^^^^^^^^^^^^^^^^
     4 │     id

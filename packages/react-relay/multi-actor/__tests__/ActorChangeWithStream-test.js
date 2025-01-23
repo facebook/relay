@@ -37,7 +37,12 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -141,14 +146,14 @@ describe('ActorChange with @stream', () => {
       createNetworkForActor: actorIdentifier =>
         Network.create((...args) => fetchFnForActor(...args)),
       logFn: jest.fn(),
-      requiredFieldLogger: jest.fn(),
+      relayFieldLogger: jest.fn(),
     });
     environment = multiActorEnvironment.forActor(
       getActorIdentifier('actor:1234'),
     );
   });
 
-  it('should render a fragment for actor', () => {
+  test('should render a fragment for actor', () => {
     fetchFnForActor = (
       ...args: Array<?(
         | LogRequestInfoFunction
@@ -164,13 +169,16 @@ describe('ActorChange with @stream', () => {
       });
     };
 
-    const testRenderer = ReactTestRenderer.create(
-      <ComponentWrapper
-        environment={environment}
-        multiActorEnvironment={multiActorEnvironment}>
-        <MainComponent />
-      </ComponentWrapper>,
-    );
+    let testRenderer;
+    ReactTestRenderer.act(() => {
+      testRenderer = ReactTestRenderer.create(
+        <ComponentWrapper
+          environment={environment}
+          multiActorEnvironment={multiActorEnvironment}>
+          <MainComponent />
+        </ComponentWrapper>,
+      );
+    });
 
     dataSource.next({
       data: {
@@ -222,11 +230,11 @@ describe('ActorChange with @stream', () => {
         },
       },
     });
-    expect(testRenderer.toJSON()).toEqual('Loading...');
+    expect(testRenderer?.toJSON()).toEqual('Loading...');
 
     ReactTestRenderer.act(jest.runAllImmediates);
 
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester.',
     );
 
@@ -250,7 +258,7 @@ describe('ActorChange with @stream', () => {
         ],
       });
     });
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'Julianne should join Antonio in the first list.',
     );
 
@@ -274,7 +282,7 @@ describe('ActorChange with @stream', () => {
         ],
       });
     });
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'Finally, Anatoli is joining the second scene.',
     );
   });

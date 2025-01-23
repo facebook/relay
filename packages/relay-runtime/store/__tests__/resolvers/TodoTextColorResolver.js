@@ -17,10 +17,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @onType TodoTextColor
+ * @RelayResolver TodoTextColor.human_readable_color: String
  * @rootFragment TodoTextColorResolverFragment
- * @fieldName human_readable_color
  */
 function human_readable_color(
   rootKey: TodoTextColorResolverFragment$key,

@@ -51,7 +51,7 @@ impl Validator for ValidateGlobalVariables<'_> {
         }
         let (variables, _) = self.visitor.infer_operation_variables(operation);
 
-        let undefined_variables: Vec<_> = variables
+        let mut undefined_variables: Vec<_> = variables
             .values()
             .filter(|var| {
                 !(operation
@@ -60,7 +60,7 @@ impl Validator for ValidateGlobalVariables<'_> {
                     .any(|def| def.name.item == var.name.item))
             })
             .collect();
-
+        undefined_variables.sort_by(|a, b| a.name.cmp(&b.name));
         if !undefined_variables.is_empty() {
             let is_plural = undefined_variables.len() > 1;
             let mut locations = undefined_variables

@@ -1,0 +1,89 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+query nestedFragmentSpreadOnAbstractTypeQuery {
+    cat {
+        ... on Tabby {
+            parent {
+                ...nestedFragmentSpreadOnAbstractTypeFragment
+            }
+        }
+        description
+    }
+}
+
+fragment nestedFragmentSpreadOnAbstractTypeFragment on Cat {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    parent: Cat
+}
+
+type Persian implements Cat {
+    description: String
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== OUTPUT ===================================
+fragment nestedFragmentSpreadOnAbstractTypeFragment on Cat {
+  ... on Tabby {
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(527),
+    #     import_path: "TabbyResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    # }
+    
+  }
+  ... on Persian {
+    description
+  }
+}
+
+query nestedFragmentSpreadOnAbstractTypeQuery {
+  cat {
+    ... on Tabby {
+      parent {
+        ...nestedFragmentSpreadOnAbstractTypeFragment
+      }
+    }
+    ... on Tabby {
+      __id @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(527),
+      #     import_path: "TabbyResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "cat.description",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: Legacy,
+      #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
+      # }
+      
+    }
+    ... on Persian {
+      description
+    }
+  }
+}

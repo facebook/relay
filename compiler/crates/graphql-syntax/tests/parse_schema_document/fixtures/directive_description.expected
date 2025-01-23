@@ -31,6 +31,8 @@ SchemaDocument {
                         value: "My Directive",
                     },
                 ),
+                hack_source: None,
+                span: 21:54,
             },
         ),
     ],

@@ -28,6 +28,7 @@ const {
   FIXTURE_TAG,
   generateTestsFromFixtures,
 } = require('./generateTestsFromFixtures');
+const injectPromisePolyfill__DEPRECATED = require('./injectPromisePolyfill__DEPRECATED');
 const Matchers = require('./Matchers');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
@@ -48,11 +49,20 @@ const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
 function cannotReadPropertyOfUndefined__DEPRECATED(
   propertyName: string,
 ): string {
-  if (process.version.match(/^v16\.(.+)$/)) {
-    return `Cannot read properties of undefined (reading '${propertyName}')`;
-  } else {
+  const matches = process.version.match(/^v(\d+)\./);
+  const majorVersion = matches == null ? null : parseInt(matches[1], 10);
+  if (majorVersion == null || majorVersion < 16) {
     return `Cannot read property '${propertyName}' of undefined`;
   }
+  return `Cannot read properties of undefined (reading '${propertyName}')`;
+}
+
+function skipIf(condition: string | void, ...args: Array<any>) {
+  const testName = args.length > 0 ? args[0] : 'N/A';
+  console.warn(
+    `The test "${testName}" is being skipped in open source. TODO: T192916613`,
+  );
+  condition === 'true' ? test.skip(...args) : test(...args);
 }
 
 /**
@@ -68,17 +78,19 @@ module.exports = {
   expectConsoleError,
   expectConsoleErrorsMany,
   expectConsoleErrorWillFire,
-  expectConsoleWarningWillFire,
   expectConsoleWarning,
   expectConsoleWarningsMany,
+  expectConsoleWarningWillFire,
   expectToWarn,
   expectToWarnMany,
   expectWarningWillFire,
   FIXTURE_TAG,
   generateTestsFromFixtures,
+  injectPromisePolyfill__DEPRECATED,
   matchers: Matchers,
   printAST,
   simpleClone,
+  skipIf,
   trackRetentionForEnvironment,
   unwrapContainer,
 };

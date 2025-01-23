@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<859dd5aabd816b54e16e217f0b1004c3>>
+ * @generated SignedSource<<6713b0a8e08ed95789878b165ffac985>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,20 +33,18 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFra
   response: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$data,
   variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables,
 |};
-type ProvidedVariablesType = {|
+({
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
+  "__relay_internal__pv__RelayProvider_pictureScalerelayprovider": require('./../RelayProvider_pictureScale.relayprovider')
+}: {|
   +__relay_internal__pv__RelayProvider_pictureScalerelayprovider: {|
     +get: () => number,
   |},
   +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
-|};
+|});
 */
-
-var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
-  "__relay_internal__pv__RelayProvider_pictureScalerelayprovider": require('./../RelayProvider_pictureScale.relayprovider')
-};
 
 var node/*: ConcreteRequest*/ = (function(){
 var v0 = {
@@ -229,7 +227,10 @@ return {
     "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery",
     "operationKind": "query",
     "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n  $__relay_internal__pv__RelayProvider_pictureScalerelayprovider: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  profilePicture {\n    uri\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  alternate_name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 on User {\n  profile_picture(scale: $__relay_internal__pv__RelayProvider_pictureScalerelayprovider) {\n    uri\n  }\n}\n",
-    "providedVariables": providedVariablesDefinition
+    "providedVariables": {
+      "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
+      "__relay_internal__pv__RelayProvider_pictureScalerelayprovider": require('./../RelayProvider_pictureScale.relayprovider')
+    }
   }
 };
 })();

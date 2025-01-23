@@ -1,7 +1,7 @@
 {
   "name": "relay-runtime",
   "description": "A core runtime for building GraphQL-driven applications.",
-  "version": "15.0.0",
+  "version": "18.2.0",
   "keywords": [
     "graphql",
     "relay"
@@ -15,7 +15,7 @@
     "directory": "packages/relay-runtime"
   },
   "dependencies": {
-    "@babel/runtime": "^7.0.0",
+    "@babel/runtime": "^7.25.0",
     "fbjs": "^3.0.2",
     "invariant": "^2.2.4"
   },

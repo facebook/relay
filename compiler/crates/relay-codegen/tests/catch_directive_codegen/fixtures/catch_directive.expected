@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+fragment MyFragment on Node {
+  id
+  name @catch(to: RESULT)
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "CatchField",
+      "field": {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "name",
+        "storageKey": null
+      },
+      "to": "RESULT"
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

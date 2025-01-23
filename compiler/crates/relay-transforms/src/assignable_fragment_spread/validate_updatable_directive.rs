@@ -304,7 +304,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
                     disallowed_directive_name: directive.name.item.0,
                     outer_type_plural: self.executable_definition_info.unwrap().type_plural,
                 },
-                directive.name.location,
+                directive.location,
             )])
         } else {
             Ok(())
@@ -320,7 +320,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         {
             return Err(vec![
                 Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRealyResolvers,
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
                     field.definition.location,
                 )
                 .annotate("The field is defined here:", field_def.name.location),
@@ -341,7 +341,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         {
             return Err(vec![
                 Diagnostic::error(
-                    ValidationMessage::UpdatableDisallowRealyResolvers,
+                    ValidationMessage::UpdatableDisallowRelayResolvers,
                     linked_field.definition.location,
                 )
                 .annotate("The field is defined here:", field_def.name.location),

@@ -1,0 +1,159 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type Cat from 'Cat.js';
+import type {CatIsHungryFragment$key} from 'CatIsHungryFragment.graphql';
+
+import {graphql} from 'relay-runtime';
+import {readFragment} from 'relay-runtime/store/ResolverFragments';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): Cat {
+  return {}
+}
+
+/**
+ * @RelayResolver
+ */
+export function picture(key: CatIsHungryFragment$key): ?string {
+  const cat = readFragment(graphql`
+    fragment CatIsHungryFragment on Cat @argumentDefinitions(
+      size: {type: "Int"},
+    ) {
+        picture_url(size: $size)
+    }
+  `, key);
+
+  return cat.picture_url;
+}
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 529:536,
+                    token: Token {
+                        span: 529:536,
+                        kind: Identifier,
+                    },
+                    value: "picture",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 569:575,
+                            token: Token {
+                                span: 569:575,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 529:536,
+            },
+            type_: WithLocation {
+                location: module.js:34:40,
+                item: "Cat",
+            },
+            root_fragment: Some(
+                WithLocation {
+                    location: module.js:14:33,
+                    item: FragmentDefinitionName(
+                        "CatIsHungryFragment",
+                    ),
+                },
+            ),
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: module.js:529:536,
+            fragment_arguments: Some(
+                [
+                    Argument {
+                        name: Identifier {
+                            span: 69:73,
+                            token: Token {
+                                span: 69:73,
+                                kind: Identifier,
+                            },
+                            value: "size",
+                        },
+                        type_: Named(
+                            NamedTypeAnnotation {
+                                name: Identifier {
+                                    span: 0:3,
+                                    token: Token {
+                                        span: 0:3,
+                                        kind: Identifier,
+                                    },
+                                    value: "Int",
+                                },
+                            },
+                        ),
+                        default_value: None,
+                    },
+                ],
+            ),
+            source_hash: ResolverSourceHash(
+                "d534da5736dd3e656f91a8593a50b413",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Cat {
+  picture(size: Int): String @relay_resolver(type_confirmed: true, fragment_name: "CatIsHungryFragment", has_output_type: true, import_name: "picture", import_path: "module.js") @resolver_source_hash(value: "d534da5736dd3e656f91a8593a50b413")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 449:452,
+                token: Token {
+                    span: 449:452,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:449:452,
+            root_fragment: WithLocation {
+                location: module.js:449:452,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: module.js:449:452,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "d534da5736dd3e656f91a8593a50b413",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "d534da5736dd3e656f91a8593a50b413") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

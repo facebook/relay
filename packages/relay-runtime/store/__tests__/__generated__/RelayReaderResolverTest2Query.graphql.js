@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f5680fcca557c895ee9b1615240afd90>>
+ * @generated SignedSource<<ee4067ace6bb0997f24ff742e76796eb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserConstantDependentResolver$key } from "./../resolvers/__generated__/UserConstantDependentResolver.graphql";
 import {constant_dependent as userConstantDependentResolverType} from "../resolvers/UserConstantDependentResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userConstantDependentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userConstantDependentResolverType: (
   rootKey: UserConstantDependentResolver$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?number);
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|
   +me: ?{|
-    +constant_dependent: ?$Call<<R>((...empty[]) => R) => R, typeof userConstantDependentResolverType>,
+    +constant_dependent: ?number,
   |},
 |};
 export type RelayReaderResolverTest2Query = {|
@@ -111,7 +114,7 @@ var node/*: ConcreteRequest*/ = {
                   },
                   "kind": "RelayResolver",
                   "storageKey": null,
-                  "isOutputType": false
+                  "isOutputType": true
                 }
               ],
               "type": "User",
@@ -119,7 +122,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           {
             "alias": null,

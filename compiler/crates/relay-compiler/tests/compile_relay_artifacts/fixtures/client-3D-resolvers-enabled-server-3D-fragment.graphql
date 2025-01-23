@@ -1,0 +1,39 @@
+query client3DResolversEnabledServer3DFragment_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...client3DResolversEnabledServer3DFragment_NameRendererFragment
+  }
+}
+
+fragment client3DResolversEnabledServer3DFragment_NameRendererFragment on User {
+  id
+  nameRenderer @match {
+    ...client3DResolversEnabledServer3DFragment_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...client3DResolversEnabledServer3DFragment_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment client3DResolversEnabledServer3DFragment_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment client3DResolversEnabledServer3DFragment_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+%project_config%
+{
+  "moduleImportConfig": {
+    "dynamicModuleProvider": {
+      "mode": "JSResource"
+    },
+    "surface": "resolvers"
+  },
+  "language": "flow"
+}

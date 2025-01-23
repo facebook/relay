@@ -11,16 +11,14 @@
 
 'use strict';
 
+import type {LiveState} from 'relay-runtime';
+
 /**
- * @RelayResolver
- * @fieldName live_resolver_throws
- * @onType Query
+ * @RelayResolver Query.live_resolver_throws: RelayResolverValue
  * @live
  *
  * A @live resolver that throws
  */
-import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
-
 function live_resolver_throws(): LiveState<null> {
   throw new Error('What?');
 }

@@ -60,10 +60,10 @@ struct AssignableFragmentSpread<'s> {
 
 impl<'s> AssignableFragmentSpread<'s> {
     /// 1. Validate that the assignable fragment does not have @skip/@defer, and
-    /// is not within an inline fragment with directives, and is nested in a linked field
+    ///    is not within an inline fragment with directives, and is nested in a linked field
     /// 2. Mark the enclosing linked field as containing an assignable fragment spread.
-    /// This later results in an __id (clientid_field) selection being added to the linked
-    /// field.
+    ///    This later results in an __id (clientid_field) selection being added to the linked
+    ///    field.
     fn validate_nesting_and_mark_enclosing_linked_field(
         &mut self,
         fragment_spread: &FragmentSpread,
@@ -137,7 +137,7 @@ enum ValidGeneratedFlowType {
     Any,
 }
 
-impl<'s> Transformer for AssignableFragmentSpread<'s> {
+impl<'s> Transformer<'_> for AssignableFragmentSpread<'s> {
     const NAME: &'static str = "AssignableFragmentTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -214,7 +214,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                 ValidationMessage::AssignableFragmentSpreadNoOtherDirectives {
                     disallowed_directive_name: directive.name.item.0,
                 },
-                directive.name.location,
+                directive.location,
             ));
         }
 
@@ -287,7 +287,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                 linked_field,
                 "an assignable fragment was spread in this linked field",
             ) {
-                self.errors.extend(e.into_iter());
+                self.errors.extend(e);
             }
         }
 

@@ -1,0 +1,150 @@
+==================================== INPUT ====================================
+# enable_resolver_normalization_ast
+
+query relayResolverWeakObjectNormalizationAstQuery {
+  client_type {
+    __typename
+  }
+}
+
+# %extensions%
+
+scalar MyClientTypeModel @__RelayCustomScalar(path: "/path/to/test/fixture/weak-type.js", export_name: "MyClientType")
+
+type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: MyClientTypeModel
+}
+
+extend type Query {
+  client_type: MyClientType @relay_resolver(
+      import_path: "./path/to/ClientTypeResolver.js"
+      has_output_type: true
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": {
+      "hasClientEdges": true
+    },
+    "name": "relayResolverWeakObjectNormalizationAstQuery",
+    "selections": [
+      {
+        "kind": "ClientEdgeToClientObject",
+        "concreteType": "MyClientType",
+        "modelResolvers": null,
+        "backingField": {
+          "alias": null,
+          "args": null,
+          "fragment": null,
+          "kind": "RelayResolver",
+          "name": "client_type",
+          "resolverModule": require('ClientTypeResolver'),
+          "path": "client_type",
+          "normalizationInfo": {
+            "kind": "WeakModel",
+            "concreteType": "MyClientType",
+            "plural": false
+          }
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "MyClientType",
+          "kind": "LinkedField",
+          "name": "client_type",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverWeakObjectNormalizationAstQuery",
+    "selections": [
+      {
+        "kind": "ClientEdgeToClientObject",
+        "backingField": {
+          "name": "client_type",
+          "args": null,
+          "kind": "RelayResolver",
+          "storageKey": null,
+          "isOutputType": true,
+          "resolverInfo": {
+            "resolverFunction": require('ClientTypeResolver'),
+            "rootFragment": null
+          }
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "MyClientType",
+          "kind": "LinkedField",
+          "name": "client_type",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "3cf6ca9eab3b4f1d050739c83709c404",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverWeakObjectNormalizationAstQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyClientType____relay_model_instance",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "__relay_model_instance",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "MyClientType",
+  "abstractKey": null
+}

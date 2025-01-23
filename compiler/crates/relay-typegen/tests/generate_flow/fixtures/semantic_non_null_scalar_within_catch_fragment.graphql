@@ -1,0 +1,9 @@
+fragment MyFragment on ClientUser @catch {
+  name
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}

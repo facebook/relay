@@ -13,6 +13,7 @@
 
 import type {MultiActorStoreUpdater} from '../MultiActorEnvironmentTypes';
 
+const RelayModernRecord = require('../../store/RelayModernRecord');
 const {getActorIdentifier} = require('../ActorIdentifier');
 const MultiActorEnvironment = require('../MultiActorEnvironment');
 
@@ -47,7 +48,7 @@ describe('commitMultiActorUpdate', () => {
         throw new Error('Test record is null.');
       }
       expect(testRecord).toHaveProperty('test');
-      expect(testRecord.test).toBe(42);
+      expect(RelayModernRecord.getValue(testRecord, 'test')).toBe(42);
     });
 
     expect(actorsCalled.includes('actor1')).toBe(true);

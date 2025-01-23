@@ -18,7 +18,7 @@ const Users = () => {
   const {siteConfig} = useDocusaurusContext();
   const showcase = siteConfig.customFields.users.map(user => {
     return (
-      <a href={user.infoLink} key={user.caption}>
+      <a href={user.infoLink} key={user.caption} rel="nofollow">
         <img src={useBaseUrl(user.image)} title={user.caption} />
       </a>
     );
@@ -33,10 +33,6 @@ const Users = () => {
             <p>Relay is used by many folks</p>
           </div>
           <div className="logos">{showcase}</div>
-          <p>Are you using this project?</p>
-          <a href="https://github.com/facebook/relay/edit/main/website/docusaurus.config.js">
-            Add your project
-          </a>
         </div>
       </Container>
     </div>

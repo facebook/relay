@@ -68,11 +68,12 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   enabling this the babel plugin needs `artifactDirectory` to be set as well.
   [string]
 - `excludes` Directories to ignore under `src`. [array] [default:
-  ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]]
-- `schemaExtensions` List of directories with schema extensions. [array]
+  ["\*\*/node_modules/\*\*", "\*\*/__mocks__/\*\*", "\*\*/__generated__/\*\*"]]
+- `schemaExtensions` List of files or directories with schema extensions. [array]
 - `schemaConfig`
   - `nodeInterfaceIdField` Configure the name of the globally unique ID field on
     the Node interface. Useful if you can't use the default `id` field name.
+  - `nodeInterfaceIdVariableName` Specifies the name of the variable expected by the `node` query to pass the Node id.
     [string][default: "id"]
   - `nonNodeIdFields` Restricts the type of all fields named `id` to `ID`.
     - `allowedIdTypes` Mappings from types in your schema to allowed types
@@ -82,8 +83,8 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   the future. Enabling this means you will have to update your application
   whenever the GraphQL server schema adds new enum values to prevent it from
   breaking. [boolean][default: false]
-- `customScalars` Mappings from custom scalars in your schema to built-in
-  GraphQL types, for type emission purposes. [object]
+- `customScalarTypes` Mappings from custom scalars in your schema to built-in
+  GraphQL types, for type emission purposes (eg. {"GqlScalar": "TStype"}). [object]
 - `eagerEsModules` This option enables emitting ES modules artifacts.
   [boolean][default: false]
 - `persistConfig` Relay supports two versions of the config:
@@ -95,11 +96,14 @@ file sources, and "listen" to the file changes in the "watch" mode. If
     contain additional parameters to send. [object]
   - `concurrency` The maximum number concurrent requests that will be made to
     `url`. Use a value greater than 0. [number]
-
+  - `include_query_text` Boolean, whether to include the query text in the
+    generated files. [boolean] [default: false]
 - - **Local Persisting:**
   - `file` Path for the JSON file that will contain operations map. Compiler
     will write queries in the format: { "md5(queryText) => "queryText", ...}.
     [string]
+  - `include_query_text` Boolean, whether to include the query text in the
+    generated files. [boolean] [default: false]
 
 - `codegenCommand` Command name that for relay compiler. [string]
 

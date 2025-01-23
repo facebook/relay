@@ -11,7 +11,6 @@
 'use strict';
 
 const {getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -269,7 +268,6 @@ describe('RelayReader', () => {
           {},
       },
       __fragmentOwner: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(data.__fragmentOwner).toBe(owner.request);
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
@@ -316,7 +314,6 @@ describe('RelayReader', () => {
           },
       },
       __fragmentOwner: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
@@ -360,7 +357,6 @@ describe('RelayReader', () => {
           },
       },
       __fragmentOwner: owner.request,
-      __isWithinUnmatchedTypeRefinement: false,
     });
     expect(Array.from(seenRecords.values()).sort()).toEqual(['1']);
   });
@@ -410,6 +406,13 @@ describe('RelayReader', () => {
   });
 
   it('reads data when the root is deleted', () => {
+    const UserQuery = graphql`
+      query RelayReaderTestReadsDataWhenTheRootIsDeletedQuery {
+        me {
+          ...RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile
+        }
+      }
+    `;
     const UserProfile = graphql`
       fragment RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile on User {
         name
@@ -417,24 +420,33 @@ describe('RelayReader', () => {
     `;
     source = RelayRecordSource.create();
     source.delete('4');
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserProfile, '4', {}),
+      createReaderSelector(UserProfile, '4', {}, owner.request),
     );
     expect(data).toBe(null);
     expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
   });
 
   it('reads data when the root is unfetched', () => {
+    const UserQuery = graphql`
+      query RelayReaderTestReadsDataWhenTheRootIsUnfetchedQuery {
+        me {
+          ...RelayReaderTestReadsDataWhenTheRootIsDeletedUserProfile
+        }
+      }
+    `;
     const UserProfile = graphql`
       fragment RelayReaderTestReadsDataWhenTheRootIsUnfetchedUserProfile on User {
         name
       }
     `;
     source = RelayRecordSource.create();
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserProfile, '4', {}),
+      createReaderSelector(UserProfile, '4', {}, owner.request),
     );
     expect(data).toBe(undefined);
     expect(Array.from(seenRecords.values()).sort()).toEqual(['4']);
@@ -492,9 +504,15 @@ describe('RelayReader', () => {
         }
       }
     `;
+    const owner = createOperationDescriptor(UserFriends, {id: '1'});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserFriends.fragment, ROOT_ID, {id: '1'}),
+      createReaderSelector(
+        UserFriends.fragment,
+        ROOT_ID,
+        {id: '1'},
+        owner.request,
+      ),
     );
     expect(data).toEqual({
       node: {
@@ -548,6 +566,13 @@ describe('RelayReader', () => {
       },
     };
     source = RelayRecordSource.create(records);
+    const UserQuery = graphql`
+      query RelayReaderTestReadsHandleFieldsForFragmentsUserFriendsQuery {
+        me {
+          ...RelayReaderTestReadsHandleFieldsForFragmentsUserFriends
+        }
+      }
+    `;
     const UserFriends = graphql`
       fragment RelayReaderTestReadsHandleFieldsForFragmentsUserFriends on User {
         friends(first: 1) @__clientField(handle: "bestFriends") {
@@ -561,9 +586,10 @@ describe('RelayReader', () => {
         }
       }
     `;
+    const owner = createOperationDescriptor(UserQuery, {});
     const {data, seenRecords} = read(
       source,
-      createReaderSelector(UserFriends, '1', {}),
+      createReaderSelector(UserFriends, '1', {}, owner.request),
     );
     expect(data).toEqual({
       friends: {
@@ -631,22 +657,19 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'PlainUserNameRenderer',
-            __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-              'PlainUserNameRenderer.react',
-            __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-              'RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql',
-            plaintext: 'plain name',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'PlainUserNameRenderer',
+          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'PlainUserNameRenderer.react',
+          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql',
+          plaintext: 'plain name',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -662,20 +685,19 @@ describe('RelayReader', () => {
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
-          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __fragments: {
             RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name:
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
       });
       expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
       ]);
       expect(isMissingData).toBe(false);
     });
@@ -687,22 +709,19 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'MarkdownUserNameRenderer',
-            __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-              'MarkdownUserNameRenderer.react',
-            __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-              'RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'MarkdownUserNameRenderer',
+          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'MarkdownUserNameRenderer.react',
+          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+            'RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql',
+          markdown: 'markdown payload',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -718,20 +737,19 @@ describe('RelayReader', () => {
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
-          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
           __fragments: {
             RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name:
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       });
       expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
       ]);
       expect(isMissingData).toBe(false);
     });
@@ -742,18 +760,15 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            {
-              __ref:
-                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-          {
-            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-            __typename: 'CustomNameRenderer',
-            customField: 'custom value',
+          'nameRenderer(supported:"34hjiS")': {
+            __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
+        },
+        'client:1:nameRenderer(supported:"34hjiS")': {
+          __id: 'client:1:nameRenderer(supported:"34hjiS")',
+          __typename: 'CustomNameRenderer',
+          customField: 'custom value',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -761,9 +776,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
+      const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -771,7 +787,7 @@ describe('RelayReader', () => {
       });
       expect(Array.from(seenRecords.values()).sort()).toEqual([
         '1',
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+        'client:1:nameRenderer(supported:"34hjiS")',
       ]);
       expect(isMissingData).toBe(false);
     });
@@ -782,8 +798,7 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
-            null,
+          'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
           __id: 'client:root',
@@ -792,9 +807,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
+      const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -818,9 +834,10 @@ describe('RelayReader', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
+      const owner = createOperationDescriptor(BarQuery, {});
       const {data, seenRecords, isMissingData} = read(
         source,
-        createReaderSelector(BarFragment, '1', {}),
+        createReaderSelector(BarFragment, '1', {}, owner.request),
       );
       expect(data).toEqual({
         id: '1',
@@ -911,7 +928,6 @@ describe('RelayReader', () => {
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'PlainUserNameRenderer.react',
         },
@@ -964,7 +980,6 @@ describe('RelayReader', () => {
               {},
           },
           __fragmentOwner: owner.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
@@ -1109,9 +1124,17 @@ describe('RelayReader', () => {
             }
           }
         `;
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddressQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingAddress
+            }
+          }
+        `;
+        const owner = createOperationDescriptor(UserQuery);
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(Address, '1', {}),
+          createReaderSelector(Address, '1', {}, owner.request),
         );
         expect(data.id).toBe('1');
         expect(data.address).not.toBeDefined();
@@ -1127,11 +1150,24 @@ describe('RelayReader', () => {
             }
           }
         `;
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingVariablesProfilePictureQuery {
+            me {
+              id # Note that this does not include the fragment so the variable data should be missing
+            }
+          }
+        `;
+        const owner = createOperationDescriptor(UserQuery);
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(ProfilePicture, '1', {
-            size: 48,
-          }),
+          createReaderSelector(
+            ProfilePicture,
+            '1',
+            {
+              size: 48,
+            },
+            owner.request,
+          ),
         );
         expect(data.id).toBe('1');
         expect(data.profilePicture).not.toBeDefined();
@@ -1210,6 +1246,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = false` if data is available', () => {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriendsQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends
+            }
+          }
+        `;
+
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends on User {
             id
@@ -1223,9 +1267,12 @@ describe('RelayReader', () => {
             }
           }
         `;
+
+        const owner = createOperationDescriptor(UserQuery, {});
+
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserFriends, '1', {}),
+          createReaderSelector(UserFriends, '1', {}, owner.request),
         );
         expect(data.friends.edges).toEqual([
           {
@@ -1246,6 +1293,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing in the node', () => {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriendsQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends
+            }
+          }
+        `;
+
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends on User {
             id
@@ -1260,9 +1315,11 @@ describe('RelayReader', () => {
             }
           }
         `;
+
+        const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserFriends, '1', {}),
+          createReaderSelector(UserFriends, '1', {}, owner.request),
         );
         expect(data.friends.edges).toEqual([
           {
@@ -1283,6 +1340,14 @@ describe('RelayReader', () => {
       });
 
       it('should have `isMissingData = true` if data is missing for connection', () => {
+        const UserQuery = graphql`
+          query RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriendsQuery {
+            me {
+              ...RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriends
+            }
+          }
+        `;
+
         const UserFriends = graphql`
           fragment RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingForConnectionUserFriends on User {
             id
@@ -1296,9 +1361,11 @@ describe('RelayReader', () => {
             }
           }
         `;
+
+        const owner = createOperationDescriptor(UserQuery, {});
         const {data, isMissingData} = read(
           source,
-          createReaderSelector(UserFriends, '2', {}),
+          createReaderSelector(UserFriends, '2', {}, owner.request),
         );
         expect(data.id).toBe('2');
         expect(data.friends.edges).not.toBeDefined();
@@ -1756,236 +1823,6 @@ describe('RelayReader', () => {
     ]);
   });
 
-  describe('feature ENABLE_REACT_FLIGHT_COMPONENT_FIELD', () => {
-    let FlightQuery;
-
-    beforeEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
-
-      FlightQuery = graphql`
-        query RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery(
-          $id: ID!
-          $count: Int!
-        ) {
-          node(id: $id) {
-            ... on Story {
-              flightComponent(condition: true, count: $count, id: $id)
-            }
-          }
-        }
-      `;
-    });
-    afterEach(() => {
-      RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = false;
-    });
-
-    it('should read data correctly when the ReactFlightClientResponse is valid and present in the store ', () => {
-      const records = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-          {
-            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            __typename: 'ReactFlightComponent',
-            executableDefinitions: [
-              {
-                module: {__dr: 'RelayFlightExampleQuery.graphql'},
-                variables: {
-                  id: '2',
-                },
-              },
-            ],
-            tree: {
-              readRoot() {
-                return {
-                  $$typeof: Symbol.for('react.element'),
-                  type: 'div',
-                  key: null,
-                  ref: null,
-                  props: {foo: 1},
-                };
-              },
-            },
-          },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const operation = createOperationDescriptor(FlightQuery, {
-        count: 10,
-        id: '1',
-      });
-      source = RelayRecordSource.create(records);
-      const {data, isMissingData, seenRecords} = read(
-        source,
-        operation.fragment,
-      );
-      expect(isMissingData).toBe(false);
-      expect(data).toMatchInlineSnapshot(`
-        Object {
-          "node": Object {
-            "flightComponent": Object {
-              "readRoot": [Function],
-            },
-          },
-        }
-      `);
-      expect(Array.from(seenRecords.values()).sort()).toEqual([
-        '1',
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-        'client:root',
-      ]);
-    });
-
-    it('should read data correctly when ReactFlightClientResponse is null in the store', () => {
-      const records = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-          null,
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const operation = createOperationDescriptor(FlightQuery, {
-        count: 10,
-        id: '1',
-      });
-      source = RelayRecordSource.create(records);
-      const {data, isMissingData, seenRecords} = read(
-        source,
-        operation.fragment,
-      );
-      expect(isMissingData).toBe(false);
-      expect(data).toMatchInlineSnapshot(`
-          Object {
-            "node": Object {
-              "flightComponent": null,
-            },
-          }
-        `);
-      expect(Array.from(seenRecords.values()).sort()).toEqual([
-        '1',
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-        'client:root',
-      ]);
-    });
-
-    it('should be missing data when ReactFlightClientResponse is undefined in the store', () => {
-      const records = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-          undefined,
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const operation = createOperationDescriptor(FlightQuery, {
-        count: 10,
-        id: '1',
-      });
-      source = RelayRecordSource.create(records);
-      const {data, isMissingData, seenRecords} = read(
-        source,
-        operation.fragment,
-      );
-      expect(isMissingData).toBe(true);
-      expect(data).toMatchInlineSnapshot(`
-        Object {
-          "node": Object {
-            "flightComponent": undefined,
-          },
-        }
-      `);
-      expect(Array.from(seenRecords.values()).sort()).toEqual([
-        '1',
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-        'client:root',
-      ]);
-    });
-
-    it('should be missing data when the linked ReactFlightClientResponseRecord is missing', () => {
-      const records = {
-        '1': {
-          __id: '1',
-          __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
-            {
-              __ref:
-                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-            },
-          id: '1',
-        },
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          'node(id:"1")': {
-            __ref: '1',
-          },
-        },
-      };
-      const operation = createOperationDescriptor(FlightQuery, {
-        count: 10,
-        id: '1',
-      });
-      source = RelayRecordSource.create(records);
-      const {data, isMissingData, seenRecords} = read(
-        source,
-        operation.fragment,
-      );
-      expect(isMissingData).toBe(true);
-      expect(data).toMatchInlineSnapshot(`
-        Object {
-          "node": Object {
-            "flightComponent": undefined,
-          },
-        }
-      `);
-      expect(Array.from(seenRecords.values()).sort()).toEqual([
-        '1',
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-        'client:root',
-      ]);
-    });
-  });
-
   describe('Actor Change', () => {
     const query = graphql`
       query RelayReaderTestActorChangeQuery {
@@ -2029,7 +1866,6 @@ describe('RelayReader', () => {
             __viewer: 'viewer-id',
             __fragmentRef: {
               __fragmentOwner: owner.request,
-              __isWithinUnmatchedTypeRefinement: false,
               __fragments: {
                 RelayReaderTestActorChangeFragment: {},
               },

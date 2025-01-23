@@ -45,7 +45,7 @@ Relay has a UI-agnostic layer that fetches and manages data, and a React-specifi
 
 <OssOnly>
 
-<div class="bigCallToAction">
+<div className="bigCallToAction">
 Start with the <strong><a href="tutorial/intro/">tutorial</a></strong> — it will take you step-by-step through building a Relay app.
 </div>
 

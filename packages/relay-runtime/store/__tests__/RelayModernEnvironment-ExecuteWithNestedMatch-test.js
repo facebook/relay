@@ -36,8 +36,10 @@ const nullthrows = require('nullthrows');
 const {
   cannotReadPropertyOfUndefined__DEPRECATED,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with nested @match', () => {
@@ -216,7 +218,7 @@ describe('execute() a query with nested @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         outerRenderer: {
-          __id: 'client:1:nameRenderer(supported:["MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:"2aTHRe")',
           __fragmentPropName: 'name',
 
           __fragments: {
@@ -225,7 +227,6 @@ describe('execute() a query with nested @match', () => {
           },
 
           __fragmentOwner: operation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -329,7 +330,6 @@ describe('execute() a query with nested @match', () => {
       user: {
         innerRenderer: {
           __fragmentOwner: operation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           __fragmentPropName: 'name',
 
           __fragments: {
@@ -337,7 +337,7 @@ describe('execute() a query with nested @match', () => {
               {},
           },
 
-          __id: 'client:2:nameRenderer(supported:["PlainUserNameRenderer"])',
+          __id: 'client:2:nameRenderer(supported:"1AwQS7")',
           __module_component: 'PlainUserNameRenderer.react',
         },
       },

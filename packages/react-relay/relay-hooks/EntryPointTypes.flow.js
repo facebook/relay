@@ -14,7 +14,7 @@
 /* eslint-disable no-unused-vars */
 
 import type {JSResourceReference} from 'JSResourceReference';
-import type {AbstractComponent, ElementConfig} from 'React';
+import type {ComponentType, ElementConfig} from 'react';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -45,25 +45,28 @@ export type LoadQueryOptions = {
   +__nameForWarning?: ?string,
 };
 
-// Note: the phantom type parameter here helps ensures that the
-// $Parameters.js value matches the type param provided to preloadQuery.
-// eslint-disable-next-line no-unused-vars
-export type PreloadableConcreteRequest<TQuery: OperationType> = {
+export type PreloadableConcreteRequest<+TQuery: OperationType> = {
   kind: 'PreloadableConcreteRequest',
   params: RequestParameters,
+  // Note: the phantom type parameter here helps ensures that the
+  // $Parameters.js value matches the type param provided to preloadQuery.
+  // We also need to add usage of this generic here,
+  // becuase not using the generic in the definition makes it
+  // unconstrained in the call to a function that accepts PreloadableConcreteRequest<T>
+  +__phantom__?: ?TQuery,
 };
 
 export type EnvironmentProviderOptions = {+[string]: mixed, ...};
 
 export type PreloadedQuery<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > =
   | PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions>
   | PreloadedQueryInner<TQuery, TEnvironmentProviderOptions>;
 
 export type PreloadedQueryInner_DEPRECATED<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   +kind: 'PreloadedQuery_DEPRECATED',
@@ -80,7 +83,7 @@ export type PreloadedQueryInner_DEPRECATED<
 };
 
 export type PreloadedQueryInner<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = {
   // Releases query data and cancels network request if still in flight
@@ -131,12 +134,12 @@ defined during component runtime
 TExtraProps - a bag of extra props that you may define in `entrypoint` file
 and they will be passed to the EntryPointComponent as `extraProps`
 */
-type InternalEntryPointRepresentation<
-  +TEntryPointParams,
+export type InternalEntryPointRepresentation<
+  TEntryPointParams,
   TPreloadedQueries,
-  TPreloadedEntryPoints,
-  TRuntimeProps,
-  TExtraProps,
+  TPreloadedEntryPoints = {...},
+  TRuntimeProps = {...},
+  TExtraProps = null,
 > = $ReadOnly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
@@ -175,7 +178,7 @@ export type EntryPointComponent<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-> = AbstractComponent<
+> = ComponentType<
   EntryPointProps<
     TPreloadedQueries,
     TPreloadedEntryPoints,
@@ -187,17 +190,17 @@ export type EntryPointComponent<
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
   +TPreloadParams,
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 > = $ReadOnly<{
-  entryPoints?: $ObjMap<TPreloadedEntryPoints, ExtractEntryPointTypeHelper>,
+  entryPoints?: {
+    +[K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
+  },
   extraProps?: TExtraProps,
-  queries?: $ObjMap<
-    TPreloadedQueries,
-    ExtractQueryTypeHelper<TEnvironmentProviderOptions>,
-  >,
+  queries?: ExtractQueryTypes<TEnvironmentProviderOptions, TPreloadedQueries>,
 }>;
 
 // Return type of `loadEntryPoint(...)`
@@ -211,53 +214,72 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
   rootModuleID: string,
 }>;
 
-type _ComponentFromEntryPoint = <
-  +TPreloadParams,
-  +TComponent,
-  +TEntryPoint: EntryPoint<TPreloadParams, TComponent>,
->(
-  TEntryPoint,
-) => TComponent;
-
-type ComponentFromEntryPoint<+TEntryPoint> = $Call<
-  _ComponentFromEntryPoint,
-  TEntryPoint,
->;
-
-export type EntryPointElementConfig<+TEntryPoint> = ElementConfig<
-  ComponentFromEntryPoint<TEntryPoint>,
->['props'];
+export type EntryPointElementConfig<
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+  +TEntryPoint: InternalEntryPointRepresentation<any, any, any, any, any>,
+> =
+  TEntryPoint extends InternalEntryPointRepresentation<
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+    infer Props,
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+  >
+    ? Props
+    : empty;
 
 export type ThinQueryParams<
-  TQuery: OperationType,
+  +TQuery: OperationType,
   TEnvironmentProviderOptions,
 > = $ReadOnly<{
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
   options?: ?PreloadOptions,
   parameters: PreloadableConcreteRequest<TQuery>,
+  // $FlowFixMe[incompatible-use]
   variables: TQuery['variables'],
 }>;
 
-type ThinNestedEntryPointParams<TEntryPointParams, TEntryPoint> = $ReadOnly<{
-  entryPoint: TEntryPoint,
-  entryPointParams: TEntryPointParams,
-}>;
+/**
+ * We make the type of `ThinNestedEntryPointParams` opaque, so that the only way
+ * to construct a `ThinNestedEntryPointParams` is by calling `NestedRelayEntryPoint`
+ * from `NestedRelayEntryPointBuilderUtils` module.
+ */
+declare export opaque type ThinNestedEntryPointParams;
 
 export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
   PreloadedQuery<TQuery>,
 ) => ThinQueryParams<TQuery, TEnvironmentProviderOptions>;
 
-export type ExtractEntryPointTypeHelper = <
-  TEntryPointParams,
-  TEntryPointComponent,
->(
-  ?PreloadedEntryPoint<TEntryPointComponent>,
-) => ?ThinNestedEntryPointParams<
-  TEntryPointParams,
-  EntryPoint<TEntryPointParams, TEntryPointComponent>,
->;
+// We need to match both cases without using distributive conditional types,
+// because PreloadedQuery's TQuery parameter is almost phantom, and breaking
+// up the union type would cause us to lose track of TQuery.
+type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
+  // $FlowFixMe[incompatible-type-arg]
+  +t: PreloadedQuery<infer TQuery>,
+]
+  ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
+  : [+t: T] extends [
+        +t: PreloadedQuery<infer TQuery extends OperationType> | void,
+      ]
+    ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | void
+    : empty;
 
-export type EntryPoint<+TEntryPointParams, +TEntryPointComponent> =
+export type ExtractQueryTypes<
+  TEnvironmentProviderOptions,
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  PreloadedQueries: {+[string]: PreloadedQuery<any>} | void,
+> = {
+  [K in keyof PreloadedQueries]: ExtractThinQueryParams<
+    PreloadedQueries[K],
+    TEnvironmentProviderOptions,
+  >,
+};
+
+export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,
     ElementConfig<TEntryPointComponent>['queries'],
@@ -266,12 +288,7 @@ export type EntryPoint<+TEntryPointParams, +TEntryPointComponent> =
     ElementConfig<TEntryPointComponent>['extraProps'],
   >;
 
-type ExtractFirstParam = <P, R>((P) => R) => P;
-type GetPreloadPropsType<T> = T['getPreloadProps'];
-export type PreloadParamsOf<T> = $Call<
-  ExtractFirstParam,
-  GetPreloadPropsType<T>,
->;
+export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];
 
 export type IEnvironmentProvider<TOptions> = {
   getEnvironment: (options: ?TOptions) => IEnvironment,

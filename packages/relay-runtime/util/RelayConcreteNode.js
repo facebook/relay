@@ -43,14 +43,14 @@ export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
- * The operation can either be provided as a persisted `id` or `text`. If given
- * in `text` format, a `cacheID` as a hash of the text should be set to be used
- * for local caching.
+ * The operation can either be provided as a persisted `id` or `text` or both.
+ * If `text` format is provided, a `cacheID` as a hash of the text should be set
+ * to be used for local caching.
  */
 export type RequestParameters =
   | {
       +id: string,
-      +text: null,
+      +text: string | null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
@@ -74,7 +74,7 @@ export type ClientRequestParameters = {
   +text: null,
   // common fields
   +name: string,
-  +operationKind: 'query',
+  +operationKind: 'query' | 'mutation',
   +providedVariables?: ProvidedVariablesType,
   +metadata: {[key: string]: mixed, ...},
 };
@@ -95,6 +95,7 @@ export type GeneratedNode =
 
 const RelayConcreteNode = {
   ACTOR_CHANGE: 'ActorChange',
+  CATCH_FIELD: 'CatchField',
   CONDITION: 'Condition',
   CLIENT_COMPONENT: 'ClientComponent',
   CLIENT_EDGE_TO_SERVER_OBJECT: 'ClientEdgeToServerObject',
@@ -102,7 +103,6 @@ const RelayConcreteNode = {
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',
-  FLIGHT_FIELD: 'FlightField',
   FRAGMENT: 'Fragment',
   FRAGMENT_SPREAD: 'FragmentSpread',
   INLINE_DATA_FRAGMENT_SPREAD: 'InlineDataFragmentSpread',
@@ -130,6 +130,6 @@ const RelayConcreteNode = {
   TYPE_DISCRIMINATOR: 'TypeDiscriminator',
   UPDATABLE_QUERY: 'UpdatableQuery',
   VARIABLE: 'Variable',
-};
+} as const;
 
 module.exports = RelayConcreteNode;

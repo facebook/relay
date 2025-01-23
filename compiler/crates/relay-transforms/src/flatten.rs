@@ -78,12 +78,12 @@ pub fn flatten(
 
     par_iter(&mut program.operations).for_each(|operation| {
         if let Err(err) = transform.transform_operation(operation) {
-            errors.lock().extend(err.into_iter());
+            errors.lock().extend(err);
         }
     });
     par_iter(&mut program.fragments).for_each(|(_, fragment)| {
         if let Err(err) = transform.transform_fragment(fragment) {
-            errors.lock().extend(err.into_iter());
+            errors.lock().extend(err);
         }
     });
     let is_errors_empty = { errors.lock().is_empty() };
@@ -492,11 +492,17 @@ impl FlattenTransform {
                                 if let Some(module_metadata) =
                                     ModuleMetadata::find(&node.directives)
                                 {
-                                    if flattened_module_metadata.key != module_metadata.key
+                                    let modules_differ = flattened_module_metadata.key
+                                        != module_metadata.key
                                         || flattened_module_metadata.module_name
                                             != module_metadata.module_name
                                         || flattened_module_metadata.fragment_name
-                                            != module_metadata.fragment_name
+                                            != module_metadata.fragment_name;
+
+                                    // If the modules have different keys they will materialize as different
+                                    // field names and thus willnot conflict.
+                                    if flattened_module_metadata.key == module_metadata.key
+                                        && modules_differ
                                     {
                                         let error = Diagnostic::error(
                                             ValidationMessage::ConflictingModuleSelections,
@@ -608,6 +614,6 @@ fn merge_handle_directives(
             }
         }
     }
-    directives.extend(handles.into_iter());
+    directives.extend(handles);
     directives
 }

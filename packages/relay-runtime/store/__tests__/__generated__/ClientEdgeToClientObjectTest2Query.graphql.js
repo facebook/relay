@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9dbe872665053dd2d1154ff50a74046d>>
+ * @generated SignedSource<<ad21e409b93ead532bfed0c9a68e30f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,23 +22,28 @@ import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { QueryAllAstrologicalSignsResolver$key } from "./../resolvers/__generated__/QueryAllAstrologicalSignsResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?string);
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
   rootKey: QueryAllAstrologicalSignsResolver$key,
-) => ?$ReadOnlyArray<?{|
+  args: void,
+  context: TestResolverContextType,
+) => ?$ReadOnlyArray<{|
   +id: DataID,
 |}>);
 export type ClientEdgeToClientObjectTest2Query$variables = {||};
 export type ClientEdgeToClientObjectTest2Query$data = {|
-  +all_astrological_signs: ?$ReadOnlyArray<?{|
-    +name: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignNameResolverType>,
+  +all_astrological_signs: ?$ReadOnlyArray<{|
+    +name: ?string,
   |}>,
 |};
 export type ClientEdgeToClientObjectTest2Query = {|
@@ -67,6 +72,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "AstrologicalSign",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": null,
@@ -99,7 +105,7 @@ return {
               "kind": "RelayResolver",
               "name": "name",
               "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
-              "path": "name"
+              "path": "all_astrological_signs.name"
             }
           ],
           "storageKey": null
@@ -177,7 +183,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": false
+                    "isOutputType": true
                   }
                 ],
                 "type": "AstrologicalSign",
@@ -185,7 +191,7 @@ return {
               },
               "kind": "RelayResolver",
               "storageKey": null,
-              "isOutputType": false
+              "isOutputType": true
             },
             (v0/*: any*/)
           ],

@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment MyFragment on ClientUser @throwOnFieldError {
+  name @catch
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}
+==================================== OUTPUT ===================================
+import type { FragmentType, Result } from "relay-runtime";
+declare export opaque type MyFragment$fragmentType: FragmentType;
+export type MyFragment$data = {|
+  +name: Result<string, mixed>,
+  +$fragmentType: MyFragment$fragmentType,
+|};
+export type MyFragment$key = {
+  +$data?: MyFragment$data,
+  +$fragmentSpreads: MyFragment$fragmentType,
+  ...
+};

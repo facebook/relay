@@ -1,0 +1,46 @@
+==================================== INPUT ====================================
+fragment requiredDirectiveOnConditionalField_Foo_user on User {
+  id
+  name @required(action: THROW) @include(if: $condition)
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "condition"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "requiredDirectiveOnConditionalField_Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "condition": "condition",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "kind": "RequiredField",
+          "field": {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          "action": "THROW"
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

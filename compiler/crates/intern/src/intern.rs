@@ -15,7 +15,6 @@ use std::hash::Hasher;
 use std::num::NonZeroU32;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
-use std::u32;
 
 use once_cell::sync::OnceCell;
 use serde::Deserialize;
@@ -242,7 +241,7 @@ impl<Id, Type> InternTable<Id, Type> {
 
 impl<Id: InternId> InternTable<Id, Id::Intern> {
     /// The methods from here on are internal and private.
-    fn shards(&'static self) -> &Shards<Id> {
+    fn shards(&'static self) -> &'static Shards<Id> {
         self.shards.get_or_init(|| {
             let shards: Shards<Id> = ShardedSet::default();
             if !self.arena.is_empty() {
@@ -291,8 +290,8 @@ impl<Id: InternId> InternTable<Id, Id::Intern> {
     /// Get a shared reference to the underlying `Id::Intern`.
     /// Usually you can rely on `deref` to do this implicitly.
     #[inline]
-    fn get(&'static self, r: Id) -> &Id::Intern {
-        &*self.arena.get(r.unwrap())
+    fn get(&'static self, r: Id) -> &'static Id::Intern {
+        self.arena.get(r.unwrap())
     }
 
     /// Getter that checks for the need to allocate.
@@ -699,6 +698,21 @@ macro_rules! intern_struct {
     };
 }
 
+pub trait Lookup {
+    fn lookup(self) -> &'static str;
+}
+
+#[macro_export]
+macro_rules! impl_lookup {
+    ($named:ident) => {
+        impl Lookup for $named {
+            fn lookup(self) -> &'static str {
+                self.0.lookup()
+            }
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use serde_derive::Deserialize;
@@ -721,7 +735,7 @@ mod tests {
 
     impl std::cmp::PartialOrd for MyId {
         fn partial_cmp(&self, other: &Self) -> std::option::Option<std::cmp::Ordering> {
-            self.get().partial_cmp(other.get())
+            Some(self.get().cmp(other.get()))
         }
     }
 
@@ -845,19 +859,4 @@ mod tests {
             { WithIntern::strip(serde_json::from_str(&serialized)).unwrap() };
         assert_eq!(deserialized, val);
     }
-}
-
-pub trait Lookup {
-    fn lookup(self) -> &'static str;
-}
-
-#[macro_export]
-macro_rules! impl_lookup {
-    ($named:ident) => {
-        impl Lookup for $named {
-            fn lookup(self) -> &'static str {
-                self.0.lookup()
-            }
-        }
-    };
 }

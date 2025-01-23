@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query MyQuery @throwOnFieldError {
+  client_field {
+    name
+  }
+}
+
+# %extensions%
+
+extend type Query {
+  client_field: User
+}
+==================================== ERROR ====================================
+✖︎ Expected client-defined field within `@throwOnFieldError` to be annotated with `@catch`. Accessing an unset field is treated as a field error, but Relay cannot guarantee that client field will be set before they are read. Add `@catch` to explicitly handle the case where the field is unset.
+
+  client_linked_field_without_catch.graphql:3:3
+    2 │ query MyQuery @throwOnFieldError {
+    3 │   client_field {
+      │   ^^^^^^^^^^^^
+    4 │     name

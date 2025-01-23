@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ec242811bc12bb3106dd0ea9adcd1ac3>>
+ * @generated SignedSource<<d248d1b5c6b3fdf79bd9a76672e494cd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,14 +68,12 @@ return {
                 {
                   "kind": "RequiredField",
                   "field": (v0/*: any*/),
-                  "action": "LOG",
-                  "path": "me.backgroundImage.uri"
+                  "action": "LOG"
                 }
               ],
               "storageKey": null
             },
-            "action": "LOG",
-            "path": "me.backgroundImage"
+            "action": "LOG"
           }
         ],
         "storageKey": null

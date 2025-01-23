@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f012717eb0f7534aa6436c013135ace9>>
+ * @generated SignedSource<<0d585c3944b7bfe14073570fe8925759>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -70,8 +70,7 @@ return {
               {
                 "kind": "RequiredField",
                 "field": (v1/*: any*/),
-                "action": "LOG",
-                "path": "me.emailAddresses"
+                "action": "LOG"
               }
             ]
           }

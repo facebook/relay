@@ -43,7 +43,7 @@ impl BytesId {
         // Safe because BytesId can only be generated
         // by a call to intern, which returns the result
         // of id_to_bytes.push.
-        &*self.get()
+        self.get()
     }
 }
 
@@ -95,7 +95,7 @@ impl StringId {
 
     /// Intern index for the underlying bytes.
     pub fn index(self) -> u32 {
-        (self.0).0.index() as u32
+        (self.0).0.index()
     }
 
     pub fn from_index_checked(index: u32) -> Option<Self> {
@@ -380,7 +380,6 @@ mod tests {
         use std::sync::atomic::Ordering;
         use std::sync::Arc;
         use std::thread;
-        use std::u32;
 
         use rand::thread_rng;
         use rand::Rng;
@@ -391,10 +390,10 @@ mod tests {
         const WRITERS: usize = 100;
         const MAX: usize = N / WRITERS;
         // Array to track index issued to each string.
-        let mut avail: Arc<Vec<AtomicU32>> = Arc::new(Vec::with_capacity(MAX as usize));
+        let mut avail: Arc<Vec<AtomicU32>> = Arc::new(Vec::with_capacity(MAX));
         Arc::get_mut(&mut avail)
             .unwrap()
-            .resize_with(N as usize, || AtomicU32::new(u32::MAX));
+            .resize_with(N, || AtomicU32::new(u32::MAX));
         let mut workers = Vec::new();
         for k in 0..WRITERS {
             let avail = avail.clone();

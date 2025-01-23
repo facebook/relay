@@ -58,7 +58,9 @@ import type {
 import type {LogEvent} from 'relay-runtime';
 import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const {getFragmentResourceForEnvironment} = require('../FragmentResource');
+const {
+  getFragmentResourceForEnvironment,
+} = require('../legacy/FragmentResource');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,
@@ -66,6 +68,11 @@ const {
   graphql,
 } = require('relay-runtime');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 describe('FragmentResource', () => {
   let environment;
@@ -132,7 +139,6 @@ describe('FragmentResource', () => {
   let logEvents: Array<LogEvent>;
 
   beforeEach(() => {
-    // jest.resetModules();
     ({createMockEnvironment} = require('relay-test-utils-internal'));
 
     logEvents = [];

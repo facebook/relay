@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d51f6f719ddecec5d8d414fa9e416af2>>
+ * @generated SignedSource<<d7701dcb310bcfd6ce6689c52581b325>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,7 +43,10 @@ var node/*: ReaderFragment*/ = {
         "node"
       ],
       "operation": require('./ClientEdgeQuery_LiveResolversTest13Query_live_constant_client_edge.graphql'),
-      "identifierField": "id"
+      "identifierInfo": {
+        "identifierField": "id",
+        "identifierQueryVariableName": "id"
+      }
     }
   },
   "name": "RefetchableClientEdgeQuery_LiveResolversTest13Query_live_constant_client_edge",

@@ -1,0 +1,51 @@
+//- User_foo.js
+/**
+ * @RelayResolver User.foo: String @semanticNonNull
+ * @rootFragment UserFooFragment
+ */
+graphql`fragment UserFooFragment on User {
+  bar
+  bar_live
+  bar_plural
+  bar_live_plural
+}`
+
+//- User_bar.js
+/**
+ * @RelayResolver User.bar: RelayResolverValue @semanticNonNull
+ */
+
+ /**
+ * @RelayResolver User.bar_live: RelayResolverValue @semanticNonNull
+ * @live
+ */
+
+/**
+ * @RelayResolver User.bar_plural: [RelayResolverValue] @semanticNonNull(levels: [0, 1])
+ */
+
+ /**
+ * @RelayResolver User.bar_live_plural: [RelayResolverValue] @semanticNonNull(levels: [0, 1])
+ * @live
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_resolver_normalization_ast": true,
+    "allow_resolver_non_nullable_return_type": { "kind": "enabled" }
+  },
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+type User { name: String }

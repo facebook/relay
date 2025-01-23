@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+//- foo.js
+graphql`query fooQuery @throwOnFieldError {
+  client_field
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ]
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+
+extend type Query {
+  client_field: String
+}
+==================================== OUTPUT ===================================
+✖︎ Expected client-defined field within `@throwOnFieldError` to be annotated with `@catch`. Accessing an unset field is treated as a field error, but Relay cannot guarantee that client field will be set before they are read. Add `@catch` to explicitly handle the case where the field is unset.
+
+  foo.js:2:3
+    1 │ query fooQuery @throwOnFieldError {
+    2 │   client_field
+      │   ^^^^^^^^^^^^
+    3 │ }

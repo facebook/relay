@@ -1,0 +1,12 @@
+# expected-to-throw
+query MyQuery @throwOnFieldError {
+  client_field {
+    name
+  }
+}
+
+# %extensions%
+
+extend type Query {
+  client_field: User
+}

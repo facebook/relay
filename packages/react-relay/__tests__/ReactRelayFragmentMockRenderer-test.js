@@ -53,12 +53,15 @@ describe('ReactRelayFragmentMockRenderer', () => {
       },
     };
 
-    const instance = ReactTestRenderer.create(
-      <ReactRelayFragmentMockRenderer
-        environment={createMockEnvironment()}
-        render={() => <ParentContainer viewer={mockViewer} />}
-      />,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <ReactRelayFragmentMockRenderer
+          environment={createMockEnvironment()}
+          render={() => <ParentContainer viewer={mockViewer} />}
+        />,
+      );
+    });
     expect(instance.toJSON()).toMatchSnapshot();
   });
 });

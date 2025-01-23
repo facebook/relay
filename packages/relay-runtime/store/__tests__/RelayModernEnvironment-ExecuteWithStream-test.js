@@ -98,10 +98,7 @@ describe('execute() a query with @stream', () => {
       },
     };
 
-    function getDataID(
-      data: {[string]: mixed},
-      typename: string | $TEMPORARY$string<'MessagingParticipant'>,
-    ) {
+    function getDataID(data: {[string]: mixed}, typename: string) {
       if (typename === 'MessagingParticipant') {
         return `${typename}:${String(data.id)}`;
       }
@@ -124,7 +121,7 @@ describe('execute() a query with @stream', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      getDataID: getDataID,
+      getDataID,
       network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {

@@ -17,10 +17,8 @@ const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
- * @RelayResolver
- * @fieldName undefined_field
+ * @RelayResolver Query.undefined_field: RelayResolverValue
  * @rootFragment UndefinedFieldResolver
- * @onType Query
  *
  * A resolver that always returns undefined. This is intended to exercise an
  * edge case in Relay Reader where `undefined` is generally interpreted as

@@ -20,7 +20,7 @@ Data-Driven Dependencies. Facebook's way of including the code to render a parti
 
 <FbInternalOnly>
 
-See the [@match](#match) directive, [@module](#module) directive and [the 3D guide](../guides/data-driven-dependencies).
+See the [@match](#match) directive, [@module](#module) directive and [the 3D guide](../guides/data-driven-dependencies/server-3d).
 
 </FbInternalOnly>
 
@@ -144,11 +144,11 @@ A directive which declares that a field implements the [connection](#connection)
 ## Connection
 
 <FbInternalOnly>
-A field implementing the connection spec. See <a href="https://www.internalfb.com/intern/wiki/Graphql-connections-for-hack-developers/Connection-spec/">here</a> for more details on the spec, and the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+A field implementing the [connection spec](https://relay.dev/graphql/connections.htm). See <a href="https://www.internalfb.com/intern/wiki/Graphql-connections-for-hack-developers/Connection-spec/">here</a> for more details on the spec, and the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
 </FbInternalOnly>
 
 <OssOnly>
-A field implementing the connection spec. See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+A field implementing the [connection spec](https://relay.dev/graphql/connections.htm). See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
 </OssOnly>
 
 See also [`usePaginationFragment`](../api-reference/use-pagination-fragment).
@@ -183,10 +183,10 @@ See the [Thinking in Relay guide](../principles-and-architecture/thinking-in-rel
 
 ## @defer
 
-A directive which can be added to a fragment spread or inline fragment to avoid blocking on that fragment's data.
+A directive which can be added to a fragment spread or inline fragment to avoid blocking on that fragment's data. For more detail refer to GraphQL's [documentation on the @defer directive](https://github.com/graphql/graphql-wg/blob/main/rfcs/DeferStream.md#defer).
 
 <FbInternalOnly>
-See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Web/incremental-data-delivery-defer-stream/#defer).
+See [Incremental Data Delivery](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/incremental-data-delivery/).
 </FbInternalOnly>
 
 ## Definition
@@ -209,7 +209,7 @@ In the compiler, a Document refers to a GraphQL literal that contains one or mor
 
 ## Directive
 
-A special instruction, starting with `@` and contained in a `graphql` literal or graphql file, which provides special instructions to the relay compiler or to the server. Examples include `@defer`, `@stream` and `@match`.
+A special instruction, starting with `@` and contained in a `graphql` literal or graphql file, which provides special instructions to the Relay compiler or to the server. Examples include `@defer`, `@stream` and `@match`.
 
 ## Disposable
 
@@ -313,7 +313,7 @@ Just like a query reference and a graphql tagged literal describing a query (i.e
 An internal class supporting lazily loaded queries. Exposes two important methods:
 
 * `read`, which is meant to be called during a component's render phase. It will attempt to fulfill a query from the store (by calling `environment.lookup`) and suspend if the data is not available. It furthermore writes the results from the attempted read (whether a promise, error or result) to an internal cache, and updates that cached value when the promise resolves or rejects.
-* `subscribe`, which is called during the commit phase, and establishes subscriptions to the relay store.
+* `subscribe`, which is called during the commit phase, and establishes subscriptions to the Relay store.
 
 If the component which calls `.read` successfully loads a query, but suspends on a subsequent hook before committing, the data from that query can be garbage collected before the component ultimately renders. Thus, components which rely on `FragmentResource` are at risk of rendering null data.
 
@@ -393,7 +393,7 @@ A directive that applies to fragments which enables developers to pass masked da
 Normally, data is read out using `useFragment`. However, this function can only be called during the render phase. If store data is needed in a outside of the render phase, a developer has several options:
 
 * read that data during the render phase, and pass it to the function/have the function close over that data. (See also [#relay])
-* pass a reference to an `@inline` fragment, which can then be accessed (outside of the render phase) using the `readInlineData` directive.
+* pass a reference to an `@inline` fragment, which can then be accessed (outside of the render phase) using the `readInlineData` function.
 
 This directive causes them to be read out when the parent fragment is read out, and unmasked by the call to `readInlineData`.
 
@@ -445,7 +445,21 @@ A GraphQL literal is a call to
 graphql`...`
 ```
 
-in your code. These are pre-processed, and replaced at build time with a [GraphlQLTaggedNode](#graphqltaggednode) containing an [AST](#ast) representation of the contents of the literal.
+in your code. These are pre-processed, and replaced at build time with a [GraphQLTaggedNode](#graphqltaggednode) containing an [AST](#ast) representation of the contents of the literal.
+
+## @live
+
+A docblock tag that can be added to mark a Relay resolver as live. To learn more, refer to the [live fields section](https://relay.dev/docs/guides/relay-resolvers/live-fields/) of the Relay resolver documentation.
+
+<FbInternalOnly>
+
+## @live_query
+A directive used on GraphQL queries that enables data updates to be delivered over time without any custom server-side code. This directive provides a more efficient and maintainable alternative to polling (running the same query over and over again).
+
+Live queries are a feature of GraphQL within Meta and supported by the [Real-Time GraphQL team](https://www.internalfb.com/omh/view/real_time_graphql/oncall_profile). To learn more about GraphQL live queries, refer to the [GraphQL Live Queries wiki](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Overview/).
+
+You can learn more about how to use @live_query with Relay on Web with server-polling [here](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Live_Queries_for_Relay/) and client-polling [here](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Live_Queries_for_Relay_(Client_Polling)/).
+</FbInternalOnly>
 
 ## Lookup
 
@@ -599,7 +613,7 @@ A field for which the value is an array of [values](#value) or [records](#record
 
 ## @preloadable
 
-A directive that modifies queries and which causes relay to generate `$Parameters.js` files and preloadable concrete requests. Required if the query is going to be used as part of an entry point.
+A directive that modifies queries and which causes Relay to generate `$Parameters.js` files and preloadable concrete requests. Required if the query is going to be used as part of an entry point.
 
 ## Preloadable Concrete Request
 
@@ -672,8 +686,7 @@ Compare to [fragment resource](#fragment-resource).
 
 A directive added to queries which tells Relay to generate types that cover the `optimisticResponse` parameter to `commitMutation`.
 
-<!-- TODO fix this link -->
-See the [documentation](../guided-tour/updating-data/local-data-updates) for more.
+See the [guided tour on updating data](../guided-tour/updating-data/graphql-mutations/#optimistic-response) for more.
 
 ## Reader
 
@@ -691,7 +704,7 @@ A reader AST contains information about which fragments are spread at a given lo
 
 TODO
 
-See [GraphlQLTaggedNode](#graphqltaggednode).
+See [GraphQLTaggedNode](#graphqltaggednode).
 
 ## Reader Selector
 
@@ -753,7 +766,7 @@ An older version of Relay. This version of Relay had an API that was heavily foc
 
 Relay Resolvers is an experimental Relay feature which enables modeling derived state as client-only fields in Relay’s GraphQL graph.
 
-See also [the Relay Resolvers guide](../guides/relay-resolvers).
+See also [the Relay Resolvers Introduction](../guides/relay-resolvers/introduction.md).
 
 ## Release Buffer
 
@@ -763,7 +776,7 @@ The size of the release buffer is configured with the `gcReleaseBufferSize` para
 
 ## `@required`
 
-A Relay directive that makes handling potentially `null` values more egonomic.
+A Relay directive that makes handling potentially `null` values more ergonomic.
 
 See also [the `@required` guide](../guides/required-directive/).
 
@@ -779,7 +792,7 @@ An object associating a [concrete request](#concrete-request) and [variables](#v
 
 ## Resolver
 
-An overloaded term, mostly referring to virtual fields, but also occassionally referring to other things.
+An overloaded term, mostly referring to virtual fields, but also occasionally referring to other things.
 
 ### When describing a field
 
@@ -846,7 +859,7 @@ A collection of all of the GraphQL types that are known to Relay, for a given [p
 
 The GraphQL [schema](#schema) is derived from annotations on Hack classes in the www repository.
 
-Periodically, those changes are synced to fbsource in a schema sync diff. If the updated schema would break relay on fbsource, these schema sync diffs will not land.
+Periodically, those changes are synced to fbsource in a schema sync diff. If the updated schema would break Relay on fbsource, these schema sync diffs will not land.
 
 If a field is removed from www, but is only used in fbsource, the application developer may not notice that the field cannot be removed. This is a common source of schema breakages.
 
@@ -883,15 +896,16 @@ TODO
 
 ## @stream
 
-TODO
+A directive which can be added to a field of `List` type that enables the individual items in the list to be delivered incrementally. The client can render the initial
+set of items while waiting for the server to deliver the rest of the items. For more detail refer to GraphQL's [documentation on the @stream directive](https://github.com/graphql/graphql-wg/blob/main/rfcs/DeferStream.md#stream).
 
 ## @stream_connection
 
-TODO
+A directive that is like the @connection directive for pagination, except modified to enable items in the pagination queue to be delivered incrementally. It has the additional parameter `initial_count` to specify how many items to deliver in the initial payload. To learn more about how to use this directive refer to the [Streaming Pagination page](https://relay.dev/docs/guided-tour/list-data/streaming-pagination/).
 
 ## Subscribe
 
-A method exposed by the Relay store. Accepts a callback and a snapshot (see [lookup](#lookup)). The relay store will call this callback when [`notify`](#notify) is called, if the data referenced by that snapshot has been updated or invalidated.
+A method exposed by the Relay store. Accepts a callback and a snapshot (see [lookup](#lookup)). The Relay store will call this callback when [`notify`](#notify) is called, if the data referenced by that snapshot has been updated or invalidated.
 
 ## Subscription
 
@@ -950,7 +964,7 @@ See also [abstract type refinement](#abstract-type-refinement).
 A callback passed to `commitMutation`, which provides the application developer with imperative control over the data in the store.
 
 <!-- TODO make optimistic updater a link -->
-See [the documentation](../guided-tour/updating-data/) and also optimistic updater.
+See [the documentation](../guided-tour/updating-data/introduction.md) and also optimistic updater.
 
 ## Value
 

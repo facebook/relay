@@ -11,21 +11,26 @@ use std::fmt;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::hash::Hash;
+use std::hash::Hasher;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use ::intern::impl_lookup;
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use ::intern::BuildIdHasher;
+use ::intern::Lookup;
 use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::Named;
+use common::NamedItem;
 use common::WithLocation;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
-use intern::impl_lookup;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::BuildIdHasher;
-use intern::Lookup;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -34,7 +39,9 @@ use schema::TypeReference;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::signatures::FragmentSignature;
 use crate::AssociatedData;
+use crate::ValidationMessage;
 // Definitions
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -202,6 +209,18 @@ impl From<ExecutableDefinitionName> for StringKey {
     }
 }
 
+impl From<OperationDefinitionName> for StringKey {
+    fn from(operation_definition_name: OperationDefinitionName) -> Self {
+        operation_definition_name.0
+    }
+}
+
+impl From<FragmentDefinitionName> for StringKey {
+    fn from(fragment_definition_name: FragmentDefinitionName) -> Self {
+        fragment_definition_name.0
+    }
+}
+
 impl Lookup for ExecutableDefinitionName {
     fn lookup(self) -> &'static str {
         match self {
@@ -222,7 +241,17 @@ impl ExecutableDefinitionName {
     }
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
 pub struct VariableName(pub StringKey);
 
 impl Display for VariableName {
@@ -268,7 +297,7 @@ impl Named for VariableDefinition {
 // Selections
 
 /// A selection within an operation or fragment
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub enum Selection {
     FragmentSpread(Arc<FragmentSpread>),
     InlineFragment(Arc<InlineFragment>),
@@ -373,11 +402,29 @@ impl fmt::Debug for Selection {
 }
 
 /// ... Name
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FragmentSpread {
     pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
+    pub signature: Option<FragmentSignature>,
     pub directives: Vec<Directive>,
+}
+
+impl FragmentSpread {
+    // Get the alias of this fragment spread from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?.or_else(|| {
+                Some(WithLocation::new(
+                    directive.name.location,
+                    self.fragment.item.0,
+                ))
+            }))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 /// ... SelectionSet
@@ -390,6 +437,44 @@ pub struct InlineFragment {
     /// Points to "..."
     pub spread_location: Location,
 }
+
+impl Hash for InlineFragment {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.type_condition.hash(state);
+        self.directives.hash(state);
+        self.spread_location.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
+}
+
+impl InlineFragment {
+    /// Get the alias of this inline fragment from the optional `@alias` directive.
+    /// If the `as` argument is not present, the type condition is used as the fallback.
+    /// Is is an error to omit the `as` argument if the inline fragment does not
+    /// have a type condition.
+    pub fn alias(&self, schema: &SDLSchema) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            if let Some(alias) = alias_arg_as(directive)? {
+                Ok(Some(alias))
+            } else {
+                match self.type_condition {
+                    Some(type_condition) => Ok(Some(WithLocation::new(
+                        directive.name.location,
+                        schema.get_type_name(type_condition),
+                    ))),
+                    None => Err(vec![Diagnostic::error(
+                        ValidationMessage::FragmentAliasDirectiveMissingAs,
+                        directive.location,
+                    )]),
+                }
+            }
+        } else {
+            Ok(None)
+        }
+    }
+}
+
 pub trait Field {
     fn alias(&self) -> Option<WithLocation<StringKey>>;
     fn definition(&self) -> WithLocation<FieldID>;
@@ -421,6 +506,17 @@ pub struct LinkedField {
     pub selections: Vec<Selection>,
 }
 
+impl Hash for LinkedField {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.alias.hash(state);
+        self.definition.hash(state);
+        self.arguments.hash(state);
+        self.directives.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
+}
+
 impl Field for LinkedField {
     fn alias(&self) -> Option<WithLocation<StringKey>> {
         self.alias
@@ -440,7 +536,7 @@ impl Field for LinkedField {
 }
 
 /// Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ScalarField {
     pub alias: Option<WithLocation<StringKey>>,
     pub definition: WithLocation<FieldID>,
@@ -466,13 +562,23 @@ impl Field for ScalarField {
     }
 }
 
-/// https://spec.graphql.org/June2018/#sec--skip
+/// <https://spec.graphql.org/June2018/#sec--skip>
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Condition {
     pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
     pub location: Location,
+}
+
+impl Hash for Condition {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.value.hash(state);
+        self.passing_value.hash(state);
+        self.location.hash(state);
+        // Avoid descending into selections, which leads to large recursion
+        self.selections.len().hash(state);
+    }
 }
 
 impl Condition {
@@ -496,6 +602,7 @@ pub struct Directive {
     /// to attach arbitrary data on compiler-internal directives, such as to
     /// pass instructions to code generation.
     pub data: Option<Box<dyn AssociatedData>>,
+    pub location: Location,
 }
 impl Named for Directive {
     type Name = DirectiveName;
@@ -566,7 +673,7 @@ pub struct Variable {
     pub type_: TypeReference<Type>,
 }
 
-/// Name : Value[Const]
+/// Name : Value\[Const\]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
     pub name: WithLocation<ArgumentName>,
@@ -627,8 +734,31 @@ impl ConstantValue {
     generate_unwrap_fn!(unwrap_object, self, &Vec<ConstantArgument>, ConstantValue::Object(o) => o);
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum ConditionValue {
     Constant(bool),
     Variable(Variable),
+}
+
+/// Extract the `as` argument from the `@alias` directive
+fn alias_arg_as(alias_directive: &Directive) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+    match alias_directive.arguments.named(ArgumentName(intern!("as"))) {
+        Some(arg) => match arg.value.item {
+            Value::Constant(ConstantValue::String(alias)) => {
+                if alias == intern!("") {
+                    Err(vec![Diagnostic::error(
+                        ValidationMessage::FragmentAliasIsEmptyString,
+                        arg.value.location,
+                    )])
+                } else {
+                    Ok(Some(WithLocation::new(arg.value.location, alias)))
+                }
+            }
+            _ => Err(vec![Diagnostic::error(
+                ValidationMessage::FragmentAliasDirectiveDynamicNameArg,
+                alias_directive.location,
+            )]),
+        },
+        None => Ok(None),
+    }
 }

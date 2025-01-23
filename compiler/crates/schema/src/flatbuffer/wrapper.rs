@@ -124,6 +124,7 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
         result.fields.get(CLIENTID_FIELD_ID, || -> Field {
             Field {
@@ -136,6 +137,7 @@ impl SchemaWrapper {
                 directives: Vec::new(),
                 parent_type: None,
                 description: Some(*CLIENT_ID_DESCRIPTION),
+                hack_source: None,
             }
         });
         result.fields.get(STRONGID_FIELD_ID, || Field {
@@ -146,6 +148,7 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: Some(*TYPENAME_DESCRIPTION),
+            hack_source: None,
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: WithLocation::generated(result.fetch_token_field_name),
@@ -157,12 +160,13 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
         result.fields.get(IS_FULFILLED_FIELD_ID, || Field {
             name: WithLocation::generated(result.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
-                name: ArgumentName("name".intern()),
+                name: WithLocation::generated(ArgumentName("name".intern())),
                 type_: TypeReference::NonNull(Box::new(TypeReference::Named(
                     result.get_type("String".intern()).unwrap(),
                 ))),
@@ -176,6 +180,7 @@ impl SchemaWrapper {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+            hack_source: None,
         });
 
         result.unchecked_argument_type_sentinel = Some(TypeReference::Named(
@@ -248,26 +253,7 @@ impl Schema for SchemaWrapper {
 
     fn get_directive(&self, name: DirectiveName) -> Option<&Directive> {
         self.directives
-            .get(name, || {
-                match (
-                    name.0.lookup(),
-                    self.flatbuffer_schema().get_directive(name),
-                ) {
-                    ("defer", Some(mut directive)) | ("stream", Some(mut directive)) => {
-                        let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
-                        for arg in next_args.iter_mut() {
-                            if arg.name.0.lookup() == "label" {
-                                if let TypeReference::NonNull(of) = &arg.type_ {
-                                    arg.type_ = *of.clone()
-                                };
-                            }
-                        }
-                        directive.arguments = ArgumentDefinitions::new(next_args);
-                        Some(directive)
-                    }
-                    (_, result) => result,
-                }
-            })
+            .get(name, || self.flatbuffer_schema().get_directive(name))
             .as_ref()
     }
 
@@ -308,7 +294,7 @@ impl Schema for SchemaWrapper {
             Type::Interface(id) => self.interface(id).name.item.0,
             Type::Object(id) => self.object(id).name.item.0,
             Type::Scalar(id) => self.scalar(id).name.item.0,
-            Type::Union(id) => self.union(id).name.item,
+            Type::Union(id) => self.union(id).name.item.0,
         }
     }
 

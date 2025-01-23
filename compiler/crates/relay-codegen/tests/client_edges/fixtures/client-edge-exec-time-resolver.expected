@@ -1,0 +1,87 @@
+==================================== INPUT ====================================
+# enable-exec-time-resolvers-directive
+
+query Foo @exec_time_resolvers {
+  me {
+    pet {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type Cat @__RelayResolverModel {
+  name: String
+    @relay_resolver(import_name: "name", import_path: "CatNameResolver")
+  __relay_model_instance: RelayResolverValue!
+    @relay_resolver(import_name: "Cat")
+    @unselectable(
+      reason: "This field is intended only for Relay's internal use"
+    )
+}
+
+extend type User {
+  pet: Cat @relay_resolver(import_name: "Pet", import_path: "PetResolver")
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "ClientEdgeToClientObject",
+          "modelResolvers": {
+            "Cat": {
+              "resolverModule": require('<generated>').Cat
+            }
+          },
+          "backingField": {
+            "name": "pet",
+            "args": null,
+            "kind": "RelayResolver",
+            "storageKey": null,
+            "isOutputType": false,
+            "resolverInfo": {
+              "resolverFunction": require('PetResolver').Pet,
+              "rootFragment": null
+            }
+          },
+          "linkedField": {
+            "alias": null,
+            "args": null,
+            "concreteType": "Cat",
+            "kind": "LinkedField",
+            "name": "pet",
+            "plural": false,
+            "selections": [
+              {
+                "name": "name",
+                "args": null,
+                "kind": "RelayResolver",
+                "storageKey": null,
+                "isOutputType": false,
+                "resolverInfo": {
+                  "resolverFunction": require('CatNameResolver').name,
+                  "rootFragment": null
+                }
+              }
+            ],
+            "storageKey": null
+          }
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "use_exec_time_resolvers": true
+}

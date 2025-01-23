@@ -1,0 +1,13 @@
+# expected-to-throw
+
+fragment RefetchableFragment on NoImplementation
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}
+
+
+# %extensions%
+
+interface NoImplementation {
+    id: ID!
+}

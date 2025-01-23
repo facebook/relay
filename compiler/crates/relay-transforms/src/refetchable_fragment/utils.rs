@@ -18,8 +18,10 @@ use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentSignature;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinitionName;
+use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
@@ -29,13 +31,21 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 use super::validation_message::ValidationMessage;
+use crate::extract_connection_metadata_from_directive;
 use crate::root_variables::VariableMap;
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RefetchableIdentifierInfo {
+    pub identifier_field: StringKey,
+    pub identifier_query_variable_name: StringKey,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableMetadata {
     pub operation_name: OperationDefinitionName,
     pub path: Vec<StringKey>,
-    pub identifier_field: Option<StringKey>,
+    pub identifier_info: Option<RefetchableIdentifierInfo>,
+    pub is_prefetchable_pagination: bool,
 }
 associated_data_impl!(RefetchableMetadata);
 
@@ -66,6 +76,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
         arguments: fragment
             .variable_definitions
             .iter()
+            .filter(|def| ProvidedVariableMetadata::find(&def.directives).is_none())
             .map(|var| Argument {
                 name: var.name.map(|x| ArgumentName(x.0)),
                 value: WithLocation::new(
@@ -77,6 +88,12 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
                 ),
             })
             .collect(),
+        signature: Some(FragmentSignature {
+            name: fragment.name,
+            variable_definitions: fragment.variable_definitions.clone(),
+            type_condition: fragment.type_condition,
+            directives: fragment.directives.clone(),
+        }),
     }))
 }
 
@@ -134,6 +151,16 @@ pub fn build_fragment_metadata_as_directive(
     let mut next_directives = fragment.directives.clone();
     next_directives.push(metadata.into());
     next_directives
+}
+
+pub fn uses_prefetchable_pagination_in_connection(fragment: &FragmentDefinition) -> bool {
+    if let Some(metadatas) = extract_connection_metadata_from_directive(&fragment.directives) {
+        if metadatas.len() == 1 {
+            let metadata = &metadatas[0];
+            return metadata.is_prefetchable_pagination;
+        }
+    }
+    false
 }
 
 /// Metadata attached to generated refetch queries storing the name of the

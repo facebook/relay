@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query relayResolverEdgeToInterfaceWithChildInterfaceAndNoImplementorsQuery {
+  resolver_field {
+    name
+  }
+}
+
+# %extensions%
+
+"""
+An interface with no concrete implementors
+"""
+interface SomeInterface {
+  name: String
+}
+
+interface ChildInterface implements SomeInterface {
+  name: String
+  age: Int
+}
+
+extend type Query {
+  resolver_field: SomeInterface
+    @relay_resolver(import_path: "./path/to/Resolver.js")
+}
+==================================== ERROR ====================================
+✖︎ Client Edges that reference client-defined interface types are not currently supported in Relay.
+
+  relay-resolver-edge-to-interface-with-child-interface-and-no-implementors.graphql:3:3
+    2 │ query relayResolverEdgeToInterfaceWithChildInterfaceAndNoImplementorsQuery {
+    3 │   resolver_field {
+      │   ^^^^^^^^^^^^^^
+    4 │     name
+
+
+✖︎ No types implement the client interface SomeInterface. Interfaces returned by a @RelayResolver must have at least one concrete implementation.
+
+  <generated>:2:44
+    1 │ # expected-to-throw
+    2 │ query relayResolverEdgeToInterfaceWithChildInterfaceAndNoImplementorsQuery {
+      │                                            ^^^^^^^^^^^^^
+    3 │   resolver_field {

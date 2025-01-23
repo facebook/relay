@@ -1,0 +1,55 @@
+//- PersonComponent.js
+graphql`query PersonComponentQuery {
+  person {
+    ... on User {
+      name
+    }
+    ... on Admin {
+      name
+    }
+  }
+}`
+
+//- QueryResolvers.js
+/**
+ * @RelayResolver Query.person: Person
+ */
+
+//- UserTypeResolvers.js
+/**
+ * @RelayResolver User.name: String
+ */
+
+//- AdminTypeResolvers.js
+/**
+ * @RelayResolver Admin.name: String
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ],
+  "featureFlags": {
+    "enable_resolver_normalization_ast": true,
+    "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+type User {
+  id: ID!
+}
+type Admin {
+  id: ID!
+}
+
+union Person = User | Admin

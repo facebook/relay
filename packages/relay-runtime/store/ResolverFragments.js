@@ -17,6 +17,7 @@ import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 import type {ResolverFragmentResult} from './ResolverCache';
 
 const {getFragment} = require('../query/GraphQLTag');
+const {eventShouldThrow} = require('../util/handlePotentialSnapshotErrors');
 const {getSelector} = require('./RelayModernSelector');
 const invariant = require('invariant');
 
@@ -55,17 +56,14 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
+): $NonMaybeType<TKey['$data']>;
 
 declare function readFragment<
   TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $Call<
-  <TFragmentData>(?{+$data?: TFragmentData, ...}) => ?TFragmentData,
-  TKey,
->;
+): ?TKey?.['$data'];
 
 declare function readFragment<
   TKey: $ReadOnlyArray<{
@@ -76,12 +74,7 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $Call<
-  <TFragmentData>(
-    $ReadOnlyArray<{+$data?: TFragmentData, ...}>,
-  ) => TFragmentData,
-  TKey,
->;
+): $NonMaybeType<TKey[number]['$data']>;
 
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
@@ -92,12 +85,7 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $Call<
-  <TFragmentData>(
-    ?$ReadOnlyArray<{+$data?: TFragmentData, ...}>,
-  ) => ?TFragmentData,
-  TKey,
->;
+): ?TKey?.[number]['$data'];
 
 declare function readFragment<TKey: FragmentType, TData>(
   fragmentInput: Fragment<TKey, TData>,
@@ -124,22 +112,25 @@ function readFragment(
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  const {data, isMissingData} = context.getDataForResolverFragment(
+  const {data, isMissingData, fieldErrors} = context.getDataForResolverFragment(
     fragmentSelector,
     fragmentKey,
   );
 
-  if (isMissingData) {
-    throw RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL;
+  if (
+    isMissingData ||
+    (fieldErrors != null && fieldErrors.some(eventShouldThrow))
+  ) {
+    throw RESOLVER_FRAGMENT_ERRORED_SENTINEL;
   }
 
   return data;
 }
 
-const RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL: mixed = {};
+const RESOLVER_FRAGMENT_ERRORED_SENTINEL: mixed = {};
 
 module.exports = {
   readFragment,
   withResolverContext,
-  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+  RESOLVER_FRAGMENT_ERRORED_SENTINEL,
 };

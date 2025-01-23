@@ -1,0 +1,62 @@
+==================================== INPUT ====================================
+fragment MyFragment on ClientUser @throwOnFieldError {
+  best_friend @waterfall {
+    name
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  best_friend: User @semanticNonNull @relay_resolver(
+      import_path: "./foo/bar.js"
+    )
+}
+==================================== OUTPUT ===================================
+import type { RefetchableClientEdgeQuery_MyFragment_best_friend$fragmentType } from "RefetchableClientEdgeQuery_MyFragment_best_friend.graphql";
+export type ClientEdgeQuery_MyFragment_best_friend$variables = {|
+  id: string,
+|};
+export type ClientEdgeQuery_MyFragment_best_friend$data = {|
+  +node: ?{|
+    +$fragmentSpreads: RefetchableClientEdgeQuery_MyFragment_best_friend$fragmentType,
+  |},
+|};
+export type ClientEdgeQuery_MyFragment_best_friend = {|
+  response: ClientEdgeQuery_MyFragment_best_friend$data,
+  variables: ClientEdgeQuery_MyFragment_best_friend$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType, DataID } from "relay-runtime";
+import clientUserBestFriendResolverType from "bar";
+// Type assertion validating that `clientUserBestFriendResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(clientUserBestFriendResolverType: () => {|
+  +id: DataID,
+|});
+declare export opaque type MyFragment$fragmentType: FragmentType;
+export type MyFragment$data = {|
+  +best_friend: {|
+    +name: ?string,
+  |},
+  +$fragmentType: MyFragment$fragmentType,
+|};
+export type MyFragment$key = {
+  +$data?: MyFragment$data,
+  +$fragmentSpreads: MyFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RefetchableClientEdgeQuery_MyFragment_best_friend$fragmentType: FragmentType;
+import type { ClientEdgeQuery_MyFragment_best_friend$variables } from "ClientEdgeQuery_MyFragment_best_friend.graphql";
+export type RefetchableClientEdgeQuery_MyFragment_best_friend$data = {|
+  +id: string,
+  +name: ?string,
+  +$fragmentType: RefetchableClientEdgeQuery_MyFragment_best_friend$fragmentType,
+|};
+export type RefetchableClientEdgeQuery_MyFragment_best_friend$key = {
+  +$data?: RefetchableClientEdgeQuery_MyFragment_best_friend$data,
+  +$fragmentSpreads: RefetchableClientEdgeQuery_MyFragment_best_friend$fragmentType,
+  ...
+};

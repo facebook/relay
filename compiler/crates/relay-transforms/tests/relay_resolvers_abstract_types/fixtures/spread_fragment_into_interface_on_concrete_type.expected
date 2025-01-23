@@ -1,0 +1,62 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment spreadFragmentIntoInterfaceOnConcreteTypeFragment on Cat {
+    description
+}
+
+query Query {
+    tabby {
+        ...spreadFragmentIntoInterfaceOnConcreteTypeFragment
+        is_orange
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    is_orange: Boolean
+}
+
+type Persian implements Cat {
+    description: String
+}
+
+extend type Query {
+    tabby: Tabby
+}
+==================================== OUTPUT ===================================
+fragment spreadFragmentIntoInterfaceOnConcreteTypeFragment on Cat {
+  ... on Tabby {
+    __id @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(527),
+    #     import_path: "TabbyResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    # }
+    
+  }
+  ... on Persian {
+    description
+  }
+}
+
+query Query {
+  tabby {
+    ...spreadFragmentIntoInterfaceOnConcreteTypeFragment
+    is_orange
+  }
+}

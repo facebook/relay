@@ -52,7 +52,7 @@ struct NodeInterface {
     id_field: FieldID,
 }
 
-impl<'s> Transformer for GenerateIDFieldTransform<'s> {
+impl<'s> Transformer<'_> for GenerateIDFieldTransform<'s> {
     const NAME: &'static str = "GenerateIDFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -250,7 +250,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
                 node_interface.id_field,
             )));
         }
-        result.extend(next_selections.into_iter());
+        result.extend(next_selections);
         TransformedValue::Replace(result)
     }
 

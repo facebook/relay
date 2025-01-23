@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<749bb8178626869b50d45ca77c8e93f2>>
+ * @generated SignedSource<<1848531cb19687442032220d4e03fc80>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,8 +59,7 @@ var node/*: ReaderFragment*/ = {
               "name": "month",
               "storageKey": null
             },
-            "action": "THROW",
-            "path": "birthdate.month"
+            "action": "THROW"
           },
           {
             "kind": "RequiredField",
@@ -71,14 +70,12 @@ var node/*: ReaderFragment*/ = {
               "name": "day",
               "storageKey": null
             },
-            "action": "THROW",
-            "path": "birthdate.day"
+            "action": "THROW"
           }
         ],
         "storageKey": null
       },
-      "action": "THROW",
-      "path": "birthdate"
+      "action": "THROW"
     }
   ],
   "type": "User",

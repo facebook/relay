@@ -8,7 +8,7 @@
 #![deny(clippy::all)]
 
 mod client;
-mod code_action;
+pub mod code_action;
 pub mod completion;
 pub mod diagnostic_reporter;
 mod docblock_resolution_info;
@@ -17,13 +17,15 @@ pub mod find_field_usages;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
-pub mod js_language_server;
+mod inlay_hints;
 pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
 pub mod lsp_runtime_error;
 pub mod node_resolution_info;
+pub mod print_operation;
 pub mod references;
+pub mod rename;
 mod resolved_types_at_location;
 mod search_schema_items;
 mod server;
@@ -32,14 +34,17 @@ mod status_reporter;
 pub mod status_updater;
 pub mod text_documents;
 pub mod utils;
+use std::path::Path;
 use std::sync::Arc;
 
+use code_action::get_code_actions_from_diagnostic;
 use common::PerfLogger;
+use diagnostic_reporter::DiagnosticReporter;
 use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::ExecutableDocument;
+use graphql_syntax::SchemaDocument;
 pub use hover::ContentConsumerType;
-pub use js_language_server::JSLanguageServer;
 use log::debug;
 pub use lsp_extra_data_provider::DummyExtraDataProvider;
 pub use lsp_extra_data_provider::FieldDefinitionSourceInfo;
@@ -62,8 +67,9 @@ pub use server::Schemas;
 pub use utils::position_to_offset;
 
 pub enum Feature {
-    GraphQLDocument(ExecutableDocument),
+    ExecutableDocument(ExecutableDocument),
     DocblockIr(DocblockIr),
+    SchemaDocument(SchemaDocument),
 }
 
 #[allow(clippy::large_enum_variant)]
@@ -85,9 +91,6 @@ pub async fn start_language_server<
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
-    js_language_server: Option<
-        Box<dyn JSLanguageServer<TState = LSPState<TPerfLogger, TSchemaDocumentation>>>,
-    >,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -103,11 +106,36 @@ where
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
-        js_language_server,
     )
     .await?;
     io_handles.join()?;
     Ok(())
+}
+
+pub fn diagnostics_to_code_actions(
+    root_dir: &Path,
+    diagnostics: &[common::Diagnostic],
+) -> std::vec::Vec<lsp_types::CodeActionOrCommand> {
+    // We send the diagnostics through the LSP's DiagnosticReporter to transform
+    // them into code actions.
+    // This transformation should probably be split off from the DiagnosticReporter.
+    let dummy_reporter = DiagnosticReporter::new(root_dir.to_path_buf(), None);
+    dummy_reporter.report_diagnostics(diagnostics);
+    let published_params = dummy_reporter.get_published_diagnostics();
+
+    let mut all_actions = vec![];
+    for param in published_params {
+        for diagnostic in param.diagnostics {
+            if let Some(action) = get_code_actions_from_diagnostic(&param.uri, diagnostic)
+                .unwrap()
+                .first()
+            {
+                all_actions.push(action.clone());
+            }
+        }
+    }
+
+    all_actions
 }
 
 #[cfg(test)]

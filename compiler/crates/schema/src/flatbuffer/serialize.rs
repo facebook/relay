@@ -141,7 +141,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     }
 
     fn serialize_directive(&mut self, directive: &Directive) {
-        let name = directive.name.0.lookup();
+        let name = directive.name.item.0.lookup();
         if self.directives.contains_key(name) {
             return;
         }
@@ -339,7 +339,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let union = self.schema.union(id);
         let name = union.name;
         let idx = self.unions.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Union, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Union, name.item.0);
         self.unions.push(schema_flatbuffer::Union::create(
             &mut self.bldr,
             &schema_flatbuffer::UnionArgs::default(),
@@ -421,7 +421,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         value: &Argument,
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
         let args = schema_flatbuffer::ArgumentArgs {
-            name: Some(self.bldr.create_string(value.name.0.lookup())),
+            name: Some(self.bldr.create_string(value.name.item.0.lookup())),
             value: value
                 .default_value
                 .as_ref()

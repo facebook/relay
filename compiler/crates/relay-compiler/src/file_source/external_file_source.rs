@@ -8,8 +8,11 @@
 use std::fs::File as FsFile;
 use std::io::BufReader;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use common::PerfLogger;
+use rayon::prelude::*;
+use serde::Deserialize;
 
 use super::File;
 use crate::compiler_state::CompilerState;
@@ -20,9 +23,9 @@ use crate::FileSourceResult;
 
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman
-pub struct ExternalFileSource<'config> {
+pub struct ExternalFileSource {
     changed_files_list: PathBuf,
-    pub config: &'config Config,
+    pub config: Arc<Config>,
 }
 
 #[derive(Debug)]
@@ -37,21 +40,41 @@ impl ExternalFileSourceResult {
             file: path.clone(),
             source: err,
         })?;
-        let files: Vec<File> =
-            serde_json::from_reader(BufReader::new(file)).map_err(|err| Error::SerdeError {
+
+        #[derive(Deserialize)]
+        struct FilePartialMetadata {
+            name: PathBuf,
+            exists: Option<bool>,
+        }
+        let files: Vec<FilePartialMetadata> = serde_json::from_reader(BufReader::new(file))
+            .map_err(|err| Error::SerdeError {
                 file: path.clone(),
                 source: err,
             })?;
 
         Ok(Self {
-            files,
+            files: files
+                .into_par_iter()
+                .map(|file| {
+                    let exists = file.exists.unwrap_or_else(|| {
+                        std::fs::metadata(&file.name)
+                            .map(|m| m.is_file())
+                            .unwrap_or(false)
+                    });
+
+                    File {
+                        name: file.name,
+                        exists,
+                    }
+                })
+                .collect(),
             resolved_root,
         })
     }
 }
 
-impl<'config> ExternalFileSource<'config> {
-    pub fn new(changed_files_list: PathBuf, config: &'config Config) -> Self {
+impl ExternalFileSource {
+    pub fn new(changed_files_list: PathBuf, config: Arc<Config>) -> Self {
         Self {
             config,
             changed_files_list,
@@ -79,7 +102,7 @@ impl<'config> ExternalFileSource<'config> {
                 ExternalFileSourceResult::read_from_fs(&self.changed_files_list, root_dir.clone())?,
             ));
 
-        compiler_state.merge_file_source_changes(self.config, perf_logger, true)?;
+        compiler_state.merge_file_source_changes(&self.config, perf_logger, true)?;
 
         Ok(compiler_state)
     }

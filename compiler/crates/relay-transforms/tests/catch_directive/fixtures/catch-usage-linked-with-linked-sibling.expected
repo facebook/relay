@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+fragment MyFragmentFirst on User {
+  parents {
+    lastName
+  }
+}
+
+fragment MyFragmentSecond on User {
+  address @catch(to: RESULT) {
+    street
+  }
+}
+==================================== OUTPUT ===================================
+fragment MyFragmentFirst on User {
+  parents {
+    lastName
+  }
+}
+
+fragment MyFragmentSecond on User {
+  address @catch(to: RESULT) @__CatchMetadataDirective
+  # CatchMetadataDirective {
+  #     to: Result,
+  # }
+   {
+    street
+  }
+}

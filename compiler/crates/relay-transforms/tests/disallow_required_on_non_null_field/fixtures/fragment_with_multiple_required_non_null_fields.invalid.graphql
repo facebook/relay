@@ -1,0 +1,15 @@
+fragment MyFragment on User @throwOnFieldError {
+  some_field @required(action: THROW)
+  some_other_field @required(action: THROW)
+  best_friend {
+    some_field @required(action: THROW)
+    some_other_field @required(action: THROW)
+  }
+}
+
+# %extensions%
+extend type User {
+  some_field: Int!
+  some_other_field: Int!
+  best_friend: User
+}

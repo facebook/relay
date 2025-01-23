@@ -9,12 +9,16 @@ use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fmt;
 
+use common::PerfLogEvent;
 use graphql_ir::*;
 use relay_transforms::get_resolver_fragment_dependency_name;
 use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 use schema::Schema;
+use schema_diff::check;
+
+use crate::schema_change_analyzer;
 
 pub type ExecutableDefinitionNameSet = FxHashSet<ExecutableDefinitionName>;
 pub type ExecutableDefinitionNameMap<V> = FxHashMap<ExecutableDefinitionName, V>;
@@ -48,38 +52,48 @@ pub fn get_reachable_ir(
     base_definition_names: ExecutableDefinitionNameSet,
     changed_names: ExecutableDefinitionNameSet,
     schema: &SDLSchema,
+    schema_changes: FxHashSet<check::IncrementalBuildSchemaChange>,
+    log_event: &impl PerfLogEvent,
 ) -> Vec<ExecutableDefinition> {
-    if changed_names.is_empty() {
-        return vec![];
-    }
+    let timer = log_event.start("get_reachable_ir_time");
+    let result = if changed_names.is_empty() && schema_changes.is_empty() {
+        vec![]
+    } else {
+        let mut all_changed_names: ExecutableDefinitionNameSet =
+            schema_change_analyzer::get_affected_definitions(schema, &definitions, schema_changes);
+        all_changed_names.extend(changed_names);
 
-    // For each executable definition, define a `Node` indicating its parents and children
-    // Note: There are situations where a name in `changed_names` may not appear
-    // in `definitions`, and thus would be missing from `dependency_graph`. This can arise
-    // if you change a file which contains a fragment which is present in the
-    // base project, but is not reachable from any of the project's own
-    // queries/mutations.
-    let dependency_graph = build_dependency_graph(schema, definitions);
+        // For each executable definition, define a `Node` indicating its parents and children
+        // Note: There are situations where a name in `changed_names` may not appear
+        // in `definitions`, and thus would be missing from `dependency_graph`. This can arise
+        // if you change a file which contains a fragment which is present in the
+        // base project, but is not reachable from any of the project's own
+        // queries/mutations.
+        let dependency_graph = build_dependency_graph(schema, definitions);
 
-    let mut visited = Default::default();
-    let mut filtered_definitions = Default::default();
+        let mut visited = Default::default();
+        let mut filtered_definitions = Default::default();
 
-    for key in changed_names.into_iter() {
-        if dependency_graph.contains_key(&key) {
-            add_related_nodes(
-                &mut visited,
-                &mut filtered_definitions,
-                &dependency_graph,
-                &base_definition_names,
-                key,
-            );
+        for key in all_changed_names.into_iter() {
+            if dependency_graph.contains_key(&key) {
+                add_related_nodes(
+                    &mut visited,
+                    &mut filtered_definitions,
+                    &dependency_graph,
+                    &base_definition_names,
+                    key,
+                );
+            }
         }
-    }
 
-    filtered_definitions
-        .drain()
-        .map(|(_, definition)| definition)
-        .collect()
+        filtered_definitions
+            .drain()
+            .map(|(_, definition)| definition)
+            .collect()
+    };
+
+    log_event.stop(timer);
+    result
 }
 
 // Build a dependency graph of that nodes are "doubly linked"
@@ -189,7 +203,6 @@ fn visit_selections(
             Selection::LinkedField(linked_field) => {
                 if let Some(fragment_name) = get_resolver_fragment_dependency_name(
                     schema.field(linked_field.definition.item),
-                    schema,
                 ) {
                     update_dependency_graph(
                         fragment_name.into(),
@@ -209,7 +222,6 @@ fn visit_selections(
             Selection::ScalarField(scalar_field) => {
                 if let Some(fragment_name) = get_resolver_fragment_dependency_name(
                     schema.field(scalar_field.definition.item),
-                    schema,
                 ) {
                     update_dependency_graph(
                         fragment_name.into(),
@@ -292,4 +304,56 @@ fn add_descendants(
             panic!("Fragment {:?} not found in IR.", key);
         }
     }
+}
+
+/// Get fragment references of each definition
+pub fn get_ir_definition_references<'a>(
+    schema: &SDLSchema,
+    definitions: impl IntoIterator<Item = &'a ExecutableDefinition>,
+) -> ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> {
+    let mut result: ExecutableDefinitionNameMap<ExecutableDefinitionNameSet> = Default::default();
+    for definition in definitions {
+        let name = definition.name_with_location().item;
+        let name = match definition {
+            ExecutableDefinition::Operation(_) => OperationDefinitionName(name).into(),
+            ExecutableDefinition::Fragment(_) => FragmentDefinitionName(name).into(),
+        };
+        let mut selections: Vec<_> = match definition {
+            ExecutableDefinition::Operation(definition) => &definition.selections,
+            ExecutableDefinition::Fragment(definition) => &definition.selections,
+        }
+        .iter()
+        .collect();
+        let mut references: ExecutableDefinitionNameSet = Default::default();
+        while let Some(selection) = selections.pop() {
+            match selection {
+                Selection::FragmentSpread(selection) => {
+                    references.insert(selection.fragment.item.into());
+                }
+                Selection::LinkedField(selection) => {
+                    if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                        schema.field(selection.definition.item),
+                    ) {
+                        references.insert(fragment_name.into());
+                    }
+                    selections.extend(&selection.selections);
+                }
+                Selection::InlineFragment(selection) => {
+                    selections.extend(&selection.selections);
+                }
+                Selection::Condition(selection) => {
+                    selections.extend(&selection.selections);
+                }
+                Selection::ScalarField(selection) => {
+                    if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                        schema.field(selection.definition.item),
+                    ) {
+                        references.insert(fragment_name.into());
+                    }
+                }
+            }
+        }
+        result.insert(name, references);
+    }
+    result
 }

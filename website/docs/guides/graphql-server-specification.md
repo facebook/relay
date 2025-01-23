@@ -307,7 +307,7 @@ gives us
         {
           "cursor": "YXJyYXljb25uZWN0aW9uOjM=",
           "node": {
-            "name": "Millenium Falcon"
+            "name": "Millennium Falcon"
           }
         },
         {
@@ -415,7 +415,7 @@ and we get back
         },
         {
           "node": {
-            "name": "Millenium Falcon"
+            "name": "Millennium Falcon"
           }
         },
         {
@@ -437,6 +437,12 @@ So on the first query for ships, GraphQL told us there was a next page, but on t
 Relay uses all of this functionality to build out abstractions around connections, to make these easy to work with efficiently without having to manually manage cursors on the client.
 
 Complete details on how the server should behave are available in the [GraphQL Cursor Connections](https://relay.dev/graphql/connections.htm) spec.
+
+## GraphQL Conf Talk
+
+Sabrina Wasserman, an engineer at Meta, gave a talk at GraphQL Conf 2024 deriving the GraphQL connection spec, and explaining how having the behavior of list pagination specified can enable powerful tooling for clients broadly, not just Relay.
+
+<iframe src="https://www.youtube-nocookie.com/embed/PGBC-0E-kco" width={640} height={360} allowFullScreen={true} frameBorder="0" />
 
 ## Further Reading
 

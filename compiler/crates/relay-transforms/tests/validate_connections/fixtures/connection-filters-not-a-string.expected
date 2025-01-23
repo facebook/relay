@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query NodeQuery($id: ID!, $orderBy: String) {
+  node(id: $id) {
+    id
+    ... on Story {
+      comments(first: 10, orderby: $orderBy)
+        @connection(key: "NodeQuery_comments", filters: [123]) {
+        edges {
+          node {
+            actor {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected a value of type 'String'
+
+  connection-filters-not-a-string.graphql:7:58
+    6 │       comments(first: 10, orderby: $orderBy)
+    7 │         @connection(key: "NodeQuery_comments", filters: [123]) {
+      │                                                          ^^^
+    8 │         edges {

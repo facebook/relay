@@ -1,0 +1,17 @@
+# expected-to-throw
+
+query clientFieldsWithUndefinedGlobalVariablesQuery($id: ID!) {
+  node(id: $id) {
+    ...clientFieldsWithUndefinedGlobalVariables_user
+  }
+}
+
+fragment clientFieldsWithUndefinedGlobalVariables_user on User {
+  pop_star_name(scale: $scale)
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(scale: Float!): String
+}

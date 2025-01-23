@@ -21,7 +21,12 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useContext} = React;
 
@@ -50,17 +55,21 @@ describe('ReactRelayLocalQueryRenderer', () => {
   let setProps;
 
   const renderer = (env, query, renderFn, vars, opts) => {
-    return ReactTestRenderer.create(
-      <PropsSetter>
-        <ReactRelayLocalQueryRenderer
-          environment={env}
-          query={query}
-          render={renderFn}
-          variables={vars}
-        />
-      </PropsSetter>,
-      opts,
-    );
+    let instance;
+    ReactTestRenderer.act(() => {
+      instance = ReactTestRenderer.create(
+        <PropsSetter>
+          <ReactRelayLocalQueryRenderer
+            environment={env}
+            query={query}
+            render={renderFn}
+            variables={vars}
+          />
+        </PropsSetter>,
+        opts,
+      );
+    });
+    return instance;
   };
 
   class PropsSetter extends React.Component {
@@ -455,7 +464,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
       expect(snapshot.data).toBeDefined();
       // Data should not be collected by GC
       environment.getStore().__gc();
-      jest.runAllImmediates();
+      ReactTestRenderer.act(() => jest.runAllImmediates());
       expect(environment.getStore().getSource().toJSON()).not.toEqual({});
 
       ReactTestRenderer.act(() => jest.runAllImmediates());
@@ -482,7 +491,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
     });
 
     it('never runs before unmount, data retain should be released', () => {
-      instance.unmount();
+      ReactTestRenderer.act(() => instance.unmount());
       jest.runAllTimers();
       expect(environment.getStore().getSource().toJSON()).toEqual({});
     });
@@ -512,8 +521,9 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     it('default context', () => {
       expect.assertions(1);
-      ReactTestRenderer.create(<ContextGetter />);
-
+      ReactTestRenderer.act(() => {
+        ReactTestRenderer.create(<ContextGetter />);
+      });
       expect(queryRendererContext.rootIsQueryRenderer).toBe(false);
     });
   });

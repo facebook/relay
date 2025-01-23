@@ -169,7 +169,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
         self.is_current_fragment_client_only =
             self.is_current_fragment_client_only && is_client_only;
         self.current_client_invalid_directives
-            .extend(client_invalid_directives.into_iter());
+            .extend(client_invalid_directives);
         if is_client_only {
             let current_root_client_selection = self.current_root_client_selection;
             self.current_root_client_selection = Some(fragment.name.location);
@@ -229,7 +229,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
                         ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
                             directive.name.item,
                         ),
-                        directive.name.location,
+                        directive.location,
                     )
                     .annotate("related location", location),
                 ])

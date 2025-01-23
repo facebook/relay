@@ -10,6 +10,7 @@ use common::DirectiveName;
 use common::SourceLocationKey;
 use graphql_syntax::*;
 use intern::string_key::StringKey;
+use rayon::iter::ParallelIterator;
 
 use crate::definitions::Directive;
 use crate::definitions::*;
@@ -345,6 +346,13 @@ impl SDLSchema {
         }
     }
 
+    pub fn get_type_map_par_iter(&self) -> impl ParallelIterator<Item = (&StringKey, &Type)> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.get_type_map_par_iter(),
+        }
+    }
+
     pub fn get_directives(&self) -> impl Iterator<Item = &Directive> {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
@@ -397,7 +405,7 @@ impl SDLSchema {
 
     pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
-            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::FlatBuffer(schema) => schema.has_directive(directive_name),
             SDLSchema::InMemory(schema) => schema.has_directive(directive_name),
         }
     }

@@ -84,7 +84,7 @@ query ListArgumentQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: list-argument.graphql:79:84,
-                                item: FieldID(30),
+                                item: FieldID(31),
                             },
                             arguments: [],
                             directives: [],
@@ -93,7 +93,7 @@ query ListArgumentQuery {
                                     alias: None,
                                     definition: WithLocation {
                                         location: list-argument.graphql:93:97,
-                                        item: FieldID(33),
+                                        item: FieldID(34),
                                     },
                                     arguments: [],
                                     directives: [],

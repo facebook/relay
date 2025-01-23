@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<236a7c891b7e807f3d92505482e0e7e6>>
+ * @generated SignedSource<<c2e78a4516e2e66531dc87c2064261dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,18 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserBestFriendShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserBestFriendShoutedGreetingResolver.graphql";
 import {best_friend_shouted_greeting as userBestFriendShoutedGreetingResolverType} from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userBestFriendShoutedGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendShoutedGreetingResolverType: (
   rootKey: UserBestFriendShoutedGreetingResolver$key,
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?string);
 export type RelayReaderResolverTest6Query$variables = {||};
 export type RelayReaderResolverTest6Query$data = {|
   +me: ?{|
-    +best_friend_shouted_greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userBestFriendShoutedGreetingResolverType>,
+    +best_friend_shouted_greeting: ?string,
   |},
 |};
 export type RelayReaderResolverTest6Query = {|
@@ -156,7 +159,7 @@ return {
                               },
                               "kind": "RelayResolver",
                               "storageKey": null,
-                              "isOutputType": false
+                              "isOutputType": true
                             },
                             (v0/*: any*/)
                           ],
@@ -174,7 +177,7 @@ return {
             },
             "kind": "RelayResolver",
             "storageKey": null,
-            "isOutputType": false
+            "isOutputType": true
           },
           (v0/*: any*/)
         ],

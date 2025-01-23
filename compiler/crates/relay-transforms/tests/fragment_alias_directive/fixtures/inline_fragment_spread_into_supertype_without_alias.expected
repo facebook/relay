@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query RelayReaderNamedFragmentsTest2Query {
+  node {
+    # This might not match, but that's fine since our types capture the
+    # nullability of the individual fields
+    ... on User {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query RelayReaderNamedFragmentsTest2Query {
+  node {
+    ... on User {
+      name
+    }
+  }
+}

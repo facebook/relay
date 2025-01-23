@@ -11,7 +11,7 @@ use std::hash::Hash;
 
 pub trait AssociatedData: Send + Sync + fmt::Debug + AsAny {
     fn clone_box(&self) -> Box<dyn AssociatedData>;
-    fn eq_box(&self, other: &Box<dyn AssociatedData>) -> bool;
+    fn eq_box(&self, other: &dyn AssociatedData) -> bool;
     fn hash_box(&self) -> u64;
 }
 impl dyn AssociatedData {
@@ -27,7 +27,7 @@ impl Clone for Box<dyn AssociatedData> {
     }
 }
 
-impl PartialEq for Box<dyn AssociatedData> {
+impl PartialEq for dyn AssociatedData {
     fn eq(&self, other: &Self) -> bool {
         self.eq_box(other)
     }
@@ -58,7 +58,7 @@ macro_rules! associated_data_impl {
                 Box::new(self.clone())
             }
 
-            fn eq_box(&self, other: &Box<dyn $crate::AssociatedData>) -> bool {
+            fn eq_box(&self, other: &dyn $crate::AssociatedData) -> bool {
                 other
                     .downcast_ref::<Self>()
                     .map_or(false, |other| other == self)
@@ -77,12 +77,14 @@ macro_rules! associated_data_impl {
             }
         }
 
-        impl Into<$crate::Directive> for $name {
-            fn into(self) -> $crate::Directive {
+        impl From<$name> for $crate::Directive {
+            fn from(item: $name) -> Self {
                 $crate::Directive {
-                    name: $crate::reexport::WithLocation::generated(Self::directive_name()),
+                    name: $crate::reexport::WithLocation::generated($name::directive_name()),
                     arguments: Vec::new(),
-                    data: Some(Box::new(self)),
+                    data: Some(Box::new(item)),
+                    location: $crate::reexport::WithLocation::generated($name::directive_name())
+                        .location,
                 }
             }
         }
@@ -101,7 +103,13 @@ macro_rules! associated_data_impl {
             #[allow(dead_code)]
             pub fn find(directives: &[$crate::Directive]) -> Option<&Self> {
                 use $crate::reexport::NamedItem;
-                directives.named(Self::directive_name()).map(|directive| {
+                directives
+                    .named(Self::directive_name())
+                    .map(|directive| $name::from(directive).unwrap())
+            }
+
+            pub fn from(directive: &$crate::Directive) -> Option<&Self> {
+                Some(
                     directive
                         .data
                         .as_ref()
@@ -115,8 +123,8 @@ macro_rules! associated_data_impl {
                             "data on @__",
                             stringify!($name),
                             " directive not of right type"
-                        ))
-                })
+                        )),
+                )
             }
         }
     };
@@ -138,7 +146,6 @@ impl<T: Any> AsAny for T {
 mod tests {
     use std::collections::hash_map::RandomState;
     use std::hash::BuildHasher;
-    use std::hash::Hasher;
 
     use once_cell::sync::Lazy;
 
@@ -160,9 +167,7 @@ mod tests {
 
         static BUILD_HASHER: Lazy<RandomState> = Lazy::new(RandomState::new);
         fn hash<T: Hash>(x: T) -> u64 {
-            let mut hasher = BUILD_HASHER.build_hasher();
-            x.hash(&mut hasher);
-            hasher.finish()
+            BUILD_HASHER.hash_one(&x)
         }
 
         assert_eq!(

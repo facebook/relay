@@ -43,9 +43,13 @@ fragment RefetchableFragment on Actor @refetchable(queryName: "RefetchableFragme
 #     path: [
 #         "node",
 #     ],
-#     identifier_field: Some(
-#         "id",
+#     identifier_info: Some(
+#         RefetchableIdentifierInfo {
+#             identifier_field: "id",
+#             identifier_query_variable_name: "id",
+#         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   id

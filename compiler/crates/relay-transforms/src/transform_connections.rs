@@ -7,13 +7,21 @@
 
 use std::sync::Arc;
 
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use ::intern::Lookup;
+use common::ArgumentName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -22,9 +30,8 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::Lookup;
+use graphql_ir::Value::Constant;
+use relay_config::DeferStreamInterface;
 use schema::Schema;
 
 use crate::connections::assert_connection_selections;
@@ -37,18 +44,32 @@ use crate::connections::ConnectionConstants;
 use crate::connections::ConnectionInterface;
 use crate::connections::ConnectionMetadata;
 use crate::connections::ConnectionMetadataDirective;
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
 use crate::handle_fields::build_handle_field_directive_from_connection_directive;
 use crate::handle_fields::KEY_ARG_NAME;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
 
 pub fn transform_connections(
     program: &Program,
     connection_interface: &ConnectionInterface,
+    defer_stream_interface: &DeferStreamInterface,
+    // Does not do other validaiton and transforms only extract prefetchable pagination
+    // fragment. Needed for generating correct types in the typegen pipeline.
+    only_extract_prefetchable_pagination_fragment: bool,
 ) -> Program {
-    let mut transform = ConnectionTransform::new(program, connection_interface);
-    transform
+    let mut transform = ConnectionTransform::new(
+        program,
+        connection_interface,
+        defer_stream_interface,
+        only_extract_prefetchable_pagination_fragment,
+    );
+    let mut program = transform
         .transform_program(program)
-        .replace_or_else(|| program.clone())
+        .replace_or_else(|| program.clone());
+    for fragment in transform.edge_fragments {
+        program.insert_fragment(fragment);
+    }
+    program
 }
 
 struct ConnectionTransform<'s> {
@@ -58,10 +79,18 @@ struct ConnectionTransform<'s> {
     current_connection_metadata: Vec<ConnectionMetadata>,
     current_document_name: StringKey,
     program: &'s Program,
+    defer_stream_interface: &'s DeferStreamInterface,
+    edge_fragments: Vec<Arc<FragmentDefinition>>,
+    only_extract_prefetchable_pagination_fragment: bool,
 }
 
 impl<'s> ConnectionTransform<'s> {
-    fn new(program: &'s Program, connection_interface: &'s ConnectionInterface) -> Self {
+    fn new(
+        program: &'s Program,
+        connection_interface: &'s ConnectionInterface,
+        defer_stream_interface: &'s DeferStreamInterface,
+        only_extract_prefetchable_pagination_fragment: bool,
+    ) -> Self {
         Self {
             connection_constants: ConnectionConstants::default(),
             connection_interface,
@@ -69,6 +98,9 @@ impl<'s> ConnectionTransform<'s> {
             current_document_name: connection_interface.cursor, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
             program,
+            defer_stream_interface,
+            edge_fragments: vec![],
+            only_extract_prefetchable_pagination_fragment,
         }
     }
 
@@ -100,6 +132,7 @@ impl<'s> ConnectionTransform<'s> {
         let edges_field_name = edges_schema_field.name.item;
         let edge_type = edges_schema_field.type_.inner();
         let mut is_aliased_edges = false;
+
         let mut transformed_edges_field = if let Some(alias) = edges_field.alias {
             is_aliased_edges = true;
             // The edges selection has to be generated as non-aliased field (since product
@@ -132,16 +165,43 @@ impl<'s> ConnectionTransform<'s> {
         if is_stream_connection {
             let mut arguments = vec![];
             for arg in &connection_directive.arguments {
-                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
+                if arg.name.item == self.connection_constants.stream_connection_if_arg {
+                    arguments.push(Argument {
+                        name: WithLocation::new(
+                            arg.name.location,
+                            self.defer_stream_interface.if_arg,
+                        ),
+                        value: arg.value.clone(),
+                    });
+                } else if arg.name.item
+                    == self
+                        .connection_constants
+                        .stream_connection_initial_count_arg
                 {
-                    arguments.push(arg.clone());
+                    arguments.push(Argument {
+                        name: WithLocation::new(
+                            arg.name.location,
+                            self.defer_stream_interface.initial_count_arg,
+                        ),
+                        value: arg.value.clone(),
+                    });
+                } else if arg.name.item
+                    == self
+                        .connection_constants
+                        .stream_connection_use_customized_batch_arg
+                {
+                    arguments.push(Argument {
+                        name: WithLocation::new(
+                            arg.name.location,
+                            self.defer_stream_interface.use_customized_batch_arg,
+                        ),
+                        value: arg.value.clone(),
+                    });
                 } else if arg.name.item == *KEY_ARG_NAME {
                     arguments.push(Argument {
                         name: WithLocation::new(
                             arg.name.location,
-                            DEFER_STREAM_CONSTANTS.label_arg,
+                            self.defer_stream_interface.label_arg,
                         ),
                         value: arg.value.clone(),
                     });
@@ -150,10 +210,11 @@ impl<'s> ConnectionTransform<'s> {
             transformed_edges_field.directives.push(Directive {
                 name: WithLocation::new(
                     connection_directive.name.location,
-                    DEFER_STREAM_CONSTANTS.stream_name,
+                    self.defer_stream_interface.stream_name,
                 ),
                 arguments,
                 data: None,
+                location: connection_directive.location,
             });
         }
 
@@ -218,7 +279,7 @@ impl<'s> ConnectionTransform<'s> {
                 arguments.push(Argument {
                     name: WithLocation::new(
                         key_arg.name.location,
-                        DEFER_STREAM_CONSTANTS.label_arg,
+                        self.defer_stream_interface.label_arg,
                     ),
                     value: WithLocation::new(
                         key_arg.value.location,
@@ -234,8 +295,16 @@ impl<'s> ConnectionTransform<'s> {
                     ),
                 });
             }
-            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg) {
-                arguments.push(if_arg.clone());
+            if let Some(if_arg) =
+                connection_args.named(self.connection_constants.stream_connection_if_arg)
+            {
+                arguments.push(Argument {
+                    name: WithLocation::new(
+                        if_arg.name.location,
+                        self.defer_stream_interface.if_arg,
+                    ),
+                    value: if_arg.value.clone(),
+                })
             }
             Selection::InlineFragment(Arc::new(InlineFragment {
                 type_condition: None,
@@ -245,10 +314,11 @@ impl<'s> ConnectionTransform<'s> {
                 directives: vec![Directive {
                     name: WithLocation::new(
                         connection_directive.name.location,
-                        DEFER_STREAM_CONSTANTS.defer_name,
+                        self.defer_stream_interface.defer_name,
                     ),
                     arguments,
                     data: None,
+                    location: connection_directive.location,
                 }],
                 spread_location: Location::generated(),
             }))
@@ -256,6 +326,9 @@ impl<'s> ConnectionTransform<'s> {
             Selection::LinkedField(From::from(transformed_page_info_field))
         };
 
+        // Relay runtime relies on defined shapes for edges and pageInfo fields for
+        // connection to work. The following makes sure necessary fields are present
+        // in runtime.
         // Copy the original selections, replacing edges/pageInfo (if present)
         // with the generated locations. This is to maintain the original field
         // ordering.
@@ -264,9 +337,52 @@ impl<'s> ConnectionTransform<'s> {
             .enumerate()
             .map(|(ix, selection)| {
                 if ix == edges_ix {
-                    if !is_aliased_edges {
-                        return Selection::LinkedField(From::from(transformed_edges_field.clone()));
+                    let mut edges_field_to_maybe_fragmentify = if is_aliased_edges {
+                        edges_field.clone()
+                    } else {
+                        transformed_edges_field.clone()
+                    };
+                    if connection_metadata.is_prefetchable_pagination {
+                        let fields =
+                            std::mem::take(&mut edges_field_to_maybe_fragmentify.selections);
+                        let location = edges_field_to_maybe_fragmentify.alias_or_name_location();
+                        let edges_fragment = Arc::new(FragmentDefinition {
+                            name: WithLocation::new(
+                                location,
+                                FragmentDefinitionName(
+                                    format!("{}__edges", self.current_document_name).intern(),
+                                ),
+                            ),
+                            variable_definitions: vec![], //TODO: Do we need variable_definitions?,
+                            used_global_variables: vec![], //TODO: Do we need used_global_variables?,
+                            type_condition: edge_type,
+                            directives: vec![Directive {
+                                name: WithLocation::new(location, *RELAY_DIRECTIVE_NAME),
+                                arguments: vec![Argument {
+                                    name: WithLocation::new(location, *PLURAL_ARG_NAME),
+                                    value: WithLocation::new(
+                                        location,
+                                        Constant(ConstantValue::Boolean(true)),
+                                    ),
+                                }],
+                                data: None,
+                                location,
+                            }],
+                            selections: fields,
+                        });
+
+                        edges_field_to_maybe_fragmentify.selections.push(
+                            Selection::FragmentSpread(Arc::new(FragmentSpread {
+                                fragment: edges_fragment.name,
+                                arguments: vec![],
+                                signature: None,
+                                directives: vec![],
+                            })),
+                        );
+
+                        self.edge_fragments.push(edges_fragment);
                     }
+                    return Selection::LinkedField(From::from(edges_field_to_maybe_fragmentify));
                 } else if let Some(page_info_ix) = page_info_ix {
                     if ix == page_info_ix && !is_aliased_page_info {
                         return transformed_page_info_field_selection.clone();
@@ -300,9 +416,8 @@ impl<'s> ConnectionTransform<'s> {
         let mut next_directives = connection_field
             .directives
             .iter()
+            .filter(|&directive| directive != connection_directive)
             .cloned()
-            // Remove the original @connection directive
-            .filter(|directive| directive != connection_directive)
             .collect::<Vec<_>>();
 
         // Add an internal (untyped) directive to pass down the connection handle
@@ -323,7 +438,20 @@ impl<'s> ConnectionTransform<'s> {
             &self.current_path,
             connection_directive.name.item
                 == self.connection_constants.stream_connection_directive_name,
+            if let Some(arg) = connection_directive
+                .arguments
+                .named(ArgumentName(intern!("prefetchable_pagination")))
+            {
+                arg.value.item == Constant(ConstantValue::Boolean(true))
+            } else {
+                false
+            },
         );
+        if self.only_extract_prefetchable_pagination_fragment
+            && !connection_metadata.is_prefetchable_pagination
+        {
+            return Transformed::Keep;
+        }
         let next_connection_selections = self.transform_connection_selections(
             connection_field,
             &connection_metadata,
@@ -348,7 +476,7 @@ impl<'s> ConnectionTransform<'s> {
     }
 }
 
-impl<'s> Transformer for ConnectionTransform<'s> {
+impl<'s> Transformer<'_> for ConnectionTransform<'s> {
     const NAME: &'static str = "ConnectionTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

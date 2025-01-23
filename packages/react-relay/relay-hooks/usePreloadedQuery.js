@@ -18,7 +18,6 @@ import type {
 } from './EntryPointTypes.flow';
 import type {Query, RenderPolicy, Variables} from 'relay-runtime';
 
-const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -52,7 +51,7 @@ type PreloadedQuery<
       TEnvironmentProviderOptions,
     >;
 
-function usePreloadedQuery<
+hook usePreloadedQuery<
   TVariables: Variables,
   TData,
   TRawResponse: ?{...} = void,
@@ -67,10 +66,6 @@ function usePreloadedQuery<
     UNSTABLE_renderPolicy?: RenderPolicy,
   },
 ): TData {
-  // We need to use this hook in order to be able to track if
-  // loadQuery was called during render
-  useTrackLoadQueryInRender();
-
   const environment = useRelayEnvironment();
   const {fetchKey, fetchPolicy, source, variables, networkCacheConfig} =
     preloadedQuery;
@@ -164,6 +159,7 @@ function usePreloadedQuery<
 
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
+    // $FlowFixMe[react-rule-hook]
     useDebugValue({
       query: preloadedQuery.name,
       variables: preloadedQuery.variables,

@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+query clientFieldOnAbstractTypeWithoutResolver {
+    cat {
+        ... on Tabby {
+            parent {
+                description
+            }
+        }
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String
+    parent: Cat
+}
+
+type Persian implements Cat {
+    description: String
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== OUTPUT ===================================
+query clientFieldOnAbstractTypeWithoutResolver {
+  cat {
+    ... on Tabby {
+      parent {
+        description
+      }
+    }
+  }
+}

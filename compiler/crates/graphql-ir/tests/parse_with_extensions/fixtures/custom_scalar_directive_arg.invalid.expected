@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+# expected-to-throw
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery {
+    extension_field @customScalarDirective(arg: "foo") {
+        __typename
+    }
+    extension_scalar_field @customScalarDirective(arg: "bar")
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+directive @customScalarDirective(arg: CustomScalarType!) on FIELD
+
+type Obj {
+    some_key: Int!
+}
+
+extend type Query {
+    extension_field: Obj
+    extension_scalar_field: Int
+}
+==================================== ERROR ====================================
+✖︎ Unexpected scalar literal `"foo"` provided in a position expecting custom scalar type `CustomScalarType`. This value should come from a variable.
+
+  custom_scalar_directive_arg.invalid.graphql:5:49
+    4 │ query CustomScalarLiteralArgQuery {
+    5 │     extension_field @customScalarDirective(arg: "foo") {
+      │                                                 ^^^^^
+    6 │         __typename
+
+
+✖︎ Unexpected scalar literal `"bar"` provided in a position expecting custom scalar type `CustomScalarType`. This value should come from a variable.
+
+  custom_scalar_directive_arg.invalid.graphql:8:56
+    7 │     }
+    8 │     extension_scalar_field @customScalarDirective(arg: "bar")
+      │                                                        ^^^^^
+    9 │ }

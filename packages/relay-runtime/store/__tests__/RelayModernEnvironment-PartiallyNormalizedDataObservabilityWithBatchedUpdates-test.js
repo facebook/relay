@@ -33,8 +33,12 @@ const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdat
 const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization = require('./__generated__/RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization.graphql');
 const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_nestedModule_user$normalization = require('./__generated__/RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_nestedModule_user$normalization.graphql');
 const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization = require('./__generated__/RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization.graphql');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const observationFragment = graphql`
@@ -322,7 +326,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
   let callbacks;
   let callback;
   let observationSnapshot;
-  let promise;
+  let promise: Promise<?NormalizationRootNode>;
   let resolve;
 
   beforeEach(() => {
@@ -340,8 +344,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
 
     promise = new Promise(_resolve => (resolve = _resolve));
     operationLoader = {
-      // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
-      load: () => promise,
+      load: jest.fn(() => promise),
       get: jest.fn(),
     };
     source = RelayRecordSource.create();

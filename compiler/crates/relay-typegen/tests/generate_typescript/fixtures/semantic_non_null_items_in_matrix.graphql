@@ -1,0 +1,9 @@
+fragment MyFragment on Screen @throwOnFieldError {
+  pixels
+}
+
+%extensions%
+
+type Screen {
+  pixels: [[Int]] @semanticNonNull(levels: [2])
+}

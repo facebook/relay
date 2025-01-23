@@ -14,21 +14,22 @@
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Disposable, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  FieldErrors,
   FragmentMap,
   FragmentSpecResolver,
   FragmentSpecResults,
   IEnvironment,
-  MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
-  RelayResolverErrors,
   SelectorData,
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 
 const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
-const handlePotentialSnapshotErrors = require('../util/handlePotentialSnapshotErrors');
+const {
+  handlePotentialSnapshotErrors,
+} = require('../util/handlePotentialSnapshotErrors');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
@@ -227,8 +228,7 @@ class SelectorResolver {
   _data: ?SelectorData;
   _environment: IEnvironment;
   _isMissingData: boolean;
-  _missingRequiredFields: ?MissingRequiredFields;
-  _relayResolverErrors: RelayResolverErrors;
+  _fieldErrors: ?FieldErrors;
   _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
@@ -244,8 +244,7 @@ class SelectorResolver {
     this._callback = callback;
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
-    this._missingRequiredFields = snapshot.missingRequiredFields;
-    this._relayResolverErrors = snapshot.relayResolverErrors;
+    this._fieldErrors = snapshot.fieldErrors;
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
@@ -326,11 +325,7 @@ class SelectorResolver {
         }
       }
     }
-    handlePotentialSnapshotErrors(
-      this._environment,
-      this._missingRequiredFields,
-      this._relayResolverErrors,
-    );
+    handlePotentialSnapshotErrors(this._environment, this._fieldErrors);
     return this._data;
   }
 
@@ -345,8 +340,7 @@ class SelectorResolver {
     const snapshot = this._environment.lookup(selector);
     this._data = recycleNodesInto(this._data, snapshot.data);
     this._isMissingData = snapshot.isMissingData;
-    this._missingRequiredFields = snapshot.missingRequiredFields;
-    this._relayResolverErrors = snapshot.relayResolverErrors;
+    this._fieldErrors = snapshot.fieldErrors;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -382,8 +376,7 @@ class SelectorResolver {
   _onChange = (snapshot: Snapshot): void => {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
-    this._missingRequiredFields = snapshot.missingRequiredFields;
-    this._relayResolverErrors = snapshot.relayResolverErrors;
+    this._fieldErrors = snapshot.fieldErrors;
     this._callback();
   };
 }
@@ -449,6 +442,7 @@ class SelectorListResolver {
     const {selectors} = selector;
     while (this._resolvers.length > selectors.length) {
       const resolver = this._resolvers.pop();
+      // $FlowFixMe[incompatible-use]
       resolver.dispose();
     }
     for (let ii = 0; ii < selectors.length; ii++) {

@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+fragment MyFragmentFirst on User {
+  parents @catch(to: NULL) {
+    lastName @catch(to: RESULT)
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragmentFirst",
+  "selections": [
+    {
+      "kind": "CatchField",
+      "field": {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "parents",
+        "plural": true,
+        "selections": [
+          {
+            "kind": "CatchField",
+            "field": {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "lastName",
+              "storageKey": null
+            },
+            "to": "RESULT"
+          }
+        ],
+        "storageKey": null
+      },
+      "to": "NULL"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

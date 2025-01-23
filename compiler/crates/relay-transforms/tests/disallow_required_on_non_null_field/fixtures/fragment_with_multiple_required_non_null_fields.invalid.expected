@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+fragment MyFragment on User @throwOnFieldError {
+  some_field @required(action: THROW)
+  some_other_field @required(action: THROW)
+  best_friend {
+    some_field @required(action: THROW)
+    some_other_field @required(action: THROW)
+  }
+}
+
+# %extensions%
+extend type User {
+  some_field: Int!
+  some_other_field: Int!
+  best_friend: User
+}
+==================================== OUTPUT ===================================
+OK; warnings: ℹ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
+
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:2:14
+    1 │ fragment MyFragment on User @throwOnFieldError {
+    2 │   some_field @required(action: THROW)
+      │              ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   some_other_field @required(action: THROW)
+
+
+ℹ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
+
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:3:20
+    2 │   some_field @required(action: THROW)
+    3 │   some_other_field @required(action: THROW)
+      │                    ^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │   best_friend {
+
+
+ℹ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
+
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:5:16
+    4 │   best_friend {
+    5 │     some_field @required(action: THROW)
+      │                ^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │     some_other_field @required(action: THROW)
+
+
+ℹ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
+
+  fragment_with_multiple_required_non_null_fields.invalid.graphql:6:22
+    5 │     some_field @required(action: THROW)
+    6 │     some_other_field @required(action: THROW)
+      │                      ^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │   }

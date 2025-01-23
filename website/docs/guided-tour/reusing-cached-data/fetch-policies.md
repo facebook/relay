@@ -50,7 +50,7 @@ Specifically, `fetchPolicy` can be any of the following options: **
 * "store-only": *will* *only* reuse locally cached data, and will *never* send a network request to fetch the query. In this case, the responsibility of fetching the query falls to the caller, but this policy could also be used to read and operate on data that is entirely [local](../../updating-data/local-data-updates/).
 
 
-Note that the `refetch` function discussed in the [Fetching and Rendering Different Data](../../refetching/) section also takes a `fetchPolicy`.
+Note that the `refetch` function discussed in the [Fetching and Rendering Different Data](../list-data/introduction.md) section also takes a `fetchPolicy`.
 
 
 <DocsRating />

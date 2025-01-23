@@ -1,0 +1,43 @@
+==================================== INPUT ====================================
+fragment MyFragment on User {
+  address @catch {
+    street @catch
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragment",
+  "selections": [
+    {
+      "kind": "CatchField",
+      "field": {
+        "alias": null,
+        "args": null,
+        "concreteType": "StreetAddress",
+        "kind": "LinkedField",
+        "name": "address",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "CatchField",
+            "field": {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "street",
+              "storageKey": null
+            },
+            "to": "RESULT"
+          }
+        ],
+        "storageKey": null
+      },
+      "to": "RESULT"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

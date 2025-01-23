@@ -20,29 +20,29 @@ type Foo {
 }
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {
-  storyIds?: ReadonlyArray<string | null> | null;
+  storyIds?: ReadonlyArray<string | null | undefined> | null | undefined;
 };
 export type Test$variables = {
-  input?: UpdateAllSeenStateInput | null;
+  input?: UpdateAllSeenStateInput | null | undefined;
 };
 export type Test$data = {
   readonly viewerNotificationsUpdateAllSeenState: {
     readonly stories: ReadonlyArray<{
       readonly foos: ReadonlyArray<{
-        readonly bar: string | null;
-      } | null> | null;
-    } | null> | null;
-  } | null;
+        readonly bar: string | null | undefined;
+      } | null | undefined> | null | undefined;
+    } | null | undefined> | null | undefined;
+  } | null | undefined;
 };
 export type Test$rawResponse = {
   readonly viewerNotificationsUpdateAllSeenState: {
     readonly stories: ReadonlyArray<{
       readonly foos?: ReadonlyArray<{
-        readonly bar: string | null;
-      } | null> | null;
+        readonly bar: string | null | undefined;
+      } | null | undefined> | null | undefined;
       readonly id: string;
-    } | null> | null;
-  } | null;
+    } | null | undefined> | null | undefined;
+  } | null | undefined;
 };
 export type Test = {
   rawResponse: Test$rawResponse;

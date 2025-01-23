@@ -9,6 +9,14 @@
  * @oncall relay
  */
 
+import type {LiveState} from '../../RelayStoreTypes';
+import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
+import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
+import type {TodoDescription_text_style$key} from './__generated__/TodoDescription_text_style.graphql';
+
+const {graphql} = require('relay-runtime');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
+
 /**
  * @RelayResolver TodoDescription
  * @weak
@@ -18,8 +26,14 @@ export opaque type TodoDescription = {
   color: string,
 };
 
-import type {TodoDescription__some_client_type_with_interface$normalization} from './__generated__/TodoDescription__some_client_type_with_interface$normalization.graphql';
-import type {TodoDescription__some_interface$normalization} from './__generated__/TodoDescription__some_interface$normalization.graphql';
+/**
+ * @RelayResolver TodoDescriptionStyle
+ * @weak
+ */
+export opaque type TodoDescriptionStyle = {
+  color: string,
+  margin: ?string,
+};
 
 // Public constructor for opaque `TodoDescription`.
 // Other resolvers have to call this function to
@@ -37,23 +51,60 @@ function createTodoDescription(
 /**
  * @RelayResolver TodoDescription.text: String
  */
-function text(instance: ?TodoDescription): ?string {
-  return instance?.text;
+function text(instance: TodoDescription): string {
+  return instance.text;
+}
+
+/**
+ * @RelayResolver TodoDescription.text_with_prefix(prefix: String!): String
+ */
+function text_with_prefix(
+  instance: TodoDescription,
+  args: {prefix: string},
+): string {
+  return `${args.prefix} ${instance.text}`;
 }
 
 /**
  * @RelayResolver TodoDescription.color: RelayResolverValue
  */
-function color(instance: ?TodoDescription): ?string {
-  return instance?.color;
+function color(instance: TodoDescription): string {
+  return instance.color;
+}
+
+const LiveColorSubscriptions = {
+  activeSubscriptions: [],
+} as {
+  activeSubscriptions: Array<() => void>,
+};
+
+/**
+ * @RelayResolver TodoDescription.live_color: RelayResolverValue
+ * @live
+ */
+function live_color(instance: TodoDescription): LiveState<string> {
+  // This is a live field to test the subscription leaks cases
+  // When defining live fields on weak types
+  return {
+    read() {
+      return instance.color;
+    },
+    subscribe(cb: () => void): () => void {
+      LiveColorSubscriptions.activeSubscriptions.push(cb);
+      return () => {
+        LiveColorSubscriptions.activeSubscriptions =
+          LiveColorSubscriptions.activeSubscriptions.filter(sub => sub !== cb);
+      };
+    },
+  };
 }
 
 /**
- * @RelayResolver TodoDescription.some_interface: ClientInterface!
+ * @RelayResolver TodoDescription.some_interface: ClientInterface
  */
 function some_interface(
-  instance: ?TodoDescription,
-): ?TodoDescription__some_interface$normalization {
+  instance: TodoDescription,
+): TodoDescription__some_interface$normalization {
   return {
     __typename: 'ClientTypeImplementingClientInterface',
     description: 'It was a magical place',
@@ -61,11 +112,11 @@ function some_interface(
 }
 
 /**
- * @RelayResolver TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface!
+ * @RelayResolver TodoDescription.some_client_type_with_interface: ClientTypeWithNestedClientInterface
  */
 function some_client_type_with_interface(
-  instance: ?TodoDescription,
-): ?TodoDescription__some_client_type_with_interface$normalization {
+  instance: TodoDescription,
+): TodoDescription__some_client_type_with_interface$normalization {
   return {
     client_interface: {
       __typename: 'ClientTypeImplementingClientInterface',
@@ -74,10 +125,36 @@ function some_client_type_with_interface(
   };
 }
 
+/**
+ * @RelayResolver TodoDescription.text_style(margin: String): TodoDescriptionStyle
+ * @rootFragment TodoDescription_text_style
+ */
+function text_style(
+  fragmentKey: TodoDescription_text_style$key,
+  {margin}: {margin?: ?string},
+): TodoDescriptionStyle {
+  const {color} = readFragment(
+    graphql`
+      fragment TodoDescription_text_style on TodoDescription {
+        color @required(action: THROW)
+      }
+    `,
+    fragmentKey,
+  );
+  return {
+    color,
+    margin,
+  };
+}
+
 module.exports = {
+  text_style,
+  text_with_prefix,
   createTodoDescription,
   text,
   color,
+  live_color,
+  LiveColorSubscriptions,
   some_interface,
   some_client_type_with_interface,
 };

@@ -20,7 +20,7 @@ const ReactRelayContext = require('./../ReactRelayContext');
 const invariant = require('invariant');
 const {useContext} = require('react');
 
-function useRelayActorEnvironment(
+hook useRelayActorEnvironment(
   actorIdentifier: ActorIdentifier,
 ): IActorEnvironment {
   const context = useContext(ReactRelayContext);

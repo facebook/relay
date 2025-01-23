@@ -14,7 +14,7 @@ Go to `Newsfeed.tsx` and find `NewsfeedQuery` so that you can add the new field:
 ```
 const NewsfeedQuery = graphql`
   query NewsfeedQuery {
-    top_story {
+    topStory {
       title
       summary
       // change-line
@@ -25,7 +25,7 @@ const NewsfeedQuery = graphql`
           url
         }
       }
-      image {
+      thumbnail {
         url
       }
     }
@@ -33,7 +33,9 @@ const NewsfeedQuery = graphql`
 `;
 ```
 
-Now go to `Story.tsx` and modify it to display the date:
+Now we've updated the query, we need to run the Relay compiler so that it knows about the updated Graphql query by running `npm run relay`.
+
+Next, go to `Story.tsx` and modify it to display the date:
 
 ```
 // change-line
@@ -50,11 +52,11 @@ type Props = {
 export default function Story({story}: Props) {
   return (
     <Card>
-      <PosterByline person={story.poster} />
+      <PosterByline poster={story.poster} />
       <Heading>{story.title}</Heading>
       // change-line
       <Timestamp time={story.createdAt} /> // Add this line
-      <Image image={story.image} />
+      <Image image={story.thumbnail} />
       <StorySummary summary={story.summary} />
     </Card>
   );
@@ -65,7 +67,7 @@ The date should now appear. And thanks to GraphQL, we didn't have to write and d
 
 But if you think about it, why should you have had to modify `Newsfeed.tsx`? Shouldn’t React components be self-contained? Why should Newsfeed care about the specific data required by Story? What if the data was required by some child component of Story way down in the hierarchy? What if it was a component that was used in many different places? Then we would have to modify many components whenever its data requirements changed.
 
-The avoid these and many other problems, we can move the data requirements for the Story component into `Story.tsx`.
+To avoid these and many other problems, we can move the data requirements for the Story component into `Story.tsx`.
 
 We do this by splitting off `Story`’s data requirements into a *fragment* defined in `Story.tsx`. Fragments are separate pieces of GraphQL that the Relay compiler stitches together into complete queries. They allow each component to define its own data requirements, without paying the cost at runtime of each component running its own queries.
 
@@ -142,9 +144,9 @@ export default function Story({story}: Props) {
   return (
     <Card>
       <Heading>{data.title}</Heading>
-      <PosterByline person={data.poster} />
+      <PosterByline poster={data.poster} />
       <Timestamp time={data.createdAt} />
-      <Image image={data.image} />
+      <Image image={data.thumbnail} />
       <StorySummary summary={data.summary} />
     </Card>
   );
@@ -210,7 +212,7 @@ The `PosterByline` component used by `Story` renders the poster’s name and pro
 * Declare a `PosterBylineFragment` on `Actor` and specify the fields it needs (`name`, `profilePicture`). The `Actor` type represents a person or organization that can post a story.
 * Spread that fragment within `poster` in `StoryFragment`.
 * Call `useFragment` to retrieve the data.
-* Update the Props to accept a `PosterBylineFragment$key` as the `person` prop.
+* Update the Props to accept a `PosterBylineFragment$key` as the `poster` prop.
 
 It’s worth going through these steps a second time, to get the mechanics of using fragments under your fingers. There are a lot of parts here that need to slot together in the right way.
 
@@ -440,7 +442,7 @@ const StoryFragment = graphql`
     poster {
       ...PosterBylineFragment
     }
-    image {
+    thumbnail {
       // change-line
       ...ImageFragment @arguments(width: 400)
     }
@@ -474,7 +476,7 @@ Field arguments (e.g. `url(height: 100)`) are a feature of GraphQL itself, while
 
 ## Summary
 
-Fragments are the most distinctive aspect of how Relay uses GraphQL. We recommend that every component that displays data and cares about the semantics of that data (so not just a typographic or formatting component) use a GraphQL fragment to declare its data dependences.
+Fragments are the most distinctive aspect of how Relay uses GraphQL. We recommend that every component that displays data and cares about the semantics of that data (so not just a typographic or formatting component) use a GraphQL fragment to declare its data dependencies.
 
 * Fragments help you scale: No matter how many places a component is used, you can update its data dependencies in a single place.
 * Fragment data needs to be read out with `useFragment`.

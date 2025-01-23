@@ -35,7 +35,7 @@ impl fmt::Display for DefinitionNameSuffix {
     }
 }
 
-/// This function will create a default name suggestion for operation/fragment in a file.
+/// This function will create a default name suggestion for an operation in a file.
 /// Default name is {prefix}{Query|Mutation|Subscription},
 /// where {prefix} is a cameCased base file stem, without extension and suffix (like .react.js, .jsx, etc..)
 pub fn create_default_name(file_name: &str, suffix: DefinitionNameSuffix) -> Option<String> {
@@ -45,6 +45,10 @@ pub fn create_default_name(file_name: &str, suffix: DefinitionNameSuffix) -> Opt
     } else {
         Some(format!("{}{}", module_name, suffix))
     }
+}
+
+pub fn create_default_fragment_name(file_name: &str) -> Option<String> {
+    extract_module_name(file_name)
 }
 
 /// This function will create a name suggestion for operation/fragment
@@ -61,6 +65,22 @@ pub fn create_default_name_with_index(
     let mut index = 1;
     loop {
         let new_name = format!("{}{}{}", module_name, index, suffix);
+        if used_names.contains(&new_name) {
+            index += 1;
+        } else {
+            return Some(new_name);
+        }
+    }
+}
+
+pub fn create_default_fragment_name_with_index(
+    file_name: &str,
+    used_names: &HashSet<String>,
+) -> Option<String> {
+    let module_name = extract_module_name(file_name)?;
+    let mut index = 1;
+    loop {
+        let new_name = format!("{}{}", module_name, index);
         if used_names.contains(&new_name) {
             index += 1;
         } else {

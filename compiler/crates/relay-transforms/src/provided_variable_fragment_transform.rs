@@ -36,12 +36,13 @@ use crate::util::format_provided_variable_name;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
-///     [provided_variable_name] --> __pv__[module_name]
+///     \[provided_variable_name\] --> __pv__\[module_name\]
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
+///    
 /// apply_fragment_arguments depends on provide_variable_fragment_transform
 pub fn provided_variable_fragment_transform(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ProvidedVariableFragmentTransform::new(&*program.schema);
+    let mut transform = ProvidedVariableFragmentTransform::new(&program.schema);
     let program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -72,7 +73,7 @@ impl ProvidedVariableDefinitions {
         let usages = self
             .usages_map
             .entry((module_name, variable_def.type_.clone()))
-            .or_insert_with(Vec::new);
+            .or_default();
         usages.push(variable_def.name.location);
     }
 
@@ -189,7 +190,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
     }
 }
 
-impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
+impl<'schema> Transformer<'_> for ProvidedVariableFragmentTransform<'schema> {
     const NAME: &'static str = "ProvidedVariableFragmentTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -239,7 +240,8 @@ impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, serde::Serialize)]
+#[serde(tag = "type")]
 enum ValidationMessage {
     #[error(
         "Modules '{module1}' and '{module2}' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)"

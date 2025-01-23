@@ -1,0 +1,33 @@
+//- User_foo.js
+/**
+ * @RelayResolver User.foo: String @semanticNonNull
+ * @rootFragment UserFooFragment
+ */
+graphql`fragment UserFooFragment on User @throwOnFieldError {
+  bar
+}`
+
+//- User_bar.js
+/**
+ * @RelayResolver User.bar: [String] @semanticNonNull(levels: [0,1])
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_resolver_normalization_ast": true,
+    "allow_resolver_non_nullable_return_type": { "kind": "enabled" }
+  },
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  }
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+type User { name: String }

@@ -23,7 +23,7 @@ import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 The internal version of devtools has the latest updates and the process of installation will be much faster.
 
 1. Before downloading the new Devtools, make sure you've deleted all older versions of the extension.
-2. Join [Relay DevTools Support](https://fb.workplace.com/groups/655864995271028) group and you will automatically be added to the cpe_relay_devtools_extension gatekeeper.
+2. Join [Relay Support](https://fb.workplace.com/groups/relay.support) group and you will automatically be added to the `cpe_relay_devtools_extension` gatekeeper.
 3. Wait 20-30 minutes, and it should be downloaded on your Chrome browser
 4. Or run `sudo soloctl -i` on your machine to get the extension immediately
 
@@ -33,10 +33,10 @@ The internal version of devtools has the latest updates and the process of insta
 2. Get the path to this folder e.g `...\Extensions\<blob>\<version>\`
 3. On edge://extensions/ click load upacked (you might need to Allow extensions for other stores).
 
-### External version
+### External version (use at your own risk)
 
-The external version of devtools is less prone to bugs but does not always contain the latest updates and you have to download the extension from the chrome store.
-Follow this link and install it from the [chrome store](https://chrome.google.com/webstore/detail/relay-developer-tools/ncedobpgnmkhcmnnkcimnobpfepidadl).
+The external version of Dev Tools does not always contain the latest updates, it may stop working, potentially being restricted to be used or removed by corp device admin (via MDM).
+We recommend using the internal installation, but if you prefer, you may download the extension from the [Chrome store](https://chrome.google.com/webstore/detail/relay-developer-tools/ncedobpgnmkhcmnnkcimnobpfepidadl).
 
 </FbInternalOnly>
 

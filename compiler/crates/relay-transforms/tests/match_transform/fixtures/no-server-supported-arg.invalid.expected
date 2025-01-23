@@ -11,7 +11,7 @@ fragment PlainUserNameRenderer_name on Actor {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ @match on a field without the `supported` argument is a no-op, please remove the `@match`.
+✖︎ @match without a `key` argument and on a field without the `supported` argument is a no-op, please remove the `@match`.
 
   no-server-supported-arg.invalid.graphql:4:10
     3 │   id

@@ -25,7 +25,6 @@ const {
   Environment,
   Network,
   RecordSource,
-  RelayFeatureFlags,
   Store,
   commitLocalUpdate,
   createOperationDescriptor,
@@ -48,16 +47,6 @@ function createEnvironment(
     store: new Store(source),
   });
 }
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
-});
 
 describe('Client-only queries', () => {
   let renderer;

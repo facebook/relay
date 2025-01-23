@@ -3,11 +3,9 @@
 <PROJECT_ROOT>/compiler/.*
 <PROJECT_ROOT>/.*/node_modules/.*
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
-<PROJECT_ROOT>/packages/relay-flight-experimental/.*
 
 [options]
-exact_by_default=true
-
+component_syntax=true
 module.system=haste
 module.system.haste.use_name_reducers=true
 # get basename
@@ -20,6 +18,7 @@ module.system.haste.paths.excludes=.*/__mocks__/.*
 module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 
 munge_underscores=true
+; https://fburl.com/code/h2jnts20 - to match internval value
 
 suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
@@ -28,8 +27,6 @@ suppress_type=$FlowFixMeState
 suppress_type=$FlowExpectedError
 
 format.bracket_spacing=false
-
-experimental.abstract_locations=true
 
 [lints]
 untyped-type-import=error
@@ -44,4 +41,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.201.0
+^0.259.1

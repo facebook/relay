@@ -10,26 +10,25 @@
  */
 
 'use strict';
+import type {PreloadableConcreteRequest} from '../EntryPointTypes.flow';
 import type {
-  LogRequestInfoFunction,
-  UploadableMap,
-} from '../../../relay-runtime/network/RelayNetworkTypes';
-import type {RequestParameters} from '../../../relay-runtime/util/RelayConcreteNode';
-import type {
-  CacheConfig,
-  Variables,
-} from '../../../relay-runtime/util/RelayRuntimeTypes';
-import type {
+  loadQueryTestQuery,
   loadQueryTestQuery$data,
   loadQueryTestQuery$variables,
 } from './__generated__/loadQueryTestQuery.graphql';
-import type {OperationType, Query} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  LogRequestInfoFunction,
+  Query,
+  RequestParameters,
+  UploadableMap,
+  Variables,
+} from 'relay-runtime';
 
-const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
+const {loadQuery} = require('../loadQuery');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const {
   Network,
   Observable,
@@ -40,7 +39,6 @@ const {
   createMockEnvironment,
   disallowConsoleErrors,
   disallowWarnings,
-  expectWarningWillFire,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -60,10 +58,11 @@ describe('loadQuery', () => {
   (query.params: $FlowFixMe).id = ID;
   (query.params: $FlowFixMe).cacheID = ID;
 
-  const preloadableConcreteRequest = {
-    kind: 'PreloadableConcreteRequest',
-    params: query.params,
-  };
+  const preloadableConcreteRequest: PreloadableConcreteRequest<loadQueryTestQuery> =
+    {
+      kind: 'PreloadableConcreteRequest',
+      params: query.params,
+    };
 
   const response = {
     data: {
@@ -189,29 +188,21 @@ describe('loadQuery', () => {
 
   describe('when passed a PreloadableConcreteRequest', () => {
     it('checks whether the query ast is available synchronously', () => {
-      loadQuery<OperationType>(
-        environment,
-        preloadableConcreteRequest,
-        variables,
-      );
+      loadQuery(environment, preloadableConcreteRequest, variables);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(PreloadableQueryRegistry.get).toHaveBeenCalled();
     });
 
     describe('when the query AST is available synchronously', () => {
       it('synchronously checks whether the query can be fulfilled by the store', () => {
-        loadQuery<OperationType>(
-          environment,
-          preloadableConcreteRequest,
-          variables,
-        );
+        loadQuery(environment, preloadableConcreteRequest, variables);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.check).toHaveBeenCalled();
       });
 
       describe("with fetchPolicy === 'store-or-network'", () => {
         it('should not call fetch if the query can be fulfilled by the store', () => {
-          const {source} = loadQuery<OperationType>(
+          const {source} = loadQuery(
             environment,
             preloadableConcreteRequest,
             variables,
@@ -233,7 +224,7 @@ describe('loadQuery', () => {
             mockAvailability = {status: 'missing'};
           });
           it('makes a network request', done => {
-            const {source} = loadQuery<OperationType>(
+            const {source} = loadQuery(
               environment,
               preloadableConcreteRequest,
               variables,
@@ -275,7 +266,7 @@ describe('loadQuery', () => {
           });
 
           it('should mark failed network requests', () => {
-            const preloadedQuery = loadQuery<OperationType>(
+            const preloadedQuery = loadQuery(
               environment,
               preloadableConcreteRequest,
               variables,
@@ -294,7 +285,7 @@ describe('loadQuery', () => {
 
           it('calling dispose unsubscribes from executeWithSource', () => {
             // This ensures that no data is written to the store
-            const preloadedQuery = loadQuery<OperationType>(
+            const preloadedQuery = loadQuery(
               environment,
               preloadableConcreteRequest,
               variables,
@@ -337,7 +328,7 @@ describe('loadQuery', () => {
 
           it('calling dispose unsubscribes from the network request', () => {
             // This ensures that live queries stop issuing network requests
-            const preloadedQuery = loadQuery<OperationType>(
+            const preloadedQuery = loadQuery(
               environment,
               preloadableConcreteRequest,
               variables,
@@ -357,7 +348,7 @@ describe('loadQuery', () => {
 
       describe("with fetchPolicy === 'store-only'", () => {
         it('should not call fetch if the query can be fulfilled by the store', () => {
-          const {source} = loadQuery<OperationType>(
+          const {source} = loadQuery(
             environment,
             preloadableConcreteRequest,
             variables,
@@ -376,7 +367,7 @@ describe('loadQuery', () => {
 
         it('should not call fetch if the query cannot be fulfilled by the store', () => {
           mockAvailability = {status: 'missing'};
-          const {source} = loadQuery<OperationType>(
+          const {source} = loadQuery(
             environment,
             preloadableConcreteRequest,
             variables,
@@ -394,7 +385,7 @@ describe('loadQuery', () => {
         });
 
         it('calling dispose releases the query', () => {
-          const preloadedQuery = loadQuery<OperationType>(
+          const preloadedQuery = loadQuery(
             environment,
             preloadableConcreteRequest,
             variables,
@@ -413,7 +404,7 @@ describe('loadQuery', () => {
         resolvedModule = null;
       });
       it('should make a network request', done => {
-        const {source} = loadQuery<OperationType>(
+        const {source} = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -456,7 +447,7 @@ describe('loadQuery', () => {
         expect(nextCallback).toHaveBeenCalledWith(response);
       });
       it('should mark failed network requests', () => {
-        const preloadedQuery = loadQuery<OperationType>(
+        const preloadedQuery = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -475,7 +466,7 @@ describe('loadQuery', () => {
 
       it('calling dispose after the AST loads unsubscribes from executeWithSource', () => {
         // This ensures that no data is written to the store
-        const preloadedQuery = loadQuery<OperationType>(
+        const preloadedQuery = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -523,7 +514,7 @@ describe('loadQuery', () => {
 
       it('calling dispose after the AST loads unsubscribes from the network request', () => {
         // This ensures that live queries stop issuing network requests
-        const preloadedQuery = loadQuery<OperationType>(
+        const preloadedQuery = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -541,7 +532,7 @@ describe('loadQuery', () => {
       });
 
       it('calling dispose before the AST loads clears the onLoad callback', () => {
-        const preloadedQuery = loadQuery<OperationType>(
+        const preloadedQuery = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -564,11 +555,7 @@ describe('loadQuery', () => {
       });
 
       it('passes a callback to onLoad that calls executeWithSource', () => {
-        loadQuery<OperationType>(
-          environment,
-          preloadableConcreteRequest,
-          variables,
-        );
+        loadQuery(environment, preloadableConcreteRequest, variables);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).not.toHaveBeenCalled();
         executeOnloadCallback(query);
@@ -593,7 +580,7 @@ describe('loadQuery', () => {
 
     describe("with fetchPolicy === 'store-only'", () => {
       it('should not call fetch if the query can be fulfilled by the store', () => {
-        const {source} = loadQuery<OperationType>(
+        const {source} = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -612,7 +599,7 @@ describe('loadQuery', () => {
 
       it('should not call fetch if the query cannot be fulfilled by the store', () => {
         mockAvailability = {status: 'missing'};
-        const {source} = loadQuery<OperationType>(
+        const {source} = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -630,7 +617,7 @@ describe('loadQuery', () => {
       });
 
       it('calling dispose releases the query', () => {
-        const preloadedQuery = loadQuery<OperationType>(
+        const preloadedQuery = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -646,13 +633,13 @@ describe('loadQuery', () => {
 
   describe('when passed a query AST', () => {
     it('checks whether the query can be fulfilled by the store synchronously', () => {
-      loadQuery<OperationType>(environment, query, variables);
+      loadQuery(environment, query, variables);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.check).toHaveBeenCalled();
     });
     describe('when the query can be fulfilled by the store', () => {
       it("when fetchPolicy === 'store-or-network', it avoids a network request", () => {
-        loadQuery<OperationType>(environment, query, variables, {
+        loadQuery(environment, query, variables, {
           fetchPolicy: 'store-or-network',
         });
         expect(fetch).not.toHaveBeenCalled();
@@ -665,14 +652,9 @@ describe('loadQuery', () => {
 
       describe("when fetchPolicy === 'network-only'", () => {
         it('should make a network request', done => {
-          const {source} = loadQuery<OperationType>(
-            environment,
-            query,
-            variables,
-            {
-              fetchPolicy: 'network-only',
-            },
-          );
+          const {source} = loadQuery(environment, query, variables, {
+            fetchPolicy: 'network-only',
+          });
           const nextCallback = jest.fn(() => done());
           if (source) {
             // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
@@ -705,14 +687,9 @@ describe('loadQuery', () => {
         });
 
         it('should mark failed network requests', () => {
-          const preloadedQuery = loadQuery<OperationType>(
-            environment,
-            query,
-            variables,
-            {
-              fetchPolicy: 'network-only',
-            },
-          );
+          const preloadedQuery = loadQuery(environment, query, variables, {
+            fetchPolicy: 'network-only',
+          });
 
           expect(preloadedQuery.networkError).toBeNull();
 
@@ -724,14 +701,9 @@ describe('loadQuery', () => {
 
         it('calling dispose unsubscribes from environment.executeWithSource', () => {
           // This ensures that no data is written to the store
-          const preloadedQuery = loadQuery<OperationType>(
-            environment,
-            query,
-            variables,
-            {
-              fetchPolicy: 'network-only',
-            },
-          );
+          const preloadedQuery = loadQuery(environment, query, variables, {
+            fetchPolicy: 'network-only',
+          });
           expect(fetch).toHaveBeenCalled();
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
@@ -768,14 +740,9 @@ describe('loadQuery', () => {
 
         it('calling dispose unsubscribes from the network request', () => {
           // This ensures that live queries stop issuing network requests
-          const preloadedQuery = loadQuery<OperationType>(
-            environment,
-            query,
-            variables,
-            {
-              fetchPolicy: 'network-only',
-            },
-          );
+          const preloadedQuery = loadQuery(environment, query, variables, {
+            fetchPolicy: 'network-only',
+          });
           preloadedQuery.dispose();
 
           expect(networkUnsubscribe).not.toBe(null);
@@ -792,11 +759,7 @@ describe('loadQuery', () => {
       });
 
       it('should make a network request', done => {
-        const {source} = loadQuery<OperationType>(
-          environment,
-          query,
-          variables,
-        );
+        const {source} = loadQuery(environment, query, variables);
         const nextCallback = jest.fn(() => done());
         if (source) {
           // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
@@ -829,11 +792,7 @@ describe('loadQuery', () => {
       });
 
       it('should mark failed network requests', () => {
-        const preloadedQuery = loadQuery<OperationType>(
-          environment,
-          query,
-          variables,
-        );
+        const preloadedQuery = loadQuery(environment, query, variables);
 
         expect(preloadedQuery.networkError).toBeNull();
 
@@ -845,11 +804,7 @@ describe('loadQuery', () => {
 
       it('calling dispose unsubscribes from environment.executeWithSource', () => {
         // This ensures that no data is written to the store
-        const preloadedQuery = loadQuery<OperationType>(
-          environment,
-          query,
-          variables,
-        );
+        const preloadedQuery = loadQuery(environment, query, variables);
         expect(fetch).toHaveBeenCalled();
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
@@ -874,11 +829,7 @@ describe('loadQuery', () => {
 
       it('calling dispose unsubscribes from the network request', () => {
         // This ensures that live queries stop issuing network requests
-        const preloadedQuery = loadQuery<OperationType>(
-          environment,
-          query,
-          variables,
-        );
+        const preloadedQuery = loadQuery(environment, query, variables);
         preloadedQuery.dispose();
 
         expect(networkUnsubscribe).not.toBe(null);
@@ -890,7 +841,7 @@ describe('loadQuery', () => {
 
     describe("with fetchPolicy === 'store-only'", () => {
       it('should not call fetch if the query can be fulfilled by the store', () => {
-        const {source} = loadQuery<OperationType>(
+        const {source} = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -909,7 +860,7 @@ describe('loadQuery', () => {
 
       it('should not call fetch if the query cannot be fulfilled by the store', () => {
         mockAvailability = {status: 'missing'};
-        const {source} = loadQuery<OperationType>(
+        const {source} = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -927,7 +878,7 @@ describe('loadQuery', () => {
       });
 
       it('calling dispose releases the query', () => {
-        const preloadedQuery = loadQuery<OperationType>(
+        const preloadedQuery = loadQuery(
           environment,
           preloadableConcreteRequest,
           variables,
@@ -937,58 +888,6 @@ describe('loadQuery', () => {
         );
         preloadedQuery.dispose();
         expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
-      });
-    });
-  });
-
-  describe('warnings', () => {
-    let Container;
-    let LoadDuringRender;
-
-    beforeEach(() => {
-      Container = (props: {children: React.Node}) => {
-        useTrackLoadQueryInRender();
-        return props.children;
-      };
-      LoadDuringRender = (props: {name?: ?string}) => {
-        loadQuery<OperationType>(
-          environment,
-          preloadableConcreteRequest,
-          variables,
-          {
-            fetchPolicy: 'store-or-network',
-            __nameForWarning: props.name,
-          },
-        );
-        return null;
-      };
-    });
-
-    it('warns if called during render', () => {
-      expectWarningWillFire(
-        'Relay: `loadQuery` should not be called inside a React render function.',
-      );
-
-      ReactTestRenderer.act(() => {
-        ReactTestRenderer.create(
-          <Container>
-            <LoadDuringRender />
-          </Container>,
-        );
-      });
-    });
-
-    it('uses provided name for warning', () => {
-      expectWarningWillFire(
-        'Relay: `refetch` should not be called inside a React render function.',
-      );
-
-      ReactTestRenderer.act(() => {
-        ReactTestRenderer.create(
-          <Container>
-            <LoadDuringRender name="refetch" />
-          </Container>,
-        );
       });
     });
   });

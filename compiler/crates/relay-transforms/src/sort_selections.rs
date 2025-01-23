@@ -43,7 +43,7 @@ impl<'s> SortSelectionsTransform<'s> {
     }
 }
 
-impl Transformer for SortSelectionsTransform<'_> {
+impl Transformer<'_> for SortSelectionsTransform<'_> {
     const NAME: &'static str = "SortSelectionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

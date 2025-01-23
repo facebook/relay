@@ -1,0 +1,52 @@
+//- foo.js
+/**
+ * @RelayResolver Mutation.foo_mutation: Person
+ */
+
+/**
+ * @RelayResolver NotCalledMutation.baz_mutation: Boolean
+ */
+
+//- bar.js
+graphql`mutation barMutation {
+   baz_mutation
+}`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "eagerEsModules": true,
+   "featureFlags": {
+      "enable_relay_resolver_mutations": true
+   },
+   "schemaExtensions": [
+      "./extensions.graphql"
+   ]
+}
+
+//- schema.graphql
+
+type Mutation {
+   some_field: Boolean
+}
+
+type NotCalledMutation {
+   some_field: Boolean
+}
+
+type Query {
+   some_field: Boolean
+}
+
+schema {
+   query: Query,
+   mutation: NotCalledMutation,
+}
+
+//- extensions.graphql
+
+type Person {
+   name: String!
+   age: Int!
+}

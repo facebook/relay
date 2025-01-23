@@ -35,10 +35,12 @@ pub use build::FIXME_FAT_INTERFACE;
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
+pub use signatures::FragmentSignature;
 pub use signatures::ProvidedVariableMetadata;
 pub use signatures::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 pub use transform::transform_list;
 pub use transform::transform_list_multi;
+pub use transform::TransformProgramPipe;
 pub use transform::Transformed;
 pub use transform::TransformedMulti;
 pub use transform::TransformedValue;
@@ -46,7 +48,9 @@ pub use transform::Transformer;
 pub use validator::Validator;
 pub use visitor::Visitor;
 
+pub use crate::errors::MachineMetadataKey;
 pub use crate::errors::ValidationMessage;
+pub use crate::errors::ValidationMessageWithData;
 
 /// Re-exported values to be used by the `associated_data_impl!` macro.
 pub mod reexport {

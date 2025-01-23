@@ -1,0 +1,227 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+import type CatFlowType from 'Cat';
+import type {Other, CustomJSON} from 'CustomScalars';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function serialize(cat: CatFlowType): ?CustomJSON {
+  return '';
+}
+
+/**
+ * @RelayResolver
+ */
+export function deserialize_extras(cat: CatFlowType, args: {extras: CustomJSON}): ?string {
+  return '';
+}
+
+// CustomScalars.js
+
+export type CustomJSON = string;
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 415:424,
+                    token: Token {
+                        span: 415:424,
+                        kind: Identifier,
+                    },
+                    value: "serialize",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 445:455,
+                            token: Token {
+                                span: 445:455,
+                                kind: Identifier,
+                            },
+                            value: "JSON",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 415:424,
+            },
+            type_: WithLocation {
+                location: Cat.js:326:329,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat.js:415:424,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "69e6ff1ceadd103da3b3b9a805681c7c",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Cat {
+  serialize: JSON @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "serialize", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 516:534,
+                    token: Token {
+                        span: 516:534,
+                        kind: Identifier,
+                    },
+                    value: "deserialize_extras",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 583:589,
+                            token: Token {
+                                span: 583:589,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: Some(
+                    List {
+                        span: 559:579,
+                        start: Token {
+                            span: 559:560,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 560:566,
+                                    token: Token {
+                                        span: 560:566,
+                                        kind: Identifier,
+                                    },
+                                    value: "extras",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 568:578,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 568:578,
+                                                    token: Token {
+                                                        span: 568:578,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "JSON",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 0:0,
+                                            kind: Empty,
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                span: 560:578,
+                            },
+                        ],
+                        end: Token {
+                            span: 578:579,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 516:534,
+            },
+            type_: WithLocation {
+                location: Cat.js:326:329,
+                item: "Cat",
+            },
+            root_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat.js:516:534,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "69e6ff1ceadd103da3b3b9a805681c7c",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Cat {
+  deserialize_extras(extras: JSON!): String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "deserialize_extras", import_path: "Cat.js") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 326:329,
+                token: Token {
+                    span: 326:329,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: Cat.js:326:329,
+            root_fragment: WithLocation {
+                location: Cat.js:326:329,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: Cat.js:326:329,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "69e6ff1ceadd103da3b3b9a805681c7c",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "69e6ff1ceadd103da3b3b9a805681c7c") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

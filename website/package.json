@@ -1,6 +1,4 @@
 {
-  "name": "relay-website",
-  "version": "0.0.1",
   "repository": "facebook/relay",
   "license": "MIT",
   "private": true,
@@ -21,12 +19,12 @@
     "docusaurus": "docusaurus"
   },
   "dependencies": {
-    "@docusaurus/core": "2.1.0",
-    "@docusaurus/plugin-client-redirects": "2.1.0",
-    "@docusaurus/preset-classic": "2.1.0",
+    "@docusaurus/core": "2.4.3",
+    "@docusaurus/plugin-client-redirects": "2.4.3",
+    "@docusaurus/preset-classic": "2.4.3",
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
-    "docusaurus-plugin-internaldocs-fb": "1.4.0",
+    "docusaurus-plugin-internaldocs-fb": "1.18.3",
     "lz-string": "^1.4.4",
     "monaco-editor": "^0.24.0",
     "react": "^17.0.2",
@@ -37,8 +35,7 @@
   },
   "resolutions": {
     "highlight.js": "^10.4.1",
-    "shelljs": "^0.8.5",
-    "ansi-html": "0.0.8"
+    "shelljs": "^0.8.5"
   },
   "prettier": {
     "arrowParens": "avoid",

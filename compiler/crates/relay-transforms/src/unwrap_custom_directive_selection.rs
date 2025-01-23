@@ -15,21 +15,33 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-
-use crate::DEFER_STREAM_CONSTANTS;
+use relay_config::DeferStreamInterface;
 
 /// Transform to unwrap selections wrapped in a InlineFragment with custom
 /// directive for printing
-pub fn unwrap_custom_directive_selection(program: &Program) -> Program {
-    let mut transform = UnwrapCustomDirectiveSelection;
+pub fn unwrap_custom_directive_selection(
+    program: &Program,
+    defer_stream_interface: DeferStreamInterface,
+) -> Program {
+    let mut transform = UnwrapCustomDirectiveSelection::new(defer_stream_interface);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
 }
 
-struct UnwrapCustomDirectiveSelection;
+struct UnwrapCustomDirectiveSelection {
+    defer_stream_interface: DeferStreamInterface,
+}
 
-impl Transformer for UnwrapCustomDirectiveSelection {
+impl UnwrapCustomDirectiveSelection {
+    fn new(defer_stream_interface: DeferStreamInterface) -> Self {
+        Self {
+            defer_stream_interface,
+        }
+    }
+}
+
+impl Transformer<'_> for UnwrapCustomDirectiveSelection {
     const NAME: &'static str = "UnwrapCustomDirectiveSelection";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -37,7 +49,9 @@ impl Transformer for UnwrapCustomDirectiveSelection {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if fragment.type_condition.is_none() {
             // Remove the wrapping `... @defer` for `@defer` on fragment spreads.
-            let defer = fragment.directives.named(DEFER_STREAM_CONSTANTS.defer_name);
+            let defer = fragment
+                .directives
+                .named(self.defer_stream_interface.defer_name);
             if let Some(defer) = defer {
                 if let Selection::FragmentSpread(frag_spread) = &fragment.selections[0] {
                     return Transformed::Replace(Selection::FragmentSpread(Arc::new(
@@ -48,8 +62,7 @@ impl Transformer for UnwrapCustomDirectiveSelection {
                                 .chain(iter::once(defer))
                                 .cloned()
                                 .collect(),
-                            fragment: frag_spread.fragment,
-                            arguments: frag_spread.arguments.clone(),
+                            ..frag_spread.as_ref().clone()
                         },
                     )));
                 }

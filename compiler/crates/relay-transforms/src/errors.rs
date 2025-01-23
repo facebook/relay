@@ -14,33 +14,23 @@ use common::WithDiagnosticData;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::VariableName;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use thiserror::Error;
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 pub enum ValidationMessage {
-    #[error("@relay_client_component is not compatible with these {}: `{}`",
-         if incompatible_directives.len() > 1 { "directives" } else { "directive" },
-         incompatible_directives
-             .iter()
-             .map(|name| name.0.lookup())
-             .collect::<Vec<_>>()
-             .join("`, `"))
-     ]
-    IncompatibleRelayClientComponentDirectives {
-        incompatible_directives: Vec<DirectiveName>,
-    },
-
-    #[error("@relay_client_component is not compatible with @arguments.")]
-    InvalidRelayClientComponentWithArguments,
-
     #[error("This fragment spread already has a split normalization file generated.")]
     DuplicateRelayClientComponentSplitOperation,
-
-    #[error(
-        "@relay_client_component can only be used on fragments on Viewer or Query, or whose type implements the Node interface. If the fragment's type is a union type, all members of that union must implement Node."
-    )]
-    InvalidRelayClientComponentNonNodeFragment,
 
     #[error(
         "The Relay Resolver backing this field has an `@relay_resolver` directive with an invalid '{key}' argument. Expected a literal string value."
@@ -88,11 +78,6 @@ pub enum ValidationMessage {
     ActorChangePluralFieldsNotSupported,
 
     #[error(
-        "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
-    )]
-    RelayResolversDisabled,
-
-    #[error(
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
     )]
     ActorChangeExpectViewerFieldOnType {
@@ -113,7 +98,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
+        "The '{fragment_name}' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
     RequiredExplicitNoInlineDirective {
         fragment_name: FragmentDefinitionName,
@@ -130,7 +115,7 @@ pub enum ValidationMessage {
     UndefinedFragment(FragmentDefinitionName),
 
     #[error(
-        "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
+        "Each selection can have only a single @module directive, but here there is more than one (perhaps within different inline fragments). To fix it, add an @alias to one of the @module fragments or put each @module fragment into its own aliased copy of the parent field."
     )]
     ConflictingModuleSelections,
 
@@ -140,23 +125,19 @@ pub enum ValidationMessage {
     ClientEdgeToClientInterface,
 
     #[error(
-        "Client Edges that reference client-defined union types are not currently supported in Relay."
+        "The client edge pointing to `{name}` with implementing object, `{type_name}`, is missing its corresponding model resolver. The concrete type `{type_name}` and its resolver fields should be defined with the newer dot notation resolver syntax. See https://relay.dev/docs/guides/relay-resolvers/."
     )]
-    ClientEdgeToClientUnion,
-
+    ClientEdgeImplementingObjectMissingModelResolver {
+        name: StringKey,
+        type_name: ObjectName,
+    },
     #[error("Invalid directive combination. @alias may not be combined with other directives.")]
     FragmentAliasIncompatibleDirective,
 
-    #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
-    FragmentAliasDirectiveDisabled,
-
-    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
-    FragmentAliasDirectiveDynamicNameArg,
-
     #[error(
-        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
+        "Unexpected `@alias` on spread of plural fragment. @alias may not be used on fragments marked as `@relay(plural: true)`."
     )]
-    FragmentAliasDirectiveMissingAs,
+    PluralFragmentAliasNotSupported,
 
     #[error(
         "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."
@@ -189,7 +170,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "No types implement the client interface {interface_name}. For a client interface to be used as a @RelayResolver @outputType, at least one Object type must implement the interface."
+        "No types implement the client interface {interface_name}. Interfaces returned by a @RelayResolver must have at least one concrete implementation."
     )]
     RelayResolverClientInterfaceMustBeImplemented { interface_name: InterfaceName },
 
@@ -236,7 +217,18 @@ pub enum ValidationMessage {
     },
 }
 
-#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+#[derive(
+    Clone,
+    Debug,
+    Error,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    serde::Serialize
+)]
+#[serde(tag = "type")]
 pub enum ValidationMessageWithData {
     #[error(
         "Expected a `@waterfall` directive on this field. Consuming a Client Edge field incurs a network roundtrip or \"waterfall\". To make this explicit, a `@waterfall` directive is required on this field."
@@ -247,6 +239,42 @@ pub enum ValidationMessageWithData {
         "Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
     )]
     RelayResolversUnexpectedWaterfall,
+
+    #[error(
+        "Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive."
+    )]
+    RequiredOnNonNull,
+
+    #[error(
+        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` or `@catch` selection. Such fields are already non-null and do not need the `@required` directive."
+    )]
+    RequiredOnSemanticNonNull,
+
+    #[error(
+        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment reference as a nullable property."
+    )]
+    ExpectedAliasOnNonSubtypeSpread {
+        fragment_name: FragmentDefinitionName,
+        fragment_type_name: StringKey,
+        selection_type_name: StringKey,
+    },
+
+    #[error(
+        "Expected `@alias` directive. `{fragment_name}` is defined on `{fragment_type_name}` which might not match this selection type of `{selection_type_name}`. Add `@alias` to this spread to expose the fragment reference as a nullable property. NOTE: The selection type inferred here does not include inline fragments because Relay does not always model inline fragment type refinements in its generated types."
+    )]
+    ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
+        fragment_name: FragmentDefinitionName,
+        fragment_type_name: StringKey,
+        selection_type_name: StringKey,
+    },
+
+    #[error(
+        "Expected `@alias` directive. Fragment spreads with (or within an inline fragment with) `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
+    )]
+    ExpectedAliasOnConditionalFragmentSpread {
+        fragment_name: FragmentDefinitionName,
+        condition_name: String,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -257,6 +285,39 @@ impl WithDiagnosticData for ValidationMessageWithData {
             }
             ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
                 vec![Box::new("")]
+            }
+            ValidationMessageWithData::RequiredOnNonNull => {
+                vec![Box::new("")]
+            }
+            ValidationMessageWithData::RequiredOnSemanticNonNull => {
+                vec![Box::new("")]
+            }
+            ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
+                fragment_name, ..
+            } => {
+                // When used as a codemod, the first suggestion is used as the codemod's replacement text.
+                // For that reason, the `@dangerously_unaliased_fixme` is first, since it requires no other changes.
+                vec![
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
+                ]
+            }
+            ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
+                fragment_name, ..
+            } => {
+                vec![
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
+                ]
+            }
+            ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
+                fragment_name,
+                ..
+            } => {
+                vec![
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
+                ]
             }
         }
     }

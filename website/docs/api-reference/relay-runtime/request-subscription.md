@@ -15,8 +15,7 @@ import Disposable from '../types/Disposable.md';
 ## `requestSubscription`
 
 Imperative API for establishing a GraphQL Subscription.
-See also the [`useSubscription`](../use-subscription/) API and the [Guide to Updating Data](../../guided-tour/updating-data/).
-
+See also the [`useSubscription`](../use-subscription/) API and the [Guide to Updating Data](../../guided-tour/updating-data/introduction.md).
 ```js
 import {graphql, requestSubscription} from 'react-relay';
 
@@ -40,10 +39,6 @@ function createSubscription(environment: IEnvironment): Disposable {
 * `config`: `GraphQLSubscriptionConfig`
 
 <GraphQLSubscriptionConfig />
-
-### Flow Type Parameters
-
-* `TSubscriptionPayload`: The type of the payloads vended by the subscription. You should pass the flow type imported from the auto-generated `.graphql` file corresponding to the subscription, e.g. use `UserDataSubscription` as the type parameter, from `import type {UserDataSubscription} from './__generated__/UserDataSubscription.graphql'`;
 
 ### Return Type
 

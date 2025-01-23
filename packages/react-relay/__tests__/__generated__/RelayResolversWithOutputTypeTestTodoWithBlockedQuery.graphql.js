@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7f89eba01d5fcdaff6b15a832d0496b1>>
+ * @generated SignedSource<<ba977933c828f765a66f1e251997ea84>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,23 +18,27 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import type { TodoBlockedByResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoBlockedByResolverFragment.graphql";
 import {todo as queryTodoResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoResolverType: (
   args: {|
     todoID: string,
   |},
+  context: TestResolverContextType,
 ) => LiveState<?Query__todo$normalization>);
 import {blocked_by as todoBlockedByResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
 // Type assertion validating that `todoBlockedByResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoBlockedByResolverType: (
   rootKey: TodoBlockedByResolverFragment$key,
-) => $ReadOnlyArray<?Todo__blocked_by$normalization>);
+  args: void,
+  context: TestResolverContextType,
+) => ?$ReadOnlyArray<?Todo__blocked_by$normalization>);
 import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 import type { Todo__blocked_by$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {|
@@ -90,7 +94,7 @@ v2 = {
       },
       "kind": "RelayResolver",
       "storageKey": null,
-      "isOutputType": false
+      "isOutputType": true
     }
   ],
   "type": "Todo",
@@ -108,6 +112,7 @@ return {
       {
         "kind": "ClientEdgeToClientObject",
         "concreteType": "Todo",
+        "modelResolvers": null,
         "backingField": {
           "alias": null,
           "args": (v1/*: any*/),
@@ -117,6 +122,7 @@ return {
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
           "path": "todo",
           "normalizationInfo": {
+            "kind": "OutputType",
             "concreteType": "Todo",
             "plural": false,
             "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
@@ -133,6 +139,7 @@ return {
             {
               "kind": "ClientEdgeToClientObject",
               "concreteType": "Todo",
+              "modelResolvers": null,
               "backingField": {
                 "alias": null,
                 "args": null,
@@ -144,8 +151,9 @@ return {
                 "kind": "RelayResolver",
                 "name": "blocked_by",
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
-                "path": "blocked_by",
+                "path": "todo.blocked_by",
                 "normalizationInfo": {
+                  "kind": "OutputType",
                   "concreteType": "Todo",
                   "plural": true,
                   "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
@@ -285,7 +293,7 @@ return {
                                   },
                                   "kind": "RelayResolver",
                                   "storageKey": null,
-                                  "isOutputType": false
+                                  "isOutputType": true
                                 }
                               ],
                               "storageKey": null
@@ -303,7 +311,7 @@ return {
                     "fragment": (v2/*: any*/),
                     "kind": "RelayResolver",
                     "storageKey": null,
-                    "isOutputType": false
+                    "isOutputType": true
                   }
                 ],
                 "storageKey": null

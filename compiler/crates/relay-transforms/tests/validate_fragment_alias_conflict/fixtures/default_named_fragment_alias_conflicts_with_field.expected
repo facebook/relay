@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    RelayReaderNamedFragmentsTest_user: name
+    ...RelayReaderNamedFragmentsTest_user @alias
+  }
+}
+==================================== ERROR ====================================
+✖︎ Fragment alias 'RelayReaderNamedFragmentsTest_user' is ambiguous. It conflicts with a field with the same name.
+
+  default_named_fragment_alias_conflicts_with_field.graphql:9:43
+    8 │     RelayReaderNamedFragmentsTest_user: name
+    9 │     ...RelayReaderNamedFragmentsTest_user @alias
+      │                                           ^^^^^^
+   10 │   }
+
+  ℹ︎ the conflicting field
+
+  default_named_fragment_alias_conflicts_with_field.graphql:8:5
+    7 │   me {
+    8 │     RelayReaderNamedFragmentsTest_user: name
+      │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │     ...RelayReaderNamedFragmentsTest_user @alias

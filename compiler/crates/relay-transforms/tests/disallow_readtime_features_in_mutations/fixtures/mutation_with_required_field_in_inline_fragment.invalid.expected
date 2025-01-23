@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+mutation MyMutation {
+  setName(name: "Alice") {
+    ... on User {
+      name @required(action: THROW)
+    }
+  }
+}
+
+# %extensions%
+==================================== ERROR ====================================
+✖︎ Unexpected `@required(action: THROW)` directive in mutation response. The use of `@required(action: THROW)` is not supported in mutations.
+
+  mutation_with_required_field_in_inline_fragment.invalid.graphql:5:12
+    4 │     ... on User {
+    5 │       name @required(action: THROW)
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │     }

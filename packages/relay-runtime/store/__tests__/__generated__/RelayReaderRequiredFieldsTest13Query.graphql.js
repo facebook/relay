@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0037c6ddc665283318bbc5ec78781410>>
+ * @generated SignedSource<<fbf9971b5daca178baa6d4f484b133de>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,8 +67,7 @@ return {
               {
                 "kind": "RequiredField",
                 "field": (v0/*: any*/),
-                "action": "LOG",
-                "path": "maybeNodeInterface.lastName"
+                "action": "LOG"
               }
             ],
             "type": "Story",

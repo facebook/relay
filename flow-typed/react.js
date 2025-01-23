@@ -16,7 +16,7 @@
 // the types of useTransition, startTranstion, and useDeferredValue used only in test.
 declare module react {
   declare export var DOM: any;
-  declare export var PropTypes: ReactPropTypes;
+  declare export var PropTypes: any;
   declare export var version: string;
 
   declare export function checkPropTypes<V>(
@@ -27,38 +27,27 @@ declare module react {
     getStack: ?() => ?string,
   ): void;
 
-  declare export var createClass: React$CreateClass;
+  declare export var createClass: $FlowFixMe;
   declare export function createContext<T>(
     defaultValue: T,
     calculateChangedBits: ?(a: T, b: T) => number,
   ): React$Context<T>;
   declare export var createElement: React$CreateElement;
   declare export var cloneElement: React$CloneElement;
-  declare export function createFactory<ElementType: React$ElementType>(
-    type: ElementType,
-  ): React$ElementFactory<ElementType>;
   declare export function createRef<T>(): {|current: null | T|};
 
   declare export function isValidElement(element: any): boolean;
 
   declare export var Component: typeof React$Component;
   declare export var PureComponent: typeof React$PureComponent;
-  declare export type StatelessFunctionalComponent<P> =
-    React$StatelessFunctionalComponent<P>;
   declare export type ComponentType<-P> = React$ComponentType<P>;
-  declare export type AbstractComponent<
-    -Config,
-    +Instance = mixed,
-  > = React$AbstractComponent<Config, Instance>;
   declare export type MixedElement = React$MixedElement;
   declare export type ElementType = React$ElementType;
   declare export type Element<+C> = React$Element<C>;
   declare export var Fragment: React$FragmentType;
   declare export type Key = React$Key;
-  declare export type Ref<C> = React$Ref<C>;
+  declare export type RefSetter<-T> = React$RefSetter<T>;
   declare export type Node = React$Node;
-  declare export type TransportObject = React$TransportObject;
-  declare export type TransportValue = React$TransportValue;
   declare export type Context<T> = React$Context<T>;
   declare export type Portal = React$Portal;
   declare export var ConcurrentMode: ({
@@ -76,10 +65,6 @@ declare module react {
   declare export type ElementProps<C> = React$ElementProps<C>;
   declare export type ElementConfig<C> = React$ElementConfig<C>;
   declare export type ElementRef<C> = React$ElementRef<C>;
-  declare export type Config<Props, DefaultProps> = React$Config<
-    Props,
-    DefaultProps,
-  >;
 
   declare export type ChildrenArray<+T> = $ReadOnlyArray<ChildrenArray<T>> | T;
   declare export var Children: {
@@ -99,24 +84,23 @@ declare module react {
     ...
   };
 
-  declare export function forwardRef<Config, Instance>(
-    render: (
-      props: Config,
-      ref: {current: null | Instance, ...} | ((null | Instance) => mixed),
-    ) => React$Node,
-  ): React$AbstractComponent<Config, Instance>;
+  declare export function forwardRef<Config: {...}, Instance>(
+    render: (props: Config, ref: React$RefSetter<Instance>) => React$Node,
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
-  declare export function memo<Config, Instance = mixed>(
-    component: React$AbstractComponent<Config, Instance>,
+  declare export function memo<Config: {...}, Instance = mixed>(
+    component: component(ref: React.RefSetter<Instance>, ...Config),
     equal?: (Config, Config) => boolean,
-  ): React$AbstractComponent<Config, Instance>;
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
-  declare export function lazy<Config, Instance = mixed>(
-    component: () => Promise<{
-      default: React$AbstractComponent<Config, Instance>,
-      ...
-    }>,
-  ): React$AbstractComponent<Config, Instance>;
+  declare export function lazy<Config: {...}, Instance = mixed>(
+    component_: () => Promise<
+      $ReadOnly<{
+        default: component(ref: React.RefSetter<Instance>, ...Config),
+        ...
+      }>,
+    >,
+  ): component(ref: React.RefSetter<Instance>, ...Config);
 
   declare type MaybeCleanUpFn = void | (() => void);
 
@@ -199,14 +183,11 @@ declare module react {
     interactions: Set<Interaction>,
   ) => void;
 
-  declare export var Profiler: React$AbstractComponent<
-    {|
-      children?: React$Node,
-      id: string,
-      onRender: ProfilerOnRenderFnType,
-    |},
-    void,
-  >;
+  declare export var Profiler: React$ComponentType<{|
+    children?: React$Node,
+    id: string,
+    onRender: ProfilerOnRenderFnType,
+  |}>;
 
   declare type TimeoutConfig = {|
     timeoutMs: number,
@@ -223,7 +204,6 @@ declare module react {
     +createContext: typeof createContext,
     +createElement: typeof createElement,
     +cloneElement: typeof cloneElement,
-    +createFactory: typeof createFactory,
     +createRef: typeof createRef,
     +forwardRef: typeof forwardRef,
     +isValidElement: typeof isValidElement,

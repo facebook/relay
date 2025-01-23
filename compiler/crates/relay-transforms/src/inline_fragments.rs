@@ -21,7 +21,6 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 
-use crate::relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
 use crate::NoInlineFragmentSpreadMetadata;
 use crate::RelayLocationAgnosticBehavior;
 
@@ -29,7 +28,14 @@ use crate::RelayLocationAgnosticBehavior;
 /// fragment's directives and selections. Used for constructing a Normalization
 /// AST that contains all the selections that may be found in the query response.
 pub fn inline_fragments(program: &Program) -> Program {
-    let mut transform = InlineFragmentsTransform::new(program);
+    let mut transform = InlineFragmentsTransform::new(program, true);
+    transform
+        .transform_program(program)
+        .replace_or_else(|| program.clone())
+}
+
+pub fn inline_fragments_keep_fragments(program: &Program) -> Program {
+    let mut transform = InlineFragmentsTransform::new(program, false);
     transform
         .transform_program(program)
         .replace_or_else(|| program.clone())
@@ -61,13 +67,15 @@ impl Hash for FragmentSpreadKey {
 struct InlineFragmentsTransform<'s> {
     program: &'s Program,
     seen: Seen,
+    remove_fragments: bool,
 }
 
 impl<'s> InlineFragmentsTransform<'s> {
-    fn new(program: &'s Program) -> Self {
+    fn new(program: &'s Program, remove_fragments: bool) -> Self {
         Self {
             program,
             seen: Default::default(),
+            remove_fragments,
         }
     }
 
@@ -111,16 +119,20 @@ impl<'s> InlineFragmentsTransform<'s> {
     }
 }
 
-impl<'s> Transformer for InlineFragmentsTransform<'s> {
+impl<'s> Transformer<'_> for InlineFragmentsTransform<'s> {
     const NAME: &'static str = "InlineFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_fragment(
         &mut self,
-        _fragment: &FragmentDefinition,
+        fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        Transformed::Delete
+        if self.remove_fragments {
+            Transformed::Delete
+        } else {
+            self.default_transform_fragment(fragment)
+        }
     }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
@@ -128,7 +140,6 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
             Selection::FragmentSpread(selection) => {
                 let should_skip_inline = selection.directives.iter().any(|directive| {
                     directive.name.item == NoInlineFragmentSpreadMetadata::directive_name()
-                        || directive.name.item == *RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME
                 });
                 if should_skip_inline {
                     Transformed::Keep

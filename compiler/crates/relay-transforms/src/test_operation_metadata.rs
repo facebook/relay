@@ -21,6 +21,7 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::Value;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -45,6 +46,8 @@ lazy_static! {
     static ref NULLABLE_KEY: ArgumentName = ArgumentName("nullable".intern());
     static ref PLURAL_KEY: ArgumentName = ArgumentName("plural".intern());
     static ref TYPE_KEY: ArgumentName = ArgumentName("type".intern());
+    static ref DO_NOT_USE_USE_IN_PRODUCTION_ARG: ArgumentName =
+        ArgumentName("DO_NOT_USE_use_in_production".intern());
 }
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed
@@ -83,7 +86,7 @@ impl<'a> GenerateTestOperationMetadata<'a> {
     }
 }
 
-impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
+impl<'a> Transformer<'_> for GenerateTestOperationMetadata<'a> {
     const NAME: &'static str = "GenerateTestOperationMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -96,12 +99,25 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
             operation.directives.named(*TEST_OPERATION_DIRECTIVE)
         {
             if let Some(test_path_regex) = self.test_path_regex {
-                if !test_path_regex.is_match(operation.name.location.source_location().path()) {
+                if !test_path_regex.is_match(operation.name.location.source_location().path())
+                    && test_operation_directive
+                        .arguments
+                        .named(*DO_NOT_USE_USE_IN_PRODUCTION_ARG)
+                        .map_or(true, |arg| {
+                            if let Value::Constant(ConstantValue::Boolean(arg_value)) =
+                                arg.value.item
+                            {
+                                !arg_value
+                            } else {
+                                true
+                            }
+                        })
+                {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::TestOperationOutsideTestDirectory {
                             test_path_regex: test_path_regex.to_string(),
                         },
-                        test_operation_directive.name.location,
+                        test_operation_directive.location,
                     ));
                     return Transformed::Keep;
                 }

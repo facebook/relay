@@ -15,6 +15,8 @@ import type {
   NormalizationArgument,
   NormalizationField,
   NormalizationHandle,
+  NormalizationLiveResolverField,
+  NormalizationResolverField,
 } from '../util/NormalizationNode';
 import type {
   ReaderActorChange,
@@ -28,15 +30,22 @@ import type {Variables} from '../util/RelayRuntimeTypes';
 
 const getRelayHandleKey = require('../util/getRelayHandleKey');
 const RelayConcreteNode = require('../util/RelayConcreteNode');
-const stableCopy = require('../util/stableCopy');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const {stableCopy} = require('../util/stableCopy');
 const invariant = require('invariant');
 
-export type Arguments = {+[string]: mixed};
+export type Arguments = {
+  +FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
+  +[string]: mixed,
+};
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 
+const ERRORS_KEY: '__errors' = '__errors';
 const MODULE_COMPONENT_KEY_PREFIX = '__module_component_';
 const MODULE_OPERATION_KEY_PREFIX = '__module_operation_';
+
+const RELAY_READ_TIME_RESOLVER_KEY_PREFIX = 'read_time_resolver:';
 
 function getArgumentValue(
   arg: NormalizationArgument | ReaderArgument,
@@ -68,13 +77,24 @@ function getArgumentValue(
  * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
-  args: $ReadOnlyArray<NormalizationArgument | ReaderArgument>,
+  args?: ?$ReadOnlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
+  isWithinUnmatchedTypeRefinement?: boolean,
 ): Arguments {
-  const values: {[string]: mixed} = {};
-  args.forEach(arg => {
-    values[arg.name] = getArgumentValue(arg, variables);
-  });
+  const values: {
+    FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
+    [string]: mixed,
+  } = {};
+  if (isWithinUnmatchedTypeRefinement) {
+    values[
+      RelayStoreUtils.FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT
+    ] = true;
+  }
+  if (args) {
+    args.forEach(arg => {
+      values[arg.name] = getArgumentValue(arg, variables);
+    });
+  }
   return values;
 }
 
@@ -146,6 +166,28 @@ function getStorageKey(
   return args && args.length !== 0
     ? formatStorageKey(name, getArgumentValues(args, variables))
     : name;
+}
+
+/**
+ * This is a special case of getStorageKey that should be used when dealing with
+ * read time resolver fields. A resolver may be used at both exec time and at read
+ * time within the same project. However, the value of the read time resolver is
+ * wrapped while the value of the exec time resolver is a standard Relay object. To
+ * disambiguate in the case that both types may exist on the same record, the read
+ * time resolver storage keys are prefixed.
+ */
+function getReadTimeResolverStorageKey(
+  field:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | NormalizationResolverField
+    | NormalizationLiveResolverField,
+  variables: Variables,
+): string {
+  const storageKey = getStorageKey(field, variables);
+  return RelayFeatureFlags.ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX
+    ? RELAY_READ_TIME_RESOLVER_KEY_PREFIX + storageKey
+    : storageKey;
 }
 
 /**
@@ -239,8 +281,11 @@ const RelayStoreUtils = {
   CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
+  FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT:
+    '$isWithinUnmatchedTypeRefinement',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',
   MODULE_COMPONENT_KEY: '__module_component', // alias returned by Reader
+  ERRORS_KEY,
   ID_KEY: '__id',
   REF_KEY: '__ref',
   REFS_KEY: '__refs',
@@ -248,21 +293,22 @@ const RelayStoreUtils = {
   ROOT_TYPE: '__Root',
   TYPENAME_KEY: '__typename',
   INVALIDATED_AT_KEY: '__invalidated_at',
-  IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
   RELAY_RESOLVER_VALUE_KEY: '__resolverValue',
   RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
   RELAY_RESOLVER_SNAPSHOT_KEY: '__resolverSnapshot',
   RELAY_RESOLVER_ERROR_KEY: '__resolverError',
   RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS: '__resolverOutputTypeRecordIDs',
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
 
   formatStorageKey,
   getArgumentValue,
   getArgumentValues,
   getHandleStorageKey,
   getStorageKey,
+  getReadTimeResolverStorageKey,
   getStableStorageKey,
   getModuleComponentKey,
   getModuleOperationKey,
-};
+} as const;
 
 module.exports = RelayStoreUtils;

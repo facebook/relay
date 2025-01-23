@@ -33,8 +33,12 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const Query = graphql`
@@ -189,7 +193,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               [NoInlineFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
-            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 
@@ -207,7 +210,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             [InnerFragment.name]: expect.anything(),
           },
           __fragmentOwner: operation.request,
-          __isWithinUnmatchedTypeRefinement: false,
           profile_picture: {
             uri: 'https://profile.png',
           },
@@ -279,7 +281,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               [NoInlineFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
-            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 
@@ -296,10 +297,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(selectorData.data).toEqual({
           __id: '1',
           __fragments: {
-            [InnerFragment.name]: expect.anything(),
+            [InnerFragment.name]: {
+              $isWithinUnmatchedTypeRefinement: true, // fragment type didn't match
+              cond: true,
+              fileExtension: 'JPG',
+              preset: null,
+            },
           },
           __fragmentOwner: operation.request,
-          __isWithinUnmatchedTypeRefinement: true, // fragment type didn't match
         });
 
         // Inner data should be missing bc the type didn't match
@@ -424,7 +429,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 [NoInlineFragmentWithArgs.name]: expect.anything(),
               },
               __fragmentOwner: operation.request,
-              __isWithinUnmatchedTypeRefinement: false,
             },
             username: {
               __id: '2',
@@ -432,7 +436,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 [NoInlineFragmentWithArgs.name]: expect.anything(),
               },
               __fragmentOwner: operation.request,
-              __isWithinUnmatchedTypeRefinement: false,
             },
           });
 
@@ -450,7 +453,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               [InnerFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
-            __isWithinUnmatchedTypeRefinement: false,
             profile_picture: {
               uri: 'https://profile.png',
             },
@@ -469,7 +471,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               [InnerFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
-            __isWithinUnmatchedTypeRefinement: false,
             profile_picture: {
               uri: 'https://profile.png',
             },
@@ -616,7 +617,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 [NoInlineFragmentNested.name]: expect.anything(),
               },
               __fragmentOwner: operation.request,
-              __isWithinUnmatchedTypeRefinement: false,
             },
             zuck: {
               __id: '2',
@@ -624,7 +624,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 [NoInlineFragmentNested.name]: expect.anything(),
               },
               __fragmentOwner: operation.request,
-              __isWithinUnmatchedTypeRefinement: false,
             },
             joe: {
               __id: '3',
@@ -632,7 +631,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 [NoInlineFragmentNested.name]: expect.anything(),
               },
               __fragmentOwner: operation.request,
-              __isWithinUnmatchedTypeRefinement: false,
             },
           });
 
@@ -761,7 +759,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 [NoInlineFragmentWithStream.name]: expect.anything(),
               },
               __fragmentOwner: operation.request,
-              __isWithinUnmatchedTypeRefinement: false,
             },
           });
 
@@ -951,7 +948,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 },
               },
               __fragmentOwner: operation.request,
-              __isWithinUnmatchedTypeRefinement: false,
             },
           });
 
@@ -1175,7 +1171,6 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   },
                 },
                 __fragmentOwner: operation.request,
-                __isWithinUnmatchedTypeRefinement: false,
                 __fragmentPropName: 'name',
                 __module_component: 'MarkdownUserNameRenderer.react',
               },

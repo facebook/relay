@@ -37,9 +37,11 @@ use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
 use super::build_used_global_variables;
+use super::uses_prefetchable_pagination_in_connection;
 use super::validation_message::ValidationMessage;
 use super::QueryGenerator;
 use super::RefetchRoot;
+use super::RefetchableIdentifierInfo;
 use super::RefetchableMetadata;
 use super::CONSTANTS;
 use crate::root_variables::VariableMap;
@@ -52,7 +54,6 @@ fn build_refetch_operation(
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
     let id_name = schema_config.node_interface_id_field;
-
     let node_interface_id = schema.get_type(CONSTANTS.node_type_name).and_then(|type_| {
         if let Type::Interface(id) = type_ {
             Some(id)
@@ -66,18 +67,17 @@ fn build_refetch_operation(
         Some(node_interface_id) => {
             let eligible = match fragment.type_condition {
                 Type::Interface(id) => {
-                    id == node_interface_id
-                        || schema
-                            .interface(id)
-                            .implementing_objects
-                            .iter()
-                            .all(|&object_id| {
+                    id == node_interface_id || {
+                        let implementing_objects = &schema.interface(id).implementing_objects;
+                        !implementing_objects.is_empty()
+                            && implementing_objects.iter().all(|&object_id| {
                                 schema
                                     .object(object_id)
                                     .interfaces
                                     .iter()
                                     .any(|interface_id| *interface_id == node_interface_id)
                             })
+                    }
                 }
                 Type::Object(id) => schema
                     .object(id)
@@ -120,7 +120,14 @@ fn build_refetch_operation(
                     RefetchableMetadata {
                         operation_name: query_name,
                         path: vec![CONSTANTS.node_field_name],
-                        identifier_field: Some(id_name),
+                        identifier_info: Some(RefetchableIdentifierInfo {
+                            identifier_field: id_name,
+                            identifier_query_variable_name: schema_config
+                                .node_interface_id_variable_name,
+                        }),
+                        is_prefetchable_pagination: uses_prefetchable_pagination_in_connection(
+                            fragment,
+                        ),
                     },
                 ),
                 used_global_variables: build_used_global_variables(
@@ -163,7 +170,7 @@ fn build_refetch_operation(
                     alias: None,
                     definition: WithLocation::new(fragment.name.location, node_field_id),
                     arguments: vec![Argument {
-                        name: WithLocation::new(fragment.name.location, id_arg.name),
+                        name: WithLocation::new(fragment.name.location, id_arg.name.item),
                         value: WithLocation::new(
                             fragment.name.location,
                             Value::Variable(Variable {

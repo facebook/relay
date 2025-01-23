@@ -16,5 +16,5 @@ mutation CommentCreateMutation(
   append-edge-unspported.invalid.graphql:7:12
     6 │   commentCreate(input: $input) {
     7 │     viewer @appendEdge(connections: $connections) {
-      │            ^^^^^^^^^^^
+      │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     8 │       __typename

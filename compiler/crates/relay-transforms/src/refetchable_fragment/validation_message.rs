@@ -11,7 +11,8 @@ use graphql_ir::VariableName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, serde::Serialize)]
+#[serde(tag = "type")]
 pub(super) enum ValidationMessage {
     #[error(
         "Invalid use of @refetchable on fragment '{fragment_name}', only supported are fragments on:\n{descriptions}"
@@ -38,9 +39,9 @@ pub(super) enum ValidationMessage {
     },
 
     #[error(
-        "A unique query name has to be specified in `@refetchable`, an operation `{query_name}` already exists."
+        "The `queryName` specified in `@refetchable` must be unique, a definition with the name `{definition_name}` already exists."
     )]
-    RefetchableQueryConflictWithQuery { query_name: OperationDefinitionName },
+    RefetchableQueryConflictWithDefinition { definition_name: StringKey },
 
     #[error(
         "Invalid use of @refetchable with @connection in fragment '{fragment_name}', at most once @connection can appear in a refetchable fragment."

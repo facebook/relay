@@ -1,0 +1,48 @@
+//- module.js
+
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import type CatFlowType from 'Cat';
+import type Dog from 'Dog';
+
+import type { IdOf } from 'relay-runtime';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function friend(cat: CatFlowType): ?IdOf<"Cat"> {
+  return {id: '1'};
+}
+
+/**
+ * @RelayResolver
+ */
+export function Dog(id: DataID): Dog {
+  return {};
+}
+/**
+ * @RelayResolver
+ */
+export function neighbor(cat: CatFlowType): ?IdOf<"Dog"> {
+  return {id: '1'};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function undefined(cat: CatFlowType): ?IdOf<"Mouse"> {
+  return {id: '1'};
+}

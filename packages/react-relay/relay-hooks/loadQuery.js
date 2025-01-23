@@ -24,59 +24,56 @@ import type {
   IEnvironment,
   OperationDescriptor,
   OperationType,
+  Query,
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
 
 const invariant = require('invariant');
-const React = require('react');
 const {
   __internal: {fetchQueryDeduped},
   Observable,
   PreloadableQueryRegistry,
-  RelayFeatureFlags,
   ReplaySubject,
   createOperationDescriptor,
   getRequest,
   getRequestIdentifier,
 } = require('relay-runtime');
-const warning = require('warning');
 
-let RenderDispatcher = null;
 let fetchKey = 100001;
 
-function useTrackLoadQueryInRender() {
-  if (RenderDispatcher === null) {
-    // Flow does not know of React internals (rightly so), but we need to
-    // ensure here that this function isn't called inside render.
-    RenderDispatcher =
-      // $FlowFixMe[prop-missing]
-      React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
-        ?.ReactCurrentDispatcher?.current;
-  }
-}
+type QueryType<T> =
+  T extends Query<infer V, infer D, infer RR>
+    ? {
+        variables: V,
+        response: D,
+        rawResponse?: $NonMaybeType<RR>,
+      }
+    : [+t: T] extends [+t: PreloadableConcreteRequest<infer V>]
+      ? V
+      : empty;
+
+declare function loadQuery<
+  T,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+>(
+  environment: IEnvironment,
+  preloadableRequest: T,
+  variables: QueryType<T>['variables'],
+  options?: ?LoadQueryOptions,
+  environmentProviderOptions?: ?TEnvironmentProviderOptions,
+): PreloadedQueryInner<QueryType<T>, TEnvironmentProviderOptions>;
 
 function loadQuery<
   TQuery: OperationType,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
 >(
   environment: IEnvironment,
-  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+  preloadableRequest: PreloadableConcreteRequest<TQuery>,
   variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
-  // This code ensures that we don't call loadQuery during render.
-  const CurrentDispatcher =
-    // $FlowFixMe[prop-missing]
-    React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED
-      ?.ReactCurrentDispatcher?.current;
-  warning(
-    RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
-    'Relay: `%s` should not be called inside a React render function.',
-    options?.__nameForWarning ?? 'loadQuery',
-  );
-
   // Every time you call loadQuery, we will generate a new fetchKey.
   // This will ensure that every query reference that is created and
   // passed to usePreloadedQuery is independently evaluated,
@@ -142,34 +139,29 @@ function loadQuery<
     // `source` observable is returned.
     didMakeNetworkRequest = true;
 
-    let observable;
     const subject = new ReplaySubject<GraphQLResponse>();
-    if (RelayFeatureFlags.ENABLE_LOAD_QUERY_REQUEST_DEDUPING === true) {
-      // Here, we are calling fetchQueryDeduped at the network layer level,
-      // which ensures that only a single network request is active for a given
-      // (environment, identifier) pair.
-      // Since network requests can be started /before/ we have the query ast
-      // necessary to process the results, we need to dedupe the raw requests
-      // separately from deduping the operation execution; specifically,
-      // if `loadQuery` is called multiple times before the query ast is available,
-      // we still want the network request to be deduped.
-      // - If a duplicate active network request is found, it will return an
-      // Observable that replays the events of the already active request.
-      // - If no duplicate active network request is found, it will call the fetchFn
-      // to start the request, and return an Observable that will replay
-      // the events from the network request.
-      // We provide an extra key to the identifier to distinguish deduping
-      // of raw network requests vs deduping of operation executions.
-      const identifier: RequestIdentifier =
-        'raw-network-request-' + getRequestIdentifier(params, variables);
-      observable = fetchQueryDeduped(environment, identifier, () => {
-        const network = environment.getNetwork();
-        return network.execute(params, variables, networkCacheConfig);
-      });
-    } else {
+
+    // Here, we are calling fetchQueryDeduped at the network layer level,
+    // which ensures that only a single network request is active for a given
+    // (environment, identifier) pair.
+    // Since network requests can be started /before/ we have the query ast
+    // necessary to process the results, we need to dedupe the raw requests
+    // separately from deduping the operation execution; specifically,
+    // if `loadQuery` is called multiple times before the query ast is available,
+    // we still want the network request to be deduped.
+    // - If a duplicate active network request is found, it will return an
+    // Observable that replays the events of the already active request.
+    // - If no duplicate active network request is found, it will call the fetchFn
+    // to start the request, and return an Observable that will replay
+    // the events from the network request.
+    // We provide an extra key to the identifier to distinguish deduping
+    // of raw network requests vs deduping of operation executions.
+    const identifier: RequestIdentifier =
+      'raw-network-request-' + getRequestIdentifier(params, variables);
+    const observable = fetchQueryDeduped(environment, identifier, () => {
       const network = environment.getNetwork();
-      observable = network.execute(params, variables, networkCacheConfig);
-    }
+      return network.execute(params, variables, networkCacheConfig);
+    });
 
     const {unsubscribe} = observable.subscribe({
       error(err) {
@@ -198,17 +190,15 @@ function loadQuery<
     operation: OperationDescriptor,
     fetchFn: () => Observable<GraphQLResponse>,
   ) => {
-    if (RelayFeatureFlags.ENABLE_LOAD_QUERY_REQUEST_DEDUPING === true) {
-      // N.B. at this point, if we're calling execute with a query ast (OperationDescriptor),
-      // we are guaranteed to have started a network request. We set this to
-      // true here as well since `makeNetworkRequest` might get skipped in the case
-      // where the query ast is already available and the query executions get deduped.
-      // Even if the execution gets deduped below, we still wan't to return
-      // an observable that provides the replayed network events for the query,
-      // so we set this to true before deduping, to guarantee that the `source`
-      // observable is returned.
-      didMakeNetworkRequest = true;
-    }
+    // N.B. at this point, if we're calling execute with a query ast (OperationDescriptor),
+    // we are guaranteed to have started a network request. We set this to
+    // true here as well since `makeNetworkRequest` might get skipped in the case
+    // where the query ast is already available and the query executions get deduped.
+    // Even if the execution gets deduped below, we still wan't to return
+    // an observable that provides the replayed network events for the query,
+    // so we set this to true before deduping, to guarantee that the `source`
+    // observable is returned.
+    didMakeNetworkRequest = true;
 
     // Here, we are calling fetchQueryDeduped, which ensures that only
     // a single operation is active for a given (environment, identifier) pair,
@@ -386,5 +376,4 @@ function loadQuery<
 
 module.exports = {
   loadQuery,
-  useTrackLoadQueryInRender,
 };

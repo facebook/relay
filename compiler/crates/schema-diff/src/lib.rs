@@ -9,8 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-mod check;
-
+pub mod check;
 pub mod definitions;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
@@ -527,7 +526,7 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
         }
     }
 
-    for (_, definition) in current_map.drain().into_iter() {
+    for (_, definition) in current_map.drain() {
         add_definition(&mut changes, definition);
     }
 

@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+fragment MyFragment on ClientUser @throwOnFieldError {
+  name
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull @relay_resolver(
+      import_path: "./foo/bar.js"
+    )
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+import clientUserNameResolverType from "bar";
+// Type assertion validating that `clientUserNameResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(clientUserNameResolverType satisfies () => unknown);
+export type MyFragment$data = {
+  readonly name: NonNullable<ReturnType<typeof clientUserNameResolverType>>;
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

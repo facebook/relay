@@ -82,6 +82,7 @@ test('it should preload entry point with queries', () => {
     {
       getEnvironment: () => env,
     },
+    // $FlowFixMe[incompatible-call]
     entryPoint,
     {id: 'my-id'},
   );
@@ -137,6 +138,7 @@ test('it should preload entry point with nested entry points', () => {
     {
       getEnvironment: () => env,
     },
+    // $FlowFixMe[incompatible-call] Added after improved typing of PreloadProps
     entryPoint,
     {id: 'my-id'},
   );
@@ -211,6 +213,7 @@ test('it should preload entry point with both queries and nested entry points', 
     {
       getEnvironment: () => env,
     },
+    // $FlowFixMe[incompatible-call] Added after improved typing of PreloadProps
     entryPoint,
     {id: 'my-id'},
   );
@@ -258,6 +261,7 @@ test('with `getEnvironment` function', () => {
     {
       getEnvironment,
     },
+    // $FlowFixMe[incompatible-call]
     entryPoint,
     {id: 'my-id'},
   );

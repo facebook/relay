@@ -1,0 +1,166 @@
+==================================== INPUT ====================================
+# relay:no_custom_scalar_literals
+
+query CustomScalarLiteralArgQuery($var: CustomScalarType!) {
+    extension_field @customScalarDirective(arg: $var) {
+        __typename
+    }
+    extension_scalar_field @customScalarDirective(arg: $var)
+}
+
+# %extensions%
+
+scalar CustomScalarType
+
+directive @customScalarDirective(arg: CustomScalarType!) on FIELD
+
+type Obj {
+    some_key: Int!
+}
+
+extend type Query {
+    extension_field: Obj
+    extension_scalar_field: Int
+}
+==================================== OUTPUT ===================================
+[
+    Operation(
+        OperationDefinition {
+            kind: Query,
+            name: WithLocation {
+                location: custom_scalar_directive_arg_variable.graphql:41:68,
+                item: OperationDefinitionName(
+                    "CustomScalarLiteralArgQuery",
+                ),
+            },
+            type_: Object(0),
+            variable_definitions: [
+                VariableDefinition {
+                    name: WithLocation {
+                        location: custom_scalar_directive_arg_variable.graphql:69:73,
+                        item: VariableName(
+                            "var",
+                        ),
+                    },
+                    type_: NonNull(
+                        Named(
+                            Scalar(9),
+                        ),
+                    ),
+                    default_value: None,
+                    directives: [],
+                },
+            ],
+            directives: [],
+            selections: [
+                LinkedField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: custom_scalar_directive_arg_variable.graphql:100:115,
+                        item: FieldID(527),
+                    },
+                    arguments: [],
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: custom_scalar_directive_arg_variable.graphql:116:138,
+                                item: DirectiveName(
+                                    "customScalarDirective",
+                                ),
+                            },
+                            arguments: [
+                                Argument {
+                                    name: WithLocation {
+                                        location: custom_scalar_directive_arg_variable.graphql:139:142,
+                                        item: ArgumentName(
+                                            "arg",
+                                        ),
+                                    },
+                                    value: WithLocation {
+                                        location: custom_scalar_directive_arg_variable.graphql:144:148,
+                                        item: Variable(
+                                            Variable {
+                                                name: WithLocation {
+                                                    location: custom_scalar_directive_arg_variable.graphql:144:148,
+                                                    item: VariableName(
+                                                        "var",
+                                                    ),
+                                                },
+                                                type_: NonNull(
+                                                    Named(
+                                                        Scalar(9),
+                                                    ),
+                                                ),
+                                            },
+                                        ),
+                                    },
+                                },
+                            ],
+                            data: None,
+                            location: custom_scalar_directive_arg_variable.graphql:116:149,
+                        },
+                    ],
+                    selections: [
+                        ScalarField {
+                            alias: None,
+                            definition: WithLocation {
+                                location: custom_scalar_directive_arg_variable.graphql:160:170,
+                                item: FieldID(529),
+                            },
+                            arguments: [],
+                            directives: [],
+                        },
+                    ],
+                },
+                ScalarField {
+                    alias: None,
+                    definition: WithLocation {
+                        location: custom_scalar_directive_arg_variable.graphql:181:203,
+                        item: FieldID(528),
+                    },
+                    arguments: [],
+                    directives: [
+                        Directive {
+                            name: WithLocation {
+                                location: custom_scalar_directive_arg_variable.graphql:204:226,
+                                item: DirectiveName(
+                                    "customScalarDirective",
+                                ),
+                            },
+                            arguments: [
+                                Argument {
+                                    name: WithLocation {
+                                        location: custom_scalar_directive_arg_variable.graphql:227:230,
+                                        item: ArgumentName(
+                                            "arg",
+                                        ),
+                                    },
+                                    value: WithLocation {
+                                        location: custom_scalar_directive_arg_variable.graphql:232:236,
+                                        item: Variable(
+                                            Variable {
+                                                name: WithLocation {
+                                                    location: custom_scalar_directive_arg_variable.graphql:232:236,
+                                                    item: VariableName(
+                                                        "var",
+                                                    ),
+                                                },
+                                                type_: NonNull(
+                                                    Named(
+                                                        Scalar(9),
+                                                    ),
+                                                ),
+                                            },
+                                        ),
+                                    },
+                                },
+                            ],
+                            data: None,
+                            location: custom_scalar_directive_arg_variable.graphql:204:237,
+                        },
+                    ],
+                },
+            ],
+        },
+    ),
+]

@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+fragment resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment on Cat {
+    description
+}
+
+# %extensions%
+
+interface Cat {
+    id: ID!
+    description: String @relay_resolver(import_path: "CatResolver")
+}
+
+type Tabby implements Cat {
+    id: ID!
+    description: String @relay_resolver(import_path: "CatResolver")
+    __relay_model_instance: RelayResolverValue @relay_resolver(fragment_name: "Tabby__id", import_path: "TabbyResolver", inject_fragment_data: "id")
+}
+
+type Persian implements Cat {
+    id: ID!
+    description: String
+}
+==================================== OUTPUT ===================================
+import type { Tabby____relay_model_instance$data } from "Tabby____relay_model_instance.graphql";
+import type { FragmentType } from "relay-runtime";
+import catDescriptionResolverType from "CatResolver";
+// Type assertion validating that `catDescriptionResolverType` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(catDescriptionResolverType: (
+  model: Tabby____relay_model_instance$data['__relay_model_instance'],
+) => ?mixed);
+declare export opaque type resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$fragmentType: FragmentType;
+export type resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$data = {|
+  +description: ?ReturnType<typeof catDescriptionResolverType>,
+  +$fragmentType: resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$fragmentType,
+|};
+export type resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$key = {
+  +$data?: resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$data,
+  +$fragmentSpreads: resolverOnInterfaceOfAllStrongModelTypeWithExtensionFragment$fragmentType,
+  ...
+};

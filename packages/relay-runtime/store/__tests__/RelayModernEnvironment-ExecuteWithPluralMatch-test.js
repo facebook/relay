@@ -35,7 +35,11 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
 const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with plural @match', () => {
@@ -196,7 +200,7 @@ describe('execute() a query with plural @match', () => {
       node: {
         nameRenderers: [
           {
-            __id: 'client:1:nameRenderers(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"]):0',
+            __id: 'client:1:nameRenderers(supported:"34hjiS"):0',
 
             __fragmentPropName: 'name',
 
@@ -206,7 +210,6 @@ describe('execute() a query with plural @match', () => {
             },
 
             __fragmentOwner: operation.request,
-            __isWithinUnmatchedTypeRefinement: false,
             __module_component: 'MarkdownUserNameRenderer.react',
           },
         ],

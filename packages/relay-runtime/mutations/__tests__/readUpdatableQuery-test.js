@@ -234,8 +234,9 @@ describe('readUpdatableQuery', () => {
 
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
-    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryTestRegularQuery['response']);
+    const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+      // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      (RelayReader.read(source, selector).data: any);
     expect(readOnlyData?.me?.name).toEqual('MetaZuck');
   });
 
@@ -384,8 +385,9 @@ describe('readUpdatableQuery', () => {
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
-        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+          // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          (RelayReader.read(source, selector).data: any);
 
         expect(readOnlyData.me?.id).toBe('42');
 
@@ -416,8 +418,9 @@ describe('readUpdatableQuery', () => {
 
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
-      const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryTestRegularQuery['response']);
+      const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+        // $FlowFixMe[unclear-type] Just to cast it to a better type!
+        (RelayReader.read(source, selector).data: any);
       expect(readOnlyData.me?.id).toBe('4');
     });
 
@@ -452,8 +455,9 @@ describe('readUpdatableQuery', () => {
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
-        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+          // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          (RelayReader.read(source, selector).data: any);
 
         const validUser = (() => {
           if (readOnlyData.node != null) {
@@ -492,8 +496,9 @@ describe('readUpdatableQuery', () => {
 
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
-      const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryTestRegularQuery['response']);
+      const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+        // $FlowFixMe[unclear-type] Just to cast it to a better type!
+        (RelayReader.read(source, selector).data: any);
       if (readOnlyData.node2?.parents != null) {
         expect(readOnlyData.node2?.parents[0]?.name).toBe(
           'Gaius Julius Caesar',
@@ -534,8 +539,9 @@ describe('readUpdatableQuery', () => {
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
-        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+          // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          (RelayReader.read(source, selector).data: any);
 
         const author = (() => {
           if (updatableData.me?.author != null) {
@@ -561,8 +567,9 @@ describe('readUpdatableQuery', () => {
       });
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
-      const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryTestRegularQuery['response']);
+      const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+        // $FlowFixMe[unclear-type] Just to cast it to a better type!
+        (RelayReader.read(source, selector).data: any);
       expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mark');
     });
 
@@ -579,8 +586,9 @@ describe('readUpdatableQuery', () => {
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
-        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+          // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          (RelayReader.read(source, selector).data: any);
         if (readOnlyData.node != null) {
           expect(validateUser(readOnlyData.node)).toBe(false);
         } else {
@@ -601,8 +609,9 @@ describe('readUpdatableQuery', () => {
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
-        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+          // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          (RelayReader.read(source, selector).data: any);
         if (readOnlyData.node != null) {
           expect(validateUser(readOnlyData.node)).toEqual(readOnlyData.node);
         } else {
@@ -633,8 +642,9 @@ describe('readUpdatableQuery', () => {
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
-        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+          // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          (RelayReader.read(source, selector).data: any);
 
         const validNode = (() => {
           if (readOnlyData.me != null) {
@@ -668,8 +678,9 @@ describe('readUpdatableQuery', () => {
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
-        const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          .data: any): readUpdatableQueryTestRegularQuery['response']);
+        const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+          // $FlowFixMe[unclear-type] Just to cast it to a better type!
+          (RelayReader.read(source, selector).data: any);
         expect(readOnlyData.me?.__isreadUpdatableQueryTest_node).toBe('User');
         if (readOnlyData.me != null) {
           expect(validateNode(readOnlyData.me)).toBe(readOnlyData.me);
@@ -720,8 +731,9 @@ describe('readUpdatableQuery', () => {
 
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
-    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryTestRegularQuery['response']);
+    const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+      // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      (RelayReader.read(source, selector).data: any);
     expect(readOnlyData.me).toBe(null);
   });
 
@@ -779,8 +791,9 @@ describe('readUpdatableQuery', () => {
 
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
-    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryTestRegularQuery['response']);
+    const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+      // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      (RelayReader.read(source, selector).data: any);
     expect(readOnlyData.node2?.parents).toEqual([]);
   });
 
@@ -815,8 +828,9 @@ describe('readUpdatableQuery', () => {
 
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
-      const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        .data: any): readUpdatableQueryTestRegularQuery['response']);
+      const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+        // $FlowFixMe[unclear-type] Just to cast it to a better type!
+        (RelayReader.read(source, selector).data: any);
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
@@ -1004,8 +1018,9 @@ describe('readUpdatableQuery', () => {
     });
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
-    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryTestRegularQuery['response']);
+    const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+      // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      (RelayReader.read(source, selector).data: any);
     expect(readOnlyData.me?.author?.client_nickname).toBe('Mr. Right');
   });
 
@@ -1046,8 +1061,9 @@ describe('readUpdatableQuery', () => {
 
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
-    const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      .data: any): readUpdatableQueryTestRegularQuery['response']);
+    const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
+      // $FlowFixMe[unclear-type] Just to cast it to a better type!
+      (RelayReader.read(source, selector).data: any);
     expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mr. Right');
   });
 

@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+
+//extract
+function name(): string {
+}
+
+//extract
+function name(user: User): User.Name {
+}
+
+//extract
+function name(user: User): Genric<boolean, string> {
+}
+==================================== OUTPUT ===================================
+Strong(
+    FieldData {
+        field_name: WithLocation {
+            location: <generated>:212:216,
+            item: "name",
+        },
+        return_type: StringTypeAnnotation(
+            StringTypeAnnotation {
+                loc: None,
+                range: SourceRange {
+                    start: 220,
+                    end: 226,
+                },
+            },
+        ),
+        entity_type: None,
+        arguments: None,
+        is_live: None,
+    },
+)
+
+✖︎ Unsupported type
+
+  <generated>:14:28
+   13 │ //extract
+   14 │ function name(user: User): User.Name {
+      │                            ^^^^^^^^^
+   15 │ }
+
+
+✖︎ Multiple type params is not supported
+
+  <generated>:18:28
+   17 │ //extract
+   18 │ function name(user: User): Genric<boolean, string> {
+      │                            ^^^^^^^^^^^^^^^^^^^^^^^
+   19 │ }

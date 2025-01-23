@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod project_fixture;
+mod temp_dir;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -24,8 +26,10 @@ use graphql_syntax::parse_executable;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
+pub use project_fixture::ProjectFixture;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_located_extensions;
+pub use temp_dir::TestDir;
 
 pub fn apply_transform_for_test<T>(fixture: &Fixture<'_>, transform: T) -> Result<String, String>
 where
@@ -43,7 +47,7 @@ where
         let extension_location = SourceLocationKey::embedded(fixture.file_name, 1);
         sources_map.insert(extension_location, extensions_text.to_string());
 
-        get_test_schema_with_located_extensions(*extensions_text, extension_location)
+        get_test_schema_with_located_extensions(extensions_text, extension_location)
     } else {
         get_test_schema()
     };
@@ -56,6 +60,7 @@ where
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
+            allow_custom_scalar_literals: true, // for compatibility
         },
     );
     let ir = ir_result.map_err(|diagnostics| {

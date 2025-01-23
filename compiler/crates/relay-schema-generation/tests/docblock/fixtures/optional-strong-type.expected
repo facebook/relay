@@ -1,0 +1,71 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+export type CatFlowType = {id: string}
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): ?CatFlowType {
+  return {};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function name(cat: ?CatFlowType): string {
+  return "cat";
+}
+==================================== OUTPUT ===================================
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 275:278,
+                token: Token {
+                    span: 275:278,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: Cat.js:275:278,
+            root_fragment: WithLocation {
+                location: Cat.js:275:278,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: Cat.js:275:278,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "4325ac2bef4354788b5ccb1c5f5ffd53",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "4325ac2bef4354788b5ccb1c5f5ffd53") @unselectable(reason: "This field is intended only for Relay's internal use")
+}
+
+
+✖︎ A nullable strong type is provided, please make the type non-nullable. The type can't be nullable in the runtime.
+
+  Cat.js:22:27
+   21 │  */
+   22 │ export function name(cat: ?CatFlowType): string {
+      │                           ^^^^^^^^^^^^
+   23 │   return "cat";

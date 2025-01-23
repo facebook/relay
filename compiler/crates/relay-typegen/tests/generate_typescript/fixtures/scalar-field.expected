@@ -17,16 +17,16 @@ export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" |
 import { FragmentRefs } from "relay-runtime";
 export type ScalarField$data = {
   readonly aliasedLinkedField: {
-    readonly aliasedField: number | null;
-  } | null;
+    readonly aliasedField: number | null | undefined;
+  } | null | undefined;
   readonly id: string;
-  readonly name: string | null;
+  readonly name: string | null | undefined;
   readonly screennames: ReadonlyArray<{
-    readonly name: string | null;
-    readonly service: string | null;
-  } | null> | null;
-  readonly traits: ReadonlyArray<PersonalityTraits | null> | null;
-  readonly websites: ReadonlyArray<string | null> | null;
+    readonly name: string | null | undefined;
+    readonly service: string | null | undefined;
+  } | null | undefined> | null | undefined;
+  readonly traits: ReadonlyArray<PersonalityTraits | null | undefined> | null | undefined;
+  readonly websites: ReadonlyArray<string | null | undefined> | null | undefined;
   readonly " $fragmentType": "ScalarField";
 };
 export type ScalarField$key = {

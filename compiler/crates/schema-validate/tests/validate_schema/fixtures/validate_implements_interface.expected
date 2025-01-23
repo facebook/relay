@@ -1,0 +1,206 @@
+==================================== INPUT ====================================
+# Reports full type, not just inner type
+
+interface Node {
+  id: ID!
+}
+
+type Pet implements Node {
+  id: ID # <--- Missing !
+}
+
+# Subtypes for fields are allowed
+
+interface InterfaceA {
+  some_field: String
+}
+
+type TypeA implements InterfaceA {
+  some_field: String! # More specific type of String! should be allowed
+}
+
+# Checks multiple interfaces
+
+interface InterfaceB {
+  some_field: String
+}
+
+interface InterfaceC {
+  another_field: String
+}
+
+type TypeB implements InterfaceB & InterfaceC {
+  some_field: String
+  # Oops! Does not implement InterfaceC's field!
+}
+
+# Checks interface implements interface
+
+interface InterfaceD {
+  some_field: String
+}
+
+interface InterfaceE implements InterfaceD {
+  # Oops! Does not implement InterfaceD's field
+  another_field: String
+}
+
+# Checks multi-dimensional lists
+
+interface InterfaceF {
+  some_field: [[[String]]]
+}
+
+type TypeC implements InterfaceF {
+  some_field: [[[Int]]] # Oops! Should be String in there
+}
+
+# Required for global validation
+
+type Query {
+  node: Node
+}
+
+# Checks semantic nullability
+
+interface InterfaceG {
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [0, 1])
+}
+
+interface InterfaceH implements InterfaceG {
+  # Oops! some_field does not specify @semanticNonNull or non-null (!)
+  # and some_field does not specify @semanticNonNull(levels: [0, 1]) or non-null ([!]!)
+  some_field: String
+  some_list: [String]
+}
+
+interface InterfaceI implements InterfaceG {
+  # Oops! some_list is semanticNonNull but lacks the same levels as the interface.
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [1])
+}
+
+interface InterfaceJ implements InterfaceG {
+  # OK
+  some_field: String @semanticNonNull
+  some_list: [String] @semanticNonNull(levels: [0, 1])
+}
+
+interface InterfaceK implements InterfaceG {
+  # OK
+  some_field: String!
+  some_list: [String!]!
+}
+==================================== OUTPUT ===================================
+✖︎ Interface field 'Node.id' expects type 'ID!' but 'Pet.id' is of type 'ID'.
+
+  validate_implements_interface.graphql:8:3
+    7 │ type Pet implements Node {
+    8 │   id: ID # <--- Missing !
+      │   ^^
+    9 │ }
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:4:3
+    3 │ interface Node {
+    4 │   id: ID!
+      │   ^^
+    5 │ }
+
+✖︎ Interface field 'InterfaceC.another_field' expected but type 'TypeB' does not provide it.
+
+  validate_implements_interface.graphql:31:6
+   30 │ 
+   31 │ type TypeB implements InterfaceB & InterfaceC {
+      │      ^^^^^
+   32 │   some_field: String
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:28:3
+   27 │ interface InterfaceC {
+   28 │   another_field: String
+      │   ^^^^^^^^^^^^^
+   29 │ }
+
+✖︎ Interface field 'InterfaceD.some_field' expected but interface 'InterfaceE' does not provide it.
+
+  validate_implements_interface.graphql:42:11
+   41 │ 
+   42 │ interface InterfaceE implements InterfaceD {
+      │           ^^^^^^^^^^
+   43 │   # Oops! Does not implement InterfaceD's field
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:39:3
+   38 │ interface InterfaceD {
+   39 │   some_field: String
+      │   ^^^^^^^^^^
+   40 │ }
+
+✖︎ Interface field 'InterfaceF.some_field' expects type '[[[String]]]' but 'TypeC.some_field' is of type '[[[Int]]]'.
+
+  validate_implements_interface.graphql:54:3
+   53 │ type TypeC implements InterfaceF {
+   54 │   some_field: [[[Int]]] # Oops! Should be String in there
+      │   ^^^^^^^^^^
+   55 │ }
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:50:3
+   49 │ interface InterfaceF {
+   50 │   some_field: [[[String]]]
+      │   ^^^^^^^^^^
+   51 │ }
+
+✖︎ Interface field 'InterfaceG.some_field' expects type 'String @semanticNonNull' but 'InterfaceH.some_field' is of type 'String'.
+
+  validate_implements_interface.graphql:73:3
+   72 │   # and some_field does not specify @semanticNonNull(levels: [0, 1]) or non-null ([!]!)
+   73 │   some_field: String
+      │   ^^^^^^^^^^
+   74 │   some_list: [String]
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:66:3
+   65 │ interface InterfaceG {
+   66 │   some_field: String @semanticNonNull
+      │   ^^^^^^^^^^
+   67 │   some_list: [String] @semanticNonNull(levels: [0, 1])
+
+✖︎ Interface field 'InterfaceG.some_list' expects type '[String] @semanticNonNull(levels: [0, 1])' but 'InterfaceH.some_list' is of type '[String]'.
+
+  validate_implements_interface.graphql:74:3
+   73 │   some_field: String
+   74 │   some_list: [String]
+      │   ^^^^^^^^^
+   75 │ }
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:67:3
+   66 │   some_field: String @semanticNonNull
+   67 │   some_list: [String] @semanticNonNull(levels: [0, 1])
+      │   ^^^^^^^^^
+   68 │ }
+
+✖︎ Interface field 'InterfaceG.some_list' expects type '[String] @semanticNonNull(levels: [0, 1])' but 'InterfaceI.some_list' is of type '[String] @semanticNonNull(levels: [1])'.
+
+  validate_implements_interface.graphql:80:3
+   79 │   some_field: String @semanticNonNull
+   80 │   some_list: [String] @semanticNonNull(levels: [1])
+      │   ^^^^^^^^^
+   81 │ }
+
+  ℹ︎ The interface field is defined here:
+
+  validate_implements_interface.graphql:67:3
+   66 │   some_field: String @semanticNonNull
+   67 │   some_list: [String] @semanticNonNull(levels: [0, 1])
+      │   ^^^^^^^^^
+   68 │ }

@@ -19,7 +19,6 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -30,7 +29,7 @@ const {
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
-export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
+export type UseLazyLoadQueryHookType = hook <TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: {
@@ -41,7 +40,7 @@ export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
   },
 ) => TData;
 
-function useLazyLoadQuery<TVariables: Variables, TData>(
+hook useLazyLoadQuery<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: {
@@ -51,10 +50,6 @@ function useLazyLoadQuery<TVariables: Variables, TData>(
     UNSTABLE_renderPolicy?: RenderPolicy,
   },
 ): TData {
-  // We need to use this hook in order to be able to track if
-  // loadQuery was called during render
-  useTrackLoadQueryInRender();
-
   const environment = useRelayEnvironment();
 
   const query = useMemoOperationDescriptor(
@@ -75,4 +70,5 @@ function useLazyLoadQuery<TVariables: Variables, TData>(
   return data;
 }
 
+// $FlowFixMe[react-rule-hook-incompatible]
 module.exports = (useLazyLoadQuery: UseLazyLoadQueryHookType);

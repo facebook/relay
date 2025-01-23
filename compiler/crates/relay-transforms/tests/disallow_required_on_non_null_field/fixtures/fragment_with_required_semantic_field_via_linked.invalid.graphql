@@ -1,0 +1,14 @@
+fragment MyFragment on User @throwOnFieldError {
+  some_linked_field {
+    some_other_field @required(action: THROW)
+  }
+}
+
+# %extensions%
+extend type User {
+  some_linked_field: Foo
+}
+
+type Foo {
+  some_other_field: Int @semanticNonNull
+}

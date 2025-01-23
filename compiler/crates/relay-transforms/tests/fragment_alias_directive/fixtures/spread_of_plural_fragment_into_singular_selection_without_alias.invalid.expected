@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User @relay(plural: true) {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node {
+    # This might not match, so we need @alias
+    ...RelayReaderNamedFragmentsTest_user
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected `@alias` directive. `RelayReaderNamedFragmentsTest_user` is defined on `User` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
+
+  spread_of_plural_fragment_into_singular_selection_without_alias.invalid.graphql:9:8
+    8 │     # This might not match, so we need @alias
+    9 │     ...RelayReaderNamedFragmentsTest_user
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │   }

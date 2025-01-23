@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4b834dd16f59d8b359cb004472f35e6f>>
+ * @generated SignedSource<<8e30dfb8d84acedb4c8dba7270e72168>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,17 +19,19 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { CounterSuspendsWhenOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/CounterSuspendsWhenOdd.graphql";
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import type { FragmentType } from "relay-runtime";
+import type { LiveState, FragmentType } from "relay-runtime";
 import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolverType} from "../../../relay-runtime/store/__tests__/resolvers/CounterSuspendsWhenOdd.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolverType: (
   rootKey: CounterSuspendsWhenOdd$key,
-) => LiveState<mixed>);
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?number>);
 declare export opaque type LiveResolversTest5Fragment$fragmentType: FragmentType;
 export type LiveResolversTest5Fragment$data = {|
-  +counter_suspends_when_odd: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterSuspendsWhenOddResolverType>["read"]>,
+  +counter_suspends_when_odd: ?number,
   +$fragmentType: LiveResolversTest5Fragment$fragmentType,
 |};
 export type LiveResolversTest5Fragment$key = {

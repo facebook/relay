@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment inlineFragmentWithoutTypeConditionOnInterfaceFragment on Cat {
+    ... {
+        description
+        name
+    }
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+    name: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyResolver")
+    name: String
+}
+
+type Persian implements Cat {
+    description: String
+    name: String
+}
+
+extend type Query {
+    cat: Cat
+}
+==================================== OUTPUT ===================================
+fragment inlineFragmentWithoutTypeConditionOnInterfaceFragment on Cat {
+  ... {
+    name
+    ... on Tabby {
+      __id @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(528),
+      #     import_path: "TabbyResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "description",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: Legacy,
+      #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
+      # }
+      
+    }
+    ... on Persian {
+      description
+    }
+  }
+}

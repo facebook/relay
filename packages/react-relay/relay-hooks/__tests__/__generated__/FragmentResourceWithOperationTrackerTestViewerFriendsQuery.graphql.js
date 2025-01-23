@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c489f5e7cb8805b1d72b47ee8c3f2ef>>
+ * @generated SignedSource<<6e17c443dee3c70c6dd815c26842d585>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -231,10 +231,7 @@ return {
                               {
                                 "kind": "Literal",
                                 "name": "supported",
-                                "value": [
-                                  "PlainUserNameRenderer",
-                                  "MarkdownUserNameRenderer"
-                                ]
+                                "value": "34hjiS"
                               }
                             ],
                             "concreteType": null,
@@ -272,7 +269,7 @@ return {
                                 "abstractKey": null
                               }
                             ],
-                            "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\",\"MarkdownUserNameRenderer\"])"
+                            "storageKey": "nameRenderer(supported:\"34hjiS\")"
                           },
                           {
                             "alias": "plainNameRenderer",
@@ -280,9 +277,7 @@ return {
                               {
                                 "kind": "Literal",
                                 "name": "supported",
-                                "value": [
-                                  "PlainUserNameRenderer"
-                                ]
+                                "value": "1AwQS7"
                               }
                             ],
                             "concreteType": null,
@@ -306,7 +301,7 @@ return {
                                 "abstractKey": null
                               }
                             ],
-                            "storageKey": "nameRenderer(supported:[\"PlainUserNameRenderer\"])"
+                            "storageKey": "nameRenderer(supported:\"1AwQS7\")"
                           },
                           (v0/*: any*/)
                         ],

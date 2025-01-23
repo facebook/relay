@@ -33,8 +33,8 @@ declare function readInlineData<TFragmentType: FragmentType, TData>(
 ): TData;
 declare function readInlineData<TFragmentType: FragmentType, TData>(
   fragment: InlineFragment<TFragmentType, TData>,
-  key: null | void,
-): null | void;
+  key: ?HasSpread<TFragmentType>,
+): ?TData;
 
 function readInlineData(
   fragment: GraphQLTaggedNode,

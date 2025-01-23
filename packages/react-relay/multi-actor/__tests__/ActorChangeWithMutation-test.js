@@ -13,7 +13,6 @@
 
 import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
-import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
@@ -40,7 +39,12 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -144,7 +148,7 @@ type Props = $ReadOnly<{
 
 function ActorComponent(props: Props) {
   const data = useFragment(fragment, props.fragmentKey);
-  const [commit] = useMutation<ActorChangeWithMutationTestMutation>(mutation);
+  const [commit] = useMutation(mutation);
 
   props.render({
     id: data.id,
@@ -200,7 +204,7 @@ describe('ActorChange', () => {
       createNetworkForActor: actorIdentifier =>
         Network.create((...args) => fetchFnForActor(actorIdentifier, ...args)),
       logFn: jest.fn(),
-      requiredFieldLogger: jest.fn(),
+      relayFieldLogger: jest.fn(),
     });
     environment = multiActorEnvironment.forActor(
       getActorIdentifier('actor:1234'),
@@ -215,16 +219,18 @@ describe('ActorChange', () => {
     });
     const renderViewerActorName = jest.fn<[?string], void>();
 
-    ReactTestRenderer.create(
-      <ComponentWrapper
-        environment={environment}
-        multiActorEnvironment={multiActorEnvironment}>
-        <MainComponent
-          renderViewerActorName={renderViewerActorName}
-          renderActorInTheList={renderFn}
-        />
-      </ComponentWrapper>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ComponentWrapper
+          environment={environment}
+          multiActorEnvironment={multiActorEnvironment}>
+          <MainComponent
+            renderViewerActorName={renderViewerActorName}
+            renderActorInTheList={renderFn}
+          />
+        </ComponentWrapper>,
+      );
+    });
 
     dataSource.next({
       data: {

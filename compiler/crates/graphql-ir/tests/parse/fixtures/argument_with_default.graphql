@@ -1,0 +1,9 @@
+mutation ArgumentWithDefault {
+  feedbackUnLike(input: {feedbackId: "123"}) {
+    feedback {
+      body {
+        text
+      }
+    }
+  }
+}

@@ -1,0 +1,96 @@
+==================================== INPUT ====================================
+query requiredBubblesToInlineAliasedFragmentQuery {
+  ... @alias(as: "myAlias") {
+    me @required(action: NONE) {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "requiredBubblesToInlineAliasedFragmentQuery",
+    "selections": [
+      {
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "kind": "RequiredField",
+              "field": {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "me",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "id",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              "action": "NONE"
+            }
+          ],
+          "type": null,
+          "abstractKey": null
+        },
+        "kind": "AliasedInlineFragmentSpread",
+        "name": "myAlias"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "requiredBubblesToInlineAliasedFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "7d738e6cb20d93761e1572bd3825d7fa",
+    "id": null,
+    "metadata": {},
+    "name": "requiredBubblesToInlineAliasedFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query requiredBubblesToInlineAliasedFragmentQuery {
+  me {
+    id
+  }
+}

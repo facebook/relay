@@ -32,6 +32,8 @@ Is something missing from this Q&A? Are you confused? Would you like help adopti
 
 Typesafe updaters is the name given to a project to provide a typesafe and ergonomic alternative to the existing APIs for imperatively updating data in the Relay store.
 
+For example, [`readUpdatableFragment`](../../../api-reference/store/#readupdatablefragmentfragment-updatablefragmenttfragmenttype-tdatafragmentreference-hasupdatablespreadtfragmenttype-updatabledatatdata) and [`readUpdatableQuery`](../../../api-reference/store/#readupdatablequeryquery-updatablequerytvariables-tdatavariables-tvariables-updatabledatatdata) are two typesafe updaters that the store exposes.
+
 ## Why?
 
 Relay provides typesafe and ergonomic APIs for fetching and managing data that originates on the server. In addition, Relay provides the ability to define local-only fields in **client schema extensions**. However, the APIs for mutating the data in these fields has hitherto been verbose and not ergonomic, meaning that we could not recommend Relay as a solution for managing local state.
@@ -40,15 +42,11 @@ Relay provides typesafe and ergonomic APIs for fetching and managing data that o
 
 The pre-existing APIs are verbose and not typesafe. They make it easy to make a variety of mistakes and require that the developer understand a new set of APIs only when writing updaters.
 
-Typesafe updaters is a set of APIs that are typesafe and (hopefully) more ergonomic. They leverage well-known Relay idioms (queries, fragments, type refinement) and use getters and setters instead of requiring that the developer learn about a set of methods that are unused elsewhere.
+Typesafe updaters is a set of APIs that are typesafe and more ergonomic. They leverage well-known Relay idioms (queries, fragments, type refinement) and use getters and setters instead of requiring that the developer learn about a set of methods that are unused elsewhere.
 
 ## How does a developer use typesafe updaters?
 
 With typesafe updaters, a developers writes an updatable query or a fragment that specifies the data to imperatively update. Then, the developer reads out that data from the store, returning a so-called **updatable proxy**. Then, the developer mutates that updatable proxy. Mutating that updatable proxy using setters (e.g. `updatableData.name = "Godzilla"`) results in calls to the old API, but with added type safety.
-
-## Why are these labeled `_EXPERIMENTAL`?
-
-These are de facto not experimental. We encourage you to use them when writing new code! This suffix will be removed soon.
 
 ## What is an updatable query or fragment?
 
@@ -77,7 +75,7 @@ You should select that field in both a regular query/fragment **and** in an upda
 
 ## Where do I get a `store`?
 
-The classes `RelayRecordSourceSelectorProxy` and `RelayRecordSourceProxy` contain the methods `readUpdatableQuery` and `readUpdatableFragment`. One can acquire an instance of these classes:
+The classes `RelayRecordSourceSelectorProxy`, `RecordSourceProxy` and `RelayRecordSourceProxy` contain the methods `readUpdatableQuery` and `readUpdatableFragment`. One can acquire an instance of these classes:
 
 * In updaters of mutations and subscriptions
 * In optimistic updaters of mutations

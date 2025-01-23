@@ -16,6 +16,7 @@ Table of Contents:
 
 -   [RecordSourceSelectorProxy](#recordsourceselectorproxy)
 -   [RecordProxy](#recordproxy)
+-   [RecordSourceProxy](#recordsourceproxy)
 -   [ConnectionHandler](#connectionhandler)
 
 ## RecordSourceSelectorProxy
@@ -46,7 +47,7 @@ const record = store.create(dataID, 'Todo');
 
 ### `delete(dataID: string): void`
 
-Deletes a record from the store given its `dataID`.
+Deletes a record from the store given its `dataID`. For existing edges to the deleted record, `undefined` will be returned in the default case even when the value is typed as non-nullable. When [`@throwOnFieldError`](../../guides/throw-on-field-error-directive/) is present, the missing data will throw an error.
 
 #### Example
 
@@ -452,6 +453,144 @@ After invalidating a record, any query that references the invalidated record an
 
 ```javascript
 environment.check(query) === 'stale'
+```
+## RecordSourceProxy
+
+The `RecordSourceProxy` serves as an interface to mutate record.
+
+> **NOTE:** `RecordSourceProxy` exposes many low level APIs that are not typesafe. Users should consider using [typesafe updaters](../../guided-tour/updating-data/typesafe-updaters-faq/), [optimistic updates](../../guided-tour/updating-data/graphql-mutations/#optimistic-updates), and [relay resolvers](../../guides/relay-resolvers/introduction/) instead if their use case can be covered by these alternatives.
+
+```javascript
+interface RecordSourceProxy {
+  create(dataID: DataID, typeName: string): RecordProxy;
+  delete(dataID: DataID): void;
+  get(dataID: DataID): ?RecordProxy;
+  getRoot(): RecordProxy;
+  invalidateStore(): void;
+  readUpdatableFragment<TFragmentType: FragmentType, TData>(
+    fragment: UpdatableFragment<TFragmentType, TData>,
+    fragmentReference: HasUpdatableSpread<TFragmentType>,
+  ): UpdatableData<TData>;
+  readUpdatableQuery<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): UpdatableData<TData>;
+}
+```
+
+### `create(dataID: DataID, typeName: string): RecordProxy`
+
+Creates a new record in the store given a `dataID` and the `typeName` as defined by the GraphQL schema. Returns a [`RecordProxy`](#recordproxy) which serves as an interface to mutate the newly created record.
+
+#### Example
+
+```javascript
+const record = store.create(dataID, 'Todo');
+```
+
+### `delete(dataID: DataID): void`
+
+Deletes a record from the store given its `dataID`. For existing edges to the deleted record, `undefined` will be returned in the default case even when the value is typed as non-nullable. When [`@throwOnFieldError`](../../guides/throw-on-field-error-directive/) is present, the missing data will throw an error.
+
+#### Example
+
+```javascript
+store.delete(dataID);
+```
+
+### `get(dataID: DataID): ?RecordProxy`
+
+Retrieves a record from the store given its `dataID`. Returns a [`RecordProxy`](#recordproxy) which serves as an interface to read/mutate the record.
+
+#### Example
+
+```javascript
+const record = store.get(dataID);
+```
+
+### `getRoot(): RecordProxy`
+
+Returns the [`RecordProxy`](#recordproxy) representing the root of the GraphQL document.
+
+#### Example
+
+Given the GraphQL document:
+
+```graphql
+viewer {
+  id
+}
+```
+
+Usage:
+
+```javascript
+// Represents root query
+const root = store.getRoot();
+// Get the viewer linked record
+const viewer = root.getLinkedRecord('viewer');
+```
+
+### `invalidateStore(): void;`
+
+Globally invalidates the Relay store. This will cause any data that was written to the store before invalidation occurred to be considered stale, and will be considered to require refetch the next time a query is checked with `environment.check()` or is fetched with a `store-or-network` [fetch policy](../../guided-tour/reusing-cached-data/fetch-policies/).
+
+#### Example
+
+```javascript
+store.invalidateStore();
+```
+
+After global invalidation, any query that is checked before refetching it will be considered stale:
+
+```javascript
+environment.check(query) === 'stale'
+```
+
+### `readUpdatableFragment(fragment: UpdatableFragment<TFragmentType, TData>,fragmentReference: HasUpdatableSpread<TFragmentType>): UpdatableData<TData>;`
+
+Fetches an updatable fragment from the store. This updatable fragment's fields can then be imperatively modified to update data in the store.
+
+For more information on updating the store imperatively, see this [section](../../guided-tour/updating-data/imperatively-modifying-store-data/) of the guided tour.
+
+#### Example
+```javascript
+const fragment = graphql`
+  fragment StoryLikeButton_updatable on Story @updatable {
+    likeCount
+    doesViewerLike
+  }
+`;
+const {
+  updatableData
+} = store.readUpdatableFragment(
+  fragment,
+  story
+);
+updatableData.likeCount = updatableData.likeCount + 1
+```
+
+### `readUpdatableQuery(query: UpdatableQuery<TVariables, TData>,variables: TVariables): UpdatableData<TData>`
+
+Reads an updatable query from the store. This updatable query's fields can be imperatively modified to update data in the store. Unlike `readUpdatableFragment`, you do not need to pass in a `fragmentReference` as an input argument.
+
+For more information on updating the store imperatively, see this [section](../../guided-tour/updating-data/imperatively-modifying-store-data/) of the guided tour.
+
+#### Example
+
+```javascript
+const {updatableData} = store.readUpdatableQuery(
+  graphql`
+    query NameUpdaterUpdateQuery @updatable {
+      viewer {
+        name
+      }
+    }
+  `,
+  {}
+);
+const viewer = updatableData.viewer;
+viewer.name = newName;
 ```
 
 ## ConnectionHandler

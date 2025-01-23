@@ -9,7 +9,7 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-clap = { version = "4.5.20", features = ["derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.5.27", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
 intern = { path = "../intern" }
 log = { version = "0.4.22", features = ["kv_unstable"] }

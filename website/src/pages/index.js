@@ -86,7 +86,6 @@ const HomeSplash = () => {
 const Index = () => {
   const {siteConfig} = useDocusaurusContext();
   const {withBaseUrl} = useBaseUrlUtils();
-  const {isDarkTheme} = useThemeConfig();
 
   const showcase = siteConfig.customFields.users
     .filter(user => {
@@ -94,7 +93,7 @@ const Index = () => {
     })
     .map((user, i) => {
       return (
-        <a href={user.infoLink} key={i}>
+        <a href={user.infoLink} key={i} rel="nofollow">
           <img src={withBaseUrl(user.image)} title={user.caption} />
           <div>
             <h6>{user.caption}</h6>

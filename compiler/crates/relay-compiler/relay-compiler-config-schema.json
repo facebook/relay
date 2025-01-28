@@ -1845,6 +1845,7 @@
               "streamName": "stream",
               "useCustomizedBatchArg": "useCustomizedBatch"
             },
+            "enableTokenField": false,
             "nodeInterfaceIdField": "id",
             "nodeInterfaceIdVariableName": "id",
             "nonNodeIdFields": null,
@@ -1945,6 +1946,11 @@
                 }
               },
               "additionalProperties": false
+            },
+            "enableTokenField": {
+              "description": "If we should select __token field on fetchable types",
+              "default": false,
+              "type": "boolean"
             },
             "nodeInterfaceIdField": {
               "description": "The name of the `id` field that exists on the `Node` interface.",
@@ -5486,6 +5492,7 @@
                     "streamName": "stream",
                     "useCustomizedBatchArg": "useCustomizedBatch"
                   },
+                  "enableTokenField": false,
                   "nodeInterfaceIdField": "id",
                   "nodeInterfaceIdVariableName": "id",
                   "nonNodeIdFields": null,
@@ -5586,6 +5593,11 @@
                       }
                     },
                     "additionalProperties": false
+                  },
+                  "enableTokenField": {
+                    "description": "If we should select __token field on fetchable types",
+                    "default": false,
+                    "type": "boolean"
                   },
                   "nodeInterfaceIdField": {
                     "description": "The name of the `id` field that exists on the `Node` interface.",

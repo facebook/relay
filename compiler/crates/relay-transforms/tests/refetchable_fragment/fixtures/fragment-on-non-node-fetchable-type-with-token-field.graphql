@@ -1,0 +1,14 @@
+# // enable-token-field: true
+
+fragment RefetchableFragment on NonNodeStory
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  actor {
+    ...ProfilePicture
+  }
+}
+
+fragment ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}

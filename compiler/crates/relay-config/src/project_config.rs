@@ -220,6 +220,10 @@ pub struct SchemaConfig {
     /// The name of the directive indicating fields that cannot be selected
     #[serde(default = "default_unselectable_directive_name")]
     pub unselectable_directive_name: DirectiveName,
+
+    /// If we should select __token field on fetchable types
+    #[serde(default = "default_enable_token_field")]
+    pub enable_token_field: bool,
 }
 
 fn default_node_interface_id_field() -> StringKey {
@@ -234,6 +238,10 @@ fn default_unselectable_directive_name() -> DirectiveName {
     DirectiveName("unselectable".intern())
 }
 
+fn default_enable_token_field() -> bool {
+    false
+}
+
 impl Default for SchemaConfig {
     fn default() -> Self {
         Self {
@@ -243,6 +251,7 @@ impl Default for SchemaConfig {
             node_interface_id_variable_name: default_node_interface_id_variable_name(),
             non_node_id_fields: None,
             unselectable_directive_name: default_unselectable_directive_name(),
+            enable_token_field: default_enable_token_field(),
         }
     }
 }

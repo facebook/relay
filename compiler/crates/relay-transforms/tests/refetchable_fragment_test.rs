@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<63626487811055e17831fb93aee7ca44>>
+ * @generated SignedSource<<733f08cd406c19e1403b12a718566e81>>
  */
 
 mod refetchable_fragment;
@@ -66,6 +66,13 @@ async fn fragment_on_non_node_fetchable_type() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.expected");
     test_fixture(transform_fixture, file!(), "fragment-on-non-node-fetchable-type.graphql", "refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_on_non_node_fetchable_type_with_token_field() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.expected");
+    test_fixture(transform_fixture, file!(), "fragment-on-non-node-fetchable-type-with-token-field.graphql", "refetchable_fragment/fixtures/fragment-on-non-node-fetchable-type-with-token-field.expected", input, expected).await;
 }
 
 #[tokio::test]

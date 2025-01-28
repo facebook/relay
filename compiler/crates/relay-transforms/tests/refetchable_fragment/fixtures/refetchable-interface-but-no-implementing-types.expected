@@ -47,5 +47,4 @@ fragment RefetchableFragmentFoo on RefetchableInterfaceFoo @refetchable(queryNam
 # }
  {
   id
-  __token
 }

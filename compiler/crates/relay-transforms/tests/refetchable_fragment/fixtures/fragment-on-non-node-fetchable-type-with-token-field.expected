@@ -1,4 +1,6 @@
 ==================================== INPUT ====================================
+# // enable-token-field: true
+
 fragment RefetchableFragment on NonNodeStory
   @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
@@ -54,4 +56,5 @@ fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "Refetchabl
     ...ProfilePicture
   }
   fetch_id
+  __token
 }

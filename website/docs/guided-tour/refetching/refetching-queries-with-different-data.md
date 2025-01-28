@@ -130,6 +130,7 @@ function App(props: Props) {
   const refetch = useCallback(() => {
     if (isRefetching) { return; }
     setIsRefetching(true);
+    const variables = { id: 'different-id' };
 
     // fetchQuery will fetch the query and write
     // the data to the Relay store. This will ensure
@@ -146,7 +147,7 @@ function App(props: Props) {
           // At this point the data for the query should
           // be cached, so we use the 'store-only'
           // fetchPolicy to avoid suspending.
-          loadQuery({id: 'different-id'}, {fetchPolicy: 'store-only'});
+          loadQuery(variables, {fetchPolicy: 'store-only'});
         },
         error: () => {
           setIsRefetching(false);
@@ -292,6 +293,7 @@ function App(props: Props) {
   const refetch = useCallback(() => {
     if (isRefreshing) { return; }
     setIsRefreshing(true);
+    const variables = { id: 'different-id' };
 
     // fetchQuery will fetch the query and write
     // the data to the Relay store. This will ensure
@@ -313,7 +315,7 @@ function App(props: Props) {
               fetchKey: (prev?.options.fetchKey ?? 0) + 1,
               fetchPolicy: 'store-only',
             },
-            variables: {id: 'different-id'}
+            variables,
           }));
         },
         error: () => {

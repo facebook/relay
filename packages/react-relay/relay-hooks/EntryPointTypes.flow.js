@@ -178,14 +178,16 @@ export type EntryPointComponent<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-> = ComponentType<
-  EntryPointProps<
+  TRenders: React.Node = React.Node,
+> = component(
+  ref?: React.RefSetter<mixed>,
+  ...EntryPointProps<
     TPreloadedQueries,
     TPreloadedEntryPoints,
     TRuntimeProps,
     TExtraProps,
-  >,
->;
+  >
+) renders TRenders;
 
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<

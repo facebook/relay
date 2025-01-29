@@ -22,7 +22,7 @@ const React = require('react');
 const {useContext, useEffect} = require('react');
 const warning = require('warning');
 
-function EntryPointContainer<
+component EntryPointContainer<
   // $FlowFixMe[unsupported-variance-annotation]
   +TPreloadedQueries: {...},
   // $FlowFixMe[unsupported-variance-annotation]
@@ -31,20 +31,24 @@ function EntryPointContainer<
   +TRuntimeProps: {...},
   // $FlowFixMe[unsupported-variance-annotation]
   +TExtraProps,
+  TRenders: React.Node,
   // $FlowFixMe[unsupported-variance-annotation]
   +TEntryPointComponent: EntryPointComponent<
     TPreloadedQueries,
     TPreloadedNestedEntryPoints,
     TRuntimeProps,
     TExtraProps,
+    TRenders,
   >,
->({
-  entryPointReference,
-  props,
-}: $ReadOnly<{
-  entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
-  props: TRuntimeProps,
-}>): React.MixedElement {
+>(
+  ...{
+    entryPointReference,
+    props,
+  }: $ReadOnly<{
+    entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
+    props: TRuntimeProps,
+  }>
+) renders TRenders {
   warning(
     entryPointReference.isDisposed === false,
     '<EntryPointContainer>: Expected entryPointReference to not be disposed ' +

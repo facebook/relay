@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<220a462d1e8062621d9ac165e8d6b30d>>
+ * @generated SignedSource<<003bea7ecd0d96e0c18a2548074ea100>>
  */
 
 mod compile_relay_artifacts;
@@ -993,6 +993,20 @@ async fn plural_fragment() {
 }
 
 #[tokio::test]
+async fn prefetchable_pagination_query_with_conflicting_args_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-with-conflicting-args.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-with-conflicting-args.invalid.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable-pagination-query-with-conflicting-args.invalid.graphql", "compile_relay_artifacts/fixtures/prefetchable-pagination-query-with-conflicting-args.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prefetchable_pagination_query_without_conflicting_args() {
+    let input = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-without-conflicting-args.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/prefetchable-pagination-query-without-conflicting-args.expected");
+    test_fixture(transform_fixture, file!(), "prefetchable-pagination-query-without-conflicting-args.graphql", "compile_relay_artifacts/fixtures/prefetchable-pagination-query-without-conflicting-args.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn prefetchable_refetchable_fragment_with_connection() {
     let input = include_str!("compile_relay_artifacts/fixtures/prefetchable-refetchable-fragment-with-connection.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/prefetchable-refetchable-fragment-with-connection.expected");
@@ -1284,13 +1298,6 @@ async fn refetchable_with_arguments_conflicting_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments-conflicting.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments-conflicting.invalid.expected");
     test_fixture(transform_fixture, file!(), "refetchable-with-arguments-conflicting.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable-with-arguments-conflicting.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn refetchable_with_arguments_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected");
-    test_fixture(transform_fixture, file!(), "refetchable-with-arguments.invalid.graphql", "compile_relay_artifacts/fixtures/refetchable-with-arguments.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

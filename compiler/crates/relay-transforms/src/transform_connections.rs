@@ -31,6 +31,7 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_ir::Value::Constant;
+use graphql_ir::VariableDefinition;
 use relay_config::DeferStreamInterface;
 use schema::Schema;
 
@@ -46,15 +47,17 @@ use crate::connections::ConnectionMetadata;
 use crate::connections::ConnectionMetadataDirective;
 use crate::handle_fields::build_handle_field_directive_from_connection_directive;
 use crate::handle_fields::KEY_ARG_NAME;
+use crate::refetchable_fragment::build_used_global_variables;
 use crate::relay_directive::PLURAL_ARG_NAME;
 use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::root_variables::InferVariablesVisitor;
 
 pub fn transform_connections(
     program: &Program,
     connection_interface: &ConnectionInterface,
     defer_stream_interface: &DeferStreamInterface,
-    // Does not do other validaiton and transforms only extract prefetchable pagination
-    // fragment. Needed for generating correct types in the typegen pipeline.
+    // Determines whether or not to skip other validation and transforms and only extract prefetchable
+    // pagination fragment. Needed for generating correct types in the typegen pipeline.
     only_extract_prefetchable_pagination_fragment: bool,
 ) -> Program {
     let mut transform = ConnectionTransform::new(
@@ -78,6 +81,7 @@ struct ConnectionTransform<'s> {
     current_path: Option<Vec<StringKey>>,
     current_connection_metadata: Vec<ConnectionMetadata>,
     current_document_name: StringKey,
+    fragment_variable_definitions: Vec<VariableDefinition>,
     program: &'s Program,
     defer_stream_interface: &'s DeferStreamInterface,
     edge_fragments: Vec<Arc<FragmentDefinition>>,
@@ -97,6 +101,7 @@ impl<'s> ConnectionTransform<'s> {
             current_path: None,
             current_document_name: connection_interface.cursor, // Set an arbitrary value to avoid Option
             current_connection_metadata: Vec::new(),
+            fragment_variable_definitions: Vec::new(),
             program,
             defer_stream_interface,
             edge_fragments: vec![],
@@ -346,15 +351,15 @@ impl<'s> ConnectionTransform<'s> {
                         let fields =
                             std::mem::take(&mut edges_field_to_maybe_fragmentify.selections);
                         let location = edges_field_to_maybe_fragmentify.alias_or_name_location();
-                        let edges_fragment = Arc::new(FragmentDefinition {
+                        let mut edges_fragment_without_used_global_variables = FragmentDefinition {
                             name: WithLocation::new(
                                 location,
                                 FragmentDefinitionName(
                                     format!("{}__edges", self.current_document_name).intern(),
                                 ),
                             ),
-                            variable_definitions: vec![], //TODO: Do we need variable_definitions?,
-                            used_global_variables: vec![], //TODO: Do we need used_global_variables?,
+                            variable_definitions: self.fragment_variable_definitions.clone(),
+                            used_global_variables: vec![],
                             type_condition: edge_type,
                             directives: vec![Directive {
                                 name: WithLocation::new(location, *RELAY_DIRECTIVE_NAME),
@@ -369,7 +374,21 @@ impl<'s> ConnectionTransform<'s> {
                                 location,
                             }],
                             selections: fields,
-                        });
+                        };
+
+                        // Determine used_global_variables for the edges fragment.
+                        let variables_map = InferVariablesVisitor::new(self.program)
+                            .infer_fragment_variables(
+                                &edges_fragment_without_used_global_variables,
+                            );
+                        edges_fragment_without_used_global_variables.used_global_variables =
+                            build_used_global_variables(
+                                &variables_map,
+                                &edges_fragment_without_used_global_variables.variable_definitions,
+                            )
+                            .unwrap_or_default();
+
+                        let edges_fragment = Arc::new(edges_fragment_without_used_global_variables);
 
                         edges_field_to_maybe_fragmentify.selections.push(
                             Selection::FragmentSpread(Arc::new(FragmentSpread {
@@ -476,7 +495,7 @@ impl<'s> ConnectionTransform<'s> {
     }
 }
 
-impl<'s> Transformer<'_> for ConnectionTransform<'s> {
+impl Transformer<'_> for ConnectionTransform<'_> {
     const NAME: &'static str = "ConnectionTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -516,6 +535,7 @@ impl<'s> Transformer<'_> for ConnectionTransform<'s> {
         self.current_document_name = fragment.name.item.0;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
+        self.fragment_variable_definitions = fragment.variable_definitions.clone();
 
         let transformed = self.default_transform_fragment(fragment);
         if self.current_connection_metadata.is_empty() {

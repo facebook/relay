@@ -41,6 +41,7 @@ use relay_config::ProjectConfig;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema::Schema;
+pub use utils::build_used_global_variables;
 pub use utils::RefetchableDerivedFromMetadata;
 pub use utils::RefetchableMetadata;
 pub use utils::CONSTANTS;

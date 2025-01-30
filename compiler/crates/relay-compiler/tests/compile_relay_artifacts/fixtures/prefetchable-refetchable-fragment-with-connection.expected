@@ -440,7 +440,18 @@ fragment prefetchableRefetchableFragmentWithConnection_PaginationFragment__edges
 }
 
 {
-  "argumentDefinitions": [],
+  "argumentDefinitions": [
+    {
+      "defaultValue": 10,
+      "kind": "LocalArgument",
+      "name": "count"
+    },
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "cursor"
+    }
+  ],
   "kind": "Fragment",
   "metadata": {
     "plural": true

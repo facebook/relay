@@ -151,7 +151,9 @@ pub type FragmentDefinitionNameSet = HashSet<FragmentDefinitionName, BuildIdHash
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentDefinition {
     pub name: WithLocation<FragmentDefinitionName>,
+    /// Local variables defined in the fragment using the `@argumentDefinitions` directive.
     pub variable_definitions: Vec<VariableDefinition>,
+    /// Global variables that are used but NOT defined within the fragment (they can come from a parent query or fragment).
     pub used_global_variables: Vec<VariableDefinition>,
     pub type_condition: Type,
     pub directives: Vec<Directive>,

@@ -1,0 +1,36 @@
+# expected-to-throw
+
+query prefetchablePaginationQueryWithConflictingArgsQuery($site: String) {
+  node(id: "x") {
+    ...prefetchablePaginationQueryWithConflictingArgs_FirstFragment @arguments(site: $site)
+  }
+}
+
+fragment prefetchablePaginationQueryWithConflictingArgs_FirstFragment on Node
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+    site: {type: "String"}
+  ) {
+  id
+  ...prefetchablePaginationQueryWithConflictingArgs_SecondFragment
+  ... on User {
+    name
+    friends(after: $cursor, first: $count)
+    @connection(key: "PaginationFragment_friends", prefetchable_pagination: true) {
+    edges {
+      node {
+        id
+        # local $site
+        url(site: $site)
+      }
+    }
+  }
+  }
+}
+
+fragment prefetchablePaginationQueryWithConflictingArgs_SecondFragment on Node {
+  # global $site
+  p2: url(site: $site)
+}

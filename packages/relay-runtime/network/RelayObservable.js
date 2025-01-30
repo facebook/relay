@@ -614,11 +614,7 @@ if (__DEV__) {
   // Default implementation of HostReportErrors() in development builds.
   // Can be replaced by the host application environment.
   RelayObservable.onUnhandledError((error, isUncaughtThrownError) => {
-    declare function fail(string): void;
-    if (typeof fail === 'function') {
-      // In test environments (Jest), fail() immediately fails the current test.
-      fail(String(error));
-    } else if (isUncaughtThrownError) {
+    if (isUncaughtThrownError) {
       // Rethrow uncaught thrown errors on the next frame to avoid breaking
       // current logic.
       setTimeout(() => {

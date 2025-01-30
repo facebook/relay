@@ -114,7 +114,6 @@ where
             LoaderSource::Js(format!(".{}.rc.cjs", name)),
             LoaderSource::Js(format!("{}.config.js", name)),
             LoaderSource::Js(format!("{}.config.cjs", name)),
-            LoaderSource::Js(format!("{}.config.mjs", name)),
         ],
     )
 }

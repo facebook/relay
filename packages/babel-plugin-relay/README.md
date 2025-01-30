@@ -24,9 +24,6 @@ const fragment = require('__generated__/User_fragment.graphql');
   project (i.e. in the same folder as the `package.json` file).
 - The `package.json` file contains a `"relay"` key.
 
-> [!IMPORTANT]
-> This Babel plugin does not support `relay.config.mjs` or `package.json` with `"type": "module"`.
-
 ### Supported configuration options for `babel-plugin-relay`
 
 - `artifactDirectory` A specific directory to output all artifacts to. When

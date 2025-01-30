@@ -63,9 +63,8 @@ pub struct JsLoader;
 impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsLoader {
     fn load(&self, path: &Path) -> Result<Option<T>, ErrorCode> {
         let output = Command::new("node")
-            .arg("--input-type=module")
             .arg("-e")
-            .arg(r#"process.stdout.write(JSON.stringify((await import(process.argv[1])).default))"#)
+            .arg(r#"process.stdout.write(JSON.stringify(require(process.argv[1])))"#)
             .arg(path)
             .output()
             .expect("failed to execute process. Make sure you have Node installed.");

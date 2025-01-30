@@ -20,8 +20,8 @@ import type {
 } from 'relay-runtime';
 
 const Observable = require('../network/RelayObservable');
+const {getObservableForActiveRequest} = require('../query/fetchQueryInternal');
 const {getFragment} = require('../query/GraphQLTag');
-const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
 const {
   handlePotentialSnapshotErrors,
 } = require('../util/handlePotentialSnapshotErrors');
@@ -241,12 +241,12 @@ function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
   }
 
   if (snapshot.isMissingData) {
-    const pendingOperations = getPendingOperationsForFragment(
-      environment,
-      fragmentNode,
-      owner,
-    );
-    if (pendingOperations != null) {
+    if (
+      getObservableForActiveRequest(environment, owner) != null ||
+      environment
+        .getOperationTracker()
+        .getPendingOperationsAffectingOwner(owner) != null
+    ) {
       return {state: 'loading'};
     }
   }

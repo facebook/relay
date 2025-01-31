@@ -62,6 +62,10 @@ impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsonLoader {
 pub struct JsLoader;
 impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsLoader {
     fn load(&self, path: &Path) -> Result<Option<T>, ErrorCode> {
+        // Windows requires absolute paths to be valid file:// URLs
+        #[cfg(target_os = "windows")]
+        let path = format!("file://{}", path.to_string_lossy());
+
         let output = Command::new("node")
             .arg("--input-type=module")
             .arg("-e")

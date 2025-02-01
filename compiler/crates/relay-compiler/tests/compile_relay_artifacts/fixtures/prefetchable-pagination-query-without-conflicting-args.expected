@@ -222,7 +222,13 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment on Use
                           },
                           {
                             "alias": null,
-                            "args": null,
+                            "args": [
+                              {
+                                "kind": "Variable",
+                                "name": "site",
+                                "variableName": "site"
+                              }
+                            ],
                             "kind": "ScalarField",
                             "name": "url",
                             "storageKey": null
@@ -319,6 +325,7 @@ QUERY:
 query RefetchableFragmentQuery(
   $count: Int = 10
   $cursor: ID
+  $site: String
   $id: ID!
 ) {
   node(id: $id) {
@@ -332,7 +339,7 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment_1Xo9Zp 
   name
   friends(after: $cursor, first: $count) {
     edges {
-      ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges
+      ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges_1Xo9Zp
     }
     pageInfo {
       endCursor
@@ -342,10 +349,10 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment_1Xo9Zp 
   id
 }
 
-fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges on FriendsEdge {
+fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges_1Xo9Zp on FriendsEdge {
   node {
     id
-    url
+    url(site: $site)
     __typename
   }
   cursor
@@ -497,7 +504,13 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges 
                           },
                           {
                             "alias": null,
-                            "args": null,
+                            "args": [
+                              {
+                                "kind": "Variable",
+                                "name": "site",
+                                "variableName": "site"
+                              }
+                            ],
                             "kind": "ScalarField",
                             "name": "url",
                             "storageKey": null
@@ -721,7 +734,7 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment_QaI6y o
   name
   friends(first: 10) {
     edges {
-      ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges
+      ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges_2VKHkd
     }
     pageInfo {
       endCursor
@@ -731,10 +744,10 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment_QaI6y o
   id
 }
 
-fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges on FriendsEdge {
+fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges_2VKHkd on FriendsEdge {
   node {
     id
-    url
+    url(site: $site)
     __typename
   }
   cursor
@@ -837,7 +850,23 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment_QaI6y 
           "plural": true,
           "selections": [
             {
-              "args": null,
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "count",
+                  "variableName": "count"
+                },
+                {
+                  "kind": "Variable",
+                  "name": "cursor",
+                  "variableName": "cursor"
+                },
+                {
+                  "kind": "Variable",
+                  "name": "site",
+                  "variableName": "site"
+                }
+              ],
               "kind": "FragmentSpread",
               "name": "prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges"
             }

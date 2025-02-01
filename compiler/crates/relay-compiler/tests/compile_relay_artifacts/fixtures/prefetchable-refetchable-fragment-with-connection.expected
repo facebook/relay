@@ -293,7 +293,7 @@ fragment prefetchableRefetchableFragmentWithConnection_PaginationFragment_1G22uz
     name
     friends(after: $cursor, first: $count) {
       edges {
-        ...prefetchableRefetchableFragmentWithConnection_PaginationFragment__edges
+        ...prefetchableRefetchableFragmentWithConnection_PaginationFragment__edges_1G22uz
       }
       pageInfo {
         endCursor
@@ -303,7 +303,7 @@ fragment prefetchableRefetchableFragmentWithConnection_PaginationFragment_1G22uz
   }
 }
 
-fragment prefetchableRefetchableFragmentWithConnection_PaginationFragment__edges on FriendsEdge {
+fragment prefetchableRefetchableFragmentWithConnection_PaginationFragment__edges_1G22uz on FriendsEdge {
   node {
     id
     __typename
@@ -395,7 +395,18 @@ fragment prefetchableRefetchableFragmentWithConnection_PaginationFragment__edges
               "plural": true,
               "selections": [
                 {
-                  "args": null,
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "count",
+                      "variableName": "count"
+                    },
+                    {
+                      "kind": "Variable",
+                      "name": "cursor",
+                      "variableName": "cursor"
+                    }
+                  ],
                   "kind": "FragmentSpread",
                   "name": "prefetchableRefetchableFragmentWithConnection_PaginationFragment__edges"
                 }

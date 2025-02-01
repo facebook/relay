@@ -26,11 +26,13 @@ use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
+use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_ir::Value::Constant;
+use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
 use relay_config::DeferStreamInterface;
 use schema::Schema;
@@ -393,7 +395,23 @@ impl<'s> ConnectionTransform<'s> {
                         edges_field_to_maybe_fragmentify.selections.push(
                             Selection::FragmentSpread(Arc::new(FragmentSpread {
                                 fragment: edges_fragment.name,
-                                arguments: vec![],
+                                arguments: edges_fragment
+                                    .variable_definitions
+                                    .iter()
+                                    .filter(|def| {
+                                        ProvidedVariableMetadata::find(&def.directives).is_none()
+                                    })
+                                    .map(|var| Argument {
+                                        name: var.name.map(|x| ArgumentName(x.0)),
+                                        value: WithLocation::new(
+                                            var.name.location,
+                                            Value::Variable(Variable {
+                                                name: var.name,
+                                                type_: var.type_.clone(),
+                                            }),
+                                        ),
+                                    })
+                                    .collect(),
                                 signature: None,
                                 directives: vec![],
                             })),

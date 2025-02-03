@@ -138,7 +138,7 @@ impl<'f, 'p> RequiredNoInlineValidator<'f, 'p> {
     }
 }
 
-impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
+impl Validator for RequiredNoInlineValidator<'_, '_> {
     const NAME: &'static str = "RequiredNoInlineValidator";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

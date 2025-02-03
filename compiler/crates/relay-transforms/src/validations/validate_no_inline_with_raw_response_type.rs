@@ -50,7 +50,7 @@ impl<'a> NoInlineRawResponseTypeValidator<'a> {
     }
 }
 
-impl<'a> Validator for NoInlineRawResponseTypeValidator<'a> {
+impl Validator for NoInlineRawResponseTypeValidator<'_> {
     const NAME: &'static str = "NoInlineRawResponseTypeValidator";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

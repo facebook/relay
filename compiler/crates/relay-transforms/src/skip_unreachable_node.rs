@@ -86,7 +86,7 @@ pub struct SkipUnreachableNodeTransform<'s> {
     defer_stream_interface: DeferStreamInterface,
 }
 
-impl<'s> Transformer<'_> for SkipUnreachableNodeTransform<'s> {
+impl Transformer<'_> for SkipUnreachableNodeTransform<'_> {
     const NAME: &'static str = "SkipUnreachableNodeTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

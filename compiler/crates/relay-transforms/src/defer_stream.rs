@@ -275,7 +275,7 @@ impl DeferStreamTransform<'_> {
     }
 }
 
-impl<'s> Transformer<'_> for DeferStreamTransform<'s> {
+impl Transformer<'_> for DeferStreamTransform<'_> {
     const NAME: &'static str = "DeferStreamTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

@@ -45,7 +45,7 @@ struct HashSupportedArgumentTransform<'a> {
     errors: Vec<Diagnostic>,
 }
 
-impl<'a> Transformer<'_> for HashSupportedArgumentTransform<'a> {
+impl Transformer<'_> for HashSupportedArgumentTransform<'_> {
     const NAME: &'static str = "HashSupportedArgumentTransform";
 
     const VISIT_ARGUMENTS: bool = false;
@@ -110,7 +110,7 @@ impl<'a> Transformer<'_> for HashSupportedArgumentTransform<'a> {
     }
 }
 
-impl<'a> HashSupportedArgumentTransform<'a> {
+impl HashSupportedArgumentTransform<'_> {
     /// Returns true iff the field is supplied with a `supported` arg and that
     /// arg has a type of `[string]` (potentially non-nullable somewhere).
     fn has_match_supported_arg(&self, field: &LinkedField) -> bool {

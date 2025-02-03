@@ -70,7 +70,7 @@ fn rename_locations(locations: Vec<Location>, source: &str) -> String {
         let start = (span.start as i32 + offset) as usize;
         let end = (span.end as i32 + offset) as usize;
 
-        source_with_renames.replace_range(start..end, &renamed_key);
+        source_with_renames.replace_range(start..end, renamed_key);
 
         let original_length = end as i32 - start as i32;
         offset += renamed_key_length - original_length;

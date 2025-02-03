@@ -61,7 +61,7 @@ fn build_schema_from_path(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
     let path = Path::new(schema_file);
     let extensions: &[(&str, SourceLocationKey)] = &[];
 
-    return if path.is_file() {
+    if path.is_file() {
         build_schema_with_extensions(&[path_to_schema_source(path)], extensions)
     } else {
         let paths = path
@@ -81,7 +81,7 @@ fn build_schema_from_path(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
             .collect();
 
         build_schema_with_extensions(&sdls, extensions)
-    };
+    }
 }
 
 fn path_to_schema_source(path: &Path) -> (String, SourceLocationKey) {

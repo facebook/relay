@@ -208,7 +208,7 @@ impl VariablesVisitor<'_, '_> {
     }
 }
 
-impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
+impl Visitor for VariablesVisitor<'_, '_> {
     const NAME: &'static str = "VariablesVisitor";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;

@@ -1769,7 +1769,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         client_edge_metadata: ClientEdgeMetadata<'_>,
     ) -> Primitive {
         let backing_field_primitives =
-            self.build_selections_from_selection(context, &client_edge_metadata.backing_field);
+            self.build_selections_from_selection(context, client_edge_metadata.backing_field);
 
         if backing_field_primitives.len() != 1 {
             panic!(
@@ -1837,7 +1837,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         client_edge_metadata: ClientEdgeMetadata<'_>,
     ) -> Primitive {
         let backing_field_primitives =
-            self.build_selections_from_selection(context, &client_edge_metadata.backing_field);
+            self.build_selections_from_selection(context, client_edge_metadata.backing_field);
 
         if backing_field_primitives.len() != 1 {
             panic!(

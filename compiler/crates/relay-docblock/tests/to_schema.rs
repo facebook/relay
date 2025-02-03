@@ -39,8 +39,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     let executable_documents = js_features
         .iter()
-        .enumerate()
-        .filter_map(|(_, source)| match source {
+        .filter_map(|source| match source {
             JavaScriptSourceFeature::GraphQL(source) => Some(
                 parse_executable(&source.text_source().text, SourceLocationKey::Generated)
                     .map_err(|diagnostics| {

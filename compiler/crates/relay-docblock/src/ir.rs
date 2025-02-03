@@ -518,10 +518,10 @@ trait ResolverIr: Sized {
             }
         }
         let property_lookup = self.property_lookup_name();
-        if property_lookup.is_some() {
+        if let Some(property_lookup) = property_lookup {
             arguments.push(string_argument(
                 RESOLVER_PROPERTY_LOOKUP_NAME.0,
-                property_lookup.unwrap(),
+                property_lookup,
             ));
         }
         let schema = project_config.schema;

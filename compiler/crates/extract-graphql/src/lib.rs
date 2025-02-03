@@ -57,7 +57,7 @@ impl<'a> CharReader<'a> {
     }
 }
 
-impl<'a> Iterator for CharReader<'a> {
+impl Iterator for CharReader<'_> {
     type Item = (usize, char);
     fn next(&mut self) -> Option<Self::Item> {
         let pair = self.chars.next();

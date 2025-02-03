@@ -69,7 +69,7 @@ impl<'s> ValidateOperationVariables<'s> {
 /// Refines the argument definitions for operations to remove unused arguments
 /// due to statically pruned conditional branches (e.g. because of overriding
 /// a variable used in `@include()` to be false).
-impl<'s> Transformer<'_> for ValidateOperationVariables<'s> {
+impl Transformer<'_> for ValidateOperationVariables<'_> {
     const NAME: &'static str = "ValidateOperationVariables";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

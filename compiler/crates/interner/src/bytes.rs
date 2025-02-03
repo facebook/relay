@@ -88,7 +88,7 @@ impl Ord for StringKey {
 
 impl PartialOrd for StringKey {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.lookup().partial_cmp(other.lookup())
+        Some(self.lookup().cmp(other.lookup()))
     }
 }
 

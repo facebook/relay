@@ -1792,7 +1792,6 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::Identifier => {
                 self.advance_identifier()?;
-                ()
             }
             TokenKind::OpenBracket => {
                 self.advance_kind(TokenKind::OpenBracket)?; // open

@@ -105,10 +105,10 @@ pub fn parse_schema_document(
 
 /// Parses a GraphQL schema document into a list of slices of the original
 /// source text where each slice is a type system definition.
-pub fn parse_schema_document_into_type_system_definitions<'a>(
-    source: &'a str,
+pub fn parse_schema_document_into_type_system_definitions(
+    source: &str,
     source_location: SourceLocationKey,
-) -> DiagnosticsResult<Vec<&'a str>> {
+) -> DiagnosticsResult<Vec<&str>> {
     let features = ParserFeatures::default();
     let parser = Parser::new(source, source_location, features);
     parser.parse_schema_document_into_type_system_definitions()

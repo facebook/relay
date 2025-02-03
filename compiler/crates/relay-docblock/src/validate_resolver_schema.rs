@@ -125,7 +125,7 @@ fn is_valid_mutation_resolver_return_type(type_: &TypeReference<Type>) -> bool {
         TypeReference::NonNull(non_null_type) => {
             // note: this should be unreachable since we already disallow relay resolvers to return non-nullable types
             // - implement this anyway in case that changes in the future
-            return is_valid_mutation_resolver_return_type(non_null_type.as_ref());
+            is_valid_mutation_resolver_return_type(non_null_type.as_ref())
         }
     }
 }

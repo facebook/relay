@@ -190,7 +190,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
     }
 }
 
-impl<'schema> Transformer<'_> for ProvidedVariableFragmentTransform<'schema> {
+impl Transformer<'_> for ProvidedVariableFragmentTransform<'_> {
     const NAME: &'static str = "ProvidedVariableFragmentTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;

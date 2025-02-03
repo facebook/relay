@@ -71,7 +71,7 @@ struct AssignableFragmentSpreadForUpdatable<'s> {
     program: &'s Program,
 }
 
-impl<'s> Transformer<'_> for AssignableFragmentSpreadForUpdatable<'s> {
+impl Transformer<'_> for AssignableFragmentSpreadForUpdatable<'_> {
     const NAME: &'static str = "AssignableFragmentTransformForUpdatable";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

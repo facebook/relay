@@ -97,7 +97,7 @@ pub struct InlineDirectiveMetadata {
 }
 associated_data_impl!(InlineDirectiveMetadata);
 
-impl<'s> Transformer<'_> for InlineDataFragmentsTransform<'s> {
+impl Transformer<'_> for InlineDataFragmentsTransform<'_> {
     const NAME: &'static str = "InlineDataFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

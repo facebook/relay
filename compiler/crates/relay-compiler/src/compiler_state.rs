@@ -940,7 +940,7 @@ mod clock_json_string {
     }
 
     struct JSONStringVisitor;
-    impl<'de> Visitor<'de> for JSONStringVisitor {
+    impl Visitor<'_> for JSONStringVisitor {
         type Value = Option<Clock>;
 
         fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

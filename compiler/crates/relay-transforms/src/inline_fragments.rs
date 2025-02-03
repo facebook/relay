@@ -119,7 +119,7 @@ impl<'s> InlineFragmentsTransform<'s> {
     }
 }
 
-impl<'s> Transformer<'_> for InlineFragmentsTransform<'s> {
+impl Transformer<'_> for InlineFragmentsTransform<'_> {
     const NAME: &'static str = "InlineFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

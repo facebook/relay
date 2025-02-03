@@ -36,7 +36,7 @@ struct AssignableDirective<'a> {
     program: &'a Program,
 }
 
-impl<'a> Validator for AssignableDirective<'a> {
+impl Validator for AssignableDirective<'_> {
     const NAME: &'static str = "AssignableDirective";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

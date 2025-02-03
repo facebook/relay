@@ -46,8 +46,8 @@ pub struct HandleFieldDirectiveValues {
 }
 
 /// We have two handler keys, "handler" in connection, and "handle" in everywhere else
-/// Speicific helpers are created separately for connection
-
+/// Specific helpers are created separately for connection
+///
 /// Helper to extract handle field arguments that are present
 /// on the directive, without any validation or assumption of
 /// correctness of values.

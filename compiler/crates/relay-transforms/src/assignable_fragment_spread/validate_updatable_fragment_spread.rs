@@ -56,7 +56,7 @@ struct UpdatableFragmentSpread<'a> {
     path: Vec<PathItem>,
 }
 
-impl<'a> UpdatableFragmentSpread<'a> {
+impl UpdatableFragmentSpread<'_> {
     /// Validate many conditions for spreads of updatable fragments:
     /// * the fragment spread contains no directives
     /// * there is no @if or @skip between the linked field and the fragment spread
@@ -183,7 +183,7 @@ impl<'a> UpdatableFragmentSpread<'a> {
     }
 }
 
-impl<'a> Validator for UpdatableFragmentSpread<'a> {
+impl Validator for UpdatableFragmentSpread<'_> {
     const NAME: &'static str = "UpdatableFragmentSpread";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

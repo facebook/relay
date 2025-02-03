@@ -105,7 +105,7 @@ impl<'a> DeprecatedFields<'a> {
 // While the individual methods return a diagnostic, since using deprecated fields are not errors per-se, we reserve
 // returning an `Err` for cases where we are unable to correctly check.
 // Deprecation warnings are collected in `self.warnings`.
-impl<'a> Validator for DeprecatedFields<'a> {
+impl Validator for DeprecatedFields<'_> {
     const NAME: &'static str = "DeprecatedFields";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = true;

@@ -40,7 +40,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
     }
 }
 
-impl<'s> SkipClientExtensionsTransform<'s> {
+impl SkipClientExtensionsTransform<'_> {
     fn is_client_directive(&self, name: DirectiveName) -> bool {
         // Return true if:
         // - directive is a custom internal directive used to hold
@@ -52,7 +52,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
     }
 }
 
-impl<'s> Transformer<'_> for SkipClientExtensionsTransform<'s> {
+impl Transformer<'_> for SkipClientExtensionsTransform<'_> {
     const NAME: &'static str = "SkipClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;

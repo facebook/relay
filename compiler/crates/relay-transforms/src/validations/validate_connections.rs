@@ -599,7 +599,7 @@ impl<'s> ConnectionValidation<'s> {
     }
 }
 
-impl<'s> Validator for ConnectionValidation<'s> {
+impl Validator for ConnectionValidation<'_> {
     const NAME: &'static str = "ConnectionValidation";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

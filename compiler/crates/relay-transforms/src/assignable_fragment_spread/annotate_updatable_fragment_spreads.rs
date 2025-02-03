@@ -39,7 +39,7 @@ struct AnnotateUpdatableFragmentSpreads<'s> {
     program: &'s Program,
 }
 
-impl<'s> Transformer<'_> for AnnotateUpdatableFragmentSpreads<'s> {
+impl Transformer<'_> for AnnotateUpdatableFragmentSpreads<'_> {
     const NAME: &'static str = "AnnotateUpdatableFragmentSpreads";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

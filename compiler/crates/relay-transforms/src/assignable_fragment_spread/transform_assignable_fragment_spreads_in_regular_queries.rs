@@ -58,7 +58,7 @@ struct AssignableFragmentSpread<'s> {
     path: Vec<PathSegment>,
 }
 
-impl<'s> AssignableFragmentSpread<'s> {
+impl AssignableFragmentSpread<'_> {
     /// 1. Validate that the assignable fragment does not have @skip/@defer, and
     ///    is not within an inline fragment with directives, and is nested in a linked field
     /// 2. Mark the enclosing linked field as containing an assignable fragment spread.
@@ -137,7 +137,7 @@ enum ValidGeneratedFlowType {
     Any,
 }
 
-impl<'s> Transformer<'_> for AssignableFragmentSpread<'s> {
+impl Transformer<'_> for AssignableFragmentSpread<'_> {
     const NAME: &'static str = "AssignableFragmentTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

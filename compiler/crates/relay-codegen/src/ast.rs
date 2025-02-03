@@ -195,7 +195,7 @@ pub struct RequestParameters<'a> {
     pub text: Option<String>,
 }
 
-impl<'a> RequestParameters<'a> {
+impl RequestParameters<'_> {
     pub fn is_client_request(&self) -> bool {
         self.id.is_none() && self.text.is_none()
     }

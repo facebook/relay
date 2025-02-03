@@ -113,7 +113,7 @@ impl<'s> ValidateFragmentAliasConflict<'s> {
     }
 }
 
-impl<'a> Validator for ValidateFragmentAliasConflict<'a> {
+impl Validator for ValidateFragmentAliasConflict<'_> {
     const NAME: &'static str = "ValidateFragmentAliasConflict";
 
     const VALIDATE_ARGUMENTS: bool = false;

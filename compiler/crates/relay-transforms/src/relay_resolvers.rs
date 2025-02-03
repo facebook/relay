@@ -296,7 +296,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
     }
 }
 
-impl<'program> Transformer<'_> for RelayResolverSpreadTransform<'program> {
+impl Transformer<'_> for RelayResolverSpreadTransform<'_> {
     const NAME: &'static str = "RelayResolversSpreadTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

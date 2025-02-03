@@ -266,7 +266,7 @@ impl<'a> UpdatableDirective<'a> {
     }
 }
 
-impl<'a> Validator for UpdatableDirective<'a> {
+impl Validator for UpdatableDirective<'_> {
     const NAME: &'static str = "UpdatableDirective";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = true;

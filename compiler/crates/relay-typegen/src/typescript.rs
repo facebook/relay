@@ -78,7 +78,8 @@ impl Writer for TypeScriptPrinter {
                 self.write_return_type_of_method_call(object, *method_name)
             }
             AST::AssertFunctionType(_) => {
-                // TODO: Implement type generation for typescript
+                // TODO: Add proper support for Resolver type generation in
+                // typescript: https://github.com/facebook/relay/issues/4772
                 Ok(())
             }
             AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),

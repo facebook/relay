@@ -219,6 +219,7 @@ module.exports = {
             'api-reference/relay-runtime/request-subscription',
             'api-reference/relay-runtime/observe-fragment',
             'api-reference/relay-runtime/wait-for-fragment-data',
+            'api-reference/relay-runtime/runtime-config',
           ],
         },
         {

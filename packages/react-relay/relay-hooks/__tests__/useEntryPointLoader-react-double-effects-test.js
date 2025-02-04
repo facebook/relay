@@ -37,6 +37,7 @@ function expectToHaveFetched(
     liveConfigId?: ?string,
     metadata?: {[key: string]: mixed},
     onSubscribe?: () => void,
+    onResume?: (pauseTimeMs: number) => void,
     poll?: ?number,
     transactionId?: ?string,
   },

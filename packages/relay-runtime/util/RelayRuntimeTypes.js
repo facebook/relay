@@ -53,9 +53,9 @@ export type VariablesOf<T: OperationType> = T['variables'];
  *   state of any configured response cache.
  * - `poll`: causes a query to live update by polling at the specified interval
  *   in milliseconds. (This value will be passed to setTimeout.)
- * - `liveConfigId`: causes a query to live update by calling GraphQLLiveQuery,
- *   it represents a configuration of gateway when doing live query
- * - `onSubscribe`: Not in use.
+ * - `liveConfigId`: Makes a query live by sending through RTI stack.
+ * - `onSubscribe`: Callback to be called when a live query stream is started.
+ * - `onResume`: Callback to be called when a live query stream is resumed, e.g. from a network disconnection.
  * - `metadata`: user-supplied metadata.
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
@@ -65,6 +65,7 @@ export type CacheConfig = {
   poll?: ?number,
   liveConfigId?: ?string,
   onSubscribe?: () => void,
+  onResume?: (pauseTimeMs: number) => void,
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
 };

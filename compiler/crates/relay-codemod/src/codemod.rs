@@ -55,7 +55,10 @@ pub async fn run_codemod(
                 }
             }
             AvailableCodemod::RemoveUnnecessaryRequiredDirectives => {
-                disallow_required_on_non_null_field(&programs.source).unwrap_or_default()
+                match disallow_required_on_non_null_field(&programs.source) {
+                    Ok(e) => e,
+                    Err(e) => panic!("{:?}", e),
+                }
             }
         })
         .collect::<Vec<_>>();

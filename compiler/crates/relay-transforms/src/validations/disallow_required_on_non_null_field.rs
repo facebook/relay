@@ -25,6 +25,7 @@ use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 
+use crate::fragment_alias_directive;
 use crate::required_directive;
 use crate::ValidationMessageWithData;
 use crate::CATCH_DIRECTIVE_NAME;
@@ -51,7 +52,8 @@ pub fn disallow_required_on_non_null_field(
     // required_directive transform. This validation is run on untransformed
     // versions of IR both in the LSP and as a codemod, so we apply the transform
     // ourselves locally.
-    let program = required_directive(program)?;
+    let program = fragment_alias_directive(program, &common::FeatureFlag::Disabled)?;
+    let program = required_directive(&program)?;
     let mut validator = DisallowRequiredOnNonNullField::new(&program.schema);
     validator.validate_program(&program)?;
     Ok(validator.warnings)

@@ -12,6 +12,7 @@
 'use strict';
 
 import type {RelayContext} from './RelayStoreTypes.js';
+import type {Context} from 'react';
 import typeof {createContext} from 'react';
 
 const invariant = require('invariant');
@@ -24,10 +25,10 @@ type React = $ReadOnly<{
   ...
 }>;
 
-let relayContext: ?React$Context<RelayContext | null>;
+let relayContext: ?Context<RelayContext | null>;
 let firstReact: ?React;
 
-function createRelayContext(react: React): React$Context<RelayContext | null> {
+function createRelayContext(react: React): Context<RelayContext | null> {
   if (!relayContext) {
     relayContext = react.createContext(null);
     if (__DEV__) {

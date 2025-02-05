@@ -16,6 +16,7 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::rollout::RolloutRange;
 use crate::Rollout;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
@@ -183,6 +184,9 @@ pub enum FeatureFlag {
 
     /// Partially enabled: used for gradual rollout of the feature
     Rollout { rollout: Rollout },
+
+    /// Partially enabled: used for gradual rollout of the feature
+    RolloutRange { rollout: RolloutRange },
 }
 
 impl FeatureFlag {
@@ -191,6 +195,7 @@ impl FeatureFlag {
             FeatureFlag::Enabled => true,
             FeatureFlag::Limited { allowlist } => allowlist.contains(&name),
             FeatureFlag::Rollout { rollout } => rollout.check(name.lookup()),
+            FeatureFlag::RolloutRange { rollout } => rollout.check(name.lookup()),
             FeatureFlag::Disabled => false,
         }
     }
@@ -211,6 +216,7 @@ impl Display for FeatureFlag {
                 f.write_str(&items.join(", "))
             }
             FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
+            FeatureFlag::RolloutRange { rollout } => write!(f, "RolloutRange: {:#?}", rollout),
         }
     }
 }

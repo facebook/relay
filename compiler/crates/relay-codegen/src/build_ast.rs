@@ -12,7 +12,6 @@ use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use ::intern::Lookup;
 use common::DirectiveName;
-use common::FeatureFlag;
 use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
@@ -2394,17 +2393,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             kind: Primitive::String(CODEGEN_CONSTANTS.module_import),
         };
 
-        let should_use_reader_module_imports =
-            match &self.project_config.feature_flags.use_reader_module_imports {
-                FeatureFlag::Enabled => true,
-                FeatureFlag::Disabled => false,
-                FeatureFlag::Limited {
-                    allowlist: fragment_names,
-                } => fragment_names.contains(&module_metadata.key),
-                FeatureFlag::Rollout { rollout } => {
-                    rollout.check(module_metadata.key.lookup().as_bytes())
-                }
-            };
+        let should_use_reader_module_imports = self
+            .project_config
+            .feature_flags
+            .use_reader_module_imports
+            .is_enabled_for(module_metadata.key);
 
         match self.variant {
             CodegenVariant::Reader => {

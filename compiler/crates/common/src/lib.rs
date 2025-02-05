@@ -63,5 +63,6 @@ pub use perf_logger::PerfLogEvent;
 pub use perf_logger::PerfLogger;
 pub use pointer_address::PointerAddress;
 pub use rollout::Rollout;
+pub use rollout::RolloutRange;
 pub use span::Span;
 pub use text_source::TextSource;

@@ -193,6 +193,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -277,6 +313,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -365,6 +437,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -449,6 +557,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -537,6 +681,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -621,6 +801,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -709,6 +925,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -793,6 +1045,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -920,6 +1208,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -1004,6 +1328,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -1092,6 +1452,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -1176,6 +1572,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -1268,6 +1700,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -1351,6 +1819,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -1439,6 +1943,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -1523,6 +2063,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -2197,6 +2773,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -2281,6 +2893,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -2369,6 +3017,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -2453,6 +3137,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -2541,6 +3261,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -2625,6 +3381,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -2713,6 +3505,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -2797,6 +3625,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -2924,6 +3788,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -3008,6 +3908,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -3096,6 +4032,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -3180,6 +4152,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -3272,6 +4280,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -3355,6 +4399,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -3443,6 +4523,42 @@
                       "minimum": 0.0
                     }
                   }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
+                    }
+                  }
                 }
               ]
             },
@@ -3527,6 +4643,42 @@
                       ],
                       "format": "uint8",
                       "minimum": 0.0
+                    }
+                  }
+                },
+                {
+                  "description": "Partially enabled: used for gradual rollout of the feature",
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "rollout"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "rolloutrange"
+                      ]
+                    },
+                    "rollout": {
+                      "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                      "type": "object",
+                      "required": [
+                        "end",
+                        "start"
+                      ],
+                      "properties": {
+                        "end": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        },
+                        "start": {
+                          "type": "integer",
+                          "format": "uint8",
+                          "minimum": 0.0
+                        }
+                      }
                     }
                   }
                 }
@@ -3838,6 +4990,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -3922,6 +5110,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }
@@ -4010,6 +5234,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -4094,6 +5354,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }
@@ -4182,6 +5478,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -4266,6 +5598,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }
@@ -4354,6 +5722,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -4438,6 +5842,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }
@@ -4565,6 +6005,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -4649,6 +6125,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }
@@ -4737,6 +6249,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -4821,6 +6369,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }
@@ -4913,6 +6497,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -4996,6 +6616,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }
@@ -5084,6 +6740,42 @@
                             "minimum": 0.0
                           }
                         }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
+                          }
+                        }
                       }
                     ]
                   },
@@ -5168,6 +6860,42 @@
                             ],
                             "format": "uint8",
                             "minimum": 0.0
+                          }
+                        }
+                      },
+                      {
+                        "description": "Partially enabled: used for gradual rollout of the feature",
+                        "type": "object",
+                        "required": [
+                          "kind",
+                          "rollout"
+                        ],
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "rolloutrange"
+                            ]
+                          },
+                          "rollout": {
+                            "description": "A utility to enable gradual rollout of large codegen changes. Allows you to specify a range of percentages to rollout.",
+                            "type": "object",
+                            "required": [
+                              "end",
+                              "start"
+                            ],
+                            "properties": {
+                              "end": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              },
+                              "start": {
+                                "type": "integer",
+                                "format": "uint8",
+                                "minimum": 0.0
+                              }
+                            }
                           }
                         }
                       }

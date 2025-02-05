@@ -12,6 +12,7 @@ use clap::Args;
 use clap::Subcommand;
 use common::FeatureFlag;
 use common::Rollout;
+use common::RolloutRange;
 use log::info;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
@@ -32,9 +33,11 @@ pub enum AvailableCodemod {
 
 #[derive(Args, Debug, Clone)]
 pub struct MarkDangerousConditionalFragmentSpreadsArgs {
-    /// If using a feature flag, specify the rollout percentage. If omitted, the codemod is fully enabled.
-    #[clap(long, short, value_parser=valid_percent)]
-    pub rollout_percentage: Option<u8>,
+    /// Specify a percentage of fragments to codemod. If a number is provided,
+    /// the first n percentage of fragments will be codemodded. If a range (`20-30`) is
+    /// provided, then fragments between the start and end of the range will be codemodded.
+    #[clap(long, short, value_parser=valid_percent, default_value = "100")]
+    pub rollout_percentage: FeatureFlag,
 }
 
 pub async fn run_codemod(
@@ -46,12 +49,7 @@ pub async fn run_codemod(
         .iter()
         .flat_map(|programs| match &codemod {
             AvailableCodemod::MarkDangerousConditionalFragmentSpreads(opts) => {
-                match fragment_alias_directive(
-                    &programs.source,
-                    &FeatureFlag::Rollout {
-                        rollout: Rollout(opts.rollout_percentage),
-                    },
-                ) {
+                match fragment_alias_directive(&programs.source, &opts.rollout_percentage) {
                     Ok(_) => vec![],
                     Err(e) => e,
                 }
@@ -143,13 +141,33 @@ fn sort_changes(url: &Url, changes: &mut Vec<TextEdit>) -> Result<(), std::io::E
     Ok(())
 }
 
-fn valid_percent(s: &str) -> Result<u8, String> {
-    // turn s into a u8
-    let s = s.parse::<u8>().map_err(|_| "not a number".to_string())?;
-    // check if s is less than 100
-    if (0..=100).contains(&s) {
-        Ok(s)
+fn valid_percent(s: &str) -> Result<FeatureFlag, String> {
+    // If the string is a range of the form "x-y", where x and y are numbers, return the range
+    let parts: Vec<&str> = s.split('-').collect();
+    if parts.len() == 2 {
+        let start = parts[0].parse::<u8>().map_err(|_| {
+            "Expected the value on the left of the rollout range to be a number".to_string()
+        })?;
+        let end = parts[1].parse::<u8>().map_err(|_| {
+            "Expected the value on the right of the rollout range to be a number".to_string()
+        })?;
+        if (0..=100).contains(&start) && (0..=100).contains(&end) && start <= end {
+            Ok(FeatureFlag::RolloutRange {
+                rollout: RolloutRange { start, end },
+            })
+        } else {
+            Err("numbers must be between 0 and 100, inclusive, and the first number must be less than or equal to the second".to_string())
+        }
     } else {
-        Err("number must be between 0 and 100, inclusive".to_string())
+        // turn s into a u8
+        let s = s.parse::<u8>().map_err(|_| "not a number".to_string())?;
+        // check if s is less than 100
+        if (0..=100).contains(&s) {
+            Ok(FeatureFlag::Rollout {
+                rollout: Rollout(Some(s)),
+            })
+        } else {
+            Err("number must be between 0 and 100, inclusive".to_string())
+        }
     }
 }

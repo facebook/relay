@@ -31,3 +31,23 @@ impl Rollout {
         }
     }
 }
+
+/// A utility to enable gradual rollout of large codegen changes. Allows you to
+/// specify a range of percentages to rollout.
+#[derive(Debug, Serialize, Deserialize, Clone, Copy, JsonSchema)]
+pub struct RolloutRange {
+    pub start: u8,
+    pub end: u8,
+}
+
+impl RolloutRange {
+    /// Checks some key deterministically and passes on average the given
+    /// percentage of the rollout.
+    /// A typical key to pass in could be the fragment or operation name.
+    pub fn check(&self, key: impl AsRef<[u8]>) -> bool {
+        let hash = Md5::digest(key.as_ref());
+        let hash: u16 = ((hash[1] as u16) << 8) | (hash[0] as u16);
+        let percent = hash % 100;
+        (percent) <= (self.end as u16) && (percent) >= (self.start as u16)
+    }
+}

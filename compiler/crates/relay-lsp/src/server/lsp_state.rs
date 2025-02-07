@@ -48,7 +48,6 @@ use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
 use relay_transforms::apply_transforms;
 use relay_transforms::deprecated_fields_for_executable_definition;
-use relay_transforms::disallow_required_on_non_null_field_for_executable_definition;
 use schema::SDLSchema;
 use schema_documentation::CombinedSchemaDocumentation;
 use schema_documentation::SchemaDocumentation;
@@ -280,11 +279,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                             warnings.extend(deprecated_fields_for_executable_definition(
                                 &schema, &document,
                             )?);
-                            warnings.extend(
-                                disallow_required_on_non_null_field_for_executable_definition(
-                                    &schema, &document,
-                                )?,
-                            );
+
+                            // Disabling this warning for now, to see if it resolves LSP crashing
+                            // warnings.extend(
+                            //     disallow_required_on_non_null_field_for_executable_definition(
+                            //         &schema, &document,
+                            //     )?,
+                            // );
                         }
                         Ok(warnings)
                     };

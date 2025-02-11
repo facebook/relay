@@ -44,7 +44,9 @@ declare module react {
   declare export type MixedElement = React$MixedElement;
   declare export type ElementType = React$ElementType;
   declare export type Element<+C> = React$Element<C>;
-  declare export var Fragment: React$FragmentType;
+  declare export var Fragment: component<Renders: React$Node = void>(
+    children?: Renders,
+  ) renders Renders;
   declare export type Key = React$Key;
   declare export type RefSetter<-T> = React$RefSetter<T>;
   declare export type Node = React$Node;
@@ -209,7 +211,7 @@ declare module react {
     +isValidElement: typeof isValidElement,
     +Component: typeof Component,
     +PureComponent: typeof PureComponent,
-    +Fragment: React$FragmentType,
+    +Fragment: typeof Fragment,
     +Children: typeof Children,
     +ConcurrentMode: typeof ConcurrentMode,
     +StrictMode: typeof StrictMode,

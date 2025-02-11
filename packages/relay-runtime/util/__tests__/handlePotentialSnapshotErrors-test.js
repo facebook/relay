@@ -387,7 +387,7 @@ describe('handlePotentialSnapshotErrors', () => {
           },
         ]);
       }).toThrowError(
-        /^Relay: Resolver error at path 'testPath' in 'testOwner'/,
+        "Relay: Resolver error at path 'testPath' in 'testOwner'. Message: testError",
       );
 
       expect(relayFieldLogger).toHaveBeenCalledTimes(1);

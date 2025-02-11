@@ -116,7 +116,7 @@ test('Promise rejects with @throwOnFieldError', async () => {
     result = e;
   }
   expect(result?.message).toEqual(
-    "Relay: Resolver error at path 'always_throws' in 'waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment'.",
+    "Relay: Resolver error at path 'always_throws' in 'waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment'. Message: I always throw. What did you expect?",
   );
 });
 

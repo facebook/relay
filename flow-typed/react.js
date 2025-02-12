@@ -39,7 +39,8 @@ declare module react {
   declare export function isValidElement(element: any): boolean;
 
   declare export var Component: typeof React$Component;
-  declare export var PureComponent: typeof React$PureComponent;
+  declare export class PureComponent<Props, State = void>
+    extends Component<Props, State> {}
   declare export type ComponentType<-P> = React$ComponentType<P>;
   declare export type MixedElement = React$MixedElement;
   declare export type ElementType = React$ElementType;

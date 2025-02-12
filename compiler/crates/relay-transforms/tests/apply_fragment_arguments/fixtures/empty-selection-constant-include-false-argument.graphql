@@ -1,0 +1,11 @@
+# expected-to-throw
+query EmptyQuery($id: ID!) {
+  node(id: $id) {
+    ...Fragment @arguments(cond: false)
+  }
+}
+
+fragment Fragment on User
+  @argumentDefinitions(cond: {type: "Boolean!"}) {
+  lastName @include(if: $cond)
+}

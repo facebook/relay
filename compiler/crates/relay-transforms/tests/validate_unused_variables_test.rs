@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2d9c78832993b2bbe4c580b22d0aeecf>>
+ * @generated SignedSource<<129140cf3a271d88276cfcac0046937b>>
  */
 
 mod validate_unused_variables;
 
 use validate_unused_variables::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn cycle_bug() {
+    let input = include_str!("validate_unused_variables/fixtures/cycle-bug.graphql");
+    let expected = include_str!("validate_unused_variables/fixtures/cycle-bug.expected");
+    test_fixture(transform_fixture, file!(), "cycle-bug.graphql", "validate_unused_variables/fixtures/cycle-bug.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn fragment_with_root_arguments() {

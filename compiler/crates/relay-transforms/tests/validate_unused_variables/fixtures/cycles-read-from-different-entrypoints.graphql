@@ -1,0 +1,26 @@
+# Ensures cycles don't result in us caching incomplete used variables for a
+# fragment which then gets reused by another query.
+
+fragment FragmentC on User {
+  url(relative: true, site: $varX)
+  nearest_neighbor {
+    ...FragmentD
+  }
+}
+
+fragment FragmentD on User {
+  url(relative: true, site: $varY)
+  ...FragmentC
+}
+
+query QueryA($varX: String, $varY: String) {
+  me {
+    ...FragmentC
+  }
+}
+
+query QueryB($varX: String, $varY: String) {
+  me {
+    ...FragmentD
+  }
+}

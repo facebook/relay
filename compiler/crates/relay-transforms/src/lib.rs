@@ -193,6 +193,7 @@ pub use required_directive::ACTION_ARGUMENT;
 pub use required_directive::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 pub use required_directive::REQUIRED_DIRECTIVE_NAME;
 pub use required_directive::THROW_ACTION;
+pub use root_variables::VariableMapEntry;
 pub use skip_client_directives::skip_client_directives;
 pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;

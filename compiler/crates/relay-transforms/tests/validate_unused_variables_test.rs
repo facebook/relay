@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<129140cf3a271d88276cfcac0046937b>>
+ * @generated SignedSource<<4d8584b4ed41dabea8eb7e0b80ec52a2>>
  */
 
 mod validate_unused_variables;
@@ -13,10 +13,10 @@ use validate_unused_variables::transform_fixture;
 use fixture_tests::test_fixture;
 
 #[tokio::test]
-async fn cycle_bug() {
-    let input = include_str!("validate_unused_variables/fixtures/cycle-bug.graphql");
-    let expected = include_str!("validate_unused_variables/fixtures/cycle-bug.expected");
-    test_fixture(transform_fixture, file!(), "cycle-bug.graphql", "validate_unused_variables/fixtures/cycle-bug.expected", input, expected).await;
+async fn cycles_read_from_different_entrypoints() {
+    let input = include_str!("validate_unused_variables/fixtures/cycles-read-from-different-entrypoints.graphql");
+    let expected = include_str!("validate_unused_variables/fixtures/cycles-read-from-different-entrypoints.expected");
+    test_fixture(transform_fixture, file!(), "cycles-read-from-different-entrypoints.graphql", "validate_unused_variables/fixtures/cycles-read-from-different-entrypoints.expected", input, expected).await;
 }
 
 #[tokio::test]

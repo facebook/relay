@@ -23,12 +23,12 @@ pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
 }
 
 pub struct ValidateUnusedVariables<'program> {
-    visitor: InferVariablesVisitor<'program>,
+    pub visitor: InferVariablesVisitor<'program>,
     ignore_directive_name: DirectiveName,
 }
 
 impl<'program> ValidateUnusedVariables<'program> {
-    fn new(program: &'program Program) -> Self {
+    pub fn new(program: &'program Program) -> Self {
         Self {
             visitor: InferVariablesVisitor::new(program),
             ignore_directive_name: DirectiveName(

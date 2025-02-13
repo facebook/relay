@@ -1506,7 +1506,7 @@ describe('client-only fragments', () => {
     expect(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     }).toThrowError(
-      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:$r:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
+      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
     );
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');

@@ -45,7 +45,7 @@ const ERRORS_KEY: '__errors' = '__errors';
 const MODULE_COMPONENT_KEY_PREFIX = '__module_component_';
 const MODULE_OPERATION_KEY_PREFIX = '__module_operation_';
 
-const RELAY_READ_TIME_RESOLVER_KEY_PREFIX = '$r:';
+const RELAY_READ_TIME_RESOLVER_KEY_PREFIX = ''; // Set to empty string temporarily to test perf impact of appending prefix
 
 function getArgumentValue(
   arg: NormalizationArgument | ReaderArgument,

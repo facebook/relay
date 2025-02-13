@@ -137,6 +137,7 @@ if (__DEV__) {
   ): ?{[string]: mixed} => {
     const record = source.get(dataID);
     if (record == null) {
+      // $FlowFixMe[incompatible-return]
       return record;
     }
     return new Proxy(

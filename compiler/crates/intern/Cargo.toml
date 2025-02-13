@@ -19,7 +19,7 @@ schemars = { version = "0.8.21", features = ["indexmap2"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_bytes = "0.11"
 serde_derive = "1.0.185"
-smallvec = { version = "1.6.1", features = ["serde", "union"] }
+smallvec = { version = "1.13.2", features = ["serde", "union"] }
 
 [dev-dependencies]
 bincode = "1.3.3"

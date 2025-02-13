@@ -17,7 +17,7 @@ common = { path = "../common" }
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 relay-config = { path = "../relay-config" }
 rustc-hash = "2.1.0"
 schema = { path = "../schema" }

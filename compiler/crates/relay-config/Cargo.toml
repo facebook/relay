@@ -15,7 +15,7 @@ globset = { version = "0.4.13", features = ["serde1"] }
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 pathdiff = "0.2"
-regex = "1.9.2"
+regex = "1.11.1"
 schemars = { version = "0.8.21", features = ["indexmap2"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_json = { version = "1.0.132", features = ["float_roundtrip", "unbounded_depth"] }

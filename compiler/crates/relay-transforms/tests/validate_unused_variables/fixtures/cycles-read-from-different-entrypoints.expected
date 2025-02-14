@@ -29,5 +29,5 @@ query QueryB($varX: String, $varY: String) {
 OK.
 
 Cached Fragments:
-FragmentD -> POPULATED ("varX, varY")
 FragmentC -> POPULATED ("varX, varY")
+FragmentD -> POPULATED ("varX, varY")

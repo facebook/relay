@@ -33,7 +33,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     // If we didn't error, print out the state of the fragment cache so we can
     // validate which entries get populated.
-    let lines = validator
+    let mut lines = validator
         .visitor
         .visited_fragments
         .iter()
@@ -51,6 +51,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             }
         })
         .collect::<Vec<_>>();
+
+    lines.sort();
 
     if lines.is_empty() {
         Ok("OK.\n\nNo Cached Fragments.".to_string())

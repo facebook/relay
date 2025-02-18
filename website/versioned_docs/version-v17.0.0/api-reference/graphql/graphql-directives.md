@@ -23,7 +23,9 @@ Relay uses directives to add additional information to GraphQL documents, which 
 **Note:** The Relay compiler will maintain any directives supported by your server (such as `@include` or `@skip`) so they remain part of the request to the GraphQL server and won't alter generated runtime artifacts.
 </OssOnly>
 <FbInternalOnly>
+
 **Note:** The Relay compiler will maintain any directives supported by your server (such as `@include` or `@skip`) so they remain part of the request to the GraphQL server and won't alter generated runtime artifacts. Additional directives are documented [here](https://www.internalfb.com/intern/wiki/GraphQL/APIs_and_References/Directives/#graphql-standard).
+
 </FbInternalOnly>
 
 ## `@arguments`

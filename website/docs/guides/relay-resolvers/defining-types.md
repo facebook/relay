@@ -125,7 +125,9 @@ interface IUser {
 
 You could define two (or more) concrete resolver types that implement the IUser interface by adding annotations in the docblock (the same applies for unions).
 <FbInternalOnly>
+
 Note, support for abstract types is not available for relay resolvers in Flow syntax (yet).
+
 </FbInternalOnly>
 
 <Tabs

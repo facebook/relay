@@ -17,6 +17,7 @@ use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::build_project::get_project_asts;
+use relay_compiler::build_project::validate_reader_program;
 use relay_compiler::build_project::BuildMode;
 use relay_compiler::build_project::ProjectAstData;
 use relay_compiler::build_project::ProjectAsts;
@@ -538,7 +539,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             })
         })?;
 
-        transform_program(
+        let transformed_programs = transform_program(
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),
@@ -556,6 +557,28 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 project_name: project_config.name,
             })
         })?;
+
+        match validate_reader_program(
+            &self.lsp_state.config,
+            project_config,
+            &transformed_programs.reader,
+            log_event,
+        ) {
+            // Non-blocking validation errors
+            Ok(diagnostics) => Err(BuildProjectFailure::Error(
+                BuildProjectError::ValidationErrors {
+                    errors: diagnostics,
+                    project_name: project_config.name,
+                },
+            )),
+            // Compilation-blocking validation errors
+            Err(diagnostics) => Err(BuildProjectFailure::Error(
+                BuildProjectError::ValidationErrors {
+                    errors: diagnostics,
+                    project_name: project_config.name,
+                },
+            )),
+        }?;
         Ok(())
     }
 

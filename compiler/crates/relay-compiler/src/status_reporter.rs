@@ -78,6 +78,9 @@ impl ConsoleStatusReporter {
         match severity {
             DiagnosticSeverity::ERROR => error!("{}", output),
             DiagnosticSeverity::WARNING => warn!("{}", output),
+            DiagnosticSeverity::HINT => {
+                // Opting to omit, not emit, hints in the CLI output.
+            }
             _ => info!("{}", output),
         }
     }

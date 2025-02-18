@@ -425,6 +425,7 @@ A lightweight API for specifying a that a React component should be loaded on de
 This API is safe to use in entrypoint files.
 
 <OssOnly>
+
 See [the npm module](https://www.npmjs.com/package/jsresource).
 </OssOnly>
 
@@ -507,6 +508,7 @@ See the [guide on mutations](../guided-tour/updating-data/graphql-mutations), an
 </FbInternalOnly>
 
 <OssOnly>
+
 See the [guide on mutations](../guided-tour/updating-data/graphql-mutations).
 </OssOnly>
 

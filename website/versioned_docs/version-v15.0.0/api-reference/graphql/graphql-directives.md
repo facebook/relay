@@ -20,7 +20,9 @@ import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 Relay uses directives to add additional information to GraphQL documents, which are used by the [Relay compiler](../../guides/compiler/) to generate the appropriate runtime artifacts. These directives only appear in your application code and are removed from requests sent to your GraphQL server.
 
 <OssOnly>
+
 **Note:** The Relay compiler will maintain any directives supported by your server (such as `@include` or `@skip`) so they remain part of the request to the GraphQL server and won't alter generated runtime artifacts.
+
 </OssOnly>
 <FbInternalOnly>
 

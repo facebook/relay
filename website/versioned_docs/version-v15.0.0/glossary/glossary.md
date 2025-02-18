@@ -150,7 +150,8 @@ A field implementing the connection spec. See <a href="https://www.internalfb.co
 </FbInternalOnly>
 
 <OssOnly>
-A field implementing the connection spec. See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+
+(\S+) field implementing the connection spec. See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
 </OssOnly>
 
 See also [`usePaginationFragment`](../api-reference/use-pagination-fragment).
@@ -424,7 +425,8 @@ A lightweight API for specifying a that a React component should be loaded on de
 This API is safe to use in entrypoint files.
 
 <OssOnly>
-See [the npm module](https://www.npmjs.com/package/jsresource).
+
+(\S+) [the npm module](https://www.npmjs.com/package/jsresource).
 </OssOnly>
 
 ## Lazy Loading
@@ -492,7 +494,8 @@ See the [guide on mutations](../guided-tour/updating-data/graphql-mutations), an
 </FbInternalOnly>
 
 <OssOnly>
-See the [guide on mutations](../guided-tour/updating-data/graphql-mutations).
+
+(\S+) the [guide on mutations](../guided-tour/updating-data/graphql-mutations).
 </OssOnly>
 
 ## Mutation Root Query

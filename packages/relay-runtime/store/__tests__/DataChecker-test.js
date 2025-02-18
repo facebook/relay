@@ -3064,4 +3064,160 @@ describe('check()', () => {
     );
     expect(target.toJSON()).toEqual({});
   });
+
+  describe('exec time resolvers', () => {
+    describe('client query', () => {
+      const Query = graphql`
+        query DataCheckerTestExecQuery @exec_time_resolvers {
+          RelayReaderExecResolversTest_user_one {
+            name
+            best_friend {
+              name
+              best_friend {
+                name
+              }
+            }
+          }
+        }
+      `;
+
+      it('should return available when all data is available', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            name: 'Alice',
+            best_friend: {__ref: '2'},
+          },
+          '2': {
+            __id: '2',
+            name: 'Bob',
+            best_fried: {__ref: '3'},
+          },
+          '3': {
+            __id: '3',
+            name: 'Zuck',
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
+
+      it('should return available when only client data is missing', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: {__ref: '1'},
+          },
+          '1': {
+            __id: '1',
+            name: 'Alice',
+            best_friend: {__ref: '2'},
+          },
+          '2': {
+            __id: '2',
+            name: 'Bob',
+            best_fried: undefined,
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
+    });
+
+    describe('server and client query', () => {
+      const Query = graphql`
+        query DataCheckerTestExecWithServerDataQuery @exec_time_resolvers {
+          RelayReaderExecResolversTest_user_one {
+            name
+            best_friend {
+              name
+              best_friend {
+                name
+              }
+            }
+          }
+          me {
+            name
+          }
+        }
+      `;
+      it('should return available when server data is available', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: undefined,
+            me: {__ref: '0'},
+          },
+          '0': {
+            __id: '0',
+            id: '0',
+            name: 'Zuck',
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('available');
+      });
+
+      it('should return missing when server data is missing', () => {
+        const source = RelayRecordSource.create({
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: undefined,
+            me: {__ref: '0'},
+          },
+          '0': {
+            __id: '0',
+            id: '0',
+            name: undefined,
+          },
+        });
+        const target = RelayRecordSource.create();
+        const status = check(
+          () => source,
+          () => target,
+          INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+          createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+          [],
+          null,
+          defaultGetDataID,
+        );
+        expect(status.status).toBe('missing');
+      });
+    });
+  });
 });

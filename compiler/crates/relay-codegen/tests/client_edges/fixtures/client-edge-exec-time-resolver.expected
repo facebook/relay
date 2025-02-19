@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 # enable-exec-time-resolvers-directive
 
-query Foo @exec_time_resolvers {
+query Foo @exec_time_resolvers(enabled: "execTimeResolversFlagProvider") {
   me {
     pet {
       name
@@ -48,6 +48,7 @@ extend type User {
           "backingField": {
             "name": "pet",
             "args": null,
+            "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
             "isOutputType": false,
@@ -67,6 +68,7 @@ extend type User {
               {
                 "name": "name",
                 "args": null,
+                "fragment": null,
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": false,
@@ -83,5 +85,5 @@ extend type User {
       "storageKey": null
     }
   ],
-  "use_exec_time_resolvers": true
+  "exec_time_resolvers_enabled_provider": require('execTimeResolversFlagProvider')
 }

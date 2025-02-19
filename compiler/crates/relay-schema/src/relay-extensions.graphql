@@ -367,4 +367,4 @@ If added to a query, resolvers in that query to run at exec-time, rather than re
 This means the resolvers are run when the query data is requested rather than when the
 query is used (i.e. when the network request is made instead of at render time).
 """
-directive @exec_time_resolvers on QUERY
+directive @exec_time_resolvers(enabled: String) on QUERY

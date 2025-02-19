@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<150bc702d604535148679ab06346bc70>>
+ * @generated SignedSource<<29be3c95de1276cf7fe62b3195c2ca3b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -88,8 +88,42 @@ v2 = {
   "storageKey": null
 },
 v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v4 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "name": "__relay_model_instance",
+      "args": null,
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          (v3/*: any*/)
+        ],
+        "type": "RelayReaderExecResolversTestUser",
+        "abstractKey": null
+      },
+      "kind": "RelayResolver",
+      "storageKey": null,
+      "isOutputType": false,
+      "resolverInfo": {
+        "resolverFunction": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser,
+        "rootFragment": null
+      }
+    }
+  ],
+  "type": "RelayReaderExecResolversTestUser",
+  "abstractKey": null
+},
+v5 = {
   "name": "name",
   "args": null,
+  "fragment": (v4/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
   "isOutputType": true,
@@ -98,14 +132,15 @@ v3 = {
     "rootFragment": null
   }
 },
-v4 = {
+v6 = {
   "RelayReaderExecResolversTestUser": {
     "resolverModule": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
   }
 },
-v5 = {
+v7 = {
   "name": "best_friend",
   "args": null,
+  "fragment": (v4/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
   "isOutputType": false,
@@ -113,13 +148,6 @@ v5 = {
     "resolverFunction": require('./../RelayReader-ExecResolvers-test').best_friend,
     "rootFragment": null
   }
-},
-v6 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
 };
 return {
   "fragment": {
@@ -294,6 +322,7 @@ return {
         "backingField": {
           "name": "RelayReaderExecResolversTest_user_one",
           "args": null,
+          "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
           "isOutputType": false,
@@ -310,11 +339,11 @@ return {
           "name": "RelayReaderExecResolversTest_user_one",
           "plural": false,
           "selections": [
-            (v3/*: any*/),
+            (v5/*: any*/),
             {
               "kind": "ClientEdgeToClientObject",
-              "modelResolvers": (v4/*: any*/),
-              "backingField": (v5/*: any*/),
+              "modelResolvers": (v6/*: any*/),
+              "backingField": (v7/*: any*/),
               "linkedField": {
                 "alias": null,
                 "args": null,
@@ -323,11 +352,11 @@ return {
                 "name": "best_friend",
                 "plural": false,
                 "selections": [
-                  (v3/*: any*/),
+                  (v5/*: any*/),
                   {
                     "kind": "ClientEdgeToClientObject",
-                    "modelResolvers": (v4/*: any*/),
-                    "backingField": (v5/*: any*/),
+                    "modelResolvers": (v6/*: any*/),
+                    "backingField": (v7/*: any*/),
                     "linkedField": {
                       "alias": null,
                       "args": null,
@@ -336,18 +365,18 @@ return {
                       "name": "best_friend",
                       "plural": false,
                       "selections": [
-                        (v3/*: any*/),
-                        (v6/*: any*/)
+                        (v5/*: any*/),
+                        (v3/*: any*/)
                       ],
                       "storageKey": null
                     }
                   },
-                  (v6/*: any*/)
+                  (v3/*: any*/)
                 ],
                 "storageKey": null
               }
             },
-            (v6/*: any*/)
+            (v3/*: any*/)
           ],
           "storageKey": null
         }
@@ -361,7 +390,7 @@ return {
         "plural": false,
         "selections": [
           (v2/*: any*/),
-          (v6/*: any*/)
+          (v3/*: any*/)
         ],
         "storageKey": null
       }

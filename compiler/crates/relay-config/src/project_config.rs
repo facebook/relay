@@ -410,7 +410,8 @@ impl Debug for ProjectConfig {
 }
 
 impl ProjectConfig {
-    /// This function will create a correct path for an artifact based on the project configuration
+    /// Gets the correct path for a generated artifact based on its originating source file's
+    /// location, and the project's configuration.
     pub fn create_path_for_artifact(
         &self,
         source_file: SourceLocationKey,
@@ -440,6 +441,7 @@ impl ProjectConfig {
         }
     }
 
+    /// Generates a path for an artifact file based on a definition name and its location.
     pub fn artifact_path_for_definition(
         &self,
         definition_name: WithLocation<impl Into<StringKey>>,
@@ -464,6 +466,7 @@ impl ProjectConfig {
         }
     }
 
+    /// Generates a path for an artifact file that is specific to the programming language being used.
     pub fn path_for_language_specific_artifact(
         &self,
         source_file: SourceLocationKey,

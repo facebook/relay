@@ -659,7 +659,6 @@ class RelayReader {
           return this._readLink(selection.field, record, data);
         }
       case 'RelayResolver':
-        return this._readResolverField(selection.field, record, data);
       case 'RelayLiveResolver':
         return this._readResolverField(selection.field, record, data);
       case 'ClientEdgeToClientObject':

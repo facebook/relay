@@ -217,8 +217,6 @@ class RelayReferenceMarker {
           this._traverseSelections(selection.fragment.selections, record);
           break;
         case 'RelayResolver':
-          this._traverseResolverField(selection, record);
-          break;
         case 'RelayLiveResolver':
           this._traverseResolverField(selection, record);
           break;

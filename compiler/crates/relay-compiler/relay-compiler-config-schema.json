@@ -1128,7 +1128,7 @@
             "enforce_fragment_alias_where_ambiguous": {
               "description": "Enforce that you must add `@alias` to a fragment if it may not match, due to type mismatch or `@skip`/`@include`",
               "default": {
-                "kind": "disabled"
+                "kind": "enabled"
               },
               "oneOf": [
                 {
@@ -3708,7 +3708,7 @@
             "enforce_fragment_alias_where_ambiguous": {
               "description": "Enforce that you must add `@alias` to a fragment if it may not match, due to type mismatch or `@skip`/`@include`",
               "default": {
-                "kind": "disabled"
+                "kind": "enabled"
               },
               "oneOf": [
                 {
@@ -5925,7 +5925,7 @@
                   "enforce_fragment_alias_where_ambiguous": {
                     "description": "Enforce that you must add `@alias` to a fragment if it may not match, due to type mismatch or `@skip`/`@include`",
                     "default": {
-                      "kind": "disabled"
+                      "kind": "enabled"
                     },
                     "oneOf": [
                       {

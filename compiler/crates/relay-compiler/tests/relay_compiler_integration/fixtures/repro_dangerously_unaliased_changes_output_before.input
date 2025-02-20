@@ -35,6 +35,9 @@ query ModuleNameQuery {
    "featureFlags": {
       "disable_deduping_common_structures_in_artifacts": {
          "kind": "enabled"
+      },
+      "enforce_fragment_alias_where_ambiguous": {
+         "kind": "disabled"
       }
    }
 }

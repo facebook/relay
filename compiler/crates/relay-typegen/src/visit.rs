@@ -1687,7 +1687,7 @@ pub(crate) fn raw_response_selections_to_babel(
     runtime_imports: &mut RuntimeImports,
     custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
-    let mut base_fields = Vec::new();
+    let mut base_fields: IndexMap<StringKey, Vec<TypeSelection>> = Default::default();
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
@@ -1697,7 +1697,10 @@ pub(crate) fn raw_response_selections_to_babel(
                 .or_default()
                 .push(selection);
         } else {
-            base_fields.push(selection);
+            base_fields
+                .entry(selection.get_string_key())
+                .or_default()
+                .push(selection);
         }
     }
 
@@ -1710,7 +1713,7 @@ pub(crate) fn raw_response_selections_to_babel(
     let mut types: Vec<AST> = Vec::new();
 
     if !by_concrete_type.is_empty() {
-        let base_fields_map = selections_to_map(base_fields.clone().into_iter(), false);
+        let base_fields_map = selections_to_map(base_fields.clone().into_values().flatten(), false);
         for (concrete_type, selections) in by_concrete_type {
             let mut base_fields_map = base_fields_map.clone();
             merge_selection_maps(
@@ -1726,7 +1729,7 @@ pub(crate) fn raw_response_selections_to_babel(
                     .map(|selection| {
                         raw_response_make_prop(
                             typegen_context,
-                            selection,
+                            &[selection],
                             Some(concrete_type),
                             encountered_enums,
                             runtime_imports,
@@ -1748,14 +1751,14 @@ pub(crate) fn raw_response_selections_to_babel(
     }
 
     if !base_fields.is_empty() {
+        let base_fields = base_fields.into_values().collect::<Vec<_>>();
         types.push(AST::ExactObject(ExactObject::new(
             base_fields
                 .iter()
-                .cloned()
-                .map(|selection| {
+                .map(|selections| {
                     raw_response_make_prop(
                         typegen_context,
-                        selection,
+                        selections,
                         concrete_type,
                         encountered_enums,
                         runtime_imports,
@@ -1767,7 +1770,7 @@ pub(crate) fn raw_response_selections_to_babel(
         append_local_3d_payload(
             typegen_context,
             &mut types,
-            &base_fields,
+            &base_fields.into_iter().flatten().collect::<Vec<_>>(),
             concrete_type,
             encountered_enums,
             runtime_imports,
@@ -1805,7 +1808,7 @@ fn append_local_3d_payload(
                     .map(|sel| {
                         raw_response_make_prop(
                             typegen_context,
-                            sel.clone(),
+                            &[sel.clone()],
                             concrete_type,
                             encountered_enums,
                             runtime_imports,
@@ -2078,7 +2081,7 @@ fn make_prop(
 
 fn raw_response_make_prop(
     typegen_context: &'_ TypegenContext<'_>,
-    type_selection: TypeSelection,
+    type_selections: &[TypeSelection],
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
     runtime_imports: &mut RuntimeImports,
@@ -2087,13 +2090,49 @@ fn raw_response_make_prop(
     let optional = !typegen_context
         .typegen_options
         .no_optional_fields_in_raw_response_type
-        && type_selection.is_conditional();
+        && type_selections.iter().all(|sel| sel.is_conditional());
+
+    let type_selection = if type_selections.len() > 1 {
+        let linked_fields = type_selections.into_iter().map(|type_selection| match type_selection {
+            TypeSelection::LinkedField(linked_field) => linked_field,
+            _ => panic!("Unexpected multiple selections in raw_response_make_prop that are not linked fields: {:#?}", type_selections)
+        }).collect::<Vec<_>>();
+
+        let first_linked_field = linked_fields[0].clone();
+        let linked_field =
+            linked_fields
+                .into_iter()
+                .skip(1)
+                .fold(first_linked_field, |mut acc, el| {
+                    acc.conditional = acc.conditional && el.conditional;
+                    acc.node_selections
+                        .extend(
+                            el.node_selections
+                                .clone()
+                                .into_iter()
+                                .map(|(key, mut sel)| {
+                                    if el.conditional && !sel.is_conditional() {
+                                        sel.set_conditional(true);
+                                    }
+
+                                    (key, sel)
+                                }),
+                        );
+
+                    acc
+                });
+
+        TypeSelection::LinkedField(linked_field)
+    } else {
+        type_selections[0].clone()
+    };
+
     match type_selection {
         TypeSelection::ModuleDirective(module_directive) => Prop::Spread(SpreadProp {
             value: module_directive.fragment_name.0,
         }),
         TypeSelection::LinkedField(linked_field) => {
-            let node_type = linked_field.node_type;
+            let node_type = &linked_field.node_type;
             let inner_concrete_type = if node_type.is_list()
                 || node_type.is_non_null()
                 || node_type.inner().is_abstract_type()
@@ -2104,7 +2143,7 @@ fn raw_response_make_prop(
             };
             let object_props = raw_response_selections_to_babel(
                 typegen_context,
-                hashmap_into_values(linked_field.node_selections),
+                hashmap_into_values(linked_field.node_selections.clone()),
                 inner_concrete_type,
                 encountered_enums,
                 runtime_imports,
@@ -2139,7 +2178,7 @@ fn raw_response_make_prop(
                 } else {
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: scalar_field.field_name_or_alias,
-                        value: scalar_field.value,
+                        value: scalar_field.value.clone(),
                         read_only: true,
                         optional,
                     })
@@ -2147,7 +2186,7 @@ fn raw_response_make_prop(
             } else {
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: scalar_field.field_name_or_alias,
-                    value: scalar_field.value,
+                    value: scalar_field.value.clone(),
                     read_only: true,
                     optional,
                 })
@@ -2521,7 +2560,7 @@ pub(crate) fn get_input_variables_type<'a>(
 }
 
 fn hashmap_into_values<K: Hash + Eq, V>(map: IndexMap<K, V>) -> impl Iterator<Item = V> {
-    map.into_iter().map(|(_, val)| val)
+    map.into_values()
 }
 
 fn extract_fragments(

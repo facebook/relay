@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1362eec89123512c826effa9bf3a99ec>>
+ * @generated SignedSource<<2daad7ce879dafc5f3c5e5fb363b98cc>>
  */
 
 mod generate_flow;
@@ -220,6 +220,13 @@ async fn conditional() {
     let input = include_str!("generate_flow/fixtures/conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/conditional.expected");
     test_fixture(transform_fixture, file!(), "conditional.graphql", "generate_flow/fixtures/conditional.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn conditional_and_unconditional_fragments() {
+    let input = include_str!("generate_flow/fixtures/conditional-and-unconditional-fragments.graphql");
+    let expected = include_str!("generate_flow/fixtures/conditional-and-unconditional-fragments.expected");
+    test_fixture(transform_fixture, file!(), "conditional-and-unconditional-fragments.graphql", "generate_flow/fixtures/conditional-and-unconditional-fragments.expected", input, expected).await;
 }
 
 #[tokio::test]

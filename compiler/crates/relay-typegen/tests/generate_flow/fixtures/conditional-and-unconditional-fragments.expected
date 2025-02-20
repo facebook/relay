@@ -1,0 +1,69 @@
+==================================== INPUT ====================================
+query AppQuery($showLastName: Boolean!) @raw_response_type {
+  ...AppFragment
+  ...AppConditionalFragment
+}
+
+fragment AppFragment on Query {
+  me {
+    firstName
+  }
+}
+
+fragment AppConditionalFragment on Query {
+  me @include(if: $showLastName) {
+    lastName
+    actor_key
+  }
+}
+==================================== OUTPUT ===================================
+import type { AppConditionalFragment$fragmentType } from "AppConditionalFragment.graphql";
+import type { AppFragment$fragmentType } from "AppFragment.graphql";
+export type AppQuery$variables = {|
+  showLastName: CustomBoolean,
+|};
+export type AppQuery$data = {|
+  +$fragmentSpreads: AppConditionalFragment$fragmentType & AppFragment$fragmentType,
+|};
+export type AppQuery$rawResponse = {|
+  +me: ?{|
+    +actor_key?: string,
+    +firstName: ?string,
+    +id: string,
+    +lastName?: ?string,
+  |},
+|};
+export type AppQuery = {|
+  rawResponse: AppQuery$rawResponse,
+  response: AppQuery$data,
+  variables: AppQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type AppConditionalFragment$fragmentType: FragmentType;
+export type AppConditionalFragment$data = {|
+  +me?: ?{|
+    +actor_key: string,
+    +lastName: ?string,
+  |},
+  +$fragmentType: AppConditionalFragment$fragmentType,
+|};
+export type AppConditionalFragment$key = {
+  +$data?: AppConditionalFragment$data,
+  +$fragmentSpreads: AppConditionalFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type AppFragment$fragmentType: FragmentType;
+export type AppFragment$data = {|
+  +me: ?{|
+    +firstName: ?string,
+  |},
+  +$fragmentType: AppFragment$fragmentType,
+|};
+export type AppFragment$key = {
+  +$data?: AppFragment$data,
+  +$fragmentSpreads: AppFragment$fragmentType,
+  ...
+};

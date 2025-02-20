@@ -45,7 +45,7 @@ const ERRORS_KEY: '__errors' = '__errors';
 const MODULE_COMPONENT_KEY_PREFIX = '__module_component_';
 const MODULE_OPERATION_KEY_PREFIX = '__module_operation_';
 
-const RELAY_READ_TIME_RESOLVER_KEY_PREFIX = ''; // Set to empty string temporarily to test perf impact of appending prefix
+const RELAY_READ_TIME_RESOLVER_KEY_PREFIX = '$r:';
 
 function getArgumentValue(
   arg: NormalizationArgument | ReaderArgument,
@@ -186,7 +186,7 @@ function getReadTimeResolverStorageKey(
 ): string {
   const storageKey = getStorageKey(field, variables);
   return RelayFeatureFlags.ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX
-    ? RELAY_READ_TIME_RESOLVER_KEY_PREFIX + storageKey
+    ? '$r:' + storageKey // Using inlined string to test the performance impact
     : storageKey;
 }
 

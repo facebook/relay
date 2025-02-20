@@ -1,6 +1,6 @@
 # enable-exec-time-resolvers-directive
 
-query Foo @exec_time_resolvers(enabled: "execTimeResolversFlagProvider") {
+query Foo @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
   me {
     pet {
       name

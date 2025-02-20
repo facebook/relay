@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<db9cd2c9dde9dca0e6f301426860bb8d>>
+ * @generated SignedSource<<56932e6e8ce53b84765f1e82d2a18179>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -78,42 +78,8 @@ v1 = {
   "name": "RelayReaderExecResolversTestUser____relay_model_instance"
 },
 v2 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
-v3 = {
-  "kind": "InlineFragment",
-  "selections": [
-    {
-      "name": "__relay_model_instance",
-      "args": null,
-      "fragment": {
-        "kind": "InlineFragment",
-        "selections": [
-          (v2/*: any*/)
-        ],
-        "type": "RelayReaderExecResolversTestUser",
-        "abstractKey": null
-      },
-      "kind": "RelayResolver",
-      "storageKey": null,
-      "isOutputType": false,
-      "resolverInfo": {
-        "resolverFunction": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser,
-        "rootFragment": null
-      }
-    }
-  ],
-  "type": "RelayReaderExecResolversTestUser",
-  "abstractKey": null
-},
-v4 = {
   "name": "name",
   "args": null,
-  "fragment": (v3/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
   "isOutputType": true,
@@ -122,15 +88,14 @@ v4 = {
     "rootFragment": null
   }
 },
-v5 = {
+v3 = {
   "RelayReaderExecResolversTestUser": {
     "resolverModule": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
   }
 },
-v6 = {
+v4 = {
   "name": "best_friend",
   "args": null,
-  "fragment": (v3/*: any*/),
   "kind": "RelayResolver",
   "storageKey": null,
   "isOutputType": false,
@@ -138,6 +103,13 @@ v6 = {
     "resolverFunction": require('./../RelayReader-ExecResolvers-test').best_friend,
     "rootFragment": null
   }
+},
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
 };
 return {
   "fragment": {
@@ -300,7 +272,6 @@ return {
         "backingField": {
           "name": "RelayReaderExecResolversTest_user_one",
           "args": null,
-          "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
           "isOutputType": false,
@@ -317,11 +288,11 @@ return {
           "name": "RelayReaderExecResolversTest_user_one",
           "plural": false,
           "selections": [
-            (v4/*: any*/),
+            (v2/*: any*/),
             {
               "kind": "ClientEdgeToClientObject",
-              "modelResolvers": (v5/*: any*/),
-              "backingField": (v6/*: any*/),
+              "modelResolvers": (v3/*: any*/),
+              "backingField": (v4/*: any*/),
               "linkedField": {
                 "alias": null,
                 "args": null,
@@ -330,11 +301,11 @@ return {
                 "name": "best_friend",
                 "plural": false,
                 "selections": [
-                  (v4/*: any*/),
+                  (v2/*: any*/),
                   {
                     "kind": "ClientEdgeToClientObject",
-                    "modelResolvers": (v5/*: any*/),
-                    "backingField": (v6/*: any*/),
+                    "modelResolvers": (v3/*: any*/),
+                    "backingField": (v4/*: any*/),
                     "linkedField": {
                       "alias": null,
                       "args": null,
@@ -343,18 +314,18 @@ return {
                       "name": "best_friend",
                       "plural": false,
                       "selections": [
-                        (v4/*: any*/),
-                        (v2/*: any*/)
+                        (v2/*: any*/),
+                        (v5/*: any*/)
                       ],
                       "storageKey": null
                     }
                   },
-                  (v2/*: any*/)
+                  (v5/*: any*/)
                 ],
                 "storageKey": null
               }
             },
-            (v2/*: any*/)
+            (v5/*: any*/)
           ],
           "storageKey": null
         }

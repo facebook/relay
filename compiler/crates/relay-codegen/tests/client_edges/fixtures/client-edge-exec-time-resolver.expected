@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 # enable-exec-time-resolvers-directive
 
-query Foo @exec_time_resolvers(enabled: "execTimeResolversFlagProvider") {
+query Foo @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
   me {
     pet {
       name
@@ -48,14 +48,14 @@ extend type User {
           "backingField": {
             "name": "pet",
             "args": null,
-            "fragment": null,
             "kind": "RelayResolver",
             "storageKey": null,
             "isOutputType": false,
             "resolverInfo": {
               "resolverFunction": require('PetResolver').Pet,
               "rootFragment": null
-            }
+            },
+            "fragment": null
           },
           "linkedField": {
             "alias": null,
@@ -68,14 +68,14 @@ extend type User {
               {
                 "name": "name",
                 "args": null,
-                "fragment": null,
                 "kind": "RelayResolver",
                 "storageKey": null,
                 "isOutputType": false,
                 "resolverInfo": {
                   "resolverFunction": require('CatNameResolver').name,
                   "rootFragment": null
-                }
+                },
+                "fragment": null
               }
             ],
             "storageKey": null

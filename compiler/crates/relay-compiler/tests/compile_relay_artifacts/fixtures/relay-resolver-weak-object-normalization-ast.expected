@@ -83,7 +83,6 @@ extend type Query {
         "backingField": {
           "name": "client_type",
           "args": null,
-          "fragment": null,
           "kind": "RelayResolver",
           "storageKey": null,
           "isOutputType": true,

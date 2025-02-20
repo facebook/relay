@@ -106,7 +106,8 @@ lazy_static! {
     pub static ref EXEC_TIME_RESOLVERS: DirectiveName =
         DirectiveName("exec_time_resolvers".intern());
     static ref EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT: ArgumentName =
-        ArgumentName("enabled".intern());
+        ArgumentName("enabledProvider".intern());
+    static ref FRAGMENT_KEY: StringKey = "fragment".intern();
 }
 
 pub fn build_request_params_ast_key(
@@ -372,10 +373,20 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let feature_flags = &self.project_config.feature_flags;
         feature_flags.enable_resolver_normalization_ast
             || (feature_flags.enable_exec_time_resolvers_directive
-                && context.has_exec_time_resolvers_directive)
+                && context.has_exec_time_resolvers_directive
+                && !context.has_exec_time_resolvers_enabled_provider)
+    }
+
+    fn use_exec_and_read_time_resolvers(&self, context: &ContextualMetadata) -> bool {
+        let feature_flags = &self.project_config.feature_flags;
+        feature_flags.enable_exec_time_resolvers_directive
+            && context.has_exec_time_resolvers_directive
+            && context.has_exec_time_resolvers_enabled_provider
     }
 
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
+        let has_exec_time_resolvers_directive =
+            operation.directives.named(*EXEC_TIME_RESOLVERS).is_some();
         let exec_time_resolvers_enabled_provider = operation
             .directives
             .named(*EXEC_TIME_RESOLVERS)
@@ -393,35 +404,37 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         ),
                     })
             });
-        let artifact_path = self
-            .project_config
-            .artifact_path_for_definition(self.definition_source_location);
-        let exec_time_resolvers_field = if let Some(provider) = exec_time_resolvers_enabled_provider
-        {
-            let mut provider_path = PathBuf::from(provider.location.source_location().path());
-            provider_path.pop();
-            provider_path.push(PathBuf::from(provider.item.lookup()));
 
-            ObjectEntry {
-                key: "exec_time_resolvers_enabled_provider".intern(),
-                value: Primitive::JSModuleDependency(JSModuleDependency {
-                    path: self
-                        .project_config
-                        .js_module_import_identifier(&artifact_path, &provider_path),
-                    import_name: ModuleImportName::Default(provider.item),
-                }),
+        let exec_time_resolvers_field = if has_exec_time_resolvers_directive {
+            if let Some(provider) = exec_time_resolvers_enabled_provider {
+                let mut provider_path = PathBuf::from(provider.location.source_location().path());
+                provider_path.pop();
+                provider_path.push(PathBuf::from(provider.item.lookup()));
+                let artifact_path = self
+                    .project_config
+                    .artifact_path_for_definition(self.definition_source_location);
+                Some(ObjectEntry {
+                    key: "exec_time_resolvers_enabled_provider".intern(),
+                    value: Primitive::JSModuleDependency(JSModuleDependency {
+                        path: self
+                            .project_config
+                            .js_module_import_identifier(&artifact_path, &provider_path),
+                        import_name: ModuleImportName::Default(provider.item),
+                    }),
+                })
+            } else {
+                Some(ObjectEntry {
+                    key: "use_exec_time_resolvers".intern(),
+                    value: Primitive::Bool(true),
+                })
             }
         } else {
-            ObjectEntry {
-                key: "use_exec_time_resolvers".intern(),
-                value: Primitive::Bool(true),
-            }
+            None
         };
         let mut context = ContextualMetadata {
             has_client_edges: false,
-            has_exec_time_resolvers_directive: operation
-                .directives
-                .named(*EXEC_TIME_RESOLVERS)
+            has_exec_time_resolvers_directive,
+            has_exec_time_resolvers_enabled_provider: exec_time_resolvers_enabled_provider
                 .is_some(),
         };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
@@ -435,7 +448,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     selections: selections,
                 };
                 if context.has_exec_time_resolvers_directive {
-                    fields.push(exec_time_resolvers_field);
+                    fields.push(exec_time_resolvers_field.unwrap());
                 }
                 if !operation.variable_definitions.is_empty() {
                     let argument_definitions =
@@ -461,7 +474,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     selections: selections,
                 };
                 if context.has_exec_time_resolvers_directive {
-                    fields.push(exec_time_resolvers_field);
+                    fields.push(exec_time_resolvers_field.unwrap());
                 }
                 if let Some(client_abstract_types) =
                     self.maybe_build_client_abstract_types(operation)
@@ -884,12 +897,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         {
             self.build_normalization_relay_resolver_execution_time_for_worker(resolver_metadata)
         } else if self.use_exec_time_resolvers(context) {
+            self.build_normalization_relay_resolver_exec_and_read_time(
+                resolver_metadata,
+                inline_fragment,
+                true,
+            )
+        } else if self.use_exec_and_read_time_resolvers(context) {
             // We must handle both read time resolvers case and exec time resolvers case
             // since the mode it is in (read time resolvers vs exec time resolvers)
             // is now determined at runtime.
             self.build_normalization_relay_resolver_exec_and_read_time(
                 resolver_metadata,
                 inline_fragment,
+                false,
             )
         } else {
             self.build_normalization_relay_resolver_read_time(resolver_metadata, inline_fragment)
@@ -904,6 +924,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         &mut self,
         resolver_metadata: &RelayResolverMetadata,
         inline_fragment: Option<Primitive>,
+        exec_resolvers_only: bool,
     ) -> Primitive {
         let field_name = resolver_metadata.field_name(self.schema);
         let field_arguments = &resolver_metadata.field_arguments;
@@ -934,15 +955,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 None => ModuleImportName::Default(variable_name),
             },
         );
-        Primitive::Key(self.object(object! {
+        let mut obj = object! {
             name: Primitive::String(field_name),
             args: match args {
                 None => Primitive::SkippableNull,
                 Some(key) => Primitive::Key(key),
-            },
-            fragment: match inline_fragment {
-                None => Primitive::SkippableNull,
-                Some(fragment) => fragment,
             },
             kind: Primitive::String(kind),
             storage_key: match args {
@@ -957,7 +974,17 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
             is_output_type: Primitive::Bool(is_output_type),
             resolver_info: Primitive::Key(resolver_info),
-        }))
+        };
+        if !exec_resolvers_only {
+            obj.push(ObjectEntry {
+                key: *FRAGMENT_KEY,
+                value: match inline_fragment {
+                    None => Primitive::SkippableNull,
+                    Some(fragment) => fragment,
+                },
+            });
+        }
+        Primitive::Key(self.object(obj))
     }
 
     // For read time Relay Resolvers in the normalization AST, we do not
@@ -2057,9 +2084,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             )
                         }
                         CodegenVariant::Normalization => {
-                            if self.use_exec_time_resolvers(context) {
-                                // We must handle both read time resolvers case and exec time resolvers case
-                                // since the mode it is in is now determined in runtime.
+                            // In this case, the functions we run for exec time mode only and for exec and read time mode
+                            // are the exact same. This is because the node fields for read time is a subset of the node
+                            // fields for exec time.
+                            if self.use_exec_time_resolvers(context)
+                                || self.use_exec_and_read_time_resolvers(context)
+                            {
                                 self.build_client_edge_exec_and_read_time(
                                     context,
                                     client_edge_metadata,
@@ -2797,4 +2827,5 @@ pub fn md5(data: &str) -> String {
 struct ContextualMetadata {
     has_client_edges: bool,
     has_exec_time_resolvers_directive: bool,
+    has_exec_time_resolvers_enabled_provider: bool,
 }

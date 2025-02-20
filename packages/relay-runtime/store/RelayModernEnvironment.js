@@ -327,13 +327,18 @@ class RelayModernEnvironment implements IEnvironment {
     operation: OperationDescriptor,
   }): RelayObservable<GraphQLResponse> {
     return this._execute({
-      createSource: () =>
-        this.getNetwork().execute(
+      createSource: () => {
+        return this.getNetwork().execute(
           operation.request.node.params,
           operation.request.variables,
           operation.request.cacheConfig || {},
           null,
-        ),
+          undefined,
+          undefined,
+          undefined,
+          () => this.check(operation),
+        );
+      },
       isClientPayload: false,
       operation,
       optimisticConfig: null,

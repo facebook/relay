@@ -39,6 +39,8 @@ export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
+export type ProvidedVariableType = {get(): mixed};
+
 export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
 
 /**

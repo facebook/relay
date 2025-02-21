@@ -31,6 +31,7 @@ use super::ensure_discriminated_union_is_created;
 use super::errors::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
+use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn transform_assignable_fragment_spreads_in_regular_queries(
     program: &Program,
@@ -208,8 +209,14 @@ impl Transformer<'_> for AssignableFragmentSpread<'_> {
             return Transformed::Keep;
         }
 
+        let dissallowed_directives = fragment_spread
+            .directives
+            .iter()
+            .filter(|directive| directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME)
+            .collect::<Vec<_>>();
+
         // Assignable fragments cannot have directives, but we error only on the first one
-        if let Some(directive) = fragment_spread.directives.first() {
+        if let Some(directive) = dissallowed_directives.first() {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::AssignableFragmentSpreadNoOtherDirectives {
                     disallowed_directive_name: directive.name.item.0,

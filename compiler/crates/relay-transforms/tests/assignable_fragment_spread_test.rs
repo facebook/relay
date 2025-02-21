@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2e19314c2dbf23eef2878bbb537fba0e>>
+ * @generated SignedSource<<6eb30dc78dfe1878bc1456bffe63bb3c>>
  */
 
 mod assignable_fragment_spread;
@@ -52,6 +52,13 @@ async fn assignable_fragment_spread_with_directives_invalid() {
     let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-with-directives.invalid.graphql");
     let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-with-directives.invalid.expected");
     test_fixture(transform_fixture, file!(), "assignable-fragment-spread-with-directives.invalid.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-with-directives.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn assignable_fragment_spread_with_fixme_directives() {
+    let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-with-fixme-directives.graphql");
+    let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-with-fixme-directives.expected");
+    test_fixture(transform_fixture, file!(), "assignable-fragment-spread-with-fixme-directives.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-with-fixme-directives.expected", input, expected).await;
 }
 
 #[tokio::test]

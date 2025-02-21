@@ -88,6 +88,7 @@ describe('ReactRelayFragmentContainer', () => {
       query ReactRelayFragmentContainerTestUserQuery($id: ID!) {
         node(id: $id) {
           ...ReactRelayFragmentContainerTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -99,6 +100,7 @@ describe('ReactRelayFragmentContainer', () => {
       ) {
         node(id: $id) {
           ...ReactRelayFragmentContainerTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(cond: $condGlobal)
         }
       }

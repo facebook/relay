@@ -61,6 +61,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ) {
             node(id: $id) {
               ...RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;
@@ -73,6 +74,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ) {
             node(id: $id) {
               ...RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment
+                @dangerously_unaliased_fixme
                 @arguments(count: $count, cursor: $cursor)
             }
           }

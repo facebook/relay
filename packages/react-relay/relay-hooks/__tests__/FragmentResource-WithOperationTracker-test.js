@@ -70,6 +70,7 @@ describe.each([true, false])(
         query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!) {
           node(id: $id) {
             ...FragmentResourceWithOperationTrackerTestUserFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;

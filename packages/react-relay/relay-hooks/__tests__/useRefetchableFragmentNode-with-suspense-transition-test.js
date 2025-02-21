@@ -216,6 +216,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         ) {
           node(id: $id) {
             ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;

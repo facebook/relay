@@ -61,6 +61,7 @@ describe('FragmentResource with Operation Tracker for optimistic updates behavio
         node(id: $id) {
           __typename
           ...FragmentResourceWithOperationTrackerOptimisticUpdatesTestFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

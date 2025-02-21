@@ -157,7 +157,9 @@ describe('when generating multiple payloads for deferred data', () => {
       node(id: $id) {
         id
         ... on User {
-          ...RelayMockEnvironmentTestWithDeferFragment_user @defer
+          ...RelayMockEnvironmentTestWithDeferFragment_user
+            @dangerously_unaliased_fixme
+            @defer
         }
       }
     }

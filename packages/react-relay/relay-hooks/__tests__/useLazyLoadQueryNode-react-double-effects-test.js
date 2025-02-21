@@ -61,6 +61,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         id
         name
         ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment
+          @dangerously_unaliased_fixme
       }
     }
   `;
@@ -71,7 +72,9 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       node(id: $id) {
         id
         name
-        ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment @defer
+        ...useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment
+          @dangerously_unaliased_fixme
+          @defer
       }
     }
   `;

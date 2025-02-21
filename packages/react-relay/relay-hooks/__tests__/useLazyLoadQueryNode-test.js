@@ -207,7 +207,7 @@ beforeEach(() => {
       node(id: $id) {
         id
         name
-        ...useLazyLoadQueryNodeTestUserFragment
+        ...useLazyLoadQueryNodeTestUserFragment @dangerously_unaliased_fixme
       }
     }
   `;
@@ -751,7 +751,9 @@ describe('with @defer and re-rendering', () => {
     gqlQuery = graphql`
       query useLazyLoadQueryNodeTest1Query($id: ID) {
         node(id: $id) {
-          ...useLazyLoadQueryNodeTestDeferFragment @defer
+          ...useLazyLoadQueryNodeTestDeferFragment
+            @dangerously_unaliased_fixme
+            @defer
         }
       }
     `;

@@ -588,6 +588,7 @@ test('Fragment Spread (gets inlined into `InlineFragment`)', () => {
     query RelayExperimentalGraphResponseTransformTestFragmentSpreadQuery {
       node(id: "10") {
         ...RelayExperimentalGraphResponseTransformTest_user_name
+          @dangerously_unaliased_fixme
       }
     }
   `;
@@ -644,6 +645,7 @@ test('Fragment Spread @no_inline', () => {
     query RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery {
       node(id: "10") {
         ...RelayExperimentalGraphResponseTransformTest_no_inline_user_name
+          @dangerously_unaliased_fixme
       }
     }
   `;
@@ -702,6 +704,7 @@ test('Traverses when @defer is disabled', () => {
     ) {
       node(id: $id) {
         ...RelayExperimentalGraphResponseTransformTest_condition
+          @dangerously_unaliased_fixme
           @defer(label: "TestFragment", if: $enableDefer)
       }
     }

@@ -120,6 +120,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
           id
           name
           ...useQueryLoaderReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

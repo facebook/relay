@@ -56,6 +56,7 @@ beforeEach(() => {
         node(id: $id) {
           __typename
           ...FragmentResourceRequiredFieldTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `,

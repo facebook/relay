@@ -66,6 +66,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
         node(id: $id) {
           __typename
           ...useFragmentWithOperationTrackerSuspenseTestFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

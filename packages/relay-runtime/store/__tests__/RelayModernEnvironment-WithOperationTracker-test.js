@@ -502,6 +502,7 @@ describe.each([true, false])(
           @relay_test_operation {
             node(id: $id) {
               ...RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;

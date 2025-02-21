@@ -119,7 +119,7 @@ const regularQuery = graphql`
       }
     }
     node(id: "4") {
-      ...readUpdatableQueryTest_user
+      ...readUpdatableQueryTest_user @dangerously_unaliased_fixme
       ... on User {
         name
       }

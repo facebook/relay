@@ -84,6 +84,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
       ) {
         node(id: $id) {
           ...ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -94,6 +95,7 @@ describe('ReactRelayFragmentContainer with fragment ownership', () => {
       ) {
         node(id: $id) {
           ...ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(cond: $condGlobal)
         }
       }

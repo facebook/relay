@@ -44,6 +44,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
           lastName
         }
         ...ReactRelayLocalQueryRendererTestUserFragment
+          @dangerously_unaliased_fixme
       }
     }
   `;

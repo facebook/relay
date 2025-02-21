@@ -53,7 +53,7 @@ test('generate mock for simple fragment', () => {
   testGeneratedData(graphql`
     query RelayMockPayloadGeneratorTest1Query {
       node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTestFragment
+        ...RelayMockPayloadGeneratorTestFragment @dangerously_unaliased_fixme
       }
     }
   `);
@@ -120,7 +120,7 @@ test('generate mock with inline fragment', () => {
   testGeneratedData(graphql`
     query RelayMockPayloadGeneratorTest3Query($condition: Boolean!) {
       node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest2Fragment
+        ...RelayMockPayloadGeneratorTest2Fragment @dangerously_unaliased_fixme
       }
     }
   `);
@@ -168,7 +168,7 @@ test('generate mock with condition (and other complications)', () => {
       $hideAuthorUsername: Boolean!
     ) {
       node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest3Fragment
+        ...RelayMockPayloadGeneratorTest3Fragment @dangerously_unaliased_fixme
       }
     }
   `);
@@ -196,11 +196,12 @@ test('generate mock with connection', () => {
               node {
                 id
                 ...RelayMockPayloadGeneratorTest4Fragment
+                  @dangerously_unaliased_fixme
                   @skip(if: $skipUserInConnection)
               }
             }
           }
-          ...RelayMockPayloadGeneratorTest4Fragment
+          ...RelayMockPayloadGeneratorTest4Fragment @dangerously_unaliased_fixme
         }
       }
     }
@@ -211,7 +212,7 @@ test('generate mock with connection', () => {
       $skipUserInConnection: Boolean!
     ) {
       node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest5Fragment
+        ...RelayMockPayloadGeneratorTest5Fragment @dangerously_unaliased_fixme
       }
     }
   `);
@@ -232,7 +233,7 @@ test('generate basic mock data', () => {
     graphql`
       query RelayMockPayloadGeneratorTest6Query {
         node(id: "my-id") {
-          ...RelayMockPayloadGeneratorTest6Fragment
+          ...RelayMockPayloadGeneratorTest6Fragment @dangerously_unaliased_fixme
         }
       }
     `,
@@ -254,7 +255,7 @@ test('generate mock using custom mock functions', () => {
     graphql`
       query RelayMockPayloadGeneratorTest7Query {
         node(id: "my-id") {
-          ...RelayMockPayloadGeneratorTest7Fragment
+          ...RelayMockPayloadGeneratorTest7Fragment @dangerously_unaliased_fixme
         }
       }
     `,
@@ -288,7 +289,7 @@ test('generate mock using custom mock functions for object type', () => {
     graphql`
       query RelayMockPayloadGeneratorTest8Query {
         node(id: "my-id") {
-          ...RelayMockPayloadGeneratorTest8Fragment
+          ...RelayMockPayloadGeneratorTest8Fragment @dangerously_unaliased_fixme
         }
       }
     `,
@@ -317,7 +318,7 @@ test('generate mock for objects without concrete type', () => {
     graphql`
       query RelayMockPayloadGeneratorTest9Query {
         node(id: "my-id") {
-          ...RelayMockPayloadGeneratorTest9Fragment
+          ...RelayMockPayloadGeneratorTest9Fragment @dangerously_unaliased_fixme
         }
       }
     `,
@@ -356,6 +357,7 @@ test('generate mock using custom mock functions for object type (multiple object
       query RelayMockPayloadGeneratorTest10Query {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest10Fragment
+            @dangerously_unaliased_fixme
         }
       }
     `,
@@ -465,6 +467,7 @@ test('generate mock with manual mock for objects', () => {
       query RelayMockPayloadGeneratorTest12Query {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest12Fragment
+            @dangerously_unaliased_fixme
         }
       }
     `,
@@ -547,6 +550,7 @@ test('generate mock and verify arguments in the context', () => {
       ) {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest14Fragment
+            @dangerously_unaliased_fixme
         }
       }
     `,
@@ -583,7 +587,9 @@ test('generate mock for fragment with @argumentsDefinition', () => {
     graphql`
       query RelayMockPayloadGeneratorTest15Query($scale: Float = 1.0) {
         node(id: "my-id") {
-          ...RelayMockPayloadGeneratorTest15Fragment @arguments(withName: true)
+          ...RelayMockPayloadGeneratorTest15Fragment
+            @dangerously_unaliased_fixme
+            @arguments(withName: true)
         }
       }
     `,
@@ -649,7 +655,7 @@ test('generate mock for multiple fragment spreads', () => {
         id
       }
       myActor: actor {
-        ...RelayMockPayloadGeneratorTest17Fragment
+        ...RelayMockPayloadGeneratorTest17Fragment @dangerously_unaliased_fixme
       }
       ...RelayMockPayloadGeneratorTest18Fragment
       ...RelayMockPayloadGeneratorTest19Fragment
@@ -658,7 +664,7 @@ test('generate mock for multiple fragment spreads', () => {
   testGeneratedData(graphql`
     query RelayMockPayloadGeneratorTest17Query {
       node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest20Fragment
+        ...RelayMockPayloadGeneratorTest20Fragment @dangerously_unaliased_fixme
       }
     }
   `);
@@ -744,7 +750,9 @@ test('generate mock for with directives and handlers', () => {
       $RELAY_INCREMENTAL_DELIVERY: Boolean = false
     ) {
       node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest22Fragment @arguments(condition: true)
+        ...RelayMockPayloadGeneratorTest22Fragment
+          @dangerously_unaliased_fixme
+          @arguments(condition: true)
       }
     }
   `);
@@ -783,7 +791,7 @@ test('should return `null` for selection if that is specified in default values'
         id
       }
       myActor: actor {
-        ...RelayMockPayloadGeneratorTest24Fragment
+        ...RelayMockPayloadGeneratorTest24Fragment @dangerously_unaliased_fixme
       }
       ...RelayMockPayloadGeneratorTest25Fragment
     }
@@ -793,6 +801,7 @@ test('should return `null` for selection if that is specified in default values'
       query RelayMockPayloadGeneratorTest19Query {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest27Fragment
+            @dangerously_unaliased_fixme
         }
       }
     `,
@@ -840,6 +849,7 @@ describe('with @relay_test_operation', () => {
       query RelayMockPayloadGeneratorTest21Query @relay_test_operation {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest28Fragment
+            @dangerously_unaliased_fixme
         }
       }
     `);
@@ -952,7 +962,9 @@ describe('with @relay_test_operation', () => {
         query RelayMockPayloadGeneratorTest26Query @relay_test_operation {
           node(id: "my-id") {
             ...RelayMockPayloadGeneratorTest29Fragment
+              @dangerously_unaliased_fixme
             ...RelayMockPayloadGeneratorTest30Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `,
@@ -1461,6 +1473,7 @@ describe('with @relay_test_operation', () => {
         query RelayMockPayloadGeneratorTest44Query @relay_test_operation {
           node(id: "my-id") {
             ...RelayMockPayloadGeneratorTestNameRendererFragment
+              @dangerously_unaliased_fixme
           }
         }
       `,
@@ -1508,6 +1521,7 @@ describe('with @relay_test_operation', () => {
         query RelayMockPayloadGeneratorTest45Query @relay_test_operation {
           node(id: "my-id") {
             ...RelayMockPayloadGeneratorTest31Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `,
@@ -1555,6 +1569,7 @@ describe('with @relay_test_operation', () => {
         query RelayMockPayloadGeneratorTest46Query @relay_test_operation {
           node(id: "my-id") {
             ...RelayMockPayloadGeneratorTest32Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `,
@@ -1593,6 +1608,7 @@ describe('with @relay_test_operation', () => {
           query RelayMockPayloadGeneratorTest47Query @relay_test_operation {
             node(id: "my-id") {
               ...RelayMockPayloadGeneratorTest33Fragment
+                @dangerously_unaliased_fixme
             }
           }
         `,
@@ -1633,6 +1649,7 @@ describe('with @relay_test_operation', () => {
         query RelayMockPayloadGeneratorTest48Query @relay_test_operation {
           node(id: "my-id") {
             ...RelayMockPayloadGeneratorTest34Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `,
@@ -1658,7 +1675,9 @@ describe('with @relay_test_operation', () => {
             id
             client_name
             client_code
-            ...RelayMockPayloadGeneratorTest43SubFragment @defer
+            ...RelayMockPayloadGeneratorTest43SubFragment
+              @dangerously_unaliased_fixme
+              @defer
           }
         }
       }
@@ -1709,7 +1728,9 @@ test('Query with @no_inline fragment spread with literal argument', () => {
   const query = graphql`
     query RelayMockPayloadGeneratorTest58Query {
       node(id: "4") {
-        ...RelayMockPayloadGeneratorTest_fragment59 @arguments(cond: true)
+        ...RelayMockPayloadGeneratorTest_fragment59
+          @dangerously_unaliased_fixme
+          @arguments(cond: true)
       }
     }
   `;
@@ -1730,7 +1751,9 @@ test('Query with @no_inline fragment spread with variable argument', () => {
   const query = graphql`
     query RelayMockPayloadGeneratorTest60Query($cond: Boolean!) {
       node(id: "4") {
-        ...RelayMockPayloadGeneratorTest_fragment61 @arguments(cond: $cond)
+        ...RelayMockPayloadGeneratorTest_fragment61
+          @dangerously_unaliased_fixme
+          @arguments(cond: $cond)
       }
     }
   `;
@@ -1782,7 +1805,9 @@ test('generate mock for deferred fragments', () => {
       query RelayMockPayloadGeneratorTest61Query {
         node(id: "my-id") {
           id
-          ...RelayMockPayloadGeneratorTest61Fragment @defer
+          ...RelayMockPayloadGeneratorTest61Fragment
+            @dangerously_unaliased_fixme
+            @defer
         }
       }
     `,
@@ -1808,7 +1833,9 @@ test('generate mock for deferred fragments with if condition true', () => {
       query RelayMockPayloadGeneratorTest62Query {
         node(id: "my-id") {
           id
-          ...RelayMockPayloadGeneratorTest62Fragment @defer(if: true)
+          ...RelayMockPayloadGeneratorTest62Fragment
+            @dangerously_unaliased_fixme
+            @defer(if: true)
         }
       }
     `,
@@ -1828,7 +1855,9 @@ test('generate mock for deferred fragments with if condition false', () => {
       query RelayMockPayloadGeneratorTest63Query {
         node(id: "my-id") {
           id
-          ...RelayMockPayloadGeneratorTest63Fragment @defer(if: false)
+          ...RelayMockPayloadGeneratorTest63Fragment
+            @dangerously_unaliased_fixme
+            @defer(if: false)
         }
       }
     `,
@@ -1953,6 +1982,7 @@ test('should generate data for @match with PlainUserNameRenderer_name and use de
       query RelayMockPayloadGeneratorTest67Query @relay_test_operation {
         node(id: "my-id") {
           ...RelayMockPayloadGeneratorTest67Fragment
+            @dangerously_unaliased_fixme
         }
       }
     `,

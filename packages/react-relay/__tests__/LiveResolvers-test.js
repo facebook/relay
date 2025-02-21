@@ -1400,7 +1400,7 @@ describe('client-only fragments', () => {
   const LiveResolversTestLiveResolverSuspenseQuery = graphql`
     query LiveResolversTestLiveResolverSuspenseQuery($id: ID!) {
       node(id: $id) {
-        ...LiveResolversTestCounterUserFragment
+        ...LiveResolversTestCounterUserFragment @dangerously_unaliased_fixme
       }
     }
   `;

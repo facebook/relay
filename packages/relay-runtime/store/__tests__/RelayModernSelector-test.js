@@ -56,8 +56,8 @@ describe('RelayModernSelector', () => {
         $cond: Boolean!
       ) {
         node(id: $id) {
-          ...RelayModernSelectorTestUserFragment
-          ...RelayModernSelectorTestUsersFragment
+          ...RelayModernSelectorTestUserFragment @dangerously_unaliased_fixme
+          ...RelayModernSelectorTestUsersFragment @dangerously_unaliased_fixme
         }
       }
     `;

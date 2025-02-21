@@ -26,7 +26,7 @@ describe('withProvidedVariables', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest1Query {
           node(id: 4) {
-            ...withProvidedVariablesTest1Fragment
+            ...withProvidedVariablesTest1Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -62,6 +62,7 @@ describe('withProvidedVariables', () => {
         query withProvidedVariablesTest2Query($includeFriendsCount: Boolean!) {
           node(id: 4) {
             ...withProvidedVariablesTest2Fragment
+              @dangerously_unaliased_fixme
               @arguments(includeFriendsCount_: $includeFriendsCount)
           }
         }
@@ -99,7 +100,7 @@ describe('withProvidedVariables', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest3Query {
           node(id: 4) {
-            ...withProvidedVariablesTest3Fragment
+            ...withProvidedVariablesTest3Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -142,8 +143,8 @@ describe('withProvidedVariables', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest4Query {
           node(id: 4) {
-            ...withProvidedVariablesTest4Fragment1
-            ...withProvidedVariablesTest4Fragment2
+            ...withProvidedVariablesTest4Fragment1 @dangerously_unaliased_fixme
+            ...withProvidedVariablesTest4Fragment2 @dangerously_unaliased_fixme
           }
         }
       `;
@@ -203,7 +204,7 @@ describe('withProvidedVariables', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest5Query {
           node(id: 4) {
-            ...withProvidedVariablesTest5Fragment
+            ...withProvidedVariablesTest5Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -269,7 +270,7 @@ describe('withProvidedVariables', () => {
       const userQuery = graphql`
         query withProvidedVariablesTest6Query {
           node(id: 4) {
-            ...withProvidedVariablesTest6Fragment
+            ...withProvidedVariablesTest6Fragment @dangerously_unaliased_fixme
           }
         }
       `;

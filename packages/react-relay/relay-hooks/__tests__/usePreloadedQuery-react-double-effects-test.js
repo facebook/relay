@@ -126,6 +126,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
           id
           name
           ...usePreloadedQueryReactDoubleEffectsTestFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -134,7 +135,9 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
         node(id: $id) {
           id
           name
-          ...usePreloadedQueryReactDoubleEffectsTestFragment @defer
+          ...usePreloadedQueryReactDoubleEffectsTestFragment
+            @dangerously_unaliased_fixme
+            @defer
         }
       }
     `;

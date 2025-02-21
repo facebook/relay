@@ -115,6 +115,7 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
           id
           __typename
           ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }

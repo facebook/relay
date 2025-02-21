@@ -104,6 +104,7 @@ describe('ReactRelayRefetchContainer', () => {
       ) {
         node(id: $id) {
           ...ReactRelayRefetchContainerTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(cond: $condGlobal)
         }
       }
@@ -112,6 +113,7 @@ describe('ReactRelayRefetchContainer', () => {
       query ReactRelayRefetchContainerTestUserQuery($id: ID!) {
         node(id: $id) {
           ...ReactRelayRefetchContainerTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

@@ -46,6 +46,7 @@ describe('query with undeclared, unused fragment argument', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile
+            @dangerously_unaliased_fixme
         }
       }
     `;

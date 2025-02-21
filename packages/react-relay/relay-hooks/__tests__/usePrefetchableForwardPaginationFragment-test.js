@@ -114,6 +114,7 @@ beforeEach(() => {
       ) {
         node(id: $id) {
           ...usePrefetchableForwardPaginationFragmentTest_user
+            @dangerously_unaliased_fixme
         }
       }
     `,

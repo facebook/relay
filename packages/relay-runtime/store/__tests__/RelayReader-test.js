@@ -1481,6 +1481,7 @@ describe('RelayReader', () => {
             viewer {
               actor {
                 ...RelayReaderTestShouldNotConsiderDataMissingIfTheFragmentTypeDoesNotMatchTheDataUserProfile
+                  @dangerously_unaliased_fixme
               }
             }
           }
@@ -1620,6 +1621,7 @@ describe('RelayReader', () => {
           query RelayReaderTestStreamConnectionUserQuery($id: ID!) {
             node(id: $id) {
               ...RelayReaderTestStreamConnectionUserProfile
+                @dangerously_unaliased_fixme
             }
           }
         `;
@@ -1828,7 +1830,7 @@ describe('RelayReader', () => {
       query RelayReaderTestActorChangeQuery {
         viewer {
           actor @fb_actor_change {
-            ...RelayReaderTestActorChangeFragment
+            ...RelayReaderTestActorChangeFragment @dangerously_unaliased_fixme
           }
         }
       }

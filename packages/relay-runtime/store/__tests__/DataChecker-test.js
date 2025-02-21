@@ -713,7 +713,7 @@ describe('check()', () => {
       BarQuery = graphql`
         query DataCheckerTest4Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest4Fragment
+            ...DataCheckerTest4Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1165,7 +1165,7 @@ describe('check()', () => {
       BarQuery = graphql`
         query DataCheckerTest5Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest5Fragment
+            ...DataCheckerTest5Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1517,7 +1517,9 @@ describe('check()', () => {
       Query = graphql`
         query DataCheckerTest9Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest6Fragment @defer(label: "TestFragment")
+            ...DataCheckerTest6Fragment
+              @dangerously_unaliased_fixme
+              @defer(label: "TestFragment")
           }
         }
       `;
@@ -1609,7 +1611,7 @@ describe('check()', () => {
       Query = graphql`
         query DataCheckerTest6Query($id: ID!) {
           node(id: $id) {
-            ...DataCheckerTest7Fragment
+            ...DataCheckerTest7Fragment @dangerously_unaliased_fixme
           }
         }
       `;

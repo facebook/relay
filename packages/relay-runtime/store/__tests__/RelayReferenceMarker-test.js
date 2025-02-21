@@ -93,7 +93,9 @@ describe('RelayReferenceMarker', () => {
               name
             }
           }
-          ...RelayReferenceMarkerTest1Fragment @arguments(size: $size)
+          ...RelayReferenceMarkerTest1Fragment
+            @dangerously_unaliased_fixme
+            @arguments(size: $size)
         }
       }
     `;
@@ -405,7 +407,7 @@ describe('RelayReferenceMarker', () => {
         node(id: $id) {
           id
           __typename
-          ...RelayReferenceMarkerTest2Fragment
+          ...RelayReferenceMarkerTest2Fragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -493,7 +495,7 @@ describe('RelayReferenceMarker', () => {
       BarQuery = graphql`
         query RelayReferenceMarkerTest5Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest3Fragment
+            ...RelayReferenceMarkerTest3Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1053,7 +1055,7 @@ describe('RelayReferenceMarker', () => {
       BarQuery = graphql`
         query RelayReferenceMarkerTest6Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest4Fragment
+            ...RelayReferenceMarkerTest4Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1407,7 +1409,9 @@ describe('RelayReferenceMarker', () => {
       Query = graphql`
         query RelayReferenceMarkerTest7Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest5Fragment @defer(label: "TestFragment")
+            ...RelayReferenceMarkerTest5Fragment
+              @dangerously_unaliased_fixme
+              @defer(label: "TestFragment")
           }
         }
       `;
@@ -1483,7 +1487,7 @@ describe('RelayReferenceMarker', () => {
       Query = graphql`
         query RelayReferenceMarkerTest8Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest6Fragment
+            ...RelayReferenceMarkerTest6Fragment @dangerously_unaliased_fixme
           }
         }
       `;

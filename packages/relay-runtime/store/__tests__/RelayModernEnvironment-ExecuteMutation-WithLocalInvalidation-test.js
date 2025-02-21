@@ -85,6 +85,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             node(id: $id) {
               id
               ...RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;

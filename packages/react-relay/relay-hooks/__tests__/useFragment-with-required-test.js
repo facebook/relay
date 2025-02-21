@@ -40,6 +40,7 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
           node(id: $id) {
             ... on User {
               ...useFragmentWithRequiredTestUserFragment
+                @dangerously_unaliased_fixme
             }
           }
         }

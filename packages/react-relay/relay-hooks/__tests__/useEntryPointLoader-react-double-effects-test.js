@@ -134,6 +134,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           id
           name
           ...useEntryPointLoaderReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

@@ -109,9 +109,13 @@ describe('missing data detection', () => {
       query RelayModernEnvironmentTypeRefinementTestParentQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestAbstractActorFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -121,7 +125,9 @@ describe('missing data detection', () => {
       query RelayModernEnvironmentTypeRefinementTestConcreteQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -131,7 +137,9 @@ describe('missing data detection', () => {
       query RelayModernEnvironmentTypeRefinementTestAbstractQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestAbstractActorFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -1021,6 +1029,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest2Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest3Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1237,6 +1246,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest3Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest5Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1245,6 +1255,7 @@ describe('missing data detection', () => {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest6Fragment
+            @dangerously_unaliased_fixme
         }
       `;
       NestedNamedFragment = graphql`
@@ -1456,6 +1467,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest4Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest7Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1677,6 +1689,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest5Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest9Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1685,6 +1698,7 @@ describe('missing data detection', () => {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest10Fragment
+            @dangerously_unaliased_fixme
         }
       `;
       NestedUserFragment = graphql`
@@ -1794,6 +1808,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest6Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest11Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;

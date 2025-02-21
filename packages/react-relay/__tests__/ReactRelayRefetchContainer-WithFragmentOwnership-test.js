@@ -110,6 +110,7 @@ describe('ReactRelayRefetchContainer with fragment ownership', () => {
       ) {
         node(id: $id) {
           ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

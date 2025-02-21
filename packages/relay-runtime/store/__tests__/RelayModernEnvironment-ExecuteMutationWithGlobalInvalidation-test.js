@@ -87,6 +87,7 @@ describe('executeMutation() with global invalidation', () => {
           node(id: $id) {
             id
             ...RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment
+              @dangerously_unaliased_fixme
           }
         }
       `,

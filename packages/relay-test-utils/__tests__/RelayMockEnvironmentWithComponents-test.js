@@ -176,6 +176,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             id
             name
             ...RelayMockEnvironmentWithComponentsTestProminentSolutionFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -284,6 +285,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             id
             name
             ...RelayMockEnvironmentWithComponentsTestRobustAwesomenessFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -546,6 +548,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         ) @relay_test_operation {
           node(id: $id) {
             ...RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -712,6 +715,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         ) {
           feedback: node(id: $id) {
             ...RelayMockEnvironmentWithComponentsTestNoticeableResultFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -997,6 +1001,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         ) {
           feedback: node(id: $id) {
             ...RelayMockEnvironmentWithComponentsTestImpactfulAwesomenessFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;

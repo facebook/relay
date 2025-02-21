@@ -57,6 +57,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           query RelayModernEnvironmentConnectionTestFeedbackQuery($id: ID!) {
             node(id: $id) {
               ...RelayModernEnvironmentConnectionTestFeedbackFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;
@@ -68,6 +69,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ) {
             node(id: $id) {
               ...RelayModernEnvironmentConnectionTestFeedbackFragment
+                @dangerously_unaliased_fixme
                 @arguments(count: $count, cursor: $cursor)
             }
           }

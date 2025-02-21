@@ -906,6 +906,7 @@ describe('Preload queries that use provided variables', () => {
     query preloadQueryDEPRECATEDTest_ProvidedVarQuery($id: ID!) {
       node(id: $id) {
         ...preloadQueryDEPRECATEDTest_ProvidedVarFragment
+          @dangerously_unaliased_fixme
       }
     }
   `;

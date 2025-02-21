@@ -204,6 +204,7 @@ describe('useBlockingPaginationFragment', () => {
       ) {
         node(id: $id) {
           ...useBlockingPaginationFragmentTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
@@ -221,6 +222,7 @@ describe('useBlockingPaginationFragment', () => {
         node(id: $id) {
           actor {
             ...useBlockingPaginationFragmentTestUserFragment
+              @dangerously_unaliased_fixme
               @arguments(
                 isViewerFriendLocal: $isViewerFriend
                 orderby: $orderby
@@ -242,6 +244,7 @@ describe('useBlockingPaginationFragment', () => {
         viewer {
           actor {
             ...useBlockingPaginationFragmentTestUserFragment
+              @dangerously_unaliased_fixme
               @arguments(
                 isViewerFriendLocal: $isViewerFriend
                 orderby: $orderby
@@ -260,6 +263,7 @@ describe('useBlockingPaginationFragment', () => {
       ) {
         node(id: $id) {
           ...useBlockingPaginationFragmentTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: true, orderby: ["name"])
         }
       }

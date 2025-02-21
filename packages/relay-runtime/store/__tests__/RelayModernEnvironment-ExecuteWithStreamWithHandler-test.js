@@ -61,6 +61,7 @@ describe('execute() a query with @stream with handler', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

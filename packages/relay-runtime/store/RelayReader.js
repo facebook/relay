@@ -132,7 +132,10 @@ class RelayReader {
     this._fieldErrors = null;
     this._owner = selector.owner;
     this._useExecTimeResolvers =
-      this._owner.node.operation.use_exec_time_resolvers ?? false;
+      this._owner.node.operation.use_exec_time_resolvers ??
+      this._owner.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+        true ??
+      false;
     this._recordSource = recordSource;
     this._seenRecords = new Set();
     this._selector = selector;

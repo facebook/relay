@@ -94,9 +94,12 @@ export function RelayReaderExecResolversTest_user_one(): IdOf<'RelayReaderExecRe
  * not as read time resolver queries.
  */
 describe('RelayReaderExecResolvers', () => {
-  it('reads exec_time_resolvers without calling the resolvers', () => {
+  it('reads exec_time_resolvers without calling the resolvers when provider returns true', () => {
     const Query = graphql`
-      query RelayReaderExecResolversTestRunsQuery @exec_time_resolvers {
+      query RelayReaderExecResolversTestRunsQuery
+      @exec_time_resolvers(
+        enabledProvider: "relayReaderTestExecTimeResolversTrueProvider"
+      ) {
         RelayReaderExecResolversTest_user_one {
           name
           best_friend {
@@ -148,6 +151,80 @@ describe('RelayReaderExecResolvers', () => {
       RelayReaderExecResolversTest_user_one: {
         name: 'Alice',
         friends: [{name: 'Bob'}, {name: 'Claire'}, {name: 'Dennis'}],
+      },
+    });
+  });
+
+  it('reads read time resolvers when exec time resolvers provider returns false', () => {
+    const Query = graphql`
+      query RelayReaderExecResolversTestRunsNoProviderQuery
+      @exec_time_resolvers(
+        enabledProvider: "relayReaderTestExecTimeResolversFalseProvider"
+      ) {
+        RelayReaderExecResolversTest_user_one {
+          name
+          best_friend {
+            name
+          }
+          friends {
+            name
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(Query, {});
+    const source = new RelayRecordSource({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        RelayReaderExecResolversTest_user_one: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        name: 'Alice',
+        friends: {__refs: ['2', '3', '4']},
+      },
+      '2': {
+        __id: '2',
+        name: 'Bob',
+      },
+      '3': {
+        __id: '3',
+        name: 'Claire',
+      },
+      '4': {
+        __id: '4',
+        name: 'Dennis',
+      },
+    });
+    const resolverStore = new RelayModernStore(source);
+    const {data} = read(
+      source,
+      operation.fragment,
+      new LiveResolverCache(() => source, resolverStore),
+    );
+
+    expect(modelMock).toBeCalled();
+    expect(nameMock).toBeCalled();
+    expect(user_oneMock).toBeCalled();
+    expect(friendsMock).toBeCalled();
+    expect(data).toEqual({
+      RelayReaderExecResolversTest_user_one: {
+        best_friend: {
+          name: 'Bob',
+        },
+        friends: [
+          {
+            name: 'Bob',
+          },
+          {
+            name: 'Claire',
+          },
+          {
+            name: 'Dennis',
+          },
+        ],
+        name: 'Alice',
       },
     });
   });

@@ -415,6 +415,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                                 && directive.name.item != *REQUIRED_DIRECTIVE_NAME
                                 && directive.name.item != *CHILDREN_CAN_BUBBLE_METADATA_KEY
                                 && directive.name.item != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME
+                                && directive.name.item != crate::match_::MATCH_CONSTANTS.match_directive_name
                         });
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(

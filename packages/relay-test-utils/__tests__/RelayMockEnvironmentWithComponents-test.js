@@ -1046,6 +1046,8 @@ describe('ReactRelayTestMocker with Containers', () => {
         return (
           <div>
             {props.feedback.message.text}
+            {/* $FlowFixMe[incompatible-type] Error found when typing DOM
+             * intrinsics */}
             <span
               testID="reaction"
               reactionType={

@@ -17,7 +17,7 @@ name = "fixture_tests_tests"
 path = "tests/uppercase_test.rs"
 
 [dependencies]
-clap = { version = "4.5.20", features = ["derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.5.30", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 colored = "2.1.0"
 diff = "0.1"
 lazy_static = "1.5"

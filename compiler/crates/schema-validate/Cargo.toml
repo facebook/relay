@@ -17,7 +17,7 @@ name = "schema_validate_test"
 path = "tests/validate_schema_test.rs"
 
 [dependencies]
-clap = { version = "4.5.20", features = ["derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.5.30", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
 fnv = "1.0"
 graphql-cli = { path = "../graphql-cli" }

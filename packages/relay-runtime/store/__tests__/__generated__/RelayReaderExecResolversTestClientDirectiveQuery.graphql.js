@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<423e840d6cbe676bc2d5fb304f6334ab>>
+ * @generated SignedSource<<d2b40d87f08e43b1f27a6533cb4b52f5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,8 +58,8 @@ import {name as relayReaderExecResolversTestUserNameResolverType} from "../Relay
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderExecResolversTestRunsQuery$variables = {||};
-export type RelayReaderExecResolversTestRunsQuery$data = {|
+export type RelayReaderExecResolversTestClientDirectiveQuery$variables = {||};
+export type RelayReaderExecResolversTestClientDirectiveQuery$data = {|
   +RelayReaderExecResolversTest_user_one: ?{|
     +best_friend: ?{|
       +name: ?string,
@@ -67,12 +67,12 @@ export type RelayReaderExecResolversTestRunsQuery$data = {|
     +friends: ?$ReadOnlyArray<?{|
       +name: ?string,
     |}>,
-    +name: ?string,
+    +name: $NonMaybeType<?string>,
   |},
 |};
-export type RelayReaderExecResolversTestRunsQuery = {|
-  response: RelayReaderExecResolversTestRunsQuery$data,
-  variables: RelayReaderExecResolversTestRunsQuery$variables,
+export type RelayReaderExecResolversTestClientDirectiveQuery = {|
+  response: RelayReaderExecResolversTestClientDirectiveQuery$data,
+  variables: RelayReaderExecResolversTestClientDirectiveQuery$variables,
 |};
 */
 
@@ -143,7 +143,7 @@ return {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "RelayReaderExecResolversTestRunsQuery",
+    "name": "RelayReaderExecResolversTestClientDirectiveQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -177,13 +177,17 @@ return {
           "plural": false,
           "selections": [
             {
-              "alias": null,
-              "args": null,
-              "fragment": (v1/*: any*/),
-              "kind": "RelayResolver",
-              "name": "name",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
-              "path": "RelayReaderExecResolversTest_user_one.name"
+              "kind": "RequiredField",
+              "field": {
+                "alias": null,
+                "args": null,
+                "fragment": (v1/*: any*/),
+                "kind": "RelayResolver",
+                "name": "name",
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
+                "path": "RelayReaderExecResolversTest_user_one.name"
+              },
+              "action": "THROW"
             },
             {
               "kind": "ClientEdgeToClientObject",
@@ -285,7 +289,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderExecResolversTestRunsQuery",
+    "name": "RelayReaderExecResolversTestClientDirectiveQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -384,10 +388,10 @@ return {
     "exec_time_resolvers_enabled_provider": require('./../relayReaderTestExecTimeResolversTrueProvider')
   },
   "params": {
-    "cacheID": "3f73e57d52c3f79eecc247feb0f865c5",
+    "cacheID": "93766bd16ee00d3863eac4f5873050f1",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderExecResolversTestRunsQuery",
+    "name": "RelayReaderExecResolversTestClientDirectiveQuery",
     "operationKind": "query",
     "text": null
   }
@@ -395,10 +399,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0f3a32cc691c2780ecbfeb4f6f0b8b49";
+  (node/*: any*/).hash = "6a6cebf94e46a5bc998e01e8c6a67718";
 }
 
 module.exports = ((node/*: any*/)/*: ClientQuery<
-  RelayReaderExecResolversTestRunsQuery$variables,
-  RelayReaderExecResolversTestRunsQuery$data,
+  RelayReaderExecResolversTestClientDirectiveQuery$variables,
+  RelayReaderExecResolversTestClientDirectiveQuery$data,
 >*/);

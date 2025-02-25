@@ -661,12 +661,31 @@ class RelayReader {
         } else {
           return this._readLink(selection.field, record, data);
         }
+
       case 'RelayResolver':
-      case 'RelayLiveResolver':
-        return this._readResolverField(selection.field, record, data);
+      case 'RelayLiveResolver': {
+        if (this._useExecTimeResolvers) {
+          return this._readScalar(selection.field, record, data);
+        } else {
+          return this._readResolverField(selection.field, record, data);
+        }
+      }
       case 'ClientEdgeToClientObject':
       case 'ClientEdgeToServerObject':
-        return this._readClientEdge(selection.field, record, data);
+        if (
+          this._useExecTimeResolvers &&
+          (selection.field.backingField.kind === 'RelayResolver' ||
+            selection.field.backingField.kind === 'RelayLiveResolver')
+        ) {
+          const {field} = selection;
+          if (field.linkedField.plural) {
+            return this._readPluralLink(field.linkedField, record, data);
+          } else {
+            return this._readLink(field.linkedField, record, data);
+          }
+        } else {
+          return this._readClientEdge(selection.field, record, data);
+        }
       case 'AliasedInlineFragmentSpread':
         return this._readAliasedInlineFragment(selection.field, record, data);
       default:

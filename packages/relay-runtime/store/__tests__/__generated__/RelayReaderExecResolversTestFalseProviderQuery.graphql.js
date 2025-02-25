@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0f995f5a2bf48e7d5aa6feb51edbf424>>
+ * @generated SignedSource<<6d0bfb40c19700da1455005994693e24>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,8 +58,8 @@ import {name as relayReaderExecResolversTestUserNameResolverType} from "../Relay
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderExecResolversTestRunsNoProviderQuery$variables = {||};
-export type RelayReaderExecResolversTestRunsNoProviderQuery$data = {|
+export type RelayReaderExecResolversTestFalseProviderQuery$variables = {||};
+export type RelayReaderExecResolversTestFalseProviderQuery$data = {|
   +RelayReaderExecResolversTest_user_one: ?{|
     +best_friend: ?{|
       +name: ?string,
@@ -70,9 +70,9 @@ export type RelayReaderExecResolversTestRunsNoProviderQuery$data = {|
     +name: ?string,
   |},
 |};
-export type RelayReaderExecResolversTestRunsNoProviderQuery = {|
-  response: RelayReaderExecResolversTestRunsNoProviderQuery$data,
-  variables: RelayReaderExecResolversTestRunsNoProviderQuery$variables,
+export type RelayReaderExecResolversTestFalseProviderQuery = {|
+  response: RelayReaderExecResolversTestFalseProviderQuery$data,
+  variables: RelayReaderExecResolversTestFalseProviderQuery$variables,
 |};
 */
 
@@ -143,7 +143,7 @@ return {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "RelayReaderExecResolversTestRunsNoProviderQuery",
+    "name": "RelayReaderExecResolversTestFalseProviderQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -285,7 +285,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderExecResolversTestRunsNoProviderQuery",
+    "name": "RelayReaderExecResolversTestFalseProviderQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -384,10 +384,10 @@ return {
     "exec_time_resolvers_enabled_provider": require('./../relayReaderTestExecTimeResolversFalseProvider')
   },
   "params": {
-    "cacheID": "3cfc6628aa9b75c4caaa28726de5baab",
+    "cacheID": "5b04e4ba9c8655b7b3a2cbce5a48eea8",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderExecResolversTestRunsNoProviderQuery",
+    "name": "RelayReaderExecResolversTestFalseProviderQuery",
     "operationKind": "query",
     "text": null
   }
@@ -395,10 +395,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d6a609f3113e7fb9651a3d5d73ec8d4f";
+  (node/*: any*/).hash = "ecae75fae0ced72851da368b4e1e828d";
 }
 
 module.exports = ((node/*: any*/)/*: ClientQuery<
-  RelayReaderExecResolversTestRunsNoProviderQuery$variables,
-  RelayReaderExecResolversTestRunsNoProviderQuery$data,
+  RelayReaderExecResolversTestFalseProviderQuery$variables,
+  RelayReaderExecResolversTestFalseProviderQuery$data,
 >*/);

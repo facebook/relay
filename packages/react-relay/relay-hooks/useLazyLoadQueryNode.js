@@ -29,6 +29,7 @@ const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useFragmentInternal = require('./useFragmentInternal');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const React = require('react');
+const {RelayFeatureFlags} = require('relay-runtime');
 
 const {useContext, useEffect, useState, useRef} = React;
 
@@ -52,7 +53,11 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
   const QueryResource = getQueryResourceForEnvironment(environment);
 
   const [forceUpdateKey, forceUpdate] = useState(0);
-  const {startFetch, completeFetch} = useFetchTrackingRef();
+  const {startFetch, completeFetch} =
+    RelayFeatureFlags.ENABLE_LIVE_QUERY_UNSUBSCRIBE_FIX
+      ? {}
+      : // $FlowFixMe[react-rule-hook] - the condition is static
+        useFetchTrackingRef();
   const cacheBreaker = `${forceUpdateKey}-${fetchKey ?? ''}`;
   const cacheIdentifier = getQueryCacheIdentifier(
     environment,
@@ -69,7 +74,9 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
       fetchObservable,
       fetchPolicy,
       renderPolicy,
-      {start: startFetch, complete: completeFetch, error: completeFetch},
+      RelayFeatureFlags.ENABLE_LIVE_QUERY_UNSUBSCRIBE_FIX
+        ? undefined
+        : {start: startFetch, complete: completeFetch, error: completeFetch},
       profilerContext,
     );
   });

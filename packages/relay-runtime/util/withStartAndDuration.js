@@ -12,11 +12,14 @@
 'use strict';
 
 const isPerformanceNowAvailable =
+  // $FlowFixMe[cannot-resolve-name]
   typeof window !== 'undefined' &&
+  // $FlowFixMe[cannot-resolve-name]
   typeof window?.performance?.now === 'function';
 
 function currentTimestamp(): number {
   if (isPerformanceNowAvailable) {
+    // $FlowFixMe[cannot-resolve-name]
     return window.performance.now();
   }
   return Date.now();

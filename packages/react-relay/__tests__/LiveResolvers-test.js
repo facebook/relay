@@ -890,6 +890,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 });
 
 skipIf(
+  // $FlowFixMe[cannot-resolve-name]
   process.env.OSS,
   'Live Resolver with Missing Data and @required',
   async () => {

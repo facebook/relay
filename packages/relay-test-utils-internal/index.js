@@ -49,6 +49,7 @@ const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
 function cannotReadPropertyOfUndefined__DEPRECATED(
   propertyName: string,
 ): string {
+  // $FlowFixMe[cannot-resolve-name]
   const matches = process.version.match(/^v(\d+)\./);
   const majorVersion = matches == null ? null : parseInt(matches[1], 10);
   if (majorVersion == null || majorVersion < 16) {

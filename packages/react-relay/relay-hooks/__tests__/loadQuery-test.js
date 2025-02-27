@@ -18,6 +18,7 @@ import type {
 } from './__generated__/loadQueryTestQuery.graphql';
 import type {
   CacheConfig,
+  INetwork,
   LogRequestInfoFunction,
   Query,
   RequestParameters,
@@ -96,6 +97,7 @@ describe('loadQuery', () => {
   let mockAvailability: {fetchTime?: number, status: string};
   let disposeOnloadCallback;
   let executeOnloadCallback;
+  let checkOperation;
 
   beforeEach(() => {
     fetch = jest.fn(
@@ -122,7 +124,17 @@ describe('loadQuery', () => {
         return observable;
       },
     );
-    environment = createMockEnvironment({network: Network.create(fetch)});
+    function wrapNetworkExecute(network: INetwork): INetwork {
+      return {
+        execute: (_1, _2, _3, _4, _5, _6, _7, _checkOperation) => {
+          checkOperation = _checkOperation;
+          return network.execute(_1, _2, _3, _4, _5, _6, _7, _checkOperation);
+        },
+      };
+    }
+    environment = createMockEnvironment({
+      network: wrapNetworkExecute(Network.create(fetch)),
+    });
 
     jest.clearAllTimers();
     jest.useFakeTimers();
@@ -395,6 +407,48 @@ describe('loadQuery', () => {
           );
           preloadedQuery.dispose();
           expect(disposeEnvironmentRetain).toHaveBeenCalledTimes(1);
+        });
+      });
+
+      describe("with fetchPolicy === 'store-and-network'", () => {
+        it('should call fetch if the query can be fulfilled by the store', () => {
+          const {source} = loadQuery(
+            environment,
+            preloadableConcreteRequest,
+            variables,
+            {
+              fetchPolicy: 'store-and-network',
+            },
+          );
+          expect(fetch).toHaveBeenCalled();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+          expect(environment.executeWithSource).toHaveBeenCalled();
+          expect(source).toBeDefined();
+          // Query should still be retained even if we don't fetch
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+          expect(environment.retain).toHaveBeenCalled();
+        });
+
+        it('returns the correct operation availability (available)', () => {
+          loadQuery(environment, preloadableConcreteRequest, variables, {
+            fetchPolicy: 'store-and-network',
+          });
+          expect(fetch).toHaveBeenCalled();
+          expect(checkOperation != null && checkOperation().status).toEqual(
+            'available',
+          );
+        });
+
+        it('returns the correct operation availability (missing)', () => {
+          mockAvailability = {status: 'missing'};
+
+          loadQuery(environment, preloadableConcreteRequest, variables, {
+            fetchPolicy: 'store-and-network',
+          });
+          expect(fetch).toHaveBeenCalled();
+          expect(checkOperation != null && checkOperation().status).toEqual(
+            'missing',
+          );
         });
       });
     });

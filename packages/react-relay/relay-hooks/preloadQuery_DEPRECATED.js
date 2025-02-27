@@ -167,11 +167,16 @@ function preloadQueryDeduped<TQuery: OperationType>(
   }`;
   const prevQueryEntry = pendingQueries.get(cacheKey);
 
-  const availability =
-    fetchPolicy === STORE_OR_NETWORK_DEFAULT && query != null && query != null
+  function checkOperation() {
+    return query != null
       ? environment.check(
           createOperationDescriptor(query, variables, networkCacheConfig),
         )
+      : {status: 'missing'};
+  }
+  const availability =
+    fetchPolicy === STORE_OR_NETWORK_DEFAULT
+      ? checkOperation()
       : {status: 'missing'};
 
   let nextQueryEntry: ?PendingQueryEntry;
@@ -203,7 +208,16 @@ function preloadQueryDeduped<TQuery: OperationType>(
     }
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
-    const source = network.execute(params, variables, networkCacheConfig, null);
+    const source = network.execute(
+      params,
+      variables,
+      networkCacheConfig,
+      null,
+      undefined,
+      undefined,
+      undefined,
+      checkOperation,
+    );
     const subject = new ReplaySubject<GraphQLResponse>();
     nextQueryEntry = {
       cacheKey,

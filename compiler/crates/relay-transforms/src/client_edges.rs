@@ -485,6 +485,12 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         waterfall_directive: Option<&Directive>,
         selections: Vec<Selection>,
     ) -> ClientEdgeMetadataDirective {
+        if field_type.type_.is_list() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeToServerObjectList,
+                field_type.name.location,
+            ));
+        }
         // Client Edges to server objects must be annotated with @waterfall
         if waterfall_directive.is_none() {
             self.errors.push(Diagnostic::error_with_data(

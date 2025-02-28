@@ -79,7 +79,102 @@ fragment TypenameAliases on Actor {
     username
   }
 }
+
+
+fragment TypenameOnUnionWithFragmentsOnConcreteType on UserNameRenderer {
+  __typename
+  ...MarkdownUserNameRenderer
+  ...PlainUserNameRenderer
+}
+
+fragment TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment on UserNameRenderer {
+  __typename
+  ... on MarkdownUserNameRenderer {
+    markdown
+  }
+  ...PlainUserNameRenderer
+}
+
+fragment MarkdownUserNameRenderer on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment PlainUserNameRenderer on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment TypenameOnInterfaceWithFragmentsOnConcreteType on Actor {
+  __typename
+  ...User
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType on Actor {
+  __typename
+  address {
+    city
+  }
+  ...User
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment on Actor {
+  __typename
+  address {
+    city
+  }
+  ... on User {
+    firstName
+  }
+  ...Page
+}
+
+fragment User on User {
+  firstName
+}
+
+fragment Page on Page {
+  username
+}
 ==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MarkdownUserNameRenderer$data = {
+  readonly markdown: string | null | undefined;
+  readonly " $fragmentType": "MarkdownUserNameRenderer";
+};
+export type MarkdownUserNameRenderer$key = {
+  readonly " $data"?: MarkdownUserNameRenderer$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type Page$data = {
+  readonly username: string | null | undefined;
+  readonly " $fragmentType": "Page";
+};
+export type Page$key = {
+  readonly " $data"?: Page$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Page">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type PlainUserNameRenderer$data = {
+  readonly plaintext: string | null | undefined;
+  readonly " $fragmentType": "PlainUserNameRenderer";
+};
+export type PlainUserNameRenderer$key = {
+  readonly " $data"?: PlainUserNameRenderer$data;
+  readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer">;
+};
+-------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameAlias$data = {
   readonly _typeAlias: "User";
@@ -143,6 +238,81 @@ export type TypenameInside$data = {
 export type TypenameInside$key = {
   readonly " $data"?: TypenameInside$data;
   readonly " $fragmentSpreads": FragmentRefs<"TypenameInside">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$data = {
+  readonly __typename: string;
+  readonly firstName?: string | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"Page">;
+  readonly " $fragmentType": "TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment";
+};
+export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$key = {
+  readonly " $data"?: TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnInterfaceWithFragmentsOnConcreteType$data = {
+  readonly __typename: string;
+  readonly " $fragmentSpreads": FragmentRefs<"Page" | "User">;
+  readonly " $fragmentType": "TypenameOnInterfaceWithFragmentsOnConcreteType";
+};
+export type TypenameOnInterfaceWithFragmentsOnConcreteType$key = {
+  readonly " $data"?: TypenameOnInterfaceWithFragmentsOnConcreteType$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnInterfaceWithFragmentsOnConcreteType">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$data = {
+  readonly __typename: string;
+  readonly address: {
+    readonly city: string | null | undefined;
+  } | null | undefined;
+  readonly firstName?: string | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"Page">;
+  readonly " $fragmentType": "TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment";
+};
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$key = {
+  readonly " $data"?: TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$data = {
+  readonly __typename: string;
+  readonly address: {
+    readonly city: string | null | undefined;
+  } | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"Page" | "User">;
+  readonly " $fragmentType": "TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType";
+};
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$key = {
+  readonly " $data"?: TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$data = {
+  readonly __typename: string;
+  readonly markdown?: string | null | undefined;
+  readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer">;
+  readonly " $fragmentType": "TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment";
+};
+export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$key = {
+  readonly " $data"?: TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnUnionWithFragmentsOnConcreteType$data = {
+  readonly __typename: string;
+  readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer" | "PlainUserNameRenderer">;
+  readonly " $fragmentType": "TypenameOnUnionWithFragmentsOnConcreteType";
+};
+export type TypenameOnUnionWithFragmentsOnConcreteType$key = {
+  readonly " $data"?: TypenameOnUnionWithFragmentsOnConcreteType$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnUnionWithFragmentsOnConcreteType">;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
@@ -215,4 +385,14 @@ export type TypenameWithoutSpreadsAbstractType$data = {
 export type TypenameWithoutSpreadsAbstractType$key = {
   readonly " $data"?: TypenameWithoutSpreadsAbstractType$data;
   readonly " $fragmentSpreads": FragmentRefs<"TypenameWithoutSpreadsAbstractType">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type User$data = {
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "User";
+};
+export type User$key = {
+  readonly " $data"?: User$data;
+  readonly " $fragmentSpreads": FragmentRefs<"User">;
 };

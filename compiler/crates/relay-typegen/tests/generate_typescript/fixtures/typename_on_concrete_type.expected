@@ -1,0 +1,78 @@
+==================================== INPUT ====================================
+fragment TypenameOnConcreteType on User {
+  __typename
+}
+
+fragment TypenameOnConcreteTypeWithOtherSelection on User {
+  __typename
+  firstName
+}
+
+fragment TypenameOnConcreteTypeWithInlineFragment on User {
+  __typename
+  ... on User {
+    firstName
+  }
+}
+
+fragment TypenameOnConcreteTypeWithFragmentSpread on User {
+  __typename
+  ...UserFragment
+}
+
+fragment UserFragment on User {
+  firstName
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnConcreteType$data = {
+  readonly __typename: "User";
+  readonly " $fragmentType": "TypenameOnConcreteType";
+};
+export type TypenameOnConcreteType$key = {
+  readonly " $data"?: TypenameOnConcreteType$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnConcreteType">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnConcreteTypeWithFragmentSpread$data = {
+  readonly __typename: "User";
+  readonly " $fragmentSpreads": FragmentRefs<"UserFragment">;
+  readonly " $fragmentType": "TypenameOnConcreteTypeWithFragmentSpread";
+};
+export type TypenameOnConcreteTypeWithFragmentSpread$key = {
+  readonly " $data"?: TypenameOnConcreteTypeWithFragmentSpread$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnConcreteTypeWithFragmentSpread">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnConcreteTypeWithInlineFragment$data = {
+  readonly __typename: "User";
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "TypenameOnConcreteTypeWithInlineFragment";
+};
+export type TypenameOnConcreteTypeWithInlineFragment$key = {
+  readonly " $data"?: TypenameOnConcreteTypeWithInlineFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnConcreteTypeWithInlineFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type TypenameOnConcreteTypeWithOtherSelection$data = {
+  readonly __typename: "User";
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "TypenameOnConcreteTypeWithOtherSelection";
+};
+export type TypenameOnConcreteTypeWithOtherSelection$key = {
+  readonly " $data"?: TypenameOnConcreteTypeWithOtherSelection$data;
+  readonly " $fragmentSpreads": FragmentRefs<"TypenameOnConcreteTypeWithOtherSelection">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type UserFragment$data = {
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "UserFragment";
+};
+export type UserFragment$key = {
+  readonly " $data"?: UserFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"UserFragment">;
+};

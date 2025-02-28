@@ -79,7 +79,107 @@ fragment TypenameAliases on Actor {
     username
   }
 }
+
+fragment TypenameOnUnionWithFragmentsOnConcreteType on UserNameRenderer {
+  __typename
+  ...MarkdownUserNameRenderer
+  ...PlainUserNameRenderer
+}
+
+fragment TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment on UserNameRenderer {
+  __typename
+  ... on MarkdownUserNameRenderer {
+    markdown
+  }
+  ...PlainUserNameRenderer
+}
+
+fragment MarkdownUserNameRenderer on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment PlainUserNameRenderer on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment TypenameOnInterfaceWithFragmentsOnConcreteType on Actor {
+  __typename
+  ...User
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType on Actor {
+  __typename
+  address {
+    city
+  }
+  ...User
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment on Actor {
+  __typename
+  address {
+    city
+  }
+  ... on User {
+    firstName
+  }
+  ...Page
+}
+
+fragment User on User {
+  firstName
+}
+
+fragment Page on Page {
+  username
+}
 ==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type MarkdownUserNameRenderer$fragmentType: FragmentType;
+export type MarkdownUserNameRenderer$data = {|
+  +markdown: ?string,
+  +$fragmentType: MarkdownUserNameRenderer$fragmentType,
+|};
+export type MarkdownUserNameRenderer$key = {
+  +$data?: MarkdownUserNameRenderer$data,
+  +$fragmentSpreads: MarkdownUserNameRenderer$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Page$fragmentType: FragmentType;
+export type Page$data = {|
+  +username: ?string,
+  +$fragmentType: Page$fragmentType,
+|};
+export type Page$key = {
+  +$data?: Page$data,
+  +$fragmentSpreads: Page$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PlainUserNameRenderer$fragmentType: FragmentType;
+export type PlainUserNameRenderer$data = {|
+  +plaintext: ?string,
+  +$fragmentType: PlainUserNameRenderer$fragmentType,
+|};
+export type PlainUserNameRenderer$key = {
+  +$data?: PlainUserNameRenderer$data,
+  +$fragmentSpreads: PlainUserNameRenderer$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameAlias$fragmentType: FragmentType;
 export type TypenameAlias$data = {|
@@ -148,6 +248,102 @@ export type TypenameInside$data = {|
 export type TypenameInside$key = {
   +$data?: TypenameInside$data,
   +$fragmentSpreads: TypenameInside$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { Page$fragmentType } from "Page.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$fragmentType: FragmentType;
+export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$data = {|
+  +__typename: string,
+  +firstName?: ?string,
+  +$fragmentSpreads: Page$fragmentType,
+  +$fragmentType: TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+|};
+export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$key = {
+  +$data?: TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$data,
+  +$fragmentSpreads: TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { Page$fragmentType } from "Page.graphql";
+import type { User$fragmentType } from "User.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnInterfaceWithFragmentsOnConcreteType$fragmentType: FragmentType;
+export type TypenameOnInterfaceWithFragmentsOnConcreteType$data = {|
+  +__typename: string,
+  +$fragmentSpreads: Page$fragmentType & User$fragmentType,
+  +$fragmentType: TypenameOnInterfaceWithFragmentsOnConcreteType$fragmentType,
+|};
+export type TypenameOnInterfaceWithFragmentsOnConcreteType$key = {
+  +$data?: TypenameOnInterfaceWithFragmentsOnConcreteType$data,
+  +$fragmentSpreads: TypenameOnInterfaceWithFragmentsOnConcreteType$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { Page$fragmentType } from "Page.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$fragmentType: FragmentType;
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$data = {|
+  +__typename: string,
+  +address: ?{|
+    +city: ?string,
+  |},
+  +firstName?: ?string,
+  +$fragmentSpreads: Page$fragmentType,
+  +$fragmentType: TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+|};
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$key = {
+  +$data?: TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$data,
+  +$fragmentSpreads: TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { Page$fragmentType } from "Page.graphql";
+import type { User$fragmentType } from "User.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$fragmentType: FragmentType;
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$data = {|
+  +__typename: string,
+  +address: ?{|
+    +city: ?string,
+  |},
+  +$fragmentSpreads: Page$fragmentType & User$fragmentType,
+  +$fragmentType: TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$fragmentType,
+|};
+export type TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$key = {
+  +$data?: TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$data,
+  +$fragmentSpreads: TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { PlainUserNameRenderer$fragmentType } from "PlainUserNameRenderer.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$fragmentType: FragmentType;
+export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$data = {|
+  +__typename: string,
+  +markdown?: ?string,
+  +$fragmentSpreads: PlainUserNameRenderer$fragmentType,
+  +$fragmentType: TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+|};
+export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$key = {
+  +$data?: TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$data,
+  +$fragmentSpreads: TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { MarkdownUserNameRenderer$fragmentType } from "MarkdownUserNameRenderer.graphql";
+import type { PlainUserNameRenderer$fragmentType } from "PlainUserNameRenderer.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnUnionWithFragmentsOnConcreteType$fragmentType: FragmentType;
+export type TypenameOnUnionWithFragmentsOnConcreteType$data = {|
+  +__typename: string,
+  +$fragmentSpreads: MarkdownUserNameRenderer$fragmentType & PlainUserNameRenderer$fragmentType,
+  +$fragmentType: TypenameOnUnionWithFragmentsOnConcreteType$fragmentType,
+|};
+export type TypenameOnUnionWithFragmentsOnConcreteType$key = {
+  +$data?: TypenameOnUnionWithFragmentsOnConcreteType$data,
+  +$fragmentSpreads: TypenameOnUnionWithFragmentsOnConcreteType$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
@@ -230,5 +426,17 @@ export type TypenameWithoutSpreadsAbstractType$data = {|
 export type TypenameWithoutSpreadsAbstractType$key = {
   +$data?: TypenameWithoutSpreadsAbstractType$data,
   +$fragmentSpreads: TypenameWithoutSpreadsAbstractType$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type User$fragmentType: FragmentType;
+export type User$data = {|
+  +firstName: ?string,
+  +$fragmentType: User$fragmentType,
+|};
+export type User$key = {
+  +$data?: User$data,
+  +$fragmentSpreads: User$fragmentType,
   ...
 };

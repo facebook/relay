@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7c4bbd43433461799f4caf7a6320fa4e>>
+ * @generated SignedSource<<6ac27c12acfd7a6324fdf8b849793d47>>
  */
 
 mod generate_flow;
@@ -997,6 +997,13 @@ async fn typename_inside_with_overlapping_fields() {
     let input = include_str!("generate_flow/fixtures/typename-inside-with-overlapping-fields.graphql");
     let expected = include_str!("generate_flow/fixtures/typename-inside-with-overlapping-fields.expected");
     test_fixture(transform_fixture, file!(), "typename-inside-with-overlapping-fields.graphql", "generate_flow/fixtures/typename-inside-with-overlapping-fields.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typename_on_concrete_type() {
+    let input = include_str!("generate_flow/fixtures/typename_on_concrete_type.graphql");
+    let expected = include_str!("generate_flow/fixtures/typename_on_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "typename_on_concrete_type.graphql", "generate_flow/fixtures/typename_on_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

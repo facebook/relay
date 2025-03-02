@@ -30,7 +30,7 @@ import type {
 const LRUCache = require('./LRUCache');
 const SuspenseResource = require('./SuspenseResource');
 const invariant = require('invariant');
-const {isPromise} = require('relay-runtime');
+const {RelayFeatureFlags, isPromise} = require('relay-runtime');
 const warning = require('warning');
 
 const CACHE_CAPACITY = 1000;
@@ -466,16 +466,23 @@ class QueryResourceImpl {
           }
           const observerStart = observer?.start;
           if (observerStart) {
-            const subscriptionWithConditionalCancelation = {
-              ...subscription,
-              unsubscribe: () => {
-                // Only live queries should have their network requests canceled.
-                if (operationIsLiveQuery(operation)) {
-                  subscription.unsubscribe();
-                }
-              },
-            };
-            observerStart(subscriptionWithConditionalCancelation);
+            if (RelayFeatureFlags.ENABLE_LIVE_QUERY_UNSUBSCRIBE_FIX) {
+              observerStart({
+                ...subscription,
+                unsubscribe: () => {},
+              });
+            } else {
+              const subscriptionWithConditionalCancelation = {
+                ...subscription,
+                unsubscribe: () => {
+                  // Only live queries should have their network requests canceled.
+                  if (operationIsLiveQuery(operation)) {
+                    subscription.unsubscribe();
+                  }
+                },
+              };
+              observerStart(subscriptionWithConditionalCancelation);
+            }
           }
         },
         next: () => {

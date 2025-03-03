@@ -242,9 +242,17 @@ export type TypenameInside$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$data = {
-  readonly __typename: string;
-  readonly firstName?: string | null | undefined;
+  readonly __typename: "Page";
   readonly " $fragmentSpreads": FragmentRefs<"Page">;
+  readonly " $fragmentType": "TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment";
+} | {
+  readonly __typename: "User";
+  readonly firstName: string | null | undefined;
+  readonly " $fragmentType": "TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment";
 };
 export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$key = {
@@ -254,8 +262,17 @@ export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$key =
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOnInterfaceWithFragmentsOnConcreteType$data = {
-  readonly __typename: string;
-  readonly " $fragmentSpreads": FragmentRefs<"Page" | "User">;
+  readonly __typename: "Page";
+  readonly " $fragmentSpreads": FragmentRefs<"Page">;
+  readonly " $fragmentType": "TypenameOnInterfaceWithFragmentsOnConcreteType";
+} | {
+  readonly __typename: "User";
+  readonly " $fragmentSpreads": FragmentRefs<"User">;
+  readonly " $fragmentType": "TypenameOnInterfaceWithFragmentsOnConcreteType";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "TypenameOnInterfaceWithFragmentsOnConcreteType";
 };
 export type TypenameOnInterfaceWithFragmentsOnConcreteType$key = {
@@ -294,9 +311,17 @@ export type TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType$ke
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$data = {
-  readonly __typename: string;
-  readonly markdown?: string | null | undefined;
+  readonly __typename: "MarkdownUserNameRenderer";
+  readonly markdown: string | null | undefined;
+  readonly " $fragmentType": "TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment";
+} | {
+  readonly __typename: "PlainUserNameRenderer";
   readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer">;
+  readonly " $fragmentType": "TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment";
 };
 export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$key = {
@@ -306,8 +331,17 @@ export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type TypenameOnUnionWithFragmentsOnConcreteType$data = {
-  readonly __typename: string;
-  readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer" | "PlainUserNameRenderer">;
+  readonly __typename: "MarkdownUserNameRenderer";
+  readonly " $fragmentSpreads": FragmentRefs<"MarkdownUserNameRenderer">;
+  readonly " $fragmentType": "TypenameOnUnionWithFragmentsOnConcreteType";
+} | {
+  readonly __typename: "PlainUserNameRenderer";
+  readonly " $fragmentSpreads": FragmentRefs<"PlainUserNameRenderer">;
+  readonly " $fragmentType": "TypenameOnUnionWithFragmentsOnConcreteType";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
   readonly " $fragmentType": "TypenameOnUnionWithFragmentsOnConcreteType";
 };
 export type TypenameOnUnionWithFragmentsOnConcreteType$key = {

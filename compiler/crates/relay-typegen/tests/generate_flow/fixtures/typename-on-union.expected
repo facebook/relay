@@ -255,9 +255,17 @@ import type { Page$fragmentType } from "Page.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$fragmentType: FragmentType;
 export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$data = {|
-  +__typename: string,
-  +firstName?: ?string,
+  +__typename: "Page",
   +$fragmentSpreads: Page$fragmentType,
+  +$fragmentType: TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+|} | {|
+  +__typename: "User",
+  +firstName: ?string,
+  +$fragmentType: TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
 |};
 export type TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment$key = {
@@ -271,8 +279,17 @@ import type { User$fragmentType } from "User.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOnInterfaceWithFragmentsOnConcreteType$fragmentType: FragmentType;
 export type TypenameOnInterfaceWithFragmentsOnConcreteType$data = {|
-  +__typename: string,
-  +$fragmentSpreads: Page$fragmentType & User$fragmentType,
+  +__typename: "Page",
+  +$fragmentSpreads: Page$fragmentType,
+  +$fragmentType: TypenameOnInterfaceWithFragmentsOnConcreteType$fragmentType,
+|} | {|
+  +__typename: "User",
+  +$fragmentSpreads: User$fragmentType,
+  +$fragmentType: TypenameOnInterfaceWithFragmentsOnConcreteType$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: TypenameOnInterfaceWithFragmentsOnConcreteType$fragmentType,
 |};
 export type TypenameOnInterfaceWithFragmentsOnConcreteType$key = {
@@ -321,9 +338,17 @@ import type { PlainUserNameRenderer$fragmentType } from "PlainUserNameRenderer.g
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$fragmentType: FragmentType;
 export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$data = {|
-  +__typename: string,
-  +markdown?: ?string,
+  +__typename: "MarkdownUserNameRenderer",
+  +markdown: ?string,
+  +$fragmentType: TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+|} | {|
+  +__typename: "PlainUserNameRenderer",
   +$fragmentSpreads: PlainUserNameRenderer$fragmentType,
+  +$fragmentType: TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$fragmentType,
 |};
 export type TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment$key = {
@@ -337,8 +362,17 @@ import type { PlainUserNameRenderer$fragmentType } from "PlainUserNameRenderer.g
 import type { FragmentType } from "relay-runtime";
 declare export opaque type TypenameOnUnionWithFragmentsOnConcreteType$fragmentType: FragmentType;
 export type TypenameOnUnionWithFragmentsOnConcreteType$data = {|
-  +__typename: string,
-  +$fragmentSpreads: MarkdownUserNameRenderer$fragmentType & PlainUserNameRenderer$fragmentType,
+  +__typename: "MarkdownUserNameRenderer",
+  +$fragmentSpreads: MarkdownUserNameRenderer$fragmentType,
+  +$fragmentType: TypenameOnUnionWithFragmentsOnConcreteType$fragmentType,
+|} | {|
+  +__typename: "PlainUserNameRenderer",
+  +$fragmentSpreads: PlainUserNameRenderer$fragmentType,
+  +$fragmentType: TypenameOnUnionWithFragmentsOnConcreteType$fragmentType,
+|} | {|
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  +__typename: "%other",
   +$fragmentType: TypenameOnUnionWithFragmentsOnConcreteType$fragmentType,
 |};
 export type TypenameOnUnionWithFragmentsOnConcreteType$key = {

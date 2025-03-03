@@ -1093,6 +1093,7 @@ fn visit_actor_change(
         value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
             selections_to_babel(
                 typegen_context,
+                &field.type_.inner(),
                 linked_field_selections.into_iter(),
                 MaskStatus::Masked,
                 None,
@@ -1368,6 +1369,7 @@ fn visit_condition(
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn get_data_type(
     typegen_context: &'_ TypegenContext<'_>,
+    concrete_type: &Type,
     selections: impl Iterator<Item = TypeSelection>,
     mask_status: MaskStatus,
     fragment_type_name: Option<StringKey>,
@@ -1381,6 +1383,7 @@ pub(crate) fn get_data_type(
 ) -> AST {
     let mut data_type = selections_to_babel(
         typegen_context,
+        concrete_type,
         selections,
         mask_status,
         fragment_type_name,
@@ -1402,6 +1405,7 @@ pub(crate) fn get_data_type(
 #[allow(clippy::too_many_arguments)]
 fn selections_to_babel(
     typegen_context: &'_ TypegenContext<'_>,
+    concrete_type: &Type,
     selections: impl Iterator<Item = TypeSelection>,
     mask_status: MaskStatus,
     fragment_type_name: Option<StringKey>,
@@ -1441,7 +1445,7 @@ fn selections_to_babel(
         }
     }
 
-    if should_emit_discriminated_union(&by_concrete_type, &base_fields) {
+    if should_emit_discriminated_union(concrete_type, &by_concrete_type, &base_fields) {
         get_discriminated_union_ast(
             by_concrete_type,
             &base_fields,
@@ -1660,11 +1664,15 @@ fn get_discriminated_union_ast(
 ///
 /// If this condition passes, we emit a discriminated union
 fn should_emit_discriminated_union(
+    concrete_type: &Type,
     by_concrete_type: &IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
 ) -> bool {
-    !by_concrete_type.is_empty()
-        && base_fields.values().all(TypeSelection::is_typename)
+    if by_concrete_type.is_empty() || !concrete_type.is_abstract_type() {
+        return false;
+    }
+
+    base_fields.values().all(TypeSelection::is_typename)
         && (base_fields.values().any(TypeSelection::is_typename)
             || by_concrete_type
                 .values()
@@ -1885,6 +1893,7 @@ fn make_prop(
 
                 let getter_object_props = selections_to_babel(
                     typegen_context,
+                    &linked_field.node_type.inner(),
                     no_fragments.into_iter(),
                     mask_status,
                     None,
@@ -1976,6 +1985,7 @@ fn make_prop(
             } else {
                 let object_props = selections_to_babel(
                     typegen_context,
+                    &linked_field.node_type.inner(),
                     hashmap_into_values(linked_field.node_selections),
                     mask_status,
                     None,

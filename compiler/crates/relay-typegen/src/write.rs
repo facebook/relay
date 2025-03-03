@@ -139,6 +139,7 @@ pub(crate) fn write_operation_type_exports_section(
 
     let mut data_type = get_data_type(
         typegen_context,
+        &typegen_operation.type_,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
@@ -461,6 +462,7 @@ pub(crate) fn write_fragment_type_exports_section(
 
     let mut data_type = get_data_type(
         typegen_context,
+        &fragment_definition.type_condition,
         type_selections.into_iter(),
         mask_status,
         if mask_status == MaskStatus::Unmasked {
@@ -625,7 +627,7 @@ fn write_fragment_imports(
                     )?;
                 } else {
                     let fragment_location = typegen_context
-                        .fragment_locations
+                        .fragment_lookup
                         .location(&current_referenced_fragment)
                         .unwrap_or_else(|| {
                             panic!(

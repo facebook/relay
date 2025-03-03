@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3c807f2294b482947010f72e07e490a2>>
+ * @generated SignedSource<<286f4dc56a7a992c620910d4a8c7042a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,14 @@ export type useFragmentWithOperationTrackerSuspenseTestQuery$variables = {|
   id: string,
 |};
 export type useFragmentWithOperationTrackerSuspenseTestQuery$data = {|
-  +node: ?{|
-    +__typename: string,
+  +node: ?({|
+    +__typename: "User",
     +$fragmentSpreads: useFragmentWithOperationTrackerSuspenseTestFragment$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type useFragmentWithOperationTrackerSuspenseTestQuery = {|
   response: useFragmentWithOperationTrackerSuspenseTestQuery$data,

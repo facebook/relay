@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d220daeec9e97848216109556748993c>>
+ * @generated SignedSource<<b21a7a6f93b2209173151e3e5eeb5b43>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,14 @@ export type FragmentResourceClientEdgesTest1Query$variables = {|
   id: string,
 |};
 export type FragmentResourceClientEdgesTest1Query$data = {|
-  +node: ?{|
-    +__typename: string,
+  +node: ?({|
+    +__typename: "User",
     +$fragmentSpreads: FragmentResourceClientEdgesTestFragment1$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type FragmentResourceClientEdgesTest1Query = {|
   response: FragmentResourceClientEdgesTest1Query$data,

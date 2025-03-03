@@ -1,0 +1,89 @@
+==================================== INPUT ====================================
+fragment TypenameOnConcreteType on User {
+  __typename
+}
+
+fragment TypenameOnConcreteTypeWithOtherSelection on User {
+  __typename
+  firstName
+}
+
+fragment TypenameOnConcreteTypeWithInlineFragment on User {
+  __typename
+  ... on User {
+    firstName
+  }
+}
+
+fragment TypenameOnConcreteTypeWithFragmentSpread on User {
+  __typename
+  ...UserFragment
+}
+
+fragment UserFragment on User {
+  firstName
+}
+==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnConcreteType$fragmentType: FragmentType;
+export type TypenameOnConcreteType$data = {|
+  +__typename: "User",
+  +$fragmentType: TypenameOnConcreteType$fragmentType,
+|};
+export type TypenameOnConcreteType$key = {
+  +$data?: TypenameOnConcreteType$data,
+  +$fragmentSpreads: TypenameOnConcreteType$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { UserFragment$fragmentType } from "UserFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnConcreteTypeWithFragmentSpread$fragmentType: FragmentType;
+export type TypenameOnConcreteTypeWithFragmentSpread$data = {|
+  +__typename: "User",
+  +$fragmentSpreads: UserFragment$fragmentType,
+  +$fragmentType: TypenameOnConcreteTypeWithFragmentSpread$fragmentType,
+|};
+export type TypenameOnConcreteTypeWithFragmentSpread$key = {
+  +$data?: TypenameOnConcreteTypeWithFragmentSpread$data,
+  +$fragmentSpreads: TypenameOnConcreteTypeWithFragmentSpread$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnConcreteTypeWithInlineFragment$fragmentType: FragmentType;
+export type TypenameOnConcreteTypeWithInlineFragment$data = {|
+  +__typename: "User",
+  +firstName: ?string,
+  +$fragmentType: TypenameOnConcreteTypeWithInlineFragment$fragmentType,
+|};
+export type TypenameOnConcreteTypeWithInlineFragment$key = {
+  +$data?: TypenameOnConcreteTypeWithInlineFragment$data,
+  +$fragmentSpreads: TypenameOnConcreteTypeWithInlineFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type TypenameOnConcreteTypeWithOtherSelection$fragmentType: FragmentType;
+export type TypenameOnConcreteTypeWithOtherSelection$data = {|
+  +__typename: "User",
+  +firstName: ?string,
+  +$fragmentType: TypenameOnConcreteTypeWithOtherSelection$fragmentType,
+|};
+export type TypenameOnConcreteTypeWithOtherSelection$key = {
+  +$data?: TypenameOnConcreteTypeWithOtherSelection$data,
+  +$fragmentSpreads: TypenameOnConcreteTypeWithOtherSelection$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type UserFragment$fragmentType: FragmentType;
+export type UserFragment$data = {|
+  +firstName: ?string,
+  +$fragmentType: UserFragment$fragmentType,
+|};
+export type UserFragment$key = {
+  +$data?: UserFragment$data,
+  +$fragmentSpreads: UserFragment$fragmentType,
+  ...
+};

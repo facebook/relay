@@ -139,11 +139,6 @@ declare export opaque type SomeFragment$fragmentType: FragmentType;
 export type SomeFragment$data = {|
   +__typename: "User",
   +$fragmentType: SomeFragment$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: SomeFragment$fragmentType,
 |};
 export type SomeFragment$key = {
   +$data?: SomeFragment$data,

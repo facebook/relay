@@ -20,6 +20,7 @@ use intern::Lookup;
 use schema::EnumID;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 
 use crate::writer::ExactObject;
 use crate::writer::Writer;
@@ -107,25 +108,43 @@ pub(crate) enum EncounteredFragment {
     Data(FragmentDefinitionName),
 }
 
+pub struct FragmentInfo {
+    pub type_condition: Type,
+    pub location: Location,
+}
+
+// TODO: Update this description
 /// This is a map FragmentName => Fragment Location
 /// We use the location of the fragment to generate a correct
 /// path to its generated artifact, in case we need to
 /// reference it in another generated artifact.
 /// This is used in non-haste setups that do not have a single
 /// directory for generated artifacts.
-pub struct FragmentLocations(pub FnvHashMap<FragmentDefinitionName, Location>);
+pub struct FragmentInfoLookup(pub FnvHashMap<FragmentDefinitionName, FragmentInfo>);
 
-impl FragmentLocations {
+impl FragmentInfoLookup {
     pub fn new<'a>(fragments: impl Iterator<Item = &'a Arc<FragmentDefinition>>) -> Self {
         Self(
             fragments
-                .map(|fragment| (fragment.name.item, fragment.name.location))
+                .map(|fragment| {
+                    (
+                        fragment.name.item,
+                        FragmentInfo {
+                            type_condition: fragment.type_condition,
+                            location: fragment.name.location,
+                        },
+                    )
+                })
                 .collect::<_>(),
         )
     }
 
     pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<Location> {
-        self.0.get(fragment_name).copied()
+        self.0.get(fragment_name).map(|i| i.location)
+    }
+
+    pub fn type_condition(&self, fragment_name: &FragmentDefinitionName) -> Option<Type> {
+        self.0.get(fragment_name).map(|i| i.type_condition)
     }
 }
 

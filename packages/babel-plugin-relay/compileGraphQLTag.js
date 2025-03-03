@@ -18,6 +18,7 @@ import type {
   OperationDefinitionNode,
 } from 'graphql';
 
+// $FlowFixMe[cannot-resolve-module]
 const crypto = require('crypto');
 const {print} = require('graphql');
 const {
@@ -25,6 +26,9 @@ const {
   join: joinPath,
   relative: relativePath,
   resolve: resolvePath,
+  normalize: normalizePath,
+  sep: pathSep,
+  // $FlowFixMe[cannot-resolve-module]
 } = require('path');
 
 const GENERATED = './__generated__/';
@@ -34,7 +38,176 @@ const GENERATED = './__generated__/';
  * cross-platform compatibility.
  */
 function posixifyPath(path: string): string {
+  // $FlowFixMe[cannot-resolve-name]
   return process.platform === 'win32' ? path.replace(/\\/g, '/') : path;
+}
+
+/**
+ * Finds the projects for a given file path based on the configuration.
+ */
+function getProjectsForFile(
+  filePath: string,
+  RelayConfig: Object,
+): ?Array<string> {
+  // Check if we have a multi-project configuration
+  if (!RelayConfig || !RelayConfig.projects || !RelayConfig.sources) {
+    return null; // Not a multi-project configuration
+  }
+
+  const normalizedFilePath = normalizePath(filePath);
+
+  let bestMatchPath = '';
+  let bestMatchDepth = -1;
+  let matchingProjects: ?Array<string> = null;
+
+  // Find the most specific path match in sources
+  Object.entries(RelayConfig.sources).forEach(([sourcePath, projectsValue]) => {
+    const normalizedSourcePath = normalizePath(sourcePath);
+
+    // Check if this is an exact match or if file is inside the directory
+    const isExactMatch = normalizedFilePath === normalizedSourcePath;
+    const relPath = relativePath(normalizedSourcePath, normalizedFilePath);
+    const isInDirectory = !relPath.startsWith('..') && relPath !== '';
+
+    if (isExactMatch || isInDirectory) {
+      // Calculate path depth using the normalized path
+      const pathDepth = normalizedSourcePath
+        .split(pathSep)
+        .filter(Boolean).length;
+
+      // If this match is more specific (deeper) than our current match, use it
+      if (pathDepth > bestMatchDepth) {
+        bestMatchPath = sourcePath;
+        bestMatchDepth = pathDepth;
+
+        // Handle the case where projectsValue is null or an empty array
+        if (projectsValue === null) {
+          matchingProjects = [];
+        } else if (Array.isArray(projectsValue)) {
+          matchingProjects = projectsValue.length > 0 ? projectsValue : [];
+        } else {
+          matchingProjects = [projectsValue];
+        }
+      }
+    }
+  });
+
+  return matchingProjects && matchingProjects.length > 0
+    ? matchingProjects
+    : null;
+}
+
+/**
+ * Gets config for a specific project from the multi-project configuration.
+ */
+function getProjectConfig(projectName: string, RelayConfig: Object): ?Object {
+  if (!RelayConfig || !RelayConfig.projects) {
+    return null;
+  }
+
+  return RelayConfig.projects[projectName] || null;
+}
+
+/**
+ * Gets project-specific configuration based on the current file path.
+ */
+function getConfigForFile(state: BabelState): Object {
+  const config = state.opts || {};
+
+  if (!state.file || !state.file.opts || !state.file.opts.filename) {
+    return config;
+  }
+
+  const filePath = state.file.opts.filename;
+
+  // If this is not a multi-project config, just return the global config
+  if (!config.projects || !config.sources) {
+    return config;
+  }
+
+  const projectNames = getProjectsForFile(filePath, config);
+
+  // If no matching projects found, return the global config
+  if (!projectNames || projectNames.length === 0) {
+    return config;
+  }
+
+  // For files that match multiple projects, we prioritize the first project
+  const primaryProjectName = projectNames[0];
+  const primaryProjectConfig = getProjectConfig(primaryProjectName, config);
+
+  if (!primaryProjectConfig) {
+    return config;
+  }
+
+  // For conflicting settings, log detailed warnings if we're choosing one over others
+  if (projectNames.length > 1) {
+    // Get configs for all matching projects
+    const projectConfigs = projectNames
+      .map(name => ({
+        name,
+        config: getProjectConfig(name, config),
+      }))
+      .filter(p => p.config != null);
+
+    // Check for important settings that might conflict
+    const settingsToCheck = [
+      {key: 'eagerEsModules', displayName: 'eagerEsModules'},
+      {key: 'output', displayName: 'output/artifactDirectory'},
+      {key: 'jsModuleFormat', displayName: 'jsModuleFormat'},
+      {key: 'codegenCommand', displayName: 'codegenCommand'},
+      {key: 'isDevVariableName', displayName: 'isDevVariableName'},
+    ];
+
+    // Collect conflicts
+    const conflicts = settingsToCheck.filter(setting => {
+      const primaryValue = primaryProjectConfig[setting.key];
+      return projectConfigs.some(
+        p =>
+          p.config != null &&
+          p.config[setting.key] !== undefined &&
+          primaryValue !== undefined &&
+          p.config[setting.key] !== primaryValue,
+      );
+    });
+
+    // Log detailed warning for conflicts
+    if (conflicts.length > 0) {
+      const conflictDetails = conflicts
+        .map(setting => {
+          const values = projectConfigs
+            .map(p =>
+              p.config != null
+                ? `${p.name}: ${JSON.stringify(p.config[setting.key])}`
+                : '',
+            )
+            .filter(Boolean)
+            .join(', ');
+
+          return `${setting.displayName} (${values})`;
+        })
+        .join('\n  ');
+
+      console.warn(
+        `BabelPluginRelay: File ${filePath} matches multiple projects with conflicting settings:\n` +
+          `  ${conflictDetails}\n` +
+          `Using settings from the first project (${primaryProjectName}).`,
+      );
+    }
+  }
+
+  // Create a new config with appropriate field mappings
+  const mergedConfig = {
+    ...config, // Global settings
+    ...primaryProjectConfig, // Project-specific settings
+  };
+
+  // Handle field name differences between multi-project and single-project configs
+  if (primaryProjectConfig.output && !mergedConfig.artifactDirectory) {
+    mergedConfig.artifactDirectory = primaryProjectConfig.output;
+  }
+
+  return mergedConfig;
 }
 
 /**
@@ -65,13 +238,17 @@ function compileGraphQLTag(
     );
   }
 
-  const eagerEsModules = state.opts?.eagerEsModules ?? false;
-  const isHasteMode = state.opts?.jsModuleFormat === 'haste';
-  const isDevVariable = state.opts?.isDevVariableName;
-  const artifactDirectory = state.opts?.artifactDirectory;
-  const buildCommand = state.opts?.codegenCommand ?? 'relay-compiler';
+  // Get the configuration for the current file
+  const config = getConfigForFile(state);
+
+  const eagerEsModules = config.eagerEsModules ?? false;
+  const isHasteMode = config.jsModuleFormat === 'haste';
+  const isDevVariable = config.isDevVariableName;
+  const artifactDirectory = config.artifactDirectory;
+  const buildCommand = config.codegenCommand ?? 'relay-compiler';
   // Fallback is 'true'
   const isDevelopment =
+    // $FlowFixMe[cannot-resolve-name]
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
 
   return createNode(t, state, path, definition, {

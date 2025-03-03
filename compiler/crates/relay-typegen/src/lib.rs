@@ -32,7 +32,7 @@ pub use relay_config::TypegenConfig;
 pub use relay_config::TypegenLanguage;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 use schema::SDLSchema;
-pub use typegen_state::FragmentLocations;
+pub use typegen_state::FragmentInfoLookup;
 pub use write::has_raw_response_type_directive;
 use write::write_fragment_type_exports_section;
 use write::write_operation_type_exports_section;
@@ -113,13 +113,13 @@ pub fn generate_fragment_type_exports_section_from_extra_artifact(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
 ) -> String {
     generate_fragment_type_exports_section_impl(
         fragment_definition,
         schema,
         project_config,
-        fragment_locations,
+        fragment_lookup,
         true,
     )
 }
@@ -128,13 +128,13 @@ pub fn generate_fragment_type_exports_section(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
 ) -> String {
     generate_fragment_type_exports_section_impl(
         fragment_definition,
         schema,
         project_config,
-        fragment_locations,
+        fragment_lookup,
         false,
     )
 }
@@ -143,7 +143,7 @@ fn generate_fragment_type_exports_section_impl(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
     is_extra_artifact_branch_module: bool,
 ) -> String {
     let typegen_context = TypegenContext::new(
@@ -154,7 +154,7 @@ fn generate_fragment_type_exports_section_impl(
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
         fragment_definition.name.map(|x| x.0),
-        fragment_locations,
+        fragment_lookup,
         TypegenOptions {
             no_optional_fields_in_raw_response_type: false,
             is_extra_artifact_branch_module,
@@ -170,7 +170,7 @@ pub fn generate_named_validator_export(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
 ) -> String {
     let typegen_context = TypegenContext::new(
         schema,
@@ -180,7 +180,7 @@ pub fn generate_named_validator_export(
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
         fragment_definition.name.map(|x| x.0),
-        fragment_locations,
+        fragment_lookup,
         TypegenOptions {
             no_optional_fields_in_raw_response_type: false,
             is_extra_artifact_branch_module: false,
@@ -205,7 +205,7 @@ pub fn generate_operation_type_exports_section(
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
     maybe_provided_variables: Option<String>,
 ) -> String {
     let typegen_context = TypegenContext::new(
@@ -219,7 +219,7 @@ pub fn generate_operation_type_exports_section(
             typegen_operation.name.location,
             typegen_operation.name.item.0,
         ),
-        fragment_locations,
+        fragment_lookup,
         TypegenOptions {
             no_optional_fields_in_raw_response_type: false,
             is_extra_artifact_branch_module: false,
@@ -242,7 +242,7 @@ pub fn generate_split_operation_type_exports_section(
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
     no_optional_fields_in_raw_response_type: bool,
 ) -> String {
     let typegen_context = TypegenContext::new(
@@ -256,7 +256,7 @@ pub fn generate_split_operation_type_exports_section(
             typegen_operation.name.location,
             typegen_operation.name.item.0,
         ),
-        fragment_locations,
+        fragment_lookup,
         TypegenOptions {
             no_optional_fields_in_raw_response_type,
             is_extra_artifact_branch_module: false,
@@ -279,7 +279,7 @@ pub fn generate_split_operation_type_exports_section(
 struct TypegenContext<'a> {
     schema: &'a SDLSchema,
     project_config: &'a ProjectConfig,
-    fragment_locations: &'a FragmentLocations,
+    fragment_lookup: &'a FragmentInfoLookup,
     has_unified_output: bool,
     generating_updatable_types: bool,
     definition_source_location: WithLocation<StringKey>,
@@ -292,13 +292,13 @@ impl<'a> TypegenContext<'a> {
         project_config: &'a ProjectConfig,
         generating_updatable_types: bool,
         definition_source_location: WithLocation<StringKey>,
-        fragment_locations: &'a FragmentLocations,
+        fragment_lookup: &'a FragmentInfoLookup,
         typegen_options: TypegenOptions,
     ) -> Self {
         Self {
             schema,
             project_config,
-            fragment_locations,
+            fragment_lookup,
             has_unified_output: project_config.output.is_some(),
             generating_updatable_types,
             definition_source_location,

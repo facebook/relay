@@ -25,7 +25,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
-use relay_typegen::FragmentLocations;
+use relay_typegen::FragmentInfoLookup;
 use schema::SDLSchema;
 
 use self::content::generate_preloadable_query_parameters;
@@ -76,7 +76,7 @@ impl ArtifactContent {
         printer: &mut Printer<'_>,
         schema: &SDLSchema,
         source_file: SourceLocationKey,
-        fragment_locations: &FragmentLocations,
+        fragment_lookup: &FragmentInfoLookup,
     ) -> Vec<u8> {
         let skip_types =
             if let Some(extra_artifacts_config) = &project_config.extra_artifacts_config {
@@ -104,7 +104,7 @@ impl ArtifactContent {
                 text,
                 id_and_text_hash,
                 skip_types,
-                fragment_locations,
+                fragment_lookup,
             )
             .unwrap(),
             ArtifactContent::UpdatableQuery {
@@ -120,7 +120,7 @@ impl ArtifactContent {
                 typegen_operation,
                 source_hash.into(),
                 skip_types,
-                fragment_locations,
+                fragment_lookup,
             )
             .unwrap(),
             ArtifactContent::PreloadableQueryParameters {
@@ -148,7 +148,7 @@ impl ArtifactContent {
                 normalization_operation,
                 typegen_operation,
                 source_hash.as_ref(),
-                fragment_locations,
+                fragment_lookup,
                 *no_optional_fields_in_raw_response_type,
             )
             .unwrap(),
@@ -165,7 +165,7 @@ impl ArtifactContent {
                 typegen_fragment,
                 source_hash.as_ref(),
                 skip_types,
-                fragment_locations,
+                fragment_lookup,
             )
             .unwrap(),
             ArtifactContent::ResolversSchema => {

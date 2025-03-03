@@ -24,7 +24,7 @@ use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
 use relay_typegen::generate_split_operation_type_exports_section;
-use relay_typegen::FragmentLocations;
+use relay_typegen::FragmentInfoLookup;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
 use schema::SDLSchema;
@@ -158,7 +158,7 @@ pub fn generate_updatable_query(
     typegen_operation: &OperationDefinition,
     source_hash: String,
     skip_types: bool,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
 ) -> Result<Vec<u8>, FmtError> {
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
@@ -219,7 +219,7 @@ pub fn generate_updatable_query(
                 reader_operation,
                 schema,
                 project_config,
-                fragment_locations,
+                fragment_lookup,
                 None, // TODO: Add/investigrate support for provided variables in updatable queries
             )
         )?;
@@ -283,7 +283,7 @@ pub fn generate_operation(
     text: &Option<String>,
     id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
 
@@ -392,7 +392,7 @@ pub fn generate_operation(
                 normalization_operation,
                 schema,
                 project_config,
-                fragment_locations,
+                fragment_lookup,
                 maybe_provided_variables,
             )
         )?;
@@ -508,7 +508,7 @@ pub fn generate_split_operation(
     normalization_operation: &OperationDefinition,
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: Option<&String>,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
     no_optional_fields_in_raw_response_type: bool,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
@@ -555,7 +555,7 @@ pub fn generate_split_operation(
                 normalization_operation,
                 schema,
                 project_config,
-                fragment_locations,
+                fragment_lookup,
                 no_optional_fields_in_raw_response_type
             )
         )?;
@@ -621,7 +621,7 @@ pub fn generate_fragment(
     typegen_fragment: &FragmentDefinition,
     source_hash: Option<&String>,
     skip_types: bool,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
 ) -> Result<Vec<u8>, FmtError> {
     let is_assignable_fragment = typegen_fragment
         .directives
@@ -634,7 +634,7 @@ pub fn generate_fragment(
             schema,
             typegen_fragment,
             source_hash,
-            fragment_locations,
+            fragment_lookup,
         )
     } else {
         generate_read_only_fragment(
@@ -646,7 +646,7 @@ pub fn generate_fragment(
             typegen_fragment,
             source_hash,
             skip_types,
-            fragment_locations,
+            fragment_lookup,
         )
     }
 }
@@ -661,7 +661,7 @@ fn generate_read_only_fragment(
     typegen_fragment: &FragmentDefinition,
     source_hash: Option<&String>,
     skip_types: bool,
-    fragment_locations: &FragmentLocations,
+    fragment_locations: &FragmentInfoLookup,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -787,7 +787,7 @@ fn generate_assignable_fragment(
     schema: &SDLSchema,
     typegen_fragment: &FragmentDefinition,
     source_hash: Option<&String>,
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -824,7 +824,7 @@ fn generate_assignable_fragment(
             typegen_fragment,
             schema,
             project_config,
-            fragment_locations,
+            fragment_lookup,
         )
     )?;
 
@@ -871,12 +871,8 @@ fn generate_assignable_fragment(
     // don't need to emit a reader fragment.
     // Instead, we only need a named validator export, i.e.
     // module.exports.validate = ...
-    let named_validator_export = generate_named_validator_export(
-        typegen_fragment,
-        schema,
-        project_config,
-        fragment_locations,
-    );
+    let named_validator_export =
+        generate_named_validator_export(typegen_fragment, schema, project_config, fragment_lookup);
     writeln!(section, "{}", named_validator_export).unwrap();
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --

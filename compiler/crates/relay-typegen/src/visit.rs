@@ -327,7 +327,7 @@ fn visit_fragment_spread(
         let spread_selection = TypeSelection::FragmentSpread(TypeSelectionFragmentSpread {
             fragment_name: name,
             conditional: false,
-            concrete_type: None,
+            concrete_type: typegen_context.fragment_lookup.type_condition(&name),
             type_condition_info: get_type_condition_info(fragment_spread),
             is_updatable_fragment_spread: fragment_spread
                 .directives
@@ -2301,7 +2301,7 @@ pub(crate) fn raw_response_visit_selections(
                     imported_raw_response_types.0.insert(
                         spread_type,
                         typegen_context
-                            .fragment_locations
+                            .fragment_lookup
                             .location(&spread.fragment.item),
                     );
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(

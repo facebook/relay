@@ -627,7 +627,7 @@ fn write_fragment_imports(
                     )?;
                 } else {
                     let fragment_location = typegen_context
-                        .fragment_locations
+                        .fragment_lookup
                         .location(&current_referenced_fragment)
                         .unwrap_or_else(|| {
                             panic!(

@@ -319,6 +319,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                             .feature_flags
                             .allow_resolver_non_nullable_return_type,
                     },
+                    Some(&project_config.schema_config),
                 )
             });
 

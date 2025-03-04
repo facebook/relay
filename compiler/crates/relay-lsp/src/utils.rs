@@ -222,6 +222,7 @@ pub fn extract_feature_from_text(
                                 .feature_flags
                                 .allow_resolver_non_nullable_return_type,
                         },
+                        Some(&project_config.schema_config),
                     )
                 })
                 .map_err(|_| {

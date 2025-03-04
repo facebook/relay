@@ -18,7 +18,7 @@ use docblock_shared::ResolverSourceHash;
 use docblock_shared::ARGUMENT_DEFINITIONS;
 use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
-use docblock_shared::KEY_RESOLVER_ID_FIELD;
+use docblock_shared::get_resolver_id_field;
 use docblock_shared::PROVIDER_ARG_NAME;
 use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
@@ -41,6 +41,7 @@ use graphql_syntax::TypeAnnotation;
 use intern::string_key::Intern;
 use intern::Lookup;
 use relay_config::ProjectName;
+use relay_config::SchemaConfig;
 
 use crate::errors::ErrorMessagesWithData;
 use crate::errors::IrParsingErrorMessages;
@@ -69,6 +70,7 @@ pub(crate) fn parse_docblock_ir(
     // The location corresponding to the entire docblock. Used for error messages like
     // "this field is missing".
     docblock_location: Location,
+    schema_config: Option<&SchemaConfig>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     // Categorization:
     // - If there is no @RelayResolver field, return Ok(None)
@@ -151,6 +153,7 @@ pub(crate) fn parse_docblock_ir(
                             docblock_location,
                             populated_ir_field,
                             source_hash,
+                            schema_config,
                         )?,
                     )),
                 }
@@ -244,6 +247,7 @@ fn parse_strong_object_ir(
     location: Location,
     relay_resolver_field: PopulatedIrField,
     source_hash: ResolverSourceHash,
+    schema_config: Option<&SchemaConfig>,
 ) -> DiagnosticsResult<StrongObjectIr> {
     let type_str = relay_resolver_field.value;
     let (identifier, implements_interfaces) = parse_identifier_and_implements_interfaces(
@@ -252,9 +256,12 @@ fn parse_strong_object_ir(
         type_str.location.span().start,
     )?;
 
+    let node_interface_id_field = schema_config.map(|config| config.node_interface_id_field);
+    let resolver_id_field = get_resolver_id_field(node_interface_id_field);
+    
     let fragment_name = FragmentDefinitionName(
         project_name
-            .generate_name_for_object_and_field(identifier.value, *KEY_RESOLVER_ID_FIELD)
+            .generate_name_for_object_and_field(identifier.value, resolver_id_field)
             .intern(),
     );
     Ok(StrongObjectIr {

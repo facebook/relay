@@ -15,6 +15,10 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 pub use resolver_source_hash::ResolverSourceHash;
 
+pub fn get_resolver_id_field(node_interface_id_field: Option<StringKey>) -> StringKey {
+    node_interface_id_field.unwrap_or_else(|| *KEY_RESOLVER_ID_FIELD)
+}
+
 lazy_static! {
     /// Resolver fields and types get their schema definitions annotated with
     /// a directive using this name to signal to the rest of Relay that they are backed by
@@ -155,9 +159,8 @@ lazy_static! {
     pub static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
     pub static ref PROVIDER_ARG_NAME: StringKey = "provider".intern();
 
-    /// Field name used for the ID of strong model types.
-    /// Note: this should **only** be used for resolvers! The id field for server
-    /// types is configurable in the config, and thus cannot be hard-coded.
+    
+    /// Default field name used for the ID of strong model types.
     pub static ref KEY_RESOLVER_ID_FIELD: StringKey = "id".intern();
 
     /// Directive name used in parallel with @relay_resolver which includes a

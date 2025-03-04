@@ -108,7 +108,7 @@ fn extract_docblock_ir_for_project(
     let mut parse_errors: Vec<Diagnostic> = vec![];
 
     for ast in project_schema_docs.type_asts.0 {
-        match parse_docblock_ast(&project_config.name, &ast, None, &parse_options) {
+        match parse_docblock_ast(&project_config.name, &ast, None, &parse_options, Some(&project_config.schema_config)) {
             Ok(maybe_ir) => type_irs.extend(maybe_ir),
             Err(errors) => parse_errors.extend(errors),
         };
@@ -116,7 +116,7 @@ fn extract_docblock_ir_for_project(
 
     for (_, (asts, definitions)) in project_schema_docs.field_asts_and_definitions.0 {
         for ast in asts {
-            match parse_docblock_ast(&project_config.name, &ast, definitions, &parse_options) {
+            match parse_docblock_ast(&project_config.name, &ast, definitions, &parse_options, Some(&project_config.schema_config)) {
                 Ok(maybe_ir) => field_irs.extend(maybe_ir),
                 Err(errors) => parse_errors.extend(errors),
             };

@@ -37,6 +37,7 @@ use graphql_syntax::TypeSystemDefinition;
 use intern::Lookup;
 pub use ir::*;
 use relay_config::ProjectName;
+use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use untyped_representation::parse_untyped_docblock_representation;
 pub use validate_resolver_schema::validate_resolver_schema;
@@ -51,6 +52,7 @@ pub fn parse_docblock_ast(
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
     parse_options: &ParseOptions<'_>,
+    schema_config: Option<&SchemaConfig>,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     let untyped_representation = parse_untyped_docblock_representation(ast)?;
     parse_docblock_ir(
@@ -59,6 +61,7 @@ pub fn parse_docblock_ast(
         definitions,
         parse_options,
         ast.location,
+        schema_config,
     )
 }
 

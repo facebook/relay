@@ -80,6 +80,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                                 &FeatureFlag::Disabled
                             },
                         },
+                        None,
                     )
                 })
                 .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics)),

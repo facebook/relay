@@ -316,6 +316,7 @@ module.exports = {
   suspenseSentinel,
   isRequest: GraphQLTag.isRequest,
   readInlineData,
+  readFragment: ResolverFragments.readFragment,
 
   // Declarative mutation API
   MutationTypes: RelayDeclarativeMutationConfig.MutationTypes,

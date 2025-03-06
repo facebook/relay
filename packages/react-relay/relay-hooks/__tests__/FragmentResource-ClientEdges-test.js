@@ -32,7 +32,7 @@ const BASIC_QUERY = graphql`
   query FragmentResourceClientEdgesTest1Query($id: ID!) {
     node(id: $id) {
       __typename
-      ...FragmentResourceClientEdgesTestFragment1
+      ...FragmentResourceClientEdgesTestFragment1 @dangerously_unaliased_fixme
     }
   }
 `;

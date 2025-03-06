@@ -19,8 +19,10 @@ function registerEnvironmentWithDevTools(environment: IEnvironment): void {
   const _global =
     typeof global !== 'undefined'
       ? global
-      : typeof window !== 'undefined'
-        ? window
+      : // $FlowFixMe[cannot-resolve-name]
+        typeof window !== 'undefined'
+        ? // $FlowFixMe[cannot-resolve-name]
+          window
         : undefined;
 
   // $FlowFixMe[incompatible-use] D61394600

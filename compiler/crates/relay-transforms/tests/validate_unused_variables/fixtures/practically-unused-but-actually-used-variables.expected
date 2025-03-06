@@ -24,4 +24,7 @@ fragment ConnectionFragment on User
   }
 }
 ==================================== OUTPUT ===================================
-OK
+OK.
+
+Cached Fragments:
+ConnectionFragment -> POPULATED ("unusedAfter, unusedFirst")

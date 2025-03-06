@@ -50,6 +50,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           ) {
             node(id: $id) {
               ...RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;

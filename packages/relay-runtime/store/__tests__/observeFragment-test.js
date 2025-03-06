@@ -259,7 +259,7 @@ test('Resolver error with @throwOnFieldError', async () => {
     expect(results).toEqual([
       {
         error: new Error(
-          "Relay: Resolver error at path 'always_throws' in 'observeFragmentTestResolverErrorWithThrowOnFieldErrorFragment'.",
+          "Relay: Resolver error at path 'always_throws' in 'observeFragmentTestResolverErrorWithThrowOnFieldErrorFragment'. Message: I always throw. What did you expect?",
         ),
         state: 'error',
       },
@@ -541,7 +541,7 @@ test('Resolver error with @relay(plural: true) @throwOnFieldError', async () => 
     expect(results).toEqual([
       {
         error: new Error(
-          "Relay: Resolver error at path 'always_throws' in 'observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment'.",
+          "Relay: Resolver error at path 'always_throws' in 'observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment'. Message: I always throw. What did you expect?",
         ),
         state: 'error',
       },

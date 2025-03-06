@@ -28,6 +28,7 @@ import type {
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
+import type {OperationAvailability} from 'relay-runtime/store/RelayStoreTypes';
 
 const invariant = require('invariant');
 const {
@@ -130,6 +131,7 @@ function loadQuery<
   let didMakeNetworkRequest = false;
   const makeNetworkRequest = (
     params: RequestParameters,
+    checkOperation?: () => OperationAvailability,
   ): Observable<GraphQLResponse> => {
     // N.B. this function is called synchronously or not at all
     // didMakeNetworkRequest is safe to rely on in the returned value
@@ -160,7 +162,16 @@ function loadQuery<
       'raw-network-request-' + getRequestIdentifier(params, variables);
     const observable = fetchQueryDeduped(environment, identifier, () => {
       const network = environment.getNetwork();
-      return network.execute(params, variables, networkCacheConfig);
+      return network.execute(
+        params,
+        variables,
+        networkCacheConfig,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        checkOperation,
+      );
     });
 
     const {unsubscribe} = observable.subscribe({
@@ -245,15 +256,19 @@ function loadQuery<
     // N.B. If the fetch policy allows fulfillment from the store but the
     // environment already has the data for that operation cached in the store,
     // then we do nothing.
+    const operationAvailability = environment.check(operation);
     const shouldFetch =
       fetchPolicy !== 'store-or-network' ||
-      environment.check(operation).status !== 'available';
+      operationAvailability.status !== 'available';
 
     if (shouldFetch) {
       executeDeduped(operation, () => {
         // N.B. Since we have the operation synchronously available here,
         // we can immediately fetch and execute the operation.
-        const networkObservable = makeNetworkRequest(concreteRequest.params);
+        const networkObservable = makeNetworkRequest(
+          concreteRequest.params,
+          () => operationAvailability,
+        );
         const executeObservable = executeWithNetworkSource(
           operation,
           networkObservable,

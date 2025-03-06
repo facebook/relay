@@ -31,7 +31,6 @@ const invariant = require('invariant');
 const {useCallback, useRef, useState} = require('react');
 const {
   __internal: {fetchQuery},
-  RelayFeatureFlags,
   createOperationDescriptor,
   getPaginationVariables,
   getRefetchMetadata,
@@ -168,12 +167,7 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
 
-      const isRequestInvalidCheck =
-        RelayFeatureFlags.OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION
-          ? isRequestInvalid
-          : fragmentData == null || isParentQueryActive;
-
-      if (fetchStatusRef.current.kind === 'fetching' || isRequestInvalidCheck) {
+      if (fetchStatusRef.current.kind === 'fetching' || isRequestInvalid) {
         if (fragmentSelector == null) {
           warning(
             false,
@@ -272,9 +266,7 @@ hook useLoadMoreFunction_EXPERIMENTAL<TVariables: Variables>(
       identifierValue,
       direction,
       cursor,
-      ...(RelayFeatureFlags.OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION
-        ? [isRequestInvalid]
-        : [isParentQueryActive, fragmentData]),
+      isRequestInvalid,
       fragmentNode.name,
       fragmentRef,
       componentDisplayName,

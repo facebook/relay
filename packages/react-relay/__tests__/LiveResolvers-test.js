@@ -890,6 +890,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 });
 
 skipIf(
+  // $FlowFixMe[cannot-resolve-name]
   process.env.OSS,
   'Live Resolver with Missing Data and @required',
   async () => {
@@ -1400,7 +1401,7 @@ describe('client-only fragments', () => {
   const LiveResolversTestLiveResolverSuspenseQuery = graphql`
     query LiveResolversTestLiveResolverSuspenseQuery($id: ID!) {
       node(id: $id) {
-        ...LiveResolversTestCounterUserFragment
+        ...LiveResolversTestCounterUserFragment @dangerously_unaliased_fixme
       }
     }
   `;

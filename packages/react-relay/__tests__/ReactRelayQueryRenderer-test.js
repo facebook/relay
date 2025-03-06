@@ -93,7 +93,7 @@ describe('ReactRelayQueryRenderer', () => {
       query ReactRelayQueryRendererTestQuery($id: ID = "<default>") {
         node(id: $id) {
           id
-          ...ReactRelayQueryRendererTestFragment
+          ...ReactRelayQueryRendererTestFragment @dangerously_unaliased_fixme
         }
       }
     `;

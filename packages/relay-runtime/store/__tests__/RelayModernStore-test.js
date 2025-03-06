@@ -154,7 +154,7 @@ function cloneEventWithSets(event: LogEvent) {
         UserQuery = graphql`
           query RelayModernStoreTest1Query($id: ID!, $size: [Int]) {
             node(id: $id) {
-              ...RelayModernStoreTest1Fragment
+              ...RelayModernStoreTest1Fragment @dangerously_unaliased_fixme
             }
           }
         `;
@@ -1202,7 +1202,7 @@ function cloneEventWithSets(event: LogEvent) {
         UserQuery = graphql`
           query RelayModernStoreTest6Query($id: ID!, $size: [Int]) {
             node(id: $id) {
-              ...RelayModernStoreTest7Fragment
+              ...RelayModernStoreTest7Fragment @dangerously_unaliased_fixme
             }
           }
         `;
@@ -2132,7 +2132,7 @@ function cloneEventWithSets(event: LogEvent) {
         UserQuery = graphql`
           query RelayModernStoreTest7Query($id: ID!, $size: [Int]) {
             node(id: $id) {
-              ...RelayModernStoreTest8Fragment
+              ...RelayModernStoreTest8Fragment @dangerously_unaliased_fixme
             }
           }
         `;
@@ -2595,7 +2595,7 @@ function cloneEventWithSets(event: LogEvent) {
         UserQuery = graphql`
           query RelayModernStoreTest9Query($id: ID!, $size: [Int]) {
             node(id: $id) {
-              ...RelayModernStoreTest9Fragment
+              ...RelayModernStoreTest9Fragment @dangerously_unaliased_fixme
             }
           }
         `;

@@ -25,6 +25,7 @@ When referring to **"refreshing a query"**, we mean fetching the *exact* same da
 </FbInternalOnly>
 
 <OssOnly>
+
 If we want to keep our data up to date with the latest version from the server, the first thing to consider is if it appropriate to use any real-time features, which can make it easier to automatically keep the data up to date without manually refreshing the data periodically.
 
 One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions), which will require additional configuration on your server and [network layer](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions/#configuring-the-network-layer).

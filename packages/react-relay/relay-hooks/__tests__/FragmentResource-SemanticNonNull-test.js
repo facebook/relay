@@ -62,7 +62,9 @@ beforeEach(() => {
         node(id: $id) {
           __typename
           ...FragmentResourceSemanticNonNullTestFragment1
+            @dangerously_unaliased_fixme
           ...FragmentResourceSemanticNonNullTestFragment2
+            @dangerously_unaliased_fixme
         }
       }
     `,

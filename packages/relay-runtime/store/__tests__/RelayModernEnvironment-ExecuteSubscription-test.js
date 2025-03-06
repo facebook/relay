@@ -75,6 +75,7 @@ describe('execute()', () => {
         node(id: $id) {
           id
           ...RelayModernEnvironmentExecuteSubscriptionTestCommentFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

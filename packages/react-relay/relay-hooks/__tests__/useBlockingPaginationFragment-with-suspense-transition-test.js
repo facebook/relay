@@ -267,6 +267,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           node(id: $id) {
             actor {
               ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
+                @dangerously_unaliased_fixme
                 @arguments(
                   isViewerFriendLocal: $isViewerFriend
                   orderby: $orderby
@@ -288,6 +289,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           viewer {
             actor {
               ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
+                @dangerously_unaliased_fixme
                 @arguments(
                   isViewerFriendLocal: $isViewerFriend
                   orderby: $orderby

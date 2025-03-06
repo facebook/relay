@@ -98,9 +98,11 @@ In order for Relay to be able to call a Relay Resolver, it must conform to a set
 Unlike server resolvers, Relay Resolvers may return any JavaScript value. This includes classes, functions and arrays. However, we generally encourage having Relay Resolvers return scalar values and only returning more complex JavaScript values (like functions) as an escape hatch.
 
 <FbInternalOnly>
+
 ## Lint Rule
 
 In many cases, the contents of the docblock can be derived from the javascript implementation. In those cases, the [`relay-resolvers`](https://www.internalfb.com/eslint/relay-resolvers) ESLint rule rule will offer auto-fixes to derive the docblock from the implementation and ensure that the two remain in sync. The lint rule also enforces a naming convention for resolver function and modules names.
+
 </FbInternalOnly>
 
 ## How They Work

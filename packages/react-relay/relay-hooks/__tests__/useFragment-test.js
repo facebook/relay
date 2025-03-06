@@ -130,7 +130,7 @@ describe.each([
       gqlSingularQuery = graphql`
         query useFragmentTestUserQuery($id: ID!) {
           node(id: $id) {
-            ...useFragmentTestUserFragment
+            ...useFragmentTestUserFragment @dangerously_unaliased_fixme
           }
         }
       `;

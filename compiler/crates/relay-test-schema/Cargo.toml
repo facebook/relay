@@ -10,6 +10,6 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 relay-schema = { path = "../relay-schema" }
 schema = { path = "../schema" }

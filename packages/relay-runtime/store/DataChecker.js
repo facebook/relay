@@ -449,8 +449,6 @@ class DataChecker {
           this._traverseSelections(selection.fragment.selections, dataID);
           break;
         case 'RelayResolver':
-          this._checkResolver(selection, dataID);
-          break;
         case 'RelayLiveResolver':
           this._checkResolver(selection, dataID);
           break;

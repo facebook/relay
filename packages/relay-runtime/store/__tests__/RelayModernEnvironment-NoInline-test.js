@@ -64,6 +64,7 @@ const NoInlineFragment = graphql`
       }
     }
     ...RelayModernEnvironmentNoInlineTest_inner
+      @dangerously_unaliased_fixme
       @arguments(cond: true, preset: $preset, fileExtension: JPG)
   }
 `;
@@ -373,6 +374,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 }
               }
               ...RelayModernEnvironmentNoInlineTest_inner
+                @dangerously_unaliased_fixme
                 @arguments(
                   cond: $cond
                   preset: $preset
@@ -542,14 +544,17 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             @argumentDefinitions(cond: {type: "Boolean!"}) {
               mark: username(name: "Mark") {
                 ...RelayModernEnvironmentNoInlineTest_nestedNoInline
+                  @dangerously_unaliased_fixme
                   @arguments(cond: $global_cond)
               }
               zuck: username(name: "Zuck") {
                 ...RelayModernEnvironmentNoInlineTest_nestedNoInline
+                  @dangerously_unaliased_fixme
                   @arguments(cond: false)
               }
               joe: username(name: "Joe") {
                 ...RelayModernEnvironmentNoInlineTest_nestedNoInline
+                  @dangerously_unaliased_fixme
                   @arguments(cond: $cond)
               }
             }
@@ -703,6 +708,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ) {
               node(id: "1") {
                 ...RelayModernEnvironmentNoInlineTestStream_feedback
+                  @dangerously_unaliased_fixme
                   @arguments(cond: $cond)
               }
             }

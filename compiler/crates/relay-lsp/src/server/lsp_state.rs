@@ -273,19 +273,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         let mut warnings = vec![];
                         for document in documents {
                             // Today the only warnings we check for are deprecated
-                            // fields and unnecessary @requireds, but in the future
-                            // we could check for more things here by making this
-                            // more generic.
+                            // fields, but in the future we could check for more
+                            // things here by making this more generic.
                             warnings.extend(deprecated_fields_for_executable_definition(
                                 &schema, &document,
                             )?);
-
-                            // Disabling this warning for now, to see if it resolves LSP crashing
-                            // warnings.extend(
-                            //     disallow_required_on_non_null_field_for_executable_definition(
-                            //         &schema, &document,
-                            //     )?,
-                            // );
                         }
                         Ok(warnings)
                     };

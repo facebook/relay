@@ -19,7 +19,7 @@ flatbuffers = "2.0"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 ouroboros = "0.18.4"
 rayon = "1.9.0"
 schema-flatbuffer = { path = "../schema-flatbuffer" }

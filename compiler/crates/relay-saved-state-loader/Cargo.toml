@@ -9,5 +9,5 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-async-trait = "0.1.71"
+async-trait = "0.1.86"
 serde_bser = "0.4"

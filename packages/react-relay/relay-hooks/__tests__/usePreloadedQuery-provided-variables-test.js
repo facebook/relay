@@ -72,6 +72,7 @@ const queryPV = graphql`
     node(id: $id) {
       id
       ...usePreloadedQueryProvidedVariablesTest_Fragment
+        @dangerously_unaliased_fixme
     }
   }
 `;
@@ -262,6 +263,7 @@ describe('usePreloadedQuery provided variables (%s)', () => {
       query usePreloadedQueryProvidedVariablesTest_badQuery($id: ID!) {
         node(id: $id) {
           ...usePreloadedQueryProvidedVariablesTest_badFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

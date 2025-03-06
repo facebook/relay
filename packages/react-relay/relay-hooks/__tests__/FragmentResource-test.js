@@ -160,7 +160,7 @@ describe('FragmentResource', () => {
       query FragmentResourceTest1Query($id: ID!) {
         node(id: $id) {
           __typename
-          ...FragmentResourceTest1Fragment
+          ...FragmentResourceTest1Fragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -176,7 +176,7 @@ describe('FragmentResource', () => {
       query FragmentResourceTest2Query($id: ID!) {
         node(id: $id) {
           __typename
-          ...FragmentResourceTest2Fragment
+          ...FragmentResourceTest2Fragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -449,7 +449,7 @@ describe('FragmentResource', () => {
             node(id: $id) {
               __typename
               name @include(if: $foo)
-              ...FragmentResourceTest6Fragment
+              ...FragmentResourceTest6Fragment @dangerously_unaliased_fixme
             }
           }
         `;

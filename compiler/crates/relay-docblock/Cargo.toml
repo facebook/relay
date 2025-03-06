@@ -24,7 +24,7 @@ errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 schema = { path = "../schema" }

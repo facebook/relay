@@ -50,6 +50,7 @@ describe('execute() a query with @stream and @required', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

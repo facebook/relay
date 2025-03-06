@@ -399,7 +399,7 @@ describe('RelayResponseNormalizer', () => {
       BarQuery = graphql`
         query RelayResponseNormalizerTest4Query($id: ID!) {
           node(id: $id) {
-            ...RelayResponseNormalizerTestFragment
+            ...RelayResponseNormalizerTestFragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -676,7 +676,7 @@ describe('RelayResponseNormalizer', () => {
       BarQuery = graphql`
         query RelayResponseNormalizerTest5Query($id: ID!) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest1Fragment
+            ...RelayResponseNormalizerTest1Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -899,6 +899,7 @@ describe('RelayResponseNormalizer', () => {
         ) {
           node(id: $id) {
             ...RelayResponseNormalizerTest2Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment", if: $enableDefer)
           }
         }
@@ -949,6 +950,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest7Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest3Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment", if: true)
           }
         }
@@ -1014,6 +1016,7 @@ describe('RelayResponseNormalizer', () => {
         ) {
           node(id: $id) {
             ...RelayResponseNormalizerTest4Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment", if: $enableDefer)
           }
         }
@@ -1079,6 +1082,7 @@ describe('RelayResponseNormalizer', () => {
             ... on Feedback {
               actors {
                 ...RelayResponseNormalizerTest5Fragment
+                  @dangerously_unaliased_fixme
                   @defer(label: "TestFragment", if: true)
               }
             }
@@ -1171,6 +1175,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest10Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest6Fragment
+              @dangerously_unaliased_fixme
               @defer(label: "TestFragment")
           }
         }
@@ -1227,7 +1232,7 @@ describe('RelayResponseNormalizer', () => {
           $enableStream: Boolean!
         ) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest7Fragment
+            ...RelayResponseNormalizerTest7Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1284,7 +1289,7 @@ describe('RelayResponseNormalizer', () => {
       const Query = graphql`
         query RelayResponseNormalizerTestQuery($id: ID!) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest8Fragment
+            ...RelayResponseNormalizerTest8Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1353,7 +1358,7 @@ describe('RelayResponseNormalizer', () => {
           $enableStream: Boolean!
         ) {
           node(id: $id) {
-            ...RelayResponseNormalizerTest9Fragment
+            ...RelayResponseNormalizerTest9Fragment @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1426,6 +1431,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest13Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest10Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1510,6 +1516,7 @@ describe('RelayResponseNormalizer', () => {
         query RelayResponseNormalizerTest14Query($id: ID!) {
           node(id: $id) {
             ...RelayResponseNormalizerTest11Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -2520,7 +2527,7 @@ describe('RelayResponseNormalizer', () => {
       query RelayResponseNormalizerTest_pvQuery($id: ID!) {
         node(id: $id) {
           id
-          ...RelayResponseNormalizerTest_pvFragment
+          ...RelayResponseNormalizerTest_pvFragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -3672,6 +3679,7 @@ describe('RelayResponseNormalizer', () => {
         viewer {
           actor @fb_actor_change {
             ...RelayResponseNormalizerTestActorChangeFragment
+              @dangerously_unaliased_fixme
           }
         }
       }
@@ -4001,6 +4009,7 @@ describe('RelayResponseNormalizer', () => {
             }
             actor @fb_actor_change {
               ...RelayResponseNormalizerTestActorChangeFragment
+                @dangerously_unaliased_fixme
             }
           }
         }

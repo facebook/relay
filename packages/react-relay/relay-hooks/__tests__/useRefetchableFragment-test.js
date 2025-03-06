@@ -96,7 +96,7 @@ describe('useRefetchableFragment', () => {
     gqlQuery = graphql`
       query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
-          ...useRefetchableFragmentTestUserFragment
+          ...useRefetchableFragmentTestUserFragment @dangerously_unaliased_fixme
         }
       }
     `;

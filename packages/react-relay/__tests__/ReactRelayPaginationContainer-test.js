@@ -102,6 +102,7 @@ describe('ReactRelayPaginationContainer', () => {
           id
           __typename
           ...ReactRelayPaginationContainerTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
@@ -815,6 +816,7 @@ describe('ReactRelayPaginationContainer', () => {
         node(id: $id) {
           id
           ...ReactRelayPaginationContainerTestNoConnectionUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -870,6 +872,7 @@ describe('ReactRelayPaginationContainer', () => {
         node(id: $id) {
           id
           ...ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

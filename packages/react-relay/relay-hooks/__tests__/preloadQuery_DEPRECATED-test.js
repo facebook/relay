@@ -11,7 +11,10 @@
 
 'use strict';
 
-import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  INetwork,
+} from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const {
@@ -76,19 +79,37 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let sink;
         let variables;
         let operation;
+        let checkOperation;
 
         beforeEach(() => {
           // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
-          fetch = jest.fn((_query, _variables, _cacheConfig) => {
+          fetch = jest.fn((_query, _variables, _cacheConfig, _4, _5) => {
             // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
           });
-
+          function wrapNetworkExecute(network: INetwork): INetwork {
+            return {
+              execute: (_1, _2, _3, _4, _5, _6, _7, _checkOperation) => {
+                checkOperation = _checkOperation;
+                return network.execute(
+                  _1,
+                  _2,
+                  _3,
+                  _4,
+                  _5,
+                  _6,
+                  _7,
+                  _checkOperation,
+                );
+              },
+            };
+          }
           const multiActorEnvironment = new MultiActorEnvironment({
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-            createNetworkForActor: _actorID => Network.create(fetch),
+            createNetworkForActor: _actorID =>
+              wrapNetworkExecute(Network.create(fetch)),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
                 gcReleaseBufferSize: 1,
@@ -99,7 +120,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
                   // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-                  network: Network.create(fetch),
+                  network: wrapNetworkExecute(Network.create(fetch)),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
                   }),
@@ -535,6 +556,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][0]).toBe(query.params);
             expect(fetch.mock.calls[0][1]).toEqual(variables);
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
+            expect(checkOperation && checkOperation()).toEqual({
+              status: 'available',
+              fetchTime,
+            });
 
             const [events, observer] = createObserver();
             if (preloaded.source) {
@@ -906,6 +931,7 @@ describe('Preload queries that use provided variables', () => {
     query preloadQueryDEPRECATEDTest_ProvidedVarQuery($id: ID!) {
       node(id: $id) {
         ...preloadQueryDEPRECATEDTest_ProvidedVarFragment
+          @dangerously_unaliased_fixme
       }
     }
   `;

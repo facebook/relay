@@ -12,6 +12,6 @@ license = "MIT"
 common = { path = "../common" }
 hex = "0.4.3"
 intern = { path = "../intern" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 md-5 = "0.10"
 serde = { version = "1.0.185", features = ["derive", "rc"] }

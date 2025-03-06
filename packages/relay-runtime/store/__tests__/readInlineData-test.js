@@ -28,7 +28,7 @@ disallowWarnings();
 const UserQuery = graphql`
   query readInlineDataTestUserQuery($id: ID!) {
     node(id: $id) {
-      ...readInlineDataTestUserFragment # @arguments(cond: true)
+      ...readInlineDataTestUserFragment @dangerously_unaliased_fixme # @arguments(cond: true)
     }
     # with_name: node(id: $id) {
     #   id

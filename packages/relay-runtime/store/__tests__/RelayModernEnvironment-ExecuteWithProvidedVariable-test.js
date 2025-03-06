@@ -118,6 +118,7 @@ describe('query with fragments that use provided variables', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -128,8 +129,11 @@ describe('query with fragments that use provided variables', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3
+            @dangerously_unaliased_fixme
         }
       }
     `;

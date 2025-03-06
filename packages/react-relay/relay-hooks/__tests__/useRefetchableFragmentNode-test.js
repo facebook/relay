@@ -236,6 +236,7 @@ describe.each([['New', useRefetchableFragmentInternal]])(
         ) {
           node(id: $id) {
             ...useRefetchableFragmentNodeTestUserFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -247,6 +248,7 @@ describe.each([['New', useRefetchableFragmentInternal]])(
           node(id: $id) {
             actor {
               ...useRefetchableFragmentNodeTestUserFragment
+                @dangerously_unaliased_fixme
             }
           }
         }
@@ -258,6 +260,7 @@ describe.each([['New', useRefetchableFragmentInternal]])(
         ) {
           node(id: $id) {
             ...useRefetchableFragmentNodeTestUserFragmentWithArgs
+              @dangerously_unaliased_fixme
               @arguments(scaleLocal: $scale)
           }
         }
@@ -268,6 +271,7 @@ describe.each([['New', useRefetchableFragmentInternal]])(
         ) {
           node(id: $id) {
             ...useRefetchableFragmentNodeTestUserFragmentWithArgs
+              @dangerously_unaliased_fixme
               @arguments(scaleLocal: 16)
           }
         }
@@ -3727,6 +3731,7 @@ describe.each([['New', useRefetchableFragmentInternal]])(
             ) {
               node(id: $nodeID) {
                 ...useRefetchableFragmentNodeTest3Fragment
+                  @dangerously_unaliased_fixme
               }
             }
           `;

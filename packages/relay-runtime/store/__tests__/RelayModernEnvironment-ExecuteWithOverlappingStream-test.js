@@ -65,6 +65,7 @@ describe('execute() a query with multiple @stream selections on the same record'
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

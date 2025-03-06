@@ -786,12 +786,31 @@ export type UseFragmentSubscriptionMissedUpdates = {
   +hasDataChanges: boolean,
 };
 
+/**
+ * This event is logged when two strong objects share the same id,
+ * but have different types, resulting in an collision in the store.
+ */
+export type IdCollisionTypenameLogEvent = {
+  +name: 'idCollision.typename',
+};
+
+/**
+ * This event is logged when a response contains fields with different
+ * values but which have the same corresponding id, resulting in a
+ * collision in the store.
+ */
+export type IdCollisionFieldLogEvent = {
+  +name: 'idCollision.field',
+};
+
 export type LogEvent =
   | SuspenseFragmentLogEvent
   | SuspenseQueryLogEvent
   | QueryResourceFetchLogEvent
   | QueryResourceRetainLogEvent
   | FragmentResourceMissingDataLogEvent
+  | IdCollisionTypenameLogEvent
+  | IdCollisionFieldLogEvent
   | PendingOperationFoundLogEvent
   | NetworkInfoLogEvent
   | NetworkStartLogEvent

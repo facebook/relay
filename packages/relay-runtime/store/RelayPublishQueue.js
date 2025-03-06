@@ -60,8 +60,10 @@ type PendingUpdater = {
 const _global: typeof global | $FlowFixMe =
   typeof global !== 'undefined'
     ? global
-    : typeof window !== 'undefined'
-      ? window
+    : // $FlowFixMe[cannot-resolve-name]
+      typeof window !== 'undefined'
+      ? // $FlowFixMe[cannot-resolve-name]
+        window
       : undefined;
 
 const applyWithGuard =

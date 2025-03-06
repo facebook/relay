@@ -131,6 +131,12 @@ pub enum ValidationMessage {
         name: StringKey,
         type_name: ObjectName,
     },
+
+    #[error(
+        "Unexpected Relay Resolver returning plual edge to type defined on the server. Relay Resolvers do not curretly support returning plural edges to server types. As a work around, consider defining a plural edge to a client type which has a singular edge to the server type."
+    )]
+    ClientEdgeToServerObjectList,
+
     #[error("Invalid directive combination. @alias may not be combined with other directives.")]
     FragmentAliasIncompatibleDirective,
 

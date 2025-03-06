@@ -55,10 +55,6 @@ export type FeatureFlags = {
   // Temporary flag to experiment to enable compatibility with React's unstable <Activity> API
   ENABLE_ACTIVITY_COMPATIBILITY: boolean,
 
-  // Enables optimization for recreating the load more function.
-  // When enabled, this flag reduce and simplify amount of dependencies for the function loadMore
-  OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION: boolean,
-
   // Adds a prefix to the storage key of read time resolvers. This is used to
   // disambiguate the same resolver being used at both read time and exec time.
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: boolean,
@@ -90,7 +86,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: false,
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
-  OPTIMIZE_RECREATING_LOAD_MORE_FUNCTION: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
   ENABLE_ACTIVITY_COMPATIBILITY: false,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,

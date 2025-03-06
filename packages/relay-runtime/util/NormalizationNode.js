@@ -12,7 +12,7 @@
 'use strict';
 
 import type {ResolverFunction, ResolverModule} from './ReaderNode';
-import type {ConcreteRequest} from './RelayConcreteNode';
+import type {ConcreteRequest, ProvidedVariableType} from './RelayConcreteNode';
 import type {JSResourceReference} from 'JSResourceReference';
 
 /**
@@ -28,6 +28,7 @@ export type NormalizationOperation = {
     +[string]: $ReadOnlyArray<string>,
   },
   +use_exec_time_resolvers?: boolean,
+  +exec_time_resolvers_enabled_provider?: ProvidedVariableType,
 };
 
 export type NormalizationHandle =

@@ -50,7 +50,7 @@ pub struct FeatureFlags {
 
     /// Enforce that you must add `@alias` to a fragment if it may not match,
     /// due to type mismatch or `@skip`/`@include`
-    #[serde(default)]
+    #[serde(default = "enabled_feature_flag")]
     pub enforce_fragment_alias_where_ambiguous: FeatureFlag,
 
     /// Print queries in compact form
@@ -187,6 +187,11 @@ pub enum FeatureFlag {
 
     /// Partially enabled: used for gradual rollout of the feature
     RolloutRange { rollout: RolloutRange },
+}
+
+/// Used for making feature flags enabled by default via Serde's default attribute.
+fn enabled_feature_flag() -> FeatureFlag {
+    FeatureFlag::Enabled
 }
 
 impl FeatureFlag {

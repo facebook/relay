@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e0fd85744b3be15c6bbbf3cc9b4c9d3c>>
+ * @generated SignedSource<<d2b40d87f08e43b1f27a6533cb4b52f5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,8 +58,8 @@ import {name as relayReaderExecResolversTestUserNameResolverType} from "../Relay
   args: void,
   context: TestResolverContextType,
 ) => ?string);
-export type RelayReaderExecResolversTestRunsQuery$variables = {||};
-export type RelayReaderExecResolversTestRunsQuery$data = {|
+export type RelayReaderExecResolversTestClientDirectiveQuery$variables = {||};
+export type RelayReaderExecResolversTestClientDirectiveQuery$data = {|
   +RelayReaderExecResolversTest_user_one: ?{|
     +best_friend: ?{|
       +name: ?string,
@@ -67,12 +67,12 @@ export type RelayReaderExecResolversTestRunsQuery$data = {|
     +friends: ?$ReadOnlyArray<?{|
       +name: ?string,
     |}>,
-    +name: ?string,
+    +name: $NonMaybeType<?string>,
   |},
 |};
-export type RelayReaderExecResolversTestRunsQuery = {|
-  response: RelayReaderExecResolversTestRunsQuery$data,
-  variables: RelayReaderExecResolversTestRunsQuery$variables,
+export type RelayReaderExecResolversTestClientDirectiveQuery = {|
+  response: RelayReaderExecResolversTestClientDirectiveQuery$data,
+  variables: RelayReaderExecResolversTestClientDirectiveQuery$variables,
 |};
 */
 
@@ -88,6 +88,39 @@ v1 = {
   "name": "RelayReaderExecResolversTestUser____relay_model_instance"
 },
 v2 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v3 = {
+  "kind": "InlineFragment",
+  "selections": [
+    {
+      "name": "__relay_model_instance",
+      "args": null,
+      "kind": "RelayResolver",
+      "storageKey": null,
+      "isOutputType": false,
+      "resolverInfo": {
+        "resolverFunction": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser,
+        "rootFragment": null
+      },
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          (v2/*: any*/)
+        ],
+        "type": "RelayReaderExecResolversTestUser",
+        "abstractKey": null
+      }
+    }
+  ],
+  "type": "RelayReaderExecResolversTestUser",
+  "abstractKey": null
+},
+v4 = {
   "name": "name",
   "args": null,
   "kind": "RelayResolver",
@@ -96,18 +129,12 @@ v2 = {
   "resolverInfo": {
     "resolverFunction": require('./../RelayReader-ExecResolvers-test').name,
     "rootFragment": null
-  }
+  },
+  "fragment": (v3/*: any*/)
 },
-v3 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
-v4 = [
-  (v2/*: any*/),
-  (v3/*: any*/)
+v5 = [
+  (v4/*: any*/),
+  (v2/*: any*/)
 ];
 return {
   "fragment": {
@@ -116,7 +143,7 @@ return {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "RelayReaderExecResolversTestRunsQuery",
+    "name": "RelayReaderExecResolversTestClientDirectiveQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -150,13 +177,17 @@ return {
           "plural": false,
           "selections": [
             {
-              "alias": null,
-              "args": null,
-              "fragment": (v1/*: any*/),
-              "kind": "RelayResolver",
-              "name": "name",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
-              "path": "RelayReaderExecResolversTest_user_one.name"
+              "kind": "RequiredField",
+              "field": {
+                "alias": null,
+                "args": null,
+                "fragment": (v1/*: any*/),
+                "kind": "RelayResolver",
+                "name": "name",
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
+                "path": "RelayReaderExecResolversTest_user_one.name"
+              },
+              "action": "THROW"
             },
             {
               "kind": "ClientEdgeToClientObject",
@@ -258,7 +289,7 @@ return {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "RelayReaderExecResolversTestRunsQuery",
+    "name": "RelayReaderExecResolversTestClientDirectiveQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -276,7 +307,8 @@ return {
           "resolverInfo": {
             "resolverFunction": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTest_user_one,
             "rootFragment": null
-          }
+          },
+          "fragment": null
         },
         "linkedField": {
           "alias": null,
@@ -286,7 +318,7 @@ return {
           "name": "RelayReaderExecResolversTest_user_one",
           "plural": false,
           "selections": [
-            (v2/*: any*/),
+            (v4/*: any*/),
             {
               "kind": "ClientEdgeToClientObject",
               "modelResolvers": {
@@ -303,7 +335,8 @@ return {
                 "resolverInfo": {
                   "resolverFunction": require('./../RelayReader-ExecResolvers-test').best_friend,
                   "rootFragment": null
-                }
+                },
+                "fragment": (v3/*: any*/)
               },
               "linkedField": {
                 "alias": null,
@@ -312,7 +345,7 @@ return {
                 "kind": "LinkedField",
                 "name": "best_friend",
                 "plural": false,
-                "selections": (v4/*: any*/),
+                "selections": (v5/*: any*/),
                 "storageKey": null
               }
             },
@@ -332,7 +365,8 @@ return {
                 "resolverInfo": {
                   "resolverFunction": require('./../RelayReader-ExecResolvers-test').friends,
                   "rootFragment": null
-                }
+                },
+                "fragment": (v3/*: any*/)
               },
               "linkedField": {
                 "alias": null,
@@ -341,23 +375,23 @@ return {
                 "kind": "LinkedField",
                 "name": "friends",
                 "plural": true,
-                "selections": (v4/*: any*/),
+                "selections": (v5/*: any*/),
                 "storageKey": null
               }
             },
-            (v3/*: any*/)
+            (v2/*: any*/)
           ],
           "storageKey": null
         }
       }
     ],
-    "use_exec_time_resolvers": true
+    "exec_time_resolvers_enabled_provider": require('./../relayReaderTestExecTimeResolversTrueProvider')
   },
   "params": {
-    "cacheID": "3f73e57d52c3f79eecc247feb0f865c5",
+    "cacheID": "93766bd16ee00d3863eac4f5873050f1",
     "id": null,
     "metadata": {},
-    "name": "RelayReaderExecResolversTestRunsQuery",
+    "name": "RelayReaderExecResolversTestClientDirectiveQuery",
     "operationKind": "query",
     "text": null
   }
@@ -365,10 +399,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "578779b7fde7d06fa0d924a675453176";
+  (node/*: any*/).hash = "6a6cebf94e46a5bc998e01e8c6a67718";
 }
 
 module.exports = ((node/*: any*/)/*: ClientQuery<
-  RelayReaderExecResolversTestRunsQuery$variables,
-  RelayReaderExecResolversTestRunsQuery$data,
+  RelayReaderExecResolversTestClientDirectiveQuery$variables,
+  RelayReaderExecResolversTestClientDirectiveQuery$data,
 >*/);

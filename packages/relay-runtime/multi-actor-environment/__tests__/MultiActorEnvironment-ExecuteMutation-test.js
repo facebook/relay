@@ -90,6 +90,7 @@ describe('executeMutation()', () => {
         node(id: $id) {
           id
           ...MultiActorEnvironmentExecuteMutationTestCommentFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

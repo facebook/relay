@@ -81,6 +81,7 @@ describe('executeSubscrption() with @stream', () => {
         node(id: $id) {
           id
           ...RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

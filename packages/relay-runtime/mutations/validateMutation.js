@@ -145,13 +145,13 @@ if (__DEV__) {
         return validateModuleImport(context);
       case 'TypeDiscriminator':
         return validateAbstractKey(context, selection.abstractKey);
-      case 'RelayResolver':
-      case 'RelayLiveResolver':
       case 'ClientEdgeToClientObject':
       case 'LinkedHandle':
       case 'ScalarHandle':
       case 'Defer':
-      case 'Stream': {
+      case 'Stream':
+      case 'RelayResolver':
+      case 'RelayLiveResolver': {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }

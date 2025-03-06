@@ -36,7 +36,12 @@ export type TReaderTestUser = {
   name: ?string,
 };
 
-const modelMock = jest.fn();
+let modelMock;
+let nameMock;
+let bestFriendMock;
+let friendsMock;
+let user_oneMock;
+
 /**
  * @RelayResolver RelayReaderExecResolversTestUser
  */
@@ -47,7 +52,6 @@ export function RelayReaderExecResolversTestUser(id: DataID): TReaderTestUser {
   };
 }
 
-const nameMock = jest.fn();
 /**
  * @RelayResolver RelayReaderExecResolversTestUser.name: String
  */
@@ -56,7 +60,6 @@ export function name(user: TReaderTestUser): ?string {
   return user.name;
 }
 
-const bestFriendMock = jest.fn();
 /**
  * @RelayResolver RelayReaderExecResolversTestUser.best_friend: RelayReaderExecResolversTestUser
  */
@@ -67,7 +70,6 @@ export function best_friend(
   return {id: '2'};
 }
 
-const friendsMock = jest.fn();
 /**
  * @RelayResolver RelayReaderExecResolversTestUser.friends: [RelayReaderExecResolversTestUser]
  */
@@ -78,7 +80,6 @@ export function friends(
   return [{id: '2'}, {id: '3'}, {id: '4'}];
 }
 
-const user_oneMock = jest.fn();
 /**
  * @RelayResolver Query.RelayReaderExecResolversTest_user_one: RelayReaderExecResolversTestUser
  */
@@ -87,6 +88,14 @@ export function RelayReaderExecResolversTest_user_one(): IdOf<'RelayReaderExecRe
   return {id: '1'};
 }
 
+beforeEach(() => {
+  modelMock = jest.fn();
+  nameMock = jest.fn();
+  bestFriendMock = jest.fn();
+  friendsMock = jest.fn();
+  user_oneMock = jest.fn();
+});
+
 /**
  * Note that the reading of exec time resolvers is expected to be the same as
  * the reading of standard server queries. The main purpose of testing is to ensure
@@ -94,11 +103,149 @@ export function RelayReaderExecResolversTest_user_one(): IdOf<'RelayReaderExecRe
  * not as read time resolver queries.
  */
 describe('RelayReaderExecResolvers', () => {
-  it('reads exec_time_resolvers without calling the resolvers', () => {
+  it('reads exec_time_resolvers without calling the resolvers when provider returns true', () => {
     const Query = graphql`
-      query RelayReaderExecResolversTestRunsQuery @exec_time_resolvers {
+      query RelayReaderExecResolversTestQuery
+      @exec_time_resolvers(
+        enabledProvider: "relayReaderTestExecTimeResolversTrueProvider"
+      ) {
         RelayReaderExecResolversTest_user_one {
           name
+          best_friend {
+            name
+          }
+          friends {
+            name
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(Query, {});
+    const source = new RelayRecordSource({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        RelayReaderExecResolversTest_user_one: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        name: 'Alice',
+        friends: {__refs: ['2', '3', '4']},
+      },
+      '2': {
+        __id: '2',
+        name: 'Bob',
+      },
+      '3': {
+        __id: '3',
+        name: 'Claire',
+      },
+      '4': {
+        __id: '4',
+        name: 'Dennis',
+      },
+    });
+    const resolverStore = new RelayModernStore(source);
+    const {data} = read(
+      source,
+      operation.fragment,
+      new LiveResolverCache(() => source, resolverStore),
+    );
+
+    expect(modelMock).not.toBeCalled();
+    expect(nameMock).not.toBeCalled();
+    expect(user_oneMock).not.toBeCalled();
+    expect(friendsMock).not.toBeCalled();
+    expect(data).toEqual({
+      RelayReaderExecResolversTest_user_one: {
+        name: 'Alice',
+        friends: [{name: 'Bob'}, {name: 'Claire'}, {name: 'Dennis'}],
+      },
+    });
+  });
+
+  it('reads read time resolvers when exec time resolvers provider returns false', () => {
+    const Query = graphql`
+      query RelayReaderExecResolversTestFalseProviderQuery
+      @exec_time_resolvers(
+        enabledProvider: "relayReaderTestExecTimeResolversFalseProvider"
+      ) {
+        RelayReaderExecResolversTest_user_one {
+          name
+          best_friend {
+            name
+          }
+          friends {
+            name
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(Query, {});
+    const source = new RelayRecordSource({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        RelayReaderExecResolversTest_user_one: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        name: 'Alice',
+        friends: {__refs: ['2', '3', '4']},
+      },
+      '2': {
+        __id: '2',
+        name: 'Bob',
+      },
+      '3': {
+        __id: '3',
+        name: 'Claire',
+      },
+      '4': {
+        __id: '4',
+        name: 'Dennis',
+      },
+    });
+    const resolverStore = new RelayModernStore(source);
+    const {data} = read(
+      source,
+      operation.fragment,
+      new LiveResolverCache(() => source, resolverStore),
+    );
+
+    expect(modelMock).toBeCalled();
+    expect(nameMock).toBeCalled();
+    expect(user_oneMock).toBeCalled();
+    expect(friendsMock).toBeCalled();
+    expect(data).toEqual({
+      RelayReaderExecResolversTest_user_one: {
+        best_friend: {
+          name: 'Bob',
+        },
+        friends: [
+          {
+            name: 'Bob',
+          },
+          {
+            name: 'Claire',
+          },
+          {
+            name: 'Dennis',
+          },
+        ],
+        name: 'Alice',
+      },
+    });
+  });
+
+  it('reads exec time resolvers data correctly when client side directives are present, like @required', () => {
+    const Query = graphql`
+      query RelayReaderExecResolversTestClientDirectiveQuery
+      @exec_time_resolvers(
+        enabledProvider: "relayReaderTestExecTimeResolversTrueProvider"
+      ) {
+        RelayReaderExecResolversTest_user_one {
+          name @required(action: THROW)
           best_friend {
             name
           }

@@ -35,7 +35,7 @@ function handleFieldErrors(
       switch (fieldError.kind) {
         case 'relay_resolver.error':
           throw new Error(
-            `Relay: Resolver error at path '${fieldError.fieldPath}' in '${fieldError.owner}'.`,
+            `Relay: Resolver error at path '${fieldError.fieldPath}' in '${fieldError.owner}'. Message: ${fieldError.error.message}`,
           );
         case 'relay_field_payload.error':
           throw new Error(

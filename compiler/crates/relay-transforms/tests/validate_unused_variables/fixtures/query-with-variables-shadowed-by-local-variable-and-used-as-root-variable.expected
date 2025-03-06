@@ -24,4 +24,9 @@ fragment AnotherUser_data on User {
   }
 }
 ==================================== OUTPUT ===================================
-OK
+OK.
+
+Cached Fragments:
+AnotherUser_data -> POPULATED ("foo")
+User_data -> POPULATED ("foo")
+User_data_with_args -> POPULATED ("foo")

@@ -15,7 +15,6 @@ use common::DirectiveName;
 use common::NamedItem;
 use errors::try2;
 use graphql_ir::reexport::Intern;
-use graphql_ir::ExecutableDefinition;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::Program;
@@ -25,8 +24,6 @@ use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 
-use crate::fragment_alias_directive;
-use crate::required_directive;
 use crate::ValidationMessageWithData;
 use crate::CATCH_DIRECTIVE_NAME;
 use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
@@ -39,32 +36,15 @@ lazy_static! {
         DirectiveName("throwOnFieldError".intern());
 }
 
-// NOTE: This validation expects to run on UNTRANSFORMED IR. To the extent that
-// it relies on other transforms, it runs them itself.
-//
-// If you start running this validation on transformed IR, you will want/need to
-// refactor the places that run this transform to pre-apply all required
-// transforms.
-pub fn disallow_required_on_non_null_field(
-    program: &Program,
-) -> DiagnosticsResult<Vec<Diagnostic>> {
-    // This validation depends on metadata directives added by the
-    // required_directive transform. This validation is run on untransformed
-    // versions of IR both in the LSP and as a codemod, so we apply the transform
-    // ourselves locally.
-    let program = fragment_alias_directive(program, &common::FeatureFlag::Disabled)?;
-    let program = required_directive(&program)?;
+pub fn disallow_required_on_non_null_field(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowRequiredOnNonNullField::new(&program.schema);
-    validator.validate_program(&program)?;
-    Ok(validator.warnings)
-}
+    validator.validate_program(program)?;
 
-pub fn disallow_required_on_non_null_field_for_executable_definition(
-    schema: &Arc<SDLSchema>,
-    definition: &ExecutableDefinition,
-) -> DiagnosticsResult<Vec<Diagnostic>> {
-    let program = Program::from_definitions(Arc::clone(schema), vec![definition.clone()]);
-    disallow_required_on_non_null_field(&program)
+    if validator.warnings.is_empty() {
+        Ok(())
+    } else {
+        Err(validator.warnings)
+    }
 }
 
 struct DisallowRequiredOnNonNullField<'a> {

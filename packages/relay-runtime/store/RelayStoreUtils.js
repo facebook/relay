@@ -186,7 +186,7 @@ function getReadTimeResolverStorageKey(
 ): string {
   const storageKey = getStorageKey(field, variables);
   return RelayFeatureFlags.ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX
-    ? RELAY_READ_TIME_RESOLVER_KEY_PREFIX + storageKey
+    ? '$r:' + storageKey // Using inlined string to test the performance impact
     : storageKey;
 }
 

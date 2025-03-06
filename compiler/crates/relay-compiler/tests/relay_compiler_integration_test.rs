@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<73cd290ab5054a643e2e27b6b67d7d1b>>
+ * @generated SignedSource<<18ad721b702d974f6b034f393230738d>>
  */
 
 mod relay_compiler_integration;
@@ -276,6 +276,13 @@ async fn resolver_returns_interface_of_live_and_non_live_strong_model_type() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_interface_of_live_and_non_live_strong_model_type.input", "relay_compiler_integration/fixtures/resolver_returns_interface_of_live_and_non_live_strong_model_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_plural_server_type_invalid() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_plural_server_type.invalid.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_plural_server_type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_plural_server_type.invalid.input", "relay_compiler_integration/fixtures/resolver_returns_plural_server_type.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

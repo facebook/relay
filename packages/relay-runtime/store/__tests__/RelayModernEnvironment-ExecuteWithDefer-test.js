@@ -67,6 +67,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           query RelayModernEnvironmentExecuteWithDeferTestUserQuery($id: ID!) {
             node(id: $id) {
               ...RelayModernEnvironmentExecuteWithDeferTestUserFragment
+                @dangerously_unaliased_fixme
                 @defer(label: "UserFragment")
             }
           }

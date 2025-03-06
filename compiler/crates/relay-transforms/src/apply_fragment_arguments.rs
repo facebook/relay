@@ -47,6 +47,7 @@ use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use itertools::Itertools;
@@ -190,7 +191,22 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
             // this transform does not add the SplitOperation directive, so this
             //  should be equal to checking whether the result is a split operation
             self.provided_variables.clear();
-            transform_result
+
+            match transform_result {
+                Transformed::Keep => Transformed::Keep,
+                Transformed::Replace(new_operation) => Transformed::Replace(new_operation),
+                Transformed::Delete => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::EmptySelectionsInDocument {
+                            document: "query",
+                            name: operation.name.item.0,
+                        },
+                        operation.name.location,
+                    ));
+
+                    Transformed::Delete
+                }
+            }
         } else {
             let mut add_provided_variables = |new_operation: &mut OperationDefinition| {
                 new_operation.variable_definitions.append(
@@ -211,7 +227,17 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     add_provided_variables(&mut new_operation);
                     Transformed::Replace(new_operation)
                 }
-                Transformed::Delete => Transformed::Delete,
+                Transformed::Delete => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::EmptySelectionsInDocument {
+                            document: "query",
+                            name: operation.name.item.0,
+                        },
+                        operation.name.location,
+                    ));
+
+                    Transformed::Delete
+                }
             }
         }
     }
@@ -739,5 +765,15 @@ enum ValidationMessage {
     )]
     ProvidedVariableIncompatibleWithArguments {
         original_definition_name: VariableName,
+    },
+    #[error(
+        "After applying transforms to the {document} `{name}` selections of \
+        the `{name}` that would be sent to the server are empty. \
+        This is likely due to the use of `@skip`/`@include` directives with \
+        constant values that remove all selections in the {document}. "
+    )]
+    EmptySelectionsInDocument {
+        name: StringKey,
+        document: &'static str,
     },
 }

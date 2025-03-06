@@ -57,7 +57,9 @@ With the `MockPayloadGenerator` and `@relay_test_operation`, we want to get rid 
 **[React Testing Library](https://testing-library.com/react)** is a set of helpers that let you test React components without relying on their implementation details. This approach makes refactoring a breeze and also nudges you towards best practices for accessibility. Although it doesn't provide a way to "shallowly" render a component without its children, a test runner like Jest lets you do this by [mocking](https://reactjs.org/docs/testing-recipes.html#mocking-modules).
 
 <FbInternalOnly>
+
 Note: The [`ReactTestRenderer`](https://www.npmjs.com/package/react-test-renderer) library has been deprecated since React v18. `ReactTestRenderer` may still be referenced internally as an alternative to React Testing Library. However, when possible, we recommend using React Testing Library (or `@testing-library/react-native`) to test your React applications with Relay.
+
 </FbInternalOnly>
 
 ## RelayMockEnvironment API Overview

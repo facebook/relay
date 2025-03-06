@@ -296,6 +296,7 @@ beforeEach(() => {
     ) {
       node(id: $id) {
         ...usePaginationFragmentTestUserFragment
+          @dangerously_unaliased_fixme
           @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
       }
     }
@@ -313,6 +314,7 @@ beforeEach(() => {
       node(id: $id) {
         actor {
           ...usePaginationFragmentTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
@@ -330,6 +332,7 @@ beforeEach(() => {
       viewer {
         actor {
           ...usePaginationFragmentTestUserFragment
+            @dangerously_unaliased_fixme
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
@@ -345,6 +348,7 @@ beforeEach(() => {
     ) {
       node(id: $id) {
         ...usePaginationFragmentTestUserFragment
+          @dangerously_unaliased_fixme
           @arguments(isViewerFriendLocal: true, orderby: ["name"])
       }
     }
@@ -361,6 +365,7 @@ beforeEach(() => {
     ) {
       node(id: $id) {
         ...usePaginationFragmentTestUserFragmentWithStreaming
+          @dangerously_unaliased_fixme
           @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
       }
     }

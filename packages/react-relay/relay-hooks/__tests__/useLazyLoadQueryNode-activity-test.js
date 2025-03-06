@@ -190,6 +190,7 @@ beforeEach(() => {
         id
         name
         ...useLazyLoadQueryNodeActivityTestUserFragment
+          @dangerously_unaliased_fixme
       }
     }
   `;

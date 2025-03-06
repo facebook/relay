@@ -132,7 +132,10 @@ class RelayReader {
     this._fieldErrors = null;
     this._owner = selector.owner;
     this._useExecTimeResolvers =
-      this._owner.node.operation.use_exec_time_resolvers ?? false;
+      this._owner.node.operation.use_exec_time_resolvers ??
+      this._owner.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+        true ??
+      false;
     this._recordSource = recordSource;
     this._seenRecords = new Set();
     this._selector = selector;
@@ -283,6 +286,7 @@ class RelayReader {
       if (record === undefined) {
         this._markDataAsMissing('<record>');
       }
+      // $FlowFixMe[incompatible-return]
       return record;
     }
     const data = prevData || {};
@@ -657,13 +661,31 @@ class RelayReader {
         } else {
           return this._readLink(selection.field, record, data);
         }
+
       case 'RelayResolver':
-        return this._readResolverField(selection.field, record, data);
-      case 'RelayLiveResolver':
-        return this._readResolverField(selection.field, record, data);
+      case 'RelayLiveResolver': {
+        if (this._useExecTimeResolvers) {
+          return this._readScalar(selection.field, record, data);
+        } else {
+          return this._readResolverField(selection.field, record, data);
+        }
+      }
       case 'ClientEdgeToClientObject':
       case 'ClientEdgeToServerObject':
-        return this._readClientEdge(selection.field, record, data);
+        if (
+          this._useExecTimeResolvers &&
+          (selection.field.backingField.kind === 'RelayResolver' ||
+            selection.field.backingField.kind === 'RelayLiveResolver')
+        ) {
+          const {field} = selection;
+          if (field.linkedField.plural) {
+            return this._readPluralLink(field.linkedField, record, data);
+          } else {
+            return this._readLink(field.linkedField, record, data);
+          }
+        } else {
+          return this._readClientEdge(selection.field, record, data);
+        }
       case 'AliasedInlineFragmentSpread':
         return this._readAliasedInlineFragment(selection.field, record, data);
       default:

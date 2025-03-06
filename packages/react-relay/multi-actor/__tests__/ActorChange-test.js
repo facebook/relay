@@ -185,6 +185,7 @@ describe('ActorChange', () => {
     );
   });
 
+  // $FlowFixMe[cannot-resolve-name]
   skipIf(process.env.OSS, 'should render a fragment for actor', () => {
     fetchFnForActor = jest.fn(actorId =>
       Observable.from(
@@ -286,6 +287,7 @@ describe('ActorChange', () => {
   });
 
   skipIf(
+    // $FlowFixMe[cannot-resolve-name]
     process.env.OSS,
     'should send a query and mutations with correct actor id, from the correct environment',
     () => {

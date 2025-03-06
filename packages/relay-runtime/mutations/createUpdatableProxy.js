@@ -181,11 +181,11 @@ function updateProxyFromSelections<TData>(
       case 'ClientEdgeToServerObject':
       case 'Defer':
       case 'ModuleImport':
-      case 'RelayLiveResolver':
       case 'RequiredField':
       case 'CatchField':
       case 'Stream':
       case 'RelayResolver':
+      case 'RelayLiveResolver':
         // These types of reader nodes are not currently handled.
         throw new Error(
           'Encountered an unexpected ReaderSelection variant in RelayRecordSourceProxy. This indicates a bug in Relay.',

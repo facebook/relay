@@ -6,4 +6,6 @@ query QueryWithUnusedVariable($unused: ID)
   }
 }
 ==================================== OUTPUT ===================================
-OK
+OK.
+
+No Cached Fragments.

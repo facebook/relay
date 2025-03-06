@@ -103,6 +103,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
           id
           name
           ...useLazyLoadQueryNodeFastRefreshTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

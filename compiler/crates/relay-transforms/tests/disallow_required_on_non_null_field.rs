@@ -15,6 +15,7 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::disallow_required_on_non_null_field;
+use relay_transforms::required_directive;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
@@ -28,14 +29,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         let ir = build(&schema, &ast.definitions)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
         let program = Program::from_definitions(Arc::clone(&schema), ir);
+        let program = required_directive(&program).unwrap();
         let results = disallow_required_on_non_null_field(&program)
-            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics));
 
-        Ok(format!(
-            "OK; warnings: {}",
-            diagnostics_to_sorted_string(fixture.content, &results)
-        )
-        .to_owned())
+        match results {
+            Ok(_) => Ok("OK".to_owned()),
+            Err(diagnostics) => Ok(format!("OK; warnings: {}", diagnostics).to_owned()),
+        }
     } else {
         panic!("Expected exactly one %extensions% section marker.")
     }

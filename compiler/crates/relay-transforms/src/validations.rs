@@ -35,7 +35,6 @@ pub use disallow_circular_no_inline_fragments::disallow_circular_no_inline_fragm
 pub use disallow_non_node_id_fields::disallow_non_node_id_fields;
 pub use disallow_readtime_features_in_mutations::disallow_readtime_features_in_mutations;
 pub use disallow_required_on_non_null_field::disallow_required_on_non_null_field;
-pub use disallow_required_on_non_null_field::disallow_required_on_non_null_field_for_executable_definition;
 pub use disallow_reserved_aliases::disallow_reserved_aliases;
 pub use disallow_typename_on_root::disallow_typename_on_root;
 pub use validate_client_schema_extensions_use_catch::validate_client_schema_extensions_use_catch;
@@ -55,3 +54,4 @@ pub use validate_server_only_directives::validate_server_only_directives;
 pub use validate_static_args::validate_static_args;
 pub use validate_unused_fragment_variables::validate_unused_fragment_variables;
 pub use validate_unused_variables::validate_unused_variables;
+pub use validate_unused_variables::ValidateUnusedVariables;

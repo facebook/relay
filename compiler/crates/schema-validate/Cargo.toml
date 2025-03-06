@@ -17,14 +17,14 @@ name = "schema_validate_test"
 path = "tests/validate_schema_test.rs"
 
 [dependencies]
-clap = { version = "4.5.20", features = ["derive", "env", "string", "unicode", "wrap_help"] }
+clap = { version = "4.5.30", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
 fnv = "1.0"
 graphql-cli = { path = "../graphql-cli" }
 intern = { path = "../intern" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 rayon = "1.9.0"
-regex = "1.9.2"
+regex = "1.11.1"
 schema = { path = "../schema" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 thiserror = "2"

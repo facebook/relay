@@ -42,6 +42,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
       query useFragmentNodeReactDoubleEffectsTestUserQuery($id: ID!) {
         node(id: $id) {
           ...useFragmentNodeReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

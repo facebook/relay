@@ -50,6 +50,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
       ) {
         node(id: $id) {
           ...ReactRelayRefetchContainerReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

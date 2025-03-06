@@ -75,7 +75,7 @@ beforeEach(() => {
   query = graphql`
     query useIsParentQueryActiveTestUserQuery($id: ID!) {
       node(id: $id) {
-        ...useIsParentQueryActiveTestUserFragment
+        ...useIsParentQueryActiveTestUserFragment @dangerously_unaliased_fixme
       }
     }
   `;
@@ -364,7 +364,9 @@ it('updates the component when a pending owner fetch with multiple payloads comp
   query = graphql`
     query useIsParentQueryActiveTestUserDeferQuery($id: ID!) {
       node(id: $id) {
-        ...useIsParentQueryActiveTestUserFragment @defer
+        ...useIsParentQueryActiveTestUserFragment
+          @dangerously_unaliased_fixme
+          @defer
       }
     }
   `;

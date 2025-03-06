@@ -319,8 +319,6 @@ class RelayResponseNormalizer {
           this._normalizeActorChange(selection, record, data);
           break;
         case 'RelayResolver':
-          this._normalizeResolver(selection, record, data);
-          break;
         case 'RelayLiveResolver':
           this._normalizeResolver(selection, record, data);
           break;

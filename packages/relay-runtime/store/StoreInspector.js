@@ -32,11 +32,14 @@ if (__DEV__) {
     }
     formattersInstalled = true;
     // $FlowFixMe[incompatible-use] D61394600
+    // $FlowFixMe[cannot-resolve-name]
     if (window.devtoolsFormatters == null) {
       // $FlowFixMe[incompatible-use] D61394600
+      // $FlowFixMe[cannot-resolve-name]
       window.devtoolsFormatters = [];
     }
     // $FlowFixMe[incompatible-use] D61394600
+    // $FlowFixMe[cannot-resolve-name]
     if (!Array.isArray(window.devtoolsFormatters)) {
       return;
     }
@@ -47,6 +50,7 @@ if (__DEV__) {
         'section.',
     );
     // $FlowFixMe[incompatible-use] D61394600
+    // $FlowFixMe[cannot-resolve-name]
     window.devtoolsFormatters.push(...createFormatters());
   };
 
@@ -137,6 +141,7 @@ if (__DEV__) {
   ): ?{[string]: mixed} => {
     const record = source.get(dataID);
     if (record == null) {
+      // $FlowFixMe[incompatible-return]
       return record;
     }
     return new Proxy(

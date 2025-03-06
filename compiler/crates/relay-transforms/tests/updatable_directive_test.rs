@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<97d52b0fa84f80726d7eb06310a18c0d>>
+ * @generated SignedSource<<424418c51b45b6086d00947be17a05cd>>
  */
 
 mod updatable_directive;
@@ -31,6 +31,13 @@ async fn client_side_updatable() {
     let input = include_str!("updatable_directive/fixtures/client-side-updatable.graphql");
     let expected = include_str!("updatable_directive/fixtures/client-side-updatable.expected");
     test_fixture(transform_fixture, file!(), "client-side-updatable.graphql", "updatable_directive/fixtures/client-side-updatable.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerously_unaliased_allowed() {
+    let input = include_str!("updatable_directive/fixtures/dangerously-unaliased-allowed.graphql");
+    let expected = include_str!("updatable_directive/fixtures/dangerously-unaliased-allowed.expected");
+    test_fixture(transform_fixture, file!(), "dangerously-unaliased-allowed.graphql", "updatable_directive/fixtures/dangerously-unaliased-allowed.expected", input, expected).await;
 }
 
 #[tokio::test]

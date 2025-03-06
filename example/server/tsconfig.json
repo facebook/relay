@@ -1,0 +1,32 @@
+{
+    "grats": {
+      // For all available options see:
+      // https://grats.capt.dev/docs/getting-started/configuration
+
+      // We use the `nullableByDefault` option to make all types nullable by
+      // default. This ensures that errors throw while evaluating resolvers
+      // only breaks the field that errored and does not destroy parent objects
+      // via null bubbling. We rely on Semantic Nullability (enabled below) to
+      // allow Relay and other smart clients to see which fields are nullable.
+      "nullableByDefault": true,
+
+      // Makes Grats annotate fields which are typed as non-nullable with the 
+      // `@semanticNonNull` directive. Relay and other smart clients can use
+      // this directive to type those fields as non-nullable on the client when
+      // explicit error handing is enabled.
+      //
+      // See:
+      // * https://grats.capt.dev/docs/guides/strict-semantic-nullability/
+      // * https://relay.dev/docs/next/guides/semantic-nullability/
+      "strictSemanticNullability": true,
+
+      // We run the server with Node's experimental `--experimental-strip-types`
+      // flag to remove TypeScript types from source code. This requires imports
+      // use the explicit `.ts` extension.
+      "importModuleSpecifierEnding": ".ts",
+    },
+    "compilerOptions": {
+      "strictNullChecks": true,
+      "module": "NodeNext"
+    }
+  }

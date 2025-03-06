@@ -37,4 +37,14 @@ const fragment = require('__generated__/User_fragment.graphql');
 - `jsModuleFormat` Formatting style for generated files. `commonjs` or `haste`.
   Default is `commonjs`. [string]
 
+### Multi-project configuration
+
+The plugin also supports multi-project configurations with two key components:
+
+- `projects` An object where each key is a project name and its value is a project configuration. Each project can have any of the settings listed above (jsModuleFormat, eagerEsModules, etc.). Project settings override global settings. Use `output` instead of `artifactDirectory` in project configs. [object]
+
+- `sources` An object mapping directory paths to project names. Each key is a directory path and its value is either a project name or an array of project names. The most specific matching path is used. [object]
+
+When a file matches multiple projects, the first project's settings are used, and a warning is logged if there are conflicting settings.
+
 [Configuration Instructions](https://relay.dev/docs/getting-started/installation-and-setup/#set-up-babel-plugin-relay)

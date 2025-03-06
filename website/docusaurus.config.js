@@ -192,6 +192,12 @@ module.exports = {
         infoLink: 'https://steepapp.com',
         pinned: false,
       },
+      {
+        caption: 'GigSmart',
+        image: '/img/logos/gigsmart.png',
+        infoLink: 'https://gigsmart.com',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

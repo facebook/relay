@@ -39,6 +39,7 @@ use crate::errors::MachineMetadataKey;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::ConstantValue;
+use crate::ir::FragmentDefinition;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
@@ -89,6 +90,17 @@ pub struct FragmentSignature {
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
     pub directives: Vec<crate::Directive>,
+}
+
+impl From<&FragmentDefinition> for FragmentSignature {
+    fn from(fragment: &FragmentDefinition) -> Self {
+        Self {
+            name: fragment.name,
+            variable_definitions: fragment.variable_definitions.clone(),
+            type_condition: fragment.type_condition,
+            directives: fragment.directives.clone(),
+        }
+    }
 }
 
 pub fn build_signatures(

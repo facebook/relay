@@ -256,10 +256,11 @@ function loadQuery<
     // N.B. If the fetch policy allows fulfillment from the store but the
     // environment already has the data for that operation cached in the store,
     // then we do nothing.
-    const operationAvailability = environment.check(operation);
     const shouldFetch =
       fetchPolicy !== 'store-or-network' ||
-      operationAvailability.status !== 'available';
+      // environment.check can trigger store updates through missing field handlers,
+      // short circuiting the check avoids unnecessary updates
+      environment.check(operation).status !== 'available';
 
     if (shouldFetch) {
       executeDeduped(operation, () => {
@@ -267,7 +268,7 @@ function loadQuery<
         // we can immediately fetch and execute the operation.
         const networkObservable = makeNetworkRequest(
           concreteRequest.params,
-          () => operationAvailability,
+          () => environment.check(operation),
         );
         const executeObservable = executeWithNetworkSource(
           operation,

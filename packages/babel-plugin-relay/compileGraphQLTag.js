@@ -24,9 +24,9 @@ const {print} = require('graphql');
 const {
   dirname,
   join: joinPath,
+  normalize: normalizePath,
   relative: relativePath,
   resolve: resolvePath,
-  normalize: normalizePath,
   sep: pathSep,
   // $FlowFixMe[cannot-resolve-module]
 } = require('path');
@@ -56,7 +56,6 @@ function getProjectsForFile(
 
   const normalizedFilePath = normalizePath(filePath);
 
-  let bestMatchPath = '';
   let bestMatchDepth = -1;
   let matchingProjects: ?Array<string> = null;
 
@@ -77,7 +76,6 @@ function getProjectsForFile(
 
       // If this match is more specific (deeper) than our current match, use it
       if (pathDepth > bestMatchDepth) {
-        bestMatchPath = sourcePath;
         bestMatchDepth = pathDepth;
 
         // Handle the case where projectsValue is null or an empty array

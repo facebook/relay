@@ -35,16 +35,11 @@ const {createMockEnvironment} = require('relay-test-utils');
 const {
   injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
-const {
-  disallowConsoleErrors,
-  disallowWarnings,
-  expectToWarn,
-} = require('relay-test-utils-internal');
-
-disallowWarnings();
-disallowConsoleErrors();
+const warning = require('warning');
 
 injectPromisePolyfill__DEPRECATED();
+
+jest.mock('warning');
 
 const query = graphql`
   query usePreloadedQueryTestQuery($id: ID!) {
@@ -114,6 +109,11 @@ class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
     }
   }
 }
+
+beforeEach(() => {
+  // $FlowFixMe[prop-missing]
+  warning.mockClear();
+});
 
 afterAll(() => {
   jest.clearAllMocks();
@@ -1041,20 +1041,15 @@ describe('usePreloadedQuery', () => {
           return data.node?.name;
         }
         let renderer;
-        expectToWarn(
-          'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query that was created with a different environment than the one that is currently in context. In the future, this will become a hard error.',
-          () => {
-            TestRenderer.act(() => {
-              renderer = TestRenderer.create(
-                <RelayEnvironmentProvider environment={altEnvironment}>
-                  <React.Suspense fallback="Fallback">
-                    <Component prefetched={prefetched} />
-                  </React.Suspense>
-                </RelayEnvironmentProvider>,
-              );
-            });
-          },
-        );
+        TestRenderer.act(() => {
+          renderer = TestRenderer.create(
+            <RelayEnvironmentProvider environment={altEnvironment}>
+              <React.Suspense fallback="Fallback">
+                <Component prefetched={prefetched} />
+              </React.Suspense>
+            </RelayEnvironmentProvider>,
+          );
+        });
 
         expect(renderer?.toJSON()).toEqual('Fallback');
         expect(altFetch).toHaveBeenCalledTimes(1);
@@ -1063,12 +1058,7 @@ describe('usePreloadedQuery', () => {
           altDataSource.next(response);
         }
 
-        expectToWarn(
-          'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query that was created with a different environment than the one that is currently in context. In the future, this will become a hard error.',
-          () => {
-            TestRenderer.act(() => jest.runAllImmediates());
-          },
-        );
+        TestRenderer.act(() => jest.runAllImmediates());
         expect(renderer?.toJSON()).toEqual('Zuck');
       });
     });
@@ -1076,7 +1066,7 @@ describe('usePreloadedQuery', () => {
     describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
       it('warns that the preloadedQuery has already been disposed', () => {
         const expectWarningMessage =
-          'usePreloadedQuery(): Expected preloadedQuery to not be disposed yet. This is because disposing the query marks it for future garbage collection, and as such query results may no longer be present in the Relay store. In the future, this will become a hard error.';
+          /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/;
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '1',
         });
@@ -1100,11 +1090,23 @@ describe('usePreloadedQuery', () => {
         };
 
         render();
+        // $FlowFixMe[prop-missing]
+        const warningCallsBefore = warning.mock.calls.filter(([_, message]) =>
+          message.match(expectWarningMessage),
+        );
+        expect(warningCallsBefore.length).toBe(1);
+        // invariant holds
+        expect(warningCallsBefore[0][0]).toBe(true);
 
         prefetched.dispose();
-        expectToWarn(expectWarningMessage, () => {
-          render();
-        });
+        render();
+        // $FlowFixMe[prop-missing]
+        const warningCallsAfter = warning.mock.calls.filter(([_, message]) =>
+          message.match(expectWarningMessage),
+        );
+        expect(warningCallsAfter.length).toBe(2);
+        // invariant broken
+        expect(warningCallsAfter[1][0]).toBe(false);
       });
     });
 

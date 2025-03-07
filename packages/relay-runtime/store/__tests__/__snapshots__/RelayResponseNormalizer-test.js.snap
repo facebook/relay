@@ -1,5 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`RelayResponseNormalizer Test ID collision logging warns when normalizing payloads with same id but different fields 1`] = `
+Object {
+  "1": Object {
+    "__id": "1",
+    "__typename": "User",
+    "id": "1",
+    "lastName": "Hanks",
+  },
+  "client:root": Object {
+    "__id": "client:root",
+    "__typename": "__Root",
+    "me": Object {
+      "__ref": "1",
+    },
+  },
+}
+`;
+
+exports[`RelayResponseNormalizer Test ID collision logging warns when normalizing payloads with same id but different types 1`] = `
+Object {
+  "1": Object {
+    "__id": "1",
+    "__typename": "User",
+    "id": "1",
+  },
+  "client:root": Object {
+    "__id": "client:root",
+    "__typename": "__Root",
+    "me": Object {
+      "__ref": "1",
+    },
+  },
+}
+`;
+
 exports[`RelayResponseNormalizer normalizes queries with "filters" 1`] = `
 Object {
   "4": Object {

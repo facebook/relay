@@ -365,6 +365,10 @@ impl InMemorySchema {
         self.enums.iter()
     }
 
+    pub fn get_enums_par_iter(&self) -> impl ParallelIterator<Item = &Enum> {
+        self.enums.par_iter()
+    }
+
     pub fn get_objects(&self) -> impl Iterator<Item = &Object> {
         self.objects.iter()
     }

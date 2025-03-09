@@ -180,7 +180,6 @@ export type EntryPointComponent<
   TExtraProps = null,
   TRenders: React.Node = React.Node,
 > = component(
-  ref?: React.RefSetter<mixed>,
   ...EntryPointProps<
     TPreloadedQueries,
     TPreloadedEntryPoints,

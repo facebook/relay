@@ -139,6 +139,7 @@ pub(crate) fn write_operation_type_exports_section(
 
     let mut data_type = get_data_type(
         typegen_context,
+        &typegen_operation.type_,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
@@ -461,6 +462,7 @@ pub(crate) fn write_fragment_type_exports_section(
 
     let mut data_type = get_data_type(
         typegen_context,
+        &fragment_definition.type_condition,
         type_selections.into_iter(),
         mask_status,
         if mask_status == MaskStatus::Unmasked {
@@ -607,12 +609,9 @@ fn write_fragment_imports(
             ),
         };
 
-        let should_write_current_referenced_fragment = fragment_name_to_skip
-            .map_or(true, |fragment_name_to_skip| {
-                fragment_name_to_skip != current_referenced_fragment
-            });
-
-        if !should_write_current_referenced_fragment {
+        let should_skip_writing_current_referenced_fragment =
+            fragment_name_to_skip == Some(current_referenced_fragment);
+        if should_skip_writing_current_referenced_fragment {
             continue;
         }
 
@@ -1111,7 +1110,7 @@ fn write_concrete_validator_function(
 }
 
 fn is_plural(node: &FragmentDefinition) -> bool {
-    RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
+    RelayDirective::find(&node.directives).is_some_and(|relay_directive| relay_directive.plural)
 }
 
 fn has_fragment_spread(selections: &[Selection]) -> bool {

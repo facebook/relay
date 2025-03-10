@@ -19,6 +19,7 @@ import type {
   Variables,
 } from 'relay-runtime';
 
+const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -50,6 +51,10 @@ hook useLazyLoadQuery<TVariables: Variables, TData>(
     UNSTABLE_renderPolicy?: RenderPolicy,
   },
 ): TData {
+  // We need to use this hook in order to be able to track if
+  // loadQuery was called during render
+  useTrackLoadQueryInRender();
+
   const environment = useRelayEnvironment();
 
   const query = useMemoOperationDescriptor(

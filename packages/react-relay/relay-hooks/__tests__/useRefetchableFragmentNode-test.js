@@ -646,10 +646,11 @@ describe.each([['New', useRefetchableFragmentInternal]])(
           refetch({id: '4'});
         });
 
-        expect(warning).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[prop-missing]
+        const triggeredWarnings = warning.mock.calls.filter(args => !args[0]);
+        expect(triggeredWarnings.length).toBe(1);
         expect(
-          // $FlowFixMe[prop-missing]
-          warning.mock.calls[0][1].includes(
+          triggeredWarnings[0][1].includes(
             'Relay: Unexpected call to `refetch` while using a null fragment ref',
           ),
         ).toEqual(true);

@@ -70,6 +70,9 @@ export type FeatureFlags = {
 
   // Log an ID collision in the Relay store
   LOG_STORE_ID_COLLISION: ?(LogEvent) => void,
+
+  // Throw on nested store updates
+  DISALLOW_NESTED_UPDATES: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -96,6 +99,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
   ENABLE_RESOURCE_EFFECTS: false,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
+  DISALLOW_NESTED_UPDATES: false,
 };
 
 module.exports = RelayFeatureFlags;

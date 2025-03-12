@@ -33,6 +33,7 @@ import type {
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReader = require('./RelayReader');
 const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
@@ -221,24 +222,27 @@ class RelayPublishQueue implements PublishQueue {
       this._pendingOptimisticUpdates.size === 0 &&
       !runWillClearGcHold;
 
-    if (__DEV__) {
-      warning(
-        !runIsANoop,
-        'RelayPublishQueue.run was called, but the call would have been a noop.',
-      );
-      warning(
-        this._isRunning !== true,
-        'A store update was detected within another store update. Please ' +
-          "make sure new store updates aren't being executed within an " +
-          'updater function for a different update.',
-      );
-      this._isRunning = true;
-    }
+    warning(
+      !runIsANoop,
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    RelayFeatureFlags.DISALLOW_NESTED_UPDATES
+      ? invariant(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        )
+      : warning(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        );
+    this._isRunning = true;
 
     if (runIsANoop) {
-      if (__DEV__) {
-        this._isRunning = false;
-      }
+      this._isRunning = false;
       return [];
     }
 
@@ -270,9 +274,7 @@ class RelayPublishQueue implements PublishQueue {
         this._gcHold = null;
       }
     }
-    if (__DEV__) {
-      this._isRunning = false;
-    }
+    this._isRunning = false;
     return this._store.notify(sourceOperation, invalidatedStore);
   }
 

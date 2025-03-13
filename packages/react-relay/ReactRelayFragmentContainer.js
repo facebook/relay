@@ -269,12 +269,12 @@ function getRelayProp(environment: IEnvironment) {
  */
 function createContainer<
   Props: {...},
-  Instance,
-  TComponent: component(ref: React.RefSetter<Instance>, ...Props),
+  Ref,
+  TComponent: component(ref: Ref, ...Props),
 >(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
-): component(ref: React.RefSetter<Instance>, ...$RelayProps<Props, RelayProp>) {
+): component(ref: Ref, ...$RelayProps<Props, RelayProp>) {
   // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,

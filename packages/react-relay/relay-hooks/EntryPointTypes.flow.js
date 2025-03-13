@@ -36,6 +36,7 @@ export type PreloadFetchPolicy =
 export type PreloadOptions = {
   +fetchKey?: string | number,
   +fetchPolicy?: ?PreloadFetchPolicy,
+  +includeIf?: ?boolean,
   +networkCacheConfig?: ?CacheConfig,
 };
 

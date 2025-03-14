@@ -934,17 +934,10 @@
     core-js-pure "^3.20.2"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.10.2", "@babel/runtime@^7.18.3", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
-  version "7.18.9"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.18.9.tgz#b4fcfce55db3d2e5e080d2490f608a3b9f407f4a"
-  integrity sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw==
-  dependencies:
-    regenerator-runtime "^0.13.4"
-
-"@babel/runtime@^7.12.5", "@babel/runtime@^7.25.0":
-  version "7.25.0"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.25.0.tgz#3af9a91c1b739c569d5d80cc917280919c544ecb"
-  integrity sha512-7dRy4DwXwtzBrPbZflqxnvfxLF8kdZXPkhymtDeFoFqE6ldzjQFgYTtYIFARcLEYDrqfBfYcZt1WqFxRoyC9Rw==
+"@babel/runtime@^7.10.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.18.3", "@babel/runtime@^7.26.10", "@babel/runtime@^7.7.2", "@babel/runtime@^7.8.4":
+  version "7.26.10"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.26.10.tgz#a07b4d8fa27af131a633d7b3524db803eb4764c2"
+  integrity sha512-2WJMeRQPHKSPemqk/awGrAiuFfzBmOIPXKizAsVhWH9YJqLZ0H+HS4c8loHGgW6utJ3E/ejXQUsiGaQy2NZ9Fw==
   dependencies:
     regenerator-runtime "^0.14.0"
 
@@ -3142,7 +3135,6 @@ eslint-plugin-react@7.30.1:
 
 "eslint-plugin-relay-internal@link:./packages/eslint-plugin-relay-internal":
   version "0.0.0"
-  uid ""
 
 eslint-plugin-relay@1.8.3:
   version "1.8.3"
@@ -3562,10 +3554,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.6.tgz#022e9218c637f9f3fc9c35ab9c9193f05add60b2"
   integrity sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==
 
-flow-bin@^0.263.0:
-  version "0.263.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.263.0.tgz#0a836bdf82855d5df9858c781818ce51612be064"
-  integrity sha512-FkQywD+7wXru/7/SWJPVnZXUp6CW3XtrVZ26vhAdVfMx9xlwq/Zk/tXcn3OQuiHUA4kQvZNyfgRztp6oXgjsog==
+flow-bin@^0.265.0:
+  version "0.265.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.265.0.tgz#b97da41c752fead78da9c58344873b95763da678"
+  integrity sha512-O27LbAP1vND21YwLEn3eTlSBP5l+kLM18qax/rj0rFmdSqrYBLJ3fRyLzOVCZe4v5mSl3QU0HIYnDIWbAxsLRQ==
 
 flush-write-stream@^1.0.2:
   version "1.1.1"

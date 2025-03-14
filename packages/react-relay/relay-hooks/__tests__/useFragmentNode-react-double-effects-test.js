@@ -27,8 +27,7 @@ let gqlFragment;
 let variables;
 let renderSpy;
 
-// TODO(T83890478): enable once double invoked effects lands in xplat
-describe.skip('useFragmentNode-react-double-effects-test', () => {
+describe('useFragmentNode-react-double-effects-test', () => {
   beforeEach(() => {
     jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     jest.mock('warning');
@@ -111,6 +110,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     // Assert render state of component after double invoked effects
     expect(renderLogs).toEqual([
       'render: Alice',
+      'render: Alice',
       'commit: Alice',
       'cleanup: Alice',
       'commit: Alice',
@@ -131,6 +131,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
 
     // Assert render state of component after double invoked effects
     expect(renderLogs).toEqual([
+      'render: Alice Updated',
       'render: Alice Updated',
       'cleanup: Alice',
       'commit: Alice Updated',

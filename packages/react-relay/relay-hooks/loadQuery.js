@@ -31,7 +31,6 @@ import type {
 import type {OperationAvailability} from 'relay-runtime/store/RelayStoreTypes';
 
 const invariant = require('invariant');
-const React = require('react');
 const {
   __internal: {fetchQueryDeduped},
   Observable,
@@ -41,20 +40,8 @@ const {
   getRequest,
   getRequestIdentifier,
 } = require('relay-runtime');
-const warning = require('warning');
 
-let RenderDispatcher = null;
 let fetchKey = 100001;
-
-hook useTrackLoadQueryInRender() {
-  if (RenderDispatcher === null) {
-    // Flow does not know of React internals (rightly so), but we need to
-    // ensure here that this function isn't called inside render.
-    RenderDispatcher =
-      // $FlowFixMe[prop-missing]
-      React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE?.H;
-  }
-}
 
 type QueryType<T> =
   T extends Query<infer V, infer D, infer RR>
@@ -88,17 +75,6 @@ function loadQuery<
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
-  // This code ensures that we don't call loadQuery during render.
-  const CurrentDispatcher =
-    // $FlowFixMe[prop-missing]
-    React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE?.H;
-
-  warning(
-    RenderDispatcher == null || CurrentDispatcher !== RenderDispatcher,
-    'Relay: `%s` should not be called inside a React render function.',
-    options?.__nameForWarning ?? 'loadQuery',
-  );
-
   // Every time you call loadQuery, we will generate a new fetchKey.
   // This will ensure that every query reference that is created and
   // passed to usePreloadedQuery is independently evaluated,
@@ -416,5 +392,4 @@ function loadQuery<
 
 module.exports = {
   loadQuery,
-  useTrackLoadQueryInRender,
 };

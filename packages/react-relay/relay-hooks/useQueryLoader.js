@@ -23,7 +23,7 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
+const {loadQuery} = require('./loadQuery');
 const useIsMountedRef = require('./useIsMountedRef');
 const useQueryLoader_EXPERIMENTAL = require('./useQueryLoader_EXPERIMENTAL');
 const useRelayEnvironment = require('./useRelayEnvironment');
@@ -170,7 +170,6 @@ hook useQueryLoader_CURRENT<
     initialQueryReference ?? initialNullQueryReferenceState;
 
   const environment = useRelayEnvironment();
-  useTrackLoadQueryInRender();
 
   const isMountedRef = useIsMountedRef();
   const undisposedQueryReferencesRef = useRef<

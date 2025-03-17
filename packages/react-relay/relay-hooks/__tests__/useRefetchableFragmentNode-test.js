@@ -38,7 +38,6 @@ import type {
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const {useTrackLoadQueryInRender} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useRefetchableFragmentInternal = require('../useRefetchableFragmentInternal');
 const invariant = require('invariant');
@@ -369,7 +368,6 @@ describe.each([['New', useRefetchableFragmentInternal]])(
       };
 
       const ContextProvider = ({children}: {children: React.Node}) => {
-        useTrackLoadQueryInRender();
         const [env, _setEnv] = useState(environment);
         const relayContext = useMemo(() => ({environment: env}), [env]);
 

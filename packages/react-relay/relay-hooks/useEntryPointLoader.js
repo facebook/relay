@@ -21,7 +21,6 @@ import type {
 } from './EntryPointTypes.flow';
 
 const loadEntryPoint = require('./loadEntryPoint');
-const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useIsMountedRef = require('./useIsMountedRef');
 const {useCallback, useEffect, useRef, useState} = require('react');
 
@@ -103,8 +102,6 @@ hook useLoadEntryPoint<
    * Finally, when the hook unmounts, we also dispose of all remaining uncommitted
    * entry point references.
    */
-
-  useTrackLoadQueryInRender();
 
   const initialEntryPointReferenceInternal =
     options?.TEST_ONLY__initialEntryPointData?.entryPointReference ??

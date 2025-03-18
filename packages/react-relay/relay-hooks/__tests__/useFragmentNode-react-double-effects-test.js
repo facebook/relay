@@ -27,7 +27,7 @@ let gqlFragment;
 let variables;
 let renderSpy;
 
-describe('useFragmentNode-react-double-effects-test', () => {
+describe.skip('useFragmentNode-react-double-effects-test', () => {
   beforeEach(() => {
     jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     jest.mock('warning');

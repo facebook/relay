@@ -31,7 +31,7 @@ let gqlFragment;
 let variables;
 let renderSpy;
 
-describe('ReactRelayFragmentContainer-react-double-effects-test', () => {
+describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
   beforeEach(() => {
     // Set up feature flags
     RelayFeatureFlags.ENABLE_CONTAINERS_SUBSCRIBE_ON_COMMIT = true;

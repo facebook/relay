@@ -18,5 +18,5 @@ pathdiff = "0.2"
 regex = "1.11.1"
 schemars = { version = "0.8.21", features = ["indexmap2"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_json = { version = "1.0.132", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.140", features = ["float_roundtrip", "unbounded_depth"] }
 strum = { version = "0.26.2", features = ["derive"] }

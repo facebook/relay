@@ -137,7 +137,7 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 itertools = "0.14.0"
-lazy_static = "1.5"
+lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
 parking_lot = { version = "0.12.1", features = ["send_guard"] }
 regex = "1.11.1"
 relay-config = { path = "../relay-config" }

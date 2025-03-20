@@ -22,7 +22,7 @@ common = { path = "../common" }
 fnv = "1.0"
 graphql-cli = { path = "../graphql-cli" }
 intern = { path = "../intern" }
-lazy_static = "1.5"
+lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
 rayon = "1.9.0"
 regex = "1.11.1"
 schema = { path = "../schema" }

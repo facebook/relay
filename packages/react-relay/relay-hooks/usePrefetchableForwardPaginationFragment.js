@@ -101,6 +101,7 @@ hook usePrefetchableForwardPaginationFragment<
     onComplete?: (Error | null) => void,
   },
   minimalFetchSize: number = 1,
+  disablePrefetching?: boolean = false,
 ): ReturnType<TVariables, TData, TEdgeData, TKey> {
   const fragmentNode = getFragment(fragmentInput);
   useStaticFragmentNodeWarning(
@@ -316,6 +317,7 @@ hook usePrefetchableForwardPaginationFragment<
       // `loadMore` hook has been updated with the latest cursor
       !isLoadingMore &&
       !isRefetching &&
+      !disablePrefetching &&
       hasNext &&
       (sourceSize - numInUse < bufferSize || numInUse > sourceSize)
     ) {

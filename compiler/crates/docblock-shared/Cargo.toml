@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-hex = "0.4.3"
+hex = { version = "0.4.3", features = ["alloc"] }
 intern = { path = "../intern" }
 lazy_static = "1.5"
 md-5 = "0.10"

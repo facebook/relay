@@ -9,7 +9,7 @@ repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
-hex = "0.4.3"
+hex = { version = "0.4.3", features = ["alloc"] }
 lazy_static = "1.5"
 md-5 = "0.10"
 regex = "1.11.1"

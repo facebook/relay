@@ -51,17 +51,19 @@ function MyComponent({ key }) {
         }
       `,
       user,
-    ).subscribe(result => {
-      switch(result.kind) {
-        case "loading":
-          window.title = "...loading";
-          break;
-        case "error":
-          window.title = "Oops, we hit an error";
-          break;
-        case "ok":
-          window.title = `Welcome ${result.value.name}`;
-          break;
+    ).subscribe({
+      next: (result) => {
+        switch(result.kind) {
+          case "loading":
+            window.title = "...loading";
+            break;
+          case "error":
+            window.title = "Oops, we hit an error";
+            break;
+          case "ok":
+            window.title = `Welcome ${result.value.name}`;
+            break;
+        }
       }
     });
     return () => {

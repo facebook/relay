@@ -1981,3 +1981,71 @@ test('ResolverContext as passed through nested resolver counters', async () => {
     },
   });
 });
+
+test('Defer does not prevent suspense from a deferred fragment', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+
+  const Fragment = graphql`
+    fragment LiveResolversTestDeferFragment on Query {
+      counter_suspends_when_odd
+    }
+  `;
+  const FooQuery = graphql`
+    query LiveResolversTestDeferQuery {
+      ...LiveResolversTestDeferFragment @defer
+    }
+  `;
+
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  // Make the value odd for `counter_suspends_when_odd`
+  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+  environment.commitPayload(
+    createOperationDescriptor(getRequest(FooQuery), {}),
+    {
+      me: {id: '1'},
+    },
+  );
+
+  function Environment({children}: {children: React.Node}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">{children}</React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function TestComponent() {
+    const queryData = useLazyLoadQuery(FooQuery, {});
+    const fragmentData = useFragment(Fragment, queryData);
+    return fragmentData.counter_suspends_when_odd;
+  }
+
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
+  // @defer does not prevent suspense from a resolve field
+  expect(renderer?.toJSON()).toEqual('Loading...');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderer?.toJSON()).toEqual('2');
+});

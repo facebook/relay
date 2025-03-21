@@ -47,6 +47,8 @@ use lsp_types::Documentation;
 use lsp_types::InsertTextFormat;
 use lsp_types::MarkupContent;
 use lsp_types::MarkupKind;
+use schema::field_descriptions::CLIENT_ID_DESCRIPTION;
+use schema::field_descriptions::TYPENAME_DESCRIPTION;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
 use schema::InputObject;
@@ -691,7 +693,7 @@ fn completion_items_for_request(
                         schema_documentation,
                         existing_linked_field,
                     ),
-                    resolve_completion_items_typename(Type::Interface(interface_id), schema),
+                    resolve_special_completion_items(Type::Interface(interface_id), schema),
                     resolve_completion_items_for_inline_fragment(
                         Type::Interface(interface_id),
                         schema,
@@ -712,7 +714,7 @@ fn completion_items_for_request(
                     schema_documentation,
                     existing_linked_field,
                 ),
-                resolve_completion_items_typename(Type::Object(object_id), schema),
+                resolve_special_completion_items(Type::Object(object_id), schema),
                 resolve_completion_items_for_fragment_spread(
                     Type::Object(object_id),
                     program,
@@ -721,7 +723,7 @@ fn completion_items_for_request(
                 ),
             ])),
             Type::Union(union_id) => Some(merge_completion_items_ordered([
-                resolve_completion_items_typename(Type::Union(union_id), schema),
+                resolve_special_completion_items(Type::Union(union_id), schema),
                 resolve_completion_items_for_inline_fragment(Type::Union(union_id), schema, false),
                 resolve_completion_items_for_fragment_spread(
                     Type::Union(union_id),
@@ -868,13 +870,31 @@ fn completion_items_for_request(
     }
 }
 
-fn resolve_completion_items_typename(type_: Type, schema: &SDLSchema) -> Vec<CompletionItem> {
+fn resolve_special_completion_items(type_: Type, schema: &SDLSchema) -> Vec<CompletionItem> {
+    let __id_item = CompletionItem {
+        label: "__id".to_owned(),
+        detail: Some("ID!".to_owned()),
+        documentation: Some(Documentation::String(
+            CLIENT_ID_DESCRIPTION.lookup().to_owned(),
+        )),
+        kind: Some(CompletionItemKind::FIELD),
+        ..Default::default()
+    };
+
     if type_.is_root_type(schema) {
-        vec![]
+        vec![__id_item]
     } else {
-        let mut item = CompletionItem::new_simple("__typename".to_owned(), "String!".to_owned());
-        item.kind = Some(CompletionItemKind::FIELD);
-        vec![item]
+        let __typename_item = CompletionItem {
+            label: "__typename".to_owned(),
+            detail: Some("String!".to_owned()),
+            documentation: Some(Documentation::String(
+                TYPENAME_DESCRIPTION.lookup().to_owned(),
+            )),
+            kind: Some(CompletionItemKind::FIELD),
+            ..Default::default()
+        };
+
+        vec![__typename_item, __id_item]
     }
 }
 

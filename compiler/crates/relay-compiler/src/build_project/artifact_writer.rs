@@ -15,6 +15,7 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use dashmap::DashSet;
+use log::debug;
 use log::info;
 use sha1::Digest;
 use sha1::Sha1;
@@ -104,7 +105,10 @@ impl ArtifactWriter for ArtifactFileWriter {
             Ok(_) => {
                 self.removed.lock().unwrap().push(path);
             }
-            _ => info!("tried to delete already deleted file: {:?}", path),
+            Err(error) => {
+                info!("tried to delete already deleted file: {:?}", path);
+                debug!("[artifact_writer] error when deleting file: {:?}", error);
+            }
         }
         Ok(())
     }

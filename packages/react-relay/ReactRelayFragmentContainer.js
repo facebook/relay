@@ -46,13 +46,11 @@ type ContainerState = {
  */
 function createContainerWithFragments<
   Props: {...},
-  TComponent: React.ComponentType<Props>,
+  TComponent: component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
-): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
-> {
+): component(...$RelayProps<React.ElementConfig<TComponent>, RelayProp>) {
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {

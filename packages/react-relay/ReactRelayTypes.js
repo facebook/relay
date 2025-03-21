@@ -144,14 +144,15 @@ type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
                 ? ?$ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
                 : T;
 
-export type RelayFragmentContainer<TComponent> = React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayProp>,
->;
+export type RelayFragmentContainer<TComponent: component(...empty)> = component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayProp>
+);
 
-export type RelayPaginationContainer<TComponent> = React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>,
->;
+export type RelayPaginationContainer<TComponent: component(...empty)> =
+  component(
+    ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
+  );
 
-export type RelayRefetchContainer<TComponent> = React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
->;
+export type RelayRefetchContainer<TComponent: component(...empty)> = component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
+);

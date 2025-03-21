@@ -22,10 +22,7 @@ const {graphql} = require('relay-runtime');
  * type-checked correctly on Relay components.
  */
 
-/* $FlowFixMe(>=0.53.0) This comment suppresses an error
- * when upgrading Flow's support for React. Common errors found when upgrading
- * Flow's React support are documented at https://fburl.com/eq7bs81w */
-class FooComponent extends React.Component {
+class FooComponent extends React.Component<$FlowFixMe> {
   props: {
     optionalProp?: {foo: number, ...},
     defaultProp: string,
@@ -56,7 +53,7 @@ class FooComponent extends React.Component {
 }
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
-const Foo = createPaginationContainer(
+const Foo = createPaginationContainer<$FlowFixMe, _>(
   FooComponent,
   {
     viewer: graphql`

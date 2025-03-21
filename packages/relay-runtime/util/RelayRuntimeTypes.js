@@ -55,6 +55,7 @@ export type VariablesOf<T: OperationType> = T['variables'];
  *   in milliseconds. (This value will be passed to setTimeout.)
  * - `liveConfigId`: Makes a query live by sending through RTI stack.
  * - `onSubscribe`: Callback to be called when a live query stream is started.
+ * - `onPause`: Callback to be called when a live query stream is paused, e.g. due to a network disconnection.
  * - `onResume`: Callback to be called when a live query stream is resumed, e.g. from a network disconnection.
  * - `metadata`: user-supplied metadata.
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
@@ -66,6 +67,7 @@ export type CacheConfig = {
   liveConfigId?: ?string,
   onSubscribe?: () => void,
   onResume?: (pauseTimeMs: number) => void,
+  onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
 };

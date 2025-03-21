@@ -35,11 +35,16 @@ const {createMockEnvironment} = require('relay-test-utils');
 const {
   injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
-const warning = require('warning');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+  expectToWarn,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 injectPromisePolyfill__DEPRECATED();
-
-jest.mock('warning');
 
 const query = graphql`
   query usePreloadedQueryTestQuery($id: ID!) {
@@ -109,11 +114,6 @@ class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
     }
   }
 }
-
-beforeEach(() => {
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
-});
 
 afterAll(() => {
   jest.clearAllMocks();
@@ -1041,15 +1041,20 @@ describe('usePreloadedQuery', () => {
           return data.node?.name;
         }
         let renderer;
-        TestRenderer.act(() => {
-          renderer = TestRenderer.create(
-            <RelayEnvironmentProvider environment={altEnvironment}>
-              <React.Suspense fallback="Fallback">
-                <Component prefetched={prefetched} />
-              </React.Suspense>
-            </RelayEnvironmentProvider>,
-          );
-        });
+        expectToWarn(
+          'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query that was created with a different environment than the one that is currently in context. In the future, this will become a hard error.',
+          () => {
+            TestRenderer.act(() => {
+              renderer = TestRenderer.create(
+                <RelayEnvironmentProvider environment={altEnvironment}>
+                  <React.Suspense fallback="Fallback">
+                    <Component prefetched={prefetched} />
+                  </React.Suspense>
+                </RelayEnvironmentProvider>,
+              );
+            });
+          },
+        );
 
         expect(renderer?.toJSON()).toEqual('Fallback');
         expect(altFetch).toHaveBeenCalledTimes(1);
@@ -1058,16 +1063,20 @@ describe('usePreloadedQuery', () => {
           altDataSource.next(response);
         }
 
-        TestRenderer.act(() => jest.runAllImmediates());
+        expectToWarn(
+          'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query that was created with a different environment than the one that is currently in context. In the future, this will become a hard error.',
+          () => {
+            TestRenderer.act(() => jest.runAllImmediates());
+          },
+        );
         expect(renderer?.toJSON()).toEqual('Zuck');
       });
     });
 
     describe('when loadQuery is passed a preloadedQuery that was disposed', () => {
       it('warns that the preloadedQuery has already been disposed', () => {
-        const expectWarningMessage = expect.stringMatching(
-          /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
-        );
+        const expectWarningMessage =
+          'usePreloadedQuery(): Expected preloadedQuery to not be disposed yet. This is because disposing the query marks it for future garbage collection, and as such query results may no longer be present in the Relay store. In the future, this will become a hard error.';
         const prefetched = loadQuery(environment, preloadableConcreteRequest, {
           id: '1',
         });
@@ -1091,19 +1100,11 @@ describe('usePreloadedQuery', () => {
         };
 
         render();
-        expect(warning).toBeCalledTimes(1);
-        expect(warning).toHaveBeenLastCalledWith(
-          true, // invariant holds
-          expectWarningMessage,
-        );
 
         prefetched.dispose();
-        render();
-        expect(warning).toBeCalledTimes(2);
-        expect(warning).toHaveBeenLastCalledWith(
-          false, // invariant broken
-          expectWarningMessage,
-        );
+        expectToWarn(expectWarningMessage, () => {
+          render();
+        });
       });
     });
 

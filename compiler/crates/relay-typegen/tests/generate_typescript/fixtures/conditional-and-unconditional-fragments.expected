@@ -1,0 +1,64 @@
+==================================== INPUT ====================================
+query AppQuery($showLastName: Boolean!) @raw_response_type {
+  ...AppFragment
+  ...AppConditionalFragment
+}
+
+fragment AppFragment on Query {
+  me {
+    firstName
+  }
+}
+
+fragment AppConditionalFragment on Query {
+  me @include(if: $showLastName) {
+    lastName
+    actor_key
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type AppQuery$variables = {
+  showLastName: boolean;
+};
+export type AppQuery$data = {
+  readonly " $fragmentSpreads": FragmentRefs<"AppConditionalFragment" | "AppFragment">;
+};
+export type AppQuery$rawResponse = {
+  readonly me: {
+    readonly actor_key?: string;
+    readonly firstName: string | null | undefined;
+    readonly id: string;
+    readonly lastName?: string | null | undefined;
+  } | null | undefined;
+};
+export type AppQuery = {
+  rawResponse: AppQuery$rawResponse;
+  response: AppQuery$data;
+  variables: AppQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AppConditionalFragment$data = {
+  readonly me?: {
+    readonly actor_key: string;
+    readonly lastName: string | null | undefined;
+  } | null | undefined;
+  readonly " $fragmentType": "AppConditionalFragment";
+};
+export type AppConditionalFragment$key = {
+  readonly " $data"?: AppConditionalFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AppConditionalFragment">;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type AppFragment$data = {
+  readonly me: {
+    readonly firstName: string | null | undefined;
+  } | null | undefined;
+  readonly " $fragmentType": "AppFragment";
+};
+export type AppFragment$key = {
+  readonly " $data"?: AppFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"AppFragment">;
+};

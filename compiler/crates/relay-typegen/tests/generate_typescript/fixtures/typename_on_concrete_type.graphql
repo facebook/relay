@@ -1,0 +1,24 @@
+fragment TypenameOnConcreteType on User {
+  __typename
+}
+
+fragment TypenameOnConcreteTypeWithOtherSelection on User {
+  __typename
+  firstName
+}
+
+fragment TypenameOnConcreteTypeWithInlineFragment on User {
+  __typename
+  ... on User {
+    firstName
+  }
+}
+
+fragment TypenameOnConcreteTypeWithFragmentSpread on User {
+  __typename
+  ...UserFragment
+}
+
+fragment UserFragment on User {
+  firstName
+}

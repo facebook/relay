@@ -68,7 +68,7 @@ use relay_config::ProjectName;
 use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
-use relay_typegen::FragmentLocations;
+use relay_typegen::FragmentInfoLookup;
 use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
@@ -566,7 +566,7 @@ pub async fn commit_project(
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
-    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
+    let fragment_lookup = FragmentInfoLookup::new(programs.typegen.fragments());
     if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
@@ -650,7 +650,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
-                &fragment_locations,
+                &fragment_lookup,
                 &artifacts_file_hash_map,
             )?;
             for artifact in &artifacts {
@@ -686,7 +686,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
-                &fragment_locations,
+                &fragment_lookup,
                 &artifacts_file_hash_map,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
@@ -785,7 +785,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     schema: &SDLSchema,
     should_stop_updating_artifacts: F,
     artifacts: &[Artifact],
-    fragment_locations: &FragmentLocations,
+    fragment_lookup: &FragmentInfoLookup,
     artifacts_file_hash_map: &Option<FxHashMap<String, Option<String>>>,
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8).try_for_each_init(
@@ -802,7 +802,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                     printer,
                     schema,
                     artifact.source_file,
-                    fragment_locations,
+                    fragment_lookup,
                 );
                 let file_hash = match artifact.path.to_str() {
                     Some(key) => artifacts_file_hash_map

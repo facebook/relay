@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<48ac33e8d5ff8d8979d680e1e90b67c8>>
+ * @generated SignedSource<<9b46ac88b4a699726deb47df86ddf258>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,14 @@ export type QueryResourceTest7Query$variables = {|
   id: string,
 |};
 export type QueryResourceTest7Query$data = {|
-  +node: ?{|
-    +__typename: string,
+  +node: ?({|
+    +__typename: "User",
     +$fragmentSpreads: QueryResourceTest5Fragment$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type QueryResourceTest7Query = {|
   response: QueryResourceTest7Query$data,

@@ -800,7 +800,11 @@ class RelayResponseNormalizer {
         (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName;
       if (shouldLogWarning) {
-        log({name: 'idCollision.typename'});
+        log({
+          name: 'idCollision.typename',
+          previous_typename: RelayModernRecord.getType(record),
+          new_typename: typeName,
+        });
       }
     }
     // NOTE: Only emit a warning in DEV

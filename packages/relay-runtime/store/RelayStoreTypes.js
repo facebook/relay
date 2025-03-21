@@ -792,6 +792,8 @@ export type UseFragmentSubscriptionMissedUpdates = {
  */
 export type IdCollisionTypenameLogEvent = {
   +name: 'idCollision.typename',
+  +previous_typename: string,
+  +new_typename: string,
 };
 
 /**

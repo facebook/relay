@@ -1,4 +1,3 @@
-# expected-to-throw
 fragment NameRendererFragment on Persona {
   id
   basicUser {

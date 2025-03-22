@@ -137,7 +137,10 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "@module was used on a fragment with a concrete parent type: '{object_name}'. The parent type should be an interface or union."
+        "Invalid fragment spread '...{spread_name}'. Object '{object}' should be backed by a relay resolver model."
     )]
-    InvalidModuleOnConcreteParentType { object_name: ObjectName },
+    MissingRelayResolverModelForObject {
+        spread_name: FragmentDefinitionName,
+        object: ObjectName,
+    },
 }

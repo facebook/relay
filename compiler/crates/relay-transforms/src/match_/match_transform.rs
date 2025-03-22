@@ -1104,12 +1104,23 @@ fn validate_parent_type_of_fragment_with_read_time_resolver(
             transform.relay_resolver_model_unions.insert(id);
         }
         Type::Object(id) => {
-            return Err(Diagnostic::error(
-                ValidationMessage::InvalidModuleOnConcreteParentType {
-                    object_name: transform.program.schema.object(id).name.item,
-                },
-                spread.fragment.location,
-            ));
+            let object_has_read_time_resolver = transform
+                .program
+                .schema
+                .object(id)
+                .directives
+                .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                .is_some();
+
+            if !object_has_read_time_resolver {
+                return Err(Diagnostic::error(
+                    ValidationMessage::MissingRelayResolverModelForObject {
+                        spread_name: spread.fragment.item,
+                        object: transform.program.schema.object(id).name.item,
+                    },
+                    spread.fragment.location,
+                ));
+            }
         }
         Type::Enum(_) | Type::Scalar(_) | Type::InputObject(_) => {
             panic!(

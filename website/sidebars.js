@@ -229,7 +229,6 @@ module.exports = {
           ],
         },
         'api-reference/graphql/graphql-directives',
-        'api-reference/legacy-apis/legacy-apis',
       ],
       'Testing and Debugging': [
         'guides/testing-relay-components',

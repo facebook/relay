@@ -82,6 +82,6 @@ zstd = { version = "0.13", features = ["experimental", "zstdmt"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-futures-util = "0.3.30"
+futures-util = { version = "0.3.30", features = ["compat"] }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }

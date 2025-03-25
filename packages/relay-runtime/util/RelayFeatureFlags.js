@@ -73,6 +73,9 @@ export type FeatureFlags = {
 
   // Throw on nested store updates
   DISALLOW_NESTED_UPDATES: boolean,
+
+  // Enable prefixing of DataID in the store with __typename
+  ENABLE_TYPENAME_PREFIXED_DATA_ID: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -100,6 +103,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_RESOURCE_EFFECTS: false,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
   DISALLOW_NESTED_UPDATES: false,
+  ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
 };
 
 module.exports = RelayFeatureFlags;

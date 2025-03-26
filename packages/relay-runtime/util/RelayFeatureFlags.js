@@ -60,11 +60,6 @@ export type FeatureFlags = {
   // disambiguate the same resolver being used at both read time and exec time.
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: boolean,
 
-  // Enables the use of an experimental new useResourceEffect React API. This
-  // hook allows you to manage a resource that is not tied to the component
-  // and replaces the need for multiple useEffects to manage the same resource.
-  ENABLE_RESOURCE_EFFECTS: boolean,
-
   // Enable the fix for usePaginationFragment stucking in loading state
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean,
 
@@ -100,7 +95,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
   ENABLE_ACTIVITY_COMPATIBILITY: false,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
-  ENABLE_RESOURCE_EFFECTS: false,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
   DISALLOW_NESTED_UPDATES: false,
   ENABLE_TYPENAME_PREFIXED_DATA_ID: false,

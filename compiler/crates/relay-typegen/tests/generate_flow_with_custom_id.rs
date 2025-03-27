@@ -29,7 +29,7 @@ use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema_with_custom_id;
 use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
 use relay_transforms::apply_transforms;
-use relay_typegen::FragmentLocations;
+use relay_typegen::FragmentInfoLookup;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
 
@@ -96,7 +96,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     )
     .unwrap();
 
-    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
+    let fragment_lookup = FragmentInfoLookup::new(programs.typegen.fragments());
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item.0);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
@@ -109,7 +109,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             normalization_operation,
             &schema,
             &project_config,
-            &fragment_locations,
+            &fragment_lookup,
             print_provided_variables(&schema, normalization_operation, &project_config),
         )
     });
@@ -121,7 +121,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             frag,
             &schema,
             &project_config,
-            &fragment_locations,
+            &fragment_lookup,
         )
     });
 

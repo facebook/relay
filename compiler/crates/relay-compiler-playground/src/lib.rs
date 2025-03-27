@@ -25,7 +25,7 @@ use relay_transforms::apply_transforms;
 use relay_transforms::Programs;
 use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_operation_type_exports_section;
-use relay_typegen::FragmentLocations;
+use relay_typegen::FragmentInfoLookup;
 use relay_typegen::TypegenConfig;
 use schema::SDLSchema;
 use serde::Serialize;
@@ -231,7 +231,7 @@ pub fn parse_to_types_impl(
     let project_config = get_project_config(feature_flags_json, Some(typegen_config_json))?;
     let programs = get_programs(&schema, &project_config, document_text)?;
 
-    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
+    let fragment_locations = FragmentInfoLookup::new(programs.typegen.fragments());
     let types_string = programs
         .typegen
         .fragments()

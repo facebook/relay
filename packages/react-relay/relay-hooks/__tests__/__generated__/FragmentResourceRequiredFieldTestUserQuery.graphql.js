@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<210e2d96d0e20787747f361efbcfb67f>>
+ * @generated SignedSource<<173ba92d6b52bc60b15e59d887925e11>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,10 +23,14 @@ export type FragmentResourceRequiredFieldTestUserQuery$variables = {|
   id: string,
 |};
 export type FragmentResourceRequiredFieldTestUserQuery$data = {|
-  +node: ?{|
-    +__typename: string,
+  +node: ?({|
+    +__typename: "User",
     +$fragmentSpreads: FragmentResourceRequiredFieldTestUserFragment$fragmentType,
-  |},
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
 |};
 export type FragmentResourceRequiredFieldTestUserQuery = {|
   response: FragmentResourceRequiredFieldTestUserQuery$data,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1903a7cf2db933f9227f3b83bb115fb5>>
+ * @generated SignedSource<<0864ac3ca0ab33c988a34e6fccd52110>>
  */
 
 mod generate_typescript;
@@ -605,6 +605,13 @@ async fn typename_inside_with_overlapping_fields() {
     let input = include_str!("generate_typescript/fixtures/typename-inside-with-overlapping-fields.graphql");
     let expected = include_str!("generate_typescript/fixtures/typename-inside-with-overlapping-fields.expected");
     test_fixture(transform_fixture, file!(), "typename-inside-with-overlapping-fields.graphql", "generate_typescript/fixtures/typename-inside-with-overlapping-fields.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn typename_on_concrete_type() {
+    let input = include_str!("generate_typescript/fixtures/typename_on_concrete_type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename_on_concrete_type.expected");
+    test_fixture(transform_fixture, file!(), "typename_on_concrete_type.graphql", "generate_typescript/fixtures/typename_on_concrete_type.expected", input, expected).await;
 }
 
 #[tokio::test]

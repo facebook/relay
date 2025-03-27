@@ -78,3 +78,68 @@ fragment TypenameAliases on Actor {
     username
   }
 }
+
+
+fragment TypenameOnUnionWithFragmentsOnConcreteType on UserNameRenderer {
+  __typename
+  ...MarkdownUserNameRenderer
+  ...PlainUserNameRenderer
+}
+
+fragment TypenameOnUnionWithFragmentOnConcreteTypeAndInlineFragment on UserNameRenderer {
+  __typename
+  ... on MarkdownUserNameRenderer {
+    markdown
+  }
+  ...PlainUserNameRenderer
+}
+
+fragment MarkdownUserNameRenderer on MarkdownUserNameRenderer {
+  markdown
+}
+
+fragment PlainUserNameRenderer on PlainUserNameRenderer {
+  plaintext
+}
+
+fragment TypenameOnInterfaceWithFragmentsOnConcreteType on Actor {
+  __typename
+  ...User
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithSharedSelectionsAndFragmentsOnConcreteType on Actor {
+  __typename
+  address {
+    city
+  }
+  ...User
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithFragmentOnConcreteTypeAndInlineFragment on Actor {
+  __typename
+  ... on User {
+    firstName
+  }
+  ...Page
+}
+
+fragment TypenameOnInterfaceWithSharedSelectionsAndFragmentOnConcreteTypeAndInlineFragment on Actor {
+  __typename
+  address {
+    city
+  }
+  ... on User {
+    firstName
+  }
+  ...Page
+}
+
+fragment User on User {
+  firstName
+}
+
+fragment Page on Page {
+  username
+}

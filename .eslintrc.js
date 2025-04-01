@@ -34,7 +34,6 @@ module.exports = {
     'array-bracket-spacing': 'off',
     'comma-dangle': 'off',
     'max-len': 'off',
-    'no-extra-parens': 'off',
     'space-before-function-paren': 'off',
     'ft-flow/object-type-delimiter': 'off',
     'babel/flow-object-type': 'off',

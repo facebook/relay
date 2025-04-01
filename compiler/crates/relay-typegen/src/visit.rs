@@ -1729,7 +1729,7 @@ pub(crate) fn raw_response_selections_to_babel(
                     .map(|selection| {
                         raw_response_make_prop(
                             typegen_context,
-                            &[selection],
+                            vec![selection],
                             Some(concrete_type),
                             encountered_enums,
                             runtime_imports,
@@ -1755,6 +1755,7 @@ pub(crate) fn raw_response_selections_to_babel(
         types.push(AST::ExactObject(ExactObject::new(
             base_fields
                 .iter()
+                .cloned()
                 .map(|selections| {
                     raw_response_make_prop(
                         typegen_context,
@@ -1808,7 +1809,7 @@ fn append_local_3d_payload(
                     .map(|sel| {
                         raw_response_make_prop(
                             typegen_context,
-                            &[sel.clone()],
+                            vec![sel.clone()],
                             concrete_type,
                             encountered_enums,
                             runtime_imports,
@@ -2081,7 +2082,7 @@ fn make_prop(
 
 fn raw_response_make_prop(
     typegen_context: &'_ TypegenContext<'_>,
-    type_selections: &[TypeSelection],
+    type_selections: Vec<TypeSelection>,
     concrete_type: Option<Type>,
     encountered_enums: &mut EncounteredEnums,
     runtime_imports: &mut RuntimeImports,
@@ -2093,38 +2094,29 @@ fn raw_response_make_prop(
         && type_selections.iter().all(|sel| sel.is_conditional());
 
     let type_selection = if type_selections.len() > 1 {
-        let linked_fields = type_selections.into_iter().map(|type_selection| match type_selection {
+        let mut linked_fields = type_selections.into_iter().map(|type_selection| match type_selection {
             TypeSelection::LinkedField(linked_field) => linked_field,
-            _ => panic!("Unexpected multiple selections in raw_response_make_prop that are not linked fields: {:#?}", type_selections)
-        }).collect::<Vec<_>>();
+            selection => panic!("Unexpected multiple selections in raw_response_make_prop that are not linked fields: {:#?}", selection)
+        });
 
-        let first_linked_field = linked_fields[0].clone();
-        let linked_field =
-            linked_fields
-                .into_iter()
-                .skip(1)
-                .fold(first_linked_field, |mut acc, el| {
-                    acc.conditional = acc.conditional && el.conditional;
-                    acc.node_selections
-                        .extend(
-                            el.node_selections
-                                .clone()
-                                .into_iter()
-                                .map(|(key, mut sel)| {
-                                    if el.conditional && !sel.is_conditional() {
-                                        sel.set_conditional(true);
-                                    }
+        let first_linked_field = linked_fields.next().unwrap();
+        let linked_field = linked_fields.fold(first_linked_field, |mut acc, el| {
+            acc.conditional = acc.conditional && el.conditional;
+            acc.node_selections
+                .extend(el.node_selections.into_iter().map(|(key, mut sel)| {
+                    if el.conditional && !sel.is_conditional() {
+                        sel.set_conditional(true);
+                    }
 
-                                    (key, sel)
-                                }),
-                        );
+                    (key, sel)
+                }));
 
-                    acc
-                });
+            acc
+        });
 
         TypeSelection::LinkedField(linked_field)
     } else {
-        type_selections[0].clone()
+        type_selections.into_iter().next().unwrap()
     };
 
     match type_selection {
@@ -2132,7 +2124,7 @@ fn raw_response_make_prop(
             value: module_directive.fragment_name.0,
         }),
         TypeSelection::LinkedField(linked_field) => {
-            let node_type = &linked_field.node_type;
+            let node_type = linked_field.node_type;
             let inner_concrete_type = if node_type.is_list()
                 || node_type.is_non_null()
                 || node_type.inner().is_abstract_type()
@@ -2143,7 +2135,7 @@ fn raw_response_make_prop(
             };
             let object_props = raw_response_selections_to_babel(
                 typegen_context,
-                hashmap_into_values(linked_field.node_selections.clone()),
+                hashmap_into_values(linked_field.node_selections),
                 inner_concrete_type,
                 encountered_enums,
                 runtime_imports,
@@ -2178,7 +2170,7 @@ fn raw_response_make_prop(
                 } else {
                     Prop::KeyValuePair(KeyValuePairProp {
                         key: scalar_field.field_name_or_alias,
-                        value: scalar_field.value.clone(),
+                        value: scalar_field.value,
                         read_only: true,
                         optional,
                     })
@@ -2186,7 +2178,7 @@ fn raw_response_make_prop(
             } else {
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: scalar_field.field_name_or_alias,
-                    value: scalar_field.value.clone(),
+                    value: scalar_field.value,
                     read_only: true,
                     optional,
                 })

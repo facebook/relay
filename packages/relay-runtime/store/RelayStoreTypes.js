@@ -796,15 +796,6 @@ export type IdCollisionTypenameLogEvent = {
   +new_typename: string,
 };
 
-/**
- * This event is logged when a response contains fields with different
- * values but which have the same corresponding id, resulting in a
- * collision in the store.
- */
-export type IdCollisionFieldLogEvent = {
-  +name: 'idCollision.field',
-};
-
 export type LogEvent =
   | SuspenseFragmentLogEvent
   | SuspenseQueryLogEvent
@@ -812,7 +803,6 @@ export type LogEvent =
   | QueryResourceRetainLogEvent
   | FragmentResourceMissingDataLogEvent
   | IdCollisionTypenameLogEvent
-  | IdCollisionFieldLogEvent
   | PendingOperationFoundLogEvent
   | NetworkInfoLogEvent
   | NetworkStartLogEvent

@@ -612,6 +612,7 @@ class Executor<TMutation: MutationParameters> {
         {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
+          log: this._log,
           path: [],
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
@@ -721,6 +722,7 @@ class Executor<TMutation: MutationParameters> {
       {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
+        log: this._log,
         path: followupPayload.path,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -803,6 +805,7 @@ class Executor<TMutation: MutationParameters> {
         {
           actorIdentifier: this._actorIdentifier,
           getDataID: this._getDataID,
+          log: this._log,
           path: [],
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1259,6 +1262,7 @@ class Executor<TMutation: MutationParameters> {
       {
         actorIdentifier: this._actorIdentifier,
         getDataID: this._getDataID,
+        log: this._log,
         path: placeholder.path,
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
@@ -1486,6 +1490,7 @@ class Executor<TMutation: MutationParameters> {
     const relayPayload = this._normalizeResponse(response, selector, typeName, {
       actorIdentifier: this._actorIdentifier,
       getDataID: this._getDataID,
+      log: this._log,
       path: [...normalizationPath, responseKey, String(itemIndex)],
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,

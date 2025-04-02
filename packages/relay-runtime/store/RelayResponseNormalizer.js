@@ -30,6 +30,7 @@ import type {
   FollowupPayload,
   HandleFieldPayload,
   IncrementalDataPlaceholder,
+  LogFunction,
   MutableRecordSource,
   NormalizationSelector,
   Record,
@@ -72,6 +73,7 @@ export type GetDataID = (
 export type NormalizationOptions = {
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
+  +log: ?LogFunction,
   +path?: $ReadOnlyArray<string>,
   +shouldProcessClientComponents?: ?boolean,
   +actorIdentifier?: ?ActorIdentifier,
@@ -116,6 +118,7 @@ class RelayResponseNormalizer {
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
   _errorTrie: RelayErrorTrie | null;
+  _log: ?LogFunction;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -134,6 +137,7 @@ class RelayResponseNormalizer {
     this._recordSource = recordSource;
     this._variables = variables;
     this._shouldProcessClientComponents = options.shouldProcessClientComponents;
+    this._log = options.log;
   }
 
   normalizeResponse(
@@ -792,7 +796,7 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     payload: Object,
   ): void {
-    const log = RelayFeatureFlags.LOG_STORE_ID_COLLISION;
+    const log = RelayFeatureFlags.ENABLE_STORE_ID_COLLISION_LOGGING;
     if (log) {
       const typeName = field.concreteType ?? this._getRecordType(payload);
       const dataID = RelayModernRecord.getDataID(record);
@@ -800,11 +804,14 @@ class RelayResponseNormalizer {
         (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName;
       if (shouldLogWarning) {
-        log({
+        const logEvent = {
           name: 'idCollision.typename',
           previous_typename: RelayModernRecord.getType(record),
           new_typename: typeName,
-        });
+        };
+        if (this._log != null) {
+          this._log(logEvent);
+        }
       }
     }
     // NOTE: Only emit a warning in DEV
@@ -836,17 +843,6 @@ class RelayResponseNormalizer {
     storageKey: string,
     fieldValue: mixed,
   ): void {
-    const log = RelayFeatureFlags.LOG_STORE_ID_COLLISION;
-    if (log) {
-      const previousValue = RelayModernRecord.getValue(record, storageKey);
-      const shouldLogWarning =
-        storageKey === TYPENAME_KEY ||
-        previousValue === undefined ||
-        areEqual(previousValue, fieldValue);
-      if (shouldLogWarning) {
-        log({name: 'idCollision.field'});
-      }
-    }
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {
       const previousValue = RelayModernRecord.getValue(record, storageKey);
@@ -877,13 +873,6 @@ class RelayResponseNormalizer {
     nextID: DataID,
     storageKey: string,
   ): void {
-    const log = RelayFeatureFlags.LOG_STORE_ID_COLLISION;
-    if (log) {
-      const shouldLogWarning = prevID === undefined || prevID === nextID;
-      if (shouldLogWarning) {
-        log({name: 'idCollision.field'});
-      }
-    }
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {
       const shouldLogWarning = prevID === undefined || prevID === nextID;

@@ -37,6 +37,7 @@ describe('RelayResponseNormalizer', () => {
   const defaultOptions = {
     getDataID: defaultGetDataID,
     treatMissingFieldsAsNull: false,
+    log: null,
   };
 
   it('normalizes queries', () => {
@@ -1950,7 +1951,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2023,7 +2024,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload0,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         normalize(
           recordSource,
@@ -2031,7 +2032,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload1,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2071,7 +2072,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2140,7 +2141,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual(expectedData);
         expect(getNullAsDataID).toBeCalledTimes(3);
@@ -2153,7 +2158,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2229,7 +2238,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2300,7 +2309,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual(expectedData);
         expect(getNullAsDataID).toBeCalledTimes(3);
@@ -2336,7 +2349,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         const result = recordSource.toJSON();
         expect(result['test:root:node(id:"1")']).toEqual({
@@ -2365,7 +2382,11 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID: getNullAsDataID, treatMissingFieldsAsNull: false},
+          {
+            getDataID: getNullAsDataID,
+            treatMissingFieldsAsNull: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2452,7 +2473,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload0,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         normalize(
           recordSource,
@@ -2460,7 +2481,7 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload1,
-          {getDataID, treatMissingFieldsAsNull: false},
+          {getDataID, treatMissingFieldsAsNull: false, log: null},
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -4637,114 +4658,6 @@ describe('RelayResponseNormalizer', () => {
           },
         });
       });
-    });
-  });
-
-  describe('Test ID collision logging', () => {
-    let logCount = 0;
-    beforeEach(() => {
-      logCount = 0;
-      RelayFeatureFlags.LOG_STORE_ID_COLLISION = () => {
-        logCount += 1;
-      };
-    });
-
-    it('warns when normalizing payloads with same id but different types', () => {
-      const me = graphql`
-        query RelayResponseNormalizerTestError1Query {
-          me {
-            id
-            __typename
-          }
-        }
-      `;
-      const payload1 = {
-        me: {
-          id: '1',
-          __typename: 'User',
-        },
-      };
-
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      normalize(
-        recordSource,
-        createNormalizationSelector(me.operation, ROOT_ID, {
-          id: '1',
-        }),
-        payload1,
-        defaultOptions,
-      );
-      expect(recordSource.toJSON()).toMatchSnapshot();
-      const payload2 = {
-        me: {
-          id: '1',
-          __typename: 'Cat',
-        },
-      };
-      expectToWarn(
-        'RelayModernRecord: Invalid field update, expected both versions of record `1` to have the same `__typename` but got conflicting types `User` and `Cat`. The GraphQL server likely violated the globally unique id requirement by returning the same id for different objects.',
-        () => {
-          normalize(
-            recordSource,
-            createNormalizationSelector(me.operation, ROOT_ID, {
-              id: '1',
-            }),
-            payload2,
-            defaultOptions,
-          );
-        },
-      );
-      expect(logCount).toBeGreaterThan(0);
-    });
-
-    it('warns when normalizing payloads with same id but different fields', () => {
-      const me = graphql`
-        query RelayResponseNormalizerTestError2Query {
-          me {
-            id
-            lastName
-          }
-        }
-      `;
-      const payload1 = {
-        me: {
-          id: '1',
-          lastName: 'Hanks',
-        },
-      };
-
-      const recordSource = new RelayRecordSource();
-      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
-      normalize(
-        recordSource,
-        createNormalizationSelector(me.operation, ROOT_ID, {
-          id: '1',
-        }),
-        payload1,
-        defaultOptions,
-      );
-      expect(recordSource.toJSON()).toMatchSnapshot();
-      const payload2 = {
-        me: {
-          id: '1',
-          lastName: 'Cyrus',
-        },
-      };
-      expectToWarn(
-        'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `1` with conflicting field, lastName and its values: Hanks and Cyrus. If two fields are different but share the same id, one field will overwrite the other.',
-        () => {
-          normalize(
-            recordSource,
-            createNormalizationSelector(me.operation, ROOT_ID, {
-              id: '1',
-            }),
-            payload2,
-            defaultOptions,
-          );
-        },
-      );
-      expect(logCount).toBeGreaterThan(0);
     });
   });
 });

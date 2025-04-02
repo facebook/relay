@@ -811,6 +811,7 @@ class RelayModernStore implements Store {
     return {
       path,
       getDataID: this._getDataID,
+      log: this.__log,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,

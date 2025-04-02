@@ -12,7 +12,6 @@
 'use strict';
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
-import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 export type FeatureFlags = {
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
@@ -63,8 +62,8 @@ export type FeatureFlags = {
   // Enable the fix for usePaginationFragment stucking in loading state
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: boolean,
 
-  // Log an ID collision in the Relay store
-  LOG_STORE_ID_COLLISION: ?(LogEvent) => void,
+  // Enable logging an ID collision in the Relay store
+  ENABLE_STORE_ID_COLLISION_LOGGING: boolean,
 
   // Throw on nested store updates
   DISALLOW_NESTED_UPDATES: boolean,
@@ -85,7 +84,7 @@ const RelayFeatureFlags: FeatureFlags = {
   MAX_DATA_ID_LENGTH: null,
   STRING_INTERN_LEVEL: 0,
   LOG_MISSING_RECORDS_IN_PROD: false,
-  LOG_STORE_ID_COLLISION: null,
+  ENABLE_STORE_ID_COLLISION_LOGGING: false,
   ENABLE_NONCOMPLIANT_ERROR_HANDLING_ON_LISTS: false,
   ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION: false,
   ENABLE_OPERATION_TRACKER_OPTIMISTIC_UPDATES: false,

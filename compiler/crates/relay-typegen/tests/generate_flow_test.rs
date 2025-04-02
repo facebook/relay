@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7c4bbd43433461799f4caf7a6320fa4e>>
+ * @generated SignedSource<<1362eec89123512c826effa9bf3a99ec>>
  */
 
 mod generate_flow;
@@ -269,6 +269,13 @@ async fn match_field_in_query() {
     let input = include_str!("generate_flow/fixtures/match-field-in-query.graphql");
     let expected = include_str!("generate_flow/fixtures/match-field-in-query.expected");
     test_fixture(transform_fixture, file!(), "match-field-in-query.graphql", "generate_flow/fixtures/match-field-in-query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mixed_conditonal_raw_response() {
+    let input = include_str!("generate_flow/fixtures/mixed-conditonal-raw-response.graphql");
+    let expected = include_str!("generate_flow/fixtures/mixed-conditonal-raw-response.expected");
+    test_fixture(transform_fixture, file!(), "mixed-conditonal-raw-response.graphql", "generate_flow/fixtures/mixed-conditonal-raw-response.expected", input, expected).await;
 }
 
 #[tokio::test]

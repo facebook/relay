@@ -24,30 +24,22 @@ const warning = require('warning');
 
 component EntryPointContainer<
   // $FlowFixMe[unsupported-variance-annotation]
-  +TPreloadedQueries: {...},
-  // $FlowFixMe[unsupported-variance-annotation]
-  +TPreloadedNestedEntryPoints: {...},
-  // $FlowFixMe[unsupported-variance-annotation]
-  +TRuntimeProps: {...},
-  // $FlowFixMe[unsupported-variance-annotation]
-  +TExtraProps,
+  TRuntimeProps: {...},
   TRenders: React.Node,
   // $FlowFixMe[unsupported-variance-annotation]
-  +TEntryPointComponent: EntryPointComponent<
-    TPreloadedQueries,
-    TPreloadedNestedEntryPoints,
+  TEntryPointComponent: EntryPointComponent<
+    // $FlowExpectedErrors[unclear-type] Use any to accept all kinds of EntryPointComponent
+    any,
+    // $FlowExpectedErrors[unclear-type] Use any to accept all kinds of EntryPointComponent
+    any,
     TRuntimeProps,
-    TExtraProps,
+    // $FlowExpectedErrors[unclear-type] Use any to accept all kinds of EntryPointComponent
+    any,
     TRenders,
   >,
 >(
-  ...{
-    entryPointReference,
-    props,
-  }: $ReadOnly<{
-    entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
-    props: TRuntimeProps,
-  }>
+  entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
+  props: TRuntimeProps,
 ) renders TRenders {
   warning(
     entryPointReference.isDisposed === false,

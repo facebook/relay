@@ -52,7 +52,7 @@ const query = graphql`
 query.params.id = '12345';
 
 const params = {
-  kind: 'PreloadableConcreteRequest',
+  kind: 'PreloadableConcreteRequest' as const,
   params: query.params,
 };
 
@@ -950,7 +950,7 @@ describe('Preload queries that use provided variables', () => {
   queryWithProvidedVar.params.id = '12346';
 
   const paramsWithProvidedVar = {
-    kind: 'PreloadableConcreteRequest',
+    kind: 'PreloadableConcreteRequest' as const,
     params: queryWithProvidedVar.params,
   };
 

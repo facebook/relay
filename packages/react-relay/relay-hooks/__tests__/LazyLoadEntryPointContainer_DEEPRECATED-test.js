@@ -133,7 +133,7 @@ beforeEach(() => {
   });
 
   params = {
-    kind: 'PreloadableConcreteRequest',
+    kind: 'PreloadableConcreteRequest' as const,
     params: query.params,
   };
   entryPoint = {

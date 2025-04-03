@@ -78,7 +78,7 @@ const queryPV = graphql`
 `;
 
 const preloadableConcreteRequestPV = {
-  kind: 'PreloadableConcreteRequest',
+  kind: 'PreloadableConcreteRequest' as const,
   params: queryPV.params,
 };
 

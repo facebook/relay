@@ -346,7 +346,7 @@ it('does not release or cancel the query before the new component tree unsuspend
 
     let transitionToSecondRoute;
     function ConcurrentWrapper() {
-      const [route, setRoute] = React.useState('FIRST');
+      const [route, setRoute] = React.useState<'FIRST' | 'SECOND'>('FIRST');
 
       transitionToSecondRoute = () =>
         React.startTransition(() => setRoute('SECOND'));

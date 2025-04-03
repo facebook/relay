@@ -39,7 +39,7 @@ const query = graphql`
 `;
 
 const preloadableConcreteRequest = {
-  kind: 'PreloadableConcreteRequest',
+  kind: 'PreloadableConcreteRequest' as const,
   params: query.params,
 };
 

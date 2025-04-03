@@ -405,7 +405,7 @@ describe.each([
 
       let transitionToSecondRoute;
       function ConcurrentWrapper() {
-        const [route, setRoute] = React.useState('FIRST');
+        const [route, setRoute] = React.useState<'FIRST' | 'SECOND'>('FIRST');
 
         transitionToSecondRoute = () =>
           React.startTransition(() => setRoute('SECOND'));

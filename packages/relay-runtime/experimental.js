@@ -57,13 +57,13 @@ export type Result<T, Error> = OkayResult<T> | ErrorResult<Error>;
 function isValueResult<T = mixed>(
   input: Result<T, Error>,
 ): input is OkayResult<T> {
-  return input.ok === true;
+  return input.ok === (true as const);
 }
 
 function isErrorResult<T = mixed>(
   input: Result<T, Error>,
 ): input is ErrorResult<Error> {
-  return input.ok === false;
+  return input.ok === (false as const);
 }
 
 module.exports = {

@@ -24,6 +24,7 @@ import type {
   GraphQLResponse,
   GraphQLTaggedNode,
   IEnvironment,
+  OperationAvailability,
   OperationType,
   Subscription,
 } from 'relay-runtime';
@@ -167,7 +168,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   }`;
   const prevQueryEntry = pendingQueries.get(cacheKey);
 
-  function checkOperation() {
+  function checkOperation(): OperationAvailability {
     return query != null
       ? environment.check(
           createOperationDescriptor(query, variables, networkCacheConfig),

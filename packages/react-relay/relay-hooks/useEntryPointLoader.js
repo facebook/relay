@@ -48,7 +48,9 @@ type UseEntryPointLoaderHookReturnType<
 type NullEntryPointReference = {
   kind: 'NullEntryPointReference',
 };
-const initialNullEntryPointReferenceState = {kind: 'NullEntryPointReference'};
+const initialNullEntryPointReferenceState: NullEntryPointReference = {
+  kind: 'NullEntryPointReference',
+};
 
 hook useLoadEntryPoint<
   TEntryPointParams: {...},
@@ -122,7 +124,7 @@ hook useLoadEntryPoint<
 
   const disposeEntryPoint = useCallback(() => {
     if (isMountedRef.current) {
-      const nullEntryPointReference = {
+      const nullEntryPointReference: NullEntryPointReference = {
         kind: 'NullEntryPointReference',
       };
       undisposedEntryPointReferencesRef.current.add(nullEntryPointReference);

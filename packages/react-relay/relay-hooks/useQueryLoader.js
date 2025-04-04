@@ -46,7 +46,9 @@ export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
 export type NullQueryReference = {
   kind: 'NullQueryReference',
 };
-const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
+const initialNullQueryReferenceState: NullQueryReference = {
+  kind: 'NullQueryReference',
+};
 
 function requestIsLiveQuery<
   TVariables: Variables,

@@ -13,6 +13,7 @@
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 import type {Snapshot} from '../../store/RelayStoreTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
+import type {DeclarativeMutationConfig} from '../RelayDeclarativeMutationConfig';
 import type {
   commitMutationTest4Query$data,
   commitMutationTest4Query$variables,
@@ -116,7 +117,7 @@ describe('Configs: NODE_DELETE', () => {
         },
       },
     });
-    const configs = [
+    const configs: Array<DeclarativeMutationConfig> = [
       {
         type: 'NODE_DELETE',
         deletedIDFieldName: 'deletedCommentId',
@@ -216,7 +217,7 @@ describe('Configs: RANGE_DELETE', () => {
         },
       },
     };
-    const configs = [
+    const configs: Array<DeclarativeMutationConfig> = [
       {
         type: 'RANGE_DELETE',
         parentName: 'feedback',
@@ -341,7 +342,7 @@ describe('Configs: RANGE_DELETE', () => {
         }
       }
     `;
-    const configs = [
+    const configs: Array<DeclarativeMutationConfig> = [
       {
         type: 'RANGE_DELETE',
         parentName: 'actor',
@@ -570,7 +571,7 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('appends new edge', () => {
-    const configs = [
+    const configs: Array<DeclarativeMutationConfig> = [
       {
         type: 'RANGE_ADD',
         connectionName: 'topLevelComments',
@@ -621,7 +622,7 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('does not overwrite previous edge when appended multiple times', () => {
-    const configs = [
+    const configs: Array<DeclarativeMutationConfig> = [
       {
         type: 'RANGE_ADD',
         connectionName: 'topLevelComments',
@@ -803,7 +804,7 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('prepends new edge', () => {
-    const configs = [
+    const configs: Array<DeclarativeMutationConfig> = [
       {
         type: 'RANGE_ADD',
         connectionName: 'topLevelComments',
@@ -854,7 +855,7 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('filters connections then applies the rangeBehavior', () => {
-    const configs = [
+    const configs: Array<DeclarativeMutationConfig> = [
       {
         type: 'RANGE_ADD',
         connectionName: 'topLevelComments',

@@ -29,6 +29,7 @@ import type {RelayErrorTrie} from './RelayErrorTrie';
 import type {
   FollowupPayload,
   HandleFieldPayload,
+  IdCollisionTypenameLogEvent,
   IncrementalDataPlaceholder,
   LogFunction,
   MutableRecordSource,
@@ -804,7 +805,7 @@ class RelayResponseNormalizer {
         (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName;
       if (shouldLogWarning) {
-        const logEvent = {
+        const logEvent: IdCollisionTypenameLogEvent = {
           name: 'idCollision.typename',
           previous_typename: RelayModernRecord.getType(record),
           new_typename: typeName,

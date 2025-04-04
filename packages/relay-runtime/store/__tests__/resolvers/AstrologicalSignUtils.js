@@ -68,7 +68,7 @@ const HOUSE_ORDER = [
 
 function findSign(month: number, day: number): AstrologicalSignID {
   const days = [21, 20, 21, 21, 22, 22, 23, 24, 24, 24, 23, 22];
-  const signs = [
+  const signs: AstrologicalSignID[] = [
     'Aquarius',
     'Pisces',
     'Aries',

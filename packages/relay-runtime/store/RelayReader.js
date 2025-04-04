@@ -881,7 +881,7 @@ class RelayReader {
     // the errors can be attached to this read's snapshot. This allows the error
     // to be logged.
     if (resolverError) {
-      const errorEvent = {
+      const errorEvent: FieldError = {
         kind: 'relay_resolver.error',
         fieldPath,
         owner: this._fragmentName,

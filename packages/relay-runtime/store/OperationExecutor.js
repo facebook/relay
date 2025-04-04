@@ -299,7 +299,7 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _updateActiveState(): void {
-    let activeState;
+    let activeState: ActiveState;
     switch (this._state) {
       case 'started': {
         activeState = 'active';

@@ -592,7 +592,7 @@ if (__DEV__) {
       fragmentNode: ReaderFragment,
       componentDisplayName: string,
     ): void {
-      if (previousIDAndTypename == null) {
+      if (previousIDAndTypename == null || refetchedFragmentRef == null) {
         return;
       }
       const {ID_KEY} = require('relay-runtime');

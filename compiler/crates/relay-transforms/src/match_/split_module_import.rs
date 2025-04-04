@@ -104,10 +104,6 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
             if self
                 .base_fragment_names
                 .contains(&module_metadata.fragment_name)
-                // We do not need to generate normalization files for fragments that are
-                // resolved entirely by read time resolver models on the client side when 
-                // client 3D support for read time resolvers is enabled.
-                || module_metadata.read_time_resolvers
             {
                 return self.default_transform_inline_fragment(fragment);
             }

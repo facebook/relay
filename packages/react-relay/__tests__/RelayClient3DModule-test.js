@@ -12,6 +12,10 @@
 'use strict';
 
 import type {LogEvent} from '../../relay-runtime/store/RelayStoreTypes';
+import type {
+  NormalizationRootNode,
+  NormalizationSplitOperation,
+} from 'relay-runtime/util/NormalizationNode';
 
 import MatchContainer from '../relay-hooks/MatchContainer';
 import React from 'react';
@@ -116,13 +120,20 @@ beforeEach(() => {
 describe('ClientUser', () => {
   let store;
   let environment;
+  let operationLoader;
 
   beforeEach(() => {
+    operationLoader = {
+      load: jest.fn<[mixed], Promise<NormalizationSplitOperation>>(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
+    };
     store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
+      operationLoader,
     });
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
+      operationLoader,
       store,
       log: logFn,
     });
@@ -154,7 +165,6 @@ describe('ClientUser', () => {
     );
     //$FlowFixMe
     const fragmentSnapshot = environment.lookup(fragmentSelector);
-
     const dataSelector = getSelector(
       CLIENT_USER_FRAGMENT,
       fragmentSnapshot.data?.basicUser,
@@ -185,13 +195,20 @@ describe('ClientUser', () => {
 describe('SpecialUser', () => {
   let environment;
   let store;
+  let operationLoader;
   beforeEach(() => {
+    operationLoader = {
+      load: jest.fn<[mixed], Promise<NormalizationSplitOperation>>(),
+      get: jest.fn<[mixed], ?NormalizationRootNode>(),
+    };
     store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
+      operationLoader,
     });
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
       store,
+      operationLoader,
       log: logFn,
     });
     const operation = createOperationDescriptor(CLIENT_3D_TEST_QUERY, {});
@@ -200,6 +217,7 @@ describe('SpecialUser', () => {
         basicUser: {
           __typename: 'SpecialUser',
           id: '2',
+          data: 'specialUserData',
         },
       },
     });
@@ -221,7 +239,6 @@ describe('SpecialUser', () => {
     );
     //$FlowFixMe
     const fragmentSnapshot = environment.lookup(fragmentSelector);
-
     const dataSelector = getSelector(
       SPECIAL_USER_FRAGMENT,
       fragmentSnapshot.data?.basicUser,

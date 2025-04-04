@@ -62,7 +62,7 @@ use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
 use crate::no_inline::validate_required_no_inline_directive;
-use crate::util::get_normalization_operation_name;
+use crate::util::get_normalization_fragment_filename;
 use crate::FragmentAliasMetadata;
 use crate::INLINE_DIRECTIVE_NAME;
 
@@ -602,11 +602,10 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             module_directive.name.location,
         )];
 
-        let mut normalization_name = get_normalization_operation_name(spread.fragment.item.0);
-        normalization_name.push_str(".graphql");
+        let normalization_name = get_normalization_fragment_filename(spread.fragment.item);
         let mut operation_field_arguments = vec![build_string_literal_argument(
             MATCH_CONSTANTS.js_field_module_arg,
-            normalization_name.intern(),
+            normalization_name,
             module_directive.name.location,
         )];
 

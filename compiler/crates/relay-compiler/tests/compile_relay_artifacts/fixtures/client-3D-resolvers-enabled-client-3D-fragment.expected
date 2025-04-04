@@ -56,6 +56,60 @@ type SpecialUser implements BasicUser @__RelayResolverModel {
   "language": "flow"
 }
 ==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "client3DResolversEnabledClient3DFragment_ClientUserFragment$normalization",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "data",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "client3DResolversEnabledClient3DFragment_SpecialUserFragment$normalization",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "data",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
 import JSResource from 'JSResource';
 {
   "fragment": {
@@ -175,6 +229,15 @@ import JSResource from 'JSResource';
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
+                        "documentName": "client3DResolversEnabledClient3DFragment_clientSideQuery",
+                        "fragmentName": "client3DResolversEnabledClient3DFragment_ClientUserFragment",
+                        "fragmentPropName": "ClientUserFragment",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => JSResource('m#ClientUser.react'),
+                        "operationModuleProvider": () => JSResource('m#client3DResolversEnabledClient3DFragment_ClientUserFragment$normalization.graphql')
+                      },
+                      {
                         "alias": null,
                         "args": null,
                         "kind": "ScalarField",
@@ -188,6 +251,15 @@ import JSResource from 'JSResource';
                   {
                     "kind": "InlineFragment",
                     "selections": [
+                      {
+                        "args": null,
+                        "documentName": "client3DResolversEnabledClient3DFragment_clientSideQuery",
+                        "fragmentName": "client3DResolversEnabledClient3DFragment_SpecialUserFragment",
+                        "fragmentPropName": "SpecialUserFragment",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => JSResource('m#SpecialUser.react'),
+                        "operationModuleProvider": () => JSResource('m#client3DResolversEnabledClient3DFragment_SpecialUserFragment$normalization.graphql')
+                      },
                       {
                         "alias": null,
                         "args": null,

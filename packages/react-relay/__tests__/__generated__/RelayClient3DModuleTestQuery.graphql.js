@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1a9a6616628a9eabcb1d1df9c1fac6a3>>
+ * @generated SignedSource<<278cea064e359a15e34e1dc5b2c4d583>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -105,13 +105,33 @@ return {
                   },
                   {
                     "kind": "InlineFragment",
-                    "selections": [],
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "RelayClient3DModuleTestFragment2BasicUser",
+                        "fragmentName": "RelayClient3DModuleTestFragmentClientUser_data",
+                        "fragmentPropName": "data",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => require('./../ClientUser.react'),
+                        "operationModuleProvider": () => require('react-relay/__tests__/__generated__/./RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql')
+                      }
+                    ],
                     "type": "ClientUser",
                     "abstractKey": null
                   },
                   {
                     "kind": "InlineFragment",
-                    "selections": [],
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "RelayClient3DModuleTestFragment2BasicUser",
+                        "fragmentName": "RelayClient3DModuleTestFragmentSpecialUser_data",
+                        "fragmentPropName": "data",
+                        "kind": "ModuleImport",
+                        "componentModuleProvider": () => require('./../SpecialUser.react'),
+                        "operationModuleProvider": () => require('react-relay/__tests__/__generated__/./RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql')
+                      }
+                    ],
                     "type": "SpecialUser",
                     "abstractKey": null
                   },

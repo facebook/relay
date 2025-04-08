@@ -667,6 +667,14 @@ impl Value {
             panic!("expected a string literal, got {:?}", self);
         })
     }
+
+    pub fn expect_list(&self) -> Option<Vec<Value>> {
+        if let Value::List(list) = self {
+            Some(list.clone())
+        } else {
+            None
+        }
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]

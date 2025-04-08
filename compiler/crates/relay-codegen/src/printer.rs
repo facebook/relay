@@ -13,17 +13,20 @@ use std::path::Path;
 
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
-use graphql_ir::reexport::Intern;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use graphql_ir::reexport::Intern;
 use indexmap::IndexMap;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_config::DynamicModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
+use crate::CodegenBuilder;
+use crate::CodegenVariant;
+use crate::JsModuleFormat;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
@@ -50,9 +53,6 @@ use crate::object;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
-use crate::CodegenBuilder;
-use crate::CodegenVariant;
-use crate::JsModuleFormat;
 
 pub fn print_operation(
     schema: &SDLSchema,
@@ -549,18 +549,12 @@ impl<'b> JSONPrinter<'b> {
                 self.write_js_dependency(
                     f,
                     ModuleImportName::Default(format!("{}_graphql", variable_name).intern()),
-                    Cow::Owned(format!(
-                        "{}.graphql",
-                        get_module_path(self.js_module_format, *key)
-                    )),
+                    Cow::Owned(format!("{}.graphql", self.get_module_path(*key))),
                 )
             }
-            Primitive::JSModuleDependency(JSModuleDependency { path, import_name }) => self
-                .write_js_dependency(
-                    f,
-                    import_name.clone(),
-                    get_module_path(self.js_module_format, *path),
-                ),
+            Primitive::JSModuleDependency(JSModuleDependency { path, import_name }) => {
+                self.write_js_dependency(f, import_name.clone(), self.get_module_path(*path))
+            }
             Primitive::ResolverModuleReference(ResolverModuleReference {
                 field_type,
                 resolver_function_name,
@@ -579,10 +573,11 @@ impl<'b> JSONPrinter<'b> {
                     write!(f, "() => JSResource('m#{}')", module)
                 }
                 DynamicModuleProvider::Custom { statement } => {
-                    f.push_str(&statement.lookup().replace(
-                        "<$module>",
-                        &get_module_path(self.js_module_format, *module),
-                    ));
+                    f.push_str(
+                        &statement
+                            .lookup()
+                            .replace("<$module>", &self.get_module_path(*module)),
+                    );
                     Ok(())
                 }
             },
@@ -682,7 +677,7 @@ impl<'b> JSONPrinter<'b> {
             ModuleImportName::Default(format!("{}_graphql", graphql_module_name).intern()),
             Cow::Owned(format!(
                 "{}.graphql",
-                get_module_path(self.js_module_format, graphql_module_path)
+                self.get_module_path(graphql_module_path)
             )),
         )?;
         write!(f, ", ")?;
@@ -690,7 +685,7 @@ impl<'b> JSONPrinter<'b> {
             ResolverJSFunction::Module(js_module) => self.write_js_dependency(
                 f,
                 js_module.import_name.clone(),
-                get_module_path(self.js_module_format, js_module.path),
+                self.get_module_path(js_module.path),
             )?,
             ResolverJSFunction::PropertyLookup(property) => {
                 write_arrow_fn(f, &["o"], &format!("o.{}", property))?
@@ -702,34 +697,34 @@ impl<'b> JSONPrinter<'b> {
         }
         write!(f, ")")
     }
+
+    fn get_module_path(&self, key: StringKey) -> Cow<'static, str> {
+        match self.js_module_format {
+            JsModuleFormat::CommonJS => {
+                let path = Path::new(key.lookup());
+                let extension = path.extension();
+
+                if let Some(extension) = extension {
+                    if extension == "ts" || extension == "tsx" || extension == "js" {
+                        let path_without_extension = path.with_extension("");
+
+                        let path_without_extension = path_without_extension
+                            .to_str()
+                            .expect("could not convert `path_without_extension` to a str");
+
+                        return Cow::Owned(format!("./{}", path_without_extension));
+                    }
+                }
+                Cow::Owned(format!("./{}", key.borrow()))
+            }
+            JsModuleFormat::Haste => Cow::Borrowed(key.lookup()),
+        }
+    }
 }
 
 fn write_arrow_fn(f: &mut String, params: &[&str], body: &str) -> FmtResult {
     write!(f, "({}) => {}", params.join(", "), body)?;
     Ok(())
-}
-
-pub fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
-    match js_module_format {
-        JsModuleFormat::CommonJS => {
-            let path = Path::new(key.lookup());
-            let extension = path.extension();
-
-            if let Some(extension) = extension {
-                if extension == "ts" || extension == "tsx" || extension == "js" {
-                    let path_without_extension = path.with_extension("");
-
-                    let path_without_extension = path_without_extension
-                        .to_str()
-                        .expect("could not convert `path_without_extension` to a str");
-
-                    return Cow::Owned(format!("./{}", path_without_extension));
-                }
-            }
-            Cow::Owned(format!("./{}", key.borrow()))
-        }
-        JsModuleFormat::Haste => Cow::Borrowed(key.lookup()),
-    }
 }
 
 fn write_static_storage_key(

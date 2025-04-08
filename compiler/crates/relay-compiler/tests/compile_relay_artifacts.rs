@@ -14,7 +14,6 @@ use common::FeatureFlags;
 use common::NamedItem;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -23,26 +22,27 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::RelayMode;
+use graphql_ir::build_ir_with_extra_features;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 use intern::string_key::Intern;
+use relay_codegen::JsModuleFormat;
 use relay_codegen::build_request_params;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_codegen::print_request;
-use relay_codegen::JsModuleFormat;
-use relay_compiler::find_duplicates;
-use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
+use relay_compiler::find_duplicates;
+use relay_compiler::validate;
 use relay_config::NonNodeIdFieldsConfig;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
-use relay_transforms::apply_transforms;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
+use relay_transforms::apply_transforms;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -164,6 +164,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             Arc::new(flags)
                         }),
                     js_module_format: config_file_project.js_module_format,
+                    relativize_js_module_paths: config_file_project.relativize_js_module_paths,
                     ..default_project_config
                 }
             },

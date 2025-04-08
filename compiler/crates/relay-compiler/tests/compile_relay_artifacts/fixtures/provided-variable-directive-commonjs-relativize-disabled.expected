@@ -1,11 +1,11 @@
 ==================================== INPUT ====================================
-query providedVariableDirectiveCommonjsRelativizeDefaultQuery {
+query providedVariableDirectiveCommonjsRelativizeDisabledQuery {
   me {
-    ...providedVariableDirectiveCommonjsRelativizeDefaultFragment
+    ...providedVariableDirectiveCommonjsRelativizeDisabledFragment
   }
 }
 
-fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
+fragment providedVariableDirectiveCommonjsRelativizeDisabledFragment on User
   @argumentDefinitions(
     condA: {type: "Boolean!", provider: "bareProvider" },
     condB: {type: "Boolean!", provider: "./relProvider" },
@@ -19,6 +19,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
 %project_config%
 {
   "jsModuleFormat": "commonjs",
+  "relativizeJsModulePaths": false,
   "language": "flow"
 }
 ==================================== OUTPUT ===================================
@@ -27,7 +28,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "providedVariableDirectiveCommonjsRelativizeDefaultQuery",
+    "name": "providedVariableDirectiveCommonjsRelativizeDisabledQuery",
     "selections": [
       {
         "alias": null,
@@ -40,7 +41,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "providedVariableDirectiveCommonjsRelativizeDefaultFragment"
+            "name": "providedVariableDirectiveCommonjsRelativizeDisabledFragment"
           }
         ],
         "storageKey": null
@@ -69,7 +70,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
       }
     ],
     "kind": "Operation",
-    "name": "providedVariableDirectiveCommonjsRelativizeDefaultQuery",
+    "name": "providedVariableDirectiveCommonjsRelativizeDisabledQuery",
     "selections": [
       {
         "alias": null,
@@ -134,14 +135,14 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
     ]
   },
   "params": {
-    "cacheID": "f458fb2591f6867a48f155ee137dbc65",
+    "cacheID": "39a6590f6b52a674c0c593ed4494a130",
     "id": null,
     "metadata": {},
-    "name": "providedVariableDirectiveCommonjsRelativizeDefaultQuery",
+    "name": "providedVariableDirectiveCommonjsRelativizeDisabledQuery",
     "operationKind": "query",
     "text": null,
     "providedVariables": {
-      "__relay_internal__pv__bareProvider": require('../bareProvider'),
+      "__relay_internal__pv__bareProvider": require('bareProvider'),
       "__relay_internal__pv__relProvider": require('.././relProvider'),
       "__relay_internal__pv__parentProvider": require('../../parentProvider')
     }
@@ -150,18 +151,18 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
 
 QUERY:
 
-query providedVariableDirectiveCommonjsRelativizeDefaultQuery(
+query providedVariableDirectiveCommonjsRelativizeDisabledQuery(
   $__relay_internal__pv__bareProvider: Boolean!
   $__relay_internal__pv__relProvider: Boolean!
   $__relay_internal__pv__parentProvider: Boolean!
 ) {
   me {
-    ...providedVariableDirectiveCommonjsRelativizeDefaultFragment
+    ...providedVariableDirectiveCommonjsRelativizeDisabledFragment
     id
   }
 }
 
-fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User {
+fragment providedVariableDirectiveCommonjsRelativizeDisabledFragment on User {
   username @include(if: $__relay_internal__pv__bareProvider)
   name @include(if: $__relay_internal__pv__relProvider)
   alternate_name @include(if: $__relay_internal__pv__parentProvider)
@@ -185,7 +186,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "providedVariableDirectiveCommonjsRelativizeDefaultFragment",
+  "name": "providedVariableDirectiveCommonjsRelativizeDisabledFragment",
   "selections": [
     {
       "condition": "__relay_internal__pv__bareProvider",

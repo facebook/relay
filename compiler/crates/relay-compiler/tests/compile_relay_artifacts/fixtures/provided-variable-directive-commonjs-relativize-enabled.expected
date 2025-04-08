@@ -1,11 +1,11 @@
 ==================================== INPUT ====================================
-query providedVariableDirectiveCommonjsRelativizeDefaultQuery {
+query providedVariableDirectiveCommonjsRelativizeEnabledQuery {
   me {
-    ...providedVariableDirectiveCommonjsRelativizeDefaultFragment
+    ...providedVariableDirectiveCommonjsRelativizeEnabledFragment
   }
 }
 
-fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
+fragment providedVariableDirectiveCommonjsRelativizeEnabledFragment on User
   @argumentDefinitions(
     condA: {type: "Boolean!", provider: "bareProvider" },
     condB: {type: "Boolean!", provider: "./relProvider" },
@@ -19,6 +19,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
 %project_config%
 {
   "jsModuleFormat": "commonjs",
+  "relativizeJsModulePaths": true,
   "language": "flow"
 }
 ==================================== OUTPUT ===================================
@@ -27,7 +28,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "providedVariableDirectiveCommonjsRelativizeDefaultQuery",
+    "name": "providedVariableDirectiveCommonjsRelativizeEnabledQuery",
     "selections": [
       {
         "alias": null,
@@ -40,7 +41,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "providedVariableDirectiveCommonjsRelativizeDefaultFragment"
+            "name": "providedVariableDirectiveCommonjsRelativizeEnabledFragment"
           }
         ],
         "storageKey": null
@@ -69,7 +70,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
       }
     ],
     "kind": "Operation",
-    "name": "providedVariableDirectiveCommonjsRelativizeDefaultQuery",
+    "name": "providedVariableDirectiveCommonjsRelativizeEnabledQuery",
     "selections": [
       {
         "alias": null,
@@ -134,10 +135,10 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
     ]
   },
   "params": {
-    "cacheID": "f458fb2591f6867a48f155ee137dbc65",
+    "cacheID": "76e93fe5c27fdd1b1af17f4e3e9b4d0d",
     "id": null,
     "metadata": {},
-    "name": "providedVariableDirectiveCommonjsRelativizeDefaultQuery",
+    "name": "providedVariableDirectiveCommonjsRelativizeEnabledQuery",
     "operationKind": "query",
     "text": null,
     "providedVariables": {
@@ -150,18 +151,18 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
 
 QUERY:
 
-query providedVariableDirectiveCommonjsRelativizeDefaultQuery(
+query providedVariableDirectiveCommonjsRelativizeEnabledQuery(
   $__relay_internal__pv__bareProvider: Boolean!
   $__relay_internal__pv__relProvider: Boolean!
   $__relay_internal__pv__parentProvider: Boolean!
 ) {
   me {
-    ...providedVariableDirectiveCommonjsRelativizeDefaultFragment
+    ...providedVariableDirectiveCommonjsRelativizeEnabledFragment
     id
   }
 }
 
-fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User {
+fragment providedVariableDirectiveCommonjsRelativizeEnabledFragment on User {
   username @include(if: $__relay_internal__pv__bareProvider)
   name @include(if: $__relay_internal__pv__relProvider)
   alternate_name @include(if: $__relay_internal__pv__parentProvider)
@@ -185,7 +186,7 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User {
   ],
   "kind": "Fragment",
   "metadata": null,
-  "name": "providedVariableDirectiveCommonjsRelativizeDefaultFragment",
+  "name": "providedVariableDirectiveCommonjsRelativizeEnabledFragment",
   "selections": [
     {
       "condition": "__relay_internal__pv__bareProvider",

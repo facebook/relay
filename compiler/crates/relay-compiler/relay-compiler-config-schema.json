@@ -2322,6 +2322,11 @@
             }
           ]
         },
+        "relativizeJsModulePaths": {
+          "description": "Whether to treat all JS module names as relative to './' (true) or not. default: true",
+          "default": true,
+          "type": "boolean"
+        },
         "requireCustomScalarTypes": {
           "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",
           "default": false,
@@ -7109,6 +7114,10 @@
                     "type": "null"
                   }
                 ]
+              },
+              "relativizeJsModulePaths": {
+                "default": true,
+                "type": "boolean"
               },
               "requireCustomScalarTypes": {
                 "description": "Require all GraphQL scalar types mapping to be defined, will throw if a GraphQL scalar type doesn't have a JS type",

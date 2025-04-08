@@ -6,9 +6,9 @@
  */
 
 use std::fmt;
+use std::path::MAIN_SEPARATOR;
 use std::path::Path;
 use std::path::PathBuf;
-use std::path::MAIN_SEPARATOR;
 use std::sync::Arc;
 
 use common::DirectiveName;
@@ -24,22 +24,22 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use regex::Regex;
 use schemars::JsonSchema;
-use serde::de::Error;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
+use serde::de::Error;
 use serde_json::Value;
 
+use crate::JsModuleFormat;
+use crate::ProjectName;
+use crate::TypegenConfig;
+use crate::TypegenLanguage;
 use crate::connection_interface::ConnectionInterface;
 use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
-use crate::JsModuleFormat;
-use crate::ProjectName;
-use crate::TypegenConfig;
-use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -314,6 +314,9 @@ pub struct ProjectConfig {
     pub codegen_command: Option<String>,
     /// Custom function to get the path for an artifact.
     pub get_custom_path_for_artifact: Option<CustomArtifactFilePath>,
+    /// Treats JS module paths as relative to './' when true, and leaves JS
+    /// module paths unmodified when false.
+    pub relativize_js_module_paths: bool,
 }
 
 impl Default for ProjectConfig {
@@ -345,6 +348,7 @@ impl Default for ProjectConfig {
             resolvers_schema_module: Default::default(),
             codegen_command: Default::default(),
             get_custom_path_for_artifact: None,
+            relativize_js_module_paths: true,
         }
     }
 }
@@ -378,6 +382,7 @@ impl Debug for ProjectConfig {
             resolvers_schema_module,
             codegen_command,
             get_custom_path_for_artifact: _,
+            relativize_js_module_paths,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -405,6 +410,7 @@ impl Debug for ProjectConfig {
             .field("diagnostic_report_config", diagnostic_report_config)
             .field("resolvers_schema_module", resolvers_schema_module)
             .field("codegen_command", codegen_command)
+            .field("relativize_js_module_paths", relativize_js_module_paths)
             .finish()
     }
 }

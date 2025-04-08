@@ -1052,6 +1052,7 @@ it('Returns null and includes errors when the resolver throws', () => {
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest12Query",
           "shouldThrow": false,
+          "uiContext": undefined,
         },
       ]
     `);
@@ -1073,6 +1074,7 @@ it('Returns null and includes errors when the resolver throws', () => {
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest12Query",
           "shouldThrow": false,
+          "uiContext": undefined,
         },
       ]
     `);
@@ -1116,6 +1118,7 @@ it('Returns null and includes errors when a transitive resolver throws', () => {
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
           "shouldThrow": false,
+          "uiContext": undefined,
         },
       ]
     `);
@@ -1137,6 +1140,7 @@ it('Returns null and includes errors when a transitive resolver throws', () => {
           "kind": "relay_resolver.error",
           "owner": "UserAlwaysThrowsTransitivelyResolver",
           "shouldThrow": false,
+          "uiContext": undefined,
         },
       ]
     `);
@@ -1174,6 +1178,7 @@ it('Catches errors thrown before calling readFragment', () => {
           "kind": "relay_resolver.error",
           "owner": "RelayReaderResolverTest14Query",
           "shouldThrow": false,
+          "uiContext": undefined,
         },
       ]
     `);

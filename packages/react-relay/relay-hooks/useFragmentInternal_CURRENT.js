@@ -26,6 +26,7 @@ import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreT
 
 const {getQueryResourceForEnvironment} = require('./QueryResource');
 const useRelayEnvironment = require('./useRelayEnvironment');
+const useRelayLoggingContext = require('./useRelayLoggingContext');
 const invariant = require('invariant');
 const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
 const {
@@ -109,12 +110,21 @@ function getSuspendingLiveResolver(
 function handlePotentialSnapshotErrorsForState(
   environment: IEnvironment,
   state: FragmentState,
+  loggingContext: mixed | void,
 ): void {
   if (state.kind === 'singular') {
-    handlePotentialSnapshotErrors(environment, state.snapshot.fieldErrors);
+    handlePotentialSnapshotErrors(
+      environment,
+      state.snapshot.fieldErrors,
+      loggingContext,
+    );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
+      handlePotentialSnapshotErrors(
+        environment,
+        snapshot.fieldErrors,
+        loggingContext,
+      );
     }
   }
 }
@@ -400,6 +410,11 @@ hook useFragmentInternal(
   );
 
   const environment = useRelayEnvironment();
+  let loggerContext;
+  if (RelayFeatureFlags.ENABLE_UI_CONTEXT_ON_RELAY_LOGGER) {
+    // $FlowFixMe[react-rule-hook] - the condition is static
+    loggerContext = useRelayLoggingContext();
+  }
   const [_state, setState] = useState<FragmentState>(() =>
     getFragmentState(environment, fragmentSelector),
   );
@@ -538,7 +553,7 @@ hook useFragmentInternal(
 
   // Report required fields only if we're not suspending, since that means
   // they're missing even though we are out of options for possibly fetching them:
-  handlePotentialSnapshotErrorsForState(environment, state);
+  handlePotentialSnapshotErrorsForState(environment, state, loggerContext);
 
   const hasPendingStateChanges = useRef<boolean>(false);
 

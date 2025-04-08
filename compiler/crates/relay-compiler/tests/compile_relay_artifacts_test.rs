@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8e6457abd85bfe2e23fd93ec4d3a3cc2>>
+ * @generated SignedSource<<c14cc5bd9c1b8a86f41adc1dbad4196a>>
  */
 
 mod compile_relay_artifacts;
@@ -678,6 +678,13 @@ async fn fragment_on_query() {
 }
 
 #[tokio::test]
+async fn fragment_on_query_commonjs() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-commonjs.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-commonjs.expected");
+    test_fixture(transform_fixture, file!(), "fragment-on-query-commonjs.graphql", "compile_relay_artifacts/fixtures/fragment-on-query-commonjs.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn fragment_on_query_with_cycle_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-with-cycle.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/fragment-on-query-with-cycle.invalid.expected");
@@ -1025,6 +1032,13 @@ async fn provided_variable_directive() {
     let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive.expected");
     test_fixture(transform_fixture, file!(), "provided-variable-directive.graphql", "compile_relay_artifacts/fixtures/provided-variable-directive.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn provided_variable_directive_commonjs() {
+    let input = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/provided-variable-directive-commonjs.expected");
+    test_fixture(transform_fixture, file!(), "provided-variable-directive-commonjs.graphql", "compile_relay_artifacts/fixtures/provided-variable-directive-commonjs.expected", input, expected).await;
 }
 
 #[tokio::test]

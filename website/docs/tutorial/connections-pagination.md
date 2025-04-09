@@ -150,7 +150,7 @@ function StoryCommentsSection({story}) {
 
 Here we see that `StoryCommentsSection` is selecting the <span className="color1">first three comments</span> for each story using the Connection schema convention: the `comments` field accepts the page size as an argument, and for each comment there is an `edge` and within that a `node` containing the actual comment data — we’re spreading in `CommentFragment` here to retrieve the data needed to show an individual comment with the `Comment` component. It also uses the `pageInfo` field of the connection to decide whether to show a “Load More” button.
 
-Our task then is to make the “Load More” button actually load an additional page of comments. Relay handles the gritty details for us, but we do have to supply a few steps to set it up.
+Our task then is to make the “Load More” button actually load an additional page of comments. Relay handles the nitty-gritty details for us, but we do have to supply a few steps to set it up.
 
 ### Augmenting the Fragment
 

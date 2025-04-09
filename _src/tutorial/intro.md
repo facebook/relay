@@ -2,10 +2,10 @@
 
 This tutorial will get you started with the most important and frequently-used features of Relay. To do that, we’ll build a simple app that displays a newsfeed. We will cover:
 
-* How to fetch data using Queries.
-* How to make components self-contained by breaking Queries into Fragments.
-* How to paginate through data with Connections.
-* How to update data on the server with Mutations and Updaters.
+* How to fetch data using [Queries](./queries-1.md).
+* How to make components self-contained by breaking [Queries](./queries-1.md) into [Fragments](./fragments-1.md).
+* How to paginate through data with [Connections](./connections-pagination.md).
+* How to update data on the server with [Mutations and Updaters](./mutations-updates.md).
 
 This tutorial assumes a fair familiarity with React. If you’re still new to React, we suggest going through the [React tutorial](https://reactjs.org/tutorial/) and working with React until you’re comfortable with creating components, passing props, and using the basic hooks such as `useState`. The tutorial is based on the Web, but Relay also works great with React Native.
 
@@ -15,7 +15,7 @@ This tutorial is built with TypeScript, so [very basic knowledge of TypeScript](
 **IMPORTANT**: The tutorial is meant to be gone through in order, as the exercises build on each other. You’ll be making incremental changes to an example app, so later section won’t make sense if you haven’t done the earlier sections.
 :::
 
-* * *
+## Setup
 
 To get started, run the following commands:
 
@@ -44,11 +44,13 @@ Now that these processes are running, you should be able to open [http://localho
 
 We start from a webpage that shows a single Newsfeed story rendered with React, but the data for that story is just placeholder data hard-coded into the React components. In the rest of this tutorial, we’ll make the app functional by having it fetch data from the server, paginate over multiple stories, and update the data by commenting and liking.
 
+## Folder Structure
+
 The files that make up the example app are laid out in this way:
 
 * `src/components` — the front-end app components that we’ll be modifying and working with. Some of the important components are:
     * `App.tsx` — the top-level component
-    * `Newsfeed.tsx` — a component that will run a query to fetch newsfeed stories and display a scrolling list of stories. At the beginning of the tutorial, this component uses hard-coded placeholder data — we’ll modify it to fetch data via GraphQL and Relay.
+    * `Newsfeed.tsx` — a component that will run a query to fetch newsfeed stories and display a scrolling list of stories
     * `Story.tsx` — a component that shows a single newsfeed story.
 * `server` — a very basic GraphQL server that serves up example data
     * `server/schema.graphql` — the GraphQL schema: it specifies what information can be queried from the server via GraphQL.

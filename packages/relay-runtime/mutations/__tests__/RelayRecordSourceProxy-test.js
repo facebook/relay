@@ -80,6 +80,7 @@ describe('RelayRecordSourceProxy', () => {
       defaultGetDataID,
       undefined,
       [],
+      null,
     );
   });
 

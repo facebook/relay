@@ -87,6 +87,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       config.handlerProvider,
       defaultGetDataID,
       config.missingFieldHandlers,
+      this.__log,
     );
     this._defaultRenderPolicy = config.defaultRenderPolicy;
     // TODO:T92305692 Remove `options` in favor of directly using `actorIdentifier` on the environment

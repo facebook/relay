@@ -797,14 +797,13 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     payload: Object,
   ): void {
-    const log = RelayFeatureFlags.ENABLE_STORE_ID_COLLISION_LOGGING;
-    if (log) {
+    if (RelayFeatureFlags.ENABLE_STORE_ID_COLLISION_LOGGING) {
       const typeName = field.concreteType ?? this._getRecordType(payload);
       const dataID = RelayModernRecord.getDataID(record);
-      const shouldLogWarning =
+      const expected =
         (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName;
-      if (shouldLogWarning) {
+      if (!expected) {
         const logEvent: IdCollisionTypenameLogEvent = {
           name: 'idCollision.typename',
           previous_typename: RelayModernRecord.getType(record),
@@ -819,11 +818,11 @@ class RelayResponseNormalizer {
     if (__DEV__) {
       const typeName = field.concreteType ?? this._getRecordType(payload);
       const dataID = RelayModernRecord.getDataID(record);
-      const shouldLogWarning =
+      const expected =
         (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName;
       warning(
-        shouldLogWarning,
+        expected,
         'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
           'consistent, but the record was assigned conflicting types `%s` ' +
           'and `%s`. The GraphQL server likely violated the globally unique ' +
@@ -848,12 +847,12 @@ class RelayResponseNormalizer {
     if (__DEV__) {
       const previousValue = RelayModernRecord.getValue(record, storageKey);
       const dataID = RelayModernRecord.getDataID(record);
-      const shouldLogWarning =
+      const expected =
         storageKey === TYPENAME_KEY ||
         previousValue === undefined ||
         areEqual(previousValue, fieldValue);
       warning(
-        shouldLogWarning,
+        expected,
         'RelayResponseNormalizer: Invalid record. The record contains two ' +
           'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
           'If two fields are different but share ' +
@@ -876,9 +875,9 @@ class RelayResponseNormalizer {
   ): void {
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {
-      const shouldLogWarning = prevID === undefined || prevID === nextID;
+      const expected = prevID === undefined || prevID === nextID;
       warning(
-        shouldLogWarning,
+        expected,
         'RelayResponseNormalizer: Invalid record. The record contains ' +
           'references to the conflicting field, %s and its id values: %s and %s. ' +
           'We need to make sure that the record the field points ' +

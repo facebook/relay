@@ -1,0 +1,269 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`multi-project configuration combines global and project-specific settings 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : GLOBAL_DEV
+  ? ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`global-relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag)
+  : (_TestFrag = require('./__generated__/TestFrag.graphql'));
+"
+`;
+
+exports[`multi-project configuration falls back to global settings when no path matches 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles cross-platform paths consistently: forward slashes 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles empty array in sources 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles files directly in source path 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles nonexistent project in sources 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles null project in sources 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles root paths in sources 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles trailing slashes in source paths 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration handles undefined paths 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration ignores null values in sources array 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration maps output directory to artifactDirectory 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration matches exact file paths 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration prioritizes deeper path matches 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration supports eager ES modules 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration uses correct project settings based on path 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration uses different settings for different projects 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration uses global config with empty sources 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;
+
+exports[`multi-project configuration uses the most specific path match 1`] = `
+"var _TestFrag;
+_TestFrag !== void 0
+  ? _TestFrag
+  : ((_TestFrag = require('./__generated__/TestFrag.graphql')),
+    _TestFrag.hash &&
+      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+      console.error(
+        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+      ),
+    _TestFrag);
+"
+`;

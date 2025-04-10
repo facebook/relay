@@ -26,6 +26,7 @@ export type FeatureFlags = {
   STRING_INTERN_LEVEL: number,
   LOG_MISSING_RECORDS_IN_PROD: boolean,
   ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE: boolean,
+  ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: boolean,
 
   // Some GraphQL servers are noncompliant with the GraphQL specification and
   // return an empty list instead of null when there is a field error on a list.
@@ -97,6 +98,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
   DISALLOW_NESTED_UPDATES: false,
   ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
+  ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: false,
 };
 
 module.exports = RelayFeatureFlags;

@@ -7,10 +7,15 @@
 
 use std::sync::Arc;
 
+use ::intern::intern;
+use ::intern::string_key::Intern;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
+use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -18,7 +23,6 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_syntax::OperationKind;
-use intern::string_key::Intern;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 
@@ -51,6 +55,15 @@ pub fn generate_relay_resolvers_root_fragment_split_operation(
                         raw_response_type_generation_mode: None,
                     }
                     .into(),
+                    Directive {
+                        name: WithLocation::new(
+                            fragment.name.location,
+                            DirectiveName(intern!("exec_time_resolvers")),
+                        ),
+                        arguments: vec![],
+                        data: None,
+                        location: fragment.name.location,
+                    },
                 ],
                 selections: fragment.selections.clone(),
                 kind: OperationKind::Query,

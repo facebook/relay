@@ -35,6 +35,7 @@ const {
 } = require('./store/ClientID');
 const createFragmentSpecResolver = require('./store/createFragmentSpecResolver');
 const createRelayContext = require('./store/createRelayContext');
+const createRelayLoggingContext = require('./store/createRelayLoggingContext');
 const isRelayModernEnvironment = require('./store/isRelayModernEnvironment');
 const {
   isSuspenseSentinel,
@@ -380,6 +381,7 @@ module.exports = {
     ResolverFragments,
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
+    createRelayLoggingContext: createRelayLoggingContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
     getLocalVariables: RelayConcreteVariables.getLocalVariables,
     fetchQuery: fetchQueryInternal.fetchQuery,

@@ -2,8 +2,8 @@
 
 We’ve seen how fragments let us specify data requirements in each component, yet at runtime perform only a single query for an entire screen. Here we’ll look at a situation where we *want* a second query on the same screen. This will also let us explore some more features of GraphQL queries.
 
-* We’ll build a **hovercard** that shows more details about the poster of a story when you hover over their name.
-* The hovercard will use a second query to fetch **additional information** that’s only needed if the user hovers.
+* We’ll build a hovercard that shows more details about the poster of a story when you hover over their name.
+* The hovercard will use a second query to fetch additional information that’s only needed if the user hovers.
 * We’ll use **query variables** to tell the server which person we’d like more details about.
 * We’ll see how to improve performance with **preloaded queries**.
 
@@ -108,9 +108,9 @@ const PosterDetailsHovercardContentsQuery = graphql`
 `;
 ```
 
-<span className="color1">The <code>node</code> field</span> is a top-level field defined in our schema that lets us fetch any graph node given its unique ID. It takes the ID as an argument, which is currently hard-coded. In this exercise, we’ll be replacing this hard-coded ID with a variable supplied by our UI state.
+<p><span className="color1">The <code>node</code> field</span> is a top-level field defined in our schema that lets us fetch any graph node given its unique ID. It takes the ID as an argument, which is currently hard-coded. In this exercise, we’ll be replacing this hard-coded ID with a variable supplied by our UI state.</p>
 
-The funny-looking `... on Actor` is a <span className="color2">*type refinement*</span>. We’ll look at these in more detail in the next section and can ignore it for now. In brief, since we could supply any ID at all to the `node` field, there’s no way to know statically what *type* of node we’d be selecting. The type refinement specifies what type we expect, allowing us to use fields from the `Actor` type
+The funny-looking `... on Actor` is a <span className="color2">*type refinement*</span>. We’ll look at these in more detail in the next section and can ignore it for now. In brief, since we could supply any ID at all to the `node` field, there’s no way to know statically what *type* of node we’d be selecting. The type refinement specifies what type we expect, allowing us to use fields from the `Actor` type.
 
 Within that, we simply spread a fragment that contains the fields we want to show — about which more later. For now, here are the steps to take to replace this hard-coded ID with the ID of the poster we’re hovering over:
 
@@ -298,15 +298,15 @@ export default function PosterDetailsHovercardContents({
 }
 ```
 
-### Step 2: export the query for access from the parent component
-
-We’ll be modifying the parent component, `PosterByline`, to have it initiate the `PosterDetailsHovercardContentsQuery` query. It needs a reference to that query, so we need to export it:
-
+:::note
+We’ll be modifying the parent component, `PosterByline`, to have it initiate the `PosterDetailsHovercardContentsQuery` query. Since it needs a reference the query, the query needs to be exported:
 ```
 export const PosterDetailsHovercardContentsQuery = graphql`...
 ```
+:::
 
-### Step 3: Call useQueryLoader in the parent component
+
+### Step 2 — Call useQueryLoader in the parent component
 
 Now that `PosterDetailsHovercardContents` expects a query ref, we need to create that query ref and pass it down from the parent component, which is `PosterByline`. We create the query ref using a hook called `useQueryLoader`. This hook also returns a function that we call in our event handler to trigger the query fetch.
 
@@ -339,7 +339,7 @@ The `useQueryLoader` hook returns two things we need:
 * The query ref is an opaque piece of information that `usePreloadedQuery` will use to retrieve the result of the query.
 * `loadHovercardQuery` is a function that will initiate the request.
 
-### Step 4: Fetch the query in the event handler
+### Step 3 — Fetch the query in the event handler
 
 Finally, we need to call `loadHovercardQuery` in an event handler that happens when the card is shown. Luckily the `Hovercard` component has a `onBeginHover` event that we can use:
 

@@ -15,6 +15,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  LogFunction,
   MissingFieldHandler,
   MutationParameters,
   OperationDescriptor,
@@ -87,6 +88,7 @@ class RelayPublishQueue implements PublishQueue {
   _handlerProvider: ?HandlerProvider;
   _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
   _getDataID: GetDataID;
+  _log: ?LogFunction;
 
   _hasStoreSnapshot: boolean;
   // True if the next `run()` should apply the backup and rerun all optimistic
@@ -115,6 +117,7 @@ class RelayPublishQueue implements PublishQueue {
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
     missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    log: LogFunction,
   ) {
     this._hasStoreSnapshot = false;
     this._handlerProvider = handlerProvider || null;
@@ -126,6 +129,7 @@ class RelayPublishQueue implements PublishQueue {
     this._gcHold = null;
     this._getDataID = getDataID;
     this._missingFieldHandlers = missingFieldHandlers;
+    this._log = log;
   }
 
   /**
@@ -296,6 +300,7 @@ class RelayPublishQueue implements PublishQueue {
       this._getDataID,
       this._handlerProvider,
       this._missingFieldHandlers,
+      this._log,
     );
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
@@ -359,6 +364,7 @@ class RelayPublishQueue implements PublishQueue {
           this._getDataID,
           this._handlerProvider,
           this._missingFieldHandlers,
+          this._log,
         );
         applyWithGuard(
           updater,
@@ -392,6 +398,7 @@ class RelayPublishQueue implements PublishQueue {
       this._getDataID,
       this._handlerProvider,
       this._missingFieldHandlers,
+      this._log,
     );
 
     // $FlowFixMe[unclear-type] see explanation above.

@@ -1287,6 +1287,8 @@ export type MissingExpectedDataLogEvent = {
   +kind: 'missing_expected_data.log',
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1314,6 +1316,8 @@ export type MissingExpectedDataThrowEvent = {
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1324,6 +1328,8 @@ export type MissingRequiredFieldLogEvent = {
   +kind: 'missing_required_field.log',
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1342,6 +1348,8 @@ export type MissingRequiredFieldThrowEvent = {
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1363,6 +1371,8 @@ export type RelayResolverErrorEvent = {
   +error: Error,
   +shouldThrow: boolean,
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**
@@ -1389,6 +1399,8 @@ export type RelayFieldPayloadErrorEvent = {
   +error: TRelayFieldError,
   +shouldThrow: boolean,
   +handled: boolean,
+  // To populate this, you should pass the value to a ReactRelayLoggingContext
+  +uiContext: mixed | void,
 };
 
 /**

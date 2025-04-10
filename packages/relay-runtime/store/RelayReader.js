@@ -232,6 +232,9 @@ class RelayReader {
         error,
         shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
         handled: false,
+        // the uiContext is always undefined here.
+        // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
+        uiContext: undefined,
       });
     }
   }
@@ -254,8 +257,18 @@ class RelayReader {
             owner,
             fieldPath: fieldName,
             handled: false,
+            // the uiContext is always undefined here.
+            // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
+            uiContext: undefined,
           }
-        : {kind: 'missing_expected_data.log', owner, fieldPath: fieldName},
+        : {
+            kind: 'missing_expected_data.log',
+            owner,
+            fieldPath: fieldName,
+            // the uiContext is always undefined here.
+            // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
+            uiContext: undefined,
+          },
     );
 
     this._isMissingData = true;
@@ -332,6 +345,9 @@ class RelayReader {
           fieldPath: fieldName,
           owner,
           handled: false,
+          // the uiContext is always undefined here.
+          // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
+          uiContext: undefined,
         });
         return;
       case 'LOG':
@@ -339,6 +355,9 @@ class RelayReader {
           kind: 'missing_required_field.log',
           fieldPath: fieldName,
           owner,
+          // the uiContext is always undefined here.
+          // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
+          uiContext: undefined,
         });
         return;
       default:
@@ -888,6 +907,9 @@ class RelayReader {
         error: resolverError,
         shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
         handled: false,
+        // the uiContext is always undefined here.
+        // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
+        uiContext: undefined,
       };
       if (this._fieldErrors == null) {
         this._fieldErrors = [errorEvent];

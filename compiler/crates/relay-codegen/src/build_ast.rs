@@ -406,32 +406,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     })
             });
 
-        let exec_time_resolvers_field = if has_exec_time_resolvers_directive {
-            if let Some(provider) = exec_time_resolvers_enabled_provider {
-                let mut provider_path = PathBuf::from(provider.location.source_location().path());
-                provider_path.pop();
-                provider_path.push(PathBuf::from(provider.item.lookup()));
-                let artifact_path = self
-                    .project_config
-                    .artifact_path_for_definition(self.definition_source_location);
-                Some(ObjectEntry {
-                    key: "exec_time_resolvers_enabled_provider".intern(),
-                    value: Primitive::JSModuleDependency(JSModuleDependency {
-                        path: self
-                            .project_config
-                            .js_module_import_identifier(&artifact_path, &provider_path),
-                        import_name: ModuleImportName::Default(provider.item),
-                    }),
-                })
-            } else {
-                Some(ObjectEntry {
-                    key: "use_exec_time_resolvers".intern(),
-                    value: Primitive::Bool(true),
-                })
-            }
-        } else {
-            None
-        };
         let mut context = ContextualMetadata {
             has_client_edges: false,
             has_exec_time_resolvers_directive,
@@ -448,9 +422,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     name: Primitive::String(operation.name.item.0),
                     selections: selections,
                 };
-                if context.has_exec_time_resolvers_directive {
-                    fields.push(exec_time_resolvers_field.unwrap());
-                }
                 if !operation.variable_definitions.is_empty() {
                     let argument_definitions =
                         self.build_operation_variable_definitions(&operation.variable_definitions);
@@ -475,7 +446,32 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     selections: selections,
                 };
                 if context.has_exec_time_resolvers_directive {
-                    fields.push(exec_time_resolvers_field.unwrap());
+                    fields.push(
+                        if let Some(provider) = exec_time_resolvers_enabled_provider {
+                            let mut provider_path =
+                                PathBuf::from(provider.location.source_location().path());
+                            provider_path.pop();
+                            provider_path.push(PathBuf::from(provider.item.lookup()));
+                            let artifact_path = self
+                                .project_config
+                                .artifact_path_for_definition(self.definition_source_location);
+                            ObjectEntry {
+                                key: "exec_time_resolvers_enabled_provider".intern(),
+                                value: Primitive::JSModuleDependency(JSModuleDependency {
+                                    path: self.project_config.js_module_import_identifier(
+                                        &artifact_path,
+                                        &provider_path,
+                                    ),
+                                    import_name: ModuleImportName::Default(provider.item),
+                                }),
+                            }
+                        } else {
+                            ObjectEntry {
+                                key: "use_exec_time_resolvers".intern(),
+                                value: Primitive::Bool(true),
+                            }
+                        },
+                    );
                 }
                 if let Some(client_abstract_types) =
                     self.maybe_build_client_abstract_types(operation)

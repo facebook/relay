@@ -187,7 +187,7 @@ As we'll see in later examples, you can spread multiple fragments into the same 
 
 To complete the fragmentization, we also need to change the type definition for `Props` so that TypeScript knows this component expects to receive a fragment key instead of the raw data.
 
-Recall that when you spread a fragment into a query (or another fragment), the part of the query result corresponding to where you spread the fragment becomes a *fragment key* for that fragment. This is the object that you pass to a component in its props in order to give it a specific place in the graph to read the fragment from.
+Recall that when you spread a fragment into a query (or another fragment), the part of the query result corresponding to where the fragment is spread becomes a *fragment key* for that fragment. This fragment key is the object that you pass to a component to tell it where in the graph to read the fragment from.
 
 To make this type-safe, Relay generates a type that represents the fragment key for that specific fragment — this way, if you try to use a component without spreading its fragment into your query, you won’t be able to provide a fragment key that satisfies the type system. Here are the changes we need to make:
 
@@ -426,7 +426,7 @@ Besides these, GraphQL servers can specify additional directives as part of thei
 
 </details>
 
-### Step 2
+***
 
 Now the different fragments using `Image` can pass in the appropriate size for each image:
 

@@ -2324,10 +2324,7 @@ pub(crate) fn raw_response_visit_selections(
                 runtime_imports,
                 custom_scalars,
                 enclosing_linked_field_concrete_type,
-                inline_fragment
-                    .directives
-                    .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
-                    .is_some(),
+                emit_semantic_types,
             ),
             Selection::LinkedField(linked_field) => {
                 // Note: We intentionally use the semantic field type here

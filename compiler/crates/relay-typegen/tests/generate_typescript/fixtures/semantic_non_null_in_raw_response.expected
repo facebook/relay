@@ -30,16 +30,16 @@ export type MyQuery$data = {
 export type MyQuery$rawResponse = {
   readonly opera?: {
     readonly cast: ReadonlyArray<{
-      readonly character: string | null | undefined;
+      readonly character: string;
       readonly singer: {
         readonly id: string;
         readonly name: string | null | undefined;
-      } | null | undefined;
-    } | null | undefined> | null | undefined;
+      };
+    }>;
     readonly composer: {
       readonly id: string;
       readonly name: string | null | undefined;
-    } | null | undefined;
+    };
   } | null | undefined;
 };
 export type MyQuery = {

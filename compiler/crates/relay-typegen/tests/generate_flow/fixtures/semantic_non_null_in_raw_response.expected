@@ -29,14 +29,14 @@ export type MyQuery$data = {|
 |};
 export type MyQuery$rawResponse = {|
   +opera?: ?{|
-    +cast: ?$ReadOnlyArray<?{|
-      +character: ?string,
-      +singer: ?{|
+    +cast: $ReadOnlyArray<{|
+      +character: string,
+      +singer: {|
         +id: string,
         +name: ?string,
       |},
     |}>,
-    +composer: ?{|
+    +composer: {|
       +id: string,
       +name: ?string,
     |},

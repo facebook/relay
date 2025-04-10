@@ -16,8 +16,6 @@ import type {Options} from './useRefetchableFragmentInternal';
 import type {
   Disposable,
   FragmentType,
-  GraphQLResponse,
-  Observer,
   RefetchableFragment,
   Variables,
 } from 'relay-runtime';
@@ -169,14 +167,7 @@ hook usePaginationFragment<
 }
 
 hook useLoadMore<TVariables: Variables>(
-  args: $Diff<
-    UseLoadMoreFunctionArgs,
-    {
-      observer: Observer<GraphQLResponse>,
-      onReset: () => void,
-      ...
-    },
-  >,
+  args: Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
   const environment = useRelayEnvironment();
   const [isLoadingMore, reallySetIsLoadingMore] = useState(false);

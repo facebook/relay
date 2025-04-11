@@ -441,6 +441,7 @@ hook useFragmentInternal_EXPERIMENTAL(
   let loggerContext;
   if (RelayFeatureFlags.ENABLE_UI_CONTEXT_ON_RELAY_LOGGER) {
     // $FlowFixMe[react-rule-hook] - the condition is static
+    // $FlowFixMe[react-rule-hook-conditional]
     loggerContext = useRelayLoggingContext();
   }
   const [_state, setState] = useState<FragmentState>(() =>
@@ -481,6 +482,7 @@ hook useFragmentInternal_EXPERIMENTAL(
     // always or never run for a given invocation of this hook.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     const [clientEdgeQueries, activeRequestPromises] = useMemo(() => {
       const missingClientEdges = getMissingClientEdges(state);
       // eslint-disable-next-line no-shadow
@@ -512,6 +514,7 @@ hook useFragmentInternal_EXPERIMENTAL(
     // See above note
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useEffect(() => {
       const QueryResource = getQueryResourceForEnvironment(environment);
       if (clientEdgeQueries?.length) {
@@ -670,6 +673,7 @@ hook useFragmentInternal_EXPERIMENTAL(
     const fragmentRefIsNullish = fragmentRef == null; // for less sensitive memoization
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     data = useMemo(() => {
       if (state.kind === 'bailout') {
         // Bailout state can happen if the fragmentRef is a plural array that is empty or has no
@@ -721,6 +725,7 @@ hook useFragmentInternal_EXPERIMENTAL(
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({fragment: fragmentNode.name, data});
   }
 

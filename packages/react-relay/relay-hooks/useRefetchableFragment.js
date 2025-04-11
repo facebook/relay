@@ -85,6 +85,7 @@ hook useRefetchableFragment<
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({fragment: fragmentNode.name, data: fragmentData});
   }
   // $FlowFixMe[incompatible-return]

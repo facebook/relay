@@ -121,12 +121,14 @@ hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
 ): UseQueryLoaderHookReturnType<TVariables, TData> {
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
     // $FlowFixMe[react-rule-hook] - the condition is static
+    // $FlowFixMe[react-rule-hook-conditional]
     return useQueryLoader_EXPERIMENTAL(
       preloadableRequest,
       initialQueryReference,
     );
   }
   // $FlowFixMe[react-rule-hook] - the condition is static
+  // $FlowFixMe[react-rule-hook-conditional]
   return useQueryLoader_CURRENT(preloadableRequest, initialQueryReference);
 }
 

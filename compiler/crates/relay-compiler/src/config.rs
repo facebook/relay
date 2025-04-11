@@ -51,23 +51,24 @@ pub use relay_config::TypegenLanguage;
 use relay_docblock::DocblockIr;
 use relay_saved_state_loader::SavedStateLoader;
 use relay_transforms::CustomTransformsConfig;
+use schemars::JsonSchema;
 use schemars::gen::SchemaSettings;
 use schemars::gen::{self};
-use schemars::JsonSchema;
-use serde::de::Error as DeError;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
+use serde::de::Error as DeError;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
 use watchman_client::pdu::ScmAwareClockData;
 
+use crate::GraphQLAsts;
+use crate::build_project::AdditionalValidations;
 use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
-use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
 use crate::compiler_state::DeserializableProjectSet;
 use crate::compiler_state::ProjectSet;
@@ -77,7 +78,6 @@ use crate::errors::Result;
 use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
-use crate::GraphQLAsts;
 
 pub type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -428,6 +428,7 @@ impl Config {
                     ),
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
+                    relativize_js_module_paths: config_file_project.relativize_js_module_paths,
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
@@ -816,6 +817,10 @@ fn get_default_excludes() -> Vec<String> {
     ]
 }
 
+fn default_true() -> bool {
+    true
+}
+
 /// Schema of the compiler configuration JSON file.
 #[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -918,6 +923,11 @@ pub struct SingleProjectConfigFile {
     /// Formatting style for generated files.
     pub js_module_format: JsModuleFormat,
 
+    /// Whether to treat all JS module names as relative to './' (true) or not.
+    /// default: true
+    #[serde(default = "default_true")]
+    pub relativize_js_module_paths: bool,
+
     /// Extra configuration for the schema itself.
     pub schema_config: SchemaConfig,
 
@@ -957,6 +967,7 @@ impl Default for SingleProjectConfigFile {
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
+            relativize_js_module_paths: true,
             typegen_phase: None,
             feature_flags: None,
             module_import_config: Default::default(),
@@ -1204,6 +1215,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub js_module_format: JsModuleFormat,
+
+    #[serde(default="default_true")]
+    pub relativize_js_module_paths: bool,
 
     #[serde(default)]
     pub schema_config: SchemaConfig,

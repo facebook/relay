@@ -311,7 +311,7 @@ Query Text is Empty.
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ClientUser__id.graphql'), require('./../ClientUserResolver'), 'id', true),
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ClientUser__id.graphql'), require('../ClientUserResolver'), 'id', true),
       "path": "__relay_model_instance"
     }
   ],
@@ -358,7 +358,7 @@ Query Text is Empty.
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./SpecialUser__id.graphql'), require('./../SpecialUserResolver'), 'id', true),
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./SpecialUser__id.graphql'), require('../SpecialUserResolver'), 'id', true),
       "path": "__relay_model_instance"
     }
   ],

@@ -97,14 +97,20 @@ export type $FragmentRef<T> = {
   ...
 };
 
+/* $FlowExpectedError[unclear-type]: Intentional so that it won't fail,
+ * even if the type we want to exclude doesn't exist in Props */
+type LooseOmitRelayProps<Props, K: $Keys<any>> = Pick<
+  Props,
+  Exclude<$Keys<Props>, K>,
+>;
 /**
  * A utility type that takes the Props of a component and the type of
  * `props.relay` and returns the props of the container.
  */
 // prettier-ignore
 // $FlowFixMe[extra-type-arg] xplat redux flow type error
-export type $RelayProps<Props, RelayPropT = RelayProp> = MapRelayProps<
-  $Diff<Props, {relay: RelayPropT | void, ...}>,
+export type $RelayProps<Props, _RelayPropT = RelayProp> = MapRelayProps<
+  LooseOmitRelayProps<Props, 'relay'>,
 >;
 
 type MapRelayProps<Props> = {[K in keyof Props]: MapRelayProp<Props[K]>};

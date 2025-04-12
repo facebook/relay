@@ -14,7 +14,6 @@ import FbRefreshingUsingRealTimeFeatures from './fb/FbRefreshingUsingRealTimeFea
 import FbRefreshingQueriesUsingUseQueryLoader from './fb/FbRefreshingQueriesUsingUseQueryLoader.md';
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
 import FbRefreshingQueriesUsingUseLazyLoadQuery from './fb/FbRefreshingQueriesUsingUseLazyLoadQuery.md';
-import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
 When referring to **"refreshing a query"**, we mean fetching the *exact* same data that was originally rendered by the query, in order to get the most up-to-date version of that data from the server.
 
@@ -125,10 +124,6 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 <FbInternalOnly>
   <FbAvoidSuspenseCaution />
 </FbInternalOnly>
-
-<OssOnly>
-  <OssAvoidSuspenseNote />
-</OssOnly>
 
 ```js
 /**

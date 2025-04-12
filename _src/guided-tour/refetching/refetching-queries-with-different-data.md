@@ -13,7 +13,6 @@ import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 import FbRefetchingQueriesUsingUseQueryLoader from './fb/FbRefetchingQueriesUsingUseQueryLoader.md';
 import FbRefetchingQueriesUsingUseLazyLoadQuery from './fb/FbRefetchingQueriesUsingUseLazyLoadQuery.md';
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
-import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
 When referring to **"refetching a query"**, we mean fetching the query again for *different* data than was originally rendered by the query. For example, this might be to change a currently selected item, to render a different list of items than the one being shown, or more generally to transition the currently rendered content to show new or different content.
 
@@ -108,10 +107,6 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 <FbInternalOnly>
   <FbAvoidSuspenseCaution />
 </FbInternalOnly>
-
-<OssOnly>
-  <OssAvoidSuspenseNote />
-</OssOnly>
 
 ```js
 /**
@@ -271,10 +266,6 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 <FbInternalOnly>
   <FbAvoidSuspenseCaution />
 </FbInternalOnly>
-
-<OssOnly>
-  <OssAvoidSuspenseNote />
-</OssOnly>
 
 ```js
 /**

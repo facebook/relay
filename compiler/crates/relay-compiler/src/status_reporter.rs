@@ -10,6 +10,8 @@
 //! This module contains two implementations of the `StatusReporter` trait:
 //! * `ConsoleStatusReporter`: Reports the status to the console using the `log` crate.
 //! * `JSONStatusReporter`: Reports the status to a JSON file using the `serde_json` crate.
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::PathBuf;
 
 use common::Diagnostic;
@@ -160,22 +162,76 @@ impl StatusReporter for ConsoleStatusReporter {
     }
 }
 
-pub struct JSONStatusReporter;
+pub struct JSONStatusReporter {
+    path: Option<PathBuf>,
+    base_reporter: Box<dyn StatusReporter + Send + Sync>,
+}
+
+impl JSONStatusReporter {
+    pub fn new(
+        path: Option<PathBuf>,
+        base_reporter: Box<dyn StatusReporter + Send + Sync>,
+    ) -> Self {
+        Self {
+            path,
+            base_reporter,
+        }
+    }
+}
 
 impl StatusReporter for JSONStatusReporter {
     fn build_starts(&self) {}
 
     fn build_completes(&self, diagnostics: &[Diagnostic]) {
-        println!(
-            "{{\"completed\":true,\"diagnostics\":{}}}",
-            serde_json::to_string(diagnostics).unwrap()
-        );
+        match &self.path {
+            Some(path) => {
+                self.base_reporter.build_completes(diagnostics);
+                let mut file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .truncate(true)
+                    .open(path)
+                    .unwrap();
+                writeln!(
+                    file,
+                    "{{\"completed\":true,\"diagnostics\":{}}}",
+                    serde_json::to_string(diagnostics).unwrap()
+                )
+                .unwrap();
+            }
+            None => {
+                println!(
+                    "{{\"completed\":true,\"diagnostics\":{}}}",
+                    serde_json::to_string(diagnostics).unwrap()
+                );
+            }
+        }
     }
 
     fn build_errors(&self, error: &Error) {
-        println!(
-            "{{\"completed\":false,\"error\":{}}}",
-            serde_json::to_string(error).unwrap()
-        );
+        match &self.path {
+            Some(path) => {
+                self.base_reporter.build_errors(error);
+
+                let mut file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .truncate(true)
+                    .open(path)
+                    .unwrap();
+                writeln!(
+                    file,
+                    "{{\"completed\":false,\"error\":{}}}",
+                    serde_json::to_string(error).unwrap()
+                )
+                .unwrap();
+            }
+            None => {
+                println!(
+                    "{{\"completed\":false,\"error\":{}}}",
+                    serde_json::to_string(error).unwrap()
+                );
+            }
+        }
     }
 }

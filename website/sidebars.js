@@ -105,11 +105,6 @@ const Guides = {
     'guided-tour/reusing-cached-data/rendering-partially-cached-data',
     'guided-tour/reusing-cached-data/filling-in-missing-data',
     'guided-tour/managing-data-outside-react/retaining-queries',
-    // These were already commented out
-    // 'guided-tour/managing-data-outside-react/prefetching-queries',
-    // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
-    // 'guided-tour/managing-data-outside-react/reading-queries',
-    // 'guided-tour/managing-data-outside-react/reading-fragments',
   ],
   'Client Side Data': [
     {

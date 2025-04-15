@@ -7,7 +7,9 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::WithLocation;
+use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
@@ -147,7 +149,15 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
                             ),
                             type_: parent_type,
                             variable_definitions: vec![],
-                            directives: vec![],
+                            directives: vec![Directive {
+                                name: WithLocation::new(
+                                    module_metadata.fragment_source_location,
+                                    DirectiveName("exec_time_resolvers".intern()),
+                                ),
+                                arguments: vec![],
+                                data: None,
+                                location: module_metadata.fragment_source_location,
+                            }],
                             selections: next_selections,
                             kind: OperationKind::Query,
                         },

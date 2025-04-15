@@ -14,11 +14,11 @@ use relay_transforms::TypeConditionInfo;
 use schema::Type;
 use schema::TypeReference;
 
-use crate::writer::AST;
 use crate::JS_FIELD_NAME;
 use crate::KEY_CLIENTID;
 use crate::KEY_TYPENAME;
 use crate::SPREAD_KEY;
+use crate::writer::AST;
 
 #[derive(Debug, Clone)]
 pub(crate) enum TypeSelection {

@@ -13,14 +13,12 @@ use common::DirectiveName;
 use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use ouroboros::self_referencing;
 
 use super::FlatBufferSchema;
-use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
-use crate::field_descriptions::TYPENAME_DESCRIPTION;
 use crate::Argument;
 use crate::ArgumentDefinitions;
 use crate::Directive;
@@ -41,6 +39,8 @@ use crate::Type;
 use crate::TypeReference;
 use crate::Union;
 use crate::UnionID;
+use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
+use crate::field_descriptions::TYPENAME_DESCRIPTION;
 
 #[self_referencing]
 struct OwnedFlatBufferSchema {

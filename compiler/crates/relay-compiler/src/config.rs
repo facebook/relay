@@ -51,23 +51,24 @@ pub use relay_config::TypegenLanguage;
 use relay_docblock::DocblockIr;
 use relay_saved_state_loader::SavedStateLoader;
 use relay_transforms::CustomTransformsConfig;
+use schemars::JsonSchema;
 use schemars::gen::SchemaSettings;
 use schemars::gen::{self};
-use schemars::JsonSchema;
-use serde::de::Error as DeError;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
+use serde::de::Error as DeError;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
 use watchman_client::pdu::ScmAwareClockData;
 
+use crate::GraphQLAsts;
+use crate::build_project::AdditionalValidations;
 use crate::build_project::artifact_writer::ArtifactFileWriter;
 use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::get_artifacts_file_hash_map::GetArtifactsFileHashMapFn;
-use crate::build_project::AdditionalValidations;
 use crate::compiler_state::CompilerState;
 use crate::compiler_state::DeserializableProjectSet;
 use crate::compiler_state::ProjectSet;
@@ -77,7 +78,6 @@ use crate::errors::Result;
 use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
-use crate::GraphQLAsts;
 
 pub type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 

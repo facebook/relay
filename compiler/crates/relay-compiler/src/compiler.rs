@@ -29,10 +29,11 @@ use tokio::sync::Notify;
 use tokio::task;
 use tokio::task::JoinHandle;
 
+use crate::FileSourceResult;
 use crate::artifact_map::ArtifactSourceKey;
+use crate::build_project::BuildProjectFailure;
 use crate::build_project::build_project;
 use crate::build_project::commit_project;
-use crate::build_project::BuildProjectFailure;
 use crate::compiler_state::ArtifactMapKind;
 use crate::compiler_state::CompilerState;
 use crate::compiler_state::DocblockSources;
@@ -45,7 +46,6 @@ use crate::file_source::FileSourceSubscriptionNextChange;
 use crate::file_source::LocatedDocblockSource;
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
-use crate::FileSourceResult;
 
 pub struct Compiler<TPerfLogger>
 where

@@ -9,8 +9,8 @@ use std::path::Path;
 
 use common::DiagnosticsResult;
 use common::SourceLocationKey;
-use docblock_syntax::parse_docblock;
 use docblock_syntax::DocblockAST;
+use docblock_syntax::parse_docblock;
 use errors::try_all;
 use relay_docblock::resolver_maybe_defining_type;
 

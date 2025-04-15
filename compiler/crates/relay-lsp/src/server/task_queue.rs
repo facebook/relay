@@ -10,9 +10,9 @@ use std::thread;
 use std::thread::JoinHandle;
 use std::time::Instant;
 
-use crossbeam::channel::unbounded;
 use crossbeam::channel::Receiver;
 use crossbeam::channel::Sender;
+use crossbeam::channel::unbounded;
 use log::debug;
 
 pub struct TaskQueue<S, T> {

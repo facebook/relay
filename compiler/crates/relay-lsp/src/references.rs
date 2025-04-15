@@ -15,14 +15,15 @@ use graphql_ir::FragmentSpread;
 use graphql_ir::Program;
 use graphql_ir::Visitor;
 use intern::string_key::StringKey;
+use lsp_types::Location as LSPLocation;
 use lsp_types::request::References;
 use lsp_types::request::Request;
-use lsp_types::Location as LSPLocation;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 use relay_docblock::ResolverFieldDocblockIr;
 use schema::Schema;
 
+use crate::FeatureResolutionInfo;
 use crate::docblock_resolution_info::DocblockResolutionInfo;
 use crate::find_field_usages::find_field_locations;
 use crate::find_field_usages::get_usages;
@@ -31,7 +32,6 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::NodeKind;
 use crate::server::GlobalState;
-use crate::FeatureResolutionInfo;
 
 fn get_references_response(
     feature_resolution_info: FeatureResolutionInfo,

@@ -20,7 +20,6 @@ use dashmap::DashMap;
 use dashmap::DashSet;
 use errors::par_try_map;
 use errors::validate_map;
-use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use graphql_ir::Argument;
 use graphql_ir::Field as IRField;
 use graphql_ir::FragmentDefinition;
@@ -30,8 +29,9 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
-use intern::string_key::StringKey;
+use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_config::ProjectConfig;
 use schema::FieldID;
 use schema::SDLSchema;
@@ -552,10 +552,10 @@ impl<'s> Field<'s> {
 }
 
 mod ignoring_type_and_location {
-    use graphql_ir::node_identifier::LocationAgnosticBehavior;
-    use graphql_ir::node_identifier::LocationAgnosticPartialEq;
     use graphql_ir::Argument;
     use graphql_ir::Value;
+    use graphql_ir::node_identifier::LocationAgnosticBehavior;
+    use graphql_ir::node_identifier::LocationAgnosticPartialEq;
 
     /// Verify that two sets of arguments are equivalent - same argument names
     /// and values. Notably, this ignores the types of arguments and values,

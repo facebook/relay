@@ -19,10 +19,10 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
-use super::ensure_discriminated_union_is_created;
 use super::ValidationMessage;
-use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
+use super::ensure_discriminated_union_is_created;
 use crate::UPDATABLE_DIRECTIVE;
+use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResult<()> {
     UpdatableFragmentSpread {

@@ -6,8 +6,8 @@
  */
 
 use std::fmt::Write as _;
-use std::fs::create_dir_all;
 use std::fs::File;
+use std::fs::create_dir_all;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;

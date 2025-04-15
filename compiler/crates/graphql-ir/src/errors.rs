@@ -13,16 +13,16 @@ use common::DirectiveName;
 use common::ScalarName;
 use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
-use intern::string_key::StringKey;
 use intern::Lookup;
-use schema::suggestion_list::did_you_mean;
+use intern::string_key::StringKey;
 use schema::Type;
 use schema::TypeReference;
+use schema::suggestion_list::did_you_mean;
 use serde::Deserialize;
 use thiserror::Error;
 
-use crate::ir::FragmentDefinitionName;
 use crate::VariableName;
+use crate::ir::FragmentDefinitionName;
 
 #[derive(
     Debug,

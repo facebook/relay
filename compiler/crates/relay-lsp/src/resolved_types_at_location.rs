@@ -5,19 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_types::request::Request;
 use lsp_types::Position;
 use lsp_types::TextDocumentIdentifier;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
+use lsp_types::request::Request;
 use schema::Schema;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::FeatureResolutionInfo;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
-use crate::FeatureResolutionInfo;
 
 pub(crate) enum ResolvedTypesAtLocation {}
 

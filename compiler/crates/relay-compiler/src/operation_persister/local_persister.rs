@@ -20,8 +20,8 @@ use sha1::Digest;
 use sha1::Sha1;
 use sha2::Sha256;
 
-use crate::config::ArtifactForPersister;
 use crate::OperationPersister;
+use crate::config::ArtifactForPersister;
 
 /// A local persister that stores GraphQL documents in a file on disk.
 ///

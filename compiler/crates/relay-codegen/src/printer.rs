@@ -13,17 +13,20 @@ use std::path::Path;
 
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
-use graphql_ir::reexport::Intern;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use graphql_ir::reexport::Intern;
 use indexmap::IndexMap;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_config::DynamicModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
+use crate::CodegenBuilder;
+use crate::CodegenVariant;
+use crate::JsModuleFormat;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
@@ -50,9 +53,6 @@ use crate::object;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
-use crate::CodegenBuilder;
-use crate::CodegenVariant;
-use crate::JsModuleFormat;
 
 pub fn print_operation(
     schema: &SDLSchema,

@@ -11,8 +11,8 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use common::Span;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_syntax::parse_executable_with_error_recovery;
 use intern::string_key::Intern;

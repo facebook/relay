@@ -10,13 +10,13 @@ use common::TextSource;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::RelayMode;
-use graphql_syntax::parse_executable_with_features;
+use graphql_ir::build_ir_with_extra_features;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_features;
 use relay_test_schema::TEST_SCHEMA;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

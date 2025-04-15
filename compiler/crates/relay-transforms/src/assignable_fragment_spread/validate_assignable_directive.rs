@@ -17,8 +17,8 @@ use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use schema::Schema;
 
-use super::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
+use super::ValidationMessage;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![

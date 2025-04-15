@@ -24,13 +24,13 @@ use graphql_syntax::OperationDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use lsp_types::request::PrepareRenameRequest;
-use lsp_types::request::Rename;
-use lsp_types::request::Request;
 use lsp_types::PrepareRenameResponse;
 use lsp_types::TextEdit;
 use lsp_types::Url;
 use lsp_types::WorkspaceEdit;
+use lsp_types::request::PrepareRenameRequest;
+use lsp_types::request::Rename;
+use lsp_types::request::Request;
 use rayon::prelude::IntoParallelRefIterator;
 use rayon::prelude::ParallelIterator;
 use resolution_path::ArgumentParent;
@@ -50,11 +50,11 @@ use resolution_path::VariableDefinitionPath;
 use resolution_path::VariableIdentifierParent;
 use resolution_path::VariableIdentifierPath;
 
-use crate::location::transform_relay_location_on_disk_to_lsp_location;
 use crate::Feature;
 use crate::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
+use crate::location::transform_relay_location_on_disk_to_lsp_location;
 
 lazy_static! {
     static ref ARGUMENTS_DIRECTIVE: StringKey = "arguments".intern();

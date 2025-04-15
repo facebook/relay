@@ -22,10 +22,10 @@ use intern::string_key::Intern;
 use intern::string_key::StringKeyMap;
 use schema::Schema;
 
-use super::SplitOperationMetadata;
 use super::MATCH_CONSTANTS;
-use crate::util::get_normalization_operation_name;
+use super::SplitOperationMetadata;
 use crate::ModuleMetadata;
+use crate::util::get_normalization_operation_name;
 
 pub fn split_module_import(
     program: &Program,

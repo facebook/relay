@@ -33,9 +33,9 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-use crate::create_metadata_directive;
-use crate::ValidationMessage;
 use crate::DIRECTIVE_SPLIT_OPERATION;
+use crate::ValidationMessage;
+use crate::create_metadata_directive;
 
 lazy_static! {
     static ref TEST_OPERATION_DIRECTIVE: DirectiveName =

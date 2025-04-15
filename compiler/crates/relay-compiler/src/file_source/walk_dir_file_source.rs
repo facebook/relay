@@ -17,10 +17,10 @@ use relay_typegen::TypegenLanguage;
 use walkdir::WalkDir;
 
 use super::File;
+use crate::FileSourceResult;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Result;
-use crate::FileSourceResult;
 
 #[derive(Debug)]
 pub struct WalkDirFileSourceResult {

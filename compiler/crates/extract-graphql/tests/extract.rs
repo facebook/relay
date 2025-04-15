@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use extract_graphql::extract;
 use extract_graphql::JavaScriptSourceFeature;
+use extract_graphql::extract;
 use fixture_tests::Fixture;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

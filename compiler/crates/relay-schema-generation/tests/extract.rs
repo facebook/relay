@@ -13,9 +13,9 @@ use graphql_cli::DiagnosticPrinter;
 use hermes_comments::find_nodes_after_comments;
 use hermes_estree::IntoFunction;
 use hermes_estree::Node;
-use hermes_parser::parse;
 use hermes_parser::ParserDialect;
 use hermes_parser::ParserFlags;
+use hermes_parser::parse;
 use relay_schema_generation::RelayResolverExtractor;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

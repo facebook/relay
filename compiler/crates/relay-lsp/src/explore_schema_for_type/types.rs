@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use schema::DirectiveValue;
 use schema::EnumID;
 use schema::FieldID;

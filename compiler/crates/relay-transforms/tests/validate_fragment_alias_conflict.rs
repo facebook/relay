@@ -11,12 +11,12 @@ use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use relay_test_schema::get_test_schema_with_located_extensions;
 use relay_test_schema::TEST_SCHEMA;
+use relay_test_schema::get_test_schema_with_located_extensions;
 use relay_transforms::validate_fragment_alias_conflict;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

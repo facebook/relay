@@ -5,15 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::HashSet;
+use std::collections::hash_map::Entry;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use common::sync::ParallelIterator;
 use common::Diagnostic;
 use common::SourceLocationKey;
+use common::sync::ParallelIterator;
 use dependency_analyzer::ExecutableDefinitionNameSet;
 use fnv::FnvHashMap;
 use graphql_ir::ExecutableDefinitionName;

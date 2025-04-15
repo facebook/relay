@@ -9,8 +9,8 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
 use common::DirectiveName;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 
 use crate::definitions::Directive;
 use crate::definitions::*;

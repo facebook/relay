@@ -16,9 +16,9 @@ use intern::Lookup;
 use serde::Deserialize;
 use serde::Serialize;
 
-use super::read_file_to_string;
 use super::File;
 use super::FileSourceResult;
+use super::read_file_to_string;
 use crate::errors::Result;
 use crate::file_source::Config;
 

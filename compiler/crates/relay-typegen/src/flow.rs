@@ -11,11 +11,11 @@ use std::fmt::Write;
 use ::intern::string_key::StringKey;
 use itertools::Itertools;
 
+use crate::writer::AST;
 use crate::writer::FunctionTypeAssertion;
 use crate::writer::KeyValuePairProp;
 use crate::writer::Prop;
 use crate::writer::Writer;
-use crate::writer::AST;
 
 pub struct FlowPrinter {
     result: String,

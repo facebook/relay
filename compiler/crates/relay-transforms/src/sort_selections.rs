@@ -9,7 +9,6 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 
 use common::PointerAddress;
-use graphql_ir::transform_list;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -18,6 +17,7 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
+use graphql_ir::transform_list;
 
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 

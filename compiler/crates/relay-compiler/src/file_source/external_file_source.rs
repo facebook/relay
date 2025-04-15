@@ -15,11 +15,11 @@ use rayon::prelude::*;
 use serde::Deserialize;
 
 use super::File;
+use crate::FileSourceResult;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::FileSourceResult;
 
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman

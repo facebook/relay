@@ -16,9 +16,9 @@ use graphql_ir::ScalarField;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 
-use super::validation_message::RequiredDirectiveValidationMessage;
 use super::ACTION_ARGUMENT;
 use super::REQUIRED_DIRECTIVE_NAME;
+use super::validation_message::RequiredDirectiveValidationMessage;
 use crate::RequiredAction;
 
 #[derive(Clone, Copy)]

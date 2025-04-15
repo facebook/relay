@@ -14,7 +14,6 @@ pub mod definitions;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
-use graphql_syntax::parse_schema_document;
 use graphql_syntax::EnumTypeDefinition;
 use graphql_syntax::FieldDefinition;
 use graphql_syntax::Identifier;
@@ -26,6 +25,7 @@ use graphql_syntax::ObjectTypeDefinition;
 use graphql_syntax::ScalarTypeDefinition;
 use graphql_syntax::TypeSystemDefinition;
 use graphql_syntax::UnionTypeDefinition;
+use graphql_syntax::parse_schema_document;
 use intern::string_key::StringKey;
 
 use crate::definitions::*;

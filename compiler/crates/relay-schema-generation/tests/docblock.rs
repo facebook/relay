@@ -21,14 +21,14 @@ use graphql_cli::DiagnosticPrinter;
 use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::ProjectFixture;
 use indexmap::IndexMap;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
 use relay_config::ProjectName;
-use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::DocblockIr;
 use relay_docblock::ResolverFieldDocblockIr;
+use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_schema_generation::RelayResolverExtractor;
 use relay_test_schema::get_test_schema_with_extensions;
 

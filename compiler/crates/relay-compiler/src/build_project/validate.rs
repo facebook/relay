@@ -5,14 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::escalate_and_check;
 use common::CriticalDiagnostics;
 use common::DiagnosticsResult;
 use common::StableDiagnostics;
 use common::WithDiagnostics;
+use common::escalate_and_check;
 use errors::try_all;
 use graphql_ir::Program;
 use relay_config::ProjectConfig;
+use relay_transforms::ValidateVariablesOptions;
 use relay_transforms::disallow_circular_no_inline_fragments;
 use relay_transforms::disallow_readtime_features_in_mutations;
 use relay_transforms::disallow_required_on_non_null_field;
@@ -35,7 +36,6 @@ use relay_transforms::validate_unused_fragment_variables;
 use relay_transforms::validate_unused_variables;
 use relay_transforms::validate_updatable_directive;
 use relay_transforms::validate_updatable_fragment_spread;
-use relay_transforms::ValidateVariablesOptions;
 
 pub type AdditionalValidations =
     Box<dyn Fn(&Program, &ProjectConfig) -> DiagnosticsResult<()> + Sync + Send>;

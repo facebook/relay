@@ -23,14 +23,14 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use schema::Schema;
 
-use super::ensure_discriminated_union_is_created;
-use super::errors::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
+use super::ensure_discriminated_union_is_created;
+use super::errors::ValidationMessage;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn transform_assignable_fragment_spreads_in_regular_queries(

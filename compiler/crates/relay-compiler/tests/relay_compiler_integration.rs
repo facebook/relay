@@ -16,18 +16,18 @@ use futures_util::FutureExt;
 use graphql_cli::DiagnosticPrinter;
 use graphql_test_helpers::ProjectFixture;
 use graphql_test_helpers::TestDir;
-use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
-use relay_compiler::compiler::Compiler;
-use relay_compiler::config::Config;
-use relay_compiler::errors::BuildProjectError;
-use relay_compiler::errors::Error;
-use relay_compiler::source_for_location;
 use relay_compiler::FileSourceKind;
 use relay_compiler::FsSourceReader;
 use relay_compiler::LocalPersister;
 use relay_compiler::OperationPersister;
 use relay_compiler::RemotePersister;
 use relay_compiler::SourceReader;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
+use relay_compiler::compiler::Compiler;
+use relay_compiler::config::Config;
+use relay_compiler::errors::BuildProjectError;
+use relay_compiler::errors::Error;
+use relay_compiler::source_for_location;
 use relay_config::PersistConfig;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

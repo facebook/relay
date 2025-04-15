@@ -20,21 +20,21 @@ use graphql_ir::Selection;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use graphql_ir::Value;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use schema::Field;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
-use crate::connections::extract_connection_directive;
 use crate::connections::ConnectionConstants;
 use crate::connections::ConnectionInterface;
-use crate::handle_fields::extract_handle_field_directive_args_for_connection;
+use crate::connections::extract_connection_directive;
 use crate::handle_fields::CONNECTION_HANDLER_ARG_NAME;
 use crate::handle_fields::DYNAMIC_KEY_ARG_NAME;
 use crate::handle_fields::FILTERS_ARG_NAME;
 use crate::handle_fields::KEY_ARG_NAME;
+use crate::handle_fields::extract_handle_field_directive_args_for_connection;
 
 pub fn validate_connections(
     program: &Program,

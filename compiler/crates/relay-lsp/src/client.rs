@@ -17,13 +17,13 @@ use lsp_server::Request as ServerRequest;
 #[cfg(test)]
 use lsp_server::RequestId;
 #[cfg(test)]
-use lsp_types::request::Initialize;
-#[cfg(test)]
-use lsp_types::request::Request;
-#[cfg(test)]
 use lsp_types::InitializeParams;
 #[cfg(test)]
 use lsp_types::InitializedParams;
+#[cfg(test)]
+use lsp_types::request::Initialize;
+#[cfg(test)]
+use lsp_types::request::Request;
 
 #[cfg(test)]
 pub fn initialize(client: &Connection, params: &InitializeParams, request_id: u64) {

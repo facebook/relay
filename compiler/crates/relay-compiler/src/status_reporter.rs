@@ -21,11 +21,11 @@ use log::error;
 use log::info;
 use log::warn;
 
+use crate::FsSourceReader;
+use crate::SourceReader;
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
 use crate::source_for_location;
-use crate::FsSourceReader;
-use crate::SourceReader;
 
 pub trait StatusReporter {
     fn build_starts(&self);

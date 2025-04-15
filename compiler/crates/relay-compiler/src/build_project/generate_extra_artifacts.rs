@@ -8,11 +8,11 @@
 use relay_transforms::is_operation_preloadable;
 use schema::SDLSchema;
 
-use super::generate_preloadable_query_parameters_artifact;
 use super::Artifact;
 use super::Config;
 use super::Programs;
 use super::ProjectConfig;
+use super::generate_preloadable_query_parameters_artifact;
 use crate::ArtifactContent;
 
 pub type GenerateExtraArtifactsFn = Box<

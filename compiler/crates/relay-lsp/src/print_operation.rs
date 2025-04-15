@@ -6,8 +6,8 @@
  */
 
 use graphql_ir::OperationDefinitionName;
-use lsp_types::request::Request;
 use lsp_types::TextDocumentPositionParams;
+use lsp_types::request::Request;
 use serde::Deserialize;
 use serde::Serialize;
 

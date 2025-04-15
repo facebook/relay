@@ -14,8 +14,6 @@ use common::DirectiveName;
 use common::FeatureFlag;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
-use graphql_ir::transform_list;
 use graphql_ir::Condition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -27,16 +25,18 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 use schema::Type;
 
+use crate::MATCH_CONSTANTS;
 use crate::RelayDirective;
 use crate::ValidationMessage;
 use crate::ValidationMessageWithData;
-use crate::MATCH_CONSTANTS;
 
 lazy_static! {
     pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());

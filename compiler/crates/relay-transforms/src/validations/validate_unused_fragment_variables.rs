@@ -13,11 +13,11 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
+use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use graphql_ir::Variable;
 use graphql_ir::VariableName;
-use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 
 /// Validates that there are no unused fragment variables on fragments.
 ///

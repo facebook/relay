@@ -6,8 +6,8 @@
  */
 
 use graphql_ir::reexport::StringKey;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
 use schema_documentation::SchemaDocumentation;

@@ -20,8 +20,8 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
-use indexmap::map::Entry;
 use indexmap::IndexMap;
+use indexmap::map::Entry;
 use schema::Schema;
 
 use crate::relay_directive::RelayDirective;

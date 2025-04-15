@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::fmt::Display;
 use std::hash::Hash;
 
@@ -17,8 +17,6 @@ use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockSection;
 use graphql_ir::reexport::StringKey;
 
-use crate::errors::UntypedRepresentationErrorMessages;
-use crate::ir::IrField;
 use crate::DEPRECATED_FIELD;
 use crate::EDGE_TO_FIELD;
 use crate::EMPTY_STRING;
@@ -31,6 +29,8 @@ use crate::RELAY_RESOLVER_FIELD;
 use crate::ROOT_FRAGMENT_FIELD;
 use crate::SEMANTIC_NON_NULL_FIELD;
 use crate::WEAK_FIELD;
+use crate::errors::UntypedRepresentationErrorMessages;
+use crate::ir::IrField;
 
 /// All fields which are allowed in RelayResolver docblocks.
 #[derive(

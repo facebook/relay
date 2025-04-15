@@ -376,13 +376,13 @@ mod tests {
 
     #[test]
     fn multithreaded() {
+        use std::sync::Arc;
         use std::sync::atomic::AtomicU32;
         use std::sync::atomic::Ordering;
-        use std::sync::Arc;
         use std::thread;
 
-        use rand::thread_rng;
         use rand::Rng;
+        use rand::thread_rng;
 
         // Load test lots of threads creating strings, with load
         // gradually getting heavier on later (popular) strings.

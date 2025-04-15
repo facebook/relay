@@ -36,13 +36,13 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
+use crate::SplitOperationMetadata;
+use crate::ValidationMessage;
 use crate::generate_relay_resolvers_model_fragments::directives_with_artifact_source;
 use crate::get_normalization_operation_name;
 use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
-use crate::SplitOperationMetadata;
-use crate::ValidationMessage;
-use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 
 fn generate_fat_selections_from_type(
     schema: &SDLSchema,

@@ -14,7 +14,6 @@ use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::FragmentDefinition;
@@ -22,14 +21,15 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
+use graphql_ir::associated_data_impl;
 use graphql_syntax::OperationKind;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
 
+use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
+use crate::SplitOperationMetadata;
 use crate::get_normalization_operation_name;
 use crate::get_resolver_fragment_dependency_name;
-use crate::SplitOperationMetadata;
-use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct IsResolverRootFragment();

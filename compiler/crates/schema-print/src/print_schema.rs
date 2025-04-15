@@ -9,21 +9,21 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
 use fnv::FnvHashMap;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 use rayon::iter::IntoParallelIterator;
 use rayon::iter::ParallelIterator;
 use schema::*;
 
+use crate::DEAULT_SHARD_COUNT;
+use crate::Printer;
+use crate::ShardPrinter;
+use crate::TypedShardPrinter;
 use crate::generate_shard_map;
 use crate::generate_typed_shard_map;
 use crate::has_schema_definition_types;
 use crate::is_schema_of_common_name;
-use crate::Printer;
-use crate::ShardPrinter;
-use crate::TypedShardPrinter;
-use crate::DEAULT_SHARD_COUNT;
 
 pub fn print(schema: &SDLSchema) -> String {
     let mut builder: String = String::new();

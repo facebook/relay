@@ -12,12 +12,12 @@ use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use schema::build_schema_from_flat_buffer;
-use schema::build_schema_with_extensions;
-use schema::serialize_as_flatbuffer;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+use schema::build_schema_from_flat_buffer;
+use schema::build_schema_with_extensions;
+use schema::serialize_as_flatbuffer;
 
 const SCHEMA_SEPARATOR: &str = "%extensions%";
 

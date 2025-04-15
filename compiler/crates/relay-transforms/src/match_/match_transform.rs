@@ -10,9 +10,9 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::sync::Arc;
 
+use ::intern::Lookup;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::Lookup;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -24,7 +24,6 @@ use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
@@ -45,6 +44,7 @@ use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use graphql_ir::associated_data_impl;
 use indexmap::IndexSet;
 use relay_config::DeferStreamInterface;
 use relay_config::ModuleImportConfig;
@@ -58,13 +58,13 @@ use schema::TypeReference;
 use schema::UnionID;
 
 use super::validation_message::ValidationMessage;
+use crate::FragmentAliasMetadata;
+use crate::INLINE_DIRECTIVE_NAME;
 use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
 use crate::no_inline::validate_required_no_inline_directive;
 use crate::util::get_normalization_fragment_filename;
-use crate::FragmentAliasMetadata;
-use crate::INLINE_DIRECTIVE_NAME;
 
 /// Transform and validate @match and @module
 pub fn transform_match(

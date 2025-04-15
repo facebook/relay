@@ -53,5 +53,5 @@ pub use validate_resolver_fragments::validate_resolver_fragments;
 pub use validate_server_only_directives::validate_server_only_directives;
 pub use validate_static_args::validate_static_args;
 pub use validate_unused_fragment_variables::validate_unused_fragment_variables;
-pub use validate_unused_variables::validate_unused_variables;
 pub use validate_unused_variables::ValidateUnusedVariables;
+pub use validate_unused_variables::validate_unused_variables;

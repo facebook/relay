@@ -20,16 +20,16 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use super::CONSTANTS;
+use super::QueryGenerator;
+use super::RefetchRoot;
+use super::RefetchableMetadata;
 use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
 use super::build_used_global_variables;
 use super::uses_prefetchable_pagination_in_connection;
 use super::validation_message::ValidationMessage;
-use super::QueryGenerator;
-use super::RefetchRoot;
-use super::RefetchableMetadata;
-use super::CONSTANTS;
 use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(

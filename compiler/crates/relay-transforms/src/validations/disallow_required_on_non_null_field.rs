@@ -14,20 +14,20 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
 use errors::try2;
-use graphql_ir::reexport::Intern;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Validator;
+use graphql_ir::reexport::Intern;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 
-use crate::ValidationMessageWithData;
 use crate::CATCH_DIRECTIVE_NAME;
 use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
+use crate::ValidationMessageWithData;
 
 lazy_static! {
     static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =

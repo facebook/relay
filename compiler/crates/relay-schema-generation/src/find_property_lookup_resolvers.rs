@@ -16,19 +16,19 @@ use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
 use docblock_shared::ResolverSourceHash;
-use docblock_syntax::parse_docblock;
 use docblock_syntax::DocblockAST;
+use docblock_syntax::parse_docblock;
 use fnv::FnvHashMap;
 use hermes_estree::ObjectTypePropertyKey;
 use hermes_estree::Range;
 use hermes_estree::SourceRange;
 use hermes_estree::Visitor;
 
-use crate::get_deprecated;
-use crate::get_description;
 use crate::FieldDefinitionInfo;
 use crate::SchemaGenerationError;
 use crate::UnresolvedFieldDefinition;
+use crate::get_deprecated;
+use crate::get_description;
 
 fn source_range_to_span(source_range: SourceRange) -> Span {
     Span {

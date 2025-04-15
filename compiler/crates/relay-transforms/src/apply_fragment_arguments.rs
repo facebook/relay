@@ -18,9 +18,6 @@ use common::Location;
 use common::NamedItem;
 use common::SourceLocationKey;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
-use graphql_ir::transform_list;
-use graphql_ir::transform_list_multi;
 use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
@@ -44,25 +41,28 @@ use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::transform_list_multi;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use itertools::Itertools;
-use scope::format_local_variable;
 use scope::Scope;
+use scope::format_local_variable;
 use thiserror::Error;
 
 use super::get_applied_fragment_name;
-use crate::match_::SplitOperationMetadata;
-use crate::match_::DIRECTIVE_SPLIT_OPERATION;
-use crate::no_inline::is_raw_response_type_enabled;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::no_inline::PARENT_DOCUMENTS_ARG;
-use crate::util::get_normalization_operation_name;
 use crate::RawResponseGenerationMode;
 use crate::RelayResolverMetadata;
+use crate::match_::DIRECTIVE_SPLIT_OPERATION;
+use crate::match_::SplitOperationMetadata;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::PARENT_DOCUMENTS_ARG;
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::util::get_normalization_operation_name;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This

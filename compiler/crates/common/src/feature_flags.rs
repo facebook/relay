@@ -10,14 +10,14 @@ use std::fmt::Formatter;
 use std::fmt::Result as FmtResult;
 
 use indexmap::IndexSet;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::rollout::RolloutRange;
 use crate::Rollout;
+use crate::rollout::RolloutRange;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(deny_unknown_fields)]

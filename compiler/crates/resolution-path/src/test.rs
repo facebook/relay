@@ -7,10 +7,10 @@
 
 use common::SourceLocationKey;
 use common::Span;
-use graphql_syntax::parse_executable_with_features;
-use graphql_syntax::parse_schema_document;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_features;
+use graphql_syntax::parse_schema_document;
 
 use super::*;
 

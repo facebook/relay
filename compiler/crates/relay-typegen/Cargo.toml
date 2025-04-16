@@ -17,7 +17,7 @@ common = { path = "../common" }
 docblock-shared = { path = "../docblock-shared" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
-indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 itertools = "0.14.0"
 lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }

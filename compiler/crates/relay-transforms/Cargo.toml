@@ -134,7 +134,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-ir-validations = { path = "../graphql-ir-validations" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
-indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 itertools = "0.14.0"
 lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }

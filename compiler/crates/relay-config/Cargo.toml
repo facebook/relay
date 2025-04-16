@@ -12,7 +12,7 @@ license = "MIT"
 common = { path = "../common" }
 fnv = "1.0"
 globset = { version = "0.4.13", features = ["serde1"] }
-indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 pathdiff = "0.2"
 regex = "1.11.1"

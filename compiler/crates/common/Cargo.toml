@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 colored = "2.1.0"
-indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 log = { version = "0.4.22", features = ["kv_unstable"] }
 lsp-types = "0.94.1"

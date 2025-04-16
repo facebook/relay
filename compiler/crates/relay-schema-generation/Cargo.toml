@@ -27,7 +27,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 hermes_comments = { git = "https://github.com/facebook/hermes.git" }
 hermes_estree = { git = "https://github.com/facebook/hermes.git" }
 hermes_parser = { git = "https://github.com/facebook/hermes.git" }
-indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
+indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
 relay-config = { path = "../relay-config" }

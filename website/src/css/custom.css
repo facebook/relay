@@ -145,6 +145,11 @@ html[data-theme="light"] .homePage .container {
   background-color: var(--light-bg-color);
 }
 
+.footer__logo {
+  width: 80px;
+  height: auto;
+}
+
 .homePage .footer {
   background-color: var(--light-bg-color);
 }

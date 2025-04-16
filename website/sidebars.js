@@ -251,11 +251,6 @@ module.exports = {
         }),
         'error-reference/unknown-field',
       ],
-      'Migration and Compatibility': [
-        'migration-and-compatibility/upgrading-to-relay-hooks',
-        'migration-and-compatibility/suspense-compatibility',
-        'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
-      ],
       'Principles and Architecture': [
         'principles-and-architecture/thinking-in-graphql',
         'principles-and-architecture/thinking-in-relay',

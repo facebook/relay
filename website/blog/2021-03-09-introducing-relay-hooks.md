@@ -141,11 +141,11 @@ Although Relay Hooks uses Suspense for some of its APIs, *support, general guida
 
 Nonetheless, we released Relay Hooks now because we know these APIs are on the right trajectory for supporting upcoming releases of React. Even though parts of Relay’s Suspense implementation may still change, the Relay Hooks APIs themselves are stable; they have been widely adopted internally, and have been in use in production for over a year.
 
-See <a href={useBaseUrl('/docs/migration-and-compatibility/suspense-compatibility/')}>Suspense Compatibility</a> and <a href={useBaseUrl('/docs/guided-tour/rendering/loading-states/')}>Loading States with Suspense</a> for deeper treatments of this topic.
+See [Suspense Compatibility](https://relay.dev/docs/v13.0.0/migration-and-compatibility/suspense-compatibility/) and <a href={useBaseUrl('/docs/guided-tour/rendering/loading-states/')}>Loading States with Suspense</a> for deeper treatments of this topic.
 
 ### Where to go from here
 
-Please check out the <a href={useBaseUrl('/docs/')}>getting started guide</a>, the <a href={useBaseUrl('/docs/migration-and-compatibility/')}>migration guide</a> and the <a href={useBaseUrl('/docs/guided-tour/')}>guided tour</a>.
+Please check out the <a href={useBaseUrl('/docs/')}>getting started guide</a>, the [migration guide](https://relay.dev/docs/v13.0.0/migration-and-compatibility/) and the <a href={useBaseUrl('/docs/guided-tour/')}>guided tour</a>.
 
 ### Thanks
 

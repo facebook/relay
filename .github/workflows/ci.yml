@@ -98,7 +98,7 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
-          toolchain: nightly-2025-02-16
+          toolchain: nightly-2024-10-13
           override: true
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
@@ -124,7 +124,7 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
          # And other similar references in this file and
           # docusaurus.yml
-          toolchain: nightly-2025-02-16
+          toolchain: nightly-2024-10-13
           override: true
       - name: "Update fixture tests"
         run: ./scripts/update-fixtures.sh
@@ -187,7 +187,7 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
-          toolchain: nightly-2025-02-16
+          toolchain: nightly-2024-10-13
           override: true
           target: ${{ matrix.target.target }}
       - uses: actions/setup-node@v2

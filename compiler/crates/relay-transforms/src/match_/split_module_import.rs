@@ -135,6 +135,20 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
                         })
                         .cloned()
                         .collect();
+                    let operation_directives: Vec<Directive> =
+                        if module_metadata.read_time_resolvers {
+                            vec![Directive {
+                                name: WithLocation::new(
+                                    module_metadata.fragment_source_location,
+                                    DirectiveName("exec_time_resolvers".intern()),
+                                ),
+                                arguments: vec![],
+                                data: None,
+                                location: module_metadata.fragment_source_location,
+                            }]
+                        } else {
+                            vec![]
+                        };
                     (
                         SplitOperationMetadata {
                             derived_from: Some(module_metadata.fragment_name),
@@ -149,15 +163,7 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
                             ),
                             type_: parent_type,
                             variable_definitions: vec![],
-                            directives: vec![Directive {
-                                name: WithLocation::new(
-                                    module_metadata.fragment_source_location,
-                                    DirectiveName("exec_time_resolvers".intern()),
-                                ),
-                                arguments: vec![],
-                                data: None,
-                                location: module_metadata.fragment_source_location,
-                            }],
+                            directives: operation_directives,
                             selections: next_selections,
                             kind: OperationKind::Query,
                         },

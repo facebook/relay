@@ -9,15 +9,8 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import useBaseUrl from '@docusaurus/useBaseUrl';
 
-<FbInternalOnly>
-
-> In most cases, the network layer is setup for you. You should not need to worry about this step unless you are setting up a new environment.
-
-</FbInternalOnly>
-
-In order to know how to access your GraphQL server, Relay requires developers to provide an object implementing the `INetwork` interface when creating an instance of a Relay Environment. The environment uses this network layer to execute queries, mutations, and (if your server supports them) subscriptions. This allows developers to use whatever transport (HTTP, WebSockets, etc) and authentication is most appropriate for their application, decoupling the environment from the particulars of each application's network configuration.
+In order to know how to access your GraphQL server, Relay requires developers to provide an object implementing the `INetwork` interface when creating an instance of a [Relay Environment](../api-reference/relay-runtime/relay-environment.md). The environment uses this network layer to execute queries, mutations, and (if your server supports them) subscriptions. This allows developers to use whatever transport (HTTP, WebSockets, etc) and authentication is most appropriate for their application, decoupling the environment from the particulars of each application's network configuration.
 
 Currently the easiest way to create a network layer is via a helper from the `relay-runtime` package:
 
@@ -65,10 +58,12 @@ const environment = new Environment({
 export default environment;
 ```
 
-Note that this is a basic example to help you get started. This example could be extended with additional features such as request/response caching (enabled e.g. when `cacheConfig.force` is false) and uploading form data for mutations (the `uploadables` parameter).
+:::warning
+This is just a basic example to help you get started. Features like `@stream`, `@defer` or Persisted Queries will require additional logic be added to your `fetchQuery` function.
+:::
 
-## Caching
+## Advanced Network Layer
 
-The Relay store will cache data from queries that are currently retained. See the section on [reusing cached data](../../guided-tour/reusing-cached-data/) of the guided tour.
+The network layer provides a place for developers to customize the data fetching behaviors. For example, adding network level caching, telemetry or support for uploading form data for mutations.
 
 <DocsRating />

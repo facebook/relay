@@ -841,6 +841,11 @@
             }
           ]
         },
+        "use_native_fragment_spreads_for_unmasked_fragments": {
+          "description": "Produce native GraphQL fragment spreads when spreading a fragment with @relay(mask: false) into a query, instead of inlining the contents of that fragment for each use. This significantly reduces the uncompressed size of query text when several mask:false fragment spreads are present, but has no impact on masking behavior.",
+          "default": false,
+          "type": "boolean"
+        },
         "use_reader_module_imports": {
           "description": "Generate the `moduleImports` field in the Reader AST.",
           "default": {
@@ -1082,6 +1087,7 @@
             "text_artifacts": {
               "kind": "disabled"
             },
+            "use_native_fragment_spreads_for_unmasked_fragments": false,
             "use_reader_module_imports": {
               "kind": "disabled"
             }

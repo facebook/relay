@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b012a69b2cc49a1c90c07cdf7f8742a4>>
+ * @generated SignedSource<<023d9c0e1365423d3e9dac64772d635f>>
  */
 
 mod compile_relay_artifacts;
@@ -2026,6 +2026,13 @@ async fn unmasked_fragment_spreads_in_query() {
     let input = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query.expected");
     test_fixture(transform_fixture, file!(), "unmasked-fragment-spreads-in-query.graphql", "compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn unmasked_fragment_spreads_in_query_inline_disabled() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query-inline-disabled.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query-inline-disabled.expected");
+    test_fixture(transform_fixture, file!(), "unmasked-fragment-spreads-in-query-inline-disabled.graphql", "compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query-inline-disabled.expected", input, expected).await;
 }
 
 #[tokio::test]

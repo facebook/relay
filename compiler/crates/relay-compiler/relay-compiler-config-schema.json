@@ -2148,12 +2148,59 @@
           "description": "Configuration for @module",
           "default": {
             "dynamicModuleProvider": null,
+            "operationModuleProvider": null,
             "surface": null
           },
           "type": "object",
           "properties": {
             "dynamicModuleProvider": {
               "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime.",
+              "anyOf": [
+                {
+                  "oneOf": [
+                    {
+                      "description": "Generates a module provider using JSResource",
+                      "type": "object",
+                      "required": [
+                        "mode"
+                      ],
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "JSResource"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "description": "Generates a custom JS import, Use `<$module>` as the placeholder for the actual module. e.g. `\"() => import('<$module>')\"`",
+                      "type": "object",
+                      "required": [
+                        "mode",
+                        "statement"
+                      ],
+                      "properties": {
+                        "mode": {
+                          "type": "string",
+                          "enum": [
+                            "Custom"
+                          ]
+                        },
+                        "statement": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "operationModuleProvider": {
+              "description": "Defines the custom import statement to be generated for the `operationModuleProvider` function on the `NormalizationModuleImport` node in ASTs. Used in exec time client 3D.",
               "anyOf": [
                 {
                   "oneOf": [
@@ -6937,12 +6984,59 @@
                 "description": "Configuration for @module.",
                 "default": {
                   "dynamicModuleProvider": null,
+                  "operationModuleProvider": null,
                   "surface": null
                 },
                 "type": "object",
                 "properties": {
                   "dynamicModuleProvider": {
                     "description": "Defines the custom import statement to be generated on the `ModuleImport` node in ASTs, used for dynamically loading components at runtime.",
+                    "anyOf": [
+                      {
+                        "oneOf": [
+                          {
+                            "description": "Generates a module provider using JSResource",
+                            "type": "object",
+                            "required": [
+                              "mode"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "JSResource"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "description": "Generates a custom JS import, Use `<$module>` as the placeholder for the actual module. e.g. `\"() => import('<$module>')\"`",
+                            "type": "object",
+                            "required": [
+                              "mode",
+                              "statement"
+                            ],
+                            "properties": {
+                              "mode": {
+                                "type": "string",
+                                "enum": [
+                                  "Custom"
+                                ]
+                              },
+                              "statement": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "operationModuleProvider": {
+                    "description": "Defines the custom import statement to be generated for the `operationModuleProvider` function on the `NormalizationModuleImport` node in ASTs. Used in exec time client 3D.",
                     "anyOf": [
                       {
                         "oneOf": [

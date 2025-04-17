@@ -39,7 +39,6 @@ use graphql_syntax::OperationKind;
 use lazy_static::lazy_static;
 use md5::Digest;
 use md5::Md5;
-use relay_config::DynamicModuleProvider;
 use relay_config::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_config::Surface;
@@ -2504,84 +2503,34 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .module_import_config
                     .dynamic_module_provider
                 {
-                    match self.project_config.module_import_config.surface {
-                        None | Some(Surface::All) => {
-                            module_import.push(ObjectEntry {
-                                key: CODEGEN_CONSTANTS.component_module_provider,
-                                value: Primitive::DynamicImport {
-                                    provider: dynamic_module_provider,
-                                    module: module_metadata.module_name,
-                                },
-                            });
-                            module_import.push(ObjectEntry {
-                                key: CODEGEN_CONSTANTS.operation_module_provider,
-                                value: Primitive::DynamicImport {
-                                    provider: dynamic_module_provider,
-                                    module: get_normalization_fragment_filename(fragment_name),
-                                },
-                            });
-                        }
-                        Some(Surface::Resolvers) => {
-                            if module_metadata.read_time_resolvers {
-                                module_import.push(ObjectEntry {
-                                    key: CODEGEN_CONSTANTS.component_module_provider,
-                                    value: Primitive::DynamicImport {
-                                        provider: dynamic_module_provider,
-                                        module: module_metadata.module_name,
-                                    },
-                                });
-                                match dynamic_module_provider {
-                                    DynamicModuleProvider::JSResource => {
-                                        module_import.push(ObjectEntry {
-                                            key: CODEGEN_CONSTANTS.operation_module_provider,
-                                            value: Primitive::DynamicImport {
-                                                provider: dynamic_module_provider,
-                                                module: get_normalization_fragment_filename(
-                                                    fragment_name,
-                                                ),
-                                            },
-                                        });
-                                    }
-                                    DynamicModuleProvider::Custom { .. } => {
-                                        let custom_dynamic_module_provider =
-                                            match self.project_config.js_module_format {
-                                                JsModuleFormat::Haste => dynamic_module_provider,
-                                                _ => {
-                                                    let path = self
-                                                        .project_config
-                                                        .create_path_for_artifact(
-                                                            module_metadata
-                                                                .fragment_source_location
-                                                                .source_location(),
-                                                            fragment_name.0.to_string(),
-                                                        );
-                                                    let path_for_module =
-                                                        path.display().to_string().replace(
-                                                            &fragment_name.0.to_string(),
-                                                            "<$module>",
-                                                        );
-                                                    DynamicModuleProvider::Custom {
-                                                        statement: format!(
-                                                            "() => require('{}')",
-                                                            path_for_module
-                                                        )
-                                                        .intern(),
-                                                    }
-                                                }
-                                            };
-                                        module_import.push(ObjectEntry {
-                                            key: CODEGEN_CONSTANTS.operation_module_provider,
-                                            value: Primitive::DynamicImport {
-                                                provider: custom_dynamic_module_provider,
-                                                module: get_normalization_fragment_filename(
-                                                    fragment_name,
-                                                ),
-                                            },
-                                        });
-                                    }
-                                };
-                            }
-                        }
+                    if self.project_config.module_import_config.surface.is_none()
+                        || self.project_config.module_import_config.surface == Some(Surface::All)
+                        || (self.project_config.module_import_config.surface
+                            == Some(Surface::Resolvers)
+                            && module_metadata.read_time_resolvers)
+                    {
+                        let operation_module_provider = match self
+                            .project_config
+                            .module_import_config
+                            .operation_module_provider
+                        {
+                            Some(operation_module_provider) => operation_module_provider,
+                            None => dynamic_module_provider,
+                        };
+                        module_import.push(ObjectEntry {
+                            key: CODEGEN_CONSTANTS.component_module_provider,
+                            value: Primitive::DynamicImport {
+                                provider: dynamic_module_provider,
+                                module: module_metadata.module_name,
+                            },
+                        });
+                        module_import.push(ObjectEntry {
+                            key: CODEGEN_CONSTANTS.operation_module_provider,
+                            value: Primitive::DynamicImport {
+                                provider: operation_module_provider,
+                                module: get_normalization_fragment_filename(fragment_name),
+                            },
+                        });
                     }
                 }
             }

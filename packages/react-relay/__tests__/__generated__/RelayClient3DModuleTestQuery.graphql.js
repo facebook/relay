@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<278cea064e359a15e34e1dc5b2c4d583>>
+ * @generated SignedSource<<64b105b74ce6f4b4f619c3738e4af6b3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -113,7 +113,7 @@ return {
                         "fragmentPropName": "data",
                         "kind": "ModuleImport",
                         "componentModuleProvider": () => require('./../ClientUser.react'),
-                        "operationModuleProvider": () => require('react-relay/__tests__/__generated__/./RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql')
+                        "operationModuleProvider": () => require('././RelayClient3DModuleTestFragmentClientUser_data$normalization.graphql')
                       }
                     ],
                     "type": "ClientUser",
@@ -129,7 +129,7 @@ return {
                         "fragmentPropName": "data",
                         "kind": "ModuleImport",
                         "componentModuleProvider": () => require('./../SpecialUser.react'),
-                        "operationModuleProvider": () => require('react-relay/__tests__/__generated__/./RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql')
+                        "operationModuleProvider": () => require('././RelayClient3DModuleTestFragmentSpecialUser_data$normalization.graphql')
                       }
                     ],
                     "type": "SpecialUser",

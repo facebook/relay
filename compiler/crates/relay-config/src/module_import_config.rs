@@ -17,7 +17,11 @@ pub struct ModuleImportConfig {
     /// Defines the custom import statement to be generated on the
     /// `ModuleImport` node in ASTs, used for dynamically loading
     /// components at runtime.
-    pub dynamic_module_provider: Option<DynamicModuleProvider>,
+    pub dynamic_module_provider: Option<ModuleProvider>,
+    /// Defines the custom import statement to be generated for the
+    /// `operationModuleProvider` function on the `NormalizationModuleImport`
+    /// node in ASTs. Used in exec time client 3D.
+    pub operation_module_provider: Option<ModuleProvider>,
     /// Defines the surface upon which @module is enabled.
     pub surface: Option<Surface>,
 }
@@ -34,7 +38,7 @@ pub struct ModuleImportConfig {
     JsonSchema
 )]
 #[serde(tag = "mode")]
-pub enum DynamicModuleProvider {
+pub enum ModuleProvider {
     /// Generates a module provider using JSResource
     JSResource,
     /// Generates a custom JS import, Use `<$module>` as the placeholder

@@ -20,7 +20,7 @@ use graphql_ir::reexport::Intern;
 use indexmap::IndexMap;
 use intern::Lookup;
 use intern::string_key::StringKey;
-use relay_config::DynamicModuleProvider;
+use relay_config::ModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
@@ -568,7 +568,7 @@ impl<'b> JSONPrinter<'b> {
                 self.write_resolver_module_reference(f, resolver_function_name.clone(), field_type)
             }
             Primitive::DynamicImport { provider, module } => match provider {
-                DynamicModuleProvider::JSResource => {
+                ModuleProvider::JSResource => {
                     self.top_level_statements.insert(
                         "JSResource".to_string(),
                         TopLevelStatement::ImportStatement(JSModuleDependency {
@@ -578,7 +578,7 @@ impl<'b> JSONPrinter<'b> {
                     );
                     write!(f, "() => JSResource('m#{}')", module)
                 }
-                DynamicModuleProvider::Custom { statement } => {
+                ModuleProvider::Custom { statement } => {
                     f.push_str(&statement.lookup().replace(
                         "<$module>",
                         &get_module_path(self.js_module_format, *module),

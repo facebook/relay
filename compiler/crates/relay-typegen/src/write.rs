@@ -9,10 +9,10 @@ use std::collections::HashSet;
 use std::fmt::Result as FmtResult;
 use std::path::PathBuf;
 
+use ::intern::Lookup;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::Lookup;
 use common::DirectiveName;
 use common::InputObjectName;
 use common::NamedItem;
@@ -27,14 +27,28 @@ use lazy_static::lazy_static;
 use relay_config::CustomTypeImport;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
-use relay_transforms::RefetchableDerivedFromMetadata;
-use relay_transforms::RefetchableMetadata;
-use relay_transforms::RelayDirective;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_transforms::CATCH_DIRECTIVE_NAME;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
+use relay_transforms::RefetchableDerivedFromMetadata;
+use relay_transforms::RefetchableMetadata;
+use relay_transforms::RelayDirective;
 use schema::Schema;
 
+use crate::ACTOR_CHANGE_POINT;
+use crate::FUTURE_ENUM_VALUE;
+use crate::KEY_CLIENTID;
+use crate::KEY_DATA;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_RAW_RESPONSE;
+use crate::KEY_TYPENAME;
+use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
+use crate::MaskStatus;
+use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
+use crate::REACT_RELAY_MULTI_ACTOR;
+use crate::TypegenContext;
+use crate::VALIDATOR_EXPORT_NAME;
 use crate::typegen_state::ActorChangeStatus;
 use crate::typegen_state::EncounteredEnums;
 use crate::typegen_state::EncounteredFragment;
@@ -56,6 +70,7 @@ use crate::visit::raw_response_selections_to_babel;
 use crate::visit::raw_response_visit_selections;
 use crate::visit::transform_input_type;
 use crate::visit::visit_selections;
+use crate::writer::AST;
 use crate::writer::ExactObject;
 use crate::writer::InexactObject;
 use crate::writer::KeyValuePairProp;
@@ -64,21 +79,6 @@ use crate::writer::SortedASTList;
 use crate::writer::SortedStringKeyList;
 use crate::writer::StringLiteral;
 use crate::writer::Writer;
-use crate::writer::AST;
-use crate::MaskStatus;
-use crate::TypegenContext;
-use crate::ACTOR_CHANGE_POINT;
-use crate::FUTURE_ENUM_VALUE;
-use crate::KEY_CLIENTID;
-use crate::KEY_DATA;
-use crate::KEY_FRAGMENT_SPREADS;
-use crate::KEY_FRAGMENT_TYPE;
-use crate::KEY_RAW_RESPONSE;
-use crate::KEY_TYPENAME;
-use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
-use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
-use crate::REACT_RELAY_MULTI_ACTOR;
-use crate::VALIDATOR_EXPORT_NAME;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
@@ -139,6 +139,7 @@ pub(crate) fn write_operation_type_exports_section(
 
     let mut data_type = get_data_type(
         typegen_context,
+        &typegen_operation.type_,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
@@ -461,6 +462,7 @@ pub(crate) fn write_fragment_type_exports_section(
 
     let mut data_type = get_data_type(
         typegen_context,
+        &fragment_definition.type_condition,
         type_selections.into_iter(),
         mask_status,
         if mask_status == MaskStatus::Unmasked {
@@ -607,12 +609,9 @@ fn write_fragment_imports(
             ),
         };
 
-        let should_write_current_referenced_fragment = fragment_name_to_skip
-            .map_or(true, |fragment_name_to_skip| {
-                fragment_name_to_skip != current_referenced_fragment
-            });
-
-        if !should_write_current_referenced_fragment {
+        let should_skip_writing_current_referenced_fragment =
+            fragment_name_to_skip == Some(current_referenced_fragment);
+        if should_skip_writing_current_referenced_fragment {
             continue;
         }
 
@@ -1111,7 +1110,7 @@ fn write_concrete_validator_function(
 }
 
 fn is_plural(node: &FragmentDefinition) -> bool {
-    RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
+    RelayDirective::find(&node.directives).is_some_and(|relay_directive| relay_directive.plural)
 }
 
 fn has_fragment_spread(selections: &[Selection]) -> bool {

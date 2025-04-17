@@ -14,26 +14,26 @@ use common::TextSource;
 use dashmap::DashMap;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
-use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::GraphQLSource;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::Position;
 use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
-use relay_compiler::config::Config;
-use relay_compiler::get_parser_features;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
 use relay_compiler::ProjectConfig;
-use relay_docblock::parse_docblock_ast;
+use relay_compiler::config::Config;
+use relay_compiler::get_parser_features;
 use relay_docblock::ParseOptions;
+use relay_docblock::parse_docblock_ast;
 
+use crate::Feature;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::Feature;
 
 pub fn is_file_uri_in_dir(root_dir: PathBuf, file_uri: &Url) -> bool {
     let file_path_result = file_uri.to_file_path();

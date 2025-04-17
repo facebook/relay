@@ -122,13 +122,13 @@ mod test {
     use std::sync::atomic::AtomicI32;
     use std::sync::atomic::Ordering;
 
-    use lsp_types::request::GotoDefinition;
-    use lsp_types::request::HoverRequest;
-    use lsp_types::request::Request;
     use lsp_types::Position;
     use lsp_types::TextDocumentIdentifier;
     use lsp_types::TextDocumentPositionParams;
     use lsp_types::Url;
+    use lsp_types::request::GotoDefinition;
+    use lsp_types::request::HoverRequest;
+    use lsp_types::request::Request;
 
     use super::LSPRequestDispatch;
     use crate::lsp_runtime_error::LSPRuntimeResult;

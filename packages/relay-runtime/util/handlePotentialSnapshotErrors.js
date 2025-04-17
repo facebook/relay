@@ -22,12 +22,23 @@ const invariant = require('invariant');
 function handleFieldErrors(
   environment: IEnvironment,
   fieldErrors: FieldErrors,
+  loggingContext: mixed | void,
 ) {
   for (const fieldError of fieldErrors) {
     // First we log all events. Note that the logger may opt to throw its own
     // error here if it wants to throw an error that is better integrated into
     // site's error handling infrastructure.
-    environment.relayFieldLogger(fieldError);
+
+    // Awkward. We don't want to attach the ui context in RelayReader where we
+    // create the event, but it means we need to add it here instead of just
+    // passing the event through.
+
+    environment.relayFieldLogger({
+      // the uiContext on fieldError undefined *always*,
+      ...fieldError,
+      // and this is where we assign loggingContext to uiContext to populate it
+      uiContext: loggingContext,
+    });
   }
 
   for (const fieldError of fieldErrors) {
@@ -83,13 +94,14 @@ function eventShouldThrow(event: FieldError): boolean {
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   fieldErrors: ?FieldErrors,
+  loggingContext: mixed | void,
 ) {
   /**
    * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
    * which is why this still should run in any case there's errors.
    */
   if (fieldErrors != null) {
-    handleFieldErrors(environment, fieldErrors);
+    handleFieldErrors(environment, fieldErrors, loggingContext);
   }
 }
 

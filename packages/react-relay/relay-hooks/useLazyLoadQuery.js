@@ -32,23 +32,23 @@ const {
 export type UseLazyLoadQueryHookType = hook <TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {
+  options?: $ReadOnly<{
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  },
+  }>,
 ) => TData;
 
 hook useLazyLoadQuery<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {
+  options?: $ReadOnly<{
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  },
+  }>,
 ): TData {
   const environment = useRelayEnvironment();
 

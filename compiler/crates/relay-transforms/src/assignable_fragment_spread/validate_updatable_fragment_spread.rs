@@ -19,9 +19,10 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
-use super::ensure_discriminated_union_is_created;
 use super::ValidationMessage;
+use super::ensure_discriminated_union_is_created;
 use crate::UPDATABLE_DIRECTIVE;
+use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResult<()> {
     UpdatableFragmentSpread {
@@ -88,10 +89,15 @@ impl UpdatableFragmentSpread<'_> {
     ) -> DiagnosticsResult<()> {
         let mut errors = vec![];
 
-        if !fragment_spread.directives.is_empty() {
+        let invalid_directive = fragment_spread
+            .directives
+            .iter()
+            .find(|directive| directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME);
+
+        if let Some(directive) = invalid_directive {
             errors.push(Diagnostic::error(
                 ValidationMessage::UpdatableFragmentSpreadNoDirectives,
-                fragment_spread.fragment.location,
+                directive.location,
             ));
         }
 

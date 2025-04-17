@@ -9,21 +9,21 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use relay_codegen::build_request_params;
 use relay_codegen::JsModuleFormat;
 use relay_codegen::Printer;
+use relay_codegen::build_request_params;
 use relay_config::DeferStreamInterface;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
+use relay_transforms::ConnectionInterface;
 use relay_transforms::transform_connections;
 use relay_transforms::validate_connections;
-use relay_transforms::ConnectionInterface;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_config = ProjectConfig {

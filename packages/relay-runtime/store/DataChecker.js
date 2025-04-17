@@ -90,6 +90,7 @@ function check(
     operationLoader,
     getDataID,
     shouldProcessClientComponents,
+    log,
   );
   const result = checker.check(node, dataID);
   if (log != null) {
@@ -123,6 +124,7 @@ class DataChecker {
     ActorIdentifier,
     [RelayRecordSourceMutator, RelayRecordSourceProxy],
   >;
+  _log: ?LogFunction;
 
   constructor(
     getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
@@ -135,6 +137,7 @@ class DataChecker {
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
+    log: ?LogFunction,
   ) {
     this._getSourceForActor = getSourceForActor;
     this._getTargetForActor = getTargetForActor;
@@ -152,6 +155,7 @@ class DataChecker {
     this._recordWasMissing = false;
     this._variables = variables;
     this._shouldProcessClientComponents = shouldProcessClientComponents;
+    this._log = log;
   }
 
   _getMutatorAndRecordProxyForActor(
@@ -170,6 +174,7 @@ class DataChecker {
         this._getDataID,
         undefined,
         this._handlers,
+        this._log,
       );
       tuple = [mutator, recordSourceProxy];
       this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);

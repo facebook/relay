@@ -9,12 +9,12 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
+use relay_codegen::JsModuleFormat;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
-use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::client_extensions;

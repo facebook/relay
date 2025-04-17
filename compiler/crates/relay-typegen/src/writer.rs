@@ -10,18 +10,18 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::ops::Deref;
 
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_config::TypegenConfig;
 use relay_config::TypegenLanguage;
 
-use crate::flow::FlowPrinter;
-use crate::javascript::JavaScriptPrinter;
-use crate::typescript::TypeScriptPrinter;
 use crate::FUTURE_ENUM_VALUE;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_TYPENAME;
+use crate::flow::FlowPrinter;
+use crate::javascript::JavaScriptPrinter;
+use crate::typescript::TypeScriptPrinter;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 #[allow(clippy::upper_case_acronyms)]

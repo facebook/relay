@@ -16,8 +16,8 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use colored::Colorize;
-use signedsource::sign_file;
 use signedsource::SIGNING_TOKEN;
+use signedsource::sign_file;
 
 #[derive(Debug, Parser)]
 #[clap(name = "fixture-tests", about = "Generates fixture tests.")]

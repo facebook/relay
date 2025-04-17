@@ -21,8 +21,8 @@ use graphql_ir::Variable;
 use schema::SDLSchema;
 use schema::Schema;
 
-use crate::relay_resolvers::get_argument_value;
 use crate::ValidationMessage;
+use crate::relay_resolvers::get_argument_value;
 
 pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
     ValidateResolverFragments::new(&program.schema).validate_program(program)

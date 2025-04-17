@@ -31,10 +31,10 @@ use schema::Type;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::location::transform_relay_location_on_disk_to_lsp_location;
-use crate::server::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
+use crate::location::transform_relay_location_on_disk_to_lsp_location;
+use crate::server::GlobalState;
 
 // This implementation of FindFieldUsages find matching fields in:
 //   - exact type matches

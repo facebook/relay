@@ -7,7 +7,9 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::WithLocation;
+use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
@@ -22,10 +24,10 @@ use intern::string_key::Intern;
 use intern::string_key::StringKeyMap;
 use schema::Schema;
 
-use super::SplitOperationMetadata;
 use super::MATCH_CONSTANTS;
-use crate::util::get_normalization_operation_name;
+use super::SplitOperationMetadata;
 use crate::ModuleMetadata;
+use crate::util::get_normalization_operation_name;
 
 pub fn split_module_import(
     program: &Program,
@@ -104,10 +106,6 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
             if self
                 .base_fragment_names
                 .contains(&module_metadata.fragment_name)
-                // We do not need to generate normalization files for fragments that are
-                // resolved entirely by read time resolver models on the client side when 
-                // client 3D support for read time resolvers is enabled.
-                || module_metadata.read_time_resolvers
             {
                 return self.default_transform_inline_fragment(fragment);
             }
@@ -137,6 +135,20 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
                         })
                         .cloned()
                         .collect();
+                    let operation_directives: Vec<Directive> =
+                        if module_metadata.read_time_resolvers {
+                            vec![Directive {
+                                name: WithLocation::new(
+                                    module_metadata.fragment_source_location,
+                                    DirectiveName("exec_time_resolvers".intern()),
+                                ),
+                                arguments: vec![],
+                                data: None,
+                                location: module_metadata.fragment_source_location,
+                            }]
+                        } else {
+                            vec![]
+                        };
                     (
                         SplitOperationMetadata {
                             derived_from: Some(module_metadata.fragment_name),
@@ -151,7 +163,7 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
                             ),
                             type_: parent_type,
                             variable_definitions: vec![],
-                            directives: vec![],
+                            directives: operation_directives,
                             selections: next_selections,
                             kind: OperationKind::Query,
                         },

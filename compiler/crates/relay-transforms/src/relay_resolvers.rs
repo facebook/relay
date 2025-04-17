@@ -24,7 +24,6 @@ use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::Field as IrField;
@@ -39,11 +38,12 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableName;
+use graphql_ir::associated_data_impl;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantValue;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use relay_config::ProjectName;
 use schema::ArgumentValue;
 use schema::Field;
@@ -53,13 +53,13 @@ use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessage;
-use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
-use crate::ClientEdgeMetadata;
-use crate::FragmentAliasMetadata;
-use crate::RequiredMetadataDirective;
 use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
+use crate::ClientEdgeMetadata;
+use crate::FragmentAliasMetadata;
 use crate::REQUIRED_DIRECTIVE_NAME;
+use crate::RequiredMetadataDirective;
+use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
 
 /// Transform Relay Resolver fields. This is done in two passes.
 ///

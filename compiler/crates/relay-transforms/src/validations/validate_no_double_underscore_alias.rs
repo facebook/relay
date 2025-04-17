@@ -14,8 +14,8 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 
 pub fn validate_no_double_underscore_alias(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = ValidateNoDoubleUnderscoreAlias {};

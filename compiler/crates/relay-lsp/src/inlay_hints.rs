@@ -14,20 +14,20 @@ use graphql_ir::InlineFragment;
 use graphql_ir::Program;
 use graphql_ir::Visitor;
 use intern::string_key::StringKey;
-use lsp_types::request::InlayHintRequest;
-use lsp_types::request::Request;
 use lsp_types::InlayHint;
 use lsp_types::InlayHintLabel;
 use lsp_types::InlayHintTooltip;
 use lsp_types::MarkupContent;
+use lsp_types::request::InlayHintRequest;
+use lsp_types::request::Request;
 use schema::SDLSchema;
 use schema::Schema;
 
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::server::build_ir_for_lsp;
-use crate::server::GlobalState;
-use crate::utils::is_file_uri_in_dir;
 use crate::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
+use crate::server::build_ir_for_lsp;
+use crate::utils::is_file_uri_in_dir;
 
 pub fn on_inlay_hint_request(
     state: &impl GlobalState,

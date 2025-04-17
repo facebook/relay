@@ -9,9 +9,9 @@ use std::collections::HashSet;
 
 use graphql_ir::*;
 use rustc_hash::FxHashSet;
-use schema::definitions::Type;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::definitions::Type;
 use schema_diff::check::IncrementalBuildSchemaChange;
 
 use crate::ExecutableDefinitionNameSet;

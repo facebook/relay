@@ -210,7 +210,7 @@ it('does not dispose the entry point before the new component tree unsuspends in
 
     let transitionToSecondRoute;
     function ConcurrentWrapper() {
-      const [route, setRoute] = React.useState('FIRST');
+      const [route, setRoute] = React.useState<'FIRST' | 'SECOND'>('FIRST');
 
       transitionToSecondRoute = () =>
         React.startTransition(() => setRoute('SECOND'));

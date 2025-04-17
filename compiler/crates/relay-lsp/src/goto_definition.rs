@@ -19,10 +19,10 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use log::error;
 use log::info;
-use lsp_types::request::GotoDefinition;
-use lsp_types::request::Request;
 use lsp_types::GotoDefinitionResponse;
 use lsp_types::Url;
+use lsp_types::request::GotoDefinition;
+use lsp_types::request::Request;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -32,13 +32,13 @@ use serde::Serialize;
 use self::goto_docblock_definition::get_docblock_definition_description;
 use self::goto_graphql_definition::get_graphql_definition_description;
 use self::goto_graphql_definition::get_graphql_schema_definition_description;
+use crate::FieldDefinitionSourceInfo;
+use crate::FieldSchemaInfo;
+use crate::LSPExtraDataProvider;
 use crate::location::transform_relay_location_on_disk_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
-use crate::FieldDefinitionSourceInfo;
-use crate::FieldSchemaInfo;
-use crate::LSPExtraDataProvider;
 
 /// A concrete description of a GraphQL definition that a user would like to goto.
 pub enum DefinitionDescription {

@@ -6,8 +6,8 @@
  */
 
 use common::Span;
-use graphql_ir::reexport::StringKey;
 use graphql_ir::FragmentDefinitionName;
+use graphql_ir::reexport::StringKey;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 use relay_docblock::ResolverFieldDocblockIr;

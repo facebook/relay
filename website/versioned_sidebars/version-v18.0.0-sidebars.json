@@ -119,8 +119,7 @@
             "api-reference/relay-resolvers/runtime-functions"
           ]
         },
-        "api-reference/graphql/graphql-directives",
-        "api-reference/legacy-apis/legacy-apis"
+        "api-reference/graphql/graphql-directives"
       ],
       "Testing and Debugging": [
         "guides/testing-relay-components",

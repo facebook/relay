@@ -15,6 +15,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  LogFunction,
   MissingFieldHandler,
   MutationParameters,
   OperationDescriptor,
@@ -33,6 +34,7 @@ import type {
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReader = require('./RelayReader');
 const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
@@ -86,6 +88,7 @@ class RelayPublishQueue implements PublishQueue {
   _handlerProvider: ?HandlerProvider;
   _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
   _getDataID: GetDataID;
+  _log: ?LogFunction;
 
   _hasStoreSnapshot: boolean;
   // True if the next `run()` should apply the backup and rerun all optimistic
@@ -114,6 +117,7 @@ class RelayPublishQueue implements PublishQueue {
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
     missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    log: LogFunction,
   ) {
     this._hasStoreSnapshot = false;
     this._handlerProvider = handlerProvider || null;
@@ -125,6 +129,7 @@ class RelayPublishQueue implements PublishQueue {
     this._gcHold = null;
     this._getDataID = getDataID;
     this._missingFieldHandlers = missingFieldHandlers;
+    this._log = log;
   }
 
   /**
@@ -221,24 +226,27 @@ class RelayPublishQueue implements PublishQueue {
       this._pendingOptimisticUpdates.size === 0 &&
       !runWillClearGcHold;
 
-    if (__DEV__) {
-      warning(
-        !runIsANoop,
-        'RelayPublishQueue.run was called, but the call would have been a noop.',
-      );
-      warning(
-        this._isRunning !== true,
-        'A store update was detected within another store update. Please ' +
-          "make sure new store updates aren't being executed within an " +
-          'updater function for a different update.',
-      );
-      this._isRunning = true;
-    }
+    warning(
+      !runIsANoop,
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    RelayFeatureFlags.DISALLOW_NESTED_UPDATES
+      ? invariant(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        )
+      : warning(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        );
+    this._isRunning = true;
 
     if (runIsANoop) {
-      if (__DEV__) {
-        this._isRunning = false;
-      }
+      this._isRunning = false;
       return [];
     }
 
@@ -270,9 +278,7 @@ class RelayPublishQueue implements PublishQueue {
         this._gcHold = null;
       }
     }
-    if (__DEV__) {
-      this._isRunning = false;
-    }
+    this._isRunning = false;
     return this._store.notify(sourceOperation, invalidatedStore);
   }
 
@@ -294,6 +300,7 @@ class RelayPublishQueue implements PublishQueue {
       this._getDataID,
       this._handlerProvider,
       this._missingFieldHandlers,
+      this._log,
     );
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
@@ -357,6 +364,7 @@ class RelayPublishQueue implements PublishQueue {
           this._getDataID,
           this._handlerProvider,
           this._missingFieldHandlers,
+          this._log,
         );
         applyWithGuard(
           updater,
@@ -390,6 +398,7 @@ class RelayPublishQueue implements PublishQueue {
       this._getDataID,
       this._handlerProvider,
       this._missingFieldHandlers,
+      this._log,
     );
 
     // $FlowFixMe[unclear-type] see explanation above.

@@ -46,7 +46,9 @@ export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
 export type NullQueryReference = {
   kind: 'NullQueryReference',
 };
-const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
+const initialNullQueryReferenceState: NullQueryReference = {
+  kind: 'NullQueryReference',
+};
 
 function requestIsLiveQuery<
   TVariables: Variables,
@@ -119,12 +121,14 @@ hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
 ): UseQueryLoaderHookReturnType<TVariables, TData> {
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
     // $FlowFixMe[react-rule-hook] - the condition is static
+    // $FlowFixMe[react-rule-hook-conditional]
     return useQueryLoader_EXPERIMENTAL(
       preloadableRequest,
       initialQueryReference,
     );
   }
   // $FlowFixMe[react-rule-hook] - the condition is static
+  // $FlowFixMe[react-rule-hook-conditional]
   return useQueryLoader_CURRENT(preloadableRequest, initialQueryReference);
 }
 

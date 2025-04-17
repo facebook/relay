@@ -6,13 +6,13 @@
  */
 
 use async_trait::async_trait;
-use persist_query::persist;
 use persist_query::PersistError;
+use persist_query::persist;
 use relay_config::RemotePersistConfig;
 use tokio::sync::Semaphore;
 
-use crate::config::ArtifactForPersister;
 use crate::OperationPersister;
+use crate::config::ArtifactForPersister;
 
 /// A remote persister that sends GraphQL documents to a server for persistence.
 ///

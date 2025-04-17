@@ -8,12 +8,12 @@
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
+use graphql_ir::associated_data_impl;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 use schema::Schema;

@@ -15,10 +15,10 @@ use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::OperationDefinition;
 use graphql_syntax::VariableDefinition;
-use graphql_text_printer::print_value;
 use graphql_text_printer::PrinterOptions;
-use intern::string_key::StringKey;
+use graphql_text_printer::print_value;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use lsp_types::Hover;
 use lsp_types::HoverContents;
 use lsp_types::MarkedString;
@@ -68,9 +68,9 @@ use schema::Schema;
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 
-use crate::hover::get_open_schema_explorer_command_link;
-use crate::hover::GraphQLSchemaExplorerParams;
 use crate::LSPExtraDataProvider;
+use crate::hover::GraphQLSchemaExplorerParams;
+use crate::hover::get_open_schema_explorer_command_link;
 
 /// Enum, that allows us to adjust content of the hover
 /// tooltip based on the consumer type (Relay, GraphQL)

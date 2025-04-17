@@ -32,9 +32,9 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 
-use super::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
+use super::ValidationMessage;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 lazy_static! {

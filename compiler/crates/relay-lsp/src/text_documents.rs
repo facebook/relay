@@ -7,15 +7,15 @@
 
 //! Utilities related to LSP text document syncing
 
+use lsp_types::DidChangeTextDocumentParams;
+use lsp_types::DidOpenTextDocumentParams;
+use lsp_types::TextDocumentItem;
 use lsp_types::notification::Cancel;
 use lsp_types::notification::DidChangeTextDocument;
 use lsp_types::notification::DidCloseTextDocument;
 use lsp_types::notification::DidOpenTextDocument;
 use lsp_types::notification::DidSaveTextDocument;
 use lsp_types::notification::Notification;
-use lsp_types::DidChangeTextDocumentParams;
-use lsp_types::DidOpenTextDocumentParams;
-use lsp_types::TextDocumentItem;
 
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;

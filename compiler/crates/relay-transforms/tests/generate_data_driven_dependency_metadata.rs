@@ -8,15 +8,16 @@
 use common::FeatureFlags;
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_config::DynamicModuleProvider;
 use relay_config::ModuleImportConfig;
+use relay_config::ModuleProvider;
 use relay_config::Surface;
 use relay_transforms::generate_data_driven_dependency_metadata;
 use relay_transforms::transform_match;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let module_import_config = ModuleImportConfig {
-        dynamic_module_provider: Some(DynamicModuleProvider::JSResource),
+        dynamic_module_provider: Some(ModuleProvider::JSResource),
+        operation_module_provider: None,
         surface: Some(Surface::Resolvers),
     };
     apply_transform_for_test(fixture, |program| {

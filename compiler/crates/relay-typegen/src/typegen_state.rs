@@ -15,20 +15,20 @@ use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use schema::EnumID;
 use schema::SDLSchema;
 use schema::Schema;
 
-use crate::writer::ExactObject;
-use crate::writer::Writer;
-use crate::writer::AST;
 use crate::KEY_DATA_ID;
 use crate::LIVE_RESOLVERS_LIVE_STATE;
 use crate::LOCAL_3D_PAYLOAD;
 use crate::RELAY_RUNTIME;
 use crate::RESULT_TYPE_NAME;
+use crate::writer::AST;
+use crate::writer::ExactObject;
+use crate::writer::Writer;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
 /// contains information about whether and how to write import types.

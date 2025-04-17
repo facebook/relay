@@ -26,6 +26,7 @@ import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreT
 
 const {getQueryResourceForEnvironment} = require('./QueryResource');
 const useRelayEnvironment = require('./useRelayEnvironment');
+const useRelayLoggingContext = require('./useRelayLoggingContext');
 const invariant = require('invariant');
 const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
 const {
@@ -109,12 +110,21 @@ function getSuspendingLiveResolver(
 function handlePotentialSnapshotErrorsForState(
   environment: IEnvironment,
   state: FragmentState,
+  loggingContext: mixed | void,
 ): void {
   if (state.kind === 'singular') {
-    handlePotentialSnapshotErrors(environment, state.snapshot.fieldErrors);
+    handlePotentialSnapshotErrors(
+      environment,
+      state.snapshot.fieldErrors,
+      loggingContext,
+    );
   } else if (state.kind === 'plural') {
     for (const snapshot of state.snapshots) {
-      handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
+      handlePotentialSnapshotErrors(
+        environment,
+        snapshot.fieldErrors,
+        loggingContext,
+      );
     }
   }
 }
@@ -400,6 +410,12 @@ hook useFragmentInternal(
   );
 
   const environment = useRelayEnvironment();
+  let loggerContext;
+  if (RelayFeatureFlags.ENABLE_UI_CONTEXT_ON_RELAY_LOGGER) {
+    // $FlowFixMe[react-rule-hook] - the condition is static
+    // $FlowFixMe[react-rule-hook-conditional]
+    loggerContext = useRelayLoggingContext();
+  }
   const [_state, setState] = useState<FragmentState>(() =>
     getFragmentState(environment, fragmentSelector),
   );
@@ -451,6 +467,7 @@ hook useFragmentInternal(
     // always or never run for a given invocation of this hook.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     const [clientEdgeQueries, activeRequestPromises] = useMemo(() => {
       const missingClientEdges = getMissingClientEdges(state);
       // eslint-disable-next-line no-shadow
@@ -482,6 +499,7 @@ hook useFragmentInternal(
     // See above note
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useEffect(() => {
       const QueryResource = getQueryResourceForEnvironment(environment);
       if (clientEdgeQueries?.length) {
@@ -538,7 +556,7 @@ hook useFragmentInternal(
 
   // Report required fields only if we're not suspending, since that means
   // they're missing even though we are out of options for possibly fetching them:
-  handlePotentialSnapshotErrorsForState(environment, state);
+  handlePotentialSnapshotErrorsForState(environment, state, loggerContext);
 
   const hasPendingStateChanges = useRef<boolean>(false);
 
@@ -591,6 +609,7 @@ hook useFragmentInternal(
     const fragmentRefIsNullish = fragmentRef == null; // for less sensitive memoization
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     data = useMemo(() => {
       if (state.kind === 'bailout') {
         // Bailout state can happen if the fragmentRef is a plural array that is empty or has no
@@ -642,6 +661,7 @@ hook useFragmentInternal(
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({fragment: fragmentNode.name, data});
   }
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<003bea7ecd0d96e0c18a2548074ea100>>
+ * @generated SignedSource<<8e6457abd85bfe2e23fd93ec4d3a3cc2>>
  */
 
 mod compile_relay_artifacts;
@@ -2047,6 +2047,13 @@ async fn updatable_fragment_spread() {
     let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread.expected");
     test_fixture(transform_fixture, file!(), "updatable-fragment-spread.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn updatable_fragment_spread_with_dangerously_unaliased_fixme() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-dangerously-unaliased-fixme.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-dangerously-unaliased-fixme.expected");
+    test_fixture(transform_fixture, file!(), "updatable-fragment-spread-with-dangerously-unaliased-fixme.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-dangerously-unaliased-fixme.expected", input, expected).await;
 }
 
 #[tokio::test]

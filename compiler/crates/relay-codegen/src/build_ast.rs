@@ -7,10 +7,10 @@
 
 use std::path::PathBuf;
 
+use ::intern::Lookup;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
@@ -42,18 +42,7 @@ use md5::Md5;
 use relay_config::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_config::Surface;
-use relay_transforms::extract_connection_metadata_from_directive;
-use relay_transforms::extract_handle_field_directives;
-use relay_transforms::extract_values_from_handle_field_directive;
-use relay_transforms::generate_abstract_type_refinement_key;
-use relay_transforms::get_normalization_fragment_filename;
-use relay_transforms::get_normalization_operation_name;
-use relay_transforms::get_resolver_fragment_dependency_name;
-use relay_transforms::relay_resolvers::get_resolver_info;
-use relay_transforms::relay_resolvers::resolver_import_alias;
-use relay_transforms::relay_resolvers::ResolverInfo;
-use relay_transforms::relay_resolvers::ResolverSchemaGenType;
-use relay_transforms::remove_directive;
+use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::CatchMetadataDirective;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
@@ -61,25 +50,36 @@ use relay_transforms::ClientEdgeModelResolver;
 use relay_transforms::ClientExtensionAbstractTypeMetadataDirective;
 use relay_transforms::ConnectionConstants;
 use relay_transforms::ConnectionMetadata;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::DeferDirective;
 use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
+use relay_transforms::INLINE_DIRECTIVE_NAME;
+use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
 use relay_transforms::InlineDirectiveMetadata;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
+use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
+use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::StreamDirective;
-use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
-use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
-use relay_transforms::INLINE_DIRECTIVE_NAME;
-use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
-use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
-use relay_transforms::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
+use relay_transforms::extract_connection_metadata_from_directive;
+use relay_transforms::extract_handle_field_directives;
+use relay_transforms::extract_values_from_handle_field_directive;
+use relay_transforms::generate_abstract_type_refinement_key;
+use relay_transforms::get_normalization_fragment_filename;
+use relay_transforms::get_normalization_operation_name;
+use relay_transforms::get_resolver_fragment_dependency_name;
+use relay_transforms::relay_resolvers::ResolverInfo;
+use relay_transforms::relay_resolvers::ResolverSchemaGenType;
+use relay_transforms::relay_resolvers::get_resolver_info;
+use relay_transforms::relay_resolvers::resolver_import_alias;
+use relay_transforms::remove_directive;
 use schema::Field;
 use schema::SDLSchema;
 use schema::Schema;
@@ -405,32 +405,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     })
             });
 
-        let exec_time_resolvers_field = if has_exec_time_resolvers_directive {
-            if let Some(provider) = exec_time_resolvers_enabled_provider {
-                let mut provider_path = PathBuf::from(provider.location.source_location().path());
-                provider_path.pop();
-                provider_path.push(PathBuf::from(provider.item.lookup()));
-                let artifact_path = self
-                    .project_config
-                    .artifact_path_for_definition(self.definition_source_location);
-                Some(ObjectEntry {
-                    key: "exec_time_resolvers_enabled_provider".intern(),
-                    value: Primitive::JSModuleDependency(JSModuleDependency {
-                        path: self
-                            .project_config
-                            .js_module_import_identifier(&artifact_path, &provider_path),
-                        import_name: ModuleImportName::Default(provider.item),
-                    }),
-                })
-            } else {
-                Some(ObjectEntry {
-                    key: "use_exec_time_resolvers".intern(),
-                    value: Primitive::Bool(true),
-                })
-            }
-        } else {
-            None
-        };
         let mut context = ContextualMetadata {
             has_client_edges: false,
             has_exec_time_resolvers_directive,
@@ -447,9 +421,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     name: Primitive::String(operation.name.item.0),
                     selections: selections,
                 };
-                if context.has_exec_time_resolvers_directive {
-                    fields.push(exec_time_resolvers_field.unwrap());
-                }
                 if !operation.variable_definitions.is_empty() {
                     let argument_definitions =
                         self.build_operation_variable_definitions(&operation.variable_definitions);
@@ -474,7 +445,32 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     selections: selections,
                 };
                 if context.has_exec_time_resolvers_directive {
-                    fields.push(exec_time_resolvers_field.unwrap());
+                    fields.push(
+                        if let Some(provider) = exec_time_resolvers_enabled_provider {
+                            let mut provider_path =
+                                PathBuf::from(provider.location.source_location().path());
+                            provider_path.pop();
+                            provider_path.push(PathBuf::from(provider.item.lookup()));
+                            let artifact_path = self
+                                .project_config
+                                .artifact_path_for_definition(self.definition_source_location);
+                            ObjectEntry {
+                                key: "exec_time_resolvers_enabled_provider".intern(),
+                                value: Primitive::JSModuleDependency(JSModuleDependency {
+                                    path: self.project_config.js_module_import_identifier(
+                                        &artifact_path,
+                                        &provider_path,
+                                    ),
+                                    import_name: ModuleImportName::Default(provider.item),
+                                }),
+                            }
+                        } else {
+                            ObjectEntry {
+                                key: "use_exec_time_resolvers".intern(),
+                                value: Primitive::Bool(true),
+                            }
+                        },
+                    );
                 }
                 if let Some(client_abstract_types) =
                     self.maybe_build_client_abstract_types(operation)
@@ -2502,32 +2498,39 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
             }
             CodegenVariant::Normalization => {
-                if module_metadata.read_time_resolvers {
-                    return vec![];
-                }
                 if let Some(dynamic_module_provider) = self
                     .project_config
                     .module_import_config
                     .dynamic_module_provider
                 {
-                    match self.project_config.module_import_config.surface {
-                        None | Some(Surface::All) => {
-                            module_import.push(ObjectEntry {
-                                key: CODEGEN_CONSTANTS.component_module_provider,
-                                value: Primitive::DynamicImport {
-                                    provider: dynamic_module_provider,
-                                    module: module_metadata.module_name,
-                                },
-                            });
-                            module_import.push(ObjectEntry {
-                                key: CODEGEN_CONSTANTS.operation_module_provider,
-                                value: Primitive::DynamicImport {
-                                    provider: dynamic_module_provider,
-                                    module: get_normalization_fragment_filename(fragment_name),
-                                },
-                            });
-                        }
-                        Some(Surface::Resolvers) => {}
+                    if self.project_config.module_import_config.surface.is_none()
+                        || self.project_config.module_import_config.surface == Some(Surface::All)
+                        || (self.project_config.module_import_config.surface
+                            == Some(Surface::Resolvers)
+                            && module_metadata.read_time_resolvers)
+                    {
+                        let operation_module_provider = match self
+                            .project_config
+                            .module_import_config
+                            .operation_module_provider
+                        {
+                            Some(operation_module_provider) => operation_module_provider,
+                            None => dynamic_module_provider,
+                        };
+                        module_import.push(ObjectEntry {
+                            key: CODEGEN_CONSTANTS.component_module_provider,
+                            value: Primitive::DynamicImport {
+                                provider: dynamic_module_provider,
+                                module: module_metadata.module_name,
+                            },
+                        });
+                        module_import.push(ObjectEntry {
+                            key: CODEGEN_CONSTANTS.operation_module_provider,
+                            value: Primitive::DynamicImport {
+                                provider: operation_module_provider,
+                                module: get_normalization_fragment_filename(fragment_name),
+                            },
+                        });
                     }
                 }
             }

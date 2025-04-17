@@ -16,8 +16,6 @@ import type {Options} from './useRefetchableFragmentInternal';
 import type {
   Disposable,
   FragmentType,
-  GraphQLResponse,
-  Observer,
   RefetchableFragment,
   Variables,
 } from 'relay-runtime';
@@ -146,6 +144,7 @@ hook usePaginationFragment<
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({
       fragment: fragmentNode.name,
       data: fragmentData,
@@ -169,14 +168,7 @@ hook usePaginationFragment<
 }
 
 hook useLoadMore<TVariables: Variables>(
-  args: $Diff<
-    UseLoadMoreFunctionArgs,
-    {
-      observer: Observer<GraphQLResponse>,
-      onReset: () => void,
-      ...
-    },
-  >,
+  args: Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
   const environment = useRelayEnvironment();
   const [isLoadingMore, reallySetIsLoadingMore] = useState(false);

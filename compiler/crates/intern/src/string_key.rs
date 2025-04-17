@@ -12,22 +12,22 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
+use schemars::JsonSchema;
 use schemars::gen::SchemaGenerator;
 use schemars::schema::InstanceType;
 use schemars::schema::Schema;
 use schemars::schema::SchemaObject;
 use schemars::schema::SingleOrVec;
-use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
 use serde::Serializer;
 
+pub use crate::Lookup;
 use crate::idhasher::BuildIdHasher;
 use crate::string;
 use crate::string::IntoUtf8Bytes;
 use crate::string::StringId;
-pub use crate::Lookup;
 
 // StringKey is a small impedence matcher around StringId.
 // NOTE in particular that it does NOT do de-duplicating serde.

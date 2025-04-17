@@ -7,9 +7,9 @@
 
 use std::fs::create_dir_all;
 
-use js_config_loader::search;
 use js_config_loader::ConfigError;
 use js_config_loader::ErrorCode;
+use js_config_loader::search;
 use serde::Deserialize;
 use tempfile::tempdir;
 

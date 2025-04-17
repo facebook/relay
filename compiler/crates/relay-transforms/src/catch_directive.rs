@@ -13,7 +13,6 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
@@ -24,6 +23,7 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::associated_data_impl;
 use intern::intern;
 use lazy_static::lazy_static;
 mod catchable_node;
@@ -31,10 +31,10 @@ mod validation_message;
 
 use self::catchable_node::CatchMetadata;
 use self::catchable_node::CatchableNode;
-use crate::catch_directive::validation_message::ValidationMessage;
-use crate::catch_directive::validation_message::ValidationMessageWithData;
 use crate::FragmentAliasMetadata;
 use crate::REQUIRED_DIRECTIVE_NAME;
+use crate::catch_directive::validation_message::ValidationMessage;
+use crate::catch_directive::validation_message::ValidationMessageWithData;
 
 lazy_static! {
     pub static ref CATCH_DIRECTIVE_NAME: DirectiveName = DirectiveName(intern!("catch"));

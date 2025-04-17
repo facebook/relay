@@ -7,8 +7,8 @@
 
 use std::path::PathBuf;
 
-use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
+use dashmap::mapref::entry::Entry;
 use docblock_shared::ResolverSourceHash;
 use graphql_ir::ExecutableDefinitionName;
 use relay_codegen::QueryID;

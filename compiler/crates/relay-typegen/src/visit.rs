@@ -10,10 +10,10 @@ use std::hash::Hash;
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use ::intern::Lookup;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::Lookup;
 use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
@@ -32,20 +32,23 @@ use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
-use indexmap::map::Entry;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
+use indexmap::map::Entry;
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
 use relay_config::ResolverContextTypeInput;
 use relay_config::TypegenLanguage;
-use relay_schema::definitions::ResolverType;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
-use relay_transforms::relay_resolvers::ResolverSchemaGenType;
+use relay_schema::definitions::ResolverType;
+use relay_transforms::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
+use relay_transforms::CATCH_DIRECTIVE_NAME;
+use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
+use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::CatchMetadataDirective;
 use relay_transforms::CatchTo;
 use relay_transforms::ClientEdgeMetadata;
@@ -53,16 +56,13 @@ use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
+use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
 use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::TypeConditionInfo;
-use relay_transforms::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
-use relay_transforms::CATCH_DIRECTIVE_NAME;
-use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
-use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
-use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
+use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use schema::EnumID;
 use schema::Field;
 use schema::ObjectID;
@@ -72,6 +72,24 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
+use crate::FRAGMENT_PROP_NAME;
+use crate::KEY_DATA_ID;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_TYPENAME;
+use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
+use crate::LIVE_STATE_TYPE;
+use crate::MODULE_COMPONENT;
+use crate::MaskStatus;
+use crate::RESPONSE;
+use crate::RESULT_TYPE_NAME;
+use crate::TYPE_BOOLEAN;
+use crate::TYPE_FLOAT;
+use crate::TYPE_ID;
+use crate::TYPE_INT;
+use crate::TYPE_STRING;
+use crate::TypegenContext;
+use crate::VARIABLES;
 use crate::type_selection::ModuleDirective;
 use crate::type_selection::RawResponseFragmentSpread;
 use crate::type_selection::ScalarFieldSpecialSchemaField;
@@ -96,6 +114,7 @@ use crate::typegen_state::MatchFields;
 use crate::typegen_state::ResolverContextType;
 use crate::typegen_state::RuntimeImports;
 use crate::write::CustomScalarsImports;
+use crate::writer::AST;
 use crate::writer::ExactObject;
 use crate::writer::FunctionTypeAssertion;
 use crate::writer::GetterSetterPairProp;
@@ -106,25 +125,6 @@ use crate::writer::SortedASTList;
 use crate::writer::SortedStringKeyList;
 use crate::writer::SpreadProp;
 use crate::writer::StringLiteral;
-use crate::writer::AST;
-use crate::MaskStatus;
-use crate::TypegenContext;
-use crate::FRAGMENT_PROP_NAME;
-use crate::KEY_DATA_ID;
-use crate::KEY_FRAGMENT_SPREADS;
-use crate::KEY_FRAGMENT_TYPE;
-use crate::KEY_TYPENAME;
-use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
-use crate::LIVE_STATE_TYPE;
-use crate::MODULE_COMPONENT;
-use crate::RESPONSE;
-use crate::RESULT_TYPE_NAME;
-use crate::TYPE_BOOLEAN;
-use crate::TYPE_FLOAT;
-use crate::TYPE_ID;
-use crate::TYPE_INT;
-use crate::TYPE_STRING;
-use crate::VARIABLES;
 
 lazy_static! {
     static ref THROW_ON_FIELD_ERROR_DIRECTIVE: DirectiveName =
@@ -1093,6 +1093,7 @@ fn visit_actor_change(
         value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
             selections_to_babel(
                 typegen_context,
+                &field.type_.inner(),
                 linked_field_selections.into_iter(),
                 MaskStatus::Masked,
                 None,
@@ -1368,6 +1369,7 @@ fn visit_condition(
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn get_data_type(
     typegen_context: &'_ TypegenContext<'_>,
+    concrete_type: &Type,
     selections: impl Iterator<Item = TypeSelection>,
     mask_status: MaskStatus,
     fragment_type_name: Option<StringKey>,
@@ -1381,6 +1383,7 @@ pub(crate) fn get_data_type(
 ) -> AST {
     let mut data_type = selections_to_babel(
         typegen_context,
+        concrete_type,
         selections,
         mask_status,
         fragment_type_name,
@@ -1402,6 +1405,7 @@ pub(crate) fn get_data_type(
 #[allow(clippy::too_many_arguments)]
 fn selections_to_babel(
     typegen_context: &'_ TypegenContext<'_>,
+    concrete_type: &Type,
     selections: impl Iterator<Item = TypeSelection>,
     mask_status: MaskStatus,
     fragment_type_name: Option<StringKey>,
@@ -1441,7 +1445,7 @@ fn selections_to_babel(
         }
     }
 
-    if should_emit_discriminated_union(&by_concrete_type, &base_fields) {
+    if should_emit_discriminated_union(concrete_type, &by_concrete_type, &base_fields) {
         get_discriminated_union_ast(
             by_concrete_type,
             &base_fields,
@@ -1660,11 +1664,15 @@ fn get_discriminated_union_ast(
 ///
 /// If this condition passes, we emit a discriminated union
 fn should_emit_discriminated_union(
+    concrete_type: &Type,
     by_concrete_type: &IndexMap<Type, Vec<TypeSelection>>,
     base_fields: &IndexMap<StringKey, TypeSelection>,
 ) -> bool {
-    !by_concrete_type.is_empty()
-        && base_fields.values().all(TypeSelection::is_typename)
+    if by_concrete_type.is_empty() || !concrete_type.is_abstract_type() {
+        return false;
+    }
+
+    base_fields.values().all(TypeSelection::is_typename)
         && (base_fields.values().any(TypeSelection::is_typename)
             || by_concrete_type
                 .values()
@@ -1889,6 +1897,7 @@ fn make_prop(
 
                 let getter_object_props = selections_to_babel(
                     typegen_context,
+                    &linked_field.node_type.inner(),
                     no_fragments.into_iter(),
                     mask_status,
                     None,
@@ -1980,6 +1989,7 @@ fn make_prop(
             } else {
                 let object_props = selections_to_babel(
                     typegen_context,
+                    &linked_field.node_type.inner(),
                     hashmap_into_values(linked_field.node_selections),
                     mask_status,
                     None,

@@ -13,10 +13,10 @@ use common::PerfLogger;
 use relay_config::ProjectName;
 use relay_transforms::Programs;
 
+use crate::NoopArtifactWriter;
 use crate::compiler::Compiler;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
-use crate::NoopArtifactWriter;
 
 /// Asynchronously compiles Relay programs and returns them along with the compiler state and configuration.
 ///

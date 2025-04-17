@@ -7,11 +7,10 @@
 
 use std::sync::Arc;
 
-use common::sync::*;
 use common::NamedItem;
 use common::PointerAddress;
+use common::sync::*;
 use dashmap::DashMap;
-use graphql_ir::node_identifier::NodeIdentifier;
 use graphql_ir::Condition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
@@ -21,12 +20,13 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
+use graphql_ir::node_identifier::NodeIdentifier;
 use relay_config::DeferStreamInterface;
 use schema::SDLSchema;
 
-use crate::util::is_relay_custom_inline_fragment_directive;
 use crate::ClientEdgeMetadataDirective;
 use crate::RelayLocationAgnosticBehavior;
+use crate::util::is_relay_custom_inline_fragment_directive;
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is

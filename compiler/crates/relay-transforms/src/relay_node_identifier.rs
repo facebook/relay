@@ -8,8 +8,8 @@
 use common::DirectiveName;
 use graphql_ir::node_identifier::LocationAgnosticBehavior;
 
-use crate::util::CustomMetadataDirectives;
 use crate::ModuleMetadata;
+use crate::util::CustomMetadataDirectives;
 
 #[derive(Clone)]
 pub struct RelayLocationAgnosticBehavior;

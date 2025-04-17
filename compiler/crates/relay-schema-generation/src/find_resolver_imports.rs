@@ -17,15 +17,15 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
 use common::SourceLocationKey;
+use hermes_estree::_Literal;
 use hermes_estree::Declaration;
 use hermes_estree::ImportDeclarationSpecifier;
 use hermes_estree::Visitor;
-use hermes_estree::_Literal;
 use rustc_hash::FxHashMap;
 use serde::Serialize;
 
-use crate::to_location;
 use crate::SchemaGenerationError;
+use crate::to_location;
 pub type JSModules = FxHashMap<StringKey, ModuleResolutionKey>;
 pub struct ImportExportVisitor {
     imports: JSModules,

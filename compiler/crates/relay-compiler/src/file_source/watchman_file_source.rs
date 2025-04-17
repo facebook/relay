@@ -20,8 +20,8 @@ use relay_saved_state_loader::SavedStateLoader;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 
-use super::watchman_query_builder::get_watchman_expr;
 use super::FileSourceResult;
+use super::watchman_query_builder::get_watchman_expr;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Error;

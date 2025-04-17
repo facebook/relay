@@ -10,8 +10,8 @@ use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use schema::build_schema_with_extensions;
-use schema_validate_lib::validate;
 use schema_validate_lib::SchemaValidationOptions;
+use schema_validate_lib::validate;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let result = build_schema_with_extensions::<&str, &str>(

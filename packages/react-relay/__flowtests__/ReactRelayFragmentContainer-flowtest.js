@@ -138,14 +138,7 @@ module.exports = {
         return bad ? 'not good' : ok;
       }
       render(): React.MixedElement {
-        return (
-          <Bar
-            componentRef={(ref: empty) => {
-              this._barRef = (ref: empty);
-            }}
-            requiredProp="bar"
-          />
-        );
+        return <Bar requiredProp="bar" />;
       }
     }
     return <ProxyChecker />;

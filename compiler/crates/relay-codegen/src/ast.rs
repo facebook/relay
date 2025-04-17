@@ -11,7 +11,7 @@ use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
-use relay_config::DynamicModuleProvider;
+use relay_config::ModuleProvider;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {
@@ -122,7 +122,7 @@ pub enum Primitive {
     // skip_printing_nulls is enabled
     SkippableNull,
     DynamicImport {
-        provider: DynamicModuleProvider,
+        provider: ModuleProvider,
         module: StringKey,
     },
     RelayResolverModel {

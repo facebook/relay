@@ -6,10 +6,10 @@
  */
 
 use common::SourceLocationKey;
-use graphql_ir::build;
-use graphql_ir::node_identifier::NodeIdentifier;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::Selection;
+use graphql_ir::build;
+use graphql_ir::node_identifier::NodeIdentifier;
 use graphql_syntax::parse_executable;
 use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::RelayLocationAgnosticBehavior;

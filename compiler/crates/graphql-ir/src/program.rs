@@ -11,13 +11,13 @@ use std::sync::Arc;
 use intern::BuildIdHasher;
 use schema::SDLSchema;
 
+use crate::ExecutableDefinitionName;
 use crate::ir::ExecutableDefinition;
 use crate::ir::FragmentDefinition;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::OperationDefinition;
 use crate::ir::OperationDefinitionName;
-use crate::ExecutableDefinitionName;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]

@@ -23,11 +23,11 @@ const invariant = require('invariant');
 /**
  * Returns original component class wrapped by e.g. createFragmentContainer
  */
-function unwrapContainer<Props>(
-  ComponentClass: React.ComponentType<
-    $RelayProps<Props, RelayProp | RelayPaginationProp | RelayRefetchProp>,
-  >,
-): React.ComponentType<Props> {
+function unwrapContainer<Props: {...}>(
+  ComponentClass: component(
+    ...$RelayProps<Props, RelayProp | RelayPaginationProp | RelayRefetchProp>
+  ),
+): component(...Props) {
   // $FlowExpectedError
   const unwrapped = ComponentClass.__ComponentClass;
   invariant(

@@ -12,19 +12,19 @@ use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
 use relay_docblock::validate_resolver_schema;
-use schema::parse_schema_with_extensions;
 use schema::SDLSchema;
 use schema::SchemaDocuments;
-use schema_validate_lib::validate;
+use schema::parse_schema_with_extensions;
 use schema_validate_lib::SchemaValidationOptions;
+use schema_validate_lib::validate;
 
 use super::build_resolvers_schema::build_resolver_types_schema_documents;
 use super::build_resolvers_schema::extend_schema_with_field_ir;
 use super::build_resolvers_schema::extract_docblock_ir;
+use crate::GraphQLAsts;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::ProjectConfig;
-use crate::GraphQLAsts;
 
 pub fn build_schema(
     compiler_state: &CompilerState,

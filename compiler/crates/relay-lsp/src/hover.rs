@@ -8,10 +8,10 @@
 //! Utilities for providing the hover feature
 
 use intern::Lookup;
-use lsp_types::request::HoverRequest;
-use lsp_types::request::Request;
 use lsp_types::LanguageString;
 use lsp_types::MarkedString;
+use lsp_types::request::HoverRequest;
+use lsp_types::request::Request;
 use resolution_path::ResolvePosition;
 use serde::Serialize;
 
@@ -114,9 +114,9 @@ fn get_open_schema_explorer_command_link(
 
 fn get_open_schema_explorer_command(params: &GraphQLSchemaExplorerParams<'_>) -> String {
     // see https://docs.rs/percent-encoding/2.1.0/percent_encoding/
-    use percent_encoding::utf8_percent_encode;
     use percent_encoding::AsciiSet;
     use percent_encoding::CONTROLS;
+    use percent_encoding::utf8_percent_encode;
 
     const FRAGMENT: AsciiSet = CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
 

@@ -14,10 +14,10 @@ use common::SourceLocationKey;
 use common::TextSource;
 use graphql_cli::DiagnosticPrinter;
 use intern::intern::Lookup;
-use schema::build_schema_with_extensions;
 use schema::SDLSchema;
-use schema_validate_lib::validate;
+use schema::build_schema_with_extensions;
 use schema_validate_lib::SchemaValidationOptions;
+use schema_validate_lib::validate;
 
 #[derive(Parser)]
 #[clap(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]

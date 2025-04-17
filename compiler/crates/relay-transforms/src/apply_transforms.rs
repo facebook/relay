@@ -7,20 +7,20 @@
 
 use std::sync::Arc;
 
-use common::sync::try_join;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::PerfLogEvent;
 use common::PerfLogger;
+use common::sync::try_join;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use relay_config::ProjectConfig;
 use validate_operation_variables::ValidateVariablesOptions;
 
 use super::*;
+use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::apply_custom_transforms::apply_after_custom_transforms;
 use crate::apply_custom_transforms::apply_before_custom_transforms;
-use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;

@@ -17,10 +17,9 @@ use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::List;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 
-use crate::in_memory::InMemorySchema;
 use crate::Argument;
 use crate::ArgumentDefinitions;
 use crate::ArgumentValue;
@@ -37,6 +36,7 @@ use crate::Schema;
 use crate::Type;
 use crate::TypeReference;
 use crate::UnionID;
+use crate::in_memory::InMemorySchema;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(schema);
@@ -627,8 +627,8 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 }
 
 fn get_mapped_location(location: DirectiveLocation) -> schema_flatbuffer::DirectiveLocation {
-    use schema_flatbuffer::DirectiveLocation as FDL;
     use DirectiveLocation as DL;
+    use schema_flatbuffer::DirectiveLocation as FDL;
     match location {
         DL::Query => FDL::Query,
         DL::Mutation => FDL::Mutation,

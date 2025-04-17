@@ -29,7 +29,9 @@ import type {RelayErrorTrie} from './RelayErrorTrie';
 import type {
   FollowupPayload,
   HandleFieldPayload,
+  IdCollisionTypenameLogEvent,
   IncrementalDataPlaceholder,
+  LogFunction,
   MutableRecordSource,
   NormalizationSelector,
   Record,
@@ -72,6 +74,7 @@ export type GetDataID = (
 export type NormalizationOptions = {
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
+  +log: ?LogFunction,
   +path?: $ReadOnlyArray<string>,
   +shouldProcessClientComponents?: ?boolean,
   +actorIdentifier?: ?ActorIdentifier,
@@ -116,6 +119,7 @@ class RelayResponseNormalizer {
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
   _errorTrie: RelayErrorTrie | null;
+  _log: ?LogFunction;
 
   constructor(
     recordSource: MutableRecordSource,
@@ -134,6 +138,7 @@ class RelayResponseNormalizer {
     this._recordSource = recordSource;
     this._variables = variables;
     this._shouldProcessClientComponents = options.shouldProcessClientComponents;
+    this._log = options.log;
   }
 
   normalizeResponse(
@@ -792,26 +797,32 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     payload: Object,
   ): void {
-    const log = RelayFeatureFlags.LOG_STORE_ID_COLLISION;
-    if (log) {
+    if (RelayFeatureFlags.ENABLE_STORE_ID_COLLISION_LOGGING) {
       const typeName = field.concreteType ?? this._getRecordType(payload);
       const dataID = RelayModernRecord.getDataID(record);
-      const shouldLogWarning =
+      const expected =
         (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName;
-      if (shouldLogWarning) {
-        log({name: 'idCollision.typename'});
+      if (!expected) {
+        const logEvent: IdCollisionTypenameLogEvent = {
+          name: 'idCollision.typename',
+          previous_typename: RelayModernRecord.getType(record),
+          new_typename: typeName,
+        };
+        if (this._log != null) {
+          this._log(logEvent);
+        }
       }
     }
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {
       const typeName = field.concreteType ?? this._getRecordType(payload);
       const dataID = RelayModernRecord.getDataID(record);
-      const shouldLogWarning =
+      const expected =
         (isClientID(dataID) && dataID !== ROOT_ID) ||
         RelayModernRecord.getType(record) === typeName;
       warning(
-        shouldLogWarning,
+        expected,
         'RelayResponseNormalizer: Invalid record `%s`. Expected %s to be ' +
           'consistent, but the record was assigned conflicting types `%s` ' +
           'and `%s`. The GraphQL server likely violated the globally unique ' +
@@ -832,27 +843,16 @@ class RelayResponseNormalizer {
     storageKey: string,
     fieldValue: mixed,
   ): void {
-    const log = RelayFeatureFlags.LOG_STORE_ID_COLLISION;
-    if (log) {
-      const previousValue = RelayModernRecord.getValue(record, storageKey);
-      const shouldLogWarning =
-        storageKey === TYPENAME_KEY ||
-        previousValue === undefined ||
-        areEqual(previousValue, fieldValue);
-      if (shouldLogWarning) {
-        log({name: 'idCollision.field'});
-      }
-    }
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {
       const previousValue = RelayModernRecord.getValue(record, storageKey);
       const dataID = RelayModernRecord.getDataID(record);
-      const shouldLogWarning =
+      const expected =
         storageKey === TYPENAME_KEY ||
         previousValue === undefined ||
         areEqual(previousValue, fieldValue);
       warning(
-        shouldLogWarning,
+        expected,
         'RelayResponseNormalizer: Invalid record. The record contains two ' +
           'instances of the same id: `%s` with conflicting field, %s and its values: %s and %s. ' +
           'If two fields are different but share ' +
@@ -873,18 +873,11 @@ class RelayResponseNormalizer {
     nextID: DataID,
     storageKey: string,
   ): void {
-    const log = RelayFeatureFlags.LOG_STORE_ID_COLLISION;
-    if (log) {
-      const shouldLogWarning = prevID === undefined || prevID === nextID;
-      if (shouldLogWarning) {
-        log({name: 'idCollision.field'});
-      }
-    }
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {
-      const shouldLogWarning = prevID === undefined || prevID === nextID;
+      const expected = prevID === undefined || prevID === nextID;
       warning(
-        shouldLogWarning,
+        expected,
         'RelayResponseNormalizer: Invalid record. The record contains ' +
           'references to the conflicting field, %s and its id values: %s and %s. ' +
           'We need to make sure that the record the field points ' +

@@ -35,7 +35,9 @@ const {
 } = require('react');
 const {getRequest} = require('relay-runtime');
 
-const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
+const initialNullQueryReferenceState: NullQueryReference = {
+  kind: 'NullQueryReference',
+};
 
 function requestIsLiveQuery<
   TVariables: Variables,

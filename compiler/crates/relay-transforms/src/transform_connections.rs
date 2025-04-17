@@ -7,10 +7,10 @@
 
 use std::sync::Arc;
 
+use ::intern::Lookup;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::Lookup;
 use common::ArgumentName;
 use common::Location;
 use common::NamedItem;
@@ -37,18 +37,18 @@ use graphql_ir::VariableDefinition;
 use relay_config::DeferStreamInterface;
 use schema::Schema;
 
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::connections::ConnectionMetadata;
+use crate::connections::ConnectionMetadataDirective;
 use crate::connections::assert_connection_selections;
 use crate::connections::build_connection_metadata;
 use crate::connections::build_edge_selections;
 use crate::connections::build_page_info_selections;
 use crate::connections::extract_connection_directive;
 use crate::connections::get_default_filters;
-use crate::connections::ConnectionConstants;
-use crate::connections::ConnectionInterface;
-use crate::connections::ConnectionMetadata;
-use crate::connections::ConnectionMetadataDirective;
-use crate::handle_fields::build_handle_field_directive_from_connection_directive;
 use crate::handle_fields::KEY_ARG_NAME;
+use crate::handle_fields::build_handle_field_directive_from_connection_directive;
 use crate::refetchable_fragment::build_used_global_variables;
 use crate::relay_directive::PLURAL_ARG_NAME;
 use crate::relay_directive::RELAY_DIRECTIVE_NAME;

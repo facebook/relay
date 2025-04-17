@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fixture_tests::assert_file_contains;
 use fixture_tests::WORKSPACE_ROOT;
+use fixture_tests::assert_file_contains;
 use relay_compiler::ConfigFile;
 
 #[tokio::test]

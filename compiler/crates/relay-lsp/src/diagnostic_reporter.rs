@@ -9,20 +9,18 @@
 use std::path::Path;
 use std::path::PathBuf;
 
-use common::get_diagnostics_data;
 use common::Diagnostic as CompilerDiagnostic;
 use common::DiagnosticRelatedInformation;
 use common::Location;
 use common::TextSource;
+use common::get_diagnostics_data;
 use crossbeam::channel::Sender;
-use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
+use dashmap::mapref::entry::Entry;
 use dunce::canonicalize;
 use extract_graphql::JavaScriptSourceFeature;
 use lsp_server::Message;
 use lsp_server::Notification as ServerNotification;
-use lsp_types::notification::Notification;
-use lsp_types::notification::PublishDiagnostics;
 use lsp_types::Diagnostic;
 use lsp_types::DiagnosticRelatedInformation as LspDiagnosticRelatedInformation;
 use lsp_types::DiagnosticSeverity;
@@ -32,11 +30,13 @@ use lsp_types::Position;
 use lsp_types::PublishDiagnosticsParams;
 use lsp_types::Range;
 use lsp_types::Url;
+use lsp_types::notification::Notification;
+use lsp_types::notification::PublishDiagnostics;
+use relay_compiler::FsSourceReader;
+use relay_compiler::SourceReader;
 use relay_compiler::errors::BuildProjectError;
 use relay_compiler::errors::Error;
 use relay_compiler::source_for_location;
-use relay_compiler::FsSourceReader;
-use relay_compiler::SourceReader;
 
 use crate::lsp_process_error::LSPProcessResult;
 
@@ -367,8 +367,8 @@ mod tests {
     use lsp_types::Range;
     use relay_compiler::SourceReader;
 
-    use super::is_sub_range;
     use super::DiagnosticReporter;
+    use super::is_sub_range;
 
     struct MockSourceReader(String);
 

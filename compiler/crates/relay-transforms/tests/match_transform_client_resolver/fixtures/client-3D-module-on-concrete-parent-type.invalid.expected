@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-# expected-to-throw
 fragment NameRendererFragment on Persona {
   id
   basicUser {
@@ -24,11 +23,37 @@ type BasicUser @__RelayResolverModel {
   address: String
   __relay_model_instance: RelayResolverValue @relay_resolver(import_path: "ClientUserResolver", fragment_name: "ClientUser__id", inject_fragment_data: "id")
 }
-==================================== ERROR ====================================
-✖︎ @module was used on a fragment with a concrete parent type: 'BasicUser'. The parent type should be an interface or union.
+==================================== OUTPUT ===================================
+fragment ClientUser_Fragment on BasicUser {
+  name
+  address
+}
 
-  client-3D-module-on-concrete-parent-type.invalid.graphql:5:8
-    4 │   basicUser {
-    5 │     ...ClientUser_Fragment @module(name: "ClientUser.react")
-      │        ^^^^^^^^^^^^^^^^^^^
-    6 │   }
+fragment NameRendererFragment on Persona {
+  id
+  basicUser {
+    ... on BasicUser {
+      ... on BasicUser @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: client-3D-module-on-concrete-parent-type.invalid.graphql:89:96,
+      #     key: "NameRendererFragment",
+      #     module_id: "NameRendererFragment.basicUser",
+      #     module_name: "ClientUser.react",
+      #     source_document_name: FragmentDefinitionName(
+      #         FragmentDefinitionName(
+      #             "NameRendererFragment",
+      #         ),
+      #     ),
+      #     read_time_resolvers: true,
+      #     fragment_name: FragmentDefinitionName(
+      #         "ClientUser_Fragment",
+      #     ),
+      #     fragment_source_location: client-3D-module-on-concrete-parent-type.invalid.graphql:139:158,
+      #     no_inline: false,
+      # }
+       {
+        ...ClientUser_Fragment
+      }
+    }
+  }
+}

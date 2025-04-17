@@ -6,9 +6,9 @@
  */
 
 use std::fs;
+use std::path::MAIN_SEPARATOR;
 use std::path::Path;
 use std::path::PathBuf;
-use std::path::MAIN_SEPARATOR;
 
 use fnv::FnvHashMap;
 use walkdir::WalkDir;

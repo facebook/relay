@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {DeclarativeMutationConfig} from '../../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {RequestParameters} from '../../util/RelayConcreteNode';
@@ -109,7 +110,7 @@ describe('requestSubscription-test', () => {
       }
     `;
 
-    const configs = [
+    const configs: DeclarativeMutationConfig[] = [
       {
         type: 'RANGE_ADD',
         connectionName: 'comments',

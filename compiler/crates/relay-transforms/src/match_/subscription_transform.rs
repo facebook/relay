@@ -25,16 +25,16 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use schema::FieldID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
+use crate::ModuleMetadata;
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::get_normalization_operation_name;
-use crate::ModuleMetadata;
 
 pub fn transform_subscriptions(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = SubscriptionTransform::new(program);

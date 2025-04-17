@@ -8,9 +8,9 @@
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
-use graphql_syntax::parse_executable_with_features;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_features;
 use graphql_text_printer::print_ir;
 use relay_test_schema::TEST_SCHEMA;
 

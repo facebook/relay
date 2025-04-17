@@ -308,9 +308,9 @@ mod test {
     use graphql_syntax::parse_executable;
     use intern::string_key::Intern;
 
-    use super::create_node_resolution_info;
     use super::NodeKind;
     use super::NodeResolutionInfo;
+    use super::create_node_resolution_info;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
         let document =

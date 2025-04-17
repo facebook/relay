@@ -15,12 +15,12 @@ use std::hash::Hasher;
 use std::str::FromStr;
 use std::sync::Arc;
 
+use ::intern::BuildIdHasher;
+use ::intern::Lookup;
 use ::intern::impl_lookup;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::BuildIdHasher;
-use ::intern::Lookup;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -39,9 +39,9 @@ use schema::TypeReference;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::signatures::FragmentSignature;
 use crate::AssociatedData;
 use crate::ValidationMessage;
+use crate::signatures::FragmentSignature;
 // Definitions
 
 #[derive(Clone, Debug, Eq, PartialEq)]

@@ -9,11 +9,11 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
-use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
+use graphql_text_printer::print_operation;
 use relay_config::DeferStreamInterface;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;

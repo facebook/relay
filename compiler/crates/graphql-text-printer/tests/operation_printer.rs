@@ -9,9 +9,9 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_text_printer::print_full_operation;
 use relay_test_schema::TEST_SCHEMA;

@@ -11,7 +11,7 @@
 
 'use strict';
 
-import type {FetchPolicy, Subscription} from 'relay-runtime';
+import type {FetchPolicy, RenderPolicy, Subscription} from 'relay-runtime';
 
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const {
@@ -35,7 +35,7 @@ disallowConsoleErrors();
 describe('QueryResource', () => {
   let environment;
   let QueryResource;
-  let fetchPolicy;
+  let fetchPolicy: FetchPolicy;
   let fetchObservable;
   let fetchObservableMissingData;
   let fetchObserverableLiveMissingData;
@@ -46,7 +46,7 @@ describe('QueryResource', () => {
   let liveQueryMissingData;
   let gqlLiveQueryMissingData;
   let release;
-  let renderPolicy;
+  let renderPolicy: RenderPolicy;
   let store;
   const variables = {
     id: '4',
@@ -2894,7 +2894,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
   let gqlQuery;
   let query;
   let release;
-  let renderPolicy;
+  let renderPolicy: RenderPolicy;
   const variables = {
     id: '4',
   };

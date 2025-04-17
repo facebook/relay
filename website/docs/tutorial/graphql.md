@@ -1,6 +1,6 @@
 # GraphQL and Relay
 
-This section is an overview to situate Relay in relation to GraphQL, React, and the other parts of the stack. Don’t worry about understanding every detail, just try to get the gist and the proceed to the next section to start working with code. Much more specifics will be explained as we go through working examples throughout the tutorial.
+This section is an overview to situate Relay in relation to GraphQL, React, and the other parts of the stack. Don’t worry about understanding every detail, just try to get the gist and then proceed to the next section to start working with code. Much more specifics will be explained as we go through working examples throughout the tutorial.
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
@@ -165,7 +165,7 @@ Besides the compiler, Relay has runtime code that manages the fetching and proce
 
 The advantage of having a centralized Store is that it lets you keep your data consistent when it’s updated. For instance, if your UI has a way for somebody to edit their name, then you can make that update in a single place and every component that displays that person’s name will see the new information, even if they’re on different screens and therefore used different queries to initially retrieve the data. This is because Relay *normalizes* the data as it comes in, meaning that it merges all the data it sees for a single graph node into one place, so it doesn’t have multiple copies of the same node.
 
-Indeed, Relay doesn’t just query data, it provides for the entire lifecycle of querying and updating, including support for optimistic updates and rollbacks. You can paginate, refresh data — all of the basic operations you’ll need to create a UI. Whenever data in the Store is updated, Relay efficiently re-renders just those components that are displaying that particular data.
+Indeed, Relay doesn’t just query data, it provides functions to manage the for the entire lifecycle of querying and updating, including support for optimistic updates and rollbacks. You can paginate, refresh data — all of the basic operations you’ll need to create a UI. Whenever data in the Store is updated, Relay efficiently re-renders just those components that are displaying that particular data.
 
 ## Summary
 

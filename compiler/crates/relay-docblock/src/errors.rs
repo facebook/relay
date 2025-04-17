@@ -12,9 +12,9 @@ use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
-use crate::untyped_representation::AllowedFieldName;
 use crate::ON_INTERFACE_FIELD;
 use crate::ON_TYPE_FIELD;
+use crate::untyped_representation::AllowedFieldName;
 
 #[derive(
     Clone,

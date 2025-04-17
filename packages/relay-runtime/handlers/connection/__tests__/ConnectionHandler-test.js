@@ -72,7 +72,7 @@ describe('ConnectionHandler', () => {
     });
     sinkSource = new RelayRecordSource({});
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-    proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
+    proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID, null);
 
     ConnectionQuery = graphql`
       query ConnectionHandlerTestConnectionQuery(
@@ -296,7 +296,7 @@ describe('ConnectionHandler', () => {
       baseSource = new RelayRecordSource(baseSource.toJSON());
       sinkSource = new RelayRecordSource({});
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
+      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID, null);
 
       connection = ConnectionHandler.getConnection(
         proxy.get('4'),
@@ -425,7 +425,7 @@ describe('ConnectionHandler', () => {
       baseSource = new RelayRecordSource(simpleClone(baseSource.toJSON()));
       sinkSource = new RelayRecordSource({});
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
+      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID, null);
 
       connection = ConnectionHandler.getConnection(
         proxy.get('4'),
@@ -553,7 +553,7 @@ describe('ConnectionHandler', () => {
       baseSource = new RelayRecordSource(simpleClone(baseSource.toJSON()));
       sinkSource = new RelayRecordSource({});
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
+      proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID, null);
 
       connection = ConnectionHandler.getConnection(
         proxy.get('4'),
@@ -867,7 +867,7 @@ describe('ConnectionHandler', () => {
         baseSource = new RelayRecordSource(simpleClone(baseSource.toJSON()));
         sinkSource = new RelayRecordSource({});
         mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-        proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
+        proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID, null);
       });
 
       it('appends new edges', () => {

@@ -7,8 +7,8 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::validate_operation_variables;
 use relay_transforms::ValidateVariablesOptions;
+use relay_transforms::validate_operation_variables;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {

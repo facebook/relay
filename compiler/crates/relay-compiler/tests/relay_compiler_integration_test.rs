@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<18ad721b702d974f6b034f393230738d>>
+ * @generated SignedSource<<01b0ce9afb404f70b894d071b74bdc74>>
  */
 
 mod relay_compiler_integration;
@@ -87,6 +87,13 @@ async fn error_handling_query() {
     let input = include_str!("relay_compiler_integration/fixtures/error_handling_query.input");
     let expected = include_str!("relay_compiler_integration/fixtures/error_handling_query.expected");
     test_fixture(transform_fixture, file!(), "error_handling_query.input", "relay_compiler_integration/fixtures/error_handling_query.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_resolvers_directive_with_root_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected");
+    test_fixture(transform_fixture, file!(), "exec_resolvers_directive_with_root_fragment.input", "relay_compiler_integration/fixtures/exec_resolvers_directive_with_root_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

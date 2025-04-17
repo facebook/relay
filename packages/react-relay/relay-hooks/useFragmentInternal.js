@@ -26,6 +26,7 @@ hook useFragmentInternal(
 ): ?SelectorData | Array<?SelectorData> {
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
     // $FlowFixMe[react-rule-hook] - the condition is static
+    // $FlowFixMe[react-rule-hook-conditional]
     return useFragmentInternal_EXPERIMENTAL(
       fragmentNode,
       fragmentRef,
@@ -34,6 +35,7 @@ hook useFragmentInternal(
     );
   }
   // $FlowFixMe[react-rule-hook] - the condition is static
+  // $FlowFixMe[react-rule-hook-conditional]
   return useFragmentInternal_CURRENT(
     fragmentNode,
     fragmentRef,

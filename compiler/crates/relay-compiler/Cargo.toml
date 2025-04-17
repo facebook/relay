@@ -45,11 +45,11 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
-hex = "0.4.3"
-indexmap = { version = "2.2.6", features = ["arbitrary", "rayon", "serde"] }
+hex = { version = "0.4.3", features = ["alloc"] }
+indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
-lazy_static = "1.5"
+lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
 log = { version = "0.4.22", features = ["kv_unstable"] }
 md-5 = "0.10"
 persist-query = { path = "../persist-query" }
@@ -70,7 +70,7 @@ schema-validate-lib = { path = "../schema-validate" }
 schemars = { version = "0.8.21", features = ["indexmap2"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_bser = "0.4"
-serde_json = { version = "1.0.132", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.140", features = ["float_roundtrip", "unbounded_depth"] }
 sha1 = "0.10.5"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }
@@ -82,6 +82,6 @@ zstd = { version = "0.13", features = ["experimental", "zstdmt"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-futures-util = "0.3.30"
+futures-util = { version = "0.3.30", features = ["compat"] }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }

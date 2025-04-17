@@ -28,15 +28,15 @@ const {getFragment} = require('relay-runtime');
 const {useContext} = React;
 
 type ContainerCreator = (
-  Component: React.ComponentType<any>,
+  Component: component(...any),
   fragments: FragmentMap,
-) => React.ComponentType<any>;
+) => component(...any);
 
 /**
  * Helper to create the Relay HOCs with ref forwarding, setting the displayName
  * and reading the React context.
  */
-function buildReactRelayContainer<TBase: React.ComponentType<any>>(
+function buildReactRelayContainer<TBase: component(...empty)>(
   ComponentClass: TBase,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,

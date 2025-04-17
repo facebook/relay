@@ -205,10 +205,10 @@ fn create_impactful_part() -> String {
 mod tests {
     use std::collections::HashSet;
 
+    use super::DefinitionNameSuffix;
     use super::create_default_name;
     use super::create_default_name_with_index;
     use super::create_name_wrapper;
-    use super::DefinitionNameSuffix;
 
     #[test]
     fn test_create_default_name() {
@@ -330,8 +330,8 @@ mod tests {
 #[cfg(windows)]
 #[cfg(test)]
 mod tests {
-    use super::create_default_name;
     use super::DefinitionNameSuffix;
+    use super::create_default_name;
 
     #[test]
     fn test_create_default_name() {

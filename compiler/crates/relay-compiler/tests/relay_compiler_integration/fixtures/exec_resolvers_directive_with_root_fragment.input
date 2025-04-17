@@ -1,0 +1,30 @@
+//- User_foo.js
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ * @rootFragment UserFooFragment
+ */
+graphql`fragment UserFooFragment on User {
+  bar
+}`
+
+//- User_bar.js
+/**
+ * @RelayResolver User.bar: RelayResolverValue
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_exec_time_resolvers_directive": true
+  },
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

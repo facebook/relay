@@ -17,22 +17,23 @@ use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
 use errors::try3;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use lazy_static::lazy_static;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::suggestion_list::GraphQLSuggestions;
 
+use crate::VariableName;
 use crate::associated_data_impl;
+use crate::build::ValidationLevel;
 use crate::build::build_constant_value;
 use crate::build::build_directives;
 use crate::build::build_type_annotation;
 use crate::build::build_variable_definitions;
-use crate::build::ValidationLevel;
 use crate::build_directive;
 use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::MachineMetadataKey;
@@ -43,7 +44,6 @@ use crate::ir::FragmentDefinition;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
-use crate::VariableName;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();

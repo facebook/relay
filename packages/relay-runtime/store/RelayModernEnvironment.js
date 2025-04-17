@@ -132,6 +132,7 @@ class RelayModernEnvironment implements IEnvironment {
       config.handlerProvider ?? RelayDefaultHandlerProvider,
       this._getDataID,
       this._missingFieldHandlers,
+      this.__log,
     );
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;

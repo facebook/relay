@@ -17,7 +17,7 @@ import DocsRating from '@site/src/core/DocsRating';
 
 ## Compatibility between Relay Hooks and Containers
 
-Relay Hooks are fully compatible with Relay's [container-based APIs](../../api-reference/legacy-apis/), meaning that containers can render components that use Hooks, and vice-versa.
+Relay Hooks are fully compatible with Relay's container-based APIs, meaning that containers can render components that use Hooks, and vice-versa.
 
 This means that you can adopt Relay Hooks incrementally, either by using them exclusively for new code, or by migrating specific parts of your app, without affecting the rest of your existing application.
 

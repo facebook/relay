@@ -27,8 +27,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
-use crate::ValidationMessage;
 use crate::MATCH_CONSTANTS;
+use crate::ValidationMessage;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());

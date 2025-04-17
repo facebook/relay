@@ -222,10 +222,10 @@ export class GraphModeNormalizer {
       $streamID,
       __id: dataID,
       __typename: ROOT_TYPE,
-    };
+    } as RecordChunk;
     yield {
       $kind: 'Complete',
-    };
+    } as CompleteChunk;
   }
 
   *_flushFields(
@@ -247,9 +247,9 @@ export class GraphModeNormalizer {
         __typename: typename,
         __id: cacheKey,
         $streamID,
-      };
+      } as RecordChunk;
     } else if (Object.keys(fields).length > 0) {
-      yield {...fields, $kind: 'Extend', $streamID};
+      yield {...fields, $kind: 'Extend', $streamID} as ExtendChunk;
     }
     return $streamID;
   }

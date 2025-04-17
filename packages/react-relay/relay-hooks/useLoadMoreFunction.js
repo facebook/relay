@@ -67,9 +67,11 @@ hook useLoadMoreFunction<TVariables: Variables>(
 ): [LoadMoreFn<TVariables>, boolean, () => void] {
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
     // $FlowFixMe[react-rule-hook] - the condition is static
+    // $FlowFixMe[react-rule-hook-conditional]
     return useLoadMoreFunction_EXPERIMENTAL(args);
   }
   // $FlowFixMe[react-rule-hook] - the condition is static
+  // $FlowFixMe[react-rule-hook-conditional]
   return useLoadMoreFunction_CURRENT(args);
 }
 

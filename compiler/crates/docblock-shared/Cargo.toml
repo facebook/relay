@@ -10,8 +10,8 @@ license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-hex = "0.4.3"
+hex = { version = "0.4.3", features = ["alloc"] }
 intern = { path = "../intern" }
-lazy_static = "1.5"
+lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
 md-5 = "0.10"
 serde = { version = "1.0.185", features = ["derive", "rc"] }

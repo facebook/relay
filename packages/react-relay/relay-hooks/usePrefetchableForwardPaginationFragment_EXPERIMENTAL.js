@@ -410,6 +410,7 @@ hook usePrefetchableForwardPaginationFragment_EXPERIMENTAL<
 
   if (__DEV__) {
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({
       fragment: fragmentNode.name,
       data: fragmentData,

@@ -98,20 +98,14 @@ function createFragmentRef(id: string, owner: OperationDescriptor) {
 }
 
 describe.each([
-  ['Experimental', true, false],
-  ['Experimental + ResourceEffects', true, true],
-  ['Current', false, false],
+  ['Experimental', true],
+  ['Current', false],
 ])(
-  'useFragment (%s, ResourceEffects=%s)',
+  'useFragment (%s)',
   (name, ENABLE_ACTIVITY_COMPATIBILITY, ENABLE_RESOURCE_EFFECTS) => {
     beforeEach(() => {
       RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY =
         ENABLE_ACTIVITY_COMPATIBILITY;
-      // experimental_useResourceEffect is not yet available on experimental build for OSS testing
-      RelayFeatureFlags.ENABLE_RESOURCE_EFFECTS =
-        ENABLE_RESOURCE_EFFECTS &&
-        // $FlowFixMe[prop-missing]
-        typeof React.experimental_useResourceEffect === 'function';
 
       renderSpy = jest.fn<
         [useFragmentTestUserFragment$data | useFragmentTestUsersFragment$data],
@@ -303,7 +297,6 @@ describe.each([
       environment.mockClear();
       renderSpy.mockClear();
       RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = false;
-      RelayFeatureFlags.ENABLE_RESOURCE_EFFECTS = false;
     });
 
     it('handles environnment changes', () => {

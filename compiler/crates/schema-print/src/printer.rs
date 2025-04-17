@@ -10,9 +10,9 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
 use fnv::FnvHashMap;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use itertools::Itertools;
 use schema::*;
 

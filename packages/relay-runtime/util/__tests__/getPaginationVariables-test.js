@@ -11,10 +11,12 @@
 
 'use strict';
 
+import type {Direction} from '../getPaginationVariables';
+
 const getPaginationVariables = require('../getPaginationVariables');
 
 describe('getPaginationVariables', () => {
-  let direction;
+  let direction: Direction;
 
   describe('forward', () => {
     beforeEach(() => {

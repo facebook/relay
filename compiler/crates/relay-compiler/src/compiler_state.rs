@@ -10,8 +10,8 @@
 //! This module provides a way to manage the state of the Relay compiler, including the current project,
 //! schema, and other configuration options. It also provides methods for updating the state and
 //! generating artifacts.
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::env;
 use std::fmt;
 use std::fs::File as FsFile;
@@ -51,9 +51,6 @@ use crate::artifact_map::ArtifactSourceKey;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::file_source::categorize_files;
-use crate::file_source::extract_javascript_features_from_file;
-use crate::file_source::read_file_to_string;
 use crate::file_source::Clock;
 use crate::file_source::File;
 use crate::file_source::FileGroup;
@@ -62,6 +59,9 @@ use crate::file_source::LocatedDocblockSource;
 use crate::file_source::LocatedGraphQLSource;
 use crate::file_source::LocatedJavascriptSourceFeatures;
 use crate::file_source::SourceControlUpdateStatus;
+use crate::file_source::categorize_files;
+use crate::file_source::extract_javascript_features_from_file;
+use crate::file_source::read_file_to_string;
 
 /// Set of project names.
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, Hash, JsonSchema)]
@@ -914,11 +914,11 @@ fn extract_sources(
 /// which requires "self descriptive" serialization formats and `bincode` does not
 /// support those enums.
 mod clock_json_string {
+    use serde::Deserializer;
+    use serde::Serializer;
     use serde::de::Error as DeserializationError;
     use serde::de::Visitor;
     use serde::ser::Error as SerializationError;
-    use serde::Deserializer;
-    use serde::Serializer;
 
     use crate::file_source::Clock;
 

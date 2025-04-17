@@ -31,7 +31,6 @@ let gqlFragment;
 let variables;
 let renderSpy;
 
-// TODO(T83890478): enable once double invoked effects lands in xplat
 describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
   beforeEach(() => {
     // Set up feature flags
@@ -144,6 +143,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     // Assert render state of component after double invoked effects
     expect(renderLogs).toEqual([
       'render: Alice',
+      'render: Alice',
       'commit: Alice',
       'cleanup: Alice',
       'commit: Alice',
@@ -164,6 +164,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
 
     // Assert render state of component after double invoked effects
     expect(renderLogs).toEqual([
+      'render: Alice Updated',
       'render: Alice Updated',
       'cleanup: Alice',
       'commit: Alice Updated',

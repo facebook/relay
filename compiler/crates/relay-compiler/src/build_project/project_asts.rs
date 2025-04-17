@@ -6,9 +6,9 @@
  */
 
 use common::Diagnostic;
-use dependency_analyzer::get_reachable_ast;
 use dependency_analyzer::ExecutableDefinitionNameSet;
 use dependency_analyzer::ReachableAst;
+use dependency_analyzer::get_reachable_ast;
 use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
@@ -20,8 +20,8 @@ use relay_transforms::get_resolver_fragment_dependency_name;
 use schema::SDLSchema;
 use schema::Schema;
 
-use crate::errors::BuildProjectError;
 use crate::GraphQLAsts;
+use crate::errors::BuildProjectError;
 
 pub struct ProjectAsts {
     pub changed_names: ExecutableDefinitionNameSet,

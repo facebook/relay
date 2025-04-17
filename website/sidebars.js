@@ -105,11 +105,6 @@ const Guides = {
     'guided-tour/reusing-cached-data/rendering-partially-cached-data',
     'guided-tour/reusing-cached-data/filling-in-missing-data',
     'guided-tour/managing-data-outside-react/retaining-queries',
-    // These were already commented out
-    // 'guided-tour/managing-data-outside-react/prefetching-queries',
-    // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
-    // 'guided-tour/managing-data-outside-react/reading-queries',
-    // 'guided-tour/managing-data-outside-react/reading-fragments',
   ],
   'Client Side Data': [
     {
@@ -159,11 +154,12 @@ module.exports = {
   docs: [
     'home',
     {
-      Installation: [
-        'getting-started/prerequisites',
-        'getting-started/installation-and-setup',
-        'editor-support',
+      'Get Started': [
+        'getting-started/quick-start',
+        'getting-started/babel-plugin',
         'getting-started/compiler',
+        'editor-support',
+        'getting-started/production',
       ],
       Tutorial: [
         'tutorial/intro',
@@ -212,6 +208,7 @@ module.exports = {
             'api-reference/entrypoint-apis/entrypoint-container',
           ],
           'Relay Runtime': [
+            'api-reference/relay-runtime/relay-environment',
             'api-reference/relay-runtime/fetch-query',
             'api-reference/relay-runtime/store',
             'api-reference/relay-runtime/field-logger',
@@ -229,7 +226,6 @@ module.exports = {
           ],
         },
         'api-reference/graphql/graphql-directives',
-        'api-reference/legacy-apis/legacy-apis',
       ],
       'Testing and Debugging': [
         'guides/testing-relay-components',
@@ -256,11 +252,6 @@ module.exports = {
           ],
         }),
         'error-reference/unknown-field',
-      ],
-      'Migration and Compatibility': [
-        'migration-and-compatibility/upgrading-to-relay-hooks',
-        'migration-and-compatibility/suspense-compatibility',
-        'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
       ],
       'Principles and Architecture': [
         'principles-and-architecture/thinking-in-graphql',

@@ -14,13 +14,7 @@
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
 import type {Options} from './useRefetchableFragmentNode';
 import type {RefetchableFragment} from 'relay-runtime';
-import type {
-  Disposable,
-  FragmentType,
-  GraphQLResponse,
-  Observer,
-  Variables,
-} from 'relay-runtime';
+import type {Disposable, FragmentType, Variables} from 'relay-runtime';
 
 const useLoadMoreFunction = require('../useLoadMoreFunction');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
@@ -169,16 +163,7 @@ hook useBlockingPaginationFragment<
 hook useLoadMore<TVariables: Variables>(args: {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
-  ...$Exact<
-    $Diff<
-      UseLoadMoreFunctionArgs,
-      {
-        observer: Observer<GraphQLResponse>,
-        onReset: () => void,
-        ...
-      },
-    >,
-  >,
+  ...$Exact<Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>>,
 }): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
   const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(

@@ -10,9 +10,9 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::sync::Arc;
 
+use ::intern::Lookup;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::Lookup;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -24,7 +24,6 @@ use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
@@ -45,6 +44,7 @@ use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use graphql_ir::associated_data_impl;
 use indexmap::IndexSet;
 use relay_config::DeferStreamInterface;
 use relay_config::ModuleImportConfig;
@@ -58,13 +58,13 @@ use schema::TypeReference;
 use schema::UnionID;
 
 use super::validation_message::ValidationMessage;
+use crate::FragmentAliasMetadata;
+use crate::INLINE_DIRECTIVE_NAME;
 use crate::fragment_alias_directive::FRAGMENT_ALIAS_DIRECTIVE_NAME;
 use crate::match_::MATCH_CONSTANTS;
 use crate::no_inline::attach_no_inline_directives_to_fragments;
 use crate::no_inline::validate_required_no_inline_directive;
-use crate::util::get_normalization_operation_name;
-use crate::FragmentAliasMetadata;
-use crate::INLINE_DIRECTIVE_NAME;
+use crate::util::get_normalization_fragment_filename;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
@@ -602,11 +602,10 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             module_directive.name.location,
         )];
 
-        let mut normalization_name = get_normalization_operation_name(spread.fragment.item.0);
-        normalization_name.push_str(".graphql");
+        let normalization_name = get_normalization_fragment_filename(spread.fragment.item);
         let mut operation_field_arguments = vec![build_string_literal_argument(
             MATCH_CONSTANTS.js_field_module_arg,
-            normalization_name.intern(),
+            normalization_name,
             module_directive.name.location,
         )];
 
@@ -1104,12 +1103,23 @@ fn validate_parent_type_of_fragment_with_read_time_resolver(
             transform.relay_resolver_model_unions.insert(id);
         }
         Type::Object(id) => {
-            return Err(Diagnostic::error(
-                ValidationMessage::InvalidModuleOnConcreteParentType {
-                    object_name: transform.program.schema.object(id).name.item,
-                },
-                spread.fragment.location,
-            ));
+            let object_has_read_time_resolver = transform
+                .program
+                .schema
+                .object(id)
+                .directives
+                .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+                .is_some();
+
+            if !object_has_read_time_resolver {
+                return Err(Diagnostic::error(
+                    ValidationMessage::MissingRelayResolverModelForObject {
+                        spread_name: spread.fragment.item,
+                        object: transform.program.schema.object(id).name.item,
+                    },
+                    spread.fragment.location,
+                ));
+            }
         }
         Type::Enum(_) | Type::Scalar(_) | Type::InputObject(_) => {
             panic!(

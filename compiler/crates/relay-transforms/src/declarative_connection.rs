@@ -24,17 +24,17 @@ use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::suggestion_list::did_you_mean;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeWithFields;
+use schema::suggestion_list::GraphQLSuggestions;
+use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
 use crate::connections::ConnectionInterface;
-use crate::handle_fields::build_handle_field_directive;
 use crate::handle_fields::HandleFieldDirectiveValues;
+use crate::handle_fields::build_handle_field_directive;
 
 pub fn transform_declarative_connection(
     program: &Program,

@@ -7,14 +7,12 @@
 
 use std::sync::Arc;
 
-use common::sync::*;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
 use common::PointerAddress;
+use common::sync::*;
 use fnv::FnvHashMap;
-use graphql_ir::node_identifier::LocationAgnosticPartialEq;
-use graphql_ir::node_identifier::NodeIdentifier;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -25,19 +23,21 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::TransformedValue;
+use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+use graphql_ir::node_identifier::NodeIdentifier;
 use parking_lot::Mutex;
 use parking_lot::RwLock;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-use crate::handle_fields::HANDLER_ARG_NAME;
-use crate::handle_fields::KEY_ARG_NAME;
-use crate::util::is_relay_custom_inline_fragment_directive;
-use crate::util::CustomMetadataDirectives;
 use crate::ModuleMetadata;
 use crate::RelayLocationAgnosticBehavior;
 use crate::ValidationMessage;
+use crate::handle_fields::HANDLER_ARG_NAME;
+use crate::handle_fields::KEY_ARG_NAME;
+use crate::util::CustomMetadataDirectives;
+use crate::util::is_relay_custom_inline_fragment_directive;
 
 type SeenLinkedFields = Arc<RwLock<FnvHashMap<PointerAddress, TransformedValue<Arc<LinkedField>>>>>;
 type SeenInlineFragments =

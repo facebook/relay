@@ -69,14 +69,14 @@ type ContainerState = {
  */
 function createContainerWithFragments<
   Props: {...},
-  TComponent: React.ComponentType<Props>,
+  TComponent: component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
   taggedNode: GraphQLTaggedNode,
-): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
-> {
+): component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
+) {
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
@@ -486,13 +486,13 @@ function getRelayProp(
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<Props: {...}, TComponent: React.ComponentType<Props>>(
+function createContainer<Props: {...}, TComponent: component(...Props)>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
   taggedNode: GraphQLTaggedNode,
-): React.ComponentType<
-  $RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>,
-> {
+): component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
+) {
   // $FlowFixMe[incompatible-return]
   return buildReactRelayContainer(
     Component,

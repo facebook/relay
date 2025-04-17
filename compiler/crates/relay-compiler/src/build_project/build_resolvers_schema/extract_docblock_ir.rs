@@ -13,18 +13,18 @@ use docblock_syntax::DocblockAST;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use relay_config::ProjectName;
-use relay_docblock::parse_docblock_ast;
 use relay_docblock::DocblockIr;
 use relay_docblock::ParseOptions;
 use relay_docblock::ResolverFieldDocblockIr;
 use relay_docblock::ResolverTypeDocblockIr;
+use relay_docblock::parse_docblock_ast;
 use rustc_hash::FxHashMap;
 
+use crate::GraphQLAsts;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 use crate::docblocks::parse_docblock_asts_from_sources;
-use crate::GraphQLAsts;
 
 #[derive(Default)]
 pub struct ExtractedDocblockIr {

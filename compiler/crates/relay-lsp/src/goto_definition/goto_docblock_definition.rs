@@ -9,10 +9,10 @@ use common::Span;
 use relay_docblock::DocblockIr;
 
 use super::DefinitionDescription;
-use crate::docblock_resolution_info::create_docblock_resolution_info;
-use crate::docblock_resolution_info::DocblockResolutionInfo;
-use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::LSPRuntimeResult;
+use crate::docblock_resolution_info::DocblockResolutionInfo;
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::lsp_runtime_error::LSPRuntimeError;
 
 pub fn get_docblock_definition_description(
     docblock_ir: &DocblockIr,

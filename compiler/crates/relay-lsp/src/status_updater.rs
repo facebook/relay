@@ -14,12 +14,12 @@ use crossbeam::channel::Sender;
 use lsp_server::Message;
 use lsp_server::Notification as ServerNotification;
 use lsp_server::Request as ServerRequest;
-use lsp_types::notification::Notification;
-use lsp_types::notification::ShowMessage;
-use lsp_types::request::Request;
 use lsp_types::MessageActionItem;
 use lsp_types::MessageType;
 use lsp_types::ShowMessageParams;
+use lsp_types::notification::Notification;
+use lsp_types::notification::ShowMessage;
+use lsp_types::request::Request;
 use serde::Deserialize;
 use serde::Serialize;
 

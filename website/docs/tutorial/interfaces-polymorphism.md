@@ -33,7 +33,7 @@ interface Actor {
 }
 ```
 
-Not coincidentally this is exactly the information that we’re displaying here. There are two types in the schema that *implement* Actor, meaning that they include all the fields defined in Actor and declare as such:
+Not coincidentally this is exactly the information that we’re displaying here. There are two types in the schema that *implement* Actor, meaning that they include all the fields defined in Actor. They are declared as such:
 
 ```
 type Person implements Actor {

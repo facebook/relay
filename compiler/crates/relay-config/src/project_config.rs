@@ -6,9 +6,9 @@
  */
 
 use std::fmt;
+use std::path::MAIN_SEPARATOR;
 use std::path::Path;
 use std::path::PathBuf;
-use std::path::MAIN_SEPARATOR;
 use std::sync::Arc;
 
 use common::DirectiveName;
@@ -24,22 +24,22 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use regex::Regex;
 use schemars::JsonSchema;
-use serde::de::Error;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
+use serde::de::Error;
 use serde_json::Value;
 
+use crate::JsModuleFormat;
+use crate::ProjectName;
+use crate::TypegenConfig;
+use crate::TypegenLanguage;
 use crate::connection_interface::ConnectionInterface;
 use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
-use crate::JsModuleFormat;
-use crate::ProjectName;
-use crate::TypegenConfig;
-use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 

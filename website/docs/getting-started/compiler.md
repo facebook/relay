@@ -7,167 +7,71 @@ keywords:
 - compiler
 ---
 
-import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRunningCompiler from '../guides/fb/FbRunningCompiler.md';
-import FbGraphQLSchema from '../guides/fb/FbGraphQLSchema.md';
-import FbImportingGeneratedDefinitions from '../guides/fb/FbImportingGeneratedDefinitions.md';
+Relay depends upon ahead-of-time compilation of GraphQL queries and fragments to generate artifacts that are used at runtime.
 
-## `graphql`
+The Relay compiler is a command line tool that reads GraphQL fragments, queries, and mutations in your JavaScript code and generates TypeScript/Flow types and additional JavaScript code that gets included in your code via [Relay's Babel Plugin](./babel-plugin.md).
 
-The `graphql` template tag provided by Relay serves as the mechanism to write queries, fragments, mutations and subscriptions in the [GraphQL](http://graphql.org/learn/) language. For example:
+This guide explains configuring and using the Relay Compiler.
 
-```javascript
-import {graphql} from 'react-relay';
+## Configuration
 
-graphql`
-  query MyQuery {
-    viewer {
-      id
-    }
-  }
-`;
-```
+The Relay compiler will look for a Relay config in the following locations. It's up to you to decide which location works best for your project.
 
-The result of using the `graphql` template tag is a `GraphQLTaggedNode`; a runtime representation of the GraphQL document.
+* `relay.config.json` in your project root
+* `relay.config.(js/mjs/ts)` in your project root
+* A `"relay"` key in your `package.json`
 
-Note that `graphql` template tags are **never executed at runtime**. Instead, they are compiled ahead of time by the Relay compiler into generated artifacts that live alongside your source code, and which Relay requires to operate at runtime.
+The Relay compiler config tells Relay things like where it can find your GraphQL schema and what language your code is writen in. A minimal Relay compiler config looks like this:
 
-
-## Compiler
-
-Relay uses the Relay Compiler to convert [`graphql`](#graphql) literals into generated files that live alongside your source files.
-
-A fragment like the following:
-
-```javascript
-graphql`
-  fragment MyComponent on Type {
-    field
-  }
-`
-```
-
-Will cause a generated file to appear in `./__generated__/MyComponent.graphql.js`,
-with both runtime artifacts (which help to read and write from the Relay Store)
-and [Flow types](https://flow.org/) to help you write type-safe code.
-
-The Relay Compiler is responsible for generating code as part of a build step which can then be referenced at runtime. By building the query ahead of time, the Relay's runtime is not responsible for generating a query string, and various optimizations can be performed on the query that could be too expensive at runtime (for example, fields that are duplicated in the query can be merged during the build step, to improve efficiency of processing the GraphQL response).
-
-### GraphQL Schema
-
-<FbInternalOnly>
-  <FbGraphQLSchema />
-</FbInternalOnly>
-
-<OssOnly>
-
-To use the Relay Compiler, you need a `.graphql` [GraphQL Schema](https://graphql.org/learn/schema/) file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
-
-```graphql
-schema {
-  query: Root
-}
-
-type Root {
-  dictionary: [Word]
-}
-
-type Word {
-  id: String!
-  definition: WordDefinition
-}
-
-type WordDefinition {
-  text: String
-  image: String
+```json title="relay.config.json"
+{
+  "src": "./src",
+  "schema": "./schema.graphql",
+  "language": "typescript"
 }
 ```
 
-</OssOnly>
+The compiler config is very powerful, and includes many specialized configuration options. These are not yet exhaustively documented. In the mean time see [relay-compiler-config-schema.json](https://github.com/facebook/relay/blob/main/compiler/crates/relay-compiler/relay-compiler-config-schema.json).
 
-### Running the Compiler
+:::tip
+Install the [Relay VSCode extension](../editor-support.md) to get autocomplete, hover tips, and type checking for the options in your relay config.
+:::
 
-<FbInternalOnly>
-  <FbRunningCompiler />
-</FbInternalOnly>
+## Running the compiler
 
-<OssOnly>
+It is generally recommended that you add a `scripts` entry to your `package.json` to make it easy to run the Relay compiler for your project.
 
-Additionally, you need a directory containing `.js` files that use the `graphql` tag to describe GraphQL queries and fragments. Let's call this `./src`.
-
-Then run `yarn run relay` as set up before.
-
-This will create a series of `__generated__` directories that are co-located with the corresponding files containing `graphql` tags.
-
-For example, given the two files:
-
--   `src/Components/DictionaryComponent.js`
-
-```javascript
-const DictionaryWordFragment = graphql`
-  fragment DictionaryComponent_word on Word {
-    id
-    definition {
-      ...DictionaryComponent_definition
-    }
+```json title="package.json"
+{
+  "scripts": {
+    // change-line
+    "relay": "relay-compiler"
   }
-`
-
-const DictionaryDefinitionFragment = graphql`
-  fragment DictionaryComponent_definition on WordDefinition {
-    text
-    image
-  }
-`
+}
 ```
 
--   `src/Queries/DictionaryQuery.js`
+With this added you can run the Relay compiler like so:
 
-```javascript
-const DictionaryQuery = graphql`
-  query DictionaryQuery {
-    dictionary {
-      ...DictionaryComponent_word
-    }
-  }
-`
+```sh
+npm run relay
 ```
 
-This would produce three generated files, and two `__generated__` directories:
+### Watch mode
 
--   `src/Components/__generated__/DictionaryComponent_word.graphql.js`
--   `src/Components/__generated__/DictionaryComponent_definition.graphql.js`
--   `src/Queries/__generated__/DictionaryQuery.graphql.js`
+If you have [watchman](https://facebook.github.io/watchman) installed you can pass `--watch` to the Relay compiler to have it continue running and automatically update generated files as you edit your product code:
 
-</OssOnly>
-
-
-### Importing generated definitions
-
-<FbInternalOnly>
-
-  <FbImportingGeneratedDefinitions />
-
-</FbInternalOnly>
-
-<OssOnly>
-
-Typically you will not need to import your generated definitions. The [Relay Babel plugin](../../getting-started/installation-and-setup#setup-babel-plugin-relay) will then convert the `graphql` literals in your code into `require()` calls for the generated files.
-
-However the Relay Compiler also automatically generates [Flow](https://flow.org) types as [type comments](https://flow.org/en/docs/types/comments/). For example, you can import the generated Flow types like so:
-
-```javascript
-import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';
+```sh
+npm run relay --watch
 ```
 
-More rarely, you may need to access a query, mutation, fragment or subscription from multiple files. In these cases, you can also import it directly:
+### Codemods
 
-```js
-import DictionaryComponent_word from './__generated__/DictionaryComponent_word.graphql';
+The Relay compiler supprts some built in codemods. Learn more in the [Codemods Guide](../guides/codemods.md).
+
+### Help
+
+To learn about the other capabilities of the Relay compiler see it's extensive `--help` output:
+
+```sh
+npm run relay --help
 ```
-
-</OssOnly>
-
-
-<DocsRating />

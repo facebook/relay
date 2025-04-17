@@ -154,11 +154,12 @@ module.exports = {
   docs: [
     'home',
     {
-      Installation: [
-        'getting-started/prerequisites',
-        'getting-started/installation-and-setup',
-        'editor-support',
+      'Get Started': [
+        'getting-started/quick-start',
+        'getting-started/babel-plugin',
         'getting-started/compiler',
+        'editor-support',
+        'getting-started/production',
       ],
       Tutorial: [
         'tutorial/intro',
@@ -207,6 +208,7 @@ module.exports = {
             'api-reference/entrypoint-apis/entrypoint-container',
           ],
           'Relay Runtime': [
+            'api-reference/relay-runtime/relay-environment',
             'api-reference/relay-runtime/fetch-query',
             'api-reference/relay-runtime/store',
             'api-reference/relay-runtime/field-logger',

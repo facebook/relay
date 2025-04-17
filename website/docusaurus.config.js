@@ -280,11 +280,15 @@ module.exports = {
             ],
           },
           {
-            to: '/docs/getting-started/step-by-step-guide/',
+            // Update on next versioned docs release
+            // to: '/docs/getting-started/quick-start',
+            to: '/docs/',
             from: ['/docs/en/quick-start-guide', '/docs/quick-start-guide'],
           },
           {
-            to: '/docs/getting-started/step-by-step-guide/',
+            // Update on next versioned docs release
+            // to: '/docs/getting-started/quick-start',
+            to: '/docs/',
             from: [
               '/docs/en/experimental/step-by-step',
               '/docs/experimental/step-by-step',

@@ -165,6 +165,8 @@ pub async fn test_fixture<T, U, V>(
         _ => {}
     };
 
+    // Trivial change
+
     let actual = format!("{}\n", actual.trim_end());
     let expected_file_path = workspace_root
         .join(source_file_path)

@@ -553,11 +553,9 @@ function updater(store: RecordSourceSelectorProxy) {
 
 
 
-_Managing connections with many filters:_
+### Managing connections with many filters
 
-As you can see, just adding a few filters to a connection can make the complexity and number of connection records that need to be managed explode. In order to more easily manage this, Relay provides 2 strategies:
-
-1) Specify exactly *which* filters should be used as connection identifiers.
+As you can see, just adding a few filters to a connection can make the complexity and number of connection records that need to be managed explode. In order to more easily manage this, Relay allows you to specify exactly *which* filters should be used as connection identifiers.
 
 By default, *all* non-pagination filters will be used as part of the connection identifier. However, when declaring a `@connection`, you can specify the exact set of filters to use for connection identity:
 
@@ -590,14 +588,5 @@ const storyFragment = graphql`
 * By specifying `filters` when declaring the `@connection`, we're indicating to Relay the exact set of filter values that should be used as part of connection identity. In this case, we're excluding `language`, which means that only values for `order_by` and `filter_mode` will affect connection identity and thus produce new connection records.
 * Conceptually, this means that we're specifying which arguments affect the output of the connection from the server, or in other words, which arguments are *actually* *filters*. If one of the connection arguments doesn't actually change the set of items that are returned from the server, or their ordering, then it isn't really a filter on the connection, and we don't need to identify the connection differently when that value changes. In our example, changing the `language` of the comments we request doesn't change the set of comments that are returned by the connection, so it is safe to exclude it from `filters`.
 * This can also be useful if we know that any of the connection arguments will never change in our app, in which case it would also be safe to exclude from `filters`.
-
-
-
-2) An easier API alternative to manage multiple connections with multiple filter values is still pending
-
-
-> TBD
-
-
 
 <DocsRating />

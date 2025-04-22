@@ -68,6 +68,8 @@ lazy_static! {
     // another test is trying to check the workspace root, it will get the wrong
     // value. To mitigate that risk we compute the workspace root only
     // once, before any tests run, and reuse that value for all tests.
+    pub static ref WORKSPACE_ROOT_MINIMAL: String = workspace_root_minimal();
+    pub static ref WORKSPACE_ROOT_MID: String = workspace_root_mid();
     pub static ref WORKSPACE_ROOT: PathBuf = workspace_root();
 }
 
@@ -108,7 +110,8 @@ pub async fn test_fixture<T, U, V>(
     V: std::fmt::Display,
 {
     // Test to see if this panics on its own before we call the static version
-    println!("Worspace root: {:?}", workspace_root());
+    println!("Worspace minimal: {}", WORKSPACE_ROOT_MINIMAL.clone());
+    println!("Worspace mid: {}", WORKSPACE_ROOT_MID.clone());
     // It's possible that a test will change the current directory leading to a
     // race condition where if an async test is running at the same time as
     // another test is trying to check the workspace root, it will get the wrong
@@ -222,5 +225,39 @@ fn workspace_root() -> PathBuf {
     } else {
         // Assuming we're building via Meta-internal BUCK setup, which executes tests from workspace root
         std::env::current_dir().unwrap()
+    }
+}
+
+fn workspace_root_minimal() -> String {
+    if let Ok(cargo) = std::env::var("CARGO") {
+        let output_result = Command::new(cargo)
+            .args(["locate-project", "--workspace", "--message-format=plain"])
+            .output();
+        format!("output_result {:?}", output_result)
+    } else {
+        // Assuming we're building via Meta-internal BUCK setup, which executes tests from workspace root
+        "no cargo".to_string()
+    }
+}
+
+fn workspace_root_mid() -> String {
+    if let Ok(cargo) = std::env::var("CARGO") {
+        let output_result = Command::new(cargo)
+            .args(["locate-project", "--workspace", "--message-format=plain"])
+            .output();
+        let stdout = match output_result {
+            Ok(output) => output.stdout,
+            Err(err) => {
+                panic!(
+                    "Failed to locate project from within {:?}: {:?}",
+                    std::env::current_dir(),
+                    err
+                )
+            }
+        };
+        std::str::from_utf8(&stdout).unwrap().to_string()
+    } else {
+        // Assuming we're building via Meta-internal BUCK setup, which executes tests from workspace root
+        "no cargo".to_string()
     }
 }

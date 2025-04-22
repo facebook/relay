@@ -107,6 +107,8 @@ pub async fn test_fixture<T, U, V>(
     U: std::fmt::Display,
     V: std::fmt::Display,
 {
+    // Test to see if this panics on its own before we call the static version
+    println!("Worspace root: {:?}", workspace_root());
     // It's possible that a test will change the current directory leading to a
     // race condition where if an async test is running at the same time as
     // another test is trying to check the workspace root, it will get the wrong

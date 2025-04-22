@@ -101,9 +101,9 @@ jobs:
           toolchain: nightly-2024-10-13
           override: true
       - name: "Run tests"
-        run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
+        run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} -- --nocapture
         env:
-           RUST_BACKTRACE: 1
+           RUST_BACKTRACE: full
 
   build-test-projects:
     name: Compiler output check (${{ matrix.target.os }})

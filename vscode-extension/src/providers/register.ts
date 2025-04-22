@@ -5,15 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {workspace} from 'vscode';
+import {workspace, ExtensionContext} from 'vscode';
 import {RelayExtensionContext} from '../context';
-import {RelayTextDocumentContentProvider} from './textDocumentContentProvider';
+import {
+  RelayTextDocumentContentProvider,
+  NoopTextDocumentContentProvider,
+} from './textDocumentContentProvider';
 
 export function registerProviders(context: RelayExtensionContext) {
   context.extensionContext.subscriptions.push(
     workspace.registerTextDocumentContentProvider(
       RelayTextDocumentContentProvider.scheme,
       new RelayTextDocumentContentProvider(context),
+    ),
+  );
+}
+
+export function registerNoopProviders(extensionContext: ExtensionContext) {
+  extensionContext.subscriptions.push(
+    workspace.registerTextDocumentContentProvider(
+      RelayTextDocumentContentProvider.scheme,
+      new NoopTextDocumentContentProvider(),
     ),
   );
 }

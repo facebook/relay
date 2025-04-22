@@ -233,7 +233,17 @@ fn workspace_root_minimal() -> String {
         let output_result = Command::new(cargo)
             .args(["locate-project", "--workspace", "--message-format=plain"])
             .output();
-        format!("output_result {:?}", output_result)
+        let stdout = match output_result {
+            Ok(output) => output.stdout,
+            Err(err) => {
+                panic!(
+                    "Failed to locate project from within {:?}: {:?}",
+                    std::env::current_dir(),
+                    err
+                )
+            }
+        };
+        std::str::from_utf8(&stdout).unwrap().trim().to_string()
     } else {
         // Assuming we're building via Meta-internal BUCK setup, which executes tests from workspace root
         "no cargo".to_string()
@@ -255,7 +265,13 @@ fn workspace_root_mid() -> String {
                 )
             }
         };
-        std::str::from_utf8(&stdout).unwrap().to_string()
+        let workspace_cargo_toml = PathBuf::from(&std::str::from_utf8(&stdout).unwrap().trim());
+        workspace_cargo_toml
+            .parent()
+            .unwrap()
+            .to_path_buf()
+            .to_string_lossy()
+            .to_string()
     } else {
         // Assuming we're building via Meta-internal BUCK setup, which executes tests from workspace root
         "no cargo".to_string()

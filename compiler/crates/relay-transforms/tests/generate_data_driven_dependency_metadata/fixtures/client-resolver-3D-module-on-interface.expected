@@ -53,7 +53,19 @@ fragment ClientUser_Fragment on ClientUser {
   }
 }
 
-fragment NameRendererFragment on Persona {
+fragment NameRendererFragment on Persona @__RelayDataDrivenDependencyMetadata
+# RelayDataDrivenDependencyMetadata {
+#     direct_dependencies: Some(
+#         [
+#             (
+#                 "NameRendererFragment.basicUser",
+#                 "{\"branches\":{\"ClientUser\":{\"component\":\"ClientUser.react\",\"fragment\":\"ClientUser_Fragment$normalization.graphql\"},\"SpecialUser\":{\"component\":\"SpecialUser.react\",\"fragment\":\"SpecialUser_Fragment$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+#     indirect_dependencies: None,
+# }
+ {
   id
   basicUser {
     ... on ClientUser {

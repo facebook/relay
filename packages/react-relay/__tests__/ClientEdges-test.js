@@ -12,7 +12,11 @@
 'use strict';
 
 const React = require('react');
-const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
+const {
+  RelayEnvironmentProvider,
+  useFragment,
+  useLazyLoadQuery,
+} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
 const {Environment, Network, RecordSource, graphql} = require('relay-runtime');
 const RelayObservable = require('relay-runtime/network/RelayObservable');
@@ -292,4 +296,97 @@ it('should throw for missing client-edge (client object) field data marked with 
     "Relay: Missing @required value at path 'me.client_object' in 'ClientEdgesTest4Query'.",
   );
   expect(fetchFn.mock.calls.length).toEqual(0);
+});
+
+/**
+ * @RelayResolver User.same_user_client_edge: User
+ */
+export function same_user_client_edge(): {id: string} {
+  return {id: '1'};
+}
+
+// https://github.com/facebook/relay/issues/4882
+it('should fetch data missing in fragment spread within `@waterfall` field', () => {
+  function TestComponent() {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading">
+          <InnerComponent />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  const variables = {};
+  function InnerComponent() {
+    const data = useLazyLoadQuery(
+      graphql`
+        query ClientEdgesTest5Query {
+          me {
+            same_user_client_edge @waterfall {
+              # No fields here means that we render without detecting any
+              # missing data here and don't attempt to fetch the @waterfall
+              # query.
+              #
+              # The same bug can be tirggered by adding a field that is already
+              # in the store for an unrelated reason.
+              ...ClientEdgesTest5Query_user
+              # Adding "name" here will cause the query to be fetched.
+            }
+          }
+        }
+      `,
+      variables,
+    );
+
+    const user = useFragment(
+      graphql`
+        fragment ClientEdgesTest5Query_user on User {
+          name
+        }
+      `,
+      data.me?.same_user_client_edge,
+    );
+
+    return user?.name;
+  }
+
+  // This will be updated when we add the new assertions as part of a fix for
+  // this bug.
+  // eslint-disable-next-line no-unused-vars
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(<TestComponent />);
+  });
+
+  // Oops, we didn't fetch the query!
+  expect(fetchFn.mock.calls.length).toEqual(0);
+
+  // Following are the assertions that SHOULD pass.
+
+  // expect(fetchFn.mock.calls.length).toEqual(1);
+  // // We should send the client-edge query
+  // // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
+  // expect(fetchFn.mock.calls[0][0].name).toBe(
+  //   'ClientEdgeQuery_ClientEdgesTest5Query_me__same_user_client_edge',
+  // );
+  // // Check variables
+  // // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
+  // expect(fetchFn.mock.calls[0][1]).toEqual({id: '1'});
+  // expect(renderer?.toJSON()).toBe('Loading');
+
+  // TestRenderer.act(() => {
+  //   // This should resolve client-edge query
+  //   networkSink.next({
+  //     data: {
+  //       node: {
+  //         id: '1',
+  //         __typename: 'User',
+  //         name: 'Alice',
+  //       },
+  //     },
+  //   });
+  //   jest.runAllImmediates();
+  // });
+  // expect(renderer?.toJSON()).toBe('Alice');
 });

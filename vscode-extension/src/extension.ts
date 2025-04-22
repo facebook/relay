@@ -89,7 +89,7 @@ export async function activate(extensionContext: ExtensionContext) {
     }
   } else {
     // We still need to register a handler for `relay://` otherwise non-Relay
-    // projects will get an error at the top of their `package.json` files.
+    // projects will get a warning at the top of their `package.json` files.
     registerNoopProviders(extensionContext);
   }
 }

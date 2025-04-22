@@ -46,7 +46,7 @@ export class RelayTextDocumentContentProvider
 
       if (!this.cachedJsonSchema) {
         // We return an empty JSON schema instead of undefined to prevent
-        // an error being shown in the user's IDE.
+        // a warning being shown in the user's IDE.
         return '{}';
       }
 
@@ -86,7 +86,7 @@ export class NoopTextDocumentContentProvider
       uri.authority === RELAY_CONFIG_SCHEMA_PATH
     ) {
       // We return an empty JSON schema instead of undefined to prevent
-      // an error being shown in the user's IDE.
+      // a warning being shown in the user's IDE.
       return '{}';
     }
     return undefined;

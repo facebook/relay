@@ -111,7 +111,7 @@ pub async fn test_fixture<T, U, V>(
     // race condition where if an async test is running at the same time as
     // another test is trying to check the workspace root, it will get the wrong
     // value. To mitigate that risk we compute the workspace root early.
-    let workspace_root = &WORKSPACE_ROOT;
+    let workspace_root = WORKSPACE_ROOT.clone();
     let fixture = Fixture {
         file_name: input_file_name,
         content: input,

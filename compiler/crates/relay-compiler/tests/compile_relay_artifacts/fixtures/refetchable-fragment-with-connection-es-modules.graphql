@@ -20,6 +20,5 @@ fragment refetchableFragmentWithConnectionEsModules_PaginationFragment on Node
 
 %project_config%
 {
-  "eagerEsModules": true,
   "language": "flow"
 }

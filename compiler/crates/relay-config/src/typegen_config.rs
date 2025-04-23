@@ -129,8 +129,9 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub no_future_proof_enums: bool,
 
-    /// This option enables emitting es modules artifacts.
-    #[serde(default)]
+    /// This option enables opting out of emitting es modules artifacts. When
+    /// set to false, Relay will emit CommonJS modules.
+    #[serde(default = "get_true")]
     pub eager_es_modules: bool,
 
     /// Keep the previous compiler behavior by outputting an union
@@ -146,6 +147,10 @@ pub struct TypegenConfig {
     /// Indicates the type to import and use as the context for live resolvers.
     #[serde(default)]
     pub resolver_context_type: Option<ResolverContextTypeInput>,
+}
+
+fn get_true() -> bool {
+    true
 }
 
 impl Default for TypegenConfig {

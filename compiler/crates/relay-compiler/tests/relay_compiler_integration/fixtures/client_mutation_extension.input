@@ -7,7 +7,6 @@ graphql`mutation barMutation {
 {
    "language": "flow",
    "schema": "./schema.graphql",
-   "eagerEsModules": true,
    "schemaExtensions": [
       "./extensions.graphql"
    ]

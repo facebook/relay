@@ -11,8 +11,7 @@ graphql`mutation barMutation {
 //- relay.config.json
 {
    "language": "flow",
-   "schema": "./schema.graphql",
-   "eagerEsModules": true
+   "schema": "./schema.graphql"
 }
 
 //- schema.graphql

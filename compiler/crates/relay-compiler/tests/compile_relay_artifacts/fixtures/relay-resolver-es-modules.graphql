@@ -19,7 +19,6 @@ extend type User {
 
 %project_config%
 {
-  "eagerEsModules": true,
   "language": "flow",
   "jsModuleFormat": "haste"
 }

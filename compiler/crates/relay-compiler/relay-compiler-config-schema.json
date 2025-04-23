@@ -80,8 +80,8 @@
           }
         },
         "eagerEsModules": {
-          "description": "This option enables emitting es modules artifacts.",
-          "default": false,
+          "description": "This option enables opting out of emitting es modules artifacts. When set to false, Relay will emit CommonJS modules.",
+          "default": true,
           "type": "boolean"
         },
         "enumModuleSuffix": {
@@ -4915,8 +4915,8 @@
                 }
               },
               "eagerEsModules": {
-                "description": "This option enables emitting es modules artifacts.",
-                "default": false,
+                "description": "This option enables opting out of emitting es modules artifacts. When set to false, Relay will emit CommonJS modules.",
+                "default": true,
                 "type": "boolean"
               },
               "enumModuleSuffix": {

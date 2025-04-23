@@ -295,6 +295,9 @@ QUERY:
 
 Query Text is Empty.
 
+import clientUserRelayModelInstanceResolver from './../ClientUserResolver';
+import ClientUser__id_graphql from './ClientUser__id.graphql';
+import {resolverDataInjector} from 'relay-runtime/experimental';
 {
   "argumentDefinitions": [],
   "kind": "Fragment",
@@ -311,7 +314,7 @@ Query Text is Empty.
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ClientUser__id.graphql'), require('./../ClientUserResolver'), 'id', true),
+      "resolverModule": resolverDataInjector(ClientUser__id_graphql, clientUserRelayModelInstanceResolver, 'id', true),
       "path": "__relay_model_instance"
     }
   ],
@@ -342,6 +345,9 @@ Query Text is Empty.
   "abstractKey": null
 }
 
+import specialUserRelayModelInstanceResolver from './../SpecialUserResolver';
+import SpecialUser__id_graphql from './SpecialUser__id.graphql';
+import {resolverDataInjector} from 'relay-runtime/experimental';
 {
   "argumentDefinitions": [],
   "kind": "Fragment",
@@ -358,7 +364,7 @@ Query Text is Empty.
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./SpecialUser__id.graphql'), require('./../SpecialUserResolver'), 'id', true),
+      "resolverModule": resolverDataInjector(SpecialUser__id_graphql, specialUserRelayModelInstanceResolver, 'id', true),
       "path": "__relay_model_instance"
     }
   ],

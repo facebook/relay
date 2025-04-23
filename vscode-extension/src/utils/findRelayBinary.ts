@@ -185,7 +185,7 @@ export async function findRelayBinaryWithWarnings(
 
   if (config.pathToRelay) {
     outputChannel.appendLine(
-      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
+      "You've manually specified 'relay.pathToRelay'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
     );
 
     return {path: config.pathToRelay};

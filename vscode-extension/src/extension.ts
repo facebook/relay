@@ -8,7 +8,7 @@
 import path = require('path');
 import {ExtensionContext, window, workspace} from 'vscode';
 import {registerCommands} from './commands/register';
-import {registerProviders} from './providers/register';
+import {registerProviders, registerNoopProviders} from './providers/register';
 import {createAndStartCompiler} from './compiler';
 import {getConfig} from './config';
 
@@ -87,6 +87,10 @@ export async function activate(extensionContext: ExtensionContext) {
         ].join(' '),
       );
     }
+  } else {
+    // We still need to register a handler for `relay://` otherwise non-Relay
+    // projects will get a warning at the top of their `package.json` files.
+    registerNoopProviders(extensionContext);
   }
 }
 

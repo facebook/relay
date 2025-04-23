@@ -173,6 +173,10 @@ export default function App() {
 
 All that’s left is to run the Relay compiler and start your app!
 
+:::tip
+If you have [Watchman](https://facebook.github.io/watchman/) installed, run `echo "{}" > .watchmanconfig` to create a Watchman root.
+:::
+
 ```bash
 npx relay-compiler
 npm run dev

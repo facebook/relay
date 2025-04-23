@@ -188,8 +188,8 @@ graphql`
 
 ## `@relay(plural: Boolean)`
 
-When defining a fragment for use with a Fragment container, you can use the
-`@relay(plural: true)` directive to indicate that container expects the prop for
+When defining a fragment for use with `useFragment`, you can use the
+`@relay(plural: true)` directive to indicate that hook expects the prop for
 that fragment to be a list of items instead of a single item. A query or parent
 that spreads a `@relay(plural: true)` fragment should do so within a plural
 field (ie a field backed by a

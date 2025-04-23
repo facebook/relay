@@ -150,7 +150,7 @@ export default function App() {
         allFilms {
           films {
             id
-            ...Film_li
+            ...Film_item
           }
         }
       }
@@ -173,16 +173,16 @@ export default function App() {
 
 ## Define your first fragment component
 
-One of Relay's big ideas is that each component defines its own data dependencies. So, we define our `<Film>` component using a [GraphQL Fragment](https://graphql.org/learn/queries/#fragments).
+One of Relay's core principles is that each component should define its own data dependencies. So, we define our `<Film>` component using a [GraphQL Fragment](https://graphql.org/learn/queries/#fragments).
 
 ```typescript title="src/Film.tsx"
 import { graphql, useFragment } from "react-relay";
-import type { Film_li$key } from "./__generated__/Film_li.graphql";
+import type { Film_item$key } from "./__generated__/Film_item.graphql";
 
-export default function FilmListItem(props: { film: Film_li$key; }) {
-  const film = useFragment<Film_li$key>(
+export default function FilmListItem(props: { film: Film_item$key; }) {
+  const film = useFragment<Film_item$key>(
     graphql`
-      fragment Film_li on Film {
+      fragment Film_item on Film {
         title
         director
       }

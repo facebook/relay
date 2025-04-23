@@ -16,6 +16,7 @@ import type {DataID} from './util/RelayRuntimeTypes';
 
 const resolverDataInjector = require('./store/live-resolvers/resolverDataInjector');
 const {observeFragment} = require('./store/observeFragmentExperimental');
+const {observeQuery} = require('./store/observeQueryExperimental');
 const {waitForFragmentData} = require('./store/waitForFragmentExperimental');
 
 // Annotates a strong object return type, where `A` is the GraphQL typename and `Typename` is the
@@ -70,6 +71,7 @@ module.exports = {
   resolverDataInjector,
   isValueResult,
   isErrorResult,
+  observeQuery,
   observeFragment,
   waitForFragmentData,
 };

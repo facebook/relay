@@ -72,7 +72,8 @@
       "resolverContextType": {
         "name": "TestResolverContextType",
         "path": "packages/relay-runtime/mutations/__tests__/TestResolverContextType"
-      }
+      },
+      "eagerEsModules": false
     }
   },
   "isDevVariableName": "__DEV__"

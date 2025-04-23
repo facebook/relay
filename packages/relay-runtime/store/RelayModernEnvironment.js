@@ -58,6 +58,7 @@ const defaultGetDataID = require('./defaultGetDataID');
 const defaultRelayFieldLogger = require('./defaultRelayFieldLogger');
 const normalizeResponse = require('./normalizeResponse');
 const OperationExecutor = require('./OperationExecutor');
+const RelayModernStore = require('./RelayModernStore');
 const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
@@ -71,7 +72,7 @@ export type EnvironmentConfig = {
   +network: INetwork,
   +normalizeResponse?: ?NormalizeResponseFunction,
   +scheduler?: ?TaskScheduler,
-  +store: Store,
+  +store?: Store,
   +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
   +getDataID?: ?GetDataID,
@@ -118,6 +119,15 @@ class RelayModernEnvironment implements IEnvironment {
         );
       }
     }
+    const store =
+      config.store ??
+      new RelayModernStore(new RelayRecordSource(), {
+        log: config.log,
+        operationLoader: config.operationLoader,
+        getDataID: config.getDataID,
+        shouldProcessClientComponents: config.shouldProcessClientComponents,
+      });
+
     this.__log = config.log ?? emptyFunction;
     this.relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
     this._defaultRenderPolicy =
@@ -128,14 +138,14 @@ class RelayModernEnvironment implements IEnvironment {
     this._getDataID = config.getDataID ?? defaultGetDataID;
     this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._publishQueue = new RelayPublishQueue(
-      config.store,
+      store,
       config.handlerProvider ?? RelayDefaultHandlerProvider,
       this._getDataID,
       this._missingFieldHandlers,
       this.__log,
     );
     this._scheduler = config.scheduler ?? null;
-    this._store = config.store;
+    this._store = store;
     this.options = config.options;
     this._isServer = config.isServer ?? false;
     this._normalizeResponse = config.normalizeResponse ?? normalizeResponse;

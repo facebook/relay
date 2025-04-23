@@ -11,6 +11,6 @@ if [ -z "$(git status --porcelain)" ]; then
   exit 0
 else
   echo "Detected changes in the working directory:"
-  git --no-pager diff --stat HEAD
+  git --no-pager diff HEAD
   exit 1
 fi

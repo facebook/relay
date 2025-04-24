@@ -12,6 +12,7 @@ use serde::Serialize;
 pub struct FieldDefinitionSourceInfo {
     pub file_path: String,
     pub line_number: u64,
+    pub column_number: u64,
     pub is_local: bool,
 }
 

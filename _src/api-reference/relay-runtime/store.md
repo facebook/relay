@@ -461,7 +461,9 @@ environment.check(query) === 'stale'
 
 The `RecordSourceProxy` serves as an interface to mutate record.
 
-> **NOTE:** `RecordSourceProxy` exposes many low level APIs that are not typesafe. Users should consider using [typesafe updaters](../../guided-tour/updating-data/typesafe-updaters-faq/), [optimistic updates](../../guided-tour/updating-data/graphql-mutations/#optimistic-updates), and [relay resolvers](../../guides/relay-resolvers/introduction/) instead if their use case can be covered by these alternatives.
+:::danger
+`RecordSourceProxy` exposes many low level APIs that are not typesafe. Users should consider using [typesafe updaters](../../guided-tour/updating-data/typesafe-updaters-faq/), [optimistic updates](../../guided-tour/updating-data/graphql-mutations/#optimistic-updates), and [relay resolvers](../../guides/relay-resolvers/introduction/) instead if their use case can be covered by these alternatives.
+:::
 
 ```javascript
 interface RecordSourceProxy {

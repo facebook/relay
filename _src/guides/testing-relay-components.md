@@ -539,7 +539,9 @@ test('it should send mutation', () => {
 
 ### Subscription
 
-> The `useSubscription` API is an improvement over calling `requestSubscription` directly.
+:::tip
+The `useSubscription` API is an improvement over calling `requestSubscription` directly.
+:::
 
 We can test subscriptions similarly to how we test mutations.
 

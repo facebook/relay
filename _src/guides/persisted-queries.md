@@ -12,7 +12,9 @@ import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 
 <FbInternalOnly>
 
-> Persistence is handled by the `relay` command for you. You likely do not need to worry about the contents of this guide.
+:::tip
+At Meta, persistence is handled by the `relay` command for you. You likely do not need to worry about the contents of this guide.
+:::
 
 </FbInternalOnly>
 

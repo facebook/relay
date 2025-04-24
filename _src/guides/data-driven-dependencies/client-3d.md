@@ -23,7 +23,9 @@ Here is an example of how Client 3D can be used in a React app.
 
 <FbInternalOnly>
 
-> **NOTE:** For an example diff implementing Client 3D in a www repository, see D62352682.
+:::note
+For an example diff implementing Client 3D in a www repository, see D62352682.
+:::
 
 </FbInternalOnly>
 
@@ -190,7 +192,9 @@ So in this example, `Client3DFooComponent_Fragment` is on the concrete type `Cli
 
 <FbInternalOnly>
 
-> **NOTE:** If you are in www, but not in Comet, you should use `RelayFBMatchContainer` instead of `MatchContainer`.
+:::tip
+If you are in www, but not in Comet, you should use `RelayFBMatchContainer` instead of `MatchContainer`.
+:::
 
 </FbInternalOnly>
 

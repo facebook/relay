@@ -72,7 +72,9 @@ fetchQuery(
 
 <FbInternalOnly>
 
-> The `next` function may be called multiple times when using Relay's [Incremental Data Delivery](../../guides/incremental-data-delivery/) capabilities to receive multiple payloads from the server.
+:::info
+The `next` function may be called multiple times when using Relay's [Incremental Data Delivery](../../guides/incremental-data-delivery/) capabilities to receive multiple payloads from the server.
+:::
 
 </FbInternalOnly>
 

@@ -18,13 +18,17 @@ import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';
 
 <FbInternalOnly>
 
-> **NOTE:** throughout this guide, we use `MatchContainer`. If you are in www, but not in Comet, you should use RelayFBMatchContainer.
+:::note
+Throughout this guide, we use `MatchContainer`. If you are in www, but not in Comet, you should use RelayFBMatchContainer.
+:::
 
 </FbInternalOnly>
 
 <OssOnly>
 
-> **NOTE:** Server 3D requires configuring your server to support various features! It is unlikely to work in OSS without significant work. Relay does not claim to fully support Server 3D in OSS (yet), but [Client 3D](../client-3d/) is fully supported.
+:::note
+Server 3D requires configuring your server to support various features! It is unlikely to work in OSS without significant work. Relay does not claim to fully support Server 3D in OSS (yet), but [Client 3D](../client-3d/) is fully supported.
+:::
 
 </OssOnly>
 
@@ -126,7 +130,9 @@ function CommentRenderer(props) {
 module.exports = CommentRenderer;
 ```
 
-> **IMPORTANT:** When using MatchContainer, the component loaded using 3D needs to have the same prop name as the fragment suffix e.g. if your fragment is `Comment_comment`, your prop needs to be called `comment` instead of something like `comment$key`
+:::caution
+When using MatchContainer, the component loaded using 3D needs to have the same prop name as the fragment suffix e.g. if your fragment is `Comment_comment`, your prop needs to be called `comment` instead of something like `comment$key`
+:::
 
 ## Advanced 3D with match
 
@@ -276,7 +282,9 @@ public function commentContentRenderer(Traversable<string> $supported): Awaitabl
 
 Your Relay fragment can now use `@match` to specify that for the `comment_content_renderer` field, we expect dependencies to be decided by the data. In this example, if the `comment_content_renderer` field is of type `CommentMarkdownRenderer`, we load the `CommentMarkdownRenderer.react` component and use the `CommentMarkdownRenderer_comment` fragment to load its data. Similar for the plaintext variant.
 
-> **NOTE:** The inline fragments annotated with `@module` on the same parent 3D fragment must be on distinct concrete types. If they are on the same concrete type, the relay compiler will report an error. So in the example below, `CommentMarkdownRenderer_comment` must be on a different concrete type than `CommentPlaintextRenderer_comment` (for example, the former could be on a `MarkdownComment` type, and the latter on a `PlaintextComment` type. Both could implement a parent interface `Comment`).
+:::caution
+The inline fragments annotated with `@module` on the same parent 3D fragment must be on distinct concrete types. If they are on the same concrete type, the relay compiler will report an error. So in the example below, `CommentMarkdownRenderer_comment` must be on a different concrete type than `CommentPlaintextRenderer_comment` (for example, the former could be on a `MarkdownComment` type, and the latter on a `PlaintextComment` type. Both could implement a parent interface `Comment`).
+:::
 
 On the Relay side you'd write:
 
@@ -342,7 +350,9 @@ function CommentRenderer(props) {
 module.exports = CommentRenderer;
 ```
 
-> **IMPORTANT:** When using MatchContainer, the component loaded using 3D needs to have the same prop name as the fragment suffix e.g. if your fragment is `Comment_comment`, your prop needs to be called `comment` instead of something like `comment$key`
+:::caution
+When using MatchContainer, the component loaded using 3D needs to have the same prop name as the fragment suffix e.g. if your fragment is `Comment_comment`, your prop needs to be called `comment` instead of something like `comment$key`
+:::
 
 ## Multiple 3D Selections Per Fragment
 
@@ -470,7 +480,9 @@ The typical usage of data-driven dependencies is to dynamically load modules tha
 
 <FbInternalOnly>
 
-> In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
+:::tip
+In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
+:::
 
 </FbInternalOnly>
 
@@ -528,7 +540,9 @@ You can also use `@module` directly to load a non-React module for a field if it
 
 <FbInternalOnly>
 
-> In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
+:::tip
+In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
+:::
 
 </FbInternalOnly>
 

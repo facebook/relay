@@ -20,7 +20,9 @@ The GraphQL server likely violated the globally unique ID requirement by returni
 
 If you're seeing an error like:
 
-> `RelayResponseNormalizer: Invalid record '543'. Expected __typename to be consistent, but the record was assigned conflicting types Foo and Bar. The GraphQL server likely violated the globally unique ID requirement by returning the same ID for different objects.`
+```
+`RelayResponseNormalizer: Invalid record '543'. Expected __typename to be consistent, but the record was assigned conflicting types Foo and Bar. The GraphQL server likely violated the globally unique ID requirement by returning the same ID for different objects.`
+```
 
 the server implementation of one of the types is not spec compliant. We require the `id` field to be globally unique. This is a problem because Relay stores objects in a normalized key-value store and one of the object just overwrote the other. This means your app is broken in some subtle or less subtle way.
 

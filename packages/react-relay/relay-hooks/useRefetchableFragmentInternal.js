@@ -160,7 +160,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
   }
 }
 
-hook useRefetchableFragmentNode<
+hook useRefetchableFragmentInternal<
   TQuery: OperationType,
   TKey: ?{+$data?: mixed, ...},
 >(
@@ -582,7 +582,7 @@ if (__DEV__) {
       fragmentNode: ReaderFragment,
       componentDisplayName: string,
     ): void {
-      if (previousIDAndTypename == null) {
+      if (previousIDAndTypename == null || refetchedFragmentRef == null) {
         return;
       }
       const {ID_KEY} = require('relay-runtime');
@@ -605,4 +605,4 @@ if (__DEV__) {
   };
 }
 
-module.exports = useRefetchableFragmentNode;
+module.exports = useRefetchableFragmentInternal;

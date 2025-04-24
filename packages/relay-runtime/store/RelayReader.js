@@ -1370,8 +1370,8 @@ class RelayReader {
     const componentKey = getModuleComponentKey(moduleImport.documentName);
     // componentModuleProvider is used by Client 3D for read time resolvers.
     const component =
-      moduleImport.componentModuleProvider ??
-      RelayModernRecord.getValue(record, componentKey);
+      RelayModernRecord.getValue(record, componentKey) ??
+      moduleImport.componentModuleProvider;
     if (component == null) {
       if (component === undefined) {
         this._markDataAsMissing('<module-import>');

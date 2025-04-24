@@ -25,7 +25,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType satisfies (
   rootKey: PopStarNameResolverFragment_name$key,
-) => unknown | null | undefined);
+) => unknown | null);
 export type Foo_user$data = {
   readonly poppy: ReturnType<typeof userPopStarNameResolverType> | null | undefined;
   readonly " $fragmentType": "Foo_user";

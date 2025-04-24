@@ -401,7 +401,8 @@ fn generate_resolver_type(
         ResolverOutputTypeInfo::Legacy => AST::Mixed,
     };
 
-    let ast = transform_type_reference_into_ast(&schema_field_type, |_| inner_ast);
+    let can_be_missing = false; // Undefined is not a valid resolver return type
+    let ast = transform_type_reference_into_ast(&schema_field_type, |_| inner_ast, can_be_missing);
 
     let return_type = if resolver_metadata.live {
         runtime_imports.resolver_live_state_type = true;
@@ -727,9 +728,12 @@ fn relay_resolver_field_type(
             true => field.semantic_type(),
             false => field.type_.clone(),
         };
-        let inner_value = transform_type_reference_into_ast(&type_, |type_| {
-            expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
-        });
+        let can_be_missing = !emit_semantic_types;
+        let inner_value = transform_type_reference_into_ast(
+            &type_,
+            |type_| expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_),
+            can_be_missing,
+        );
         if required {
             if type_.is_non_null() {
                 inner_value
@@ -756,7 +760,7 @@ fn relay_resolver_field_type(
         if required || field_type.is_non_null() {
             AST::NonNullable(Box::new(inner_value))
         } else {
-            AST::Nullable(Box::new(inner_value))
+            AST::Optional(Box::new(inner_value))
         }
     }
 }
@@ -908,7 +912,7 @@ fn visit_inline_fragment(
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: *FRAGMENT_PROP_NAME,
             special_field: None,
-            value: AST::Nullable(Box::new(AST::String)),
+            value: AST::Optional(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
             is_result_type: false,
@@ -916,7 +920,7 @@ fn visit_inline_fragment(
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: *MODULE_COMPONENT,
             special_field: None,
-            value: AST::Nullable(Box::new(AST::String)),
+            value: AST::Optional(Box::new(AST::String)),
             conditional: false,
             concrete_type: None,
             is_result_type: false,
@@ -1011,6 +1015,7 @@ fn visit_inline_fragment(
                 conditional: coerce_to_nullable,
                 concrete_type: None,
                 is_result_type,
+                emit_semantic_types,
             })]
         } else {
             // If the inline fragment is on an abstract type, its selections must be
@@ -1090,7 +1095,7 @@ fn visit_actor_change(
             schema_name,
             &typegen_context.project_config.schema_config,
         ),
-        value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
+        value: AST::Optional(Box::new(AST::ActorChangePoint(Box::new(
             selections_to_babel(
                 typegen_context,
                 &field.type_.inner(),
@@ -1217,6 +1222,7 @@ fn gen_visit_linked_field(
         conditional: false,
         concrete_type: None,
         is_result_type,
+        emit_semantic_types,
     }));
 }
 
@@ -1282,9 +1288,12 @@ fn visit_scalar_field(
         }
     }
 
-    let ast = transform_type_reference_into_ast(&field_type, |type_| {
-        expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_)
-    });
+    let can_be_missing = !emit_semantic_types;
+    let ast = transform_type_reference_into_ast(
+        &field_type,
+        |type_| expect_scalar_type(typegen_context, encountered_enums, custom_scalars, type_),
+        can_be_missing,
+    );
 
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
@@ -1394,7 +1403,7 @@ pub(crate) fn get_data_type(
         custom_error_import,
     );
     if emit_optional_type {
-        data_type = AST::Nullable(Box::new(data_type))
+        data_type = AST::Optional(Box::new(data_type))
     }
     if emit_plural_type {
         data_type = AST::ReadOnlyArray(Box::new(data_type))
@@ -1904,8 +1913,11 @@ fn make_prop(
                     custom_error_import,
                 );
 
-                let getter_return_value =
-                    transform_type_reference_into_ast(&linked_field.node_type, |type_| {
+                // TODO: Is this right?
+                let can_be_missing = true;
+                let getter_return_value = transform_type_reference_into_ast(
+                    &linked_field.node_type,
+                    |type_| {
                         return_ast_in_object_case(
                             typegen_context,
                             encountered_enums,
@@ -1913,7 +1925,9 @@ fn make_prop(
                             getter_object_props,
                             type_,
                         )
-                    });
+                    },
+                    can_be_missing,
+                );
 
                 let setter_parameter = if just_fragments.is_empty() {
                     if linked_field.node_type.is_list() {
@@ -1973,7 +1987,7 @@ fn make_prop(
                     if linked_field.node_type.is_list() {
                         AST::ReadOnlyArray(Box::new(setter_parameter))
                     } else {
-                        AST::Nullable(Box::new(setter_parameter))
+                        AST::Optional(Box::new(setter_parameter))
                     }
                 };
 
@@ -1995,8 +2009,11 @@ fn make_prop(
                     runtime_imports,
                     custom_error_import,
                 );
-                let mut value =
-                    transform_type_reference_into_ast(&linked_field.node_type, |type_| {
+
+                let can_be_missing = !linked_field.emit_semantic_types;
+                let mut value = transform_type_reference_into_ast(
+                    &linked_field.node_type,
+                    |type_| {
                         return_ast_in_object_case(
                             typegen_context,
                             encountered_enums,
@@ -2004,7 +2021,9 @@ fn make_prop(
                             object_props,
                             type_,
                         )
-                    });
+                    },
+                    can_be_missing,
+                );
 
                 if linked_field.is_result_type {
                     value = make_result_type(typegen_context, value);
@@ -2110,17 +2129,24 @@ fn raw_response_make_prop(
                 runtime_imports,
                 custom_scalars,
             );
+            // TODO: We probably should't allow mising types in raw responses,
+            // but that will require a rollout to resolve.
+            let can_be_missing = true;
             Prop::KeyValuePair(KeyValuePairProp {
                 key: linked_field.field_name_or_alias,
-                value: transform_type_reference_into_ast(&node_type, |type_| {
-                    return_ast_in_object_case(
-                        typegen_context,
-                        encountered_enums,
-                        custom_scalars,
-                        object_props,
-                        type_,
-                    )
-                }),
+                value: transform_type_reference_into_ast(
+                    &node_type,
+                    |type_| {
+                        return_ast_in_object_case(
+                            typegen_context,
+                            encountered_enums,
+                            custom_scalars,
+                            object_props,
+                            type_,
+                        )
+                    },
+                    can_be_missing,
+                ),
                 read_only: true,
                 optional,
             })
@@ -2164,25 +2190,40 @@ fn raw_response_make_prop(
 fn transform_type_reference_into_ast(
     type_reference: &TypeReference<Type>,
     transform_inner_type: impl FnOnce(&Type) -> AST,
+    can_be_missing: bool,
 ) -> AST {
     match type_reference {
-        TypeReference::NonNull(non_null_ref) => {
-            transform_non_nullable_type_reference_into_ast(non_null_ref, transform_inner_type)
-        }
-        _ => AST::Nullable(Box::new(transform_non_nullable_type_reference_into_ast(
-            type_reference,
+        TypeReference::NonNull(non_null_ref) => transform_non_nullable_type_reference_into_ast(
+            non_null_ref,
             transform_inner_type,
-        ))),
+            can_be_missing,
+        ),
+        _ => {
+            if can_be_missing {
+                AST::Optional(Box::new(transform_non_nullable_type_reference_into_ast(
+                    type_reference,
+                    transform_inner_type,
+                    can_be_missing,
+                )))
+            } else {
+                AST::Nullable(Box::new(transform_non_nullable_type_reference_into_ast(
+                    type_reference,
+                    transform_inner_type,
+                    can_be_missing,
+                )))
+            }
+        }
     }
 }
 
 fn transform_non_nullable_type_reference_into_ast(
     type_reference: &TypeReference<Type>,
     transform_inner_type: impl FnOnce(&Type) -> AST,
+    can_be_missing: bool,
 ) -> AST {
     match type_reference {
         TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
-            transform_type_reference_into_ast(of_type, transform_inner_type),
+            transform_type_reference_into_ast(of_type, transform_inner_type, can_be_missing),
         )),
         TypeReference::Named(named_type) => transform_inner_type(named_type),
         TypeReference::NonNull(_) => panic!("unexpected NonNull"),
@@ -2482,7 +2523,7 @@ pub(crate) fn transform_input_type(
             encountered_enums,
             custom_scalars,
         ),
-        _ => AST::Nullable(Box::new(transform_non_nullable_input_type(
+        _ => AST::Optional(Box::new(transform_non_nullable_input_type(
             typegen_context,
             type_ref,
             input_object_types,

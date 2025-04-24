@@ -28,7 +28,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType satisfies (
   rootKey: PopStarNameResolverFragment_name$key,
-) => unknown | null | undefined);
+) => unknown | null);
 export type Foo_user$variables = Record<PropertyKey, never>;
 export type Foo_user$data = {
   readonly me: {

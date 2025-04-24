@@ -11,7 +11,7 @@ export type MyQuery$variables = {||};
 export type MyQuery$data = {|
   +me: Result<?{|
     +id: string,
-    +name: ?string,
+    +name: string | null,
   |}, mixed>,
 |};
 export type MyQuery = {|

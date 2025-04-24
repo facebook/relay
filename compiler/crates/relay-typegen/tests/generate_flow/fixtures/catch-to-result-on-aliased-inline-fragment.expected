@@ -11,7 +11,7 @@ declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
   +id: string,
   +myAlias: Result<{|
-    +name: ?string,
+    +name: string | null,
   |}, mixed>,
   +$fragmentType: MyFragment$fragmentType,
 |};

@@ -250,6 +250,8 @@ As it stands, there’s no user feedback when you click the “Load More” butt
 To do that, we need can use the `isLoadingNext` boolean value returned from `usePaginationFragment`. Here are the changes we need to make:
 
 ```
+import SmallSpinner from "./SmallSpinner";
+
 function StoryCommentsSection({story}) {
   // change-line
   const {data, loadNext, isLoadingNext} = usePaginationFragment(StoryCommentsSectionFragment, story);
@@ -332,8 +334,11 @@ function Newsfeed() {
   const storyEdges = data.viewer.newsfeedStories.edges;
   return (
     <>
+      // change-line
       {storyEdges.map(storyEdge =>
+        // change-line
         <Story key={storyEdge.node.id} story={storyEdge.node} />
+      // change-line
       )}
     </>
   );
@@ -349,22 +354,36 @@ To get this to work, we just need to separate out the contents `NewsfeedQuery` i
 ```
 const NewsfeedQuery = graphql`
   query NewsfeedQuery {
+    // change-line
     ...NewsfeedContentsFragment
   }
 `;
 
+// change-line
 const NewsfeedContentsFragment = graphql`
+  // change-line
   fragment NewsfeedContentsFragment on Query {
+    // change-line
     viewer {
+      // change-line
       newsfeedStories {
+        // change-line
         edges {
+          // change-line
           node {
+            // change-line
             id
+            // change-line
             ...StoryFragment
+          // change-line
           }
+        // change-line
         }
+      // change-line
       }
+    // change-line
     }
+  // change-line
   }
 `;
 ```
@@ -398,14 +417,21 @@ You should end up with something like this:
 ```
 const NewsfeedContentsFragment = graphql`
   fragment NewsfeedContentsFragment on Query
+    // change-line
     @argumentDefinitions (
+      // change-line
       cursor: { type: "String" }
+      // change-line
       count: { type: "Int", defaultValue: 3 }
+    // change-line
     )
+    // change-line
     @refetchable(queryName: "NewsfeedContentsRefetchQuery")
   {
     viewer {
+      // change-line
       newsfeedStories(after: $cursor, first: $count)
+        // change-line
         @connection(key: "NewsfeedContentsFragment_newsfeedStories")
       {
         edges {
@@ -425,13 +451,22 @@ const NewsfeedContentsFragment = graphql`
 Now we need to modify the `Newsfeed` component to call `usePaginationFragment:`
 
 ```
+import type { NewsfeedContentsRefetchQuery as NewsfeedContentsRefetchQueryType } from "./__generated__/NewsfeedContentsRefetchQuery.graphql";
+import { NewsfeedContentsFragment$key } from "./__generated__/NewsfeedContentsFragment.graphql";
+
 function Newsfeed() {
   const queryData = useLazyLoadQuery<NewsfeedQueryType>(
     NewsfeedQuery,
     {},
   );
   // change-line
-  const {data, loadNext} = usePaginationFragment(NewsfeedContentsFragment, queryData);
+  const {data, loadNext} = usePaginationFragment<
+    // change-line
+    NewsfeedContentsRefetchQueryType,
+    // change-line
+    NewsfeedContentsFragment$key
+  // change-line
+  >(NewsfeedContentsFragment, queryData);
   const storyEdges = data.viewer.newsfeedStories.edges;
   return (
     <div className="newsfeed">
@@ -462,7 +497,10 @@ function Newsfeed() {
     hasNext,
     // change-line
     isLoadingNext,
-  } = usePaginationFragment(NewsfeedContentsFragment, queryData);
+  } = usePaginationFragment<
+    NewsfeedContentsRefetchQueryType,
+    NewsfeedContentsFragment$key
+  >(NewsfeedContentsFragment, queryData);
   // change
   function onEndReached() {
     loadNext(1);

@@ -1,0 +1,3 @@
+type ClientAccount {
+  id: ID
+}

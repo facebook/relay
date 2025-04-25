@@ -12,7 +12,10 @@
 'use strict';
 
 import type {ClientEdgeToClientObjectTest3Query$data} from './__generated__/ClientEdgeToClientObjectTest3Query.graphql';
+import type {ClientEdgeToClientObjectTestClientRootFragment$key} from './__generated__/ClientEdgeToClientObjectTestClientRootFragment.graphql';
+import type {ClientEdgeToClientObjectTestClientRootNameFragment$key} from './__generated__/ClientEdgeToClientObjectTestClientRootNameFragment.graphql';
 
+const {readFragment} = require('../ResolverFragments');
 const {commitLocalUpdate} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
@@ -265,3 +268,89 @@ test('Uses an existing client record if it already exists', () => {
     },
   });
 });
+
+type Account = {
+  account_name: string,
+};
+/**
+ * @RelayResolver Query.account: ClientAccount
+ */
+function account(): {id: string} {
+  return {id: '1'};
+}
+
+/**
+ * @RelayResolver ClientAccount.self: RelayResolverValue
+ * @rootFragment ClientEdgeToClientObjectTestClientRootFragment
+ */
+function self(
+  fragmentKey: ClientEdgeToClientObjectTestClientRootFragment$key,
+): Account {
+  const data = readFragment(
+    graphql`
+      fragment ClientEdgeToClientObjectTestClientRootFragment on ClientAccount {
+        id @required(action: THROW)
+      }
+    `,
+    fragmentKey,
+  );
+  return {account_name: JSON.stringify(data)};
+}
+
+/**
+ * @RelayResolver ClientAccount.account_name: String
+ * @rootFragment ClientEdgeToClientObjectTestClientRootNameFragment
+ */
+function account_name(
+  fragmentKey: ClientEdgeToClientObjectTestClientRootNameFragment$key,
+): ?string {
+  const acct = readFragment(
+    graphql`
+      fragment ClientEdgeToClientObjectTestClientRootNameFragment on ClientAccount {
+        self
+      }
+    `,
+    fragmentKey,
+  );
+  return acct.self?.account_name;
+}
+
+test('it can read a rootFragment on a client type defined on client schema', () => {
+  const AccountQuery = graphql`
+    query ClientEdgeToClientObjectTestClientRootFragmentQuery {
+      account {
+        __id
+        id
+        account_name
+      }
+    }
+  `;
+
+  const source = RelayRecordSource.create();
+
+  const operation = createOperationDescriptor(AccountQuery, {});
+  const liveStore = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: liveStore,
+  });
+
+  const data = environment.lookup(operation.fragment).data;
+
+  expect(data).toEqual({
+    account: {
+      __id: 'client:ClientAccount:1',
+      account_name: '{"id":"1"}',
+      id: '1',
+    },
+  });
+});
+
+module.exports = {
+  account,
+  self,
+  account_name,
+};

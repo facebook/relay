@@ -202,6 +202,7 @@ fn locate_type_definition(
             GotoDefinitionResponse::Scalar(get_location(
                 &source_info.file_path,
                 source_info.line_number,
+                source_info.column_number,
             )?)
         } else {
             return Err(LSPRuntimeError::ExpectedError);
@@ -318,6 +319,7 @@ fn locate_field_definition(
                 return Ok(GotoDefinitionResponse::Scalar(get_location(
                     &source_info.file_path,
                     source_info.line_number,
+                    source_info.column_number,
                 )?));
             } else {
                 error!(
@@ -345,10 +347,14 @@ fn locate_field_definition(
         .map_err(|_| LSPRuntimeError::ExpectedError)
 }
 
-fn get_location(path: &str, line: u64) -> Result<lsp_types::Location, LSPRuntimeError> {
+fn get_location(
+    path: &str,
+    line: u64,
+    column: u64,
+) -> Result<lsp_types::Location, LSPRuntimeError> {
     let start = lsp_types::Position {
         line: line as u32,
-        character: 0,
+        character: column as u32,
     };
     let range = lsp_types::Range { start, end: start };
 

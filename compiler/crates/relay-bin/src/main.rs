@@ -409,10 +409,12 @@ impl LSPExtraDataProvider for ExtraDataProvider {
         }
         let file_path = result[0];
         let line_number = result[1].parse::<u64>().unwrap() - 1;
+        let column_number = result[2].parse::<u64>().unwrap_or(1_u64) - 1;
 
         Ok(Some(FieldDefinitionSourceInfo {
             file_path: file_path.to_string(),
             line_number,
+            column_number,
             is_local: true,
         }))
     }

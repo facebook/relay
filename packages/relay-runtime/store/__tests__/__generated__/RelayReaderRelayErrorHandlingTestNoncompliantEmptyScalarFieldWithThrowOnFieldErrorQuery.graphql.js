@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d7421d8f95edf6cade0e79bbabb6616>>
+ * @generated SignedSource<<9003f14507da1d8d82e8522e800f0101>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,11 +20,11 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery$data = {|
-  +node: ?{|
+  +node: {|
     +__typename: string,
-    +emailAddresses?: ?$ReadOnlyArray<?string>,
+    +emailAddresses?: $ReadOnlyArray<string | null> | null,
     +id: string,
-  |},
+  |} | null,
 |};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery = {|
   response: RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery$data,

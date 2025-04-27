@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bd90cca9b044b078325f3888b466808f>>
+ * @generated SignedSource<<963d582c126eb3757e630e12c9d0594d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,9 +30,9 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 ) => ?string);
 export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$variables = {||};
 export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$data = {|
-  +me: ?{|
-    +always_throws: ?string,
-  |},
+  +me: {|
+    +always_throws: string | null,
+  |} | null,
 |};
 export type observeQueryTestResolverErrorWithThrowOnFieldErrorQuery = {|
   response: observeQueryTestResolverErrorWithThrowOnFieldErrorQuery$data,

@@ -37,7 +37,7 @@ import clientUserBestFriendResolverType from "bar";
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
   +best_friend: {|
-    +name: ?string,
+    +name: string | null,
   |},
   +$fragmentType: MyFragment$fragmentType,
 |};

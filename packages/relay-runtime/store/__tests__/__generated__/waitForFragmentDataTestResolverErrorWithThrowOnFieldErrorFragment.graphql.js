@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4d60393f1b4e1b4677b36695ffb1e72>>
+ * @generated SignedSource<<9b5e070b061d61d42467aea92cfac950>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 ) => ?string);
 declare export opaque type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType: FragmentType;
 export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$data = {|
-  +always_throws: ?string,
+  +always_throws: string | null,
   +$fragmentType: waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$fragmentType,
 |};
 export type waitForFragmentDataTestResolverErrorWithThrowOnFieldErrorFragment$key = {

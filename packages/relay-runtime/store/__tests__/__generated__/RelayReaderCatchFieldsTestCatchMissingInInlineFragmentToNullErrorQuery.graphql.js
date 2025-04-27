@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<278d9b1e89a80b5ae4ced17c29a015ff>>
+ * @generated SignedSource<<139aee7847e501c0555063d36b776687>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQue
 export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery$data = {|
   +me: ?{|
     +myAlias?: {|
-      +firstName: ?string,
+      +firstName: string | null,
     |},
   |},
 |};

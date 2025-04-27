@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6c2c417ec9d8c99fc33cbc2a2c54cc9e>>
+ * @generated SignedSource<<d940f43ea9fd47ba313cacbf3e81ecbf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,9 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderCatchFieldsTestCatchToNullFragment$fragmentType: FragmentType;
 export type RelayReaderCatchFieldsTestCatchToNullFragment$data = ?{|
-  +me: ?{|
-    +firstName: ?string,
-  |},
+  +me: {|
+    +firstName: string | null,
+  |} | null,
   +$fragmentType: RelayReaderCatchFieldsTestCatchToNullFragment$fragmentType,
 |};
 export type RelayReaderCatchFieldsTestCatchToNullFragment$key = {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2e1d56f339c3fc473fcf40d268b97df2>>
+ * @generated SignedSource<<c94c611251f8d22b7f533a96e3f4dae1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,15 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestErrorOrderQuery$data = {|
-  +also_me: ?{|
-    +name: ?string,
+  +also_me: {|
+    +name: string | null,
     +nearest_neighbor: {|
-      +name: ?string,
+      +name: string | null,
     |},
-  |},
-  +me: ?{|
-    +name: ?string,
-  |},
+  |} | null,
+  +me: {|
+    +name: string | null,
+  |} | null,
 |};
 export type RelayReaderRelayErrorHandlingTestErrorOrderQuery = {|
   response: RelayReaderRelayErrorHandlingTestErrorOrderQuery$data,

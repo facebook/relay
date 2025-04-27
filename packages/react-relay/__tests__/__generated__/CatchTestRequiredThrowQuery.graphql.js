@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e3c77db9a9e5653df79b53f704eb568c>>
+ * @generated SignedSource<<2db0ebe700357b7621fd29538125f2b8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,9 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
 export type CatchTestRequiredThrowQuery$variables = {||};
 export type CatchTestRequiredThrowQuery$data = {|
-  +me: Result<?{|
+  +me: Result<{|
     +name: string,
-  |}, mixed>,
+  |} | null, mixed>,
 |};
 export type CatchTestRequiredThrowQuery = {|
   response: CatchTestRequiredThrowQuery$data,

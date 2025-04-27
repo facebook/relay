@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c56d5cc14302b306bbb11420772888b>>
+ * @generated SignedSource<<d9dd4c245cd3f2fdab76783611323122>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,11 +32,11 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 import type { User__client_object$normalization } from "./../resolvers/__generated__/User__client_object$normalization.graphql";
 export type RelayReaderRequiredFieldsTest29Query$variables = {||};
 export type RelayReaderRequiredFieldsTest29Query$data = {|
-  +me: Result<?{|
+  +me: Result<{|
     +client_object: {|
-      +description: ?string,
+      +description: string | null,
     |},
-  |}, mixed>,
+  |} | null, mixed>,
 |};
 export type RelayReaderRequiredFieldsTest29Query = {|
   response: RelayReaderRequiredFieldsTest29Query$data,

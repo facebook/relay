@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<520b92b838637598ce6b190feda24304>>
+ * @generated SignedSource<<7d1a28b2d51a01a9d4b556575c692e8e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,15 +20,15 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$data = {|
-  +node: ?{|
+  +node: {|
     +__typename: string,
-    +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
-        +cursor: ?string,
-      |}>,
-    |},
+    +friends?: {|
+      +edges: $ReadOnlyArray<{|
+        +cursor: string | null,
+      |} | null> | null,
+    |} | null,
     +id: string,
-  |},
+  |} | null,
 |};
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery = {|
   response: RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThrowOnFieldErrorQuery$data,

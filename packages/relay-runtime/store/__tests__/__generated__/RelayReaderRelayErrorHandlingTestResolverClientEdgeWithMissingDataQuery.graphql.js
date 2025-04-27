@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c53c0f1b19445be9a19265e0efe843e7>>
+ * @generated SignedSource<<7654479aee3c39fc982d1671172f78cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,11 +33,11 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 |});
 export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$data = {|
-  +me: ?{|
-    +client_edge: ?{|
-      +firstName: ?string,
-    |},
-  |},
+  +me: {|
+    +client_edge: {|
+      +firstName: string | null,
+    |} | null,
+  |} | null,
 |};
 export type RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery = {|
   response: RelayReaderRelayErrorHandlingTestResolverClientEdgeWithMissingDataQuery$data,

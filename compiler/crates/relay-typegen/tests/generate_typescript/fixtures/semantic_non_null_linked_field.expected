@@ -14,7 +14,7 @@ type ClientUser {
 import { FragmentRefs } from "relay-runtime";
 export type MyFragment$data = {
   readonly best_friend: {
-    readonly name: string | null | undefined;
+    readonly name: string | null;
   };
   readonly " $fragmentType": "MyFragment";
 };

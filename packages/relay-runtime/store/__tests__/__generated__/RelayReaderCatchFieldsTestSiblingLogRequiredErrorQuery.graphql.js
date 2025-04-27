@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<413a5d87005a669d51ac265f0285e4cd>>
+ * @generated SignedSource<<b8a383a98840bbe4bc328c27e678e3b9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,9 +24,9 @@ export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$data = {|
   +alsoMe: ?{|
     +lastName: string,
   |},
-  +me: Result<?{|
+  +me: Result<{|
     +firstName: string,
-  |}, mixed>,
+  |} | null, mixed>,
 |};
 export type RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery = {|
   response: RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery$data,

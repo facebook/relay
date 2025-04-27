@@ -11,7 +11,7 @@ export type FooQuery$variables = {||};
 export type FooQuery$data = {|
   +me: ?{|
     +firstName: ?string,
-    +lastName: Result<?string, mixed>,
+    +lastName: Result<string | null, mixed>,
   |},
 |};
 export type FooQuery = {|

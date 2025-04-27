@@ -11,7 +11,7 @@ type ClientUser {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type MyFragment$data = {
-  readonly name: string | null | undefined;
+  readonly name: string | null;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

@@ -15,7 +15,7 @@ extend type Query {
 import { FragmentRefs, Result } from "relay-runtime";
 export type MyFragment$data = {
   readonly my_user: Result<{
-    readonly name: string | null | undefined;
+    readonly name: string | null;
   }, unknown>;
   readonly " $fragmentType": "MyFragment";
 };

@@ -42,7 +42,7 @@ import type { FragmentType, Result } from "relay-runtime";
 declare export opaque type AnotherFragment$fragmentType: FragmentType;
 export type AnotherFragment$data = {|
   +profilePicture: ?{|
-    +uri: Result<?string, mixed>,
+    +uri: Result<string | null, mixed>,
   |},
   +$fragmentType: AnotherFragment$fragmentType,
 |};

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6238265b05637be20cddbbc7e3eabaf7>>
+ * @generated SignedSource<<823e90eb7b692add9f6c51ce994dd8f1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,9 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { Result } from "relay-runtime";
 export type RelayReaderCatchFieldsTest02Query$variables = {||};
 export type RelayReaderCatchFieldsTest02Query$data = {|
-  +me: Result<?{|
+  +me: Result<{|
     +lastName: string,
-  |}, mixed>,
+  |} | null, mixed>,
 |};
 export type RelayReaderCatchFieldsTest02Query = {|
   response: RelayReaderCatchFieldsTest02Query$data,

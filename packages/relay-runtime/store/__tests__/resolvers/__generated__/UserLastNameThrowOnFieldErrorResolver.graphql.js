@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4b89f1b59113317652b754a41da9d662>>
+ * @generated SignedSource<<4caa8ab0a26bff9885ce6a111932ae72>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type UserLastNameThrowOnFieldErrorResolver$fragmentType: FragmentType;
 export type UserLastNameThrowOnFieldErrorResolver$data = {|
-  +lastName: ?string,
+  +lastName: string | null,
   +$fragmentType: UserLastNameThrowOnFieldErrorResolver$fragmentType,
 |};
 export type UserLastNameThrowOnFieldErrorResolver$key = {

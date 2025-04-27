@@ -19,13 +19,13 @@ export type MyQuery$data = {
     readonly cast: ReadonlyArray<{
       readonly character: string;
       readonly singer: {
-        readonly name: string | null | undefined;
+        readonly name: string | null;
       };
     }>;
     readonly composer: {
-      readonly name: string | null | undefined;
+      readonly name: string | null;
     };
-  } | null | undefined;
+  } | null;
 };
 export type MyQuery$rawResponse = {
   readonly opera?: {

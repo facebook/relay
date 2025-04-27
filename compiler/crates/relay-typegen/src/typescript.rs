@@ -62,6 +62,7 @@ impl Writer for TypeScriptPrinter {
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
+            AST::Optional(of_type) => self.write_optional(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
             AST::ExactObject(object) => self.write_object(object),
             AST::InexactObject(object) => self.write_object(object),
@@ -217,6 +218,20 @@ impl TypeScriptPrinter {
     }
 
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
+        let null_type = AST::RawType(intern!("null"));
+        if let AST::Union(members) = of_type {
+            let mut new_members = Vec::with_capacity(members.len() + 1);
+            new_members.extend_from_slice(members);
+            new_members.push(null_type);
+            self.write_union(&new_members)?;
+        } else {
+            let union_members = vec![of_type.clone(), null_type];
+            self.write_union(&union_members)?;
+        }
+        Ok(())
+    }
+
+    fn write_optional(&mut self, of_type: &AST) -> FmtResult {
         let null_type = AST::RawType(intern!("null"));
         let undefined_type = AST::RawType(intern!("undefined"));
         if let AST::Union(members) = of_type {
@@ -448,17 +463,32 @@ mod tests {
     }
 
     #[test]
+    fn optional_type() {
+        assert_eq!(
+            print_type(&AST::Optional(Box::new(AST::String))),
+            "string | null | undefined".to_string()
+        );
+
+        assert_eq!(
+            print_type(&AST::Optional(Box::new(AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number],
+            ))))),
+            "string | number | null | undefined"
+        )
+    }
+
+    #[test]
     fn nullable_type() {
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::String))),
-            "string | null | undefined".to_string()
+            "string | null".to_string()
         );
 
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::Union(SortedASTList::new(
                 vec![AST::String, AST::Number],
             ))))),
-            "string | number | null | undefined"
+            "string | number | null"
         )
     }
 

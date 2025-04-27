@@ -8,10 +8,10 @@ query MyQuery @catch(to: NULL) {
 ==================================== OUTPUT ===================================
 export type MyQuery$variables = {||};
 export type MyQuery$data = ?{|
-  +me: ?{|
+  +me: {|
     +id: string,
-    +name: ?string,
-  |},
+    +name: string | null,
+  |} | null,
 |};
 export type MyQuery = {|
   response: MyQuery$data,

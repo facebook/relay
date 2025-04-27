@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81328793e4ce977c4dae9ca02a525bdb>>
+ * @generated SignedSource<<5a4a1e7b26361879af9ffb0ca1a45b33>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,9 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$variables = {||};
 export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$data = ?{|
-  +me: ?{|
-    +firstName: ?string,
-  |},
+  +me: {|
+    +firstName: string | null,
+  |} | null,
 |};
 export type RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery = {|
   response: RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery$data,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88410745e66537fa4174c9fe5183f8e8>>
+ * @generated SignedSource<<d27da106b2338f97e488163fe6522f3c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,9 +30,9 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 ) => ?string);
 export type RelayReaderRelayErrorHandlingTest5Query$variables = {||};
 export type RelayReaderRelayErrorHandlingTest5Query$data = {|
-  +me: ?{|
-    +last_name_throw_on_field_error: ?string,
-  |},
+  +me: {|
+    +last_name_throw_on_field_error: string | null,
+  |} | null,
 |};
 export type RelayReaderRelayErrorHandlingTest5Query = {|
   response: RelayReaderRelayErrorHandlingTest5Query$data,

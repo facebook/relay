@@ -23,7 +23,7 @@ export type MyFragment$data = {
   readonly me: {
     readonly clientUser: {
       readonly name: string;
-    } | null | undefined;
+    } | null;
   } | null | undefined;
   readonly " $fragmentType": "MyFragment";
 };

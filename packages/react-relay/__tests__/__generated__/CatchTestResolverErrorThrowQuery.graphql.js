@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<64b14cf1c22887a8a9fbbaa435865ec4>>
+ * @generated SignedSource<<08a0b6232b32dd62219d1afb9793f3b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,9 +31,9 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 ) => ?string);
 export type CatchTestResolverErrorThrowQuery$variables = {||};
 export type CatchTestResolverErrorThrowQuery$data = {|
-  +me: Result<?{|
-    +always_throws: ?string,
-  |}, mixed>,
+  +me: Result<{|
+    +always_throws: string | null,
+  |} | null, mixed>,
 |};
 export type CatchTestResolverErrorThrowQuery = {|
   response: CatchTestResolverErrorThrowQuery$data,

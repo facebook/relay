@@ -89,5 +89,8 @@ module.exports = {
     // Custom rules for our own codebase
     'relay-internal/no-mixed-import-and-require': 'error',
     'relay-internal/sort-imports': 'error',
+    // OSS will fail if we enable this even as a warning. We will look at
+    // enabling this as part of a separate diff that fixes existing issues.
+    'relay-internal/no-for-of-loops': 'off',
   },
 };

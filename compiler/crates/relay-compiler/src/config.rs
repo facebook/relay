@@ -1093,8 +1093,7 @@ pub enum ConfigFile {
 
 impl ConfigFile {
     pub fn json_schema() -> String {
-        let mut settings: SchemaSettings = Default::default();
-        settings.inline_subschemas = true;
+        let settings: SchemaSettings = Default::default();
         let generator = gen::SchemaGenerator::from(settings);
         let schema = generator.into_root_schema_for::<Self>();
         serde_json::to_string_pretty(&schema).unwrap()

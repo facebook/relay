@@ -63,6 +63,13 @@ impl ConstantValue {
         }
     }
 
+    pub fn get_list_literal(&self) -> Option<&List<ConstantValue>> {
+        match self {
+            ConstantValue::List(list) => Some(list),
+            _ => None,
+        }
+    }
+
     generate_unwrap_fn!(unwrap_int, self, i64, ConstantValue::Int(i) => i.value);
     generate_unwrap_fn!(unwrap_float, self, FloatValue, ConstantValue::Float(f) => f.value);
     generate_unwrap_fn!(unwrap_boolean, self, bool, ConstantValue::Boolean(b) => b.value);

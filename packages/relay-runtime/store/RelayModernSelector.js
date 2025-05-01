@@ -340,6 +340,7 @@ function getVariablesFromObject(
       const fragment = fragments[key];
       const item = object[key];
       const itemVariables = getVariablesFromFragment(fragment, item);
+      // $FlowFixMe[unsafe-object-assign]
       Object.assign(variables, itemVariables);
     }
   }
@@ -397,6 +398,7 @@ function getVariablesFromPluralFragment(
     if (value != null) {
       const itemVariables = getVariablesFromSingularFragment(fragment, value);
       if (itemVariables != null) {
+        // $FlowFixMe[unsafe-object-assign]
         Object.assign(variables, itemVariables);
       }
     }

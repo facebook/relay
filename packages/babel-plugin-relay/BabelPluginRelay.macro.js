@@ -27,6 +27,7 @@ function BabelPluginRelayMacro({references, state, babel, config}: any) {
         compileGraphQLTag(
           t,
           path,
+          // $FlowFixMe[unsafe-object-assign]
           Object.assign(state, config ? {opts: config} : {}),
           ast,
         );

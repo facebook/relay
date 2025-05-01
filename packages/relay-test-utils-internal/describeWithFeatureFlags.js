@@ -56,10 +56,12 @@ function describeWithFeatureFlags(
     beforeEach(() => {
       const {RelayFeatureFlags} = require('relay-runtime');
       originalFlags = {...RelayFeatureFlags};
+      // $FlowFixMe[unsafe-object-assign]
       Object.assign(RelayFeatureFlags, flags);
     });
     afterEach(() => {
       const {RelayFeatureFlags} = require('relay-runtime'); // re-import in case of jest module resets
+      // $FlowFixMe[unsafe-object-assign]
       Object.assign(RelayFeatureFlags, originalFlags);
     });
     body();

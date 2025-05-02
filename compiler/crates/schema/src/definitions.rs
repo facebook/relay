@@ -668,6 +668,28 @@ impl TypeWithFields for Object {
     }
 }
 
+pub trait TypeWithDirectives {
+    fn directives(&self) -> &Vec<DirectiveValue>;
+}
+
+macro_rules! impl_type_with_directives {
+    ($type_name:ident) => {
+        impl TypeWithDirectives for $type_name {
+            fn directives(&self) -> &Vec<DirectiveValue> {
+                &self.directives
+            }
+        }
+    };
+}
+
+impl_type_with_directives!(Object);
+impl_type_with_directives!(Field);
+impl_type_with_directives!(InputObject);
+impl_type_with_directives!(Interface);
+impl_type_with_directives!(Union);
+impl_type_with_directives!(Scalar);
+impl_type_with_directives!(Enum);
+
 #[allow(unused_macros)]
 macro_rules! impl_named {
     ($type_name:ident) => {

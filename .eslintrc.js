@@ -89,8 +89,51 @@ module.exports = {
     // Custom rules for our own codebase
     'relay-internal/no-mixed-import-and-require': 'error',
     'relay-internal/sort-imports': 'error',
-    // OSS will fail if we enable this even as a warning. We will look at
-    // enabling this as part of a separate diff that fixes existing issues.
-    'relay-internal/no-for-of-loops': 'off',
   },
+  overrides: [
+    {
+      files: ['packages/relay-runtime/**/*.js', 'packages/react-relay/**/*.js'],
+      excludedFiles: [
+        '**/__tests__/**',
+
+        // The following files should eventually be migrated to not break this
+        // rule. Until then, we'll grandfather them in here.
+        // If anyone feels inspired, they can:
+        //
+        // 1. Remove a file from this list
+        // 2. Run `yarn lint`
+        // 3. Fix/supress all warnings
+        // 4. Open a PR
+        // 5. Profit?
+        'packages/react-relay/relay-hooks/readFragmentInternal.js',
+        'packages/react-relay/relay-hooks/useEntryPointLoader.js',
+        'packages/react-relay/relay-hooks/useFragmentInternal_CURRENT.js',
+        'packages/react-relay/relay-hooks/useFragmentInternal_EXPERIMENTAL.js',
+        'packages/react-relay/relay-hooks/useQueryLoader.js',
+        'packages/react-relay/relay-hooks/useQueryLoader_EXPERIMENTAL.js',
+        'packages/relay-runtime/handlers/connection/MutationHandlers.js',
+        'packages/relay-runtime/multi-actor-environment/MultiActorEnvironment.js',
+        'packages/relay-runtime/mutations/RelayDeclarativeMutationConfig.js',
+        'packages/relay-runtime/mutations/createUpdatableProxy.js',
+        'packages/relay-runtime/store/DataChecker.js',
+        'packages/relay-runtime/store/OperationExecutor.js',
+        'packages/relay-runtime/store/RelayErrorTrie.js',
+        'packages/relay-runtime/store/RelayExperimentalGraphResponseHandler.js',
+        'packages/relay-runtime/store/RelayExperimentalGraphResponseTransform.js',
+        'packages/relay-runtime/store/RelayModernStore.js',
+        'packages/relay-runtime/store/RelayOperationTracker.js',
+        'packages/relay-runtime/store/RelayRecordSource.js',
+        'packages/relay-runtime/store/RelayReferenceMarker.js',
+        'packages/relay-runtime/store/RelayResponseNormalizer.js',
+        'packages/relay-runtime/store/live-resolvers/LiveResolverCache.js',
+        'packages/relay-runtime/store/observeFragmentExperimental.js',
+        'packages/relay-runtime/util/RelayReplaySubject.js',
+        'packages/relay-runtime/util/getValueAtPath.js',
+        'packages/relay-runtime/util/handlePotentialSnapshotErrors.js',
+      ],
+      rules: {
+        'relay-internal/no-for-of-loops': 'error',
+      },
+    },
+  ],
 };

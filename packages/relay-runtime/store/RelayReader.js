@@ -224,7 +224,8 @@ class RelayReader {
     if (this._fieldErrors == null) {
       this._fieldErrors = [];
     }
-    for (const error of errors) {
+    for (let i = 0; i < errors.length; i++) {
+      const error = errors[i];
       this._fieldErrors.push({
         kind: 'relay_field_payload.error',
         owner,
@@ -860,7 +861,8 @@ class RelayReader {
     // upwards to mimic the behavior of having traversed into that fragment directly.
     if (cachedSnapshot != null) {
       if (cachedSnapshot.missingClientEdges != null) {
-        for (const missing of cachedSnapshot.missingClientEdges) {
+        for (let i = 0; i < cachedSnapshot.missingClientEdges.length; i++) {
+          const missing = cachedSnapshot.missingClientEdges[i];
           this._missingClientEdges.push(missing);
         }
       }
@@ -869,7 +871,13 @@ class RelayReader {
           this._isMissingData ||
           cachedSnapshot.missingLiveResolverFields.length > 0;
 
-        for (const missingResolverField of cachedSnapshot.missingLiveResolverFields) {
+        for (
+          let i = 0;
+          i < cachedSnapshot.missingLiveResolverFields.length;
+          i++
+        ) {
+          const missingResolverField =
+            cachedSnapshot.missingLiveResolverFields[i];
           this._missingLiveResolverFields.push(missingResolverField);
         }
       }
@@ -877,7 +885,8 @@ class RelayReader {
         if (this._fieldErrors == null) {
           this._fieldErrors = [];
         }
-        for (const error of cachedSnapshot.fieldErrors) {
+        for (let i = 0; i < cachedSnapshot.fieldErrors.length; i++) {
+          const error = cachedSnapshot.fieldErrors[i];
           if (this._selector.node.metadata?.throwOnFieldError === true) {
             // If this fragment is @throwOnFieldError, any destructive error
             // encountered inside a resolver's fragment is equivilent to the
@@ -935,9 +944,11 @@ class RelayReader {
       this._missingLiveResolverFields.push(suspenseID);
     }
     if (updatedDataIDs != null) {
-      for (const recordID of updatedDataIDs) {
+      // Iterating a Set with for of is okay
+      // eslint-disable-next-line relay-internal/no-for-of-loops
+      updatedDataIDs.forEach(recordID => {
         this._updatedDataIDs.add(recordID);
-      }
+      });
     }
   }
 

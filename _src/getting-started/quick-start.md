@@ -29,13 +29,10 @@ You’ll be prompted for a project name. Type: `relay-example`
 ```bash
 cd relay-example
 
-# Note: Version 18^ of Relay is missing React 19 as a peer dependency. To avoid
-# this, we are using the `@main` versions of the Relay packages until the next Relay release
-
 # Runtime dependencies
-npm install relay-runtime@main react-relay@main
+npm install relay-runtime react-relay
 # Dev dependencies
-npm install --dev babel-plugin-relay graphql relay-compiler@main
+npm install --dev babel-plugin-relay graphql relay-compiler
 # Types
 npm install --dev @types/relay-runtime @types/react-relay
 ```
@@ -73,8 +70,7 @@ And define our `relay.config.json` config file which tells the [Relay Compiler](
 {
   "src": "./src",
   "schema": "./schema.graphql",
-  "language": "typescript",
-  "eagerEsModules": true
+  "language": "typescript"
 }
 ```
 
@@ -90,13 +86,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { RelayEnvironmentProvider } from "react-relay";
-import {
-  Environment,
-  Store,
-  RecordSource,
-  Network,
-  FetchFunction,
-} from "relay-runtime";
+import { Environment, Network, FetchFunction } from "relay-runtime";
 
 const HTTP_ENDPOINT = "https://graphql.org/graphql/";
 
@@ -113,7 +103,6 @@ const fetchGraphQL: FetchFunction = async (request, variables) => {
 };
 
 const environment = new Environment({
-  store: new Store(new RecordSource({})),
   network: Network.create(fetchGraphQL),
 });
 

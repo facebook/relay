@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<56b719c19d0f223cb1466e307e985c34>>
+ * @generated SignedSource<<a981f3564a45e741a21247c078baeafb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,7 +76,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "fish",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
             "path": "fish.__relay_model_instance"
           }
         },
@@ -86,7 +86,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "fish",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/FishResolvers').fish,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').fish,
           "path": "fish"
         },
         "linkedField": {

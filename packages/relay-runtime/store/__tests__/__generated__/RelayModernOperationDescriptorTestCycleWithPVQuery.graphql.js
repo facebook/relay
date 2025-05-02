@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b3a6d3a2f05ee6aed90f0c0c3883f493>>
+ * @generated SignedSource<<305bc4cb44edc8ea237917371c400367>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,7 @@ export type RelayModernOperationDescriptorTestCycleWithPVQuery = {|
   variables: RelayModernOperationDescriptorTestCycleWithPVQuery$variables,
 |};
 ({
-  "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('./../RelayProvider_returnsCyclic.relayprovider')
+  "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('../RelayProvider_returnsCyclic.relayprovider')
 }: {|
   +__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: {|
     +get: () => boolean,
@@ -119,7 +119,7 @@ var node/*: ConcreteRequest*/ = {
     "operationKind": "query",
     "text": "query RelayModernOperationDescriptorTestCycleWithPVQuery(\n  $__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider: Boolean!\n) {\n  me {\n    ...RelayModernOperationDescriptorTestCycleQuery_fragment\n    id\n  }\n}\n\nfragment RelayModernOperationDescriptorTestCycleQuery_fragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider)\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('./../RelayProvider_returnsCyclic.relayprovider')
+      "__relay_internal__pv__RelayProvider_returnsCyclicrelayprovider": require('../RelayProvider_returnsCyclic.relayprovider')
     }
   }
 };

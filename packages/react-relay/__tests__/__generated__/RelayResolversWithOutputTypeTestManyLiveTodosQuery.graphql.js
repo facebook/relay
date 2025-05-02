@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<04d4254435d6d6e20bf89146b058e903>>
+ * @generated SignedSource<<cc2831553102ef56b482e4d17a3ff512>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -89,7 +89,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "many_live_todos",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyLiveTodos').many_live_todos,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryManyLiveTodos').many_live_todos,
           "path": "many_live_todos",
           "normalizationInfo": {
             "kind": "OutputType",

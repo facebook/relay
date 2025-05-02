@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7f9b7a0be2a23656e341ed8f7229f1b5>>
+ * @generated SignedSource<<a9eae4a4cd1d8e54affbce95252de8ab>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_throws_when_odd",
-            "resolverModule": require('./../QueryLiveResolverThrowsOnRead').counter_throws_when_odd,
+            "resolverModule": require('../QueryLiveResolverThrowsOnRead').counter_throws_when_odd,
             "path": "counter_throws_when_odd"
           }
         ]

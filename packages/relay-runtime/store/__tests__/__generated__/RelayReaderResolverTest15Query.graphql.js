@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a1b3b1f64f8cfd4b670e7c6edaa06175>>
+ * @generated SignedSource<<98c6563426ccf43f8cae68b86f433d24>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "undefined_field",
-        "resolverModule": require('./../resolvers/UndefinedFieldResolver').undefined_field,
+        "resolverModule": require('../resolvers/UndefinedFieldResolver').undefined_field,
         "path": "undefined_field"
       }
     ],

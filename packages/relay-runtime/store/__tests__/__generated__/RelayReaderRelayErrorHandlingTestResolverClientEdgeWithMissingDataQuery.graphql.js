@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<78b08a8df8f4ca89e6a949e9e8ff4453>>
+ * @generated SignedSource<<c53c0f1b19445be9a19265e0efe843e7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,7 +76,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../resolvers/UserClientEdgeResolver').client_edge,
+              "resolverModule": require('../resolvers/UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {

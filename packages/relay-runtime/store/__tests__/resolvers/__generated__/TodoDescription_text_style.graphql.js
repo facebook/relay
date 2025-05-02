@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<05d1f2c5d37810b412a5fda333e95500>>
+ * @generated SignedSource<<d09424e7c8fc4045a7828cac752ef6f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,7 +59,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayResolver",
         "name": "color",
-        "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./TodoDescription____relay_model_instance.graphql'), require('./../TodoDescription').color, '__relay_model_instance', true),
+        "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./TodoDescription____relay_model_instance.graphql'), require('../TodoDescription').color, '__relay_model_instance', true),
         "path": "color"
       },
       "action": "THROW"

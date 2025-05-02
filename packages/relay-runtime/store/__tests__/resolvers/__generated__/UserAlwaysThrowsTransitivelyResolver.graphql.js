@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fd32bf71ac5e0e119d7a385f5ed5efb7>>
+ * @generated SignedSource<<8208626e87f520ef9ec13f8b00139491>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "always_throws",
-      "resolverModule": require('./../UserAlwaysThrowsResolver').always_throws,
+      "resolverModule": require('../UserAlwaysThrowsResolver').always_throws,
       "path": "always_throws"
     }
   ],

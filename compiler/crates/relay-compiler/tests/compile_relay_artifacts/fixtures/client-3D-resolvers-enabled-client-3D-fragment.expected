@@ -295,7 +295,7 @@ QUERY:
 
 Query Text is Empty.
 
-import clientUserRelayModelInstanceResolver from './../ClientUserResolver';
+import clientUserRelayModelInstanceResolver from '../ClientUserResolver';
 import ClientUser__id_graphql from './ClientUser__id.graphql';
 import {resolverDataInjector} from 'relay-runtime/experimental';
 {
@@ -345,7 +345,7 @@ import {resolverDataInjector} from 'relay-runtime/experimental';
   "abstractKey": null
 }
 
-import specialUserRelayModelInstanceResolver from './../SpecialUserResolver';
+import specialUserRelayModelInstanceResolver from '../SpecialUserResolver';
 import SpecialUser__id_graphql from './SpecialUser__id.graphql';
 import {resolverDataInjector} from 'relay-runtime/experimental';
 {

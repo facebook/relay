@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<821016b55494b56d01658a639b058511>>
+ * @generated SignedSource<<bd90cca9b044b078325f3888b466808f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,7 +67,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws",
-            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver').always_throws,
+            "resolverModule": require('../resolvers/UserAlwaysThrowsResolver').always_throws,
             "path": "me.always_throws"
           }
         ],

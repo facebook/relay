@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<516c4f6c3ab7c89130c7970ce174b60f>>
+ * @generated SignedSource<<5dfdd138a8df8ffd8a59b6e5e458f8d9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -74,7 +74,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "required_name",
-            "resolverModule": require('./../resolvers/UserRequiredNameResolver').required_name,
+            "resolverModule": require('../resolvers/UserRequiredNameResolver').required_name,
             "path": "me.required_name"
           },
           {

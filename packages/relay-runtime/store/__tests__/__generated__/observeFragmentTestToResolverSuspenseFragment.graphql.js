@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8229cec6e11b78d82481c095a5c41114>>
+ * @generated SignedSource<<6972b1a399382269a5fecc1a666eb5d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "counter_suspends_when_odd",
-          "resolverModule": require('./../resolvers/CounterSuspendsWhenOddOnUser').counter_suspends_when_odd,
+          "resolverModule": require('../resolvers/CounterSuspendsWhenOddOnUser').counter_suspends_when_odd,
           "path": "counter_suspends_when_odd"
         }
       ]

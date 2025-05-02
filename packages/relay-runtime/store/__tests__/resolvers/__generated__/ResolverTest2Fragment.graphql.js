@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4d664bb0bbe193af9fdbd0bf4a505348>>
+ * @generated SignedSource<<a130679b5e328f4e39739326c1648689>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,7 +71,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../UserGreetingResolver').greeting,
+      "resolverModule": require('../UserGreetingResolver').greeting,
       "path": "greeting"
     },
     {

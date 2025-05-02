@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1fcac115525fba26301ead3a213b084e>>
+ * @generated SignedSource<<9ad0c77d211333deb1b74114aa00f4d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -110,7 +110,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd').user_profile_picture_uri_suspends_when_the_counter_is_odd,
+                "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd').user_profile_picture_uri_suspends_when_the_counter_is_odd,
                 "path": "node.user_profile_picture_uri_suspends_when_the_counter_is_odd"
               }
             ],

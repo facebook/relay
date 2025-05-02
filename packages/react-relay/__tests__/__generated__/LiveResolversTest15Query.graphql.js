@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f38951a379a1dcc3ddb9a80eef10d5f>>
+ * @generated SignedSource<<b8bd42bba1b074caf08e771e61836531>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,7 +59,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_resolver_always_suspend",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver').live_user_resolver_always_suspend,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver').live_user_resolver_always_suspend,
           "path": "live_user_resolver_always_suspend"
         },
         "linkedField": {

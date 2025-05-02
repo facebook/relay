@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f6b7d5cc8ab1f8b482bfc5e0396d905e>>
+ * @generated SignedSource<<1385c82c4f7d308f7fb1db2b10d94c70>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -99,7 +99,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "weak_animal",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').weak_animal,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').weak_animal,
           "path": "weak_animal",
           "normalizationInfo": {
             "kind": "OutputType",
@@ -129,7 +129,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "weak_animal.greeting"
                 }
               ],
@@ -149,7 +149,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "weak_animal.greeting"
                 }
               ],

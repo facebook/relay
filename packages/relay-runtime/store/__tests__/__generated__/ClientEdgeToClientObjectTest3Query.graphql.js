@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ada75ff503c43e26ca072d4762ee2db3>>
+ * @generated SignedSource<<2305e9de2c013f48bf2d4b2e3d222bce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -109,7 +109,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver').astrological_sign,
+              "resolverModule": require('../resolvers/UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -131,7 +131,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "name": "name",
-                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+                  "resolverModule": require('../resolvers/AstrologicalSignNameResolver').name,
                   "path": "me.astrological_sign.name"
                 },
                 (v1/*: any*/)

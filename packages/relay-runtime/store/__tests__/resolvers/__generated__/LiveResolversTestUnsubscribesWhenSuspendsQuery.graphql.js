@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9fa3d676b0a5167cb3ce46e406259bd3>>
+ * @generated SignedSource<<5069bedfe0dd09be51e14237d383a2aa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -78,7 +78,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_suspends_when_odd",
-          "resolverModule": require('./../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
+          "resolverModule": require('../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
           "path": "user"
         },
         "linkedField": {
@@ -110,7 +110,7 @@ return {
         },
         "kind": "RelayLiveResolver",
         "name": "live_external_greeting",
-        "resolverModule": require('./../LiveExternalGreeting').live_external_greeting,
+        "resolverModule": require('../LiveExternalGreeting').live_external_greeting,
         "path": "greeting"
       }
     ],

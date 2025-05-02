@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3f370f33db9526932b4ca632fef5cf2b>>
+ * @generated SignedSource<<bebaf69d34c0f88f67f343914c4944f0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "mutable_entity",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/MutableModel').mutable_entity,
+            "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/MutableModel').mutable_entity,
             "path": "mutable_entity"
           }
         ]

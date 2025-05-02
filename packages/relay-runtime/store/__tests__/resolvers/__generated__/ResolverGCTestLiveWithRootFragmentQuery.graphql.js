@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<82fd959394b822fe29ac1003c8c6587d>>
+ * @generated SignedSource<<2e4f7bb7765b2aa5412110074d4299b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,7 +56,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "counter",
-        "resolverModule": require('./../LiveCounterResolver').counter,
+        "resolverModule": require('../LiveCounterResolver').counter,
         "path": "counter"
       }
     ],

@@ -64,6 +64,15 @@ pub struct ProvidedVariableMetadata {
 }
 
 impl ProvidedVariableMetadata {
+    /// Returns true if the provider module's path is a bare identifier (i.e.
+    /// doesn't start with './' nor '../' nor '/'), otherwise false.
+    pub fn is_bare(&self) -> bool {
+        let module_name = self.module_name.lookup();
+        !(module_name.starts_with("./")
+            || module_name.starts_with("../")
+            || module_name.starts_with("/"))
+    }
+
     /// Return a path to the provider module, based on the fragment location
     /// where this provider is used.
     pub fn module_path(&self) -> PathBuf {

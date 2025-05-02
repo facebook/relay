@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b5352e3799ffad01bfde6e88018d850d>>
+ * @generated SignedSource<<adabbae532fcfefed489c7262591cbc1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -142,7 +142,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../UserAstrologicalSignResolver').astrological_sign,
+              "resolverModule": require('../UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -159,7 +159,7 @@ return {
                   "fragment": (v0/*: any*/),
                   "kind": "RelayResolver",
                   "name": "name",
-                  "resolverModule": require('./../AstrologicalSignNameResolver').name,
+                  "resolverModule": require('../AstrologicalSignNameResolver').name,
                   "path": "me.astrological_sign.name"
                 },
                 {
@@ -176,7 +176,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "opposite",
-                    "resolverModule": require('./../AstrologicalSignOppositeResolver').opposite,
+                    "resolverModule": require('../AstrologicalSignOppositeResolver').opposite,
                     "path": "me.astrological_sign.opposite"
                   },
                   "linkedField": {
@@ -193,7 +193,7 @@ return {
                         "fragment": (v0/*: any*/),
                         "kind": "RelayResolver",
                         "name": "name",
-                        "resolverModule": require('./../AstrologicalSignNameResolver').name,
+                        "resolverModule": require('../AstrologicalSignNameResolver').name,
                         "path": "me.astrological_sign.opposite.name"
                       }
                     ],

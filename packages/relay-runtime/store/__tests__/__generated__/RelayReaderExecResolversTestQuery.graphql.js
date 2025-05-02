@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eb313f456ceba9556cb9585c32a25329>>
+ * @generated SignedSource<<0477a393d9031098a59e48592f548f1c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -104,7 +104,7 @@ v3 = {
       "storageKey": null,
       "isOutputType": false,
       "resolverInfo": {
-        "resolverFunction": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser,
+        "resolverFunction": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser,
         "rootFragment": null
       },
       "fragment": {
@@ -127,7 +127,7 @@ v4 = {
   "storageKey": null,
   "isOutputType": true,
   "resolverInfo": {
-    "resolverFunction": require('./../RelayReader-ExecResolvers-test').name,
+    "resolverFunction": require('../RelayReader-ExecResolvers-test').name,
     "rootFragment": null
   },
   "fragment": (v3/*: any*/)
@@ -155,7 +155,7 @@ return {
             "fragment": (v0/*: any*/),
             "kind": "RelayResolver",
             "name": "RelayReaderExecResolversTest_user_one",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
             "path": "RelayReaderExecResolversTest_user_one.__relay_model_instance"
           }
         },
@@ -165,7 +165,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "RelayReaderExecResolversTest_user_one",
-          "resolverModule": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTest_user_one,
+          "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTest_user_one,
           "path": "RelayReaderExecResolversTest_user_one"
         },
         "linkedField": {
@@ -182,7 +182,7 @@ return {
               "fragment": (v1/*: any*/),
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
               "path": "RelayReaderExecResolversTest_user_one.name"
             },
             {
@@ -195,7 +195,7 @@ return {
                   "fragment": (v0/*: any*/),
                   "kind": "RelayResolver",
                   "name": "best_friend",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
                   "path": "RelayReaderExecResolversTest_user_one.best_friend.__relay_model_instance"
                 }
               },
@@ -205,7 +205,7 @@ return {
                 "fragment": (v1/*: any*/),
                 "kind": "RelayResolver",
                 "name": "best_friend",
-                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').best_friend, '__relay_model_instance', true),
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('../RelayReader-ExecResolvers-test').best_friend, '__relay_model_instance', true),
                 "path": "RelayReaderExecResolversTest_user_one.best_friend"
               },
               "linkedField": {
@@ -222,7 +222,7 @@ return {
                     "fragment": (v1/*: any*/),
                     "kind": "RelayResolver",
                     "name": "name",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
                     "path": "RelayReaderExecResolversTest_user_one.best_friend.name"
                   }
                 ],
@@ -239,7 +239,7 @@ return {
                   "fragment": (v0/*: any*/),
                   "kind": "RelayResolver",
                   "name": "friends",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
                   "path": "RelayReaderExecResolversTest_user_one.friends.__relay_model_instance"
                 }
               },
@@ -249,7 +249,7 @@ return {
                 "fragment": (v1/*: any*/),
                 "kind": "RelayResolver",
                 "name": "friends",
-                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').friends, '__relay_model_instance', true),
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('../RelayReader-ExecResolvers-test').friends, '__relay_model_instance', true),
                 "path": "RelayReaderExecResolversTest_user_one.friends"
               },
               "linkedField": {
@@ -266,7 +266,7 @@ return {
                     "fragment": (v1/*: any*/),
                     "kind": "RelayResolver",
                     "name": "name",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('./../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser____relay_model_instance.graphql'), require('../RelayReader-ExecResolvers-test').name, '__relay_model_instance', true),
                     "path": "RelayReaderExecResolversTest_user_one.friends.name"
                   }
                 ],
@@ -291,7 +291,7 @@ return {
         "kind": "ClientEdgeToClientObject",
         "modelResolvers": {
           "RelayReaderExecResolversTestUser": {
-            "resolverModule": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
+            "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
           }
         },
         "backingField": {
@@ -301,7 +301,7 @@ return {
           "storageKey": null,
           "isOutputType": false,
           "resolverInfo": {
-            "resolverFunction": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTest_user_one,
+            "resolverFunction": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTest_user_one,
             "rootFragment": null
           },
           "fragment": null
@@ -319,7 +319,7 @@ return {
               "kind": "ClientEdgeToClientObject",
               "modelResolvers": {
                 "RelayReaderExecResolversTestUser": {
-                  "resolverModule": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
+                  "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
                 }
               },
               "backingField": {
@@ -329,7 +329,7 @@ return {
                 "storageKey": null,
                 "isOutputType": false,
                 "resolverInfo": {
-                  "resolverFunction": require('./../RelayReader-ExecResolvers-test').best_friend,
+                  "resolverFunction": require('../RelayReader-ExecResolvers-test').best_friend,
                   "rootFragment": null
                 },
                 "fragment": (v3/*: any*/)
@@ -349,7 +349,7 @@ return {
               "kind": "ClientEdgeToClientObject",
               "modelResolvers": {
                 "RelayReaderExecResolversTestUser": {
-                  "resolverModule": require('./../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
+                  "resolverModule": require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser
                 }
               },
               "backingField": {
@@ -359,7 +359,7 @@ return {
                 "storageKey": null,
                 "isOutputType": false,
                 "resolverInfo": {
-                  "resolverFunction": require('./../RelayReader-ExecResolvers-test').friends,
+                  "resolverFunction": require('../RelayReader-ExecResolvers-test').friends,
                   "rootFragment": null
                 },
                 "fragment": (v3/*: any*/)
@@ -381,7 +381,7 @@ return {
         }
       }
     ],
-    "exec_time_resolvers_enabled_provider": require('./../relayReaderTestExecTimeResolversTrueProvider')
+    "exec_time_resolvers_enabled_provider": require('../relayReaderTestExecTimeResolversTrueProvider')
   },
   "params": {
     "cacheID": "bd1a2a7e4d80e5e5a017a7ff107bd87f",

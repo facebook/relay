@@ -428,6 +428,7 @@ impl Config {
                     ),
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
+                    relativize_js_module_paths: config_file_project.relativize_js_module_paths,
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
                     resolvers_schema_module: config_file_project.resolvers_schema_module,
@@ -816,6 +817,10 @@ fn get_default_excludes() -> Vec<String> {
     ]
 }
 
+fn default_true() -> bool {
+    true
+}
+
 /// Schema of the compiler configuration JSON file.
 #[derive(Debug, Serialize, Deserialize, Default, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
@@ -918,6 +923,11 @@ pub struct SingleProjectConfigFile {
     /// Formatting style for generated files.
     pub js_module_format: JsModuleFormat,
 
+    /// Whether to treat all JS module names as relative to './' (true) or not.
+    /// default: true
+    #[serde(default = "default_true")]
+    pub relativize_js_module_paths: bool,
+
     /// Extra configuration for the schema itself.
     pub schema_config: SchemaConfig,
 
@@ -957,6 +967,7 @@ impl Default for SingleProjectConfigFile {
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
+            relativize_js_module_paths: true,
             typegen_phase: None,
             feature_flags: None,
             module_import_config: Default::default(),
@@ -1203,6 +1214,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub js_module_format: JsModuleFormat,
+
+    #[serde(default = "default_true")]
+    pub relativize_js_module_paths: bool,
 
     #[serde(default)]
     pub schema_config: SchemaConfig,

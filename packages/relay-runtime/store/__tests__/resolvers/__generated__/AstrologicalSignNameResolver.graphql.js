@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<654459e353102459ce6b54f39e099d4a>>
+ * @generated SignedSource<<4fadd9f926486d3b17d9d8c0b0131f26>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "self",
-      "resolverModule": require('./../AstrologicalSignSelfResolver').self,
+      "resolverModule": require('../AstrologicalSignSelfResolver').self,
       "path": "self"
     }
   ],

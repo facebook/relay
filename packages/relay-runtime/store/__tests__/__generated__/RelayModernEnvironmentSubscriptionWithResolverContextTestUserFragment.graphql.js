@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c229babd67df2794fa89b520672b0fc5>>
+ * @generated SignedSource<<8e6c9a64b2d02bc018f3af54839ad5fa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -70,7 +70,7 @@ var node/*: ReaderFragment*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "age",
-          "resolverModule": require('./../resolvers/UserAgeResolvers').age,
+          "resolverModule": require('../resolvers/UserAgeResolvers').age,
           "path": "age"
         }
       ]

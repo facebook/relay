@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6fd94860e46899b3b8315f34de60a209>>
+ * @generated SignedSource<<2f492cc11d674dd4831f2b377f5feae0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -69,7 +69,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "red_octopus",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers').red_octopus,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers').red_octopus,
           "path": "red_octopus",
           "normalizationInfo": {
             "kind": "WeakModel",

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47421c9c8675dce5d268e4221778f812>>
+ * @generated SignedSource<<b695e94e12cb58dbb47628319a156521>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,7 @@ var node/*: ClientRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "field_with_fragment_that_throws",
-        "resolverModule": require('./../useFragment_nullability-test').field_with_fragment_that_throws,
+        "resolverModule": require('../useFragment_nullability-test').field_with_fragment_that_throws,
         "path": "field_with_fragment_that_throws"
       }
     ],

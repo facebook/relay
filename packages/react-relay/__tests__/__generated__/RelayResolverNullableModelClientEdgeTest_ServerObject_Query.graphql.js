@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b393bafe5b0b3172b5bc1bc08bf3d48e>>
+ * @generated SignedSource<<a87cdf47dd3933d5dc692bf52fe885cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,7 +59,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_server_object_does_not_exist",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_server_object_does_not_exist,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_server_object_does_not_exist,
           "path": "edge_to_server_object_does_not_exist"
         },
         "linkedField": {

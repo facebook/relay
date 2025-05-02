@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6a4354458303c284c4110c2eca722504>>
+ * @generated SignedSource<<14534e07cee00ca4a0e69b16777a2a44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -73,7 +73,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "best_friend_greeting",
-            "resolverModule": require('./../resolvers/UserBestFriendGreetingResolver').best_friend_greeting,
+            "resolverModule": require('../resolvers/UserBestFriendGreetingResolver').best_friend_greeting,
             "path": "me.best_friend_greeting"
           }
         ],

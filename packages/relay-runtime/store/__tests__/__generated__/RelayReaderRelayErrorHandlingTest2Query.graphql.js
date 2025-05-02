@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0f6b6d8a2ae71fa1597f832cb58c570f>>
+ * @generated SignedSource<<f23086d5ecde83b4b2d8ed8130162b9f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,7 +65,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "last_name_throw_on_field_error",
-            "resolverModule": require('./../resolvers/UserLastNameThrowOnFieldError').last_name_throw_on_field_error,
+            "resolverModule": require('../resolvers/UserLastNameThrowOnFieldError').last_name_throw_on_field_error,
             "path": "me.last_name_throw_on_field_error"
           }
         ],

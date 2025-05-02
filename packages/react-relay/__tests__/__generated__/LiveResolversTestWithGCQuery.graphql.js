@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97bacf905cc0b47154e384233004dc8a>>
+ * @generated SignedSource<<02cb2d2d39e4dc014fbd31a92ad39b59>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,7 +56,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "live_counter_with_possible_missing_fragment_data",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver').live_counter_with_possible_missing_fragment_data,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver').live_counter_with_possible_missing_fragment_data,
         "path": "live_counter_with_possible_missing_fragment_data"
       }
     ],

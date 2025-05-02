@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2e45eddddcf29cda64a1ad63a7e7643>>
+ * @generated SignedSource<<14d6d8cfc809694e6ed8e47cc2da2588>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -77,7 +77,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "example_client_object",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver').example_client_object,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver').example_client_object,
           "path": "example_client_object",
           "normalizationInfo": {
             "kind": "OutputType",

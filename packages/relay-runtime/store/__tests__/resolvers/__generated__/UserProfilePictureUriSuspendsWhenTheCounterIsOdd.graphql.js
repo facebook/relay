@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8d6fa83f6d19fa90b55190ef1168c80a>>
+ * @generated SignedSource<<6142d9f97247a1b158ca74abfe2c0fb9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,7 +75,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../UserGreetingResolver').greeting,
+      "resolverModule": require('../UserGreetingResolver').greeting,
       "path": "greeting"
     },
     {
@@ -94,7 +94,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "user_profile_picture_uri_with_scale",
-      "resolverModule": require('./../UserProfilePictureResolver').user_profile_picture_uri_with_scale,
+      "resolverModule": require('../UserProfilePictureResolver').user_profile_picture_uri_with_scale,
       "path": "uri"
     }
   ],

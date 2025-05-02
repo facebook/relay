@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b9b641ad03c687766ec3439814ed2163>>
+ * @generated SignedSource<<42cd4a5f26fcd1aa24617e626f0eabb5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,7 +65,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "greeting",
-            "resolverModule": require('./../UserGreetingResolver').greeting,
+            "resolverModule": require('../UserGreetingResolver').greeting,
             "path": "me.greeting"
           }
         ],

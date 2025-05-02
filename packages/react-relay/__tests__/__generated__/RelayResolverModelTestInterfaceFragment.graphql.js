@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a00c02178fd4db7f76df3cd1f866ae32>>
+ * @generated SignedSource<<7e0d627481ef17420968b76926640cfb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -116,7 +116,7 @@ return {
         },
         "kind": "RelayResolver",
         "name": "fancy_description",
-        "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
+        "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
         "path": "fancy_description",
         "normalizationInfo": {
           "kind": "WeakModel",
@@ -142,7 +142,7 @@ return {
               "fragment": (v0/*: any*/),
               "kind": "RelayResolver",
               "name": "some_interface",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_interface, '__relay_model_instance', true),
               "path": "fancy_description.some_interface",
               "normalizationInfo": {
                 "kind": "OutputType",
@@ -172,7 +172,7 @@ return {
               "fragment": (v0/*: any*/),
               "kind": "RelayResolver",
               "name": "some_client_type_with_interface",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_client_type_with_interface, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').some_client_type_with_interface, '__relay_model_instance', true),
               "path": "fancy_description.some_client_type_with_interface",
               "normalizationInfo": {
                 "kind": "OutputType",

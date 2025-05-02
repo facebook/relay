@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<abb679bea3c9bdc794000914d72657a5>>
+ * @generated SignedSource<<f1473c6f470a116b3d13ebed2ddcf5b9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -82,7 +82,7 @@ return {
             },
             "kind": "RelayLiveResolver",
             "name": "edge_to_plural_live_objects_some_exist",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "edge_to_plural_live_objects_some_exist.__relay_model_instance"
           }
         },
@@ -92,7 +92,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_plural_live_objects_some_exist",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_plural_live_objects_some_exist,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_plural_live_objects_some_exist,
           "path": "edge_to_plural_live_objects_some_exist"
         },
         "linkedField": {
@@ -114,7 +114,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "description",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').description, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').description, '__relay_model_instance', true),
               "path": "edge_to_plural_live_objects_some_exist.description"
             }
           ],

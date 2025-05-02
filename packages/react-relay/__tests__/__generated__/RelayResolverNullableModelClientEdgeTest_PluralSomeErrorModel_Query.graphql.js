@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8fb43e03539a3a71a4f73a2629d70f43>>
+ * @generated SignedSource<<a896d8c3fd652f0612f4dfda37bb5c20>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -83,7 +83,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "edge_to_plural_models_some_throw",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
             "path": "edge_to_plural_models_some_throw.__relay_model_instance"
           }
         },
@@ -93,7 +93,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_plural_models_some_throw",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_plural_models_some_throw,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_plural_models_some_throw,
           "path": "edge_to_plural_models_some_throw"
         },
         "linkedField": (v0/*: any*/)

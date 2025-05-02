@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<26811535a27d0c22a86eefa867c29039>>
+ * @generated SignedSource<<8f4a4e255a6a0611ccc1a4c1a0282d8a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment",
-            "resolverModule": require('./../LiveCounterNoFragment').counter_no_fragment,
+            "resolverModule": require('../LiveCounterNoFragment').counter_no_fragment,
             "path": "counter_no_fragment"
           }
         ]

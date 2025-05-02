@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ba977933c828f765a66f1e251997ea84>>
+ * @generated SignedSource<<e11c7f98b64607e8f4d2d6eb400cbc50>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -119,7 +119,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "todo",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
           "path": "todo",
           "normalizationInfo": {
             "kind": "OutputType",
@@ -150,7 +150,7 @@ return {
                 },
                 "kind": "RelayResolver",
                 "name": "blocked_by",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
+                "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
                 "path": "todo.blocked_by",
                 "normalizationInfo": {
                   "kind": "OutputType",

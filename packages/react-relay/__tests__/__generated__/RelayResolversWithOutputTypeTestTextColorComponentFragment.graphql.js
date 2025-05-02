@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d65bbb7edf946523a4870e922cc8de6d>>
+ * @generated SignedSource<<8ccda0e6400fbe28467e1480ff53c72f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "human_readable_color",
-      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextColorResolver').human_readable_color,
+      "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoTextColorResolver').human_readable_color,
       "path": "human_readable_color"
     }
   ],

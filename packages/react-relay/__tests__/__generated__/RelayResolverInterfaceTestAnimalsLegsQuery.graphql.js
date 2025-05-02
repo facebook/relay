@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9d339ec2dd6244541ac1a4c374aac165>>
+ * @generated SignedSource<<062adec116964523ee6b9b5a5a62c17c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -100,7 +100,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "animals",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
             "path": "animals.__relay_model_instance"
           },
           "Fish": {
@@ -113,7 +113,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "animals",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
             "path": "animals.__relay_model_instance"
           }
         },
@@ -123,7 +123,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "animals",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').animals,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/AnimalQueryResolvers').animals,
           "path": "animals"
         },
         "linkedField": {

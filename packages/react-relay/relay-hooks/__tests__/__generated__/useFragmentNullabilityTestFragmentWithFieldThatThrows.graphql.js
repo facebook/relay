@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af27b3863a196cc0f963c06725beed08>>
+ * @generated SignedSource<<e72932e9d1803e30569edd529e772754>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,7 +56,7 @@ var node/*: ReaderFragment*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "field_that_throws",
-          "resolverModule": require('./../useFragment_nullability-test').field_that_throws,
+          "resolverModule": require('../useFragment_nullability-test').field_that_throws,
           "path": "field_that_throws"
         }
       ]

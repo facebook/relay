@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7318e97bc9c3513421f3a6de2505783a>>
+ * @generated SignedSource<<1e9947dd69785c5b415a9173cb9c2e08>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "hello_world_with_context",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithContext').hello_world_with_context,
+            "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithContext').hello_world_with_context,
             "path": "hello_world_with_context"
           }
         ]

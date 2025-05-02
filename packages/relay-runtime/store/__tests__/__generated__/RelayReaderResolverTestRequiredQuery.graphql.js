@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<16e0b88bdf081092bdc07505722066a6>>
+ * @generated SignedSource<<9276f54a3796592510241a29eb43416c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,7 +65,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "required_name",
-            "resolverModule": require('./../resolvers/UserRequiredNameResolver').required_name,
+            "resolverModule": require('../resolvers/UserRequiredNameResolver').required_name,
             "path": "me.required_name"
           }
         ],

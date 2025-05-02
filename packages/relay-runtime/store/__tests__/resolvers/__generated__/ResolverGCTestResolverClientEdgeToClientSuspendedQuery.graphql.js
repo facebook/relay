@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34a8e8cbb6424b8147b062cd86c47e21>>
+ * @generated SignedSource<<721f227a2dacdaad832c941fa734ffd7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -87,7 +87,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "virgo_suspends_when_counter_is_odd",
-          "resolverModule": require('./../QueryVirgoLiveSuspendsWhenOddResolver').virgo_suspends_when_counter_is_odd,
+          "resolverModule": require('../QueryVirgoLiveSuspendsWhenOddResolver').virgo_suspends_when_counter_is_odd,
           "path": "virgo_suspends_when_counter_is_odd"
         },
         "linkedField": {
@@ -108,7 +108,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('./../AstrologicalSignNameResolver').name,
+              "resolverModule": require('../AstrologicalSignNameResolver').name,
               "path": "virgo_suspends_when_counter_is_odd.name"
             }
           ],

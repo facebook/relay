@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<92a23a8a19aaccfe9a40069c40ae5dd1>>
+ * @generated SignedSource<<4d77fd2704c7be091d038e5f2d74a80c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,7 +56,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "ping",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver').ping,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver').ping,
         "path": "ping"
       }
     ],

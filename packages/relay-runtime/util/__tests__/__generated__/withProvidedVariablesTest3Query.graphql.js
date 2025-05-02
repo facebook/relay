@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c169d9f18bbb48dc99f459836e1e3bc5>>
+ * @generated SignedSource<<accb0432370a6991b27b154f69667528>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,8 +30,8 @@ export type withProvidedVariablesTest3Query = {|
   variables: withProvidedVariablesTest3Query$variables,
 |};
 ({
-  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
-  "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider'),
+  "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('../provideIncludeUserNames.relayprovider')
 }: {|
   +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
     +get: () => boolean,
@@ -174,8 +174,8 @@ return {
     "operationKind": "query",
     "text": "query withProvidedVariablesTest3Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n  $__relay_internal__pv__provideIncludeUserNamesrelayprovider: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest3Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest3Fragment on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNamesrelayprovider)\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n  }\n}\n",
     "providedVariables": {
-      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
-      "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
+      "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('../provideNumberOfFriends.relayprovider'),
+      "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('../provideIncludeUserNames.relayprovider')
     }
   }
 };

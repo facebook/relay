@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b12265d82d587cd61399598b45eb10ff>>
+ * @generated SignedSource<<1460dd145afb22d6e34e70c030c1e4c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "throw_before_read",
-        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver').throw_before_read,
+        "resolverModule": require('../resolvers/ThrowBeforeReadResolver').throw_before_read,
         "path": "throw_before_read"
       }
     ],

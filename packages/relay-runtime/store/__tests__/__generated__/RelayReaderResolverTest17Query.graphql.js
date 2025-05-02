@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37be28848d26c929fa7f4db4c38beeb7>>
+ * @generated SignedSource<<dc63f9f02761ccd8b142d07ee26eff82>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,7 +67,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale_and_default_value",
-            "resolverModule": require('./../resolvers/UserProfilePictureWithDefaultValueResolver').user_profile_picture_uri_with_scale_and_default_value,
+            "resolverModule": require('../resolvers/UserProfilePictureWithDefaultValueResolver').user_profile_picture_uri_with_scale_and_default_value,
             "path": "me.user_profile_picture_uri_with_scale_and_default_value"
           }
         ],

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ee4067ace6bb0997f24ff742e76796eb>>
+ * @generated SignedSource<<60f62f906d38fb0b33e62d87e40efff5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -65,7 +65,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "constant_dependent",
-            "resolverModule": require('./../resolvers/UserConstantDependentResolver').constant_dependent,
+            "resolverModule": require('../resolvers/UserConstantDependentResolver').constant_dependent,
             "path": "me.constant_dependent"
           }
         ],

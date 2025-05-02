@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43501afad7f54936db863c04d0dcdecc>>
+ * @generated SignedSource<<86e78e986e692e1e021ded761a9a0389>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,7 +67,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_null_weak_model",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model,
           "path": "edge_to_null_weak_model",
           "normalizationInfo": {
             "kind": "WeakModel",
@@ -93,7 +93,7 @@ var node/*: ClientRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "first_name",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./WeakModel____relay_model_instance.graphql'), require('./../RelayResolverNullableModelClientEdge-test').first_name, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./WeakModel____relay_model_instance.graphql'), require('../RelayResolverNullableModelClientEdge-test').first_name, '__relay_model_instance', true),
               "path": "edge_to_null_weak_model.first_name"
             }
           ],

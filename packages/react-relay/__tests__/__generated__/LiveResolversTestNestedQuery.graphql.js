@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<83196c7b30b5c44e4136ad1a83091ee2>>
+ * @generated SignedSource<<e478df1c6e693853d22b20cd0f2ebfb0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -106,7 +106,7 @@ return {
         },
         "kind": "RelayResolver",
         "name": "outer",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/OuterResolver').outer,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/OuterResolver').outer,
         "path": "outer"
       },
       {
@@ -119,7 +119,7 @@ return {
         },
         "kind": "RelayLiveResolver",
         "name": "inner",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/InnerResolver').inner,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/InnerResolver').inner,
         "path": "inner"
       }
     ],

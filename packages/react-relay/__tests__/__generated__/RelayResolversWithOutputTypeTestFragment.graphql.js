@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7461a0a38bb01a1f9e9401cec319c0e8>>
+ * @generated SignedSource<<fd377d5d3de24e2f1c670a344a8e7e6d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -72,7 +72,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayResolver",
         "name": "text",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver').text,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver').text,
         "path": "text",
         "normalizationInfo": {
           "kind": "OutputType",

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<52969e8d13280a8efa0446b45423d7ee>>
+ * @generated SignedSource<<f9952061133f0c3f161c56316b5dc157>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -60,7 +60,7 @@ var node/*: ReaderFragment*/ = {
         "fragment": null,
         "kind": "RelayLiveResolver",
         "name": "live_user_suspends_when_odd",
-        "resolverModule": require('./../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
+        "resolverModule": require('../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
         "path": "user"
       },
       "linkedField": {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<195a6e5b1e17157d0d5f46baff77c69e>>
+ * @generated SignedSource<<44ecd07b6b22d9bf7257979f562cd28a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_context",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver').counter_context,
+            "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver').counter_context,
             "path": "counter_context"
           }
         ]

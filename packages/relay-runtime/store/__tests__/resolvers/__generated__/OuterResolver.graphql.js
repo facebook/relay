@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2435268cc8e896f52a9e951d3fc5b95f>>
+ * @generated SignedSource<<c9ad0790681b53986fa8ee08cd902ef5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayLiveResolver",
       "name": "inner",
-      "resolverModule": require('./../InnerResolver').inner,
+      "resolverModule": require('../InnerResolver').inner,
       "path": "inner"
     }
   ],

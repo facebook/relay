@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<934cf011eec7768dfb7a4f6c7987bd5b>>
+ * @generated SignedSource<<4fcb3d1cccf346f111ef051dc63904d5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayLiveResolver",
       "name": "self",
-      "resolverModule": require('./../TodoSelfResolver').self,
+      "resolverModule": require('../TodoSelfResolver').self,
       "path": "self"
     }
   ],

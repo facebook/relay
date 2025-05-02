@@ -2578,7 +2578,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let provider = ProvidedVariableMetadata::find(&def.directives)?;
 
                 let provider_module =
-                    if matches!(self.project_config.js_module_format, JsModuleFormat::Haste) {
+                    if matches!(self.project_config.js_module_format, JsModuleFormat::Haste)
+                        || (!self.project_config.relativize_js_module_paths && provider.is_bare())
+                    {
                         provider.module_name
                     } else {
                         // This will build a path from the operation artifact to the provider module

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d1c5acd70a753e740b92cee04e932b7>>
+ * @generated SignedSource<<f688624b4fa8913cf231198e43163065>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -90,7 +90,7 @@ return {
                 "fragment": null,
                 "kind": "RelayResolver",
                 "name": "client_node",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver').client_node,
+                "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver').client_node,
                 "path": "me.client_node"
               },
               "linkedField": {

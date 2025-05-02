@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9dcafc2a843a171cbbbf890be2203754>>
+ * @generated SignedSource<<c62068a2f1bce04dac16f723c0d6ff94>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -90,7 +90,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "weak_animal",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').weak_animal,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').weak_animal,
           "path": "weak_animal",
           "normalizationInfo": {
             "kind": "OutputType",

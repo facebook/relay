@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<124f32101834ca1f9f1d61368fc90268>>
+ * @generated SignedSource<<63e044290b65a580283f699c8952f0fb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,7 +71,7 @@ return {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment",
-            "resolverModule": require('./../LiveCounterNoFragment').counter_no_fragment,
+            "resolverModule": require('../LiveCounterNoFragment').counter_no_fragment,
             "path": "counter_no_fragment"
           },
           {
@@ -80,7 +80,7 @@ return {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
-            "resolverModule": require('./../LiveCounterNoFragmentWithArg').counter_no_fragment_with_arg,
+            "resolverModule": require('../LiveCounterNoFragmentWithArg').counter_no_fragment_with_arg,
             "path": "counter_no_fragment_with_arg"
           }
         ]

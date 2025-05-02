@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<25c3c2089e62abda4b66d6be0947e878>>
+ * @generated SignedSource<<881df56cf9fd645fc89ef6629b8c9180>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./Fish__id.graphql'), require('./../FishResolvers').Fish, 'id', true),
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./Fish__id.graphql'), require('../FishResolvers').Fish, 'id', true),
       "path": "__relay_model_instance"
     }
   ],

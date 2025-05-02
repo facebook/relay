@@ -1,0 +1,239 @@
+==================================== INPUT ====================================
+query providedVariableDirectiveCommonjsRelativizeDisabledQuery {
+  me {
+    ...providedVariableDirectiveCommonjsRelativizeDisabledFragment
+  }
+}
+
+fragment providedVariableDirectiveCommonjsRelativizeDisabledFragment on User
+  @argumentDefinitions(
+    condA: {type: "Boolean!", provider: "bareProvider" },
+    condB: {type: "Boolean!", provider: "./relProvider" },
+    condC: {type: "Boolean!", provider: "../parentProvider" },
+  ) {
+  username @include(if: $condA)
+  name @include(if: $condB)
+  alternate_name @include(if: $condC)
+}
+
+%project_config%
+{
+  "jsModuleFormat": "commonjs",
+  "relativizeJsModulePaths": false,
+  "language": "flow"
+}
+==================================== OUTPUT ===================================
+import condC_provider from '../../parentProvider';
+import condB_provider from '.././relProvider';
+import condA_provider from 'bareProvider';
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableDirectiveCommonjsRelativizeDisabledQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableDirectiveCommonjsRelativizeDisabledFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__bareProvider"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__relProvider"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__parentProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableDirectiveCommonjsRelativizeDisabledQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "condition": "__relay_internal__pv__bareProvider",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "username",
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "condition": "__relay_internal__pv__relProvider",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "condition": "__relay_internal__pv__parentProvider",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "alternate_name",
+                "storageKey": null
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "39a6590f6b52a674c0c593ed4494a130",
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableDirectiveCommonjsRelativizeDisabledQuery",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__bareProvider": condA_provider,
+      "__relay_internal__pv__relProvider": condB_provider,
+      "__relay_internal__pv__parentProvider": condC_provider
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableDirectiveCommonjsRelativizeDisabledQuery(
+  $__relay_internal__pv__bareProvider: Boolean!
+  $__relay_internal__pv__relProvider: Boolean!
+  $__relay_internal__pv__parentProvider: Boolean!
+) {
+  me {
+    ...providedVariableDirectiveCommonjsRelativizeDisabledFragment
+    id
+  }
+}
+
+fragment providedVariableDirectiveCommonjsRelativizeDisabledFragment on User {
+  username @include(if: $__relay_internal__pv__bareProvider)
+  name @include(if: $__relay_internal__pv__relProvider)
+  alternate_name @include(if: $__relay_internal__pv__parentProvider)
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__bareProvider"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__parentProvider"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__relProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableDirectiveCommonjsRelativizeDisabledFragment",
+  "selections": [
+    {
+      "condition": "__relay_internal__pv__bareProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "username",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "condition": "__relay_internal__pv__relProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "condition": "__relay_internal__pv__parentProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "alternate_name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

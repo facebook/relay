@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5ebfebc869324c761e909fb1b7e1e7f3>>
+ * @generated SignedSource<<b8eb71d272df6be4f73dbd843db3d6f0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,7 +37,7 @@ export type LiveResolversTestWithProvidedVariablesQuery = {|
   variables: LiveResolversTestWithProvidedVariablesQuery$variables,
 |};
 ({
-  "__relay_internal__pv__HelloWorldProviderrelayprovider": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
+  "__relay_internal__pv__HelloWorldProviderrelayprovider": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
 }: {|
   +__relay_internal__pv__HelloWorldProviderrelayprovider: {|
     +get: () => string,
@@ -62,7 +62,7 @@ var node/*: ClientRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "hello_world_with_provided_variable",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithProvidedVariable').hello_world_with_provided_variable,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithProvidedVariable').hello_world_with_provided_variable,
         "path": "hello_world_with_provided_variable"
       }
     ],
@@ -124,7 +124,7 @@ var node/*: ClientRequest*/ = {
     "operationKind": "query",
     "text": null,
     "providedVariables": {
-      "__relay_internal__pv__HelloWorldProviderrelayprovider": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
+      "__relay_internal__pv__HelloWorldProviderrelayprovider": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider.relayprovider')
     }
   }
 };

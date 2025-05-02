@@ -164,6 +164,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             Arc::new(flags)
                         }),
                     js_module_format: config_file_project.js_module_format,
+                    relativize_js_module_paths: config_file_project.relativize_js_module_paths,
                     ..default_project_config
                 }
             },

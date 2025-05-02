@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<88cbf6b2de4c792fa3dd5dd0dd50006e>>
+ * @generated SignedSource<<c6da0d2b3414feac05aacff9035bf12d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "constant",
-      "resolverModule": require('./../UserConstantResolver').constant,
+      "resolverModule": require('../UserConstantResolver').constant,
       "path": "constant"
     }
   ],

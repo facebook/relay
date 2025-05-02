@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0d2e5e18104d446088f8d64b7418c8a7>>
+ * @generated SignedSource<<c46dbd8f6bc355593185065ad47040d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -115,7 +115,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
+            "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.dynamic_greeting"
           },
           {
@@ -124,7 +124,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
+            "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.greetz"
           },
           {
@@ -133,7 +133,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
+            "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.willkommen"
           }
         ],

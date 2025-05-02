@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<39fa7e9948e81139e1731663852f83bb>>
+ * @generated SignedSource<<f150d969ede8e8924189a038fd72086e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -99,7 +99,7 @@ return {
             },
             "kind": "RelayLiveResolver",
             "name": "todo_model",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "todo_model.__relay_model_instance"
           }
         },
@@ -109,7 +109,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
           "path": "todo_model"
         },
         "linkedField": {
@@ -130,7 +130,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "capitalized_id",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id,
+              "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id,
               "path": "todo_model.capitalized_id"
             }
           ],

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6a1a53ca2d307c6484b70e3353466c49>>
+ * @generated SignedSource<<55efaeb7ccfd7940b2badcd40e453473>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -81,7 +81,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "edge_to_strong_model_does_not_exist",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
             "path": "edge_to_strong_model_does_not_exist.__relay_model_instance"
           }
         },
@@ -91,7 +91,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_strong_model_does_not_exist",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_strong_model_does_not_exist,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_strong_model_does_not_exist,
           "path": "edge_to_strong_model_does_not_exist"
         },
         "linkedField": {
@@ -112,7 +112,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel____relay_model_instance.graphql'), require('./../RelayResolverNullableModelClientEdge-test').name, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel____relay_model_instance.graphql'), require('../RelayResolverNullableModelClientEdge-test').name, '__relay_model_instance', true),
               "path": "edge_to_strong_model_does_not_exist.name"
             }
           ],

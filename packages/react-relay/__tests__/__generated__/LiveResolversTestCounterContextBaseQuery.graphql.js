@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<743370490ceef61e2730285c6cb8f8cf>>
+ * @generated SignedSource<<037817371343c160146009e57a039cfd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,7 +68,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "base_counter_context",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver').base_counter_context,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver').base_counter_context,
           "path": "base_counter_context",
           "normalizationInfo": {
             "kind": "WeakModel",
@@ -94,7 +94,7 @@ var node/*: ClientRequest*/ = {
               },
               "kind": "RelayLiveResolver",
               "name": "count_plus_one",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/BaseCounter____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver').count_plus_one, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/BaseCounter____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/LiveCounterContextResolver').count_plus_one, '__relay_model_instance', true),
               "path": "base_counter_context.count_plus_one"
             }
           ],

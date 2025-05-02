@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<438b9cfa39ef26639040bed14b5b7274>>
+ * @generated SignedSource<<c8d567baef98c764dea4ef208010ca94>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,7 +67,7 @@ var node/*: ReaderFragment*/ = {
               },
               "kind": "RelayResolver",
               "name": "legs",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').legs, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').legs, '__relay_model_instance', true),
               "path": "legs"
             }
           ],
@@ -87,7 +87,7 @@ var node/*: ReaderFragment*/ = {
               },
               "kind": "RelayResolver",
               "name": "legs",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/FishResolvers').legs, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').legs, '__relay_model_instance', true),
               "path": "legs"
             }
           ],

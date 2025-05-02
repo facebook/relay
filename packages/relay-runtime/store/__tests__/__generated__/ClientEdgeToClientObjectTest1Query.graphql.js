@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af97330cfc29ffa49accfc4bf3fe6b04>>
+ * @generated SignedSource<<23f93b7b8672df5dd26cabb896319e70>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -192,7 +192,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver').astrological_sign,
+              "resolverModule": require('../resolvers/UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -210,7 +210,7 @@ return {
                   "fragment": (v1/*: any*/),
                   "kind": "RelayResolver",
                   "name": "name",
-                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+                  "resolverModule": require('../resolvers/AstrologicalSignNameResolver').name,
                   "path": "me.astrological_sign.name"
                 },
                 {
@@ -219,7 +219,7 @@ return {
                   "fragment": (v2/*: any*/),
                   "kind": "RelayResolver",
                   "name": "house",
-                  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver').house,
+                  "resolverModule": require('../resolvers/AstrologicalSignHouseResolver').house,
                   "path": "me.astrological_sign.house"
                 },
                 {
@@ -232,7 +232,7 @@ return {
                     "fragment": (v3/*: any*/),
                     "kind": "RelayResolver",
                     "name": "opposite",
-                    "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
+                    "resolverModule": require('../resolvers/AstrologicalSignOppositeResolver').opposite,
                     "path": "me.astrological_sign.opposite"
                   },
                   "linkedField": {
@@ -250,7 +250,7 @@ return {
                         "fragment": (v1/*: any*/),
                         "kind": "RelayResolver",
                         "name": "name",
-                        "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+                        "resolverModule": require('../resolvers/AstrologicalSignNameResolver').name,
                         "path": "me.astrological_sign.opposite.name"
                       },
                       {
@@ -259,7 +259,7 @@ return {
                         "fragment": (v2/*: any*/),
                         "kind": "RelayResolver",
                         "name": "house",
-                        "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver').house,
+                        "resolverModule": require('../resolvers/AstrologicalSignHouseResolver').house,
                         "path": "me.astrological_sign.opposite.house"
                       },
                       {
@@ -272,7 +272,7 @@ return {
                           "fragment": (v3/*: any*/),
                           "kind": "RelayResolver",
                           "name": "opposite",
-                          "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
+                          "resolverModule": require('../resolvers/AstrologicalSignOppositeResolver').opposite,
                           "path": "me.astrological_sign.opposite.opposite"
                         },
                         "linkedField": {
@@ -290,7 +290,7 @@ return {
                               "fragment": (v1/*: any*/),
                               "kind": "RelayResolver",
                               "name": "name",
-                              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+                              "resolverModule": require('../resolvers/AstrologicalSignNameResolver').name,
                               "path": "me.astrological_sign.opposite.opposite.name"
                             }
                           ],

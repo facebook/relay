@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<70b480b97721b86a5618c2f8f8012117>>
+ * @generated SignedSource<<bdc55783d49e3ea890c5a79480e0dd45>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -94,7 +94,7 @@ return {
             },
             "kind": "RelayLiveResolver",
             "name": "edge_to_live_object_does_not_exist",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
           }
         },
@@ -104,7 +104,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_live_object_does_not_exist",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_live_object_does_not_exist,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_live_object_does_not_exist,
           "path": "edge_to_live_object_does_not_exist"
         },
         "linkedField": {
@@ -130,7 +130,7 @@ return {
                 },
                 "kind": "RelayResolver",
                 "name": "fancy_description",
-                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
                 "path": "edge_to_live_object_does_not_exist.fancy_description",
                 "normalizationInfo": {
                   "kind": "WeakModel",
@@ -156,7 +156,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "text",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', true),
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', true),
                     "path": "edge_to_live_object_does_not_exist.fancy_description.text"
                   }
                 ],

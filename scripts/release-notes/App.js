@@ -45,16 +45,27 @@ function CommitCard({
   date,
   selectedCategory,
   onCategoryChange,
-  hash,
+  fullHash,
+  diff,
 }) {
   return (
     <div className={`commit ${selectedCategory}`} title={message}>
       <p className="summary">
-        <a href={`${REPO_URL}/commit/${hash}`} target="_blank">
+        <a href={`${REPO_URL}/commit/${fullHash}`} target="_blank">
           {summary}
         </a>
       </p>
-      <p className="author">{author}</p>
+      <p className="author">
+        {author}
+        {diff && (
+          <>
+            {' '}
+            <a href={`https://www.internalfb.com/diff/${diff}`} target="_blank">
+              {diff}
+            </a>
+          </>
+        )}
+      </p>
       <CategoryPicker onPick={category => onCategoryChange(category)} />
     </div>
   );
@@ -96,7 +107,8 @@ function App({commits, lastRelease}) {
                 summary={commit.summary}
                 author={commit.author}
                 date={commit.date}
-                hash={commit.hash}
+                fullHash={commit.fullHash}
+                diff={commit.diff}
                 selectedCategory={selectedCategories[commit.hash]}
                 onCategoryChange={category => {
                   setSelectedCategories({
@@ -212,13 +224,16 @@ function CommitList({commits}) {
   return (
     <ul>
       {commits.map(commit => {
+        const summary = commit.summary.replace(/^- /, ''); // Avoid commit messages that render as indented list items.
+        const link = `${REPO_URL}/commit/${commit.fullHash}`;
         return (
           <li key={commit.hash}>
-            {'- '}[
-            <a href={`${REPO_URL}/commit/${commit.hash}`} target="_blank">
-              {commit.hash}
+            {' - '}
+            {capitalize(summary)} by {commit.author} ([
+            <a href={link} target="_blank">
+              commit
             </a>
-            ]: {capitalize(commit.summary)} by {commit.author}
+            ]({link}))
           </li>
         );
       })}

@@ -45,10 +45,15 @@ function CommitCard({
   date,
   selectedCategory,
   onCategoryChange,
+  hash,
 }) {
   return (
     <div className={`commit ${selectedCategory}`} title={message}>
-      <p className="summary">{summary}</p>
+      <p className="summary">
+        <a href={`${REPO_URL}/commit/${hash}`} target="_blank">
+          {summary}
+        </a>
+      </p>
       <p className="author">{author}</p>
       <CategoryPicker onPick={category => onCategoryChange(category)} />
     </div>
@@ -91,6 +96,7 @@ function App({commits, lastRelease}) {
                 summary={commit.summary}
                 author={commit.author}
                 date={commit.date}
+                hash={commit.hash}
                 selectedCategory={selectedCategories[commit.hash]}
                 onCategoryChange={category => {
                   setSelectedCategories({

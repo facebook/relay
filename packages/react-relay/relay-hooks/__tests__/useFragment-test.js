@@ -102,7 +102,7 @@ describe.each([
   ['Current', false],
 ])(
   'useFragment (%s)',
-  (name, ENABLE_ACTIVITY_COMPATIBILITY, ENABLE_RESOURCE_EFFECTS) => {
+  (name, ENABLE_ACTIVITY_COMPATIBILITY) => {
     beforeEach(() => {
       RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY =
         ENABLE_ACTIVITY_COMPATIBILITY;

@@ -70,7 +70,8 @@ And define our `relay.config.json` config file which tells the [Relay Compiler](
 {
   "src": "./src",
   "schema": "./schema.graphql",
-  "language": "typescript"
+  "language": "typescript",
+  "eagerEsModules": true
 }
 ```
 
@@ -104,6 +105,8 @@ const fetchGraphQL: FetchFunction = async (request, variables) => {
 
 const environment = new Environment({
   network: Network.create(fetchGraphQL),
+  // Note: This will error in TypeScript until our updated types land in
+  // DefinitelyTyped https://github.com/DefinitelyTyped/DefinitelyTyped/pull/72689
 });
 
 createRoot(document.getElementById("root")!).render(

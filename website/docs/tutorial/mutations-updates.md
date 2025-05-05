@@ -349,22 +349,18 @@ We pass this <span className="color2">fragment</span>, along with the <span clas
 ```
 function StoryLikeButton({story}) {
   ...
-      optimisticUpdater: store => {
+      optimisticUpdater: (store) => {
         const fragment = graphql`
           fragment StoryLikeButton_updatable on Story @updatable {
             likeCount
             doesViewerLike
           }
         `;
-        const {
-          // color1
-          updatableData
-        } = store.readUpdatableFragment(
-          // color2
-          fragment,
-          // color3
-          story
-        );
+        const { updatableData } =
+          store.readUpdatableFragment<StoryLikeButton_updatable$key>(
+            fragment,
+            story
+          );
       },
   ...
 }
@@ -377,19 +373,21 @@ Now `updatableData` is an object representing our existing Story as it exists in
 ```
 function StoryLikeButton({story}) {
   ...
-      optimisticUpdater: store => {
+      optimisticUpdater: (store) => {
         const fragment = graphql`
           fragment StoryLikeButton_updatable on Story @updatable {
             likeCount
             doesViewerLike
           }
         `;
-        const {updatableData} = store.readUpdatableFragment(fragment, story);
-        // change
+        const { updatableData } =
+          store.readUpdatableFragment<StoryLikeButton_updatable$key>(
+            fragment,
+            story
+          );
         const alreadyLikes = updatableData.doesViewerLike;
         updatableData.doesViewerLike = !alreadyLikes;
-        updatableData.likeCount += (alreadyLikes ? -1 : 1);
-        // end-change
+        updatableData.likeCount += alreadyLikes ? -1 : 1;
       },
   ...
 }

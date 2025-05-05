@@ -1,0 +1,165 @@
+---
+title: Relay v19.0
+author: The Relay Team
+hide_table_of_contents: false
+---
+
+# Version 19.0.0 Release Notes
+
+Relay 19.0.0 includes many documentation improvements, bug fixes, and improved capabilities.
+
+## `@alias` required on conditional fragments
+
+To improve type safety, the [`@alias` directive](https://relay.dev/docs/next/guides/alias-directive/) is now required on all fragments that are only conditionally fetched either due to `@skip`/`@include` or fragment type conditions which only conditionally match. You can opt out of this validation on a per-fragment basis with the `@dangerously_unaliased_fixme` directive.
+
+To enable incremental migration we [include a codemod](https://relay.dev/docs/next/guides/codemods/#mark-dangerous-conditional-fragment-spreads) which will automatically add the `@dangerously_unaliased_fixme` in all required places:
+
+```bash
+npx relay-compiler codemod mark-dangerous-conditional-fragment-spreads
+```
+
+You can also opt out of this validation entirely via compiler config feature flag:
+
+```json filename="relay.config.json"
+{
+  // ...
+  "featureFlags": {
+    "enforce_fragment_alias_where_ambiguous": {
+      "kind": "disabled"
+    }
+  }
+}
+```
+
+## Improved Docs
+
+We've merged ~30 commits to clean up and improve our docs since the last release:
+
+* Added new pages:
+  * [Quick Start](https://relay.dev/docs/next/getting-started/quick-start/) - A single page guide to get Relay up and running locally
+  * [Production Setup](https://relay.dev/docs/next/getting-started/production/) - A list of best practices for setting your Relay application up for production use cases
+  * [Relay Babel Plugin](https://relay.dev/docs/next/getting-started/babel-plugin/) - Information about Relay's Babel plugin and how to install it in your app.
+  * [Relay Environment](https://relay.dev/docs/next/api-reference/relay-runtime/relay-environment/) - API docs for the core Relay environment
+  * [Runtime Configuration](https://relay.dev/docs/next/api-reference/runtime-config/) - Documentation covering runtime feature flags and more
+* Removed outdated or orphaned doc pages
+* Streamlined and fixed issues in existing docs
+
+## React 19 Compatible
+
+React 19 is now a valid peer dependency of Relay (#4944) by Krzysztof Karol ([commit](https://github.com/facebook/relay/commit/aeb26c3ac05f))
+
+## Breaking Changes
+
+- Relay now defaults to generating ES module imports in its generated js files. You can add `"eagerEsModules": false` in your `relay.config.json` to opt back into the old behavior. ([commit](https://github.com/facebook/relay/commit/bd321a231397))
+- Relay's NPM modules nolonger include a pre-bundled module. (#4935) by Iha Shin ([commit](https://github.com/facebook/relay/commit/cc4cf767dd44))
+
+## Improvements
+- Avoid duplication in config JSON Schema by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/1e4b1646c334))
+- Go to definition in the LSP can now navigate to the correct column (#4969) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/4cab6f1a4d4e))
+- Make store an optional argument when constructing a Relay Environment by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/288aebdbd77d))
+- Include mixed loggerContext in handled snapshot errors by Itamar Kestenbaum ([commit](https://github.com/facebook/relay/commit/d800611ad70d))
+- Add id collision logging in RelayResponseNormalizer with typename metadata by Monica Tang ([commit](https://github.com/facebook/relay/commit/419353ce8b50))
+- Mark useLazyLoadQuery options as ReadOnly by Marco Wang ([commit](https://github.com/facebook/relay/commit/7730d71ec4a0))
+- Add onPause in cacheConfig for Relay subscriptions by Aria Fallah ([commit](https://github.com/facebook/relay/commit/76b801a7946f))
+- Add typename metadata to id collision log event by Monica Tang ([commit](https://github.com/facebook/relay/commit/027572b82f89))
+- Allow @dangerously_unaliased_fixme on updatable fragment spreads by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/837d4ab00f54))
+- Add a feature flag to throw on nested updates in dev by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/0ea5dfbbd836))
+- Do not emit union type for __typename selection on non-abstract type (#4923) by tobias-tengler ([commit](https://github.com/facebook/relay/commit/d9967e8fc676))
+- Reenable warning if fetchQuery is called in render (using new unsatable React APIs) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/9f7fb21578c0))
+- Log ID collisions in production by Monica Tang ([commit](https://github.com/facebook/relay/commit/65b9b9a6124a))
+- Add log events by Monica Tang ([commit](https://github.com/facebook/relay/commit/c640e2ef97c5))
+- Pass operation availability to the network layer for loadQuery by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/ab3b117680c5))
+- Add compiler validation to error on resolver that returns plural server type by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/687e9964123f))
+- Enable by default recreating loadMore optimization by Andrei Marchenko ([commit](https://github.com/facebook/relay/commit/a6f66ebe468b))
+- Allow @dangerously_unaliased_fixme in updatable fragments by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/3a16e220a2ff))
+- Error on empty selections after fragment argument transform (#4908) by tobias-tengler ([commit](https://github.com/facebook/relay/commit/56fbda68b171))
+- Add error message to Resolver error by Itamar Kestenbaum ([commit](https://github.com/facebook/relay/commit/134aea416143))
+- Fix codemod crashing on aliases in inline fragments by Gordy French ([commit](https://github.com/facebook/relay/commit/002f9ed05aed))
+- Allow required alias codemod to be applied to a rollout range by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/afca975cd55b))
+- Add onResume in cacheConfig for Relay subscriptions by Xiangxin Sun ([commit](https://github.com/facebook/relay/commit/40b579fe4088))
+- Shorten relay read time resolver key prefix by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/a5d6b23af4f0))
+- Arguments in prefetch pagination variables bug fix by Lynn Yu ([commit](https://github.com/facebook/relay/commit/b6291f97cb98))
+- handle local variables vs global variables in prefetch pagination by Lynn Yu ([commit](https://github.com/facebook/relay/commit/59ae29292204))
+- Manual rebase of: Enable __token field based on compiler schema config #4347 (#4889) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/9b90142ae813))
+- Fix conditional sub-selections in raw response type (#4774) by tobias-tengler ([commit](https://github.com/facebook/relay/commit/38ae4692b3a3))
+- Add execute.unsubsribe logging by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/45984275bf72))
+- Enhance `schemaExtensions` to Support Both Files and Directories (#4859) by Sverre Johansen ([commit](https://github.com/facebook/relay/commit/be8f5f77e113))
+- Add plural fragment support to `observeFragment()` (#4862) by Iha Shin ([commit](https://github.com/facebook/relay/commit/9ce48174b60a))
+- Handle CRLF when parsing docblocks (#4865) by Sverre Johansen ([commit](https://github.com/facebook/relay/commit/79f0355e28ec))
+- Validate that client schema extensions within @throwOnFieldError have @catch by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/572a90f626a7))
+- Add @catch to client schema extension fields within @throwOnFieldError by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/61b028d932f4))
+- Make Result type fields readonly by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/6186a7da2f50))
+- Limit WalkDir to the root directories referenced by the configuration (#4850) by Sverre Johansen ([commit](https://github.com/facebook/relay/commit/9503d7be26aa))
+- Simplify dependencies for loadMore function by Andrei Marchenko ([commit](https://github.com/facebook/relay/commit/8c29557d54d2))
+- Propegate empty arrays into the store when handling errors on noncompliant lists by Ryan Holdren ([commit](https://github.com/facebook/relay/commit/6f76a2af2f88))
+
+## Bug fixes
+- Fix nullable refetchedFragmentRef in checkSameIDAfterRefetch (#4945) by Krzysztof Karol ([commit](https://github.com/facebook/relay/commit/677c1e3dc44e))
+- Add missing `readFragment` export in relay-runtime (#4931) by Jay Jaeho Lee ([commit](https://github.com/facebook/relay/commit/51845382b662))
+- Fix bug with caching incomplete used variables for fragment cycles by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/3b732fc0ac88))
+- Fix `observeFragment` triggering unhandled rejections on network error (#4885) by Iha Shin ([commit](https://github.com/facebook/relay/commit/10073c88f8ec))
+- Checked for missed updates in effect create phase by Jack Pope ([commit](https://github.com/facebook/relay/commit/616508125a8e))
+- Avoid writing to stdout in LSP by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/51fac5d3c9a6))
+- Run requried transform on IR before validating @required on semantic non null fields in LSP by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/911e0831f77f))
+- Fix: Don't report @required on field that can be null due to @required bubbling as unnessesary by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/f11501758ab7))
+- Unbreak LiveState unsub when references.size === 0 (#4832) by Tom Aylott ([commit](https://github.com/facebook/relay/commit/1e60e4716a5e))
+- Remove PointerAddress from generate_typename by Gordy French ([commit](https://github.com/facebook/relay/commit/d0da5251e8cb))
+- Context not properly provided through data injector and subscriptions (#4846) by Mark Polak ([commit](https://github.com/facebook/relay/commit/2211ac6c529b))
+- Fix rare client_extension instability by Gordy French ([commit](https://github.com/facebook/relay/commit/28be5c299075))
+- Enforce TTL-based GC when release buffer is full by Monica Tang ([commit](https://github.com/facebook/relay/commit/29b7a1e08c66))
+- Fix usePagination stuck in isLoading by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/e9e556cf9bf3))
+
+
+## Documentation Improvements
+- Update language to reference hooks not containers (#4964) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/5893f3a06f4b))
+- Move the "Organizing Operations" tutorial page into the guides by Evan Yeung ([commit](https://github.com/facebook/relay/commit/91ec3275ae13))
+- Fix code examples in the connections tutorial page by Evan Yeung ([commit](https://github.com/facebook/relay/commit/155865207912))
+- Migrate most blockquotes in our docs to admonitions by Evan Yeung ([commit](https://github.com/facebook/relay/commit/07e662edd398))
+- Update VSCode docs/errors to use pathToRelay (#4965) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/91c22be60cb5))
+- Iteration on new quick start guide based on feedback (#4966) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/c7078a15e13f))
+- Quick Start: Add note about watchman by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/66550c3399a0))
+- Remove "TBD" sections from the docs by Evan Yeung ([commit](https://github.com/facebook/relay/commit/0470769e8235))
+- Rework onboarding flow by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/2784dfc48f68))
+- Remove migration and compatability pages by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/479fde84fcc4))
+- Make footer logo smaller by Monica Tang ([commit](https://github.com/facebook/relay/commit/010b8e1e75b8))
+- Delete some pages by Monica Tang ([commit](https://github.com/facebook/relay/commit/ce0b8c3396aa))
+- Remove orphaned page "workflow" by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/7bf190f14fd9))
+- Delete empty docs pages by Monica Tang ([commit](https://github.com/facebook/relay/commit/bb7bde0e3d1f))
+- Fix typos and improve clarity in the tutorial by Evan Yeung ([commit](https://github.com/facebook/relay/commit/c13dbb18f180))
+- Delete legacy API docs (with broken links) by Monica Tang ([commit](https://github.com/facebook/relay/commit/a178610d4c06))
+- Fix subscription call signature in observeFragment docs by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/6d10effc2d56))
+- Fix broken markdown in OssOnly blocks by Itamar Kestenbaum ([commit](https://github.com/facebook/relay/commit/caf95e9700b0))
+- Fix broken markdown in FbInternalOnly blocks by Itamar Kestenbaum ([commit](https://github.com/facebook/relay/commit/bcd5c070fbce))
+- Document configuring relay runtime globally (#4906) by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/d51fae0970ed))
+- Update docs on usePaginationFragement & transitions in Relay tutorial. (#4842) by Daniel Stocks ([commit](https://github.com/facebook/relay/commit/3bec307e636e))
+- fix mistake in refetching-queries-with-different-data by Lynn Yu ([commit](https://github.com/facebook/relay/commit/61c7de97d28b))
+- Add documentation for RecordSourceProxy by Lynn Yu ([commit](https://github.com/facebook/relay/commit/3151894ad717))
+- Remove dead links from Relay users page by Evan Yeung ([commit](https://github.com/facebook/relay/commit/d91fa3fadd45))
+- Add documentation for Relay performance logger by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/d64b0e9e4bc0))
+- Add docs for @gqlField resolvers by Evan Yeung ([commit](https://github.com/facebook/relay/commit/29fb05b5a3bd))
+- Document resolvers returning abstract types by Jordan Eldredge ([commit](https://github.com/facebook/relay/commit/620e7a63f23f))
+- Start to fix `Updating Data` section of relay docs by Lynn Yu ([commit](https://github.com/facebook/relay/commit/e946bb41a2c7))
+- make it clear that 3D `@module` will only work if each fragment is on a different concrete type by Lynn Yu ([commit](https://github.com/facebook/relay/commit/87432667c110))
+- Fix typo in documentation by Allan Spreys ([commit](https://github.com/facebook/relay/commit/a8a075079ae3))
+
+## Experimental Changes
+- Fix relay reader module import bug by Lynn Yu ([commit](https://github.com/facebook/relay/commit/9eb1ad09a5d0))
+- Load component module earlier into record store 1/2 by Lynn Yu ([commit](https://github.com/facebook/relay/commit/9d1fe445d97d))
+- Generate data driven dependencies for static resources used by exec resolver normalization artifacts by Lynn Yu ([commit](https://github.com/facebook/relay/commit/9ba58ebc2b81))
+- add ability to configure operationModuleProvider path separately from componentModuleProvider by Lynn Yu ([commit](https://github.com/facebook/relay/commit/543918ee73ee))
+- Check for .read_time_resolvers in module_metadata before adding exec time directive in split_module_import by Lynn Yu ([commit](https://github.com/facebook/relay/commit/2fd469ae95d7))
+- add exec time resolvers directive to split module import by Lynn Yu ([commit](https://github.com/facebook/relay/commit/07ef8d231aa5))
+- Generate exec time ASTs in rootFragment $normalization files by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/aa6f91aeca86))
+- Compiler client 3D changes to support exec time resolvers by Lynn Yu ([commit](https://github.com/facebook/relay/commit/52f1e24926a3))
+- Create feature flag for typename prefixing of ids by Monica Tang ([commit](https://github.com/facebook/relay/commit/ae9ed10010ba))
+- support client 3d on concrete objects by Lynn Yu ([commit](https://github.com/facebook/relay/commit/78e1499ba1a9))
+- Add test cases for @defer behavior in read time resolvers by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/0cd69573cf21))
+- Modify _readClientSideDirectiveField in RelayReader to work for exec time resolvers by Lynn Yu ([commit](https://github.com/facebook/relay/commit/6b38703d0fce))
+- Allow @match on client edges by Tianyu Yao ([commit](https://github.com/facebook/relay/commit/ee924ca4a526))
+- Add enabledProvider argument inside @exec_time_resolvers directive (runtime + artifacts) by Lynn Yu ([commit](https://github.com/facebook/relay/commit/e29e1f947be8))
+- Modify useLazyLoadClientQuery to take a flag for exec time resolvers on or off by Lynn Yu ([commit](https://github.com/facebook/relay/commit/322d60a4cc31))
+- amend compiler changes to handle exec_time_resolvers ONLY case differently by Lynn Yu ([commit](https://github.com/facebook/relay/commit/2e41a4518fa2))
+- COMPILER changes add enabled argument inside @exec_time_resolvers directive by Lynn Yu ([commit](https://github.com/facebook/relay/commit/8c32ec4bab1b))
+- Parse the @gqlField docblock for the description and deprecated tag by Evan Yeung ([commit](https://github.com/facebook/relay/commit/89872b1e3f00))
+- Add logic to find property lookup resolver docblocks by Evan Yeung ([commit](https://github.com/facebook/relay/commit/1c02417a669c))
+- Pipe information through compiler for simplified resolver generation for property lookup resolvers by Evan Yeung ([commit](https://github.com/facebook/relay/commit/24951b9b6511))

@@ -99,12 +99,16 @@ function getData() {
     .toString()
     .split('<!----!>\n');
   const commits = listOfCommits.split('\n').map((commitMessage, index) => {
+    const diffMatch = body[index].match(/D\d+/);
+    const diff = diffMatch != null && diffMatch[0];
     const [hash, date, name, _email] = commitMessage.split('|');
     return {
-      hash: hash.slice(0, 6),
+      hash: hash.slice(0, 7),
+      fullHash: hash,
       summary: summary[index],
       message: body[index],
       author: name,
+      diff,
       date,
     };
   });

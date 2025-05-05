@@ -377,7 +377,7 @@ Now `updatableData` is an object representing our existing Story as it exists in
 ```
 function StoryLikeButton({story}) {
   ...
-      optimisticUpdater: (store) => {
+      optimisticUpdater: store => {
         const fragment = graphql`
           fragment StoryLikeButton_updatable on Story @updatable {
             likeCount
@@ -392,7 +392,7 @@ function StoryLikeButton({story}) {
         // change
         const alreadyLikes = updatableData.doesViewerLike;
         updatableData.doesViewerLike = !alreadyLikes;
-        updatableData.likeCount += alreadyLikes ? -1 : 1;
+        updatableData.likeCount += (alreadyLikes ? -1 : 1);
         // end-change
       },
   ...

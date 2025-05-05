@@ -349,18 +349,22 @@ We pass this <span className="color2">fragment</span>, along with the <span clas
 ```
 function StoryLikeButton({story}) {
   ...
-      optimisticUpdater: (store) => {
+      optimisticUpdater: store => {
         const fragment = graphql`
           fragment StoryLikeButton_updatable on Story @updatable {
             likeCount
             doesViewerLike
           }
         `;
-        const { updatableData } =
-          store.readUpdatableFragment<StoryLikeButton_updatable$key>(
-            fragment,
-            story
-          );
+        const {
+          // color1
+          updatableData
+        } = store.readUpdatableFragment<StoryLikeButton_updatable$key>(
+          // color2
+          fragment,
+          // color3
+          story
+        );
       },
   ...
 }
@@ -385,9 +389,11 @@ function StoryLikeButton({story}) {
             fragment,
             story
           );
+        // change
         const alreadyLikes = updatableData.doesViewerLike;
         updatableData.doesViewerLike = !alreadyLikes;
         updatableData.likeCount += alreadyLikes ? -1 : 1;
+        // end-change
       },
   ...
 }

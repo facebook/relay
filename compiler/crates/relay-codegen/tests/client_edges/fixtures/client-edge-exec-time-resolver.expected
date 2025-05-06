@@ -15,7 +15,7 @@ type Cat @__RelayResolverModel {
   name: String
     @relay_resolver(import_name: "name", import_path: "CatNameResolver")
   __relay_model_instance: RelayResolverValue!
-    @relay_resolver(import_name: "Cat")
+    @relay_resolver(import_name: "Cat", import_path: "CatNameResolver")
     @unselectable(
       reason: "This field is intended only for Relay's internal use"
     )

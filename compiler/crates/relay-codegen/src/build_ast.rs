@@ -81,6 +81,7 @@ use relay_transforms::relay_resolvers::get_resolver_info;
 use relay_transforms::relay_resolvers::resolver_import_alias;
 use relay_transforms::remove_directive;
 use schema::Field;
+use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -1444,8 +1445,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     key: type_name,
                     value: match self.variant {
                         CodegenVariant::Reader => self.build_reader_client_edge_model_resolver(
-                            model_resolver.type_name,
-                            model_resolver.is_live,
+                            &model_resolver.model_field_id,
+                            &model_resolver.type_name,
+                            &model_resolver.resolver_info,
                             relay_resolver_metadata,
                         ),
                         CodegenVariant::Normalization => self
@@ -1488,40 +1490,37 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_reader_client_edge_model_resolver(
         &mut self,
-        type_name: WithLocation<ObjectName>,
-        is_live: bool,
-        relay_resolver_metadata: &RelayResolverMetadata,
+        model_field_id: &FieldID,
+        type_name: &WithLocation<ObjectName>,
+        resolver_info: &ResolverInfo,
+        backing_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
+        let fragment_name = resolver_info.fragment_name.unwrap();
+
         let id_fragment_artifact_name = self
             .project_config
             .name
             .generate_name_for_object_and_field(type_name.item.0, CODEGEN_CONSTANTS.id);
         let path = format!(
             "{}.{}",
-            relay_resolver_metadata.field_path, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
+            backing_resolver_metadata.field_path, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD
         )
         .intern();
+
         let model_resolver_metadata = RelayResolverMetadata {
-            field_id: relay_resolver_metadata.field_id,
-            import_path: type_name.location.source_location().path().intern(),
+            field_id: *model_field_id,
+            import_path: resolver_info.import_path,
             import_name: Some(type_name.item.0),
             field_alias: None,
             field_path: path,
             field_arguments: vec![], // The model resolver field does not take GraphQL arguments.
-            live: is_live,
-            output_type_info: relay_resolver_metadata.output_type_info.clone(),
-            fragment_data_injection_mode: Some((
-                WithLocation::new(
-                    type_name.location,
-                    FragmentDefinitionName(id_fragment_artifact_name.clone().intern()),
-                ),
-                FragmentDataInjectionMode::Field {
-                    name: CODEGEN_CONSTANTS.id,
-                    is_required: true,
-                },
-            )),
-            type_confirmed: relay_resolver_metadata.type_confirmed,
-            resolver_type: ResolverSchemaGenType::ResolverModule,
+            live: resolver_info.live,
+            output_type_info: backing_resolver_metadata.output_type_info.clone(),
+            fragment_data_injection_mode: resolver_info
+                .fragment_data_injection_mode
+                .map(|mode| (WithLocation::new(type_name.location, fragment_name), mode)),
+            type_confirmed: resolver_info.type_confirmed,
+            resolver_type: resolver_info.resolver_type,
         };
         let fragment_primitive = Primitive::Key(self.object(object! {
             args: Primitive::SkippableNull,

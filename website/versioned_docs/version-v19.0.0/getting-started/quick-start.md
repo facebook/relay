@@ -32,9 +32,9 @@ cd relay-example
 # Runtime dependencies
 npm install relay-runtime react-relay
 # Dev dependencies
-npm install --dev babel-plugin-relay graphql relay-compiler
+npm install --save-dev babel-plugin-relay graphql relay-compiler
 # Types
-npm install --dev @types/relay-runtime @types/react-relay
+npm install --save-dev @types/relay-runtime @types/react-relay
 ```
 
 ## Configure Vite to use Relay
@@ -105,8 +105,6 @@ const fetchGraphQL: FetchFunction = async (request, variables) => {
 
 const environment = new Environment({
   network: Network.create(fetchGraphQL),
-  // Note: This will error in TypeScript until our updated types land in
-  // DefinitelyTyped https://github.com/DefinitelyTyped/DefinitelyTyped/pull/72689
 });
 
 createRoot(document.getElementById("root")!).render(

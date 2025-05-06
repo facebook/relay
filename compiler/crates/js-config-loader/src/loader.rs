@@ -69,7 +69,7 @@ impl<T: for<'de> Deserialize<'de> + 'static> Loader<T> for JsLoader {
         let output = Command::new("node")
             .arg("--input-type=module")
             .arg("-e")
-            .arg(r#"process.stdout.write(JSON.stringify((await import(process.argv[1])).default))"#)
+            .arg(r#"import { sep } from "path";process.stdout.write(JSON.stringify((await import(process.argv[1].split(sep).join("/"))).default))"#)
             .arg(path)
             .output()
             .expect("failed to execute process. Make sure you have Node installed.");

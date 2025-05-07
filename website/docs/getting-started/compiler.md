@@ -21,7 +21,7 @@ The Relay compiler will look for a Relay config in the following locations. It's
 * `relay.config.(js/mjs/ts)` in your project root
 * A `"relay"` key in your `package.json`
 
-The Relay compiler config tells Relay things like where it can find your GraphQL schema and what language your code is writen in. A minimal Relay compiler config looks like this:
+The Relay compiler config tells Relay things like where it can find your GraphQL schema and what language your code is written in. A minimal Relay compiler config looks like this:
 
 ```json title="relay.config.json"
 {

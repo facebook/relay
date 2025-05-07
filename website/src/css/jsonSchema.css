@@ -1,0 +1,10 @@
+.json-schema { font-family: monospace; color: rgb(30, 30, 30); font-size: 13px; max-width: 750px; }
+.json-schema h1, h2 { font-size: 1.5em; border-bottom: 2px solid #ccc; margin-top: 2em; }
+.json-schema details { margin-left: 1em; }
+.json-schema summary { font-weight: bold; cursor: pointer; font-size: 13px;}
+.json-schema .property { margin-left: 2em; }
+.json-schema .inline-property { margin-left: 2em; }
+.json-schema .type { color: #0074d9; }
+.json-schema code { background: #eee; padding: 0 0.2em; border-radius: 3px; }
+.json-schema .description { color: #626262; font-size: 0.9em; margin-top: 1em; }
+.json-schema .default { color: #626262; }

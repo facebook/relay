@@ -26,5 +26,6 @@ pub fn get_parser_features(project_config: &ProjectConfig) -> ParserFeatures {
         } else {
             FragmentArgumentSyntaxKind::None
         },
+        allow_string_literal_alias: false,
     }
 }

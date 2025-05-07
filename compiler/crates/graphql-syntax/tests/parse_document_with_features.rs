@@ -21,6 +21,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         ParserFeatures {
             fragment_argument_capability:
                 FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
+            allow_string_literal_alias: false,
         },
     )
     .map(|x| format!("{:#?}", x))

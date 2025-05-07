@@ -34,6 +34,9 @@ pub enum FragmentArgumentSyntaxKind {
 pub struct ParserFeatures {
     /// Whether and how to enable the experimental fragment variables definitions syntax
     pub fragment_argument_capability: FragmentArgumentSyntaxKind,
+
+    /// Allows string literals as field aliases, as in: `query { "alias": field }`
+    pub allow_string_literal_alias: bool,
 }
 
 impl ParserFeatures {
@@ -2983,13 +2986,13 @@ fn clean_block_string_literal(source: &str) -> String {
 
     while formatted_lines
         .front()
-        .map_or(false, |line| line_is_whitespace(line))
+        .is_some_and(|line| line_is_whitespace(line))
     {
         formatted_lines.pop_front();
     }
     while formatted_lines
         .back()
-        .map_or(false, |line| line_is_whitespace(line))
+        .is_some_and(|line| line_is_whitespace(line))
     {
         formatted_lines.pop_back();
     }
@@ -3003,7 +3006,7 @@ fn get_common_indent(source: &str) -> usize {
     let mut common_indent: Option<usize> = None;
     for line in lines {
         if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next() {
-            if common_indent.map_or(true, |indent| first_index < indent) {
+            if common_indent.is_none_or(|indent| first_index < indent) {
                 common_indent = Some(first_index)
             }
         }

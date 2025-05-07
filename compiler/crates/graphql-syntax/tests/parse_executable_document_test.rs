@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4934dcac68b7399c330d6808663cc57f>>
+ * @generated SignedSource<<9c4963ceb07420900e7e9b2602c71a71>>
  */
 
 mod parse_executable_document;
@@ -17,6 +17,20 @@ async fn block_string() {
     let input = include_str!("parse_executable_document/fixtures/block_string.graphql");
     let expected = include_str!("parse_executable_document/fixtures/block_string.expected");
     test_fixture(transform_fixture, file!(), "block_string.graphql", "parse_executable_document/fixtures/block_string.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn enquoted_alias_invalid() {
+    let input = include_str!("parse_executable_document/fixtures/enquoted_alias.invalid.graphql");
+    let expected = include_str!("parse_executable_document/fixtures/enquoted_alias.invalid.expected");
+    test_fixture(transform_fixture, file!(), "enquoted_alias.invalid.graphql", "parse_executable_document/fixtures/enquoted_alias.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn enquoted_field_name_invalid() {
+    let input = include_str!("parse_executable_document/fixtures/enquoted_field_name.invalid.graphql");
+    let expected = include_str!("parse_executable_document/fixtures/enquoted_field_name.invalid.expected");
+    test_fixture(transform_fixture, file!(), "enquoted_field_name.invalid.graphql", "parse_executable_document/fixtures/enquoted_field_name.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

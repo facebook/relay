@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query EnquotedAlias {
+  "1$alias": simple_alias,
+}
+==================================== ERROR ====================================
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  enquoted_alias.invalid.graphql:4:3
+    3 │ query EnquotedAlias {
+    4 │   "1$alias": simple_alias,
+      │   ^^^^^^^^^
+    5 │ }

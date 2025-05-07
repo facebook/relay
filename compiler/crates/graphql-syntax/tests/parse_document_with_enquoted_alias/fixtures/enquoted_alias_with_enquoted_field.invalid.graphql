@@ -1,0 +1,5 @@
+# expected-to-throw
+
+query EnquotedAliasWithEnquotedFieldName {
+  "alias": "field_name"
+}

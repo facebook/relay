@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b85b45e67a29afe335bbb227267438ed>>
+ * @generated SignedSource<<b012a69b2cc49a1c90c07cdf7f8742a4>>
  */
 
 mod compile_relay_artifacts;
@@ -2022,17 +2022,17 @@ async fn unmasked_fragment_spreads_global_arguments() {
 }
 
 #[tokio::test]
+async fn unmasked_fragment_spreads_in_query() {
+    let input = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query.expected");
+    test_fixture(transform_fixture, file!(), "unmasked-fragment-spreads-in-query.graphql", "compile_relay_artifacts/fixtures/unmasked-fragment-spreads-in-query.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn unmasked_fragment_spreads_local_arguments_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-local-arguments.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-local-arguments.invalid.expected");
     test_fixture(transform_fixture, file!(), "unmasked-fragment-spreads-local-arguments.invalid.graphql", "compile_relay_artifacts/fixtures/unmasked-fragment-spreads-local-arguments.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn unmasked_fragment_spreads_on_query() {
-    let input = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-on-query.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/unmasked-fragment-spreads-on-query.expected");
-    test_fixture(transform_fixture, file!(), "unmasked-fragment-spreads-on-query.graphql", "compile_relay_artifacts/fixtures/unmasked-fragment-spreads-on-query.expected", input, expected).await;
 }
 
 #[tokio::test]

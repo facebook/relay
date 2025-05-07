@@ -1908,7 +1908,7 @@ impl<'a> Parser<'a> {
         let token = self.peek();
         match token.kind {
             TokenKind::Spread => self.parse_spread(),
-            TokenKind::Identifier => self.parse_field(),
+            TokenKind::Identifier | TokenKind::StringLiteral => self.parse_field(),
             // hint for invalid spreads
             TokenKind::Period | TokenKind::PeriodPeriod => {
                 let error = Diagnostic::error(
@@ -1929,13 +1929,49 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn parse_name_or_string_literal(&mut self) -> ParseResult<IdentifierOrString> {
+        let token_kind = self.peek_token_kind();
+        if token_kind == TokenKind::Identifier {
+            return Ok(IdentifierOrString::Identifier(self.parse_identifier()?));
+        }
+
+        let token = self.parse_token();
+        if !self.features.allow_string_literal_alias {
+            self.record_error(Diagnostic::error(
+                SyntaxError::Expected(TokenKind::Identifier),
+                Location::new(self.source_location, token.span),
+            ));
+            return Err(());
+        }
+
+        match token.kind {
+            TokenKind::StringLiteral => Ok(IdentifierOrString::StringNode(
+                self.parse_string_literal(token, self.source(&token)),
+            )),
+            _ => {
+                self.record_error(Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::StringLiteral),
+                    Location::new(self.source_location, token.span),
+                ));
+                Err(())
+            }
+        }
+    }
+
     /// Field : Alias? Name Arguments? Directives? SelectionSet?
     fn parse_field(&mut self) -> ParseResult<Selection> {
         let start = self.index();
-        let name = self.parse_identifier()?;
+        let maybe_alias = self.parse_name_or_string_literal()?;
         let (name, alias) = if self.peek_token_kind() == TokenKind::Colon {
             let colon = self.parse_kind(TokenKind::Colon)?;
-            let alias = name;
+            let alias = match maybe_alias {
+                IdentifierOrString::Identifier(node) => node,
+                IdentifierOrString::StringNode(node) => Identifier {
+                    span: node.token.span,
+                    token: node.token,
+                    value: node.value,
+                },
+            };
             let name = {
                 match self.peek_token_kind() {
                     TokenKind::Identifier => self.parse_identifier()?,
@@ -1962,8 +1998,18 @@ impl<'a> Parser<'a> {
                 }),
             )
         } else {
-            (name, None)
+            match maybe_alias {
+                IdentifierOrString::StringNode(node) => {
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::Expected(TokenKind::Identifier),
+                        Location::new(self.source_location, node.token.span),
+                    ));
+                    (self.empty_identifier(), None)
+                }
+                IdentifierOrString::Identifier(node) => (node, None),
+            }
         };
+
         let arguments = self.parse_optional_arguments()?;
         let directives = self.parse_directives()?;
         if self.peek_token_kind() == TokenKind::OpenBrace {
@@ -2389,13 +2435,9 @@ impl<'a> Parser<'a> {
         let token = self.parse_token();
         let source = self.source(&token);
         match &token.kind {
-            TokenKind::StringLiteral => {
-                let value = source[1..source.len() - 1].to_string();
-                Ok(ConstantValue::String(StringNode {
-                    token,
-                    value: value.intern(),
-                }))
-            }
+            TokenKind::StringLiteral => Ok(ConstantValue::String(
+                self.parse_string_literal(token, source),
+            )),
             TokenKind::BlockStringLiteral => {
                 let value = clean_block_string_literal(source);
                 Ok(ConstantValue::String(StringNode {
@@ -2496,6 +2538,14 @@ impl<'a> Parser<'a> {
                 self.record_error(error);
                 Err(())
             }
+        }
+    }
+
+    fn parse_string_literal(&self, token: Token, source: &str) -> StringNode {
+        let value = source[1..source.len() - 1].to_string();
+        StringNode {
+            token,
+            value: value.intern(),
         }
     }
 

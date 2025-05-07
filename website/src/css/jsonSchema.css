@@ -8,3 +8,10 @@
 .json-schema code { background: #eee; padding: 0 0.2em; border-radius: 3px; }
 .json-schema .description { color: #626262; font-size: 0.9em; margin-top: 1em; }
 .json-schema .default { color: #626262; }
+/**
+ * Needed to ensure anchor links don't get hidden under the top banner.
+ * Copied from .anchorWithStickyNavbar_node_modules-\@docusaurus-theme-classic-lib-theme-Heading-styles-module
+ */
+.json-schema .definition-title {
+    scroll-margin-top: calc(var(--ifm-navbar-height) + 0.5rem);
+}

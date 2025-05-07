@@ -1,6 +1,20 @@
 import data from './relay-compiler-config-schema.json';
 import React from 'react';
 
+/**
+ * Generate documentation for the Relay Compiler Config Schema dynamically from
+ * the JSON schema, which is itself generated from our Rust structs/enums.
+ *
+ * The output is formatted to resemble the TypeScript type definitions since we
+ * expect Relay users are intuitively familiar with TypeScript.
+ *
+ * This component will get executed during build time, so it should be written
+ * defensively. It's okay for us to only handle a subset of JSON schema as log
+ * as we explicitly throw on any unhanded cases. If now config options are added
+ * which exercise these unhandled cases, the build will fail and we can add support for
+ * them at that point.
+ */
+
 // Some types have a name but are really just simple wrappers around other types
 // or shapes. First we collect up these types and build a map redirecting them to
 // their real type.
@@ -344,7 +358,6 @@ function T({prop}) {
       }
       return <InlineObject prop={prop} />;
     default:
-      console.error('Unhandled type', prop);
       return prop.type ?? 'any';
   }
 }
@@ -373,7 +386,7 @@ function InlineObject({prop}) {
 function Definition({name, description, children}) {
   return (
     <div>
-      <h2 id={name}>{name}</h2>
+      <h2 id={name} className="definition-title">{name}</h2>
       {description && <p>{description}</p>}
       <div>{children}</div>
     </div>

@@ -361,10 +361,6 @@ module.exports = {
             to: '/compiler-explorer',
             from: ['/compiler-playground'],
           },
-          {
-            to: '/compiler-config',
-            from: ['/compiler-config'],
-          },
         ],
       },
     ],

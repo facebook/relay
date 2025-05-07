@@ -258,6 +258,7 @@ module.exports = {
     ],
   ],
   plugins: [
+    require.resolve('./plugins/webpack-alias'),
     [
       '@docusaurus/plugin-client-redirects',
       {

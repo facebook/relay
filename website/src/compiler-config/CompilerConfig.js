@@ -1,4 +1,4 @@
-import data from './relay-compiler-config-schema.json';
+import data from '@compilerConfigJsonSchema';
 import React from 'react';
 
 /**

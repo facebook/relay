@@ -31,11 +31,12 @@ The Relay compiler config tells Relay things like where it can find your GraphQL
 }
 ```
 
-The compiler config is very powerful, and includes many specialized configuration options. These are not yet exhaustively documented. In the mean time see [relay-compiler-config-schema.json](https://github.com/facebook/relay/blob/main/compiler/crates/relay-compiler/relay-compiler-config-schema.json).
-
 :::tip
 Install the [Relay VSCode extension](../editor-support.md) to get autocomplete, hover tips, and type checking for the options in your relay config.
 :::
+
+The compiler config is very powerful, and includes many specialized configuration options. For a full enumeration of the available options see the [Compiler Configuration](./compiler-config.md) page.
+
 
 ## Running the compiler
 

@@ -160,6 +160,11 @@ impl fmt::Display for Alias {
     }
 }
 
+pub enum IdentifierOrString {
+    Identifier(Identifier),
+    StringNode(StringNode),
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct TypeCondition {
     pub span: Span,

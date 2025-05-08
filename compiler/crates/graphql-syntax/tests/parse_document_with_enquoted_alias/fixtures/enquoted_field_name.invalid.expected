@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query EnquotedFieldName {
+  "field_name"
+}
+==================================== ERROR ====================================
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  enquoted_field_name.invalid.graphql:4:3
+    3 │ query EnquotedFieldName {
+    4 │   "field_name"
+      │   ^^^^^^^^^^^^
+    5 │ }

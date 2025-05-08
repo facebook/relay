@@ -133,6 +133,7 @@ mod tests {
             ParserFeatures {
                 fragment_argument_capability:
                     FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
+                allow_string_literal_alias: false,
             },
         )
         .unwrap();

@@ -32,9 +32,9 @@ cd relay-example
 # Runtime dependencies
 npm install relay-runtime react-relay
 # Dev dependencies
-npm install --dev babel-plugin-relay graphql relay-compiler
+npm install --save-dev babel-plugin-relay graphql relay-compiler
 # Types
-npm install --dev @types/relay-runtime @types/react-relay
+npm install --save-dev @types/relay-runtime @types/react-relay
 ```
 
 ## Configure Vite to use Relay
@@ -70,7 +70,8 @@ And define our `relay.config.json` config file which tells the [Relay Compiler](
 {
   "src": "./src",
   "schema": "./schema.graphql",
-  "language": "typescript"
+  "language": "typescript",
+  "eagerEsModules": true
 }
 ```
 

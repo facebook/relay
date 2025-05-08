@@ -73,6 +73,7 @@ function check(
   getDataID: GetDataID,
   shouldProcessClientComponents: ?boolean,
   log: ?LogFunction,
+  useExecTimeResolvers: ?boolean,
 ): Availability {
   if (log != null) {
     log({
@@ -91,6 +92,7 @@ function check(
     getDataID,
     shouldProcessClientComponents,
     log,
+    useExecTimeResolvers,
   );
   const result = checker.check(node, dataID);
   if (log != null) {
@@ -113,6 +115,7 @@ class DataChecker {
   _recordSourceProxy: RelayRecordSourceProxy;
   _recordWasMissing: boolean;
   _source: RecordSource;
+  _useExecTimeResolvers: boolean;
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
   +_getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource;
@@ -138,6 +141,7 @@ class DataChecker {
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
     log: ?LogFunction,
+    useExecTimeResolvers: ?boolean,
   ) {
     this._getSourceForActor = getSourceForActor;
     this._getTargetForActor = getTargetForActor;
@@ -147,6 +151,7 @@ class DataChecker {
     const [mutator, recordSourceProxy] = this._getMutatorAndRecordProxyForActor(
       defaultActorIdentifier,
     );
+    this._useExecTimeResolvers = useExecTimeResolvers ?? false;
     this._mostRecentlyInvalidatedAt = null;
     this._handlers = handlers;
     this._mutator = mutator;
@@ -455,10 +460,14 @@ class DataChecker {
           break;
         case 'RelayResolver':
         case 'RelayLiveResolver':
-          this._checkResolver(selection, dataID);
+          if (!this._useExecTimeResolvers) {
+            this._checkResolver(selection, dataID);
+          }
           break;
         case 'ClientEdgeToClientObject':
-          this._checkResolver(selection.backingField, dataID);
+          if (!this._useExecTimeResolvers) {
+            this._checkResolver(selection.backingField, dataID);
+          }
           break;
         default:
           (selection: empty);

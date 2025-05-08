@@ -138,6 +138,7 @@ class Executor<TMutation: MutationParameters> {
   _operationTracker: OperationTracker;
   _operationUpdateEpochs: Map<string, number>;
   _optimisticUpdates: null | Array<OptimisticUpdate<TMutation>>;
+  _useExecTimeResolvers: boolean;
   _pendingModulePayloadsCount: number;
   +_getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue;
   _shouldProcessClientComponents: ?boolean;
@@ -193,6 +194,11 @@ class Executor<TMutation: MutationParameters> {
     this._operationTracker = operationTracker;
     this._operationUpdateEpochs = new Map();
     this._optimisticUpdates = null;
+    this._useExecTimeResolvers =
+      this._operation.request.node.operation.use_exec_time_resolvers ??
+      this._operation.request.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+        true ??
+      false;
     this._pendingModulePayloadsCount = 0;
     this._getPublishQueue = getPublishQueue;
     this._scheduler = scheduler;
@@ -617,6 +623,7 @@ class Executor<TMutation: MutationParameters> {
           shouldProcessClientComponents: this._shouldProcessClientComponents,
           treatMissingFieldsAsNull,
         },
+        this._useExecTimeResolvers,
       );
       validateOptimisticResponsePayload(payload);
       optimisticUpdates.push({
@@ -727,6 +734,7 @@ class Executor<TMutation: MutationParameters> {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
+      this._useExecTimeResolvers,
     );
   }
 
@@ -810,6 +818,7 @@ class Executor<TMutation: MutationParameters> {
           treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
         },
+        this._useExecTimeResolvers,
       );
       this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
@@ -1267,6 +1276,7 @@ class Executor<TMutation: MutationParameters> {
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
       },
+      this._useExecTimeResolvers,
     );
     this._getPublishQueueAndSaveActor().commitPayload(
       this._operation,
@@ -1487,14 +1497,20 @@ class Executor<TMutation: MutationParameters> {
       record: nextParentRecord,
       fieldPayloads,
     });
-    const relayPayload = this._normalizeResponse(response, selector, typeName, {
-      actorIdentifier: this._actorIdentifier,
-      getDataID: this._getDataID,
-      log: this._log,
-      path: [...normalizationPath, responseKey, String(itemIndex)],
-      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
-      shouldProcessClientComponents: this._shouldProcessClientComponents,
-    });
+    const relayPayload = this._normalizeResponse(
+      response,
+      selector,
+      typeName,
+      {
+        actorIdentifier: this._actorIdentifier,
+        getDataID: this._getDataID,
+        log: this._log,
+        path: [...normalizationPath, responseKey, String(itemIndex)],
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        shouldProcessClientComponents: this._shouldProcessClientComponents,
+      },
+      this._useExecTimeResolvers,
+    );
     return {
       fieldPayloads,
       itemID,

@@ -359,7 +359,7 @@ function StoryLikeButton({story}) {
         const {
           // color1
           updatableData
-        } = store.readUpdatableFragment(
+        } = store.readUpdatableFragment<StoryLikeButton_updatable$key>(
           // color2
           fragment,
           // color3
@@ -384,7 +384,11 @@ function StoryLikeButton({story}) {
             doesViewerLike
           }
         `;
-        const {updatableData} = store.readUpdatableFragment(fragment, story);
+        const { updatableData } =
+          store.readUpdatableFragment<StoryLikeButton_updatable$key>(
+            fragment,
+            story
+          );
         // change
         const alreadyLikes = updatableData.doesViewerLike;
         updatableData.doesViewerLike = !alreadyLikes;

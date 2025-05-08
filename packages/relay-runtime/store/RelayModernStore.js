@@ -242,6 +242,11 @@ class RelayModernStore implements Store {
     const selector = operation.root;
     const source = this._getMutableRecordSource();
     const globalInvalidationEpoch = this._globalInvalidationEpoch;
+    const useExecTimeResolvers =
+      operation.request.node.operation.use_exec_time_resolvers ??
+      operation.request.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+        true ??
+      false;
 
     const rootEntry = this._roots.get(operation.request.identifier);
     const operationLastWrittenAt = rootEntry != null ? rootEntry.epoch : null;
@@ -286,6 +291,7 @@ class RelayModernStore implements Store {
       this._getDataID,
       this._shouldProcessClientComponents,
       this.__log,
+      useExecTimeResolvers,
     );
 
     return getAvailabilityStatus(
@@ -743,12 +749,18 @@ class RelayModernStore implements Store {
 
         // Mark all records that are traversable from a root that is still valid
         const selector = operation.root;
+        const useExecTimeResolvers =
+          operation.request.node.operation.use_exec_time_resolvers ??
+          operation.request.node.operation.exec_time_resolvers_enabled_provider?.get() ===
+            true ??
+          false;
         RelayReferenceMarker.mark(
           this._recordSource,
           selector,
           references,
           this._operationLoader,
           this._shouldProcessClientComponents,
+          useExecTimeResolvers,
         );
         // Yield for other work after each operation
         yield;

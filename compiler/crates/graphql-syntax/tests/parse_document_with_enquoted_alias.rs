@@ -10,18 +10,16 @@ use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
-use graphql_syntax::parse_document_with_features;
+use graphql_syntax::parse_executable_with_features;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    parse_document_with_features(
+    parse_executable_with_features(
         fixture.content,
         SourceLocationKey::standalone(fixture.file_name),
         ParserFeatures {
-            fragment_argument_capability:
-                FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
-            allow_string_literal_alias: false,
+            allow_string_literal_alias: true,
+            ..Default::default()
         },
     )
     .map(|x| format!("{:#?}", x))

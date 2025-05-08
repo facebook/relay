@@ -90,12 +90,14 @@ function normalize(
   response: PayloadData,
   options: NormalizationOptions,
   errors?: Array<PayloadError>,
+  useExecTimeResolvers?: boolean,
 ): RelayResponsePayload {
   const {dataID, node, variables} = selector;
   const normalizer = new RelayResponseNormalizer(
     recordSource,
     variables,
     options,
+    useExecTimeResolvers ?? false,
   );
   return normalizer.normalizeResponse(node, dataID, response, errors);
 }
@@ -117,6 +119,7 @@ class RelayResponseNormalizer {
   _path: Array<string>;
   _recordSource: MutableRecordSource;
   _variables: Variables;
+  _useExecTimeResolvers: boolean;
   _shouldProcessClientComponents: ?boolean;
   _errorTrie: RelayErrorTrie | null;
   _log: ?LogFunction;
@@ -125,6 +128,7 @@ class RelayResponseNormalizer {
     recordSource: MutableRecordSource,
     variables: Variables,
     options: NormalizationOptions,
+    useExecTimeResolvers: boolean,
   ) {
     this._actorIdentifier = options.actorIdentifier;
     this._getDataId = options.getDataID;
@@ -133,6 +137,7 @@ class RelayResponseNormalizer {
     this._incrementalPlaceholders = [];
     this._isClientExtension = false;
     this._isUnmatchedAbstractType = false;
+    this._useExecTimeResolvers = useExecTimeResolvers;
     this._followupPayloads = [];
     this._path = options.path ? [...options.path] : [];
     this._recordSource = recordSource;
@@ -325,10 +330,14 @@ class RelayResponseNormalizer {
           break;
         case 'RelayResolver':
         case 'RelayLiveResolver':
-          this._normalizeResolver(selection, record, data);
+          if (!this._useExecTimeResolvers) {
+            this._normalizeResolver(selection, record, data);
+          }
           break;
         case 'ClientEdgeToClientObject':
-          this._normalizeResolver(selection.backingField, record, data);
+          if (!this._useExecTimeResolvers) {
+            this._normalizeResolver(selection.backingField, record, data);
+          }
           break;
         default:
           (selection: empty);

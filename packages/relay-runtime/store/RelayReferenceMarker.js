@@ -47,6 +47,7 @@ function mark(
   references: DataIDSet,
   operationLoader: ?OperationLoader,
   shouldProcessClientComponents: ?boolean,
+  useExecTimeResolvers: ?boolean,
 ): void {
   const {dataID, node, variables} = selector;
   const marker = new RelayReferenceMarker(
@@ -55,6 +56,7 @@ function mark(
     references,
     operationLoader,
     shouldProcessClientComponents,
+    useExecTimeResolvers,
   );
   marker.mark(node, dataID);
 }
@@ -68,6 +70,7 @@ class RelayReferenceMarker {
   _recordSource: RecordSource;
   _references: DataIDSet;
   _variables: Variables;
+  _useExecTimeResolvers: boolean;
   _shouldProcessClientComponents: ?boolean;
 
   constructor(
@@ -76,9 +79,11 @@ class RelayReferenceMarker {
     references: DataIDSet,
     operationLoader: ?OperationLoader,
     shouldProcessClientComponents: ?boolean,
+    useExecTimeResolvers: ?boolean,
   ) {
     this._operationLoader = operationLoader ?? null;
     this._operationName = null;
+    this._useExecTimeResolvers = useExecTimeResolvers ?? false;
     this._recordSource = recordSource;
     this._references = references;
     this._variables = variables;
@@ -238,6 +243,10 @@ class RelayReferenceMarker {
     field: NormalizationClientEdgeToClientObject,
     record: Record,
   ): void {
+    if (this._useExecTimeResolvers) {
+      this._traverseLink(field.linkedField, record);
+      return;
+    }
     const dataID = this._traverseResolverField(field.backingField, record);
     if (dataID == null) {
       return;
@@ -290,6 +299,9 @@ class RelayReferenceMarker {
     field: NormalizationResolverField | NormalizationLiveResolverField,
     record: Record,
   ): ?DataID {
+    if (this._useExecTimeResolvers) {
+      return;
+    }
     const storageKey = getReadTimeResolverStorageKey(field, this._variables);
     const dataID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
@@ -305,7 +317,6 @@ class RelayReferenceMarker {
       // Mark the contents of the resolver's data dependencies.
       this._traverseSelections([fragment], record);
     }
-
     return dataID;
   }
 

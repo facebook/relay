@@ -1172,6 +1172,7 @@ export type NormalizeResponseFunction = (
   selector: NormalizationSelector,
   typeName: string,
   options: NormalizationOptions,
+  useExecTimeResolvers: boolean,
 ) => RelayResponsePayload;
 
 /**

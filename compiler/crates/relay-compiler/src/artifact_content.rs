@@ -77,6 +77,7 @@ impl ArtifactContent {
         schema: &SDLSchema,
         source_file: SourceLocationKey,
         fragment_locations: &FragmentLocations,
+        raw_text: &Option<String>,
     ) -> Vec<u8> {
         let skip_types =
             if let Some(extra_artifacts_config) = &project_config.extra_artifacts_config {
@@ -105,6 +106,7 @@ impl ArtifactContent {
                 id_and_text_hash,
                 skip_types,
                 fragment_locations,
+                raw_text,
             )
             .unwrap(),
             ArtifactContent::UpdatableQuery {

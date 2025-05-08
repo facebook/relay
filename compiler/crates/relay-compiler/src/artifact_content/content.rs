@@ -284,6 +284,7 @@ pub fn generate_operation(
     id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
+    raw_text: &Option<String>,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
 
@@ -299,6 +300,8 @@ pub fn generate_operation(
     } else {
         request_parameters.text.clone_from(text);
     }
+
+    request_parameters.raw_text.clone_from(raw_text);
 
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),

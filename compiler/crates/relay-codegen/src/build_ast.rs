@@ -196,6 +196,7 @@ pub fn build_request_params(operation: &OperationDefinition) -> RequestParameter
         operation_kind: operation.kind,
         id: &None,
         text: None,
+        raw_text: None,
     }
 }
 
@@ -2700,6 +2701,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             key: CODEGEN_CONSTANTS.text,
             value: match request_parameters.text {
                 Some(text) => Primitive::RawString(text),
+                None => Primitive::Null,
+            },
+        });
+
+        params_object.push(ObjectEntry {
+            key: CODEGEN_CONSTANTS.raw_text,
+            value: match request_parameters.raw_text {
+                Some(raw_text) => Primitive::RawString(raw_text),
                 None => Primitive::Null,
             },
         });

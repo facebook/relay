@@ -193,6 +193,7 @@ pub struct RequestParameters<'a> {
     pub name: StringKey,
     pub operation_kind: OperationKind,
     pub text: Option<String>,
+    pub raw_text: Option<String>,
 }
 
 impl RequestParameters<'_> {

@@ -414,7 +414,6 @@ pub fn build_programs(
             raw_text_map.insert(operation.name, text);
         }
     }
-    info!("{:?}", raw_text_map);
 
     let validation_results = programs
         .into_par_iter()
@@ -526,7 +525,6 @@ pub fn build_project(
         &log_event,
         Arc::clone(&perf_logger),
     )?;
-    info!("raw_text_map after build_programs {:?}", raw_text_map);
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");
@@ -619,7 +617,6 @@ pub async fn commit_project(
         .as_ref()
         .and_then(|create_fn| create_fn(project_config))
     {
-        info!("Operation persister");
         let persist_operations_timer = log_event.start("persist_operations_time");
         persist_operations::persist_operations(
             &mut artifacts,

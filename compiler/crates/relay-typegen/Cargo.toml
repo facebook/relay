@@ -33,4 +33,4 @@ graphql-test-helpers = { path = "../graphql-test-helpers" }
 regex = "1.11.1"
 relay-codegen = { path = "../relay-codegen" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.44.2", features = ["full", "test-util", "tracing"] }

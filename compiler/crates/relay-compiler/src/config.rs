@@ -52,8 +52,8 @@ use relay_docblock::DocblockIr;
 use relay_saved_state_loader::SavedStateLoader;
 use relay_transforms::CustomTransformsConfig;
 use schemars::JsonSchema;
-use schemars::gen::SchemaSettings;
-use schemars::gen::{self};
+use schemars::r#gen::SchemaSettings;
+use schemars::r#gen::{self};
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -693,7 +693,7 @@ impl Config {
     }
 
     /// Returns root directories that contain GraphQL schema files.
-    pub fn get_schema_file_roots(&self) -> impl Iterator<Item = PathBuf> {
+    pub fn get_schema_file_roots(&self) -> impl Iterator<Item = PathBuf> + use<> {
         self.get_schema_file_paths().into_iter().map(|schema_path| {
             schema_path
                 .parent()
@@ -1105,7 +1105,7 @@ pub enum ConfigFile {
 impl ConfigFile {
     pub fn json_schema() -> String {
         let settings: SchemaSettings = Default::default();
-        let generator = gen::SchemaGenerator::from(settings);
+        let generator = r#gen::SchemaGenerator::from(settings);
         let schema = generator.into_root_schema_for::<Self>();
         serde_json::to_string_pretty(&schema).unwrap()
     }

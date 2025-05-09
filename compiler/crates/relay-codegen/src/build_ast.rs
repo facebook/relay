@@ -2654,7 +2654,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         // Construct metadata object
         let mut params_object = vec![];
 
-        if let Some(ref text) = &request_parameters.text {
+        if let Some(text) = &request_parameters.text {
             params_object.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.cache_id,
                 value: Primitive::RawString(md5(text)),

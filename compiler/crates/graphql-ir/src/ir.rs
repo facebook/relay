@@ -689,7 +689,7 @@ impl Named for ConstantArgument {
 }
 
 macro_rules! generate_unwrap_fn {
-    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr_2021) => {
         pub fn $fn_name(&$self) -> $t {
             match $self {
                 $cv => $result,

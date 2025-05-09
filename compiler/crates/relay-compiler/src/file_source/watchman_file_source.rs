@@ -307,14 +307,13 @@ impl WatchmanFileSource {
             update_compiler_state_from_saved_state(&mut compiler_state, &self.config);
         }
 
-        if let Err(parse_error) = perf_logger_event.time("merge_file_source_changes", || {
+        match perf_logger_event.time("merge_file_source_changes", || {
             let result = compiler_state.merge_file_source_changes(&self.config, perf_logger, true);
             perf_logger_event.stop(try_saved_state_event);
             result
         }) {
-            Ok(Err(parse_error))
-        } else {
-            Ok(Ok(compiler_state))
+            Err(parse_error) => Ok(Err(parse_error)),
+            _ => Ok(Ok(compiler_state)),
         }
     }
 }

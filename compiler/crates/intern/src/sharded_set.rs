@@ -344,16 +344,17 @@ impl<T: Eq + Hash, S: BuildHasher> ShardedSet<T, S> {
         let (hash, shard) = self.hash_and_shard(q);
         // Assume load is low and try to take lock for writing.
         // We don't faff around with upgradability right now.
-        let shard = if let Some(write_lock) = shard.try_write() {
-            write_lock
-        } else {
-            // Write contention.  Try reading first to see if the entry already exists.
-            if let Some(t) = shard.read().find(hash, |other| q == other.borrow()) {
-                // Already exists.
-                return Ok(t.clone());
+        let shard = match shard.try_write() {
+            Some(write_lock) => write_lock,
+            _ => {
+                // Write contention.  Try reading first to see if the entry already exists.
+                if let Some(t) = shard.read().find(hash, |other| q == other.borrow()) {
+                    // Already exists.
+                    return Ok(t.clone());
+                }
+                // Unconditionally write lock.
+                shard.write()
             }
-            // Unconditionally write lock.
-            shard.write()
         };
         // Now check for the data.  We need to do this even if we already
         // checked in the write contention case above.  We don't use an

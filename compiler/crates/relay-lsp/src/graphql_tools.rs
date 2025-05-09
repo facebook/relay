@@ -188,27 +188,28 @@ fn build_operation_ir_with_fragments(
     )
     .map_err(|errors| format!("{:?}", errors))?;
 
-    if let Some(operation) = ir.iter().find_map(|item| {
+    match ir.iter().find_map(|item| {
         if let ExecutableDefinition::Operation(operation) = item {
             Some(Arc::new(operation.clone()))
         } else {
             None
         }
     }) {
-        let fragments = ir
-            .iter()
-            .filter_map(|item| {
-                if let ExecutableDefinition::Fragment(fragment) = item {
-                    Some(Arc::new(fragment.clone()))
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
+        Some(operation) => {
+            let fragments = ir
+                .iter()
+                .filter_map(|item| {
+                    if let ExecutableDefinition::Fragment(fragment) = item {
+                        Some(Arc::new(fragment.clone()))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
 
-        Ok((operation, fragments))
-    } else {
-        Err("Unable to find an operation.".to_string())
+            Ok((operation, fragments))
+        }
+        _ => Err("Unable to find an operation.".to_string()),
     }
 }
 
@@ -256,8 +257,8 @@ pub(crate) fn get_query_text<
     let operation_name = operation.name.item.0;
     let program = state.get_program(&project_name.into())?;
 
-    let query_text =
-        if let Some(program) = get_operation_only_program(operation, fragments, &program) {
+    let query_text = match get_operation_only_program(operation, fragments, &program) {
+        Some(program) => {
             let programs = transform_program(
                 project_config,
                 Arc::new(program),
@@ -271,9 +272,9 @@ pub(crate) fn get_query_text<
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
             print_full_operation_text(programs, operation_name).unwrap_or(original_text)
-        } else {
-            original_text
-        };
+        }
+        _ => original_text,
+    };
 
     Ok(query_text)
 }

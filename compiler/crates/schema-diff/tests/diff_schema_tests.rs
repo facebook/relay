@@ -1445,36 +1445,24 @@ fn sort_change(change: &mut SchemaChange) {
         changes.sort();
         for c in changes {
             match c {
-                DefinitionChange::UnionChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
+                DefinitionChange::UnionChanged { added, removed, .. } => {
                     added.sort();
                     removed.sort();
                 }
-                DefinitionChange::InputObjectChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
+                DefinitionChange::InputObjectChanged { added, removed, .. } => {
                     added.sort_by_key(|item| item.name);
                     removed.sort_by_key(|item| item.name);
                 }
-                DefinitionChange::InterfaceChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
+                DefinitionChange::InterfaceChanged { added, removed, .. } => {
                     added.sort_by_key(|item| item.name);
                     removed.sort_by_key(|item| item.name);
                 }
                 DefinitionChange::ObjectChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ref mut changed,
-                    ref mut interfaces_added,
-                    ref mut interfaces_removed,
+                    added,
+                    removed,
+                    changed,
+                    interfaces_added,
+                    interfaces_removed,
                     ..
                 } => {
                     added.sort_by_key(|item| item.name);

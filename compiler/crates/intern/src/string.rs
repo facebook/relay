@@ -103,7 +103,7 @@ impl StringId {
     }
 
     pub unsafe fn from_index(index: u32) -> Self {
-        Self(BytesId::from_index(index))
+        unsafe { Self(BytesId::from_index(index)) }
     }
 
     /// 0-cost conversion to interned bytes.
@@ -282,7 +282,7 @@ macro_rules! string_id {
             $crate::string::Lazy::new(|| $crate::string::intern($value));
         *INSTANCE
     }};
-    ($_:expr) => {
+    ($_:expr_2021) => {
         compile_error!("string_id! macro can only be used with string literals.")
     };
 }
@@ -295,7 +295,7 @@ macro_rules! bytes_id {
             $crate::string::Lazy::new(|| $crate::string::intern_bytes($value as &[u8]));
         *INSTANCE
     }};
-    ($_:expr) => {
+    ($_:expr_2021) => {
         compile_error!("bytes_id! macro can only be used with literals.")
     };
 }

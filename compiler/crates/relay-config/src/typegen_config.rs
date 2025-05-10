@@ -47,23 +47,34 @@ impl TypegenLanguage {
     }
 }
 
+/// Defines a custom GraphQL
+/// descrbing a custom scalar.
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, Hash, PartialEq, Eq)]
 #[serde(untagged)]
 pub enum CustomType {
+    /// A string representing the name of a custom type. e.g. "string" or "number"
     Name(StringKey),
+    /// A module which defines the custom type. e.g. { "name": "MyCustomType", "path": "./Types.ts" }
     Path(CustomTypeImport),
 }
 
+/// Defines a module path and export name of the Flow or TypeScript type
+/// descrbing a GraphQL custom scalar.
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, Hash, PartialEq, Eq)]
 pub struct CustomTypeImport {
+    /// The name under which the type is exported from the module
     pub name: StringKey,
+    /// The path to the module relative to the project root
     pub path: PathBuf,
 }
 
+/// Describes the type to import and use as the context for Relay Resolvers.
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum ResolverContextTypeInput {
+    /// The type imported using a relative path
     Path(ResolverContextTypeInputPath),
+    /// The type imported using a named package
     Package(ResolverContextTypeInputPackage),
 }
 
@@ -144,7 +155,7 @@ pub struct TypegenConfig {
     /// {"name:: "MyErrorName", "path": "../src/MyError"}
     pub custom_error_type: Option<CustomTypeImport>,
 
-    /// Indicates the type to import and use as the context for live resolvers.
+    /// Indicates the type to import and use as the context for Relay Resolvers.
     #[serde(default)]
     pub resolver_context_type: Option<ResolverContextTypeInput>,
 }

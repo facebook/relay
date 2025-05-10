@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "ConfigFile",
+  "description": "Relay's configuration file. Supports a single project config for simple use cases and a multi-project config for cases where multiple projects live in the same repository.\n\nIn general, start with the SingleProjectConfigFile.",
   "anyOf": [
     {
       "description": "Base case configuration (mostly of OSS) where the project have single schema, and single source directory",
@@ -42,6 +43,7 @@
           ]
         },
         "codegenCommand": {
+          "description": "Name of the command that runs the relay compiler. This will be added at the top of generated code to let readers know how to regenerate the file.",
           "default": null,
           "type": [
             "string",
@@ -68,6 +70,7 @@
           }
         },
         "diagnosticReportConfig": {
+          "description": "Threshold for diagnostics to be critical to the compiler's execution. All diagnostic with severities at and below this level will cause the compiler to fatally exit.",
           "default": {
             "criticalLevel": "error"
           },
@@ -112,6 +115,7 @@
           ]
         },
         "featureFlags": {
+          "description": "Enable and disable experimental or legacy behaviors. WARNING! These are not stable and may change at any time.",
           "default": null,
           "anyOf": [
             {
@@ -123,6 +127,7 @@
           ]
         },
         "jsModuleFormat": {
+          "description": "Import/export style to use in generated JavaScript modules.",
           "default": "commonjs",
           "allOf": [
             {
@@ -139,6 +144,7 @@
           ]
         },
         "moduleImportConfig": {
+          "description": "Configuration for the @module GraphQL directive.",
           "default": {
             "dynamicModuleProvider": null,
             "operationModuleProvider": null,
@@ -184,6 +190,7 @@
           ]
         },
         "relativizeJsModulePaths": {
+          "description": "Whether to treat all JS module names as relative to './' (true) or not. default: true",
           "default": true,
           "type": "boolean"
         },
@@ -193,7 +200,7 @@
           "type": "boolean"
         },
         "resolverContextType": {
-          "description": "Indicates the type to import and use as the context for live resolvers.",
+          "description": "Indicates the type to import and use as the context for Relay Resolvers.",
           "default": null,
           "anyOf": [
             {
@@ -232,6 +239,7 @@
           ]
         },
         "schemaConfig": {
+          "description": "Extra configuration for the GraphQL schema itself.",
           "default": {
             "connectionInterface": {
               "cursor": "cursor",
@@ -371,16 +379,28 @@
       "additionalProperties": false
     },
     "CustomType": {
+      "description": "Defines a custom GraphQL descrbing a custom scalar.",
       "anyOf": [
         {
-          "$ref": "#/definitions/StringKey"
+          "description": "A string representing the name of a custom type. e.g. \"string\" or \"number\"",
+          "allOf": [
+            {
+              "$ref": "#/definitions/StringKey"
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/CustomTypeImport"
+          "description": "A module which defines the custom type. e.g. { \"name\": \"MyCustomType\", \"path\": \"./Types.ts\" }",
+          "allOf": [
+            {
+              "$ref": "#/definitions/CustomTypeImport"
+            }
+          ]
         }
       ]
     },
     "CustomTypeImport": {
+      "description": "Defines a module path and export name of the Flow or TypeScript type descrbing a GraphQL custom scalar.",
       "type": "object",
       "required": [
         "name",
@@ -388,9 +408,15 @@
       ],
       "properties": {
         "name": {
-          "$ref": "#/definitions/StringKey"
+          "description": "The name under which the type is exported from the module",
+          "allOf": [
+            {
+              "$ref": "#/definitions/StringKey"
+            }
+          ]
         },
         "path": {
+          "description": "The path to the module relative to the project root",
           "type": "string"
         }
       }
@@ -985,6 +1011,7 @@
           }
         },
         "featureFlags": {
+          "description": "Enable and disable experimental or legacy behaviors. WARNING! These are not stable and may change at any time.",
           "default": {
             "actor_change_support": {
               "kind": "disabled"
@@ -1229,12 +1256,23 @@
       "additionalProperties": false
     },
     "ResolverContextTypeInput": {
+      "description": "Describes the type to import and use as the context for Relay Resolvers.",
       "anyOf": [
         {
-          "$ref": "#/definitions/ResolverContextTypeInputPath"
+          "description": "The type imported using a relative path",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResolverContextTypeInputPath"
+            }
+          ]
         },
         {
-          "$ref": "#/definitions/ResolverContextTypeInputPackage"
+          "description": "The type imported using a named package",
+          "allOf": [
+            {
+              "$ref": "#/definitions/ResolverContextTypeInputPackage"
+            }
+          ]
         }
       ]
     },
@@ -1480,7 +1518,7 @@
           ]
         },
         "codegenCommand": {
-          "description": "Name of the command that runs the relay compiler",
+          "description": "Name of the command that runs the relay compiler. This will be added at the top of generated code to let readers know how to regenerate the file.",
           "default": null,
           "type": [
             "string",
@@ -1532,6 +1570,7 @@
           }
         },
         "featureFlags": {
+          "description": "Enable and disable experimental or legacy behaviors. WARNING! These are not stable and may change at any time.",
           "default": null,
           "anyOf": [
             {
@@ -1551,7 +1590,7 @@
           ]
         },
         "jsModuleFormat": {
-          "description": "Formatting style for generated files.",
+          "description": "Import/export style to use in generated JavaScript modules.",
           "default": "commonjs",
           "allOf": [
             {
@@ -1625,7 +1664,7 @@
           "type": "boolean"
         },
         "resolverContextType": {
-          "description": "Indicates the type to import and use as the context for live resolvers.",
+          "description": "Indicates the type to import and use as the context for Relay Resolvers.",
           "default": null,
           "anyOf": [
             {
@@ -1653,7 +1692,7 @@
           "type": "string"
         },
         "schemaConfig": {
-          "description": "Extra configuration for the schema itself.",
+          "description": "Extra configuration for the GraphQL schema itself.",
           "default": {
             "connectionInterface": {
               "cursor": "cursor",
@@ -1697,10 +1736,6 @@
           "description": "Root directory of application code",
           "default": "",
           "type": "string"
-        },
-        "typegenPhase": {
-          "description": "Added in 13.1.1 to customize Final/Compat mode in the single project config file Removed in 14.0.0",
-          "default": null
         },
         "typescriptExcludeUndefinedFromNullableUnion": {
           "description": "Keep the previous compiler behavior by outputting an union of the raw type and null, and not the **correct** behavior of an union with the raw type, null and undefined.",

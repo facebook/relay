@@ -863,6 +863,8 @@ pub struct MultiProjectConfigFile {
     /// Configuration of projects to compile.
     projects: FnvIndexMap<ProjectName, ConfigFileProject>,
 
+    /// Enable and disable experimental or legacy behaviors.
+    /// WARNING! These are not stable and may change at any time.
     #[serde(default)]
     feature_flags: FeatureFlags,
 
@@ -917,10 +919,11 @@ pub struct SingleProjectConfigFile {
     /// This config option is here to define the name of that special variable
     pub is_dev_variable_name: Option<String>,
 
-    /// Name of the command that runs the relay compiler
+    /// Name of the command that runs the relay compiler. This will be added at
+    /// the top of generated code to let readers know how to regenerate the file.
     pub codegen_command: Option<String>,
 
-    /// Formatting style for generated files.
+    /// Import/export style to use in generated JavaScript modules.
     pub js_module_format: JsModuleFormat,
 
     /// Whether to treat all JS module names as relative to './' (true) or not.
@@ -928,18 +931,15 @@ pub struct SingleProjectConfigFile {
     #[serde(default = "default_true")]
     pub relativize_js_module_paths: bool,
 
-    /// Extra configuration for the schema itself.
+    /// Extra configuration for the GraphQL schema itself.
     pub schema_config: SchemaConfig,
 
     /// Configuration for @module
     #[serde(default)]
     pub module_import_config: ModuleImportConfig,
 
-    /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
-    /// Removed in 14.0.0
-    #[serde(default)]
-    pub typegen_phase: Option<Value>,
-
+    /// Enable and disable experimental or legacy behaviors.
+    /// WARNING! These are not stable and may change at any time.
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
 
@@ -968,7 +968,6 @@ impl Default for SingleProjectConfigFile {
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
             relativize_js_module_paths: true,
-            typegen_phase: None,
             feature_flags: None,
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
@@ -1020,16 +1019,6 @@ impl SingleProjectConfigFile {
     }
 
     fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
-        if self.typegen_phase.is_some() {
-            return Err(Error::ConfigFileValidation {
-                config_path: config_path.into(),
-                validation_errors: vec![ConfigValidationError::RemovedConfigField {
-                    name: "typegenPhase",
-                    action: "Please remove the option and update type imports from generated files to new names.",
-                }],
-            });
-        }
-
         let current_dir = std::env::current_dir().unwrap();
         let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
             Error::ConfigFileValidation {
@@ -1089,8 +1078,14 @@ impl SingleProjectConfigFile {
     }
 }
 
+/// Relay's configuration file. Supports a single project config for simple use
+/// cases and a multi-project config for cases where multiple projects live in
+/// the same repository.
+///
+/// In general, start with the SingleProjectConfigFile.
 #[derive(Serialize, JsonSchema)]
 #[serde(untagged)]
+#[allow(clippy::large_enum_variant)]
 pub enum ConfigFile {
     /// Base case configuration (mostly of OSS) where the project
     /// have single schema, and single source directory
@@ -1204,6 +1199,8 @@ pub struct ConfigFileProject {
     #[serde(default)]
     extra: serde_json::Value,
 
+    /// Enable and disable experimental or legacy behaviors.
+    /// WARNING! These are not stable and may change at any time.
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
 
@@ -1212,24 +1209,34 @@ pub struct ConfigFileProject {
     #[serde(default)]
     pub rollout: Rollout,
 
+    /// Import/export style to use in generated JavaScript modules.
     #[serde(default)]
     pub js_module_format: JsModuleFormat,
 
+    /// Whether to treat all JS module names as relative to './' (true) or not.
+    /// default: true
     #[serde(default = "default_true")]
     pub relativize_js_module_paths: bool,
 
+    /// Extra configuration for the GraphQL schema itself.
     #[serde(default)]
     pub schema_config: SchemaConfig,
 
+    /// Configuration for the @module GraphQL directive.
     #[serde(default)]
     pub module_import_config: ModuleImportConfig,
 
+    /// Threshold for diagnostics to be critical to the compiler's execution.
+    /// All diagnostic with severities at and below this level will cause the
+    /// compiler to fatally exit.
     #[serde(default)]
     pub diagnostic_report_config: DiagnosticReportConfig,
 
     #[serde(default)]
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
 
+    /// Name of the command that runs the relay compiler. This will be added at
+    /// the top of generated code to let readers know how to regenerate the file.
     #[serde(default)]
     pub codegen_command: Option<String>,
 }

@@ -396,7 +396,7 @@ function Definition({name, description, children}) {
   return (
     <div>
       <h2 id={name} className="definition-title">
-        {name}
+        {splitPascalCase(name)}
       </h2>
       {description && <p>{description}</p>}
       <div>{children}</div>
@@ -416,4 +416,8 @@ function Join({children, separator}) {
       ))}
     </>
   );
+}
+
+function splitPascalCase(str) {
+  return str.replace(/([A-Z]+)/g, ' $1').trim();
 }

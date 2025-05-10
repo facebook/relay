@@ -21,7 +21,7 @@ The Relay compiler will look for a Relay config in the following locations. It's
 * `relay.config.(js/mjs/ts)` in your project root
 * A `"relay"` key in your `package.json`
 
-The Relay compiler config tells Relay things like where it can find your GraphQL schema and what language your code is writen in. A minimal Relay compiler config looks like this:
+The Relay compiler config tells Relay things like where it can find your GraphQL schema and what language your code is written in. A minimal Relay compiler config looks like this:
 
 ```json title="relay.config.json"
 {
@@ -31,11 +31,12 @@ The Relay compiler config tells Relay things like where it can find your GraphQL
 }
 ```
 
-The compiler config is very powerful, and includes many specialized configuration options. These are not yet exhaustively documented. In the mean time see [relay-compiler-config-schema.json](https://github.com/facebook/relay/blob/main/compiler/crates/relay-compiler/relay-compiler-config-schema.json).
-
 :::tip
 Install the [Relay VSCode extension](../editor-support.md) to get autocomplete, hover tips, and type checking for the options in your relay config.
 :::
+
+The compiler config is very powerful, and includes many specialized configuration options. For a full enumeration of the available options see the [Compiler Configuration](./compiler-config.md) page.
+
 
 ## Running the compiler
 

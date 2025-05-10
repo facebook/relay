@@ -158,6 +158,7 @@ module.exports = {
         'getting-started/quick-start',
         'getting-started/babel-plugin',
         'getting-started/compiler',
+        'getting-started/compiler-config',
         'editor-support',
         'getting-started/production',
       ],

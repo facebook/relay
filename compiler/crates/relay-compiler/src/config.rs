@@ -189,7 +189,7 @@ pub struct Config {
     /// Runs in `try_saved_state` when the compiler state is initialized from saved state.
     pub update_compiler_state_from_saved_state: UpdateCompilerStateFromSavedState,
 
-    // Allow incremental build for some schema changes
+    /// Allow incremental build for some schema changes
     pub has_schema_change_incremental_build: bool,
 
     /// A custom function to extract resolver Dockblock IRs from sources

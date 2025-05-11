@@ -28,7 +28,10 @@ use crate::typescript::TypeScriptPrinter;
 pub enum AST {
     Union(SortedASTList),
     ReadOnlyArray(Box<AST>),
+    // Value can be null
     Nullable(Box<AST>),
+    // Value can be null or undefined
+    Optional(Box<AST>),
     NonNullable(Box<AST>),
     Identifier(StringKey),
     /// Printed as is, should be valid Flow code.

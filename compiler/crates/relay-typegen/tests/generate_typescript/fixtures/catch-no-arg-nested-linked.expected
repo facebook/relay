@@ -10,9 +10,9 @@ import { Result } from "relay-runtime";
 export type FooQuery$variables = Record<PropertyKey, never>;
 export type FooQuery$data = {
   readonly me: Result<{
-    readonly firstName: string | null | undefined;
-    readonly lastName: string | null | undefined;
-  } | null | undefined, unknown>;
+    readonly firstName: string | null;
+    readonly lastName: string | null;
+  } | null, unknown>;
 };
 export type FooQuery = {
   response: FooQuery$data;

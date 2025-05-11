@@ -15,17 +15,17 @@ query MyQuery @raw_response_type @throwOnFieldError {
 ==================================== OUTPUT ===================================
 export type MyQuery$variables = {||};
 export type MyQuery$data = {|
-  +opera: ?{|
+  +opera: {|
     +cast: $ReadOnlyArray<{|
       +character: string,
       +singer: {|
-        +name: ?string,
+        +name: string | null,
       |},
     |}>,
     +composer: {|
-      +name: ?string,
+      +name: string | null,
     |},
-  |},
+  |} | null,
 |};
 export type MyQuery$rawResponse = {|
   +opera?: ?{|

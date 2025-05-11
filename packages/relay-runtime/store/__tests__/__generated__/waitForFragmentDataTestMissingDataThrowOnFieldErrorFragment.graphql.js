@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cae76746390c25ccc4399bd65e7011a8>>
+ * @generated SignedSource<<6f9afb2d256bb7fbeebffa25cbe8db7e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,9 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment$fragmentType: FragmentType;
 export type waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment$data = {|
-  +me: ?{|
-    +name: ?string,
-  |},
+  +me: {|
+    +name: string | null,
+  |} | null,
   +$fragmentType: waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment$fragmentType,
 |};
 export type waitForFragmentDataTestMissingDataThrowOnFieldErrorFragment$key = {

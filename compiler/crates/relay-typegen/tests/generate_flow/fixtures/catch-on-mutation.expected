@@ -10,11 +10,11 @@ mutation MutationFoo @catch(to: RESULT) {
 import type { Result } from "relay-runtime";
 export type MutationFoo$variables = {||};
 export type MutationFoo$data = Result<{|
-  +unfriend: ?{|
-    +formerFriend: ?{|
-      +name: ?string,
-    |},
-  |},
+  +unfriend: {|
+    +formerFriend: {|
+      +name: string | null,
+    |} | null,
+  |} | null,
 |}, mixed>;
 export type MutationFoo = {|
   response: MutationFoo$data,

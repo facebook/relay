@@ -9,6 +9,7 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
 use ::intern::string_key::StringKey;
+use intern::intern;
 use itertools::Itertools;
 
 use crate::writer::AST;
@@ -48,6 +49,7 @@ impl Writer for FlowPrinter {
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
+            AST::Optional(of_type) => self.write_optional(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
             AST::ExactObject(props) => self.write_object(props, true),
             AST::InexactObject(props) => self.write_object(props, false),
@@ -212,6 +214,20 @@ impl FlowPrinter {
     }
 
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
+        let null_type = AST::RawType(intern!("null"));
+        if let AST::Union(members) = of_type {
+            let mut new_members = Vec::with_capacity(members.len() + 1);
+            new_members.extend_from_slice(members);
+            new_members.push(null_type);
+            self.write_union(&new_members)?;
+        } else {
+            let members = vec![of_type.clone(), null_type];
+            self.write_union(&members)?;
+        }
+        Ok(())
+    }
+
+    fn write_optional(&mut self, of_type: &AST) -> FmtResult {
         write!(&mut self.result, "?")?;
         match of_type {
             AST::Union(members) if members.len() > 1 => {
@@ -386,8 +402,6 @@ impl FlowPrinter {
 
 #[cfg(test)]
 mod tests {
-    use intern::intern;
-
     use super::*;
     use crate::writer::ExactObject;
     use crate::writer::InexactObject;
@@ -427,17 +441,32 @@ mod tests {
     }
 
     #[test]
+    fn optional_type() {
+        assert_eq!(
+            print_type(&AST::Optional(Box::new(AST::String))),
+            "?string".to_string()
+        );
+
+        assert_eq!(
+            print_type(&AST::Optional(Box::new(AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number,],
+            ))))),
+            "?(string | number)"
+        )
+    }
+
+    #[test]
     fn nullable_type() {
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::String))),
-            "?string".to_string()
+            "string | null".to_string()
         );
 
         assert_eq!(
             print_type(&AST::Nullable(Box::new(AST::Union(SortedASTList::new(
                 vec![AST::String, AST::Number,],
             ))))),
-            "?(string | number)"
+            "string | number | null"
         )
     }
 

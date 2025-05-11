@@ -8,7 +8,7 @@ import type { FragmentType, Result } from "relay-runtime";
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = Result<{|
   +id: string,
-  +name: ?string,
+  +name: string | null,
   +$fragmentType: MyFragment$fragmentType,
 |}, mixed>;
 export type MyFragment$key = {

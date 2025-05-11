@@ -138,6 +138,7 @@ pub(crate) struct TypeSelectionLinkedField {
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
     pub(crate) is_result_type: bool,
+    pub(crate) emit_semantic_type: bool,
 }
 
 #[derive(Debug, Clone)]

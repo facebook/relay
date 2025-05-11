@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0952e46c01e925f5f9d6d46a37b10f66>>
+ * @generated SignedSource<<02eb4be39953812ccfe3e355db5a00bf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,12 +22,12 @@ export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
 export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
-    +lastName: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |}>,
+  +nodes: $ReadOnlyArray<{|
+    +lastName: string | null,
+    +profilePicture: {|
+      +uri: string | null,
+    |} | null,
+  |} | null> | null,
 |};
 export type RelayReaderRelayErrorHandlingTestMissingPluralQuery = {|
   response: RelayReaderRelayErrorHandlingTestMissingPluralQuery$data,

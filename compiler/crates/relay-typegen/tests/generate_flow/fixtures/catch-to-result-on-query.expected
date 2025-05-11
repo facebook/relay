@@ -9,10 +9,10 @@ query MyQuery @catch {
 import type { Result } from "relay-runtime";
 export type MyQuery$variables = {||};
 export type MyQuery$data = Result<{|
-  +me: ?{|
+  +me: {|
     +id: string,
-    +name: ?string,
-  |},
+    +name: string | null,
+  |} | null,
 |}, mixed>;
 export type MyQuery = {|
   response: MyQuery$data,

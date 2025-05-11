@@ -11,7 +11,7 @@ type Screen {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type MyFragment$data = {
-  readonly pixels: ReadonlyArray<ReadonlyArray<number> | null | undefined> | null | undefined;
+  readonly pixels: ReadonlyArray<ReadonlyArray<number> | null> | null;
   readonly " $fragmentType": "MyFragment";
 };
 export type MyFragment$key = {

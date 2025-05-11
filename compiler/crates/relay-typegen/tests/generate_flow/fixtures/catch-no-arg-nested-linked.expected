@@ -9,10 +9,10 @@ query FooQuery {
 import type { Result } from "relay-runtime";
 export type FooQuery$variables = {||};
 export type FooQuery$data = {|
-  +me: Result<?{|
-    +firstName: ?string,
-    +lastName: ?string,
-  |}, mixed>,
+  +me: Result<{|
+    +firstName: string | null,
+    +lastName: string | null,
+  |} | null, mixed>,
 |};
 export type FooQuery = {|
   response: FooQuery$data,

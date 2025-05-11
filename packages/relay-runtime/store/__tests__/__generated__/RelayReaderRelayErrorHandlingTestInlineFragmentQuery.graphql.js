@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dca06c64c38428e1684a6b1af2b314a9>>
+ * @generated SignedSource<<58c64deeb12751c56c0eeb8e3eab8847>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,9 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery$variables = {||};
 export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery$data = {|
-  +node: ?{|
-    +name?: ?string,
-  |},
+  +node: {|
+    +name?: string | null,
+  |} | null,
 |};
 export type RelayReaderRelayErrorHandlingTestInlineFragmentQuery = {|
   response: RelayReaderRelayErrorHandlingTestInlineFragmentQuery$data,

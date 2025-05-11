@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a588fcca4644eb6196e91eabc5d9305b>>
+ * @generated SignedSource<<eeef2e7f87c647bb1e674ca3e1d5cd13>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,12 +22,12 @@ export type RelayReaderRelayErrorHandlingTest4Query$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
 export type RelayReaderRelayErrorHandlingTest4Query$data = {|
-  +me: ?{|
-    +lastName: ?string,
-    +profilePicture: ?{|
-      +uri: ?string,
-    |},
-  |},
+  +me: {|
+    +lastName: string | null,
+    +profilePicture: {|
+      +uri: string | null,
+    |} | null,
+  |} | null,
 |};
 export type RelayReaderRelayErrorHandlingTest4Query = {|
   response: RelayReaderRelayErrorHandlingTest4Query$data,

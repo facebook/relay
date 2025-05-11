@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d1ab2ac01257e7fb230cb6e34eb3767b>>
+ * @generated SignedSource<<fe743fed9b33f565ab222382e334fb94>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 ) => ?string);
 declare export opaque type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType: FragmentType;
 export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$data = $ReadOnlyArray<{|
-  +always_throws: ?string,
+  +always_throws: string | null,
   +$fragmentType: observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$fragmentType,
 |}>;
 export type observeFragmentTestResolverErrorWithPluralThrowOnFieldErrorFragment$key = $ReadOnlyArray<{

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e05bd56ab2b5c41d7ee9186edfcb3aa0>>
+ * @generated SignedSource<<6a4bdcb388f029c340bc3eb602930970>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentResourceSemanticNonNullTestFragment1$fragmentType: FragmentType;
 export type FragmentResourceSemanticNonNullTestFragment1$data = {|
-  +name: ?string,
+  +name: string | null,
   +$fragmentType: FragmentResourceSemanticNonNullTestFragment1$fragmentType,
 |};
 export type FragmentResourceSemanticNonNullTestFragment1$key = {

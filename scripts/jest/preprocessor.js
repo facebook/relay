@@ -20,7 +20,7 @@ const babelOptions = getBabelOptions({
   env: 'test',
   autoImport: false,
   plugins: [
-    './dist/babel-plugin-relay',
+    ['./dist/babel-plugin-relay', {eagerEsModules: false}],
     '@babel/plugin-transform-flow-strip-types',
     '@babel/plugin-transform-runtime',
     '@babel/plugin-proposal-nullish-coalescing-operator',

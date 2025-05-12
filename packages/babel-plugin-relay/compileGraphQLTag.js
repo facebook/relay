@@ -68,7 +68,7 @@ function compileGraphQLTag(
     );
   }
 
-  const eagerEsModules = state.opts?.eagerEsModules ?? false;
+  const eagerEsModules = state.opts?.eagerEsModules ?? true;
   const isHasteMode = state.opts?.jsModuleFormat === 'haste';
   const isDevVariable = state.opts?.isDevVariableName;
   const artifactDirectory = state.opts?.artifactDirectory;

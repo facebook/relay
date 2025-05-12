@@ -22,8 +22,8 @@ const ViewerQuery = graphql\`
 
 'use strict';
 
-var _ViewerQuery;
+import _ViewerQuery from \\"./__generated__/ViewerQuery.graphql\\";
 const ProfilePic = require('ProfilePic');
-const ViewerQuery = _ViewerQuery !== void 0 ? _ViewerQuery : (_ViewerQuery = require(\\"./__generated__/ViewerQuery.graphql\\"), _ViewerQuery.hash && _ViewerQuery.hash !== \\"b046a97b7823510c05083ebb114377f4\\" && console.error(\\"The definition of 'ViewerQuery' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\"), _ViewerQuery);
+const ViewerQuery = (_ViewerQuery.hash && _ViewerQuery.hash !== \\"b046a97b7823510c05083ebb114377f4\\" && console.error(\\"The definition of 'ViewerQuery' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\"), _ViewerQuery);
 "
 `;

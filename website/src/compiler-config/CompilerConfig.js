@@ -246,9 +246,11 @@ function RawJson({json}) {
         return (
           <span>
             [
-            {json.map((item, index) => (
-              <RawJson key={index} json={item} />
-            ))}
+            <Join separator={', '}>
+              {json.map((item, index) => (
+                <RawJson key={index} json={item} />
+              ))}
+            </Join>
             ]
           </span>
         );
@@ -259,6 +261,7 @@ function RawJson({json}) {
           {Object.entries(json).map(([key, value], index) => (
             <div key={index} className="inline-property">
               {key}: <RawJson json={value} />
+              {', '}
             </div>
           ))}
           {'}'}

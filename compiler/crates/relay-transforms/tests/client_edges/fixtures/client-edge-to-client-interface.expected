@@ -38,13 +38,34 @@ fragment Foo_user on User {
   #     unique_id: 0,
   #     model_resolvers: [
   #         ClientEdgeModelResolver {
+  #             model_field_id: FieldID(528),
   #             type_name: WithLocation {
   #                 location: <generated>:144:154,
   #                 item: ObjectName(
   #                     "BestFriend",
   #                 ),
   #             },
-  #             is_live: false,
+  #             resolver_info: ResolverInfo {
+  #                 fragment_name: Some(
+  #                     FragmentDefinitionName(
+  #                         "BestFriend__id",
+  #                     ),
+  #                 ),
+  #                 fragment_data_injection_mode: Some(
+  #                     Field {
+  #                         name: "id",
+  #                         is_required: true,
+  #                     },
+  #                 ),
+  #                 import_path: "BestFriendResolver",
+  #                 import_name: Some(
+  #                     "BestFriend",
+  #                 ),
+  #                 live: false,
+  #                 has_output_type: false,
+  #                 type_confirmed: false,
+  #                 resolver_type: ResolverModule,
+  #             },
   #         },
   #     ],
   # }

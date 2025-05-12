@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a981f3564a45e741a21247c078baeafb>>
+ * @generated SignedSource<<0b4e5d9f1b6038fac312f7b010fff792>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,7 +75,7 @@ return {
               "name": "Fish__id"
             },
             "kind": "RelayResolver",
-            "name": "fish",
+            "name": "__relay_model_instance",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
             "path": "fish.__relay_model_instance"
           }

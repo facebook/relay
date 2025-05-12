@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0477a393d9031098a59e48592f548f1c>>
+ * @generated SignedSource<<857f9de42d12580d9d937fdcc8300a2e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -154,7 +154,7 @@ return {
             "args": null,
             "fragment": (v0/*: any*/),
             "kind": "RelayResolver",
-            "name": "RelayReaderExecResolversTest_user_one",
+            "name": "__relay_model_instance",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
             "path": "RelayReaderExecResolversTest_user_one.__relay_model_instance"
           }
@@ -194,7 +194,7 @@ return {
                   "args": null,
                   "fragment": (v0/*: any*/),
                   "kind": "RelayResolver",
-                  "name": "best_friend",
+                  "name": "__relay_model_instance",
                   "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
                   "path": "RelayReaderExecResolversTest_user_one.best_friend.__relay_model_instance"
                 }
@@ -238,7 +238,7 @@ return {
                   "args": null,
                   "fragment": (v0/*: any*/),
                   "kind": "RelayResolver",
-                  "name": "friends",
+                  "name": "__relay_model_instance",
                   "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
                   "path": "RelayReaderExecResolversTest_user_one.friends.__relay_model_instance"
                 }

@@ -8,7 +8,7 @@
  */
 
 .json-schema { font-family: monospace; font-size: 13px; max-width: 750px; }
-.json-schema h1, h2 { font-size: 1.5em; border-bottom: 2px solid #ccc; margin-top: 2em; }
+.json-schema h1, .json-schema h2 { font-size: 1.5em; border-bottom: 2px solid #ccc; margin-top: 2em; }
 .json-schema details { margin-left: 1em; }
 .json-schema summary { font-weight: bold; cursor: pointer; font-size: 13px;}
 .json-schema .property { margin-left: 2em; }

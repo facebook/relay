@@ -134,6 +134,7 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

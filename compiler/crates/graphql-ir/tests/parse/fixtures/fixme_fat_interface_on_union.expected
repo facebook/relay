@@ -53,6 +53,7 @@ query Test {
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

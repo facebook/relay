@@ -136,6 +136,7 @@ type Foo {
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
     Fragment(

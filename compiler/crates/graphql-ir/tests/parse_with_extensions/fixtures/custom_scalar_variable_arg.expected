@@ -135,6 +135,7 @@ extend type Query {
                     directives: [],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

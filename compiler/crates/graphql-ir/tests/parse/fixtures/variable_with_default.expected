@@ -129,6 +129,7 @@ mutation VariableWithDefault($input: FeedbackUnLikeInput! = { feedbackId: "123"}
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

@@ -86,6 +86,7 @@ query TestQuery($id: ID!) {
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

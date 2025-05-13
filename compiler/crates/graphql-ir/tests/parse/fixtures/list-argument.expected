@@ -103,6 +103,7 @@ query ListArgumentQuery {
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

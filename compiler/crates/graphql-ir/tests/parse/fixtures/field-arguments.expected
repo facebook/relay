@@ -152,6 +152,7 @@ query TestQuery {
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

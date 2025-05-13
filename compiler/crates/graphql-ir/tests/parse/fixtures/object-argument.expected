@@ -96,6 +96,7 @@ query ObjectArgument($text: String!) {
                     ],
                 },
             ],
+            raw_text: None,
         },
     ),
 ]

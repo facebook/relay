@@ -476,7 +476,10 @@ hook useFragmentInternal_EXPERIMENTAL(
 
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
-  if (fragmentNode.metadata?.hasClientEdges === true) {
+  if (
+    fragmentNode.metadata?.hasClientEdges === true ||
+    RelayFeatureFlags.CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES
+  ) {
     // The fragment is validated to be static (in useFragment) and hasClientEdges is
     // a static (constant) property of the fragment. In practice, this effect will
     // always or never run for a given invocation of this hook.

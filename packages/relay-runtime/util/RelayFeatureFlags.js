@@ -71,6 +71,15 @@ export type FeatureFlags = {
 
   // Enable prefixing of DataID in the store with __typename
   ENABLE_TYPENAME_PREFIXED_DATA_ID: boolean,
+
+  // Relay previously had a bug where it would fail to check for missing client
+  // edge to server data in fragments nested within client edge Relay Resolver
+  // fields. This feature flag fixes the behavior but comes with a perf cost.
+  // This flag is here to allow us to gradually rollout the fix and track the perf
+  // impact.
+  //
+  // See https://github.com/facebook/relay/issues/4882
+  CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -99,6 +108,7 @@ const RelayFeatureFlags: FeatureFlags = {
   DISALLOW_NESTED_UPDATES: false,
   ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
   ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: false,
+  CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: false,
 };
 
 module.exports = RelayFeatureFlags;

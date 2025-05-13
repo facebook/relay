@@ -27,7 +27,6 @@ mod project_asts;
 mod source_control;
 mod validate;
 
-use std::collections::HashMap;
 use std::fmt;
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -41,7 +40,6 @@ use common::DirectiveName;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use common::WithDiagnostics;
-use common::WithLocation;
 use common::sync::*;
 use dashmap::DashSet;
 use dashmap::mapref::entry::Entry;
@@ -57,10 +55,7 @@ pub use generate_artifacts::generate_preloadable_query_parameters_artifact;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
-use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
-use graphql_text_printer::OperationPrinter;
-use graphql_text_printer::PrinterOptions;
 use indexmap::IndexSet;
 use log::debug;
 use log::info;
@@ -100,18 +95,8 @@ use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::graphql_asts::GraphQLAsts;
 
-type BuildProjectOutput = WithDiagnostics<(
-    ProjectName,
-    Arc<SDLSchema>,
-    Programs,
-    HashMap<WithLocation<OperationDefinitionName>, String>,
-    Vec<Artifact>,
-)>;
-type BuildProgramsOutput = WithDiagnostics<(
-    Vec<Programs>,
-    Arc<SourceHashes>,
-    HashMap<WithLocation<OperationDefinitionName>, String>,
-)>;
+type BuildProjectOutput = WithDiagnostics<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>)>;
+type BuildProgramsOutput = WithDiagnostics<(Vec<Programs>, Arc<SourceHashes>)>;
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
@@ -397,23 +382,6 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
     let base_fragment_names = Arc::new(base_fragment_names);
-    let printer_options = PrinterOptions {
-        compact: project_config
-            .feature_flags
-            .compact_query_text
-            .is_fully_enabled(),
-        ..Default::default()
-    };
-
-    let mut raw_text_map: HashMap<WithLocation<OperationDefinitionName>, String> = HashMap::new();
-
-    for program in &programs {
-        let mut printer = OperationPrinter::new(&program, printer_options);
-        for operation in &program.operations {
-            let text = printer.print(operation.as_ref());
-            raw_text_map.insert(operation.name, text);
-        }
-    }
 
     let validation_results = programs
         .into_par_iter()
@@ -465,7 +433,7 @@ pub fn build_programs(
     );
 
     Ok(WithDiagnostics {
-        item: (programs, Arc::new(source_hashes), raw_text_map),
+        item: (programs, Arc::new(source_hashes)),
         diagnostics,
     })
 }
@@ -513,7 +481,7 @@ pub fn build_project(
 
     // Apply different transform pipelines to produce the `Programs`.
     let WithDiagnostics {
-        item: (programs, source_hashes, raw_text_map),
+        item: (programs, source_hashes),
         diagnostics,
     } = build_programs(
         config,
@@ -554,13 +522,7 @@ pub fn build_project(
     log_event.stop(build_time);
     log_event.complete();
     Ok(WithDiagnostics {
-        item: (
-            project_config.name,
-            schema,
-            programs,
-            raw_text_map,
-            artifacts,
-        ),
+        item: (project_config.name, schema, programs, artifacts),
         diagnostics,
     })
 }
@@ -593,7 +555,6 @@ pub async fn commit_project(
     perf_logger: Arc<impl PerfLogger + 'static>,
     schema: &SDLSchema,
     programs: Programs,
-    raw_text_map: HashMap<WithLocation<OperationDefinitionName>, String>,
     mut artifacts: Vec<Artifact>,
     artifact_map: Arc<ArtifactMapKind>,
     // Definitions/Sources that are removed from the previous artifact map
@@ -692,7 +653,6 @@ pub async fn commit_project(
                 &artifacts,
                 &fragment_locations,
                 &artifacts_file_hash_map,
-                &raw_text_map,
             )?;
             for artifact in &artifacts {
                 if !existing_artifacts.remove(&artifact.path) {
@@ -729,7 +689,6 @@ pub async fn commit_project(
                 &artifacts,
                 &fragment_locations,
                 &artifacts_file_hash_map,
-                &raw_text_map,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
                 current_paths_map.insert(artifact);
@@ -829,22 +788,11 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     artifacts: &[Artifact],
     fragment_locations: &FragmentLocations,
     artifacts_file_hash_map: &Option<FxHashMap<String, Option<String>>>,
-    raw_text_map: &HashMap<WithLocation<OperationDefinitionName>, String>,
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8).try_for_each_init(
         || Printer::with_dedupe(project_config),
         |printer, artifacts| {
             for artifact in artifacts {
-                let raw_text: Option<String> = if let ArtifactContent::Operation {
-                    normalization_operation,
-                    ..
-                } = &artifact.content
-                {
-                    raw_text_map.get(&normalization_operation.name).cloned()
-                } else {
-                    None
-                };
-
                 if should_stop_updating_artifacts() {
                     return Err(BuildProjectFailure::Cancelled);
                 }
@@ -856,7 +804,6 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                     schema,
                     artifact.source_file,
                     fragment_locations,
-                    &raw_text,
                 );
                 let file_hash = match artifact.path.to_str() {
                     Some(key) => artifacts_file_hash_map

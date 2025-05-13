@@ -2705,13 +2705,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
         });
 
-        params_object.push(ObjectEntry {
-            key: CODEGEN_CONSTANTS.raw_text,
-            value: match request_parameters.raw_text {
-                Some(raw_text) => Primitive::RawString(raw_text),
-                None => Primitive::Null,
-            },
-        });
+        if let Some(raw_text) = request_parameters.raw_text {
+            params_object.push(ObjectEntry {
+                key: CODEGEN_CONSTANTS.raw_text,
+                value: Primitive::RawString(raw_text),
+            });
+        }
 
         if let Some(provided_variables) = self.build_operation_provided_variables(operation) {
             params_object.push(ObjectEntry {

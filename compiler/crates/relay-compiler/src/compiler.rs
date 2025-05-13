@@ -366,7 +366,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
 
     let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
     for WithDiagnostics {
-        item: (project_name, schema, programs, raw_text_map, artifacts),
+        item: (project_name, schema, programs, artifacts),
         diagnostics,
     } in results
     {
@@ -408,7 +408,6 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                         perf_logger,
                         &schema,
                         programs,
-                        raw_text_map,
                         artifacts,
                         artifact_map,
                         removed_artifact_sources,

@@ -550,6 +550,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                 directives,
                 selections,
                 kind: OperationKind::Query,
+                raw_text: None,
             };
 
             operations.push(Arc::new(operation))

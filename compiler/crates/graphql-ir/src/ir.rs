@@ -100,6 +100,7 @@ pub struct OperationDefinition {
     pub variable_definitions: Vec<VariableDefinition>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+    pub raw_text: Option<String>,
 }
 
 impl Named for OperationDefinition {

@@ -121,6 +121,7 @@ pub fn transform_refetchable_fragment(
                     variable_definitions: operation_result.variable_definitions,
                     directives,
                     selections: operation_result.selections,
+                    raw_text: None,
                 }));
             }
         } else {

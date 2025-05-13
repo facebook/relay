@@ -22,8 +22,6 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
-use graphql_text_printer::OperationPrinter;
-use graphql_text_printer::PrinterOptions;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -141,13 +139,8 @@ impl Transformer<'_> for GenerateTestOperationMetadata<'_> {
                 }
             }
 
-            let printer_options = PrinterOptions::default();
-            let mut printer = OperationPrinter::new(self.program, printer_options);
-            let raw_text = Some(printer.print(operation));
-
             Transformed::Replace(OperationDefinition {
                 directives: next_directives,
-                raw_text,
                 ..operation.clone()
             })
         } else {

@@ -7,8 +7,8 @@
  * @format
  */
 
-import data from '@compilerConfigJsonSchema';
 import React from 'react';
+import {useMemo} from 'react';
 
 /**
  * Generate documentation for the Relay Compiler Config Schema dynamically from
@@ -24,71 +24,46 @@ import React from 'react';
  * them at that point.
  */
 
-// Some types have a name but are really just simple wrappers around other types
-// or shapes. First we collect up these types and build a map redirecting them to
-// their real type.
-const INDIRECTIONS = {};
-
-for (const [key, value] of Object.entries(data.definitions)) {
-  // allOf is generally used to define a simple wrapper type
-  if (value.allOf) {
-    if (value.allOf.length !== 1) {
-      throw new Error(
-        'Expected allOf to only be used as a wrapper type wrapping a single type.',
-      );
-    }
-    INDIRECTIONS[key] = value.allOf[0];
-  }
-
-  // $ref is used to define a type that is defined elsewhere
-  if (value.$ref) {
-    const typeName = value.$ref.split('/').pop();
-    if (typeName != null) {
-      INDIRECTIONS[key] = data.definitions[typeName];
-    } else {
-      throw new Error('Expected $ref to be a valid type name');
-    }
-  }
-
-  // Just use inline types
-  if (value.type === 'array') {
-    INDIRECTIONS[key] = value;
-  }
-  if (value.type === 'string') {
-    INDIRECTIONS[key] = value;
-  }
-  if (Array.isArray(value.type)) {
-    INDIRECTIONS[key] = value.type;
-  }
-  if (key === 'DeserializableProjectSet') {
-    INDIRECTIONS[key] = value;
-  }
+export default function CompilerConfig({schema}) {
+  const indirections = useIndirections(schema);
+  return <Schema schema={schema} indirections={indirections} />;
 }
 
-export default function CompilerConfig() {
-  return <Schema schema={data} />;
-}
-
-function Schema({schema}) {
+function Schema({schema, indirections}) {
   return (
     <div className="json-schema">
-      <SchemaDefinition definition={schema} name={schema.title} />
+      <SchemaDefinition
+        definition={schema}
+        name={schema.title}
+        indirections={indirections}
+      />
       {Object.entries(schema.definitions).map(([name, definition], index) => {
         return (
-          <SchemaDefinition key={index} definition={definition} name={name} />
+          <SchemaDefinition
+            key={index}
+            definition={definition}
+            name={name}
+            indirections={indirections}
+          />
         );
       })}
     </div>
   );
 }
 
-function SchemaDefinition({definition, name}) {
-  if (INDIRECTIONS[name]) {
+function SchemaDefinition({definition, name, indirections}) {
+  if (indirections[name]) {
     return null;
   }
   switch (definition.type) {
     case 'object':
-      return <SchemaObjectDefinition definition={definition} name={name} />;
+      return (
+        <SchemaObjectDefinition
+          definition={definition}
+          name={name}
+          indirections={indirections}
+        />
+      );
     case 'array':
       throw new Error('Expected array type to be handled as indirection');
     case 'string':
@@ -101,10 +76,22 @@ function SchemaDefinition({definition, name}) {
         throw new Error('Expected $ref type to be handled as indirection');
       }
       if (definition.oneOf && definition.oneOf.length > 0) {
-        return <SchemaOneOfDefinition definition={definition} name={name} />;
+        return (
+          <SchemaOneOfDefinition
+            definition={definition}
+            name={name}
+            indirections={indirections}
+          />
+        );
       }
       if (definition.anyOf && definition.anyOf.length > 0) {
-        return <SchemaAnyOfDefinition definition={definition} name={name} />;
+        return (
+          <SchemaAnyOfDefinition
+            definition={definition}
+            name={name}
+            indirections={indirections}
+          />
+        );
       }
       if (definition.allOf) {
         throw new Error('Expected allOf to be handled as indirection');
@@ -138,7 +125,7 @@ function SchemaEnumDefinition({definition, name}) {
   );
 }
 
-function SchemaOneOfDefinition({definition, name}) {
+function SchemaOneOfDefinition({definition, name, indirections}) {
   return (
     <Definition name={name} description={definition.description}>
       <summary>
@@ -150,14 +137,14 @@ function SchemaOneOfDefinition({definition, name}) {
             {item.description && (
               <div className="description">{' // ' + item.description}</div>
             )}
-            {'|'} <TypeRef prop={item} />
+            {'|'} <TypeRef prop={item} indirections={indirections} />
           </div>
         );
       })}
     </Definition>
   );
 }
-function SchemaAnyOfDefinition({definition, name}) {
+function SchemaAnyOfDefinition({definition, name, indirections}) {
   return (
     <Definition name={name} description={definition.description}>
       <summary>
@@ -169,7 +156,7 @@ function SchemaAnyOfDefinition({definition, name}) {
             {item.description && (
               <div className="description">{' // ' + item.description}</div>
             )}
-            {'|'} <TypeRef prop={item} />
+            {'|'} <TypeRef prop={item} indirections={indirections} />
           </div>
         );
       })}
@@ -177,7 +164,7 @@ function SchemaAnyOfDefinition({definition, name}) {
   );
 }
 
-function SchemaObjectDefinition({definition, name}) {
+function SchemaObjectDefinition({definition, name, indirections}) {
   return (
     <Definition name={name} description={definition.description}>
       <summary>
@@ -192,6 +179,7 @@ function SchemaObjectDefinition({definition, name}) {
                 property={property}
                 name={name}
                 required={property.required?.includes(name)}
+                indirections={indirections}
               />
             );
           },
@@ -202,7 +190,7 @@ function SchemaObjectDefinition({definition, name}) {
   );
 }
 
-function SchemaProperty({property, name, required}) {
+function SchemaProperty({property, name, required, indirections}) {
   return (
     <div className="property">
       {property.description && (
@@ -213,7 +201,7 @@ function SchemaProperty({property, name, required}) {
           {name}
           {required ? '' : '?'}
         </span>
-        : <TypeRef prop={property} />
+        : <TypeRef prop={property} indirections={indirections} />
         <Default prop={property} />
       </div>
     </div>
@@ -272,22 +260,22 @@ function RawJson({json}) {
   }
 }
 
-function TypeRef({prop}) {
+function TypeRef({prop, indirections}) {
   return (
     <span className="type">
-      <T prop={prop} />
+      <T prop={prop} indirections={indirections} />
     </span>
   );
 }
 
-function T({prop}) {
+function T({prop, indirections}) {
   if (typeof prop === 'boolean') {
     return String(prop);
   }
   if (prop.$ref) {
     const typeName = prop.$ref.split('/').pop();
-    if (INDIRECTIONS[typeName]) {
-      return <T prop={INDIRECTIONS[typeName]} />;
+    if (indirections[typeName]) {
+      return <T prop={indirections[typeName]} indirections={indirections} />;
     }
 
     if (typeName != null) {
@@ -298,7 +286,7 @@ function T({prop}) {
   if (prop.type === 'array' && prop.items) {
     return (
       <>
-        <T prop={prop.items} />
+        <T prop={prop.items} indirections={indirections} />
         {'[]'}
       </>
     );
@@ -325,13 +313,13 @@ function T({prop}) {
     if (prop.allOf.length !== 1) {
       throw new Error('allOf should only have one item');
     }
-    return <T prop={prop.allOf[0]} />;
+    return <T prop={prop.allOf[0]} indirections={indirections} />;
   }
   if (prop.anyOf) {
     return (
       <Join separator={' | '}>
         {prop.anyOf.map((item, i) => (
-          <T prop={item} key={i} />
+          <T prop={item} key={i} indirections={indirections} />
         ))}
       </Join>
     );
@@ -363,18 +351,18 @@ function T({prop}) {
         return (
           <span className="type">
             {'{ [key: string]: '}
-            <T prop={prop.additionalProperties} />
+            <T prop={prop.additionalProperties} indirections={indirections} />
             {' }'}
           </span>
         );
       }
-      return <InlineObject prop={prop} />;
+      return <InlineObject prop={prop} indirections={indirections} />;
     default:
       return prop.type ?? 'any';
   }
 }
 
-function InlineObject({prop}) {
+function InlineObject({prop, indirections}) {
   return (
     <span>
       {'{'}
@@ -385,7 +373,7 @@ function InlineObject({prop}) {
               <div className="description">{' // ' + property.description}</div>
             )}
             <span>{name}</span>
-            : <T prop={property} />
+            : <T prop={property} indirections={indirections} />
             <Default prop={property} />
           </div>
         );
@@ -423,4 +411,51 @@ function Join({children, separator}) {
 
 function splitPascalCase(str) {
   return str.replace(/([A-Z]+)/g, ' $1').trim();
+}
+
+// Some types have a name but are really just simple wrappers around other types
+// or shapes. First we collect up these types and build a map redirecting them to
+// their real type.
+function useIndirections(data) {
+  return useMemo(() => {
+    const indirections = {};
+
+    Object.entries(data.definitions).forEach(([key, value]) => {
+      // allOf is generally used to define a simple wrapper type
+      if (value.allOf) {
+        if (value.allOf.length !== 1) {
+          throw new Error(
+            'Expected allOf to only be used as a wrapper type wrapping a single type.',
+          );
+        }
+        indirections[key] = value.allOf[0];
+      }
+
+      // $ref is used to define a type that is defined elsewhere
+      if (value.$ref) {
+        const typeName = value.$ref.split('/').pop();
+        if (typeName != null) {
+          indirections[key] = data.definitions[typeName];
+        } else {
+          throw new Error('Expected $ref to be a valid type name');
+        }
+      }
+
+      // Just use inline types
+      if (value.type === 'array') {
+        indirections[key] = value;
+      }
+      if (value.type === 'string') {
+        indirections[key] = value;
+      }
+      if (Array.isArray(value.type)) {
+        indirections[key] = value.type;
+      }
+      if (key === 'DeserializableProjectSet') {
+        indirections[key] = value;
+      }
+    });
+
+    return indirections;
+  }, [data]);
 }

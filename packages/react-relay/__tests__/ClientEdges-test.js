@@ -461,42 +461,36 @@ describe.each([[true], [false]])(
 
       // This will be updated when we add the new assertions as part of a fix for
       // this bug.
-      // eslint-disable-next-line no-unused-vars
       let renderer;
       TestRenderer.act(() => {
         renderer = TestRenderer.create(<TestComponent />);
       });
 
-      // Oops, we didn't fetch the query!
-      expect(fetchFn.mock.calls.length).toEqual(0);
+      expect(fetchFn.mock.calls.length).toEqual(1);
+      // We should send the client-edge query
+      // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
+      expect(fetchFn.mock.calls[0][0].name).toBe(
+        'ClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge',
+      );
+      // Check variables
+      // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
+      expect(fetchFn.mock.calls[0][1]).toEqual({id: '1'});
+      expect(renderer?.toJSON()).toBe('Loading');
 
-      // Following are the assertions that SHOULD pass.
-
-      // expect(fetchFn.mock.calls.length).toEqual(1);
-      // // We should send the client-edge query
-      // // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
-      // expect(fetchFn.mock.calls[0][0].name).toBe(
-      //   'ClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge',
-      // );
-      // // Check variables
-      // // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
-      // expect(fetchFn.mock.calls[0][1]).toEqual({id: '1'});
-      // expect(renderer?.toJSON()).toBe('Loading');
-
-      // TestRenderer.act(() => {
-      //   // This should resolve client-edge query
-      //   networkSink.next({
-      //     data: {
-      //       node: {
-      //         id: '1',
-      //         __typename: 'User',
-      //         name: 'Alice',
-      //       },
-      //     },
-      //   });
-      //   jest.runAllImmediates();
-      // });
-      // expect(renderer?.toJSON()).toBe('ALICE');
+      TestRenderer.act(() => {
+        // This should resolve client-edge query
+        networkSink.next({
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              name: 'Alice',
+            },
+          },
+        });
+        jest.runAllImmediates();
+      });
+      expect(renderer?.toJSON()).toBe('ALICE');
     });
   },
 );

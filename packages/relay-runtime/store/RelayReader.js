@@ -788,7 +788,7 @@ class RelayReader {
     //   `getResolverValue`) and converted into an error object.
     const evaluate = (): EvaluationResult<mixed> => {
       if (fragment != null) {
-        const key = {
+        const key: SelectorData = {
           __id: parentRecordID,
           __fragmentOwner: this._owner,
           __fragments: {
@@ -797,6 +797,14 @@ class RelayReader {
               : {},
           },
         };
+        if (
+          this._clientEdgeTraversalPath.length > 0 &&
+          this._clientEdgeTraversalPath[
+            this._clientEdgeTraversalPath.length - 1
+          ] !== null
+        ) {
+          key[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
+        }
         const resolverContext = {getDataForResolverFragment};
         return withResolverContext(resolverContext, () => {
           const [resolverResult, resolverError] = getResolverValue(

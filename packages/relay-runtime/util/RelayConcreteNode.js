@@ -53,6 +53,7 @@ export type RequestParameters =
   | {
       +id: string,
       +text: string | null,
+      +raw_text?: string | null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',

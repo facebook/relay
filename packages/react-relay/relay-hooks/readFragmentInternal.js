@@ -213,7 +213,10 @@ function readFragmentInternal(
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
   let clientEdgeQueries = null;
-  if (fragmentNode.metadata?.hasClientEdges === true) {
+  if (
+    fragmentNode.metadata?.hasClientEdges === true ||
+    RelayFeatureFlags.CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES
+  ) {
     const missingClientEdges = getMissingClientEdges(state);
     if (missingClientEdges?.length) {
       clientEdgeQueries = ([]: Array<QueryResult>);

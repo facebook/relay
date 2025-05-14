@@ -32,22 +32,60 @@ fragment FeedbackFragmentType on User {
   #     unique_id: 0,
   #     model_resolvers: [
   #         ClientEdgeModelResolver {
-  #             type_name: WithLocation {
-  #                 location: <generated>:199:204,
-  #                 item: ObjectName(
-  #                     "Heart",
-  #                 ),
-  #             },
-  #             is_live: false,
-  #         },
-  #         ClientEdgeModelResolver {
+  #             model_field_id: FieldID(527),
   #             type_name: WithLocation {
   #                 location: <generated>:7:11,
   #                 item: ObjectName(
   #                     "Like",
   #                 ),
   #             },
-  #             is_live: false,
+  #             resolver_info: ResolverInfo {
+  #                 fragment_name: Some(
+  #                     FragmentDefinitionName(
+  #                         "Like__id",
+  #                     ),
+  #                 ),
+  #                 fragment_data_injection_mode: Some(
+  #                     Field {
+  #                         name: "id",
+  #                         is_required: true,
+  #                     },
+  #                 ),
+  #                 import_path: "LikeResolver",
+  #                 import_name: None,
+  #                 live: false,
+  #                 has_output_type: false,
+  #                 type_confirmed: false,
+  #                 resolver_type: ResolverModule,
+  #             },
+  #         },
+  #         ClientEdgeModelResolver {
+  #             model_field_id: FieldID(529),
+  #             type_name: WithLocation {
+  #                 location: <generated>:199:204,
+  #                 item: ObjectName(
+  #                     "Heart",
+  #                 ),
+  #             },
+  #             resolver_info: ResolverInfo {
+  #                 fragment_name: Some(
+  #                     FragmentDefinitionName(
+  #                         "Heart__id",
+  #                     ),
+  #                 ),
+  #                 fragment_data_injection_mode: Some(
+  #                     Field {
+  #                         name: "id",
+  #                         is_required: true,
+  #                     },
+  #                 ),
+  #                 import_path: "HeartResolver",
+  #                 import_name: None,
+  #                 live: false,
+  #                 has_output_type: false,
+  #                 type_confirmed: false,
+  #                 resolver_type: ResolverModule,
+  #             },
   #         },
   #     ],
   # }

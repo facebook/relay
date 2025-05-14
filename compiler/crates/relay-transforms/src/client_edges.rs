@@ -16,7 +16,6 @@ use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
-use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
 use graphql_ir::Argument;
@@ -46,6 +45,7 @@ use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
 use relay_schema::definitions::ResolverType;
 use schema::DirectiveValue;
+use schema::FieldID;
 use schema::ObjectID;
 use schema::Schema;
 use schema::Type;
@@ -58,7 +58,9 @@ use crate::ValidationMessage;
 use crate::match_::MATCH_CONSTANTS;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
 use crate::refetchable_fragment::RefetchableFragment;
+use crate::relay_resolvers::ResolverInfo;
 use crate::relay_resolvers::get_bool_argument_is_true;
+use crate::relay_resolvers::get_resolver_info;
 
 lazy_static! {
     // This gets attached to the generated query
@@ -91,8 +93,9 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ClientEdgeModelResolver {
+    pub model_field_id: FieldID,
     pub type_name: WithLocation<ObjectName>,
-    pub is_live: bool,
+    pub resolver_info: ResolverInfo,
 }
 
 /// Metadata directive attached to generated queries
@@ -466,17 +469,19 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             .schema
             .named_field(model, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD)?;
         let model_field = self.program.schema.field(model_field_id);
-        let resolver_directive = model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
-        let is_live = resolver_directive.map_or(false, |resolver_directive| {
-            resolver_directive
-                .arguments
-                .iter()
-                .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
-        });
-        Some(ClientEdgeModelResolver {
-            type_name: object.name,
-            is_live,
-        })
+        get_resolver_info(&self.program.schema, model_field, object.name.location)
+            .and_then(|resolver_info_result| match resolver_info_result {
+                Ok(resolver_info) => Some(resolver_info),
+                Err(diagnstics) => {
+                    self.errors.extend(diagnstics);
+                    None
+                }
+            })
+            .map(|resolver_info| ClientEdgeModelResolver {
+                model_field_id,
+                type_name: object.name,
+                resolver_info,
+            })
     }
 
     fn get_edge_to_server_object_metadata_directive(

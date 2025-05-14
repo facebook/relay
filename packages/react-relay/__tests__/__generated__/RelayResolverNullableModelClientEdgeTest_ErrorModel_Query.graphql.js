@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bab9d20ecbddac0c6c033502313ba70c>>
+ * @generated SignedSource<<264224bcbf3cac18840f289171287825>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -71,7 +71,7 @@ return {
               "name": "ErrorModel__id"
             },
             "kind": "RelayResolver",
-            "name": "edge_to_model_that_throws",
+            "name": "__relay_model_instance",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
             "path": "edge_to_model_that_throws.__relay_model_instance"
           }

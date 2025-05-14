@@ -343,18 +343,19 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
             }
         }
 
-        if let Some(applied_fragment) = self.apply_fragment(spread, fragment) {
-            let directives = self
-                .transform_directives(&spread.directives)
-                .replace_or_else(|| spread.directives.clone());
-            Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
-                fragment: applied_fragment.name,
-                arguments: Vec::new(),
-                directives,
-                signature: Some(applied_fragment.as_ref().into()),
-            })))
-        } else {
-            Transformed::Delete
+        match self.apply_fragment(spread, fragment) {
+            Some(applied_fragment) => {
+                let directives = self
+                    .transform_directives(&spread.directives)
+                    .replace_or_else(|| spread.directives.clone());
+                Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    fragment: applied_fragment.name,
+                    arguments: Vec::new(),
+                    directives,
+                    signature: Some(applied_fragment.as_ref().into()),
+                })))
+            }
+            _ => Transformed::Delete,
         }
     }
 

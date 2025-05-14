@@ -13,7 +13,7 @@ keywords:
 If your server's implementation of the Connection Spec differs from the default interface you will need to configure the Relay Runtime to expect the connection type and field names used in your schema. This is done by updating the global ConnectionInterface instance exported by Relay:
 
 :::note
-You will also need to update your Relay Compiler Config with these same values.
+You will also need to update your [Relay Compiler Config](../../getting-started/compiler-config/#ConnectionInterface) with these same values at the path `schemaConfig.connectionInterface`.
 :::
 
 ```ts title="/src/ConfigureRelay.ts"

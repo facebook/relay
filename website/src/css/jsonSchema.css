@@ -1,0 +1,26 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ */
+
+.json-schema { font-family: monospace; font-size: 13px; max-width: 750px; }
+.json-schema h1, .json-schema h2 { font-size: 1.5em; border-bottom: 2px solid #ccc; margin-top: 2em; }
+.json-schema details { margin-left: 1em; }
+.json-schema summary { font-weight: bold; cursor: pointer; font-size: 13px;}
+.json-schema .property { margin-left: 2em; }
+.json-schema .inline-property { margin-left: 2em; }
+.json-schema .type { color: #0074d9; }
+.json-schema code { background: #eee; padding: 0 0.2em; border-radius: 3px; }
+.json-schema .description { color: var(--ifm-color-emphasis-600); font-size: 0.9em; margin-top: 1em; }
+.json-schema .default { color: var(--ifm-color-emphasis-600); }
+/**
+ * Needed to ensure anchor links don't get hidden under the top banner.
+ * Copied from .anchorWithStickyNavbar_node_modules-\@docusaurus-theme-classic-lib-theme-Heading-styles-module
+ */
+.json-schema .definition-title {
+    scroll-margin-top: calc(var(--ifm-navbar-height) + 0.5rem);
+}

@@ -245,6 +245,7 @@ module.exports = {
             './src/css/prism.css',
             './src/css/customTheme.css',
             './src/css/custom.css',
+            './src/css/jsonSchema.css',
           ],
         },
         gtag: {
@@ -257,6 +258,7 @@ module.exports = {
     ],
   ],
   plugins: [
+    require.resolve('./plugins/webpack-alias'),
     [
       '@docusaurus/plugin-client-redirects',
       {

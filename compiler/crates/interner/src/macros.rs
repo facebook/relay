@@ -20,7 +20,7 @@ macro_rules! intern {
         static KEY: Lazy<StringKey> = Lazy::new(|| Intern::intern($value));
         *KEY
     }};
-    ($_:expr) => {
+    ($_:expr_2021) => {
         compile_error!("intern! macro can only be used with string literals.")
     };
 }

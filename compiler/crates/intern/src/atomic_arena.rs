@@ -156,8 +156,10 @@ impl<'a, T> Ref<'a, T> {
 
     /// Re-create ref from biased index.
     pub unsafe fn from_index(index: u32) -> Self {
-        // OK because MIN_SIZE must be > 0 for algorithmic correctness.
-        Self::from_raw(NonZeroU32::new_unchecked(index + MIN_SIZE))
+        unsafe {
+            // OK because MIN_SIZE must be > 0 for algorithmic correctness.
+            Self::from_raw(NonZeroU32::new_unchecked(index + MIN_SIZE))
+        }
     }
 
     /// Internal value of ref; only use this if you know what you're

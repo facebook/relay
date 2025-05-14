@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b37fbda236362cb68af7bef1794ce908>>
+ * @generated SignedSource<<7af240671135c6959803e2a97db63e21>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -139,7 +139,7 @@ return {
             "args": null,
             "fragment": (v0/*: any*/),
             "kind": "RelayResolver",
-            "name": "RelayReaderExecResolversTest_user_one",
+            "name": "__relay_model_instance",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
             "path": "RelayReaderExecResolversTest_user_one.__relay_model_instance"
           }
@@ -179,7 +179,7 @@ return {
                   "args": null,
                   "fragment": (v0/*: any*/),
                   "kind": "RelayResolver",
-                  "name": "best_friend",
+                  "name": "__relay_model_instance",
                   "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
                   "path": "RelayReaderExecResolversTest_user_one.best_friend.__relay_model_instance"
                 }
@@ -219,7 +219,7 @@ return {
                         "args": null,
                         "fragment": (v0/*: any*/),
                         "kind": "RelayResolver",
-                        "name": "best_friend",
+                        "name": "__relay_model_instance",
                         "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./RelayReaderExecResolversTestUser__id.graphql'), require('../RelayReader-ExecResolvers-test').RelayReaderExecResolversTestUser, 'id', true),
                         "path": "RelayReaderExecResolversTest_user_one.best_friend.best_friend.__relay_model_instance"
                       }

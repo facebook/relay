@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<55efaeb7ccfd7940b2badcd40e453473>>
+ * @generated SignedSource<<3387d6019d487ace12a8690a20e2e40e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -80,7 +80,7 @@ return {
               "name": "StrongModel__id"
             },
             "kind": "RelayResolver",
-            "name": "edge_to_strong_model_does_not_exist",
+            "name": "__relay_model_instance",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
             "path": "edge_to_strong_model_does_not_exist.__relay_model_instance"
           }

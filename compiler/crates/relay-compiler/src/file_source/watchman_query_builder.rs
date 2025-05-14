@@ -21,19 +21,33 @@ pub fn get_watchman_expr(config: &Config) -> Expr {
     let mut sources_conditions = vec![expr_any(get_sources_dir_exprs(config, &config.sources))];
     // not excluded by any glob
     if !config.excludes.is_empty() {
-        sources_conditions.push(Expr::Not(Box::new(expr_any(
-            config
-                .excludes
-                .iter()
-                .map(|item| {
-                    Expr::Match(MatchTerm {
-                        glob: item.into(),
-                        wholename: true,
-                        ..Default::default()
-                    })
-                })
-                .collect(),
-        ))));
+        let mut excludes = vec![];
+        let mut exclude_negates = vec![];
+        for exclude in config.excludes.iter() {
+            if let Some(negate) = exclude.strip_prefix("!") {
+                exclude_negates.push(Expr::Match(MatchTerm {
+                    glob: negate.into(),
+                    wholename: true,
+                    ..Default::default()
+                }));
+            } else {
+                excludes.push(Expr::Match(MatchTerm {
+                    glob: exclude.into(),
+                    wholename: true,
+                    ..Default::default()
+                }));
+            }
+        }
+
+        let mut excluded_expr = expr_any(excludes);
+        if !exclude_negates.is_empty() {
+            excluded_expr = Expr::All(vec![
+                excluded_expr,
+                Expr::Not(Box::new(expr_any(exclude_negates))),
+            ]);
+        }
+
+        sources_conditions.push(Expr::Not(Box::new(excluded_expr)));
     }
     let sources_expr = Expr::All(sources_conditions);
 

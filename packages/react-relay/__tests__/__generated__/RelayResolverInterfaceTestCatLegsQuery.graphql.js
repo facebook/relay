@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<51244f7c2679ae400d8fed4925f2ecd5>>
+ * @generated SignedSource<<0293a0c9a7d6f43f6ee18d498db221ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,7 +75,7 @@ return {
               "name": "Cat__id"
             },
             "kind": "RelayResolver",
-            "name": "cat",
+            "name": "__relay_model_instance",
             "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
             "path": "cat.__relay_model_instance"
           }

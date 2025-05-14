@@ -114,7 +114,7 @@ impl UpdatableFragmentSpread<'_> {
                     }
                     encountered_inline_fragment = true;
                 }
-                PathItem::LinkedField(ref mut linked_field_path_item) => {
+                PathItem::LinkedField(linked_field_path_item) => {
                     encountered_linked_field = true;
 
                     if !encountered_inline_fragment {

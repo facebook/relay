@@ -104,12 +104,12 @@ impl ResolverOutputTypeInfo {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum FragmentDataInjectionMode {
     Field { name: StringKey, is_required: bool }, // TODO: Add Support for FullData
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum ResolverSchemaGenType {
     ResolverModule,
     PropertyLookup { property_name: StringKey },
@@ -609,16 +609,16 @@ impl Transformer<'_> for RelayResolverFieldTransform<'_> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ResolverInfo {
-    fragment_name: Option<FragmentDefinitionName>,
-    fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
+    pub fragment_name: Option<FragmentDefinitionName>,
+    pub fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     pub import_path: StringKey,
     pub import_name: Option<StringKey>,
-    live: bool,
+    pub live: bool,
     has_output_type: bool,
-    type_confirmed: bool,
-    resolver_type: ResolverSchemaGenType,
+    pub type_confirmed: bool,
+    pub resolver_type: ResolverSchemaGenType,
 }
 
 pub fn get_resolver_info(

@@ -30,4 +30,4 @@ schema = { path = "../schema" }
 [dev-dependencies]
 diff = "0.1"
 fixture-tests = { path = "../fixture-tests" }
-tokio = { version = "1.41.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }

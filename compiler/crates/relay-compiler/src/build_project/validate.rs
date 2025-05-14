@@ -51,7 +51,7 @@ pub fn validate_reader(
         // This validation is in this list because it depends upon
         // metadata added by the required_directive transform.
         disallow_required_on_non_null_field(program),
-        if let Some(ref validate) = additional_validations {
+        if let Some(validate) = additional_validations {
             validate(program, project_config)
         } else {
             Ok(())
@@ -81,7 +81,7 @@ pub fn validate(
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),
         validate_static_args(program),
-        if let Some(ref validate) = additional_validations {
+        if let Some(validate) = additional_validations {
             validate(program, project_config)
         } else {
             Ok(())

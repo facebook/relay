@@ -32,9 +32,9 @@ cd relay-example
 # Runtime dependencies
 npm install relay-runtime react-relay
 # Dev dependencies
-npm install --dev babel-plugin-relay graphql relay-compiler
+npm install --include=dev babel-plugin-relay graphql relay-compiler
 # Types
-npm install --dev @types/relay-runtime @types/react-relay
+npm install --include=dev @types/relay-runtime @types/react-relay
 ```
 
 ## Configure Vite to use Relay

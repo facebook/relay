@@ -10,6 +10,8 @@ keywords:
 
 One of the unique features enabled by Relay is the ability to statically detect unused GraphQL fields. This can [categorically prevent](https://relay.dev/blog/2023/10/24/how-relay-enables-optimal-data-fetching/) the "append only query" problem that is a common disfunction in many GraphQL clients. 
 
+![Relay ESLint Plugin](../../static/img/docs/no-unused-fields.png)
+
 This validation, and other helpful checks, are enabled by Relay's ESLint plugin [`eslint-plugin-relay`](https://www.npmjs.com/package/eslint-plugin-relay). **The Relay ESLint plugin is a key part of the Relay developer experience**.
 
 ## Installation

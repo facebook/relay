@@ -159,6 +159,7 @@ module.exports = {
         'getting-started/babel-plugin',
         'getting-started/compiler',
         'getting-started/compiler-config',
+        'getting-started/lint-rules',
         'editor-support',
         'getting-started/production',
       ],

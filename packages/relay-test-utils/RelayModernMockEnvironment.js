@@ -214,6 +214,12 @@ function createMockEnvironment(
     const {id, text} = request;
     const cacheID = id ?? text;
 
+    console.log('DEBUG: MockEnvironment.execute', {
+      request,
+      variables,
+      pendingOperations,
+    });
+
     let cachedPayload = null;
     if (
       (cacheConfig?.force == null || cacheConfig?.force === false) &&
@@ -231,6 +237,11 @@ function createMockEnvironment(
         op.request.node.params === request &&
         areEqual(op.request.variables, variables),
     );
+
+    console.log('DEBUG: MockEnvironment.execute', {
+      currentOperation,
+      pendingOperations,
+    });
 
     // Handle network responses added by
     if (currentOperation != null && resolversQueue.length > 0) {

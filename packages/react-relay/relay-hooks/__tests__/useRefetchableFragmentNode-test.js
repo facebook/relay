@@ -38,6 +38,7 @@ import type {
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
+const {MockPayloadGenerator} = require('relay-test-utils');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useRefetchableFragmentInternal = require('../useRefetchableFragmentInternal');
 const invariant = require('invariant');
@@ -807,6 +808,64 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             },
           },
         });
+      });
+
+      // Assert fragment is rendered with new data
+      const refetchedUser = {
+        id: '1',
+        name: 'Alice',
+        profile_picture: {
+          uri: 'scale32',
+        },
+        ...createFragmentRef('1', refetchQuery),
+      };
+      expectFragmentResults([{data: refetchedUser}]);
+      expect(isOperationRetained(refetchQuery)).toBe(true);
+    });
+
+    it.only('refetches new variables correctly when refetching same id and queued resolver', () => {
+      const renderer = renderFragment();
+      const initialUser = {
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', query),
+      };
+      expectFragmentResults([{data: initialUser}]);
+
+      // Mock network response upfront
+      environment.mock.queueOperationResolver(operation =>
+        MockPayloadGenerator.generate(operation, {
+          Node: () => ({
+            __typename: 'User',
+            id: '1',
+            name: 'Alice',
+            profile_picture: {
+              uri: 'scale32',
+            },
+            username: 'useralice',
+          }),
+        }),
+      );
+
+      TestRenderer.act(() => {
+        refetch({scale: 32});
+      });
+
+      // Assert that fragment is refetching with the right variables and
+      // suspends upon refetch
+      const refetchVariables = {
+        id: '1',
+        scale: 32,
+      };
+      refetchQuery = createOperationDescriptor(
+        gqlRefetchQuery,
+        refetchVariables,
+        {force: true},
+      );
+      expectFragmentIsRefetching(renderer, {
+        refetchVariables,
+        refetchQuery,
       });
 
       // Assert fragment is rendered with new data

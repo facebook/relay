@@ -241,6 +241,7 @@ function createMockEnvironment(
     console.log('DEBUG: MockEnvironment.execute', {
       currentOperation,
       pendingOperations,
+      resolversQueueLength: resolversQueue.length,
     });
 
     // Handle network responses added by

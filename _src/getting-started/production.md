@@ -23,6 +23,8 @@ A key principal of Relay is data colocation where each component defines its own
 
 We recommend using the [`eslint-plugin-relay`](https://github.com/relayjs/eslint-plugin-relay), especially the `relay/unused-fields` rule.
 
+Learn how to install them: [Relay ESLint Plugin](./lint-rules.md).
+
 ## Running the Relay Compiler in CI
 
 We recommend committing Relay's generated artifacts to source control along with your application code. This ensures generated types are present without needing an additional build, and allows for inspection of generated artifacts in code review. To ensure the generated artifacts are always in sync with the source code, we recommend running the Relay compiler in CI and ensuring it does not change any generated files. A example bash script which checks for changes can be found [here](https://github.com/facebook/relay/blob/0414c9ad0744483e349e07defcb6d70a52cf8b3c/scripts/check-git-status.sh).

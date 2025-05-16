@@ -38,7 +38,7 @@ use crate::ValidationMessage;
 use crate::create_metadata_directive;
 
 lazy_static! {
-    static ref TEST_OPERATION_DIRECTIVE: DirectiveName =
+    pub static ref TEST_OPERATION_DIRECTIVE: DirectiveName =
         DirectiveName("relay_test_operation".intern());
     static ref TEST_OPERATION_METADATA_KEY: ArgumentName =
         ArgumentName("relayTestingSelectionTypeInfo".intern());
@@ -48,6 +48,7 @@ lazy_static! {
     static ref TYPE_KEY: ArgumentName = ArgumentName("type".intern());
     static ref DO_NOT_USE_USE_IN_PRODUCTION_ARG: ArgumentName =
         ArgumentName("DO_NOT_USE_use_in_production".intern());
+    pub static ref EMIT_RAW_TEXT_ARG: ArgumentName = ArgumentName("emitRawText".intern());
 }
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed

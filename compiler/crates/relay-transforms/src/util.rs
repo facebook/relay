@@ -38,6 +38,7 @@ use crate::connections::ConnectionMetadataDirective;
 use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
 use crate::inline_data_fragment::InlineDirectiveMetadata;
+use crate::raw_text::RAW_TEXT_DIRECTIVE_NAME;
 use crate::refetchable_fragment::RefetchableMetadata;
 use crate::relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use crate::required_directive::CHILDREN_CAN_BUBBLE_METADATA_KEY;
@@ -86,7 +87,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 20] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 21] = [
         *CATCH_DIRECTIVE_NAME,
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
@@ -107,6 +108,7 @@ lazy_static! {
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
+        *RAW_TEXT_DIRECTIVE_NAME,
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 10] = [
         *CATCH_DIRECTIVE_NAME,

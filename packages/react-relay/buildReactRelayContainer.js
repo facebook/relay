@@ -82,8 +82,7 @@ function buildReactRelayContainer<TBase: component(...empty)>(
     );
   }
   ForwardRef.displayName = containerName;
-  // $FlowFixMe[incompatible-call]
-  const ForwardContainer = React.forwardRef(ForwardRef);
+  const ForwardContainer = (React as $FlowFixMe).forwardRef(ForwardRef);
 
   if (__DEV__) {
     // Used by RelayModernTestUtils

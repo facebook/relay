@@ -72,7 +72,6 @@ query LiteralObjectArgument {
                     ],
                 },
             ],
-            raw_text: None,
         },
     ),
 ]

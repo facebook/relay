@@ -82,19 +82,12 @@ pub fn create_raw_text_directive(raw_text: &String) -> Directive {
     }
 }
 
-pub fn get_raw_text_value(operation: &OperationDefinition) -> Option<String> {
-    match operation
-        .directives
+pub fn get_raw_text_value(op: &OperationDefinition) -> Option<String> {
+    op.directives
         .named(*RAW_TEXT_DIRECTIVE_NAME)
-        .and_then(|directive| directive.arguments.named(*RAW_TEXT_ARGUMENT_KEY))
-    {
-        Some(argument) => match argument.value.item.clone() {
-            Value::Constant(constant_value) => match constant_value {
-                ConstantValue::String(string_key) => Some(string_key.to_string()),
-                _ => None,
-            },
+        .and_then(|dir| dir.arguments.named(*RAW_TEXT_ARGUMENT_KEY))
+        .and_then(|arg| match &arg.value.item {
+            Value::Constant(ConstantValue::String(s)) => Some(s.to_string()),
             _ => None,
-        },
-        None => None,
-    }
+        })
 }

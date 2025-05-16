@@ -98,7 +98,6 @@ mutation ArgumentWithDefault {
                     ],
                 },
             ],
-            raw_text: None,
         },
     ),
 ]

@@ -70,7 +70,6 @@ query EnumValueQuery {
                     ],
                 },
             ],
-            raw_text: None,
         },
     ),
 ]

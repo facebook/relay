@@ -161,7 +161,6 @@ extend type Query {
                     ],
                 },
             ],
-            raw_text: None,
         },
     ),
 ]

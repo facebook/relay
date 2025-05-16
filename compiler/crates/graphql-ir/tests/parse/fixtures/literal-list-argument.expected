@@ -103,7 +103,6 @@ query LiteralListArgumentQuery {
                     ],
                 },
             ],
-            raw_text: None,
         },
     ),
 ]

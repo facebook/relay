@@ -70,7 +70,6 @@ query NullValuesQuery {
                     ],
                 },
             ],
-            raw_text: None,
         },
     ),
 ]

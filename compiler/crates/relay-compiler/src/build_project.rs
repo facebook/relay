@@ -382,7 +382,6 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
     let base_fragment_names = Arc::new(base_fragment_names);
-
     let validation_results = programs
         .into_par_iter()
         .map(

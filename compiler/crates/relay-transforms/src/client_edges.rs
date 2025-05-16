@@ -305,7 +305,6 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                     variable_definitions: refetchable_root.variable_definitions,
                     directives,
                     selections: refetchable_root.selections,
-                    raw_text: None,
                 });
             }
         };

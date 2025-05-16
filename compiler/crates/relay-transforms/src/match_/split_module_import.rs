@@ -166,7 +166,6 @@ impl Transformer<'_> for SplitModuleImportTransform<'_, '_> {
                             directives: operation_directives,
                             selections: next_selections,
                             kind: OperationKind::Query,
-                            raw_text: None,
                         },
                     )
                 });

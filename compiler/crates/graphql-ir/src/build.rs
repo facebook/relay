@@ -480,7 +480,6 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 variable_definitions,
                 directives,
                 selections,
-                raw_text: None,
             })
         }
     }

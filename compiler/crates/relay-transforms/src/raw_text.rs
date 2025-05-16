@@ -60,7 +60,6 @@ impl Transformer<'_> for RawTextTransform<'_> {
             next_directives.push(create_raw_text_directive(&raw_text));
             Transformed::Replace(OperationDefinition {
                 directives: next_directives,
-                raw_text: Some(raw_text),
                 ..operation.clone()
             })
         } else {

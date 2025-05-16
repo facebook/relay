@@ -300,12 +300,6 @@ pub fn generate_operation(
         request_parameters.text.clone_from(text);
     }
 
-    if normalization_operation.raw_text.is_some() {
-        request_parameters
-            .raw_text
-            .clone_from(&normalization_operation.raw_text);
-    }
-
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),

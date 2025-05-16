@@ -540,7 +540,6 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 directives,
                 selections,
                 kind: OperationKind::Query,
-                raw_text: None,
             })
         };
 

@@ -67,7 +67,6 @@ pub fn generate_relay_resolvers_root_fragment_split_operation(
                 ],
                 selections: fragment.selections.clone(),
                 kind: OperationKind::Query,
-                raw_text: None,
             }));
         }
     }

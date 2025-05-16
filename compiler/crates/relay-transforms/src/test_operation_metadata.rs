@@ -48,7 +48,7 @@ lazy_static! {
     static ref TYPE_KEY: ArgumentName = ArgumentName("type".intern());
     static ref DO_NOT_USE_USE_IN_PRODUCTION_ARG: ArgumentName =
         ArgumentName("DO_NOT_USE_use_in_production".intern());
-    pub static ref EMIT_RAW_TEXT: ArgumentName = ArgumentName("emitRawText".intern());
+    pub static ref EMIT_RAW_TEXT_ARG: ArgumentName = ArgumentName("emitRawText".intern());
 }
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed

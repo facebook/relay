@@ -5,6 +5,7 @@
 
 directive @relay_test_operation(
   DO_NOT_USE_use_in_production: Boolean = false @static
+  emitRawText: Boolean = false @static
 ) on QUERY | MUTATION | SUBSCRIPTION
 
 """

@@ -5,7 +5,7 @@ use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Transformed, Transformer,
     Value,
 };
-use graphql_text_printer::{OperationPrinter, PrinterOptions};
+use graphql_text_printer::OperationPrinter;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -18,12 +18,9 @@ struct RawTextTransform<'program> {
 
 impl<'program> RawTextTransform<'program> {
     fn new(program: &'program Program) -> Self {
-        let options = PrinterOptions {
-            ..Default::default()
-        };
-
-        let printer = OperationPrinter::new(program, options);
-        Self { printer }
+        Self {
+            printer: OperationPrinter::new(program, Default::default()),
+        }
     }
 }
 

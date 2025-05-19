@@ -1,26 +1,29 @@
+use crate::test_operation_metadata::{EMIT_RAW_TEXT_ARG, TEST_OPERATION_DIRECTIVE};
+use ::intern::string_key::Intern;
 use common::{ArgumentName, DiagnosticsResult, DirectiveName, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, OperationDefinition, Program, Transformed, Transformer,
     Value,
 };
 use graphql_text_printer::{OperationPrinter, PrinterOptions};
-use intern::string_key::Intern;
 use lazy_static::lazy_static;
-
-use crate::test_operation_metadata::TEST_OPERATION_DIRECTIVE;
 
 lazy_static! {
     pub static ref RAW_TEXT_DIRECTIVE_NAME: DirectiveName = DirectiveName("rawText".intern());
-    pub static ref RAW_TEXT_ARGUMENT_KEY: ArgumentName = ArgumentName("rawText".intern());
 }
 
 struct RawTextTransform<'program> {
-    program: &'program Program,
+    printer: OperationPrinter<'program>,
 }
 
 impl<'program> RawTextTransform<'program> {
     fn new(program: &'program Program) -> Self {
-        Self { program }
+        let options = PrinterOptions {
+            ..Default::default()
+        };
+
+        let printer = OperationPrinter::new(program, options);
+        Self { printer }
     }
 }
 
@@ -45,16 +48,10 @@ impl Transformer<'_> for RawTextTransform<'_> {
         if operation
             .directives
             .named(*TEST_OPERATION_DIRECTIVE)
+            .and_then(|directive| directive.arguments.named(*EMIT_RAW_TEXT_ARG))
             .is_some()
         {
-            let options = PrinterOptions {
-                compact: true,
-                json_format: true,
-                ..Default::default()
-            };
-
-            let mut printer = OperationPrinter::new(self.program, options);
-            let raw_text = printer.print(operation);
+            let raw_text = self.printer.print(operation);
 
             let mut next_directives = operation.directives.clone();
             next_directives.push(create_raw_text_directive(&raw_text));
@@ -72,7 +69,7 @@ pub fn create_raw_text_directive(raw_text: &String) -> Directive {
     Directive {
         name: WithLocation::generated(*RAW_TEXT_DIRECTIVE_NAME),
         arguments: vec![Argument {
-            name: WithLocation::generated(*RAW_TEXT_ARGUMENT_KEY),
+            name: WithLocation::generated(ArgumentName("rawText".intern())),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(
                 raw_text.intern(),
             ))),
@@ -85,7 +82,7 @@ pub fn create_raw_text_directive(raw_text: &String) -> Directive {
 pub fn get_raw_text_value(op: &OperationDefinition) -> Option<String> {
     op.directives
         .named(*RAW_TEXT_DIRECTIVE_NAME)
-        .and_then(|dir| dir.arguments.named(*RAW_TEXT_ARGUMENT_KEY))
+        .and_then(|dir| dir.arguments.named(ArgumentName("rawText".intern())))
         .and_then(|arg| match &arg.value.item {
             Value::Constant(ConstantValue::String(s)) => Some(s.to_string()),
             _ => None,

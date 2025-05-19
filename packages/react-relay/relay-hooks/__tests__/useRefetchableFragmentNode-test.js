@@ -35,7 +35,12 @@ import type {
   useRefetchableFragmentNodeTestUserQuery$data,
   useRefetchableFragmentNodeTestUserQuery$variables,
 } from './__generated__/useRefetchableFragmentNodeTestUserQuery.graphql';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {
+  FetchPolicy,
+  OperationDescriptor,
+  RenderPolicy,
+  Variables,
+} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -112,7 +117,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
   let forceUpdate;
   let setEnvironment;
   let setOwner;
-  let fetchPolicy;
+  let fetchPolicy: FetchPolicy;
   let renderPolicy;
   let renderFragment;
   let commitSpy;
@@ -188,7 +193,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     commitSpy = jest.fn<_, mixed>();
 
     fetchPolicy = 'store-or-network';
-    renderPolicy = 'partial';
+    renderPolicy = 'partial' as RenderPolicy;
     callDuringRenderCount = 0;
 
     // Set up environment and base data

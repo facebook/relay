@@ -1,15 +1,27 @@
-use crate::test_operation_metadata::{EMIT_RAW_TEXT_ARG, TEST_OPERATION_DIRECTIVE};
 use ::intern::string_key::Intern;
-use common::{ArgumentName, DiagnosticsResult, DirectiveName, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    Argument, ConstantValue, Directive, OperationDefinition, Program, Transformed, Transformer,
-    Value,
-};
+use common::ArgumentName;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use graphql_text_printer::OperationPrinter;
+use intern::intern;
 use lazy_static::lazy_static;
 
+use crate::test_operation_metadata::EMIT_RAW_TEXT_ARG;
+use crate::test_operation_metadata::TEST_OPERATION_DIRECTIVE;
+
 lazy_static! {
-    pub static ref RAW_TEXT_DIRECTIVE_NAME: DirectiveName = DirectiveName("rawText".intern());
+    pub static ref RAW_TEXT_DIRECTIVE_NAME: DirectiveName = DirectiveName(intern!("rawText"));
 }
 
 struct RawTextTransform<'program> {
@@ -66,7 +78,7 @@ pub fn create_raw_text_directive(raw_text: &String) -> Directive {
     Directive {
         name: WithLocation::generated(*RAW_TEXT_DIRECTIVE_NAME),
         arguments: vec![Argument {
-            name: WithLocation::generated(ArgumentName("rawText".intern())),
+            name: WithLocation::generated(ArgumentName(intern!("rawText"))),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(
                 raw_text.intern(),
             ))),
@@ -79,7 +91,7 @@ pub fn create_raw_text_directive(raw_text: &String) -> Directive {
 pub fn get_raw_text_value(op: &OperationDefinition) -> Option<String> {
     op.directives
         .named(*RAW_TEXT_DIRECTIVE_NAME)
-        .and_then(|dir| dir.arguments.named(ArgumentName("rawText".intern())))
+        .and_then(|dir| dir.arguments.named(ArgumentName(intern!("rawText"))))
         .and_then(|arg| match &arg.value.item {
             Value::Constant(ConstantValue::String(s)) => Some(s.to_string()),
             _ => None,

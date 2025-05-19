@@ -2160,3 +2160,10 @@ async fn viewer_query() {
     let expected = include_str!("compile_relay_artifacts/fixtures/viewer-query.expected");
     test_fixture(transform_fixture, file!(), "viewer-query.graphql", "compile_relay_artifacts/fixtures/viewer-query.expected", input, expected).await;
 }
+
+#[tokio::test]
+async fn relay_test_operation() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.expected");
+    test_fixture(transform_fixture, file!(), "relay-test-operation.graphql", "compile_relay_artifacts/fixtures/relay-test-operation.expected", input, expected).await;
+}

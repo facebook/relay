@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b85b45e67a29afe335bbb227267438ed>>
+ * @generated SignedSource<<67aa79681f4c3c1406944dd059174dc7>>
  */
 
 mod compile_relay_artifacts;
@@ -1595,6 +1595,13 @@ async fn relay_resolvers_with_different_field_args_are_not_merged() {
 }
 
 #[tokio::test]
+async fn relay_test_operation() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.expected");
+    test_fixture(transform_fixture, file!(), "relay-test-operation.graphql", "compile_relay_artifacts/fixtures/relay-test-operation.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn required_argument_not_passed_default_value() {
     let input = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_default_value.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/required_argument_not_passed_default_value.expected");
@@ -2159,11 +2166,4 @@ async fn viewer_query() {
     let input = include_str!("compile_relay_artifacts/fixtures/viewer-query.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/viewer-query.expected");
     test_fixture(transform_fixture, file!(), "viewer-query.graphql", "compile_relay_artifacts/fixtures/viewer-query.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_test_operation() {
-    let input = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.expected");
-    test_fixture(transform_fixture, file!(), "relay-test-operation.graphql", "compile_relay_artifacts/fixtures/relay-test-operation.expected", input, expected).await;
 }

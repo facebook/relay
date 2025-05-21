@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<01b0ce9afb404f70b894d071b74bdc74>>
+ * @generated SignedSource<<c8632d2cc8a8adc3915d1de9ce475bba>>
  */
 
 mod relay_compiler_integration;
@@ -318,6 +318,13 @@ async fn resolver_returns_union_of_weak_resolver() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.expected");
     test_fixture(transform_fixture, file!(), "resolver_returns_union_of_weak_resolver.input", "relay_compiler_integration/fixtures/resolver_returns_union_of_weak_resolver.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_returns_weak_client_schema_type() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_returns_weak_client_schema_type.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_returns_weak_client_schema_type.expected");
+    test_fixture(transform_fixture, file!(), "resolver_returns_weak_client_schema_type.input", "relay_compiler_integration/fixtures/resolver_returns_weak_client_schema_type.expected", input, expected).await;
 }
 
 #[tokio::test]

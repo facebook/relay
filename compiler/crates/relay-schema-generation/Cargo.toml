@@ -32,7 +32,7 @@ intern = { path = "../intern" }
 lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
 relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
-rustc-hash = "2.1.0"
+rustc-hash = "2.1.1"
 schema-extractor = { path = "../schema-extractor" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 thiserror = "2"

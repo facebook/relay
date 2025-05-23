@@ -63,7 +63,7 @@ relay-saved-state-loader = { path = "../relay-saved-state-loader" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
-rustc-hash = "2.1.0"
+rustc-hash = "2.1.1"
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
 schema-validate-lib = { path = "../schema-validate" }

@@ -21,7 +21,7 @@ common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 relay-transforms = { path = "../relay-transforms" }
-rustc-hash = "2.1.0"
+rustc-hash = "2.1.1"
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }

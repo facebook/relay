@@ -19,5 +19,5 @@ graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
 lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
 relay-config = { path = "../relay-config" }
-rustc-hash = "2.1.0"
+rustc-hash = "2.1.1"
 schema = { path = "../schema" }

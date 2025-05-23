@@ -38,7 +38,7 @@ errors = { path = "../errors" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
 futures = { version = "0.3.30", features = ["async-await", "compat"] }
-glob = "0.3"
+glob = "0.3.2"
 globset = { version = "0.4.13", features = ["serde1"] }
 graphql-cli = { path = "../graphql-cli" }
 graphql-ir = { path = "../graphql-ir" }

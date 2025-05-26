@@ -13,7 +13,7 @@ hyper = { version = "0.14.26", features = ["client", "http1", "http2", "stream"]
 hyper-tls = "0.5"
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_json = { version = "1.0.140", features = ["float_roundtrip", "unbounded_depth"] }
-thiserror = "2"
+thiserror = "2.0.12"
 url = "2.5.2"
 
 [features]

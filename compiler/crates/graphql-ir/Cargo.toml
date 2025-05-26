@@ -32,7 +32,7 @@ once_cell = "1.12"
 schema = { path = "../schema" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 strum = { version = "0.26.2", features = ["derive"] }
-thiserror = "2"
+thiserror = "2.0.12"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

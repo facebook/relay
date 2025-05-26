@@ -27,7 +27,7 @@ rayon = "1.9.0"
 regex = "1.11.1"
 schema = { path = "../schema" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "2"
+thiserror = "2.0.12"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -74,7 +74,7 @@ serde_json = { version = "1.0.140", features = ["float_roundtrip", "unbounded_de
 sha1 = "0.10.5"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }
-thiserror = "2"
+thiserror = "2.0.12"
 tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
 walkdir = "2.3"
 watchman_client = "0.9.0"

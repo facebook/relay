@@ -103,7 +103,7 @@ impl Transformer<'_> for GenerateTestOperationMetadata<'_> {
                     && test_operation_directive
                         .arguments
                         .named(*DO_NOT_USE_USE_IN_PRODUCTION_ARG)
-                        .map_or(true, |arg| {
+                        .is_none_or(|arg| {
                             if let Value::Constant(ConstantValue::Boolean(arg_value)) =
                                 arg.value.item
                             {

@@ -59,7 +59,7 @@ pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
     };
     let programs = {
         let guard = raw_programs.lock().unwrap();
-        if guard.len() < 1 {
+        if guard.is_empty() {
             eprintln!("Failed to extract program from compiler state");
             std::process::exit(1);
         }

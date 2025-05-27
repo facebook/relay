@@ -292,7 +292,7 @@ pub fn generate_operation(
         if project_config
             .persist
             .as_ref()
-            .map_or(false, |config| config.include_query_text())
+            .is_some_and(|config| config.include_query_text())
         {
             request_parameters.text.clone_from(text);
         }

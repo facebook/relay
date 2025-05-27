@@ -294,7 +294,7 @@ impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
                                     let is_not_object_type = self
                                         .schema
                                         .get_type(edge_typename_value)
-                                        .map_or(true, |edge_type| !edge_type.is_object());
+                                        .is_none_or(|edge_type| !edge_type.is_object());
 
                                     if is_not_object_type {
                                         let suggestions = GraphQLSuggestions::new(self.schema);

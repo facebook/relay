@@ -192,7 +192,7 @@ impl<'program> FragmentAliasTransform<'program> {
             .expect("I believe we have already validated that all fragments exist");
 
         let fragment_is_plural =
-            RelayDirective::find(&fragment.directives).map_or(false, |directive| directive.plural);
+            RelayDirective::find(&fragment.directives).is_some_and(|directive| directive.plural);
 
         if fragment_is_plural && self.parent_type.expect("expect parent type").is_plural {
             // Plural fragments handle their own nullability when read. However,
@@ -414,7 +414,7 @@ impl Transformer<'_> for FragmentAliasTransform<'_> {
         match spread.alias() {
             Ok(Some(alias)) => {
                 let fragment_is_plural = RelayDirective::find(&fragment.directives)
-                    .map_or(false, |directive| directive.plural);
+                    .is_some_and(|directive| directive.plural);
 
                 let parent_type = self
                     .parent_type

@@ -186,8 +186,7 @@ impl<V: Source + Clone> IncrementalSources<V> {
                     entry.insert(value.clone());
                 }
                 Entry::Vacant(vacant) => {
-                    if !value.is_empty() || self.processed.get(key).map_or(false, |v| !v.is_empty())
-                    {
+                    if !value.is_empty() || self.processed.get(key).is_some_and(|v| !v.is_empty()) {
                         vacant.insert(value.clone());
                     }
                 }
@@ -408,7 +407,7 @@ impl CompilerState {
     pub fn project_has_pending_changes(&self, project_name: ProjectName) -> bool {
         self.graphql_sources
             .get(&project_name)
-            .map_or(false, |sources| !sources.pending.is_empty())
+            .is_some_and(|sources| !sources.pending.is_empty())
             || self.project_has_pending_schema_changes(project_name)
             || self.dirty_artifact_paths.contains_key(&project_name)
     }
@@ -416,19 +415,19 @@ impl CompilerState {
     pub fn project_has_pending_schema_changes(&self, project_name: ProjectName) -> bool {
         self.schemas
             .get(&project_name)
-            .map_or(false, |sources| !sources.pending.is_empty())
+            .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .extensions
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .docblocks
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .full_sources
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {

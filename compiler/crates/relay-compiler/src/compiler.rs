@@ -500,12 +500,15 @@ fn get_removed_docblock_artifact_source_keys(
 fn get_removed_full_sources(full_sources: Option<&FullSources>) -> Vec<ArtifactSourceKey> {
     let mut removed_full_sources: Vec<ArtifactSourceKey> = vec![];
     if let Some(full_sources) = full_sources {
-        for (file, source) in full_sources.pending.iter() {
-            if source.is_empty() {
-                if let Some(text) = full_sources.processed.get(file) {
+        for (file, pending_source_text) in full_sources.pending.iter() {
+            if let Some(processed_source_text) = full_sources.processed.get(file) {
+                // Full sources are keyed by a hash of their contents.
+                // Therefore if the contents of a file have changed we must
+                // treat the hash of the old version of that file as removed.
+                if pending_source_text != processed_source_text {
                     // For now, full sources are only used for ResolverHash
                     removed_full_sources.push(ArtifactSourceKey::ResolverHash(
-                        ResolverSourceHash::new(text),
+                        ResolverSourceHash::new(processed_source_text),
                     ))
                 }
             }

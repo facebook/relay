@@ -203,6 +203,53 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         });
       });
+
+      it('calls next() and publishes normalized response to the store', () => {
+        const selector = createReaderSelector(
+          query.fragment,
+          ROOT_ID,
+          variables,
+          operation.request,
+        );
+        const snapshot = environment.lookup(selector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(snapshot, callback);
+
+        environment
+          .executeWithSource({operation, source: fetchSource})
+          .subscribe(callbacks);
+        const payload = {
+          data: {
+            '842472': {
+              __id: '842472',
+              __typename: 'User',
+              name: 'Joe',
+              id: '842472',
+            },
+            'client:root': {
+              __id: 'client:root',
+              __typename: '__Root',
+              me: {__ref: '842472'},
+            },
+          },
+          extensions: {
+            is_normalized: true,
+          },
+        };
+        subject.next(payload);
+        jest.runAllTimers();
+
+        expect(next.mock.calls.length).toBe(1);
+        expect(next).toBeCalledWith(payload);
+        expect(complete).not.toBeCalled();
+        expect(error).not.toBeCalled();
+        expect(callback.mock.calls.length).toBe(1);
+        expect(callback.mock.calls[0][0].data).toEqual({
+          me: {
+            name: 'Joe',
+          },
+        });
+      });
     });
   },
 );

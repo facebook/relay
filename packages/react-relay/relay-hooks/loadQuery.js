@@ -43,7 +43,7 @@ const {
 
 let fetchKey = 100001;
 
-type QueryType<T> =
+export type QueryType<T> =
   T extends Query<infer V, infer D, infer RR>
     ? {
         variables: V,

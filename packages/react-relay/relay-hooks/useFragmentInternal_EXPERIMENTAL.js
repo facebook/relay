@@ -86,11 +86,12 @@ function getMissingClientEdges(
     return state.snapshot.missingClientEdges ?? null;
   } else {
     let edges: null | Array<MissingClientEdgeRequestInfo> = null;
-    for (const snapshot of state.snapshots) {
+    for (let i = 0; i < state.snapshots.length; i++) {
+      const snapshot = state.snapshots[i];
       if (snapshot.missingClientEdges) {
         edges = edges ?? [];
-        for (const edge of snapshot.missingClientEdges) {
-          edges.push(edge);
+        for (let j = 0; j < snapshot.missingClientEdges.length; j++) {
+          edges.push(snapshot.missingClientEdges[j]);
         }
       }
     }
@@ -107,11 +108,12 @@ function getSuspendingLiveResolver(
     return state.snapshot.missingLiveResolverFields ?? null;
   } else {
     let missingFields: null | Array<DataID> = null;
-    for (const snapshot of state.snapshots) {
+    for (let i = 0; i < state.snapshots.length; i++) {
+      const snapshot = state.snapshots[i];
       if (snapshot.missingLiveResolverFields) {
         missingFields = missingFields ?? [];
-        for (const edge of snapshot.missingLiveResolverFields) {
-          missingFields.push(edge);
+        for (let j = 0; j < snapshot.missingLiveResolverFields.length; j++) {
+          missingFields.push(snapshot.missingLiveResolverFields[j]);
         }
       }
     }
@@ -131,7 +133,8 @@ function handlePotentialSnapshotErrorsForState(
       loggingContext,
     );
   } else if (state.kind === 'plural') {
-    for (const snapshot of state.snapshots) {
+    for (let i = 0; i < state.snapshots.length; i++) {
+      const snapshot = state.snapshots[i];
       handlePotentialSnapshotErrors(
         environment,
         snapshot.fieldErrors,
@@ -347,8 +350,8 @@ function subscribeToSnapshot(
       }),
     );
     return () => {
-      for (const d of disposables) {
-        d.dispose();
+      for (let i = 0; i < disposables.length; i++) {
+        disposables[i].dispose();
       }
     };
   }
@@ -488,12 +491,12 @@ hook useFragmentInternal_EXPERIMENTAL(
     // $FlowFixMe[react-rule-hook-conditional]
     const [clientEdgeQueries, activeRequestPromises] = useMemo(() => {
       const missingClientEdges = getMissingClientEdges(state);
-      // eslint-disable-next-line no-shadow
       let clientEdgeQueries;
       const activeRequestPromises = [];
       if (missingClientEdges?.length) {
         clientEdgeQueries = ([]: Array<QueryResult>);
-        for (const edge of missingClientEdges) {
+        for (let i = 0; i < missingClientEdges.length; i++) {
+          const edge = missingClientEdges[i];
           const [queryResult, requestPromise] = handleMissingClientEdge(
             environment,
             fragmentNode,
@@ -522,12 +525,12 @@ hook useFragmentInternal_EXPERIMENTAL(
       const QueryResource = getQueryResourceForEnvironment(environment);
       if (clientEdgeQueries?.length) {
         const disposables = [];
-        for (const query of clientEdgeQueries) {
-          disposables.push(QueryResource.retain(query));
+        for (let i = 0; i < clientEdgeQueries.length; i++) {
+          disposables.push(QueryResource.retain(clientEdgeQueries[i]));
         }
         return () => {
-          for (const disposable of disposables) {
-            disposable.dispose();
+          for (let i = 0; i < disposables.length; i++) {
+            disposables[i].dispose();
           }
         };
       }

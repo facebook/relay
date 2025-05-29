@@ -918,7 +918,8 @@ class Executor<TMutation: MutationParameters> {
                   placeholder.label,
                   placeholder.path,
                   placeholder,
-                  {data: placeholder.data},
+                  // `is_final` flag needs to be set for processing nested defer payloads
+                  {data: placeholder.data, extensions: {is_final: true}},
                 ),
               );
             }

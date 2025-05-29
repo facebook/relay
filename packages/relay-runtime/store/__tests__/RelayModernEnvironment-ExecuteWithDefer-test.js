@@ -37,7 +37,11 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
-const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectToWarn,
+  expectToWarnMany,
+} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
@@ -735,6 +739,109 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(snapshot.data).toEqual({
           id: '1',
           name: 'ALICE',
+        });
+      });
+
+      it('warns if nested defer is executed in non-streaming mode and processes deferred selections', () => {
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ...RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment
+                @dangerously_unaliased_fixme
+                @defer(label: "UserFragment")
+            }
+          }
+        `;
+        const fragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferTestNestedUserFragment on User {
+            id
+            ...RelayModernEnvironmentExecuteWithDeferTestNestedInnerUserFragment
+              @defer
+          }
+        `;
+        const fragmentInner = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferTestNestedInnerUserFragment on User {
+            name
+            ...RelayModernEnvironmentExecuteWithDeferTestNestedInnerInner2UserFragment
+              @defer
+          }
+        `;
+        const fragmentInnerInner2 = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferTestNestedInnerInner2UserFragment on User {
+            lastName
+          }
+        `;
+        variables = {id: '1'};
+        operation = createOperationDescriptor(query, variables);
+        selector = createReaderSelector(fragment, '1', {}, operation.request);
+
+        const initialSnapshot = environment.lookup(selector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment.execute({operation}).subscribe(callbacks);
+        const payload = {
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              name: 'Alice',
+              lastName: 'Bob',
+            },
+          },
+          extensions: {
+            is_final: true,
+          },
+        };
+
+        expectToWarnMany(
+          [
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferTestNestedUserQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+          ],
+          () => {
+            dataSource.next(payload);
+          },
+        );
+
+        expect(complete).not.toBeCalled();
+        expect(error).not.toBeCalled();
+        expect(next.mock.calls.length).toBe(1);
+
+        expect(callback.mock.calls.length).toBe(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data?.id).toBe('1');
+
+        const innerSelector = createReaderSelector(
+          fragmentInner,
+          '1',
+          {},
+          operation.request,
+        );
+        const innerSnapshot = environment.lookup(innerSelector);
+        expect(innerSnapshot.isMissingData).toBe(false);
+        expect(innerSnapshot.data?.name).toEqual('Alice');
+
+        const innerInner2Selector = createReaderSelector(
+          fragmentInnerInner2,
+          '1',
+          {},
+          operation.request,
+        );
+        const innerInner2Snapshot = environment.lookup(innerInner2Selector);
+        expect(innerInner2Snapshot.isMissingData).toBe(false);
+        expect(innerInner2Snapshot.data).toEqual({
+          lastName: 'Bob',
         });
       });
     });

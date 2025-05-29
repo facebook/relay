@@ -126,7 +126,7 @@ hook usePreloadedQuery<
       // context, we cannot re-use the existing preloaded query.
       // Instead, we need to fall back and re-execute and de-dupe the query with
       // the new environment (at render time).
-      // TODO T68036756 track occurences of this warning and turn it into a hard error
+      // TODO T68036756 track occurrences of this warning and turn it into a hard error
       warning(
         false,
         'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query ' +

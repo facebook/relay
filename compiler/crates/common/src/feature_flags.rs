@@ -23,8 +23,20 @@ use crate::rollout::RolloutRange;
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
-    // Enable returning interfaces from Relay Resolvers without @outputType
+    /// Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,
+
+    #[serde(default)]
+    /// @outputType resolvers are a discontinued experimental feature. This flag
+    /// allows users to allowlist old uses of this feature while they work to
+    /// remove them. Weak types (types without an `id` field) returned by a Relay
+    /// Resolver should be limited to types defined using `@RelayResolver` with `@weak`.
+    ///
+    /// If using the "limited" feature flag variant, users can allowlist a
+    /// specific list of field names.
+    ///
+    /// https://relay.dev/docs/next/guides/relay-resolvers/defining-types/#defining-a-weak-type
+    pub allow_output_type_resolvers: FeatureFlag,
 
     /// For now, this also disallows fragments with variable definitions
     /// This also makes @module to opt in using @no_inline internally
@@ -169,7 +181,7 @@ pub struct FeatureFlags {
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]
+#[derive(Debug, serde::Deserialize, Clone, Serialize, Default, JsonSchema)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature

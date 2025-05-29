@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+//- PersonComponent.js
+graphql`query PersonComponentQuery {
+  some_resolver_field {
+    __typename
+  }
+}`
+
+//- Resolvers.js
+/**
+ * @RelayResolver Query.some_resolver_field: SomeType
+ */
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ]
+}
+
+//- schema.graphql
+type Query {
+  some_field: Boolean
+}
+
+//- schema-extensions/extension.graphql
+type SomeType {
+  name: String
+}
+==================================== OUTPUT ===================================
+✖︎ Relay Resolvers that return weak types defined in client schema extensions are not supported. Prefer defining the return type using a `@weak` Relay Resolver type: https://relay.dev/docs/next/guides/relay-resolvers/defining-types/#defining-a-weak-type
+
+  Resolvers.js:2:25
+    1 │ *
+    2 │  * @RelayResolver Query.some_resolver_field: SomeType
+      │                         ^^^^^^^^^^^^^^^^^^^
+    3 │

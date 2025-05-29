@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Run Rust Compiler Tests",
+            "type": "shell",
+            "command": "cargo test",
+            "options": {
+                "cwd": "${workspaceFolder}/compiler"
+            },
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "label": "Run Rust Compiler Tests (Update Snapshots)",
+            "type": "shell",
+            "command": "cargo test",
+            "options": {
+                "cwd": "${workspaceFolder}/compiler", 
+                "env": {
+                    "UPDATE_SNAPSHOTS": "1"
+                }
+            },
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "label": "Regenerate Rust Tests for Fixture Files",
+            "type": "shell",
+            "command": "./scripts/update-fixtures.sh",
+            "problemMatcher": [
+                "$rustc"
+            ]
+        },
+        {
+            "label": "Build Relay artifacts for runtime tests",
+            "type": "shell",
+            "command": "./scripts/compile-tests.sh"
+        }
+    ]
+}

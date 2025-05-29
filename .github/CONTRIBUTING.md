@@ -72,6 +72,10 @@ following steps should work for all Relay packages:
 1. Because of symbolic links and how Node resolves dependencies, you will probably want to instruct Node to resolve
    preserve the links `yarn node --preserve-symlinks-main --preserve-symlinks ./node_modules/.bin/relay-compiler […]`.
 
+## VSCode
+
+This repository has configuration files in the `.vscode/` directory to make development in VSCode easier. This includes enumerating recommended exensions (Flow, Rust Analyzer, Prettier, etc.) and sensible default settings (enable auto formatting etc.) to use when developing in this repository as well as some defined [Tasks](https://code.visualstudio.com/docs/debugtest/tasks) to easily trigger common actions directly via the command pallet.
+
 ## License
 
 By contributing to Relay, you agree that your contributions will be licensed under its MIT license.

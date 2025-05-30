@@ -175,7 +175,7 @@ Spreading fragments is generally preferable to refetching the data in response t
 In addition to writing updated data to the Relay store, we may want to execute a callback whenever a subscription payload is received. We may want to execute a callback if an error is received or if an error is received or if the server ends the subscription. The `GraphQLSubscriptionConfig` can include the following fields to handle such cases:
 
 * `onNext`, a callback that is executed when a subscription payload is received. It is passed the subscription response (stopping at fragment spread boundaries).
-* `onError`, a callback that is executed when the subscription errors. It is passed the error that occured.
+* `onError`, a callback that is executed when the subscription errors. It is passed the error that occurred.
 * `onCompleted`, a callback that is executed when the server ends the subscription.
 
 ## Declarative mutation directives

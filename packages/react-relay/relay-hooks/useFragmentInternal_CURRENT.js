@@ -74,12 +74,11 @@ function getMissingClientEdges(
     return state.snapshot.missingClientEdges ?? null;
   } else {
     let edges: null | Array<MissingClientEdgeRequestInfo> = null;
-    for (let i = 0; i < state.snapshots.length; i++) {
-      const snapshot = state.snapshots[i];
+    for (const snapshot of state.snapshots) {
       if (snapshot.missingClientEdges) {
         edges = edges ?? [];
-        for (let j = 0; j < snapshot.missingClientEdges.length; j++) {
-          edges.push(snapshot.missingClientEdges[j]);
+        for (const edge of snapshot.missingClientEdges) {
+          edges.push(edge);
         }
       }
     }
@@ -96,12 +95,11 @@ function getSuspendingLiveResolver(
     return state.snapshot.missingLiveResolverFields ?? null;
   } else {
     let missingFields: null | Array<DataID> = null;
-    for (let i = 0; i < state.snapshots.length; i++) {
-      const snapshot = state.snapshots[i];
+    for (const snapshot of state.snapshots) {
       if (snapshot.missingLiveResolverFields) {
         missingFields = missingFields ?? [];
-        for (let j = 0; j < snapshot.missingLiveResolverFields.length; j++) {
-          missingFields.push(snapshot.missingLiveResolverFields[j]);
+        for (const edge of snapshot.missingLiveResolverFields) {
+          missingFields.push(edge);
         }
       }
     }
@@ -121,8 +119,7 @@ function handlePotentialSnapshotErrorsForState(
       loggingContext,
     );
   } else if (state.kind === 'plural') {
-    for (let i = 0; i < state.snapshots.length; i++) {
-      const snapshot = state.snapshots[i];
+    for (const snapshot of state.snapshots) {
       handlePotentialSnapshotErrors(
         environment,
         snapshot.fieldErrors,
@@ -176,8 +173,8 @@ function handleMissedUpdates(
   } else {
     let didMissUpdates = false;
     const currentSnapshots = [];
-    for (let i = 0; i < state.snapshots.length; i++) {
-      const snapshot = state.snapshots[i];
+    for (let index = 0; index < state.snapshots.length; index++) {
+      const snapshot = state.snapshots[index];
       const currentSnapshot = environment.lookup(snapshot.selector);
       const updatedData = recycleNodesInto(snapshot.data, currentSnapshot.data);
       const updatedCurrentSnapshot: Snapshot = {
@@ -326,8 +323,8 @@ function subscribeToSnapshot(
       }),
     );
     return () => {
-      for (let i = 0; i < disposables.length; i++) {
-        disposables[i].dispose();
+      for (const d of disposables) {
+        d.dispose();
       }
     };
   }
@@ -481,8 +478,7 @@ hook useFragmentInternal(
       const activeRequestPromises = [];
       if (missingClientEdges?.length) {
         clientEdgeQueries = ([]: Array<QueryResult>);
-        for (let i = 0; i < missingClientEdges.length; i++) {
-          const edge = missingClientEdges[i];
+        for (const edge of missingClientEdges) {
           const [queryResult, requestPromise] = handleMissingClientEdge(
             environment,
             fragmentNode,
@@ -511,12 +507,12 @@ hook useFragmentInternal(
       const QueryResource = getQueryResourceForEnvironment(environment);
       if (clientEdgeQueries?.length) {
         const disposables = [];
-        for (let i = 0; i < clientEdgeQueries.length; i++) {
-          disposables.push(QueryResource.retain(clientEdgeQueries[i]));
+        for (const query of clientEdgeQueries) {
+          disposables.push(QueryResource.retain(query));
         }
         return () => {
-          for (let i = 0; i < disposables.length; i++) {
-            disposables[i].dispose();
+          for (const disposable of disposables) {
+            disposable.dispose();
           }
         };
       }

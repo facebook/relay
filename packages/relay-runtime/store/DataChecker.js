@@ -226,8 +226,7 @@ class DataChecker {
       field.args != undefined
         ? getArgumentValues(field.args, this._variables)
         : {};
-    for (let i = 0; i < this._handlers.length; i++) {
-      const handler = this._handlers[i];
+    for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {
         const newValue = handler.handle(
           field,
@@ -251,8 +250,7 @@ class DataChecker {
       field.args != undefined
         ? getArgumentValues(field.args, this._variables)
         : {};
-    for (let i = 0; i < this._handlers.length; i++) {
-      const handler = this._handlers[i];
+    for (const handler of this._handlers) {
       if (handler.kind === 'linked') {
         const newValue = handler.handle(
           field,
@@ -279,8 +277,7 @@ class DataChecker {
       field.args != undefined
         ? getArgumentValues(field.args, this._variables)
         : {};
-    for (let i = 0; i < this._handlers.length; i++) {
-      const handler = this._handlers[i];
+    for (const handler of this._handlers) {
       if (handler.kind === 'pluralLinked') {
         const newValue = handler.handle(
           field,
@@ -614,12 +611,8 @@ class DataChecker {
   _assignClientAbstractTypes(node: NormalizationNode) {
     const {clientAbstractTypes} = node;
     if (clientAbstractTypes != null) {
-      const abstractTypeKeys = Object.keys(clientAbstractTypes);
-      for (let i = 0; i < abstractTypeKeys.length; i++) {
-        const abstractType = abstractTypeKeys[i];
-        const concreteTypes = clientAbstractTypes[abstractType];
-        for (let j = 0; j < concreteTypes.length; j++) {
-          const concreteType = concreteTypes[j];
+      for (const abstractType of Object.keys(clientAbstractTypes)) {
+        for (const concreteType of clientAbstractTypes[abstractType]) {
           const typeID = generateTypeID(concreteType);
           if (this._source.get(typeID) == null) {
             this._mutator.create(typeID, TYPE_SCHEMA_TYPE);

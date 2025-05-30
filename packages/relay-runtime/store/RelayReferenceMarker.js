@@ -259,9 +259,9 @@ class RelayReferenceMarker {
       // Mark all @outputType record IDs
       const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
       if (outputTypeRecordIDs != null) {
-        outputTypeRecordIDs.forEach(outputID => {
-          this._references.add(outputID);
-        });
+        for (const dataID of outputTypeRecordIDs) {
+          this._references.add(dataID);
+        }
       }
     } else {
       const {linkedField} = field;
@@ -277,8 +277,7 @@ class RelayReferenceMarker {
         );
 
         if (dataIDs != null) {
-          for (let i = 0; i < dataIDs.length; i++) {
-            const dataID = dataIDs[i];
+          for (const dataID of dataIDs) {
             if (dataID != null) {
               this._traverse(linkedField, dataID);
             }

@@ -178,12 +178,8 @@ class RelayResponseNormalizer {
   _assignClientAbstractTypes(node: NormalizationNode) {
     const {clientAbstractTypes} = node;
     if (clientAbstractTypes != null) {
-      const abstractTypeKeys = Object.keys(clientAbstractTypes);
-      for (let i = 0; i < abstractTypeKeys.length; i++) {
-        const abstractType = abstractTypeKeys[i];
-        const concreteTypes = clientAbstractTypes[abstractType];
-        for (let j = 0; j < concreteTypes.length; j++) {
-          const concreteType = concreteTypes[j];
+      for (const abstractType of Object.keys(clientAbstractTypes)) {
+        for (const concreteType of clientAbstractTypes[abstractType]) {
           const typeID = generateTypeID(concreteType);
           let typeRecord = this._recordSource.get(typeID);
           if (typeRecord == null) {

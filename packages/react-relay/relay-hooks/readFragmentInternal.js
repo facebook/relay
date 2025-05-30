@@ -66,12 +66,11 @@ function getMissingClientEdges(
     return state.snapshot.missingClientEdges ?? null;
   } else {
     let edges: null | Array<MissingClientEdgeRequestInfo> = null;
-    for (let i = 0; i < state.snapshots.length; i++) {
-      const snapshot = state.snapshots[i];
+    for (const snapshot of state.snapshots) {
       if (snapshot.missingClientEdges) {
         edges = edges ?? [];
-        for (let j = 0; j < snapshot.missingClientEdges.length; j++) {
-          edges.push(snapshot.missingClientEdges[j]);
+        for (const edge of snapshot.missingClientEdges) {
+          edges.push(edge);
         }
       }
     }
@@ -86,8 +85,7 @@ function handlePotentialSnapshotErrorsForState(
   if (state.kind === 'singular') {
     handlePotentialSnapshotErrors(environment, state.snapshot.fieldErrors);
   } else if (state.kind === 'plural') {
-    for (let i = 0; i < state.snapshots.length; i++) {
-      const snapshot = state.snapshots[i];
+    for (const snapshot of state.snapshots) {
       handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
     }
   }
@@ -221,15 +219,18 @@ function readFragmentInternal(
   ) {
     const missingClientEdges = getMissingClientEdges(state);
     if (missingClientEdges?.length) {
-      clientEdgeQueries = missingClientEdges.map(edge =>
-        handleMissingClientEdge(
-          environment,
-          fragmentNode,
-          fragmentRef,
-          edge,
-          queryOptions,
-        ),
-      );
+      clientEdgeQueries = ([]: Array<QueryResult>);
+      for (const edge of missingClientEdges) {
+        clientEdgeQueries.push(
+          handleMissingClientEdge(
+            environment,
+            fragmentNode,
+            fragmentRef,
+            edge,
+            queryOptions,
+          ),
+        );
+      }
     }
   }
 

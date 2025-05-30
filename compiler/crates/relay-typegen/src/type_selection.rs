@@ -20,7 +20,7 @@ use crate::KEY_TYPENAME;
 use crate::SPREAD_KEY;
 use crate::writer::AST;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) enum TypeSelection {
     RawResponseFragmentSpread(RawResponseFragmentSpread),
     ModuleDirective(ModuleDirective),
@@ -115,14 +115,14 @@ impl TypeSelection {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct RawResponseFragmentSpread {
     pub(crate) value: StringKey,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct ModuleDirective {
     pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) document_name: StringKey,
@@ -130,7 +130,7 @@ pub(crate) struct ModuleDirective {
     pub(crate) concrete_type: Option<Type>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct TypeSelectionLinkedField {
     pub(crate) field_name_or_alias: StringKey,
     pub(crate) node_type: TypeReference<Type>,
@@ -140,7 +140,7 @@ pub(crate) struct TypeSelectionLinkedField {
     pub(crate) is_result_type: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct TypeSelectionScalarField {
     pub(crate) field_name_or_alias: StringKey,
     pub(crate) special_field: Option<ScalarFieldSpecialSchemaField>,
@@ -150,14 +150,14 @@ pub(crate) struct TypeSelectionScalarField {
     pub(crate) is_result_type: bool,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct TypeSelectionInlineFragment {
     pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct TypeSelectionFragmentSpread {
     pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,

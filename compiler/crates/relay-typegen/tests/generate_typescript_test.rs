@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1903a7cf2db933f9227f3b83bb115fb5>>
+ * @generated SignedSource<<9cb3efef40fc35cc184f4078aa8ece33>>
  */
 
 mod generate_typescript;
@@ -139,6 +139,13 @@ async fn conditional() {
 }
 
 #[tokio::test]
+async fn conditional_and_unconditional_fragments() {
+    let input = include_str!("generate_typescript/fixtures/conditional-and-unconditional-fragments.graphql");
+    let expected = include_str!("generate_typescript/fixtures/conditional-and-unconditional-fragments.expected");
+    test_fixture(transform_fixture, file!(), "conditional-and-unconditional-fragments.graphql", "generate_typescript/fixtures/conditional-and-unconditional-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn custom_scalar_type_import() {
     let input = include_str!("generate_typescript/fixtures/custom-scalar-type-import.graphql");
     let expected = include_str!("generate_typescript/fixtures/custom-scalar-type-import.expected");
@@ -157,6 +164,13 @@ async fn fragment_spread() {
     let input = include_str!("generate_typescript/fixtures/fragment-spread.graphql");
     let expected = include_str!("generate_typescript/fixtures/fragment-spread.expected");
     test_fixture(transform_fixture, file!(), "fragment-spread.graphql", "generate_typescript/fixtures/fragment-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragments_with_shared_field() {
+    let input = include_str!("generate_typescript/fixtures/fragments-with-shared-field.graphql");
+    let expected = include_str!("generate_typescript/fixtures/fragments-with-shared-field.expected");
+    test_fixture(transform_fixture, file!(), "fragments-with-shared-field.graphql", "generate_typescript/fixtures/fragments-with-shared-field.expected", input, expected).await;
 }
 
 #[tokio::test]

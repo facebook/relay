@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1362eec89123512c826effa9bf3a99ec>>
+ * @generated SignedSource<<72b310015a91e2405ade83fc905dab88>>
  */
 
 mod generate_flow;
@@ -223,6 +223,13 @@ async fn conditional() {
 }
 
 #[tokio::test]
+async fn conditional_and_unconditional_fragments() {
+    let input = include_str!("generate_flow/fixtures/conditional-and-unconditional-fragments.graphql");
+    let expected = include_str!("generate_flow/fixtures/conditional-and-unconditional-fragments.expected");
+    test_fixture(transform_fixture, file!(), "conditional-and-unconditional-fragments.graphql", "generate_flow/fixtures/conditional-and-unconditional-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn custom_scalar_type_import() {
     let input = include_str!("generate_flow/fixtures/custom-scalar-type-import.graphql");
     let expected = include_str!("generate_flow/fixtures/custom-scalar-type-import.expected");
@@ -241,6 +248,13 @@ async fn fragment_spread() {
     let input = include_str!("generate_flow/fixtures/fragment-spread.graphql");
     let expected = include_str!("generate_flow/fixtures/fragment-spread.expected");
     test_fixture(transform_fixture, file!(), "fragment-spread.graphql", "generate_flow/fixtures/fragment-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragments_with_shared_field() {
+    let input = include_str!("generate_flow/fixtures/fragments-with-shared-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/fragments-with-shared-field.expected");
+    test_fixture(transform_fixture, file!(), "fragments-with-shared-field.graphql", "generate_flow/fixtures/fragments-with-shared-field.expected", input, expected).await;
 }
 
 #[tokio::test]

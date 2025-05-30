@@ -64,7 +64,9 @@ export type AppQuery$rawResponse = {|
   +story: ?{|
     +id: string,
     +name: ?string,
-    +tracking?: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
   |},
 |};
 export type AppQuery = {|
@@ -86,7 +88,9 @@ export type AppQuery1$rawResponse = {|
   +story: ?{|
     +id: string,
     +name: ?string,
-    +tracking?: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
   |},
 |};
 export type AppQuery1 = {|
@@ -108,7 +112,9 @@ export type AppQuery2$rawResponse = {|
   +story: ?{|
     +id: string,
     +name: ?string,
-    +tracking?: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
   |},
 |};
 export type AppQuery2 = {|
@@ -130,7 +136,9 @@ export type AppQuery3$rawResponse = {|
   +story?: ?{|
     +id: string,
     +name: ?string,
-    +tracking?: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
   |},
 |};
 export type AppQuery3 = {|

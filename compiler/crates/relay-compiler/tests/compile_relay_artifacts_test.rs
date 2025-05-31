@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b85b45e67a29afe335bbb227267438ed>>
+ * @generated SignedSource<<67aa79681f4c3c1406944dd059174dc7>>
  */
 
 mod compile_relay_artifacts;
@@ -1592,6 +1592,13 @@ async fn relay_resolvers_with_different_field_args_are_not_merged() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.expected");
     test_fixture(transform_fixture, file!(), "relay-resolvers-with-different-field-args-are-not-merged.graphql", "compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_test_operation() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-test-operation.expected");
+    test_fixture(transform_fixture, file!(), "relay-test-operation.graphql", "compile_relay_artifacts/fixtures/relay-test-operation.expected", input, expected).await;
 }
 
 #[tokio::test]

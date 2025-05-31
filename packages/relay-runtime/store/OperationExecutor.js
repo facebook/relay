@@ -561,6 +561,7 @@ class Executor<TMutation: MutationParameters> {
     }
 
     if (hasNormalizedResponses) {
+      const payloadFollowups = [];
       for (let i = 0; i < normalizedResponses.length; i++) {
         const response = normalizedResponses[i];
         const source = new RelayRecordSource(
@@ -579,7 +580,9 @@ class Executor<TMutation: MutationParameters> {
           payload,
           this._updater,
         );
+        payloadFollowups.push(payload);
       }
+      this._processPayloadFollowups(payloadFollowups);
     }
 
     if (incrementalResponses.length > 0) {

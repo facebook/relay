@@ -24,7 +24,7 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # ci.yml
-          toolchain: nightly-2024-10-13
+          toolchain: nightly-2025-03-29
           override: true
       - name: cargo check
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml

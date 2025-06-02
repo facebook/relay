@@ -1119,7 +1119,7 @@ describe('getObservableForActiveRequest', () => {
         null,
       );
 
-      expect(events).toEqual(['next', 'complete']);
+      expect(events).toEqual(['complete']);
     });
 
     it('returns observable if module still loading after final payload', () => {

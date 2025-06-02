@@ -37,6 +37,7 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
 const {graphql} = require('relay-runtime');
+const {expectToWarn, expectToWarnMany} = require('relay-test-utils-internal');
 const {
   disallowWarnings,
   injectPromisePolyfill__DEPRECATED,
@@ -332,6 +333,168 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
         expect(operationLoader.get).toBeCalledTimes(1);
         operationCallback.mockClear();
+      });
+
+      it('warns if executed in non-streaming mode and processes both defer and 3D', () => {
+        const initialSnapshot = environment.lookup(selector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment.execute({operation}).subscribe(callbacks);
+        jest
+          .spyOn(operationLoader, 'get')
+          .mockImplementationOnce(() => QueryUserNormalizationFragment);
+
+        expectToWarn(
+          'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery` contains @defer/@stream ' +
+            'directives but was executed in non-streaming mode. See ' +
+            'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+          () => {
+            dataSource.next([
+              {
+                data: {
+                  node: {
+                    id: '1',
+                    __typename: 'User',
+                    name: 'joe',
+                    __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+                      'User.react',
+                    __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+                      'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+                  },
+                },
+                extensions: {
+                  is_final: true,
+                },
+              },
+            ]);
+          },
+        );
+
+        expect(callbacks.error).not.toBeCalled();
+        expect(callback).toHaveBeenCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          id: '1',
+          name: 'joe',
+        });
+        expect(operationLoader.get).toBeCalledTimes(1);
+        operationCallback.mockClear();
+      });
+
+      it('warns if nested defer is executed in non-streaming mode and processes deferred selections', () => {
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ...RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user
+                @defer(
+                  label: "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user"
+                )
+                @module(name: "User.react")
+            }
+          }
+        `;
+        const fragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user on User {
+            id
+            ...RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment
+              @defer
+          }
+        `;
+        const fragmentInner = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment on User {
+            name
+            ...RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment
+              @defer
+          }
+        `;
+        const fragmentInnerInner2 = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment on User {
+            lastName
+          }
+        `;
+        variables = {id: '1'};
+        operation = createOperationDescriptor(query, variables);
+        selector = createReaderSelector(fragment, '1', {}, operation.request);
+
+        const initialSnapshot = environment.lookup(selector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment.execute({operation}).subscribe(callbacks);
+        jest
+          .spyOn(operationLoader, 'get')
+          .mockImplementationOnce(() =>
+            require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$normalization.graphql.js'),
+          );
+
+        expectToWarnMany(
+          [
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+          ],
+          () => {
+            dataSource.next([
+              {
+                data: {
+                  node: {
+                    id: '1',
+                    __typename: 'User',
+                    name: 'joe',
+                    lastName: 'eoj',
+                    __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery:
+                      'User.react',
+                    __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery:
+                      'RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$normalization.graphql',
+                  },
+                },
+                extensions: {
+                  is_final: true,
+                },
+              },
+            ]);
+          },
+        );
+
+        expect(callbacks.error).not.toBeCalled();
+        expect(callback).toHaveBeenCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data?.id).toEqual('1');
+        expect(operationLoader.get).toBeCalledTimes(1);
+        operationCallback.mockClear();
+
+        const innerSelector = createReaderSelector(
+          fragmentInner,
+          '1',
+          {},
+          operation.request,
+        );
+        const innerSnapshot = environment.lookup(innerSelector);
+        expect(innerSnapshot.isMissingData).toBe(false);
+        expect(innerSnapshot.data?.name).toEqual('joe');
+
+        const innerInner2Selector = createReaderSelector(
+          fragmentInnerInner2,
+          '1',
+          {},
+          operation.request,
+        );
+        const innerInner2Snapshot = environment.lookup(innerInner2Selector);
+        expect(innerInner2Snapshot.isMissingData).toBe(false);
+        expect(innerInner2Snapshot.data).toEqual({
+          lastName: 'eoj',
+        });
       });
     });
   },

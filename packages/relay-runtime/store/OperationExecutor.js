@@ -750,8 +750,15 @@ class Executor<TMutation: MutationParameters> {
       followupPayload.dataID,
       variables,
     );
+    const nextResponse: GraphQLResponseWithData = {
+      data: followupPayload.data,
+      // `is_final` flag needs to be set for processing nested defer and 3D
+      // when the server doesn't support streaming
+      extensions:
+        this._state === 'loading_final' ? {is_final: true} : undefined,
+    };
     return this._normalizeResponse(
-      {data: followupPayload.data},
+      nextResponse,
       selector,
       followupPayload.typeName,
       {

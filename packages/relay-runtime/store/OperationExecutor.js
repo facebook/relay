@@ -159,6 +159,7 @@ class Executor<TMutation: MutationParameters> {
   +_isSubscriptionOperation: boolean;
   +_seenActors: Set<ActorIdentifier>;
   _normalizeResponse: NormalizeResponseFunction;
+  _execTimeResolverResponseComplete: boolean;
 
   constructor({
     actorIdentifier,
@@ -199,6 +200,7 @@ class Executor<TMutation: MutationParameters> {
       this._operation.request.node.operation.exec_time_resolvers_enabled_provider?.get() ===
         true ??
       false;
+    this._execTimeResolverResponseComplete = false;
     this._pendingModulePayloadsCount = 0;
     this._getPublishQueue = getPublishQueue;
     this._scheduler = scheduler;
@@ -567,12 +569,13 @@ class Executor<TMutation: MutationParameters> {
         const source = new RelayRecordSource(
           response.data as $FlowExpectedError,
         );
+        const isFinal = response.extensions?.is_final === true;
         const payload: RelayResponsePayload = {
           errors: [],
           fieldPayloads: [],
           followupPayloads: [],
           incrementalPlaceholders: [],
-          isFinal: response.extensions?.is_final === true,
+          isFinal,
           source,
         };
         this._getPublishQueueAndSaveActor().commitPayload(
@@ -581,6 +584,7 @@ class Executor<TMutation: MutationParameters> {
           this._updater,
         );
         payloadFollowups.push(payload);
+        this._execTimeResolverResponseComplete = isFinal;
       }
       this._processPayloadFollowups(payloadFollowups);
     }
@@ -943,7 +947,10 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _maybeCompleteSubscriptionOperationTracking() {
-    if (!this._isSubscriptionOperation) {
+    if (
+      !this._isSubscriptionOperation &&
+      !(this._useExecTimeResolvers && this._execTimeResolverResponseComplete)
+    ) {
       return;
     }
     if (

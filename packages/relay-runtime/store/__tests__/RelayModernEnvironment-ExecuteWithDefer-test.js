@@ -312,6 +312,114 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
+      describe('Query with exec time resolvers', () => {
+        let resolverOperation;
+        beforeEach(() => {
+          const resolverQuery = graphql`
+            query RelayModernEnvironmentExecuteWithDeferTestResolverQuery(
+              $id: ID!
+            ) @exec_time_resolvers {
+              node(id: $id) {
+                ...RelayModernEnvironmentExecuteWithDeferTestUserFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "UserFragment")
+              }
+            }
+          `;
+          variables = {id: '1'};
+          resolverOperation = createOperationDescriptor(
+            resolverQuery,
+            variables,
+          );
+          selector = createReaderSelector(
+            fragment,
+            '1',
+            {},
+            resolverOperation.request,
+          );
+        });
+
+        it('goes out of loading state if all initial payloads are received in an exec time query', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+          dataSource.next({
+            data: {
+              node: {
+                id: '1',
+                __typename: 'User',
+              },
+            },
+          });
+          jest.runAllTimers();
+          next.mockClear();
+          callback.mockClear();
+
+          dataSource.next({
+            data: {
+              id: '1',
+              __typename: 'User',
+              name: 'joe',
+            },
+            label:
+              'RelayModernEnvironmentExecuteWithDeferTestResolverQuery$defer$UserFragment',
+            path: ['node'],
+            extensions: {
+              // The server response needs to contain a marker for the final incremental payload
+              is_final: true,
+            },
+          });
+
+          expect(complete).toBeCalledTimes(0);
+          expect(error).toBeCalledTimes(0);
+          expect(next).toBeCalledTimes(1);
+          expect(callback).toBeCalledTimes(1);
+          const snapshot = callback.mock.calls[0][0];
+          expect(snapshot.isMissingData).toBe(false);
+          expect(snapshot.data).toEqual({
+            id: '1',
+            name: 'JOE',
+          });
+
+          // Finishes the exec time query
+          callback.mockClear();
+          next.mockClear();
+          const extensionsPayload = {
+            data: {
+              '1': {
+                __id: '1',
+                __typename: 'User',
+                // __name_name_handler is where the name gets stored in the current test
+                // due to the usage of the field handler
+                __name_name_handler: 'Zuck',
+              },
+            },
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+            },
+          };
+          dataSource.next(extensionsPayload);
+          expect(callback).toBeCalledTimes(1);
+          expect(callback.mock.calls[0][0].data).toEqual({
+            id: '1',
+            name: 'Zuck',
+          });
+
+          // At this point, the deferred payload and the exec time query payload
+          // have all been resolved, the query should no longer be treated as pending
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+        });
+      });
+
       describe('when using a scheduler', () => {
         let taskID;
         let tasks;

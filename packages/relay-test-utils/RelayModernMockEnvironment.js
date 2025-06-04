@@ -259,6 +259,11 @@ function createMockEnvironment(
         pendingRequests = pendingRequests.filter(
           pending => !areEqual(pending, nextRequest),
         );
+        const currentOperation = pendingOperations.find(
+          op =>
+            areEqual(op.request.node.params, request) &&
+            areEqual(op.request.variables, variables),
+        );
         pendingOperations = pendingOperations.filter(
           op => op !== currentOperation,
         );

@@ -323,7 +323,11 @@ class Executor<TMutation: MutationParameters> {
       }
       case 'loading_final': {
         activeState =
-          this._pendingModulePayloadsCount > 0 ? 'active' : 'inactive';
+          this._pendingModulePayloadsCount > 0 ||
+          (this._useExecTimeResolvers &&
+            !this._execTimeResolverResponseComplete)
+            ? 'active'
+            : 'inactive';
         break;
       }
       default:
@@ -585,8 +589,12 @@ class Executor<TMutation: MutationParameters> {
         );
         payloadFollowups.push(payload);
         this._execTimeResolverResponseComplete = isFinal;
+        if (isFinal) {
+          // Need to update the active state to mark the query as inactive,
+          // incase server payloads have completed
+          this._updateActiveState();
+        }
       }
-      this._processPayloadFollowups(payloadFollowups);
     }
 
     if (incrementalResponses.length > 0) {
@@ -949,7 +957,11 @@ class Executor<TMutation: MutationParameters> {
   _maybeCompleteSubscriptionOperationTracking() {
     if (
       !this._isSubscriptionOperation &&
-      !(this._useExecTimeResolvers && this._execTimeResolverResponseComplete)
+      !(
+        this._useExecTimeResolvers &&
+        this._execTimeResolverResponseComplete &&
+        this._state === 'loading_final'
+      )
     ) {
       return;
     }

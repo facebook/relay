@@ -339,7 +339,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           );
         });
 
-        it('goes out of loading state if all initial payloads are received in an exec time query', () => {
+        it('goes out of loading state if all initial payloads are received in an exec time query, but stay active when server or client is loading', () => {
           const initialSnapshot = environment.lookup(selector);
           const callback = jest.fn<[Snapshot], void>();
           environment.subscribe(initialSnapshot, callback);
@@ -385,6 +385,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             name: 'JOE',
           });
 
+          // Server payloads have finished, but we are still waiting on the resolver payloads
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(true);
+
           // Finishes the exec time query
           callback.mockClear();
           next.mockClear();
@@ -417,6 +422,108 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               .getOperationTracker()
               .getPendingOperationsAffectingOwner(resolverOperation.request),
           ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
+
+        it('Stay active when server or client is loading, when client finishes first', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+
+          const extensionsPayload = {
+            data: {
+              '1': {
+                id: '1',
+                __id: '1',
+                __typename: 'User',
+                // __name_name_handler is where the name gets stored in the current test
+                // due to the usage of the field handler
+                __name_name_handler: 'Zuck',
+              },
+            },
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+            },
+          };
+
+          dataSource.next(extensionsPayload);
+          expect(callback).toBeCalledTimes(1);
+          expect(callback.mock.calls[0][0].data).toEqual({
+            id: '1',
+            name: 'Zuck',
+          });
+          next.mockClear();
+          callback.mockClear();
+
+          // Client payloads have finished, but we are still waiting on the server payloads
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(true);
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).not.toBe(null);
+          dataSource.next({
+            data: {
+              node: {
+                id: '1',
+                __typename: 'User',
+              },
+            },
+          });
+          jest.runAllTimers();
+          next.mockClear();
+          callback.mockClear();
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).not.toBe(null);
+
+          dataSource.next({
+            data: {
+              id: '1',
+              __typename: 'User',
+              name: 'joe',
+            },
+            label:
+              'RelayModernEnvironmentExecuteWithDeferTestResolverQuery$defer$UserFragment',
+            path: ['node'],
+            extensions: {
+              // The server response needs to contain a marker for the final incremental payload
+              is_final: true,
+            },
+          });
+
+          expect(complete).toBeCalledTimes(0);
+          expect(error).toBeCalledTimes(0);
+          expect(next).toBeCalledTimes(1);
+          expect(callback).toBeCalledTimes(1);
+          const snapshot = callback.mock.calls[0][0];
+          expect(snapshot.isMissingData).toBe(false);
+          expect(snapshot.data).toEqual({
+            id: '1',
+            name: 'JOE',
+          });
+
+          // At this point, the deferred payload and the exec time query payload
+          // have all been resolved, the query should no longer be treated as pending
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
         });
       });
 

@@ -182,7 +182,13 @@ fn apply_common_transforms(
             false,
         )
     });
-    program = log_event.time("mask", || mask(&program));
+
+    if !project_config
+        .feature_flags
+        .use_native_fragment_spreads_for_unmasked_fragments
+    {
+        program = log_event.time("mask", || mask(&program));
+    }
     program = log_event.time("transform_defer_stream", || {
         transform_defer_stream(
             &program,
@@ -272,6 +278,8 @@ fn apply_reader_transforms(
         &log_event,
         None,
     )?;
+
+    program = log_event.time("mask", || mask(&program));
 
     program = log_event.time("required_directive", || required_directive(&program))?;
 
@@ -569,6 +577,13 @@ fn apply_operation_text_transforms(
             &base_fragment_names,
         )
     })?;
+
+    if !project_config
+        .feature_flags
+        .use_native_fragment_spreads_for_unmasked_fragments
+    {
+        program = log_event.time("mask", || mask(&program));
+    }
 
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)

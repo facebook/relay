@@ -100,6 +100,8 @@ export type LiveState<T> = {
 };
 ```
 
+The `subscribe` method's return value is an unsubscribe function. Relay will call this when it no longer needs to be notified of changes to the live state. Today this happens when the field is eligible for [garbage collection](../../guided-tour/reusing-cached-data/presence-of-data.md#garbage-collection).
+
 ## Creating a LiveState Object
 
 In most cases, you will want to define a helper function that reads your reactive data store and returns a `LiveState` object. For example, you for a Redux store you might write a wrapper that exposes a `LiveState` for a given selector:

@@ -314,22 +314,27 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
 
     if command.validate {
         config.artifact_writer = Box::<ArtifactValidationWriter>::default();
+        // Disable persister and persisted queries in validate mode
+        config.create_operation_persister = None;
+        for project_config in config.projects.values_mut() {
+            project_config.persist = None;
+        }
+    } else {
+        config.create_operation_persister = Some(Box::new(|project_config| {
+            project_config.persist.as_ref().map(
+                |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
+                    match persist_config {
+                        PersistConfig::Remote(remote_config) => {
+                            Box::new(RemotePersister::new(remote_config.clone()))
+                        }
+                        PersistConfig::Local(local_config) => {
+                            Box::new(LocalPersister::new(local_config.clone()))
+                        }
+                    }
+                },
+            )
+        }));
     }
-
-    config.create_operation_persister = Some(Box::new(|project_config| {
-        project_config.persist.as_ref().map(
-            |persist_config| -> Box<dyn OperationPersister + Send + Sync> {
-                match persist_config {
-                    PersistConfig::Remote(remote_config) => {
-                        Box::new(RemotePersister::new(remote_config.clone()))
-                    }
-                    PersistConfig::Local(local_config) => {
-                        Box::new(LocalPersister::new(local_config.clone()))
-                    }
-                }
-            },
-        )
-    }));
 
     config.file_source_config = if should_use_watchman() {
         FileSourceKind::Watchman

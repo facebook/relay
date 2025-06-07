@@ -40,6 +40,10 @@ function FriendsList(props: Props) {
   } = usePaginationFragment(
     graphql`
       fragment FriendsListComponent_user on User
+      @argumentDefinitions(
+        count: { type: "Int", defaultValue: 5 }
+        cursor: { type: "String" }
+      )
       @refetchable(queryName: "FriendsListPaginationQuery") {
         name
         friends(first: $count, after: $cursor)

@@ -9,8 +9,8 @@
 
 mod print_schema_consistency;
 
-use fixture_tests::test_fixture;
 use print_schema_consistency::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn kitchen_sink() {

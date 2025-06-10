@@ -30,6 +30,7 @@ const RelayModernStore = require('../../store/RelayModernStore');
 const RelayReader = require('../../store/RelayReader');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 const commitLocalUpdate = require('../commitLocalUpdate');
+
 const regularQuery = graphql`
   query readUpdatableFragmentTestRegularQuery($if2: Boolean, $if3: Boolean) {
     me {

@@ -16,28 +16,12 @@ use print_schema_in_parallel::transform_fixture;
 async fn kitchen_sink() {
     let input = include_str!("print_schema_in_parallel/fixtures/kitchen-sink.graphql");
     let expected = include_str!("print_schema_in_parallel/fixtures/kitchen-sink.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "kitchen-sink.graphql",
-        "print_schema_in_parallel/fixtures/kitchen-sink.expected",
-        input,
-        expected,
-    )
-    .await;
+    test_fixture(transform_fixture, file!(), "kitchen-sink.graphql", "print_schema_consistency/fixtures/kitchen-sink.expected", input, expected).await;
 }
 
 #[tokio::test]
 async fn no_schema() {
     let input = include_str!("print_schema_in_parallel/fixtures/no-schema.graphql");
     let expected = include_str!("print_schema_in_parallel/fixtures/no-schema.expected");
-    test_fixture(
-        transform_fixture,
-        file!(),
-        "no-schema.graphql",
-        "print_schema_in_parallel/fixtures/no-schema.expected",
-        input,
-        expected,
-    )
-    .await;
+    test_fixture(transform_fixture, file!(), "no-schema.graphql", "print_schema_consistency/fixtures/no-schema.expected", input, expected).await;
 }

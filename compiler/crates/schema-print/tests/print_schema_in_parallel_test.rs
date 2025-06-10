@@ -9,8 +9,8 @@
 
 mod print_schema_in_parallel;
 
-use fixture_tests::test_fixture;
 use print_schema_in_parallel::transform_fixture;
+use fixture_tests::test_fixture;
 
 #[tokio::test]
 async fn kitchen_sink() {

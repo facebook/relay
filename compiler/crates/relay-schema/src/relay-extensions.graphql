@@ -26,7 +26,7 @@ directive @no_inline(raw_response_type: Boolean) on FRAGMENT_DEFINITION
 
 A directive added to queries and fragments which causes the Relay client to throw
 if reading a field that has an error. Relay will also honor the @semanticNonNull
-direcitve on fields read from that query or fragment. Emitted types for such
+directive on fields read from that query or fragment. Emitted types for such
 fields will be non-null. Requires the `experimental_emit_semantic_nullability_types`
 typegen configuration to be enabled.
 

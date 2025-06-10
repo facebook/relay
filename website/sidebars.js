@@ -65,7 +65,6 @@ const Guides = {
               ],
             },
             'guides/fb/image-prefetching',
-            'guides/fb/comet-route-prefetching',
             'guides/fb/web-query-preloading',
             'guides/fb/production-graphql-endpoint-in-sandboxes',
             'guides/fb/react-flight',

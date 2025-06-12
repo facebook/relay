@@ -222,13 +222,15 @@ function handleMissedUpdates(
   }
 }
 
+type PromiseWithDisplayName = Promise<mixed> & {displayName?: string};
+
 function handleMissingClientEdge(
   environment: IEnvironment,
   parentFragmentNode: ReaderFragment,
   parentFragmentRef: mixed,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
-): [QueryResult, ?Promise<mixed>] {
+): [QueryResult, ?PromiseWithDisplayName] {
   const originalVariables = getVariablesFromFragment(
     parentFragmentNode,
     parentFragmentRef,
@@ -253,10 +255,17 @@ function handleMissingClientEdge(
     queryOptions?.fetchPolicy,
   );
 
-  return [
-    queryResult,
-    getPromiseForActiveRequest(environment, queryOperationDescriptor.request),
-  ];
+  const promise = getPromiseForActiveRequest(
+    environment,
+    queryOperationDescriptor.request,
+  );
+  // $FlowExpectedError[prop-missing]
+  if (promise != null && promise.displayName == null) {
+    // $FlowExpectedError[prop-missing]
+    promise.displayName = missingClientEdgeRequestInfo.request.params.name;
+  }
+  // $FlowFixMe[incompatible-exact] - Intentionally bypassing exactness check
+  return [queryResult, promise];
 }
 
 function subscribeToSnapshot(
@@ -490,7 +499,7 @@ hook useFragmentInternal_EXPERIMENTAL(
       const missingClientEdges = getMissingClientEdges(state);
       // eslint-disable-next-line no-shadow
       let clientEdgeQueries;
-      const activeRequestPromises = [];
+      const activeRequestPromises: Array<PromiseWithDisplayName> = [];
       if (missingClientEdges?.length) {
         clientEdgeQueries = ([]: Array<QueryResult>);
         for (const edge of missingClientEdges) {
@@ -511,7 +520,12 @@ hook useFragmentInternal_EXPERIMENTAL(
     }, [state, environment, fragmentNode, fragmentRef, queryOptions]);
 
     if (activeRequestPromises.length) {
-      throw Promise.all(activeRequestPromises);
+      const allPromises = Promise.all(activeRequestPromises);
+      // $FlowExpectedError[prop-missing] Expando to annotate Promises.
+      allPromises.displayName = `RelayClientEdge(${activeRequestPromises
+        .map(promise => promise.displayName)
+        .join(',')})`;
+      throw allPromises;
     }
 
     // See above note
@@ -538,12 +552,15 @@ hook useFragmentInternal_EXPERIMENTAL(
     // Suspend if a Live Resolver within this fragment is in a suspended state:
     const suspendingLiveResolvers = getSuspendingLiveResolver(state);
     if (suspendingLiveResolvers != null && suspendingLiveResolvers.length > 0) {
-      throw Promise.all(
+      const promise = Promise.all(
         suspendingLiveResolvers.map(liveStateID => {
           // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
           return environment.getStore().getLiveResolverPromise(liveStateID);
         }),
       );
+      // $FlowExpectedError[prop-missing] Expando to annotate Promises.
+      promise.displayName = 'RelayLiveResolver(' + fragmentNode.name + ')';
+      throw promise;
     }
     // Suspend if an active operation bears on this fragment, either the
     // fragment's owner or some other mutation etc. that could affect it.

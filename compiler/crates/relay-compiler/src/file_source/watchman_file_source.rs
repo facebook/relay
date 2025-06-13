@@ -232,9 +232,11 @@ impl WatchmanFileSource {
 
         let since = Some(scm_since.clone());
         let root = self.resolved_root.clone();
+        let saved_state_query_timer = perf_logger_event.start("saved_state_info_query_time");
         let saved_state_result = query_file_result(&self.config, &self.client, &root, since, true)
             .await
             .map_err(|_| "query failed")?;
+        perf_logger_event.stop(saved_state_query_timer);
 
         let since = Some(scm_since.clone());
         let config = Arc::clone(&self.config);

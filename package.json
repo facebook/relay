@@ -1,7 +1,7 @@
 {
   "name": "relay-github-root",
   "description": "A framework for building data-driven React applications.",
-  "version": "19.0.0",
+  "version": "20.0.0",
   "license": "MIT",
   "homepage": "https://relay.dev",
   "bugs": "https://github.com/facebook/relay/issues",
@@ -60,7 +60,7 @@
     "eslint-plugin-relay": "1.8.3",
     "eslint-plugin-relay-internal": "link:./packages/eslint-plugin-relay-internal",
     "fbjs": "^3.0.2",
-    "flow-bin": "^0.272.2",
+    "flow-bin": "^0.273.1",
     "glob": "^7.1.1",
     "graphql": "15.3.0",
     "gulp": "4.0.2",

@@ -232,9 +232,11 @@ impl WatchmanFileSource {
 
         let since = Some(scm_since.clone());
         let root = self.resolved_root.clone();
+        let saved_state_query_timer = perf_logger_event.start("saved_state_info_query_time");
         let saved_state_result = query_file_result(&self.config, &self.client, &root, since, true)
             .await
             .map_err(|_| "query failed")?;
+        perf_logger_event.stop(saved_state_query_timer);
 
         let since = Some(scm_since.clone());
         let config = Arc::clone(&self.config);
@@ -291,9 +293,12 @@ impl WatchmanFileSource {
         }
 
         // Then await the changed files query.
+        let saved_state_await_changed_files_time =
+            perf_logger_event.start("saved_state_await_changed_files_time");
         let file_source_result = changed_files_result_future
             .await
             .map_err(|_| "query failed")??;
+        perf_logger_event.stop(saved_state_await_changed_files_time);
 
         compiler_state
             .pending_file_source_changes
@@ -304,7 +309,10 @@ impl WatchmanFileSource {
         if let Some(update_compiler_state_from_saved_state) =
             &self.config.update_compiler_state_from_saved_state
         {
+            let update_compiler_state_from_saved_state_time =
+                perf_logger_event.start("update_compiler_state_from_saved_state_time");
             update_compiler_state_from_saved_state(&mut compiler_state, &self.config);
+            perf_logger_event.stop(update_compiler_state_from_saved_state_time);
         }
 
         match perf_logger_event.time("merge_file_source_changes", || {

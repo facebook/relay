@@ -75,6 +75,7 @@ use relay_transforms::generate_abstract_type_refinement_key;
 use relay_transforms::get_normalization_fragment_filename;
 use relay_transforms::get_normalization_operation_name;
 use relay_transforms::get_resolver_fragment_dependency_name;
+use relay_transforms::raw_text::get_raw_text_value;
 use relay_transforms::relay_resolvers::ResolverInfo;
 use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use relay_transforms::relay_resolvers::get_resolver_info;
@@ -2691,9 +2692,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             }),
         });
 
+        let text = get_raw_text_value(operation).or(request_parameters.text);
         params_object.push(ObjectEntry {
             key: CODEGEN_CONSTANTS.text,
-            value: match request_parameters.text {
+            value: match text {
                 Some(text) => Primitive::RawString(text),
                 None => Primitive::Null,
             },

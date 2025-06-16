@@ -1,0 +1,7 @@
+query relayTestOperation_TestQuery @relay_test_operation(emitRawText: true) {
+  viewer {
+    actor {
+      name
+    }
+  }
+}

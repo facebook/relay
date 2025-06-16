@@ -46,6 +46,7 @@ mod murmurhash;
 mod no_inline;
 mod preloadable_directive;
 mod provided_variable_fragment_transform;
+pub mod raw_text;
 mod refetchable_fragment;
 mod relay_actor_change;
 mod relay_directive;

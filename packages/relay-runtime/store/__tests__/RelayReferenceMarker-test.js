@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {RecordSourceJSON} from '../RelayStoreTypes';
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 import RelayNetwork from '../../network/RelayNetwork';
@@ -27,7 +28,7 @@ describe('RelayReferenceMarker', () => {
   let source;
 
   beforeEach(() => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
@@ -141,7 +142,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks "handle" nodes for queries', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         __typename: 'User',
@@ -229,7 +230,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks "handle" nodes with key and filters for queries', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         __typename: 'User',
@@ -350,7 +351,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks referenced records for client field', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
@@ -513,7 +514,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist and match a supported type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -563,7 +564,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist and match a supported type (2)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -615,7 +616,7 @@ describe('RelayReferenceMarker', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -658,7 +659,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -708,7 +709,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -747,7 +748,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the match field/record exist but do not match a supported type', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -785,7 +786,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the match field is non-existent (null)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -812,7 +813,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the match field is not fetched (undefined)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -839,7 +840,7 @@ describe('RelayReferenceMarker', () => {
   });
   describe('Relay Resolver', () => {
     it('with no fragments is retained', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -888,7 +889,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
     it('with fragment dependency is retained', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
@@ -942,7 +943,7 @@ describe('RelayReferenceMarker', () => {
       ]);
     });
     it('with @edgeTo client object is retained', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
@@ -1073,7 +1074,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists and matches a @module selection (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1123,7 +1124,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists and matches a @module selection (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1175,7 +1176,7 @@ describe('RelayReferenceMarker', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1218,7 +1219,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1268,7 +1269,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1307,7 +1308,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the field/record exists but do not match any @module selection', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1345,7 +1346,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('throws if no operation loader is provided', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1418,7 +1419,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when deferred selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1448,7 +1449,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when deferred selections are not fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1494,7 +1495,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when streamed selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1524,7 +1525,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when streamed selections are not fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',

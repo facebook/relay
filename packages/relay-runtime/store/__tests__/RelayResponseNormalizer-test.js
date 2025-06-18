@@ -11,6 +11,8 @@
 
 'use strict';
 
+import type {RecordSourceJSON} from '../RelayStoreTypes';
+
 const {
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
@@ -2103,7 +2105,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('falls through to previously generated ID if function returns null ', () => {
-        const previousData = {
+        const previousData: RecordSourceJSON = {
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
@@ -2271,7 +2273,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('uses cached IDs if they were generated before and the function returns null', () => {
-        const previousData = {
+        const previousData: RecordSourceJSON = {
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
@@ -2320,7 +2322,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('falls through to generateClientID when the function returns null and there is one new field in stored plural links', () => {
-        const data = {
+        const data: RecordSourceJSON = {
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',

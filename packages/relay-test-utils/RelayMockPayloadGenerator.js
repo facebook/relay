@@ -82,7 +82,7 @@ type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
 ) => mixed;
-export type MockResolvers = {[typeName: string]: MockResolver, ...};
+export type MockResolvers = {+[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
   [selectionPath: string]: {

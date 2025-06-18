@@ -51,6 +51,13 @@ pub enum ExecutableDefinition {
 }
 
 impl ExecutableDefinition {
+    pub fn directives(&self) -> &[Directive] {
+        match self {
+            ExecutableDefinition::Operation(node) => &node.directives,
+            ExecutableDefinition::Fragment(node) => &node.directives,
+        }
+    }
+
     pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             ExecutableDefinition::Operation(node) => node

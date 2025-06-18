@@ -67,7 +67,7 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 export type GetDataID = (
-  fieldValue: {[string]: mixed},
+  fieldValue: {+[string]: mixed},
   typeName: string,
 ) => mixed;
 

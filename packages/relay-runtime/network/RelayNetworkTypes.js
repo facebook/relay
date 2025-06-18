@@ -26,7 +26,7 @@ export interface INetwork {
 
 export type LogRequestInfoFunction = mixed => void;
 
-export type PayloadData = {[key: string]: mixed};
+export type PayloadData = {+[key: string]: mixed};
 
 export type PayloadError = interface {
   message: string,
@@ -134,4 +134,4 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {[key: string]: Uploadable};
+export type UploadableMap = {+[key: string]: Uploadable};

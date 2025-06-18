@@ -62,14 +62,14 @@ export type VariablesOf<T: OperationType> = T['variables'];
  *   a given instance of executing an operation.
  */
 export type CacheConfig = {
-  force?: ?boolean,
-  poll?: ?number,
-  liveConfigId?: ?string,
-  onSubscribe?: () => void,
-  onResume?: (pauseTimeMs: number) => void,
-  onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
-  metadata?: {[key: string]: mixed, ...},
-  transactionId?: ?string,
+  +force?: ?boolean,
+  +poll?: ?number,
+  +liveConfigId?: ?string,
+  +onSubscribe?: () => void,
+  +onResume?: (pauseTimeMs: number) => void,
+  +onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
+  +metadata?: {+[key: string]: mixed, ...},
+  +transactionId?: ?string,
 };
 
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';

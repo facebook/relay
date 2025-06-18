@@ -86,7 +86,7 @@ class RelayRecordSource implements MutableRecordSource {
   }
 
   toJSON(): RecordSourceJSON {
-    const obj: RecordSourceJSON = {};
+    const obj: {...RecordSourceJSON} = {};
     for (const [key, record] of this._records) {
       obj[key] = RelayModernRecord.toJSON<null | void>(record);
     }

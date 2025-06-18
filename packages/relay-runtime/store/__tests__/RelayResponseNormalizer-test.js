@@ -1845,8 +1845,8 @@ describe('RelayResponseNormalizer', () => {
 
     const getDataID = jest.fn(
       (
-        fieldValue: string | {[string]: mixed},
-        typename: string | {[string]: mixed},
+        fieldValue: string | {+[string]: mixed},
+        typename: string | {+[string]: mixed},
       ) => {
         return `${
           typeof fieldValue === 'string' ? fieldValue : String(fieldValue.id)
@@ -1856,8 +1856,8 @@ describe('RelayResponseNormalizer', () => {
 
     const getNullAsDataID = jest.fn(
       (
-        fieldValue: string | {[string]: mixed},
-        typename: string | {[string]: mixed},
+        fieldValue: string | {+[string]: mixed},
+        typename: string | {+[string]: mixed},
       ) => {
         return null;
       },

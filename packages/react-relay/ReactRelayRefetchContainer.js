@@ -339,7 +339,7 @@ function createContainerWithFragments<
         ? {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
-      const cacheConfig: ?CacheConfig = options
+      const cacheConfig: ?{...CacheConfig} = options
         ? {force: !!options.force}
         : undefined;
       if (cacheConfig != null && options?.metadata != null) {

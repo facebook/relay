@@ -805,7 +805,7 @@ function createContainerWithFragments<
         ...fragmentVariables,
       }: Variables);
 
-      const cacheConfig: ?CacheConfig = options
+      const cacheConfig: ?{...CacheConfig} = options
         ? {force: !!options.force}
         : undefined;
       if (cacheConfig != null && options?.metadata != null) {

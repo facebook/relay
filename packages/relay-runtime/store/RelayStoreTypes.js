@@ -245,7 +245,7 @@ export interface RecordSource {
 /**
  * A collection of records keyed by id.
  */
-export type RecordSourceJSON = {[DataID]: ?RecordJSON};
+export type RecordSourceJSON = {+[DataID]: ?RecordJSON};
 
 /**
  * A read/write interface for accessing and updating graph data.
@@ -258,10 +258,10 @@ export interface MutableRecordSource extends RecordSource {
 }
 
 export type CheckOptions = {
-  handlers: $ReadOnlyArray<MissingFieldHandler>,
-  defaultActorIdentifier: ActorIdentifier,
-  getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
-  getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
+  +handlers: $ReadOnlyArray<MissingFieldHandler>,
+  +defaultActorIdentifier: ActorIdentifier,
+  +getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
+  +getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
 };
 
 export type OperationAvailability =

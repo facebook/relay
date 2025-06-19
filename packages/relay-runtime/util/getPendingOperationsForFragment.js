@@ -47,7 +47,7 @@ function getPendingOperationsForFragment(
   if (pendingOperationName == null || pendingOperationName.length === 0) {
     pendingOperationName = 'Unknown pending operation';
   }
-  const fragmentName = fragmentNode.name;
+  const fragmentName = fragmentNode?.name;
   const promiseDisplayName =
     pendingOperationName === fragmentName
       ? `Relay(${pendingOperationName})`

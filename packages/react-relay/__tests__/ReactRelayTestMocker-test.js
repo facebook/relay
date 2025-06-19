@@ -11,6 +11,7 @@
 
 'use strict';
 import type {RelayMockEnvironment} from '../../relay-test-utils/RelayModernMockEnvironment';
+import type {NetworkWriteConfig} from '../ReactRelayTestMocker';
 
 const RelayTestRenderer = require('../__mocks__/RelayTestRenderer');
 const {
@@ -106,7 +107,7 @@ describe('ReactRelayTestMocker', () => {
 
       const nestedQuery = ReactRelayTestMockerTestNestedQuery;
 
-      const nestedQueryDefault = {
+      const nestedQueryDefault: NetworkWriteConfig = {
         query: ReactRelayTestMockerTestNestedQuery,
         payload: {
           data: {

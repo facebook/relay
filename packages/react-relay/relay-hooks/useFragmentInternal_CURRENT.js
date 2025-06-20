@@ -462,7 +462,7 @@ hook useFragmentInternal(
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
   if (
-    fragmentNode.metadata?.hasClientEdges === true ||
+    fragmentNode?.metadata?.hasClientEdges === true ||
     RelayFeatureFlags.CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES
   ) {
     // The fragment is validated to be static (in useFragment) and hasClientEdges is
@@ -654,7 +654,7 @@ hook useFragmentInternal(
           "Make sure that that `%s`'s parent isn't " +
           'holding on to and/or passing a fragment reference for data that ' +
           'has been deleted.',
-        fragmentNode.name,
+        fragmentNode?.name,
         hookDisplayName,
         hookDisplayName,
       );
@@ -665,7 +665,7 @@ hook useFragmentInternal(
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
     // $FlowFixMe[react-rule-hook-conditional]
-    useDebugValue({fragment: fragmentNode.name, data});
+    useDebugValue({fragment: fragmentNode?.name, data});
   }
 
   return data;

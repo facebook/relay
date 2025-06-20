@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {PayloadData, PayloadError} from '../../network/RelayNetworkTypes';
 import type {RecordSourceJSON} from '../RelayStoreTypes';
 
 const {
@@ -4136,7 +4137,7 @@ describe('RelayResponseNormalizer', () => {
         }
       `;
 
-      const payload = {};
+      const payload: PayloadData = {};
       const recordSource = new RelayRecordSource();
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
 
@@ -4199,7 +4200,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       `;
-      const payload = {
+      const payload: PayloadData = {
         node: {
           id: '1',
           __typename: 'User',
@@ -4235,7 +4236,7 @@ describe('RelayResponseNormalizer', () => {
           },
         },
       };
-      const errors = [
+      const errors: Array<PayloadError> = [
         {
           message: "No one knows Kramer's first name until season six!",
           path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],

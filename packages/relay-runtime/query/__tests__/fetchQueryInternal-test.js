@@ -10,7 +10,10 @@
  */
 
 'use strict';
-import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  GraphQLSingularResponse,
+} from '../../network/RelayNetworkTypes';
 import type {Subscription} from '../../network/RelayObservable';
 import type {Observer} from '../../network/RelayObservable';
 import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
@@ -41,7 +44,7 @@ const {
 
 injectPromisePolyfill__DEPRECATED();
 
-let response;
+let response: GraphQLSingularResponse;
 let gqlQuery:
   | Query<
       fetchQueryInternalTest1Query$variables,

@@ -10,7 +10,9 @@
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {RecordSourceJSON} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useSubscribeToInvalidationState = require('../useSubscribeToInvalidationState');
@@ -27,7 +29,7 @@ let setDataIDs;
 let setCallback;
 let disposable;
 let renderedInstance;
-let data;
+let data: RecordSourceJSON;
 let callback;
 
 beforeEach(() => {

@@ -2948,9 +2948,9 @@ impl<'a> Parser<'a> {
     fn parse_token(&mut self) -> Token {
         // Skip over (and record) any invalid tokens until either a valid token or an EOF is encountered
         loop {
-            let kind = self.lexer.next().unwrap_or(TokenKind::EndOfFile);
+            let kind = self.lexer.next().unwrap_or(Ok(TokenKind::EndOfFile));
             match kind {
-                TokenKind::Error => {
+                Err(_) => {
                     if let Some(error_token_kind) = self.lexer.extras.error_token {
                         // Reset the error token
                         self.lexer.extras.error_token = None;
@@ -2974,7 +2974,7 @@ impl<'a> Parser<'a> {
                         self.record_error(error);
                     }
                 }
-                _ => {
+                Ok(kind) => {
                     self.end_index = self.current.span.end;
                     let span = self.lexer_span();
                     return std::mem::replace(&mut self.current, Token { kind, span });

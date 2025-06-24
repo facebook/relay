@@ -537,6 +537,7 @@ hook useFragmentInternal(
     if (
       RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE ||
       environment !== previousEnvironment ||
+      // $FlowFixMe[sketchy-null-bool]
       !committedFragmentSelectorRef.current ||
       // $FlowFixMe[react-rule-unsafe-ref]
       !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)

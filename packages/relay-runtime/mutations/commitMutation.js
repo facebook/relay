@@ -37,7 +37,7 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type MutationConfig<TMutation: MutationParameters> = {
+export type MutationConfig<TMutation: MutationParameters> = $ReadOnly<{
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
@@ -57,9 +57,9 @@ export type MutationConfig<TMutation: MutationParameters> = {
   updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
   variables: TMutation['variables'],
-};
+}>;
 
-export type CommitMutationConfig<TVariables, TData, TRawResponse> = {
+export type CommitMutationConfig<TVariables, TData, TRawResponse> = $ReadOnly<{
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: Mutation<TVariables, TData, TRawResponse>,
@@ -72,7 +72,7 @@ export type CommitMutationConfig<TVariables, TData, TRawResponse> = {
   updater?: ?SelectorStoreUpdater<TData>,
   uploadables?: UploadableMap,
   variables: TVariables,
-};
+}>;
 
 /**
  * Higher-level helper function to execute a mutation against a specific

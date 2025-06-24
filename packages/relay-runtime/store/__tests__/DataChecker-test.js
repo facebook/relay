@@ -176,7 +176,7 @@ describe('check()', () => {
   });
 
   it('reads fragment data', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',

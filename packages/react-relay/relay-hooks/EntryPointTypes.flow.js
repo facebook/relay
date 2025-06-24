@@ -293,6 +293,6 @@ export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
 
 export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];
 
-export type IEnvironmentProvider<TOptions> = {
+export type IEnvironmentProvider<TOptions> = $ReadOnly<{
   getEnvironment: (options: ?TOptions) => IEnvironment,
-};
+}>;

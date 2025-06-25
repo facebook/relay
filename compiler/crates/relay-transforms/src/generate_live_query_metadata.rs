@@ -25,7 +25,6 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use itertools::Itertools;
 use lazy_static::lazy_static;
 use thiserror::Error;
 
@@ -152,22 +151,13 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
                     if live_directives.is_empty() {
                         return Transformed::Keep;
                     }
-                    // We allow multiple `@live` selections in a query but don't allow multiple `config_id`s. Because
-                    // it confuses `method` header formation. `config_id` on `@live` is only used for `@live_query`
-                    // use case migration, which translates into exactly 1 `@live` selection.
-                    let config_id = live_directives
-                        .iter()
-                        .filter_map(|dir| dir.arguments.named(*CONFIG_ID_ARG))
-                        .at_most_one()
-                        .unwrap()
-                        .and_then(|arg| arg.value.item.get_string_literal())
-                        .unwrap_or_else(|| StringKey::from_str("").unwrap());
-
                     next_directives.push(create_metadata_directive(
                         *LIVE_METADATA_KEY,
                         ConstantValue::Object(vec![ConstantArgument {
                             name: WithLocation::generated(*CONFIG_ID_ARG),
-                            value: WithLocation::generated(ConstantValue::String(config_id)),
+                            value: WithLocation::generated(ConstantValue::String(
+                                StringKey::from_str("").unwrap(),
+                            )),
                         }]),
                     ));
                 }

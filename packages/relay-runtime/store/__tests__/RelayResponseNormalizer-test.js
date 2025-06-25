@@ -4380,7 +4380,7 @@ describe('RelayResponseNormalizer', () => {
           friends: null,
         },
       };
-      const errors = [
+      const errors: Array<PayloadError> = [
         {
           message: "No one knows Kramer's first name until season six!",
           path: ['node', 'friends', 'edges', 1, 'node', 'firstName'],
@@ -4481,7 +4481,7 @@ describe('RelayResponseNormalizer', () => {
             },
           },
         };
-        const errors = [
+        const errors: Array<PayloadError> = [
           {
             message: 'There was an error!',
             path: ['node', 'friends', 'edges'],
@@ -4554,7 +4554,7 @@ describe('RelayResponseNormalizer', () => {
             },
           },
         };
-        const errors = [
+        const errors: Array<PayloadError> = [
           {
             message: 'There was an error!',
             path: ['node', 'friends', 'edges'],
@@ -4622,7 +4622,7 @@ describe('RelayResponseNormalizer', () => {
             emailAddresses: [],
           },
         };
-        const errors = [
+        const errors: Array<PayloadError> = [
           {
             message: 'There was an error!',
             path: ['node', 'emailAddresses'],

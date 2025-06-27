@@ -84,4 +84,7 @@ pub enum SchemaValidationError {
 
     #[error("Cyclic reference found for interface inheritance: {0}.")]
     CyclicInterfaceInheritance(String),
+
+    #[error("Duplicate directive '{0}' found.")]
+    DuplicateDirective(StringKey),
 }

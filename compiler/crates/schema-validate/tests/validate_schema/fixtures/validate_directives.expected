@@ -7,8 +7,6 @@ directive @fetchableOther(field_name: String, field_name: Int) on OBJECT
 
 directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
 
-directive @fieldDirective(field_name: String) on FIELD_DEFINITION
-
 interface Hominid {
   pet: Pet
 }
@@ -25,7 +23,6 @@ type Pet implements Canine @fetchable(field_name: "id") {
 type Human implements Hominid @fetchable(field_name: "id") {
   id: ID
   pet: Pet
-  second_pet: Pet @fieldDirective(field_name: "id") @fieldDirective(field_name: "id")
 }
 
 type Query {
@@ -86,12 +83,4 @@ type Query {
     6 │ 
     7 │ directive @__fetchableOther(field_name: String, field_name: Int) on OBJECT
       │                             ^^^^^^^^^^
-    8 │ 
-
-✖︎ Duplicate directive 'fieldDirective' found.
-
-  validate_directives.graphql:27:3
-   26 │   pet: Pet
-   27 │   second_pet: Pet @fieldDirective(field_name: "id") @fieldDirective(field_name: "id")
-      │   ^^^^^^^^^^
-   28 │ }
+    8 │

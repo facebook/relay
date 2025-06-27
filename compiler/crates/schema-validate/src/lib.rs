@@ -7,8 +7,6 @@
 
 mod errors;
 
-use std::collections::HashSet;
-
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -241,24 +239,6 @@ impl<'schema> ValidationContext<'schema> {
                     ),
                     field.name.location,
                 ))
-            }
-
-            // ensure directives are unique
-            let directive_names = field
-                .directives
-                .iter()
-                .map(|d| d.name.0)
-                .collect::<Vec<StringKey>>();
-
-            let mut directive_names_set: HashSet<StringKey> = HashSet::default();
-            for directive_name in directive_names.iter() {
-                if directive_names_set.contains(directive_name) {
-                    self.report_diagnostic(Diagnostic::error(
-                        SchemaValidationError::DuplicateDirective(*directive_name),
-                        field.name.location,
-                    ))
-                }
-                directive_names_set.insert(*directive_name);
             }
 
             let mut arg_names: FnvHashMap<ArgumentName, Location> = FnvHashMap::default();

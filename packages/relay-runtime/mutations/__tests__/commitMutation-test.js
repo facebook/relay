@@ -145,12 +145,12 @@ describe('Configs: NODE_DELETE', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
       updater,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
       variables,
     });
     expect(callback.mock.calls.length).toBe(1);
@@ -598,14 +598,14 @@ describe('Configs: RANGE_ADD', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
-       * of commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
       updater,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       variables,
     });
     // Optimistically appends
@@ -658,11 +658,11 @@ describe('Configs: RANGE_ADD', () => {
     // send mutation
     commitMutation(environment, {
       configs,
+      mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
       /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
        * of commitMutation */
-      mutation,
       variables,
     });
 
@@ -747,11 +747,11 @@ describe('Configs: RANGE_ADD', () => {
     // send the same mutation again
     commitMutation(environment, {
       configs,
+      mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
       /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
        * of commitMutation */
-      mutation,
       variables,
     });
     environment.mock.resolve(operation, serverResponse);
@@ -831,14 +831,14 @@ describe('Configs: RANGE_ADD', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
-       * of commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
       updater,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       variables,
     });
     // Optimistically prepends
@@ -900,14 +900,14 @@ describe('Configs: RANGE_ADD', () => {
     store.subscribe(snapshot, callback);
     commitMutation(environment, {
       configs,
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
-       * of commitMutation */
       mutation,
       optimisticResponse,
       optimisticUpdater,
       updater,
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
+      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+       * of commitMutation */
       variables,
     });
     // Optimistically appends orderBy(chronological)
@@ -959,11 +959,11 @@ describe('Configs: RANGE_ADD', () => {
     // send mutation
     commitMutation(environment, {
       updater,
+      mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
       /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
        * of commitMutation */
-      mutation,
       variables,
     });
 
@@ -1054,11 +1054,11 @@ describe('Configs: RANGE_ADD', () => {
     // send the same mutation again
     commitMutation(environment, {
       updater,
+      mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
       /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
        * of commitMutation */
-      mutation,
       variables,
     });
     environment.mock.resolve(operation, serverResponse);

@@ -7,6 +7,12 @@ query AppQuery($showLastName: Boolean!) @raw_response_type {
 fragment AppFragment on Query {
   me {
     firstName
+    actor {
+      emailAddresses
+      hometown {
+        canViewerComment
+      }
+    }
   }
 }
 
@@ -14,6 +20,13 @@ fragment AppConditionalFragment on Query {
   me @include(if: $showLastName) {
     lastName
     actor_key
+    actor {
+      name
+      lastName
+      hometown {
+        subscribeStatus
+      }
+    }
   }
 }
 ==================================== OUTPUT ===================================
@@ -26,6 +39,18 @@ export type AppQuery$data = {
 };
 export type AppQuery$rawResponse = {
   readonly me: {
+    readonly actor: {
+      readonly __typename: string;
+      readonly emailAddresses: ReadonlyArray<string | null | undefined> | null | undefined;
+      readonly hometown: {
+        readonly canViewerComment: boolean | null | undefined;
+        readonly id: string;
+        readonly subscribeStatus?: string | null | undefined;
+      } | null | undefined;
+      readonly id: string;
+      readonly lastName?: string | null | undefined;
+      readonly name?: string | null | undefined;
+    } | null | undefined;
     readonly actor_key?: string;
     readonly firstName: string | null | undefined;
     readonly id: string;
@@ -41,6 +66,13 @@ export type AppQuery = {
 import { FragmentRefs } from "relay-runtime";
 export type AppConditionalFragment$data = {
   readonly me?: {
+    readonly actor: {
+      readonly hometown: {
+        readonly subscribeStatus: string | null | undefined;
+      } | null | undefined;
+      readonly lastName: string | null | undefined;
+      readonly name: string | null | undefined;
+    } | null | undefined;
     readonly actor_key: string;
     readonly lastName: string | null | undefined;
   } | null | undefined;
@@ -54,6 +86,12 @@ export type AppConditionalFragment$key = {
 import { FragmentRefs } from "relay-runtime";
 export type AppFragment$data = {
   readonly me: {
+    readonly actor: {
+      readonly emailAddresses: ReadonlyArray<string | null | undefined> | null | undefined;
+      readonly hometown: {
+        readonly canViewerComment: boolean | null | undefined;
+      } | null | undefined;
+    } | null | undefined;
     readonly firstName: string | null | undefined;
   } | null | undefined;
   readonly " $fragmentType": "AppFragment";

@@ -22,6 +22,7 @@ import type {
   commitMutationTest5Query$data,
   commitMutationTest5Query$variables,
 } from './__generated__/commitMutationTest5Query.graphql';
+import type {commitMutationTest6Mutation$variables} from './__generated__/commitMutationTest6Mutation.graphql';
 import type {CacheConfig, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
@@ -1205,7 +1206,7 @@ describe('commitMutation()', () => {
   let onCompleted;
   let onError;
   let onNext;
-  let variables;
+  let variables: commitMutationTest6Mutation$variables;
 
   beforeEach(() => {
     fragment = graphql`
@@ -1532,7 +1533,7 @@ describe('commitMutation() cacheConfig', () => {
   let environment;
   let fragment;
   let mutation;
-  let variables;
+  let variables: commitMutationTest6Mutation$variables;
 
   beforeEach(() => {
     fragment = graphql`

@@ -134,11 +134,15 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
             Selection::ScalarField(scalar_field) => {
                 self.validate_required_field(scalar_field, errors_are_caught)
             }
+            Selection::InlineFragment(fragment) => {
+                self.validate_selection_fields(&fragment.selections, errors_are_caught)
+            }
             _ => Ok(()),
         }))?;
         Ok(())
     }
 }
+
 impl Validator for DisallowRequiredOnNonNullField<'_> {
     const NAME: &'static str = "disallow_required_on_non_null_field";
     const VALIDATE_ARGUMENTS: bool = false;

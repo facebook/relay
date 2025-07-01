@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b7654cbc0db7924c3b85107ada9f49ba>>
+ * @generated SignedSource<<a5fdf04a1c7ede81277ad2983d671375>>
  */
 
 mod disallow_required_on_non_null_field;
@@ -17,6 +17,13 @@ async fn fragment_with_inline_fragment_required_non_null_fields_invalid() {
     let input = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_inline_fragment_required_non_null_fields.invalid.graphql");
     let expected = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_inline_fragment_required_non_null_fields.invalid.expected");
     test_fixture(transform_fixture, file!(), "fragment_with_inline_fragment_required_non_null_fields.invalid.graphql", "disallow_required_on_non_null_field/fixtures/fragment_with_inline_fragment_required_non_null_fields.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn fragment_with_multiple_inline_fragment_required_fields() {
+    let input = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_multiple_inline_fragment_required_fields.graphql");
+    let expected = include_str!("disallow_required_on_non_null_field/fixtures/fragment_with_multiple_inline_fragment_required_fields.expected");
+    test_fixture(transform_fixture, file!(), "fragment_with_multiple_inline_fragment_required_fields.graphql", "disallow_required_on_non_null_field/fixtures/fragment_with_multiple_inline_fragment_required_fields.expected", input, expected).await;
 }
 
 #[tokio::test]

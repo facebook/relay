@@ -191,7 +191,7 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
     }
 
     fn modifiable_fields_to_warnings(&mut self) {
-        for (path, action) in self.modifiable_fields.iter() {
+        for (_, action) in self.modifiable_fields.iter() {
             match action {
                 Action::NotRemovable => {}
                 Action::Removable(message_list) => {
@@ -204,8 +204,6 @@ impl<'a> DisallowRequiredOnNonNullField<'a> {
                     }
                 }
             }
-
-            println!("path: {:?}", path);
         }
     }
 }

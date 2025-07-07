@@ -361,14 +361,31 @@ pub fn generate_operation(
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
 
-    // -- Begin Types Section --
-    let mut section = GenericSection::default();
     let generated_types = ArtifactGeneratedTypes::from_operation(
         typegen_operation,
         skip_types,
         request_parameters.is_client_request(),
         project_config.typegen_config.language,
     );
+
+    let mut top_level_statements = Default::default();
+    // -- Begin Query Node Section --
+    let request = printer.print_request(
+        schema,
+        normalization_operation,
+        &operation_fragment,
+        request_parameters,
+        &mut top_level_statements,
+    );
+
+    // -- Begin Top Level Statements Section --
+    let mut section: GenericSection = GenericSection::default();
+    write!(section, "{}", &top_level_statements)?;
+    content_sections.push(ContentSection::Generic(section));
+    // -- End Top Level Statements Section --
+
+    // -- Begin Types Section --
+    let mut section = GenericSection::default();
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -403,22 +420,6 @@ pub fn generate_operation(
     }
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
-
-    let mut top_level_statements = Default::default();
-    // -- Begin Query Node Section --
-    let request = printer.print_request(
-        schema,
-        normalization_operation,
-        &operation_fragment,
-        request_parameters,
-        &mut top_level_statements,
-    );
-
-    // -- Begin Top Level Statements Section --
-    let mut section: GenericSection = GenericSection::default();
-    write!(section, "{}", &top_level_statements)?;
-    content_sections.push(ContentSection::Generic(section));
-    // -- End Top Level Statements Section --
 
     let mut section = GenericSection::default();
     write_variable_value_with_type(

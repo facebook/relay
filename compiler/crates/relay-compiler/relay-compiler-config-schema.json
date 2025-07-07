@@ -1584,6 +1584,10 @@
             "type": "string"
           }
         },
+        "extra": {
+          "description": "A placeholder for allowing extra information in the config file",
+          "default": null
+        },
         "featureFlags": {
           "description": "Enable and disable experimental or legacy behaviors. WARNING! These are not stable and may change at any time.",
           "default": null,

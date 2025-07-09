@@ -65,7 +65,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     pub fn build(bytes: &'fb [u8]) -> Self {
         #![allow(deprecated)]
         let fb_schema: schema_flatbuffer::Schema<'fb> =
-            schema_flatbuffer::get_root_as_schema(bytes);
+            unsafe { schema_flatbuffer::root_as_schema_unchecked(bytes) };
 
         let query_type = Type::Object(ObjectID(fb_schema.query_type()));
         let mutation_type = fb_schema

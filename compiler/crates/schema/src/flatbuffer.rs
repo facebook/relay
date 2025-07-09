@@ -67,7 +67,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         #![allow(deprecated)]
         // Use custom verifier options with increased max_tables limit (default 1M) to handle large schemas
         let opts: VerifierOptions = flatbuffers::VerifierOptions {
-            max_tables: 10_000_000,
+            max_tables: usize::MAX,
             ..Default::default()
         };
 

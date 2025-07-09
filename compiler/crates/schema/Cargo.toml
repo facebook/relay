@@ -15,7 +15,7 @@ path = "tests/build_schema_test.rs"
 [dependencies]
 common = { path = "../common" }
 dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
-flatbuffers = "24.12.23"
+flatbuffers = "2.0"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }

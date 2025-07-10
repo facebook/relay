@@ -498,5 +498,75 @@ describe.each([[true], [false]])(
       });
       expect(renderer?.toJSON()).toBe('ALICE');
     });
+
+    it('should fetch data missing client edge to server data in resolver @rootFragment', () => {
+      function TestComponent() {
+        return (
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Loading">
+              <InnerComponent />
+            </React.Suspense>
+          </RelayEnvironmentProvider>
+        );
+      }
+
+      const variables = {};
+      function InnerComponent() {
+        const data = useLazyLoadQuery(
+          graphql`
+            query ClientEdgesTest6Query {
+              me {
+                same_user_client_edge @waterfall {
+                  # No fields here means that we render without detecting any
+                  # missing data here and don't attempt to fetch the @waterfall
+                  # query.
+                  #
+                  # The same bug can be triggered by adding a field that is already
+                  # in the store for an unrelated reason.
+                  upper_name
+                  # Adding "name" here will cause the query to be fetched.
+                }
+              }
+            }
+          `,
+          variables,
+        );
+
+        return data.me?.same_user_client_edge?.upper_name;
+      }
+
+      // This will be updated when we add the new assertions as part of a fix for
+      // this bug.
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(<TestComponent />);
+      });
+
+      expect(fetchFn.mock.calls.length).toEqual(1);
+      // We should send the client-edge query
+      // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
+      expect(fetchFn.mock.calls[0][0].name).toBe(
+        'ClientEdgeQuery_ClientEdgesTest6Query_me__same_user_client_edge',
+      );
+      // Check variables
+      // $FlowFixMe[invalid-tuple-index] Error found while enabling LTI on this file
+      expect(fetchFn.mock.calls[0][1]).toEqual({id: '1'});
+      expect(renderer?.toJSON()).toBe('Loading');
+
+      TestRenderer.act(() => {
+        // This should resolve client-edge query
+        networkSink.next({
+          data: {
+            node: {
+              id: '1',
+              __typename: 'User',
+              name: 'Alice',
+            },
+          },
+        });
+        jest.runAllImmediates();
+      });
+      expect(renderer?.toJSON()).toBe('ALICE');
+    });
   },
 );

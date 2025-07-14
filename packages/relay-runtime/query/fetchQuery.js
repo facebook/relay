@@ -115,7 +115,7 @@ const invariant = require('invariant');
 function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
   query: Query<TVariables, TData, TRawResponse>,
-  variables: TVariables,
+  variables: NoInfer<TVariables>,
   options?: $ReadOnly<{
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,

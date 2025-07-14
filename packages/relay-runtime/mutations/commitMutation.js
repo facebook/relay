@@ -71,7 +71,7 @@ export type CommitMutationConfig<TVariables, TData, TRawResponse> = $ReadOnly<{
   optimisticUpdater?: ?SelectorStoreUpdater<TData>,
   updater?: ?SelectorStoreUpdater<TData>,
   uploadables?: UploadableMap,
-  variables: TVariables,
+  variables: NoInfer<TVariables>,
 }>;
 
 /**

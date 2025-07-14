@@ -470,6 +470,8 @@ class RelayModernStore implements Store {
           fetchTime: Date.now(),
         };
         this._releaseBuffer.push(id);
+        /* $FlowFixMe[incompatible-call] Natural Inference rollout. See
+         * https://fburl.com/gdoc/y8dn025u */
         this._roots.set(id, temporaryRootEntry);
       }
     }

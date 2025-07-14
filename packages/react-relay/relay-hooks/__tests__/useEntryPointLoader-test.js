@@ -32,8 +32,10 @@ let loadEntryPointLastReturnValue;
 let disposeEntryPoint;
 
 let renderCount: ?number;
-let environment;
-let defaultEnvironmentProvider;
+let environment: IEnvironment;
+let defaultEnvironmentProvider: $ReadOnly<{
+  getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
+}>;
 let render;
 let Container;
 let defaultEntryPoint: any;
@@ -75,12 +77,12 @@ beforeEach(() => {
   Container = function ({
     entryPoint,
     environmentProvider,
-  }: {
+  }: $ReadOnly<{
     entryPoint: any,
-    environmentProvider: {
+    environmentProvider: $ReadOnly<{
       getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
-    },
-  }) {
+    }>,
+  }>) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
       // $FlowFixMe[react-rule-hook]

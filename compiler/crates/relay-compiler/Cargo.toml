@@ -49,8 +49,8 @@ hex = { version = "0.4.3", features = ["alloc"] }
 indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
-lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
-log = { version = "0.4.22", features = ["kv_unstable"] }
+lazy_static = "1.5"
+log = { version = "0.4.22", features = ["kv_unstable", "kv_unstable_std"] }
 md-5 = "0.10"
 persist-query = { path = "../persist-query" }
 petgraph = { version = "0.6.3", features = ["serde-1"] }
@@ -70,7 +70,7 @@ schema-validate-lib = { path = "../schema-validate" }
 schemars = { version = "0.8.21", features = ["indexmap2"] }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
 serde_bser = "0.4"
-serde_json = { version = "1.0.140", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "unbounded_depth"] }
 sha1 = "0.10.5"
 sha2 = "0.10.6"
 signedsource = { path = "../signedsource" }

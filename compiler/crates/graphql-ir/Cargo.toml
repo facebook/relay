@@ -27,7 +27,7 @@ fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
-lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
+lazy_static = "1.5"
 once_cell = "1.12"
 schema = { path = "../schema" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }

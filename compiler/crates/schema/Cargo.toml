@@ -15,11 +15,11 @@ path = "tests/build_schema_test.rs"
 [dependencies]
 common = { path = "../common" }
 dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
-flatbuffers = "2.0"
+flatbuffers = "25.2.10"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
+lazy_static = "1.5"
 ouroboros = "0.18.5"
 rayon = "1.9.0"
 schema-flatbuffer = { path = "../schema-flatbuffer" }

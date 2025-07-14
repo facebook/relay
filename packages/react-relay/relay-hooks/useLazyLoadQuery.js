@@ -93,7 +93,7 @@ hook useLazyLoadQuery<TVariables: Variables, TData>(
   /**
    * Object containing the variable values to fetch the query. These variables need to match GraphQL variables declared inside the query.
    */
-  variables: TVariables,
+  variables: NoInfer<TVariables>,
   /**
    * options object
    */

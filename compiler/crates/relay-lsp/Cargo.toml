@@ -27,8 +27,8 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 intern = { path = "../intern" }
 itertools = "0.14.0"
-lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
-log = { version = "0.4.22", features = ["kv_unstable"] }
+lazy_static = "1.5"
+log = { version = "0.4.22", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.7.2"
 lsp-types = "0.94.1"
 percent-encoding = "2.1"
@@ -43,7 +43,7 @@ schema-diff = { path = "../schema-diff" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.185", features = ["derive", "rc"] }
-serde_json = { version = "1.0.140", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "unbounded_depth"] }
 tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]

@@ -55,6 +55,18 @@ impl<'a> CharReader<'a> {
             column_index: 0,
         }
     }
+
+    pub fn get_line_index(&self) -> usize {
+        self.line_index
+    }
+
+    pub fn get_column_index(&self) -> usize {
+        self.column_index
+    }
+
+    pub fn get_chars(&self) -> Peekable<CharIndices<'a>> {
+        self.chars.clone()
+    }
 }
 
 impl Iterator for CharReader<'_> {
@@ -216,11 +228,11 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     res
 }
 
-fn consume_escaped_char(it: &mut CharReader<'_>) {
+pub fn consume_escaped_char(it: &mut CharReader<'_>) {
     it.next();
 }
 
-fn consume_identifier(it: &mut CharReader<'_>) {
+pub fn consume_identifier(it: &mut CharReader<'_>) {
     while it.chars.peek().is_some() {
         match it.chars.peek() {
             Some((_, 'a'..='z' | 'A'..='Z' | '_' | '0'..='9')) => {
@@ -231,7 +243,7 @@ fn consume_identifier(it: &mut CharReader<'_>) {
     }
 }
 
-fn consume_line_comment(it: &mut CharReader<'_>) {
+pub fn consume_line_comment(it: &mut CharReader<'_>) {
     for (_, c) in it {
         match c {
             '\n' | '\r' => {
@@ -242,7 +254,7 @@ fn consume_line_comment(it: &mut CharReader<'_>) {
     }
 }
 
-fn consume_string(it: &mut CharReader<'_>, quote: char) {
+pub fn consume_string(it: &mut CharReader<'_>, quote: char) {
     while let Some((_, c)) = it.next() {
         match c {
             '\\' => {

@@ -67,7 +67,7 @@ npm run relay --watch
 
 ### Codemods
 
-The Relay compiler supprts some built in codemods. Learn more in the [Codemods Guide](../guides/codemods.md).
+The Relay compiler supports some built in codemods. Learn more in the [Codemods Guide](../guides/codemods.md).
 
 ### Help
 

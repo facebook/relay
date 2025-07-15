@@ -198,14 +198,15 @@ function readFragmentInternal(
       'to `%s`. If the parent fragment only fetches the fragment conditionally ' +
       '- with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` ' +
       'spread  - then the fragment reference will not exist. ' +
-      'In this case, pass `null` if the conditions for evaluating the ' +
-      'fragment are not met (e.g. if the `@include(if)` value is false.)',
+      'This issue can generally be fixed by adding `@alias` after `...%s`.\n' +
+      'See https://relay.dev/docs/next/guides/alias-directive/',
     fragmentNode.name,
     fragmentNode.name,
     hookDisplayName,
     fragmentNode.name,
     fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
     hookDisplayName,
+    fragmentNode.name,
   );
 
   const state = getFragmentState(environment, fragmentSelector);

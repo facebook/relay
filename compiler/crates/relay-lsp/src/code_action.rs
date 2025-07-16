@@ -44,7 +44,7 @@ use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
 use crate::utils::is_file_uri_in_dir;
 
-pub(crate) fn on_code_action(
+pub fn on_code_action(
     state: &impl GlobalState,
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {

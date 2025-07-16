@@ -33,6 +33,7 @@ mod shutdown;
 mod status_reporter;
 pub mod status_updater;
 pub mod text_documents;
+pub mod type_information;
 pub mod utils;
 use std::path::Path;
 use std::sync::Arc;

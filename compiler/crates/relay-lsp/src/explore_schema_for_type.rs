@@ -15,7 +15,7 @@ use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
 
-mod types;
+pub(crate) mod types;
 
 pub(crate) struct ExploreSchemaForType {}
 

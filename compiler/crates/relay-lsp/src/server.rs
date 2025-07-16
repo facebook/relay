@@ -102,6 +102,8 @@ use crate::text_documents::on_did_change_text_document;
 use crate::text_documents::on_did_close_text_document;
 use crate::text_documents::on_did_open_text_document;
 use crate::text_documents::on_did_save_text_document;
+use crate::type_information::TypeInformation;
+use crate::type_information::on_type_information;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -266,6 +268,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
             .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
+            .on_request_sync::<TypeInformation>(on_type_information)?
             .on_request_sync::<ExploreSchemaForType>(on_explore_schema_for_type)?
             .on_request_sync::<GetSourceLocationOfTypeDefinition>(
                 on_get_source_location_of_type_definition,

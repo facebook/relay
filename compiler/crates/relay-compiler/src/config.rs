@@ -52,8 +52,9 @@ use relay_docblock::DocblockIr;
 use relay_saved_state_loader::SavedStateLoader;
 use relay_transforms::CustomTransformsConfig;
 use schemars::JsonSchema;
-use schemars::r#gen::SchemaSettings;
-use schemars::r#gen::{self};
+use schemars::SchemaGenerator;
+use schemars::generate::SchemaSettings;
+use schemars::{self};
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -307,7 +308,7 @@ impl Config {
                 ),
             }),
             Err(error) => Err(Error::ConfigError {
-                details: format!("Error searching config: {}", error),
+                details: format!("Error searching config: {error}"),
             }),
         }
     }
@@ -1100,7 +1101,7 @@ pub enum ConfigFile {
 impl ConfigFile {
     pub fn json_schema() -> String {
         let settings: SchemaSettings = Default::default();
-        let generator = r#gen::SchemaGenerator::from(settings);
+        let generator = SchemaGenerator::from(settings);
         let schema = generator.into_root_schema_for::<Self>();
         serde_json::to_string_pretty(&schema).unwrap()
     }
@@ -1116,11 +1117,10 @@ impl<'de> Deserialize<'de> for ConfigFile {
                 Err(single_project_error) => {
                     let error_message = format!(
                         r#"The config file cannot be parsed as a single-project config file due to:
- - {:?}.
+ - {single_project_error:?}.
 
  It also cannot be a multi-project config file due to:
- - {:?}."#,
-                        single_project_error, multi_project_error,
+ - {multi_project_error:?}."#
                     );
 
                     Err(DeError::custom(error_message))

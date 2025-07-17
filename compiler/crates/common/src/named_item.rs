@@ -96,7 +96,8 @@ impl fmt::Display for ArgumentName {
     PartialOrd,
     Hash,
     Serialize,
-    Deserialize
+    Deserialize,
+    JsonSchema
 )]
 pub struct ScalarName(pub StringKey);
 

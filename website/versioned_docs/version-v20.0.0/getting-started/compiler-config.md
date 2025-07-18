@@ -10,7 +10,7 @@ keywords:
 hide_table_of_contents: false
 ---
 import CompilerConfig from '@site/src/compiler-config/CompilerConfig';
-import schema from '@compilerConfigJsonSchema';
+import schema from './relay-compiler-config-schema.json';
 
 ## Compiler Config Options
 
@@ -22,4 +22,4 @@ If you need more advanced options of the Relay Compiler Config, the exhaustive f
 Install the [Relay VSCode extension](../editor-support.md) to get autocomplete, hover tips, and type checking for the options in your Relay config.
 :::
 
-<CompilerConfig schema={schema} />
+<CompilerConfig schema={schema} definitions={schema.definitions} />

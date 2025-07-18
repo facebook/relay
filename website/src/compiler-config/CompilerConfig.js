@@ -24,12 +24,24 @@ import {useMemo} from 'react';
  * them at that point.
  */
 
-export default function CompilerConfig({schema}) {
+export default function CompilerConfig({schema, definitions}) {
   const indirections = useIndirections(schema);
-  return <Schema schema={schema} indirections={indirections} />;
+  return (
+    <Schema
+      schema={schema}
+      indirections={indirections}
+      definitions={definitions}
+    />
+  );
 }
 
-function Schema({schema, indirections}) {
+function Schema({schema, indirections, definitions}) {
+  const defs = definitions ?? schema.$defs;
+  if (defs == null) {
+    throw new Error(
+      'Expected schema to have $defs or have non-standard definitions explicitly passed in.',
+    );
+  }
   return (
     <div className="json-schema">
       <SchemaDefinition
@@ -37,22 +49,24 @@ function Schema({schema, indirections}) {
         name={schema.title}
         indirections={indirections}
       />
-      {Object.entries(schema.definitions).map(([name, definition], index) => {
-        return (
-          <SchemaDefinition
-            key={index}
-            definition={definition}
-            name={name}
-            indirections={indirections}
-          />
-        );
-      })}
+      {defs != null &&
+        Object.entries(defs).map(([name, definition], index) => {
+          return (
+            <SchemaDefinition
+              key={index}
+              definition={definition}
+              name={name}
+              indirections={indirections}
+            />
+          );
+        })}
     </div>
   );
 }
 
 function SchemaDefinition({definition, name, indirections}) {
-  if (indirections[name]) {
+  if (indirections.getInlineDef(definition)) {
+    // If this type is rendered inline, we don't need to render its definition.
     return null;
   }
   switch (definition.type) {
@@ -273,11 +287,12 @@ function T({prop, indirections}) {
     return String(prop);
   }
   if (prop.$ref) {
-    const typeName = prop.$ref.split('/').pop();
-    if (indirections[typeName]) {
-      return <T prop={indirections[typeName]} indirections={indirections} />;
+    const value = indirections.resolveRef(prop.$ref);
+    const inlineDef = indirections.getInlineDef(value);
+    if (inlineDef) {
+      return <T prop={inlineDef} indirections={indirections} />;
     }
-
+    const typeName = prop.$ref.split('/').pop();
     if (typeName != null) {
       return <a href={'#' + typeName}>{typeName}</a>;
     }
@@ -417,45 +432,54 @@ function splitPascalCase(str) {
 // or shapes. First we collect up these types and build a map redirecting them to
 // their real type.
 function useIndirections(data) {
-  return useMemo(() => {
-    const indirections = {};
+  return useMemo(() => new IndirectionResolver(data), [data]);
+}
 
-    Object.entries(data.definitions).forEach(([key, value]) => {
-      // allOf is generally used to define a simple wrapper type
-      if (value.allOf) {
-        if (value.allOf.length !== 1) {
-          throw new Error(
-            'Expected allOf to only be used as a wrapper type wrapping a single type.',
-          );
-        }
-        indirections[key] = value.allOf[0];
-      }
+class IndirectionResolver {
+  constructor(schema) {
+    this._schema = schema;
+  }
 
-      // $ref is used to define a type that is defined elsewhere
-      if (value.$ref) {
-        const typeName = value.$ref.split('/').pop();
-        if (typeName != null) {
-          indirections[key] = data.definitions[typeName];
-        } else {
-          throw new Error('Expected $ref to be a valid type name');
-        }
+  /**
+   * Some types are trivial wrappers which are not worth showing as their own
+   * types. Here we encode a heuristic for types which we think are not worth
+   * showing as their own types, and instead we can use either the type they
+   * wrap, or the structure of the type directly.
+   */
+  getInlineDef(value) {
+    if (value.type === 'string' || value.type === 'array') {
+      return value;
+    }
+    if (Array.isArray(value.type)) {
+      return value.type;
+    }
+    if (value.allOf) {
+      if (value.allOf.length !== 1) {
+        throw new Error(
+          'Expected allOf to only be used as a wrapper type wrapping a single type.',
+        );
       }
+      return value.allOf[0];
+    }
+    if (value.$ref) {
+      return this.getInlineDef(this.resolveRef(value.$ref));
+    }
+    return null;
+  }
 
-      // Just use inline types
-      if (value.type === 'array') {
-        indirections[key] = value;
+  resolveRef(ref) {
+    const path = ref.split('/');
+    let node = null;
+    for (const segment of path) {
+      if (segment === '#') {
+        node = this._schema;
+      } else {
+        node = node[segment];
       }
-      if (value.type === 'string') {
-        indirections[key] = value;
+      if (!node) {
+        throw new Error(`Reference ${ref} not found in schema.`);
       }
-      if (Array.isArray(value.type)) {
-        indirections[key] = value.type;
-      }
-      if (key === 'DeserializableProjectSet') {
-        indirections[key] = value;
-      }
-    });
-
-    return indirections;
-  }, [data]);
+    }
+    return node;
+  }
 }

@@ -51,7 +51,6 @@ pub(crate) fn on_type_information(
         )));
     };
 
-    // TODO these should not be expected errors
     let schema_item = types::get_full_schema_explorer_type_reference(
         type_,
         &params.type_name,

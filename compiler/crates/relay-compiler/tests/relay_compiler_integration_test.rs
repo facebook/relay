@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c8632d2cc8a8adc3915d1de9ce475bba>>
+ * @generated SignedSource<<6b4c55bceae2bc87de1778d23faad36b>>
  */
 
 mod relay_compiler_integration;
@@ -157,6 +157,13 @@ async fn preloadable_query_typescript() {
     let input = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.input");
     let expected = include_str!("relay_compiler_integration/fixtures/preloadable_query_typescript.expected");
     test_fixture(transform_fixture, file!(), "preloadable_query_typescript.input", "relay_compiler_integration/fixtures/preloadable_query_typescript.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn provided_variable_es_module_order_typescript() {
+    let input = include_str!("relay_compiler_integration/fixtures/provided_variable_es_module_order_typescript.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/provided_variable_es_module_order_typescript.expected");
+    test_fixture(transform_fixture, file!(), "provided_variable_es_module_order_typescript.input", "relay_compiler_integration/fixtures/provided_variable_es_module_order_typescript.expected", input, expected).await;
 }
 
 #[tokio::test]

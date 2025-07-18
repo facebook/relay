@@ -75,6 +75,7 @@ impl ConstantValue {
     generate_unwrap_fn!(unwrap_boolean, self, bool, ConstantValue::Boolean(b) => b.value);
     generate_unwrap_fn!(unwrap_string, self, StringKey, ConstantValue::String(s) => s.value);
     generate_unwrap_fn!(unwrap_enum, self, StringKey, ConstantValue::Enum(e) => e.value);
+    generate_unwrap_fn!(unwrap_list, self, &List<ConstantValue>, ConstantValue::List(l) => l);
 }
 
 impl fmt::Display for ConstantValue {

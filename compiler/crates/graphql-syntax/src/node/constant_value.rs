@@ -80,12 +80,12 @@ impl ConstantValue {
 impl fmt::Display for ConstantValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ConstantValue::Int(value) => f.write_fmt(format_args!("{}", value)),
-            ConstantValue::Float(value) => f.write_fmt(format_args!("{}", value)),
-            ConstantValue::String(value) => f.write_fmt(format_args!("\"{}\"", value)),
-            ConstantValue::Boolean(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::Int(value) => f.write_fmt(format_args!("{value}")),
+            ConstantValue::Float(value) => f.write_fmt(format_args!("{value}",)),
+            ConstantValue::String(value) => f.write_fmt(format_args!("\"{value}\"")),
+            ConstantValue::Boolean(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::Null(_) => f.write_str("null"),
-            ConstantValue::Enum(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::Enum(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::List(value) => f.write_fmt(format_args!(
                 "[{}]",
                 value

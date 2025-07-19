@@ -950,6 +950,10 @@ pub struct SingleProjectConfigFile {
     /// Opt out of source control checks/integration.
     #[serde(default)]
     pub no_source_control: Option<bool>,
+
+    /// A placeholder for allowing extra information in the config file
+    #[serde(default)]
+    pub extra: serde_json::Value,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -973,6 +977,7 @@ impl Default for SingleProjectConfigFile {
             module_import_config: Default::default(),
             resolvers_schema_module: Default::default(),
             no_source_control: Some(false),
+            extra: Default::default(),
         }
     }
 }
@@ -1055,6 +1060,7 @@ impl SingleProjectConfigFile {
             feature_flags: self.feature_flags,
             module_import_config: self.module_import_config,
             resolvers_schema_module: self.resolvers_schema_module,
+            extra: self.extra,
             ..Default::default()
         };
 

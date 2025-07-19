@@ -22,4 +22,4 @@ If you need more advanced options of the Relay Compiler Config, the exhaustive f
 Install the [Relay VSCode extension](../editor-support.md) to get autocomplete, hover tips, and type checking for the options in your Relay config.
 :::
 
-<CompilerConfig schema={schema} />
+<CompilerConfig schema={schema} definitions={schema.$defs} />

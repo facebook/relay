@@ -88,15 +88,6 @@
     "node": ">=18.x",
     "npm": ">=8.x"
   },
-  "prettier": {
-    "arrowParens": "avoid",
-    "bracketSameLine": true,
-    "bracketSpacing": false,
-    "requirePragma": true,
-    "singleQuote": true,
-    "trailingComma": "all",
-    "parser": "hermes"
-  },
   "jest": {
     "testMatch": [
       "<rootDir>/packages/**/__tests__/**/*-test.js"

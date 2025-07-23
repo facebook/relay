@@ -8,6 +8,11 @@
  * @oncall relay
  */
 
+let plugins = ['prettier-plugin-hermes-parser'];
+try {
+  plugins = require('./.prettier-plugins.fb.js');
+} catch {}
+
 module.exports = {
   arrowParens: 'avoid',
   bracketSameLine: true,
@@ -16,12 +21,5 @@ module.exports = {
   singleQuote: true,
   trailingComma: 'all',
   parser: 'hermes',
-  plugins: [
-    // Using module.parent and createRequire hack to simulate prettier v2 plugin resolution behavior.
-    // The hack allows us to resolve the plugin from the install location of prettier.
-    (module.parent
-      ? require('module').createRequire(module.parent.id)
-      : require
-    ).resolve('prettier-plugin-hermes-parser'),
-  ],
+  plugins,
 };

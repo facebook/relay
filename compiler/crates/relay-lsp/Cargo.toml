@@ -18,7 +18,7 @@ crossbeam = "0.8"
 dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
 docblock-shared = { path = "../docblock-shared" }
 docblock-syntax = { path = "../docblock-syntax" }
-dunce = "1.0.2"
+dunce = "1.0.5"
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }

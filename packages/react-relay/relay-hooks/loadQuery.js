@@ -351,10 +351,16 @@ function loadQuery<
       return;
     }
     if (didExecuteNetworkSource) {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       unsubscribeFromExecution && unsubscribeFromExecution();
     } else {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
     }
+    /* $FlowFixMe[constant-condition] Error discovered during Constant
+     * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
     cancelOnLoadCallback && cancelOnLoadCallback();
     isNetworkRequestCancelled = true;
   };

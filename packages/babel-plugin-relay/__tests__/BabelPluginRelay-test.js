@@ -13,26 +13,26 @@
 const transformerWithOptions = require('./transformerWithOptions');
 
 describe('`development` option', () => {
-  it('tests the hash when `development` is set', () => {
+  it('tests the hash when `development` is set', async () => {
     expect(
-      transformerWithOptions(
+      await transformerWithOptions(
         {},
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
   });
 
-  it('tests the hash when `isDevVariableName` is set', () => {
+  it('tests the hash when `isDevVariableName` is set', async () => {
     expect(
-      transformerWithOptions({isDevVariableName: 'IS_DEV'})(
+      await transformerWithOptions({isDevVariableName: 'IS_DEV'})(
         'graphql`fragment TestFrag on Node { id }`',
       ),
     ).toMatchSnapshot();
   });
 
-  it('uses a custom build command in message', () => {
+  it('uses a custom build command in message', async () => {
     expect(
-      transformerWithOptions(
+      await transformerWithOptions(
         {
           codegenCommand: 'relay-build',
         },
@@ -41,9 +41,9 @@ describe('`development` option', () => {
     ).toMatchSnapshot();
   });
 
-  it('does not test the hash when `development` is not set', () => {
+  it('does not test the hash when `development` is not set', async () => {
     expect(
-      transformerWithOptions(
+      await transformerWithOptions(
         {},
         'production',
       )('graphql`fragment TestFrag on Node { id }`'),

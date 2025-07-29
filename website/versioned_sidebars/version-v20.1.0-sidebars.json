@@ -1,0 +1,160 @@
+{
+  "docs": [
+    "home",
+    {
+      "Get Started": [
+        "getting-started/quick-start",
+        "getting-started/babel-plugin",
+        "getting-started/compiler",
+        "getting-started/compiler-config",
+        "getting-started/lint-rules",
+        "editor-support",
+        "getting-started/production"
+      ],
+      "Tutorial": [
+        "tutorial/intro",
+        "tutorial/graphql",
+        "tutorial/queries-1",
+        "tutorial/fragments-1",
+        "tutorial/arrays-lists",
+        "tutorial/queries-2",
+        {
+          "type": "doc",
+          "id": "tutorial/interfaces-polymorphism",
+          "label": "Interfaces & Polymorphism"
+        },
+        "tutorial/refetchable-fragments",
+        "tutorial/connections-pagination",
+        "tutorial/mutations-updates",
+        "tutorial/organizing-mutations-queries-and-subscriptions"
+      ],
+      "Feature Guides": {
+        "Fetching Data": [
+          "guided-tour/list-data/introduction",
+          "guided-tour/list-data/advanced-pagination",
+          "guided-tour/updating-data/graphql-subscriptions",
+          "guides/alias-directive"
+        ],
+        "Error Handling": [
+          "guides/required-directive",
+          "guides/catch-directive",
+          "guides/throw-on-field-error-directive",
+          "guided-tour/rendering/error-states",
+          "guides/semantic-nullability"
+        ],
+        "Updating Data": [
+          "guided-tour/updating-data/introduction",
+          "guided-tour/updating-data/graphql-mutations",
+          "guided-tour/updating-data/updating-connections",
+          "guided-tour/updating-data/imperatively-modifying-store-data",
+          "guided-tour/updating-data/imperatively-modifying-linked-fields",
+          "guided-tour/updating-data/typesafe-updaters-faq",
+          "guided-tour/updating-data/local-data-updates",
+          "guided-tour/updating-data/client-only-data"
+        ],
+        "Caching": [
+          "guided-tour/reusing-cached-data/introduction",
+          "guided-tour/reusing-cached-data/fetch-policies",
+          "guided-tour/reusing-cached-data/presence-of-data",
+          "guided-tour/reusing-cached-data/staleness-of-data",
+          "guided-tour/reusing-cached-data/rendering-partially-cached-data",
+          "guided-tour/reusing-cached-data/filling-in-missing-data",
+          "guided-tour/managing-data-outside-react/retaining-queries"
+        ],
+        "Client Side Data": [
+          {
+            "Relay Resolvers": [
+              "guides/relay-resolvers/introduction",
+              "guides/relay-resolvers/enabling",
+              "guides/relay-resolvers/defining-types",
+              "guides/relay-resolvers/defining-fields",
+              "guides/relay-resolvers/return-types",
+              "guides/relay-resolvers/field-arguments",
+              "guides/relay-resolvers/context",
+              "guides/relay-resolvers/derived-fields",
+              "guides/relay-resolvers/live-fields",
+              "guides/relay-resolvers/suspense",
+              "guides/relay-resolvers/errors",
+              "guides/relay-resolvers/descriptions",
+              "guides/relay-resolvers/deprecated",
+              "guides/relay-resolvers/limitations"
+            ]
+          },
+          "guides/client-schema-extensions"
+        ],
+        "GraphQL Server and Network": [
+          "guides/graphql-server-specification",
+          "guides/persisted-queries",
+          "guides/network-layer"
+        ],
+        "Typing": [
+          "guides/type-emission"
+        ],
+        "Codemods": [
+          "guides/codemods"
+        ]
+      },
+      "API Reference": [
+        {
+          "Relay Hooks": [
+            "api-reference/hooks/relay-environment-provider",
+            "api-reference/hooks/use-relay-environment",
+            "api-reference/hooks/use-preloaded-query",
+            "api-reference/hooks/use-query-loader",
+            "api-reference/hooks/load-query",
+            "api-reference/hooks/use-lazy-load-query",
+            "api-reference/hooks/use-client-query",
+            "api-reference/hooks/use-fragment",
+            "api-reference/hooks/use-refetchable-fragment",
+            "api-reference/hooks/use-pagination-fragment",
+            "api-reference/hooks/use-mutation",
+            "api-reference/hooks/use-subscription",
+            "api-reference/hooks/use-prefetchable-forward-pagination-fragment"
+          ],
+          "Entrypoint APIs": [
+            "api-reference/entrypoint-apis/use-entrypoint-loader",
+            "api-reference/entrypoint-apis/load-entrypoint",
+            "api-reference/entrypoint-apis/entrypoint-container"
+          ],
+          "Relay Runtime": [
+            "api-reference/relay-runtime/relay-environment",
+            "api-reference/relay-runtime/fetch-query",
+            "api-reference/relay-runtime/store",
+            "api-reference/relay-runtime/field-logger",
+            "api-reference/relay-runtime/commit-mutation",
+            "api-reference/relay-runtime/request-subscription",
+            "api-reference/relay-runtime/observe-fragment",
+            "api-reference/relay-runtime/wait-for-fragment-data",
+            "api-reference/relay-runtime/runtime-config"
+          ]
+        },
+        {
+          "Relay Resolvers": [
+            "api-reference/relay-resolvers/docblock-format",
+            "api-reference/relay-resolvers/runtime-functions"
+          ]
+        },
+        "api-reference/graphql/graphql-directives"
+      ],
+      "Testing and Debugging": [
+        "guides/testing-relay-components",
+        "guides/testing-relay-with-preloaded-queries",
+        "debugging/relay-devtools",
+        "debugging/inconsistent-typename-error",
+        "debugging/declarative-mutation-directives",
+        "debugging/why-null",
+        "error-reference/unknown-field"
+      ],
+      "Principles and Architecture": [
+        "principles-and-architecture/thinking-in-graphql",
+        "principles-and-architecture/thinking-in-relay",
+        "principles-and-architecture/architecture-overview",
+        "principles-and-architecture/compiler-architecture",
+        "principles-and-architecture/runtime-architecture",
+        "principles-and-architecture/videos"
+      ]
+    },
+    "community/learning-resources",
+    "glossary/glossary"
+  ]
+}

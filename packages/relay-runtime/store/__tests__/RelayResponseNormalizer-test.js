@@ -4663,4 +4663,113 @@ describe('RelayResponseNormalizer', () => {
       });
     });
   });
+
+  describe('Prototype-less objects (e.g., from graphql-js executor)', () => {
+    const createPrototypeLessObject = (data: {[string]: mixed}) => {
+      const obj = Object.create(null);
+      // $FlowFixMe[unsafe-object-assign] - assigning to prototype-less object
+      Object.assign(obj, data);
+      return obj;
+    };
+
+    it('normalizes prototype-less payloads with type discriminator', () => {
+      const query = graphql`
+        query RelayResponseNormalizerTest42Query($id: ID!) {
+          node(id: $id) {
+            ...RelayResponseNormalizerTest42Fragment
+          }
+        }
+      `;
+
+      graphql`
+        fragment RelayResponseNormalizerTest42Fragment on Node {
+          id
+          ... on User {
+            name
+          }
+        }
+      `;
+
+      const payload = {
+        node: createPrototypeLessObject({
+          __typename: 'Page',
+          id: '1',
+        }),
+      };
+
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      normalize(
+        recordSource,
+        createNormalizationSelector(query.operation, ROOT_ID, {id: '1'}),
+        payload,
+        defaultOptions,
+      );
+
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'Page',
+          id: '1',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'node(id:"1")': {__ref: '1'},
+        },
+        'client:__type:Page': {
+          __id: 'client:__type:Page',
+          __typename: '__TypeSchema',
+          __isNode: false,
+        },
+      });
+    });
+
+    it('normalizes prototype-less payloads for union types', () => {
+      const query = graphql`
+        query RelayResponseNormalizerTest43Query($id: ID!) {
+          userOrPage(id: $id) {
+            ... on User {
+              id
+            }
+          }
+        }
+      `;
+
+      const payload = {
+        userOrPage: createPrototypeLessObject({
+          __typename: 'Page',
+          id: '1',
+        }),
+      };
+
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      normalize(
+        recordSource,
+        createNormalizationSelector(query.operation, ROOT_ID, {id: '1'}),
+        payload,
+        defaultOptions,
+      );
+
+      expect(recordSource.toJSON()).toEqual({
+        '1': {
+          __id: '1',
+          __typename: 'Page',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+          'userOrPage(id:"1")': {__ref: '1'},
+        },
+        'client:__type:Page': {
+          __id: 'client:__type:Page',
+          __typename: '__TypeSchema',
+          __isNode: false,
+        },
+      });
+    });
+  });
 });

@@ -41,7 +41,7 @@ function UserComponent({ id }) {
 
 ### Arguments
 
-* `config`: a config of type [`GraphQLSubscriptionConfig`](#type-graphqlsubscriptionconfigtsubscriptionpayload) passed to [`requestSubscription`](../request-subscription/)
+* `config`: a memoized config of type [`GraphQLSubscriptionConfig`](#type-graphqlsubscriptionconfigtsubscriptionpayload) passed to [`requestSubscription`](../request-subscription/)
 * `requestSubscriptionFn`: `?<TSubscriptionPayload>(IEnvironment, GraphQLSubscriptionConfig<TSubscriptionPayload>) => Disposable`. An optional function with the same signature as [`requestSubscription`](../request-subscription/), which will be called in its stead. Defaults to `requestSubscription`.
 
 <GraphQLSubscriptionConfig />

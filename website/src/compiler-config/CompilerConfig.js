@@ -357,6 +357,9 @@ function T({prop, indirections}) {
     case 'number':
     case 'boolean':
     case 'null':
+      if (prop.const != null) {
+        return JSON.stringify(prop.const);
+      }
       return prop.type;
     case 'integer':
       // TODO: Clarify if this needs to be a unint8

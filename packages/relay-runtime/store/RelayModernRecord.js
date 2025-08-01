@@ -443,7 +443,7 @@ function merge(record1: Record, record2: Record): Record {
   if (ERRORS_KEY in record1 || ERRORS_KEY in record2) {
     const {[ERRORS_KEY]: errors1, ...fields1} = record1;
     const {[ERRORS_KEY]: errors2, ...fields2} = record2;
-    // $FlowIssue[cannot-spread-indexer]
+    // $FlowFixMe[cannot-spread-indexer]
     const updated: Record = {...fields1, ...fields2};
     if (errors1 == null && errors2 == null) {
       return updated;
@@ -465,7 +465,7 @@ function merge(record1: Record, record2: Record): Record {
     }
     return updated;
   } else {
-    // $FlowIssue[cannot-spread-indexer]
+    // $FlowFixMe[cannot-spread-indexer]
     return {...record1, ...record2};
   }
 }

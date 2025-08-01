@@ -1,5 +1,5 @@
 {
-  "version-v13.0.0/docs": [
+  "docs": [
     {
       "collapsed": true,
       "type": "category",
@@ -7,19 +7,19 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-v13.0.0/getting-started/introduction"
+          "id": "getting-started/introduction"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/getting-started/prerequisites"
+          "id": "getting-started/prerequisites"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/getting-started/installation-and-setup"
+          "id": "getting-started/installation-and-setup"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/getting-started/step-by-step-guide"
+          "id": "getting-started/step-by-step-guide"
         }
       ]
     },
@@ -30,11 +30,11 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-v13.0.0/guided-tour/introduction"
+          "id": "guided-tour/introduction"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guided-tour/workflow"
+          "id": "guided-tour/workflow"
         },
         {
           "collapsed": true,
@@ -43,27 +43,27 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/rendering/queries"
+              "id": "guided-tour/rendering/queries"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/rendering/fragments"
+              "id": "guided-tour/rendering/fragments"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/rendering/variables"
+              "id": "guided-tour/rendering/variables"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/rendering/loading-states"
+              "id": "guided-tour/rendering/loading-states"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/rendering/error-states"
+              "id": "guided-tour/rendering/error-states"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/rendering/environment"
+              "id": "guided-tour/rendering/environment"
             }
           ]
         },
@@ -74,31 +74,31 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/reusing-cached-data/introduction"
+              "id": "guided-tour/reusing-cached-data/introduction"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/reusing-cached-data/fetch-policies"
+              "id": "guided-tour/reusing-cached-data/fetch-policies"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/reusing-cached-data/availability-of-data"
+              "id": "guided-tour/reusing-cached-data/availability-of-data"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/reusing-cached-data/presence-of-data"
+              "id": "guided-tour/reusing-cached-data/presence-of-data"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/reusing-cached-data/staleness-of-data"
+              "id": "guided-tour/reusing-cached-data/staleness-of-data"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/reusing-cached-data/rendering-partially-cached-data"
+              "id": "guided-tour/reusing-cached-data/rendering-partially-cached-data"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/reusing-cached-data/filling-in-missing-data"
+              "id": "guided-tour/reusing-cached-data/filling-in-missing-data"
             }
           ]
         },
@@ -109,23 +109,23 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/refetching/introduction"
+              "id": "guided-tour/refetching/introduction"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/refetching/refreshing-queries"
+              "id": "guided-tour/refetching/refreshing-queries"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/refetching/refetching-queries-with-different-data"
+              "id": "guided-tour/refetching/refetching-queries-with-different-data"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/refetching/refreshing-fragments"
+              "id": "guided-tour/refetching/refreshing-fragments"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/refetching/refetching-fragments-with-different-data"
+              "id": "guided-tour/refetching/refetching-fragments-with-different-data"
             }
           ]
         },
@@ -136,31 +136,31 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/list-data/connections"
+              "id": "guided-tour/list-data/connections"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/list-data/rendering-connections"
+              "id": "guided-tour/list-data/rendering-connections"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/list-data/pagination"
+              "id": "guided-tour/list-data/pagination"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/list-data/streaming-pagination"
+              "id": "guided-tour/list-data/streaming-pagination"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/list-data/refetching-connections"
+              "id": "guided-tour/list-data/refetching-connections"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/list-data/updating-connections"
+              "id": "guided-tour/list-data/updating-connections"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/list-data/advanced-pagination"
+              "id": "guided-tour/list-data/advanced-pagination"
             }
           ]
         },
@@ -171,23 +171,23 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/updating-data/introduction"
+              "id": "guided-tour/updating-data/introduction"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/updating-data/graphql-mutations"
+              "id": "guided-tour/updating-data/graphql-mutations"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/updating-data/graphql-subscriptions"
+              "id": "guided-tour/updating-data/graphql-subscriptions"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/updating-data/local-data-updates"
+              "id": "guided-tour/updating-data/local-data-updates"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/updating-data/client-only-data"
+              "id": "guided-tour/updating-data/client-only-data"
             }
           ]
         },
@@ -198,7 +198,7 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/guided-tour/managing-data-outside-react/retaining-queries"
+              "id": "guided-tour/managing-data-outside-react/retaining-queries"
             }
           ]
         }
@@ -216,47 +216,47 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/relay-environment-provider"
+              "id": "api-reference/hooks/relay-environment-provider"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-relay-environment"
+              "id": "api-reference/hooks/use-relay-environment"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-preloaded-query"
+              "id": "api-reference/hooks/use-preloaded-query"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-query-loader"
+              "id": "api-reference/hooks/use-query-loader"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/load-query"
+              "id": "api-reference/hooks/load-query"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-lazy-load-query"
+              "id": "api-reference/hooks/use-lazy-load-query"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-fragment"
+              "id": "api-reference/hooks/use-fragment"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-refetchable-fragment"
+              "id": "api-reference/hooks/use-refetchable-fragment"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-pagination-fragment"
+              "id": "api-reference/hooks/use-pagination-fragment"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-mutation"
+              "id": "api-reference/hooks/use-mutation"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/hooks/use-subscription"
+              "id": "api-reference/hooks/use-subscription"
             }
           ]
         },
@@ -267,15 +267,15 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/entrypoint-apis/use-entrypoint-loader"
+              "id": "api-reference/entrypoint-apis/use-entrypoint-loader"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/entrypoint-apis/load-entrypoint"
+              "id": "api-reference/entrypoint-apis/load-entrypoint"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/entrypoint-apis/entrypoint-container"
+              "id": "api-reference/entrypoint-apis/entrypoint-container"
             }
           ]
         },
@@ -286,29 +286,29 @@
           "items": [
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/relay-runtime/fetch-query"
+              "id": "api-reference/relay-runtime/fetch-query"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/relay-runtime/store"
+              "id": "api-reference/relay-runtime/store"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/relay-runtime/commit-mutation"
+              "id": "api-reference/relay-runtime/commit-mutation"
             },
             {
               "type": "doc",
-              "id": "version-v13.0.0/api-reference/relay-runtime/request-subscription"
+              "id": "api-reference/relay-runtime/request-subscription"
             }
           ]
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/api-reference/graphql/graphql-directives"
+          "id": "api-reference/graphql/graphql-directives"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/api-reference/legacy-apis/legacy-apis"
+          "id": "api-reference/legacy-apis/legacy-apis"
         }
       ]
     },
@@ -319,39 +319,39 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/graphql-server-specification"
+          "id": "guides/graphql-server-specification"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/compiler"
+          "id": "guides/compiler"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/type-emission"
+          "id": "guides/type-emission"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/persisted-queries"
+          "id": "guides/persisted-queries"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/network-layer"
+          "id": "guides/network-layer"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/client-schema-extensions"
+          "id": "guides/client-schema-extensions"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/testing-relay-components"
+          "id": "guides/testing-relay-components"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/testing-relay-with-preloaded-queries"
+          "id": "guides/testing-relay-with-preloaded-queries"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/guides/required-directive"
+          "id": "guides/required-directive"
         }
       ]
     },
@@ -362,15 +362,15 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-v13.0.0/migration-and-compatibility/upgrading-to-relay-hooks"
+          "id": "migration-and-compatibility/upgrading-to-relay-hooks"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/migration-and-compatibility/suspense-compatibility"
+          "id": "migration-and-compatibility/suspense-compatibility"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/migration-and-compatibility/relay-hooks-and-legacy-container-apis"
+          "id": "migration-and-compatibility/relay-hooks-and-legacy-container-apis"
         }
       ]
     },
@@ -381,15 +381,15 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-v13.0.0/debugging/relay-devtools"
+          "id": "debugging/relay-devtools"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/debugging/inconsistent-typename-error"
+          "id": "debugging/inconsistent-typename-error"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/debugging/declarative-mutation-directives"
+          "id": "debugging/declarative-mutation-directives"
         }
       ]
     },
@@ -400,37 +400,37 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-v13.0.0/principles-and-architecture/thinking-in-graphql"
+          "id": "principles-and-architecture/thinking-in-graphql"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/principles-and-architecture/thinking-in-relay"
+          "id": "principles-and-architecture/thinking-in-relay"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/principles-and-architecture/architecture-overview"
+          "id": "principles-and-architecture/architecture-overview"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/principles-and-architecture/compiler-architecture"
+          "id": "principles-and-architecture/compiler-architecture"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/principles-and-architecture/runtime-architecture"
+          "id": "principles-and-architecture/runtime-architecture"
         },
         {
           "type": "doc",
-          "id": "version-v13.0.0/principles-and-architecture/videos"
+          "id": "principles-and-architecture/videos"
         }
       ]
     },
     {
       "type": "doc",
-      "id": "version-v13.0.0/community/learning-resources"
+      "id": "community/learning-resources"
     },
     {
       "type": "doc",
-      "id": "version-v13.0.0/glossary/glossary"
+      "id": "glossary/glossary"
     }
   ]
 }

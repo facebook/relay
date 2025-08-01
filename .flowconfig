@@ -15,7 +15,6 @@ module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 munge_underscores=true
 ; https://fburl.com/code/h2jnts20 - to match internval value
 
-suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
 suppress_type=$FlowFixMeProps
 suppress_type=$FlowFixMeState

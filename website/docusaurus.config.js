@@ -460,7 +460,7 @@ module.exports = {
     },
     prism: {
       theme: require('./prismTheme'),
-      darkTheme: require('prism-react-renderer/themes/dracula'),
+      darkTheme: require('prism-react-renderer').themes.dracula,
       defaultLanguage: 'javascript',
       magicComments: [
         {

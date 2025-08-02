@@ -573,7 +573,7 @@ beforeEach(() => {
     );
     const userRef = props.hasOwnProperty('userRef')
       ? props.userRef
-      : nodeUserRef ?? ownerOperationRef;
+      : (nodeUserRef ?? ownerOperationRef);
 
     setOwner = _setOwner;
 

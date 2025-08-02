@@ -73,8 +73,8 @@ function getConnectionState(
 
   const cursor =
     direction === 'forward'
-      ? pageInfo[END_CURSOR] ?? null
-      : pageInfo[START_CURSOR] ?? null;
+      ? (pageInfo[END_CURSOR] ?? null)
+      : (pageInfo[START_CURSOR] ?? null);
   invariant(
     cursor === null || typeof cursor === 'string',
     'Relay: Expected page info for connection in fragment `%s` to have a ' +

@@ -800,7 +800,7 @@ describe('ReactRelayTestMocker with Containers', () => {
                   },
                 });
               }}>
-              {props.feedback.doesViewerLike ?? false ? 'Unlike' : 'Like'}
+              {(props.feedback.doesViewerLike ?? false) ? 'Unlike' : 'Like'}
             </button>
           </div>
         );
@@ -1075,7 +1075,7 @@ describe('ReactRelayTestMocker with Containers', () => {
             <span
               testID="reaction"
               reactionType={
-                props.feedback.doesViewerLike ?? false
+                (props.feedback.doesViewerLike ?? false)
                   ? 'Viewer likes it'
                   : 'Viewer does not like it'
               }

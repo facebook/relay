@@ -151,7 +151,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     LoaderComponent = function TestLoaderComponent(props: any) {
       const [queryRef] = useQueryLoader(gqlQuery, props.initialQueryRef);
 
-      const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
+      const queryRefId = queryRef == null ? 'null' : (queryRef.id ?? 'Unknown');
       // $FlowFixMe[react-rule-hook]
       useEffect(() => {
         loaderRenderLogs.push(`commit: ${queryRefId}`);

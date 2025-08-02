@@ -482,7 +482,7 @@ describe.each([['New', useFragment]])(
 
         return fancyDescriptions
           .map(item =>
-            item == null ? 'ITEM IS NULL' : item.text ?? 'TEXT IS NULL',
+            item == null ? 'ITEM IS NULL' : (item.text ?? 'TEXT IS NULL'),
           )
           .join(', ');
       }

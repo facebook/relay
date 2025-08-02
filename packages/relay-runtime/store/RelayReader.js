@@ -252,7 +252,7 @@ class RelayReader {
     const owner = this._fragmentName;
 
     this._fieldErrors.push(
-      this._selector.node.metadata?.throwOnFieldError ?? false
+      (this._selector.node.metadata?.throwOnFieldError ?? false)
         ? {
             kind: 'missing_expected_data.throw',
             owner,

@@ -9,6 +9,6 @@
 
 module.exports = [
   require.resolve(
-    '../../../../../../../tools/third-party/prettier/node_modules/prettier-plugin-hermes-parser/dist/index.js',
+    '../../../../../../../tools/third-party/prettier/node_modules/prettier-plugin-hermes-parser/index.mjs',
   ),
 ];

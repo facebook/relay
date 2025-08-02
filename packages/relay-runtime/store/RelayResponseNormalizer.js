@@ -250,7 +250,11 @@ class RelayResponseNormalizer {
               this._traverseSelections(selection, record, data);
             }
           } else {
-            const implementsInterface = data.hasOwnProperty(abstractKey);
+            // $FlowFixMe[method-unbinding] - data could be prototype less
+            const implementsInterface = Object.prototype.hasOwnProperty.call(
+              data,
+              abstractKey,
+            );
             const typeName = RelayModernRecord.getType(record);
             const typeID = generateTypeID(typeName);
             let typeRecord = this._recordSource.get(typeID);
@@ -271,7 +275,11 @@ class RelayResponseNormalizer {
         }
         case 'TypeDiscriminator': {
           const {abstractKey} = selection;
-          const implementsInterface = data.hasOwnProperty(abstractKey);
+          // $FlowFixMe[method-unbinding] - data could be prototype less
+          const implementsInterface = Object.prototype.hasOwnProperty.call(
+            data,
+            abstractKey,
+          );
           const typeName = RelayModernRecord.getType(record);
           const typeID = generateTypeID(typeName);
           let typeRecord = this._recordSource.get(typeID);

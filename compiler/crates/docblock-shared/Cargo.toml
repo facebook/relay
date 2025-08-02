@@ -14,4 +14,4 @@ hex = { version = "0.4.3", features = ["alloc"] }
 intern = { path = "../intern" }
 lazy_static = "1.5"
 md-5 = "0.10"
-serde = { version = "1.0.185", features = ["derive", "rc"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }

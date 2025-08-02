@@ -21,7 +21,7 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 intern = { path = "../intern" }
 relay-config = { path = "../relay-config" }
 schema = { path = "../schema" }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 thiserror = "2.0.12"
 
 [dev-dependencies]

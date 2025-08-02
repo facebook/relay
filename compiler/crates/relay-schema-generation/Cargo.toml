@@ -34,7 +34,7 @@ relay-config = { path = "../relay-config" }
 relay-docblock = { path = "../relay-docblock" }
 rustc-hash = "2.1.1"
 schema-extractor = { path = "../schema-extractor" }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 thiserror = "2.0.12"
 
 [dev-dependencies]

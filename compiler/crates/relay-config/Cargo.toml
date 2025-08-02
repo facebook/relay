@@ -17,6 +17,6 @@ intern = { path = "../intern" }
 pathdiff = "0.2"
 regex = "1.11.1"
 schemars = { version = "1.0.4", features = ["indexmap2"] }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "unbounded_depth"] }
 strum = { version = "0.27.1", features = ["derive"] }

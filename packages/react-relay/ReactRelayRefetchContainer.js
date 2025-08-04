@@ -49,7 +49,7 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-type ContainerProps = $FlowFixMeProps;
+type ContainerProps = $FlowFixMe;
 
 type ContainerState = {
   data: {[key: string]: mixed, ...},

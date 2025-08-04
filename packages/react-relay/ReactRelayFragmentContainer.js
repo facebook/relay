@@ -29,7 +29,7 @@ const {
   isScalarAndEqual,
 } = require('relay-runtime');
 
-type ContainerProps = $FlowFixMeProps;
+type ContainerProps = $FlowFixMe;
 type ContainerState = {
   data: {[key: string]: mixed, ...},
   prevProps: ContainerProps,

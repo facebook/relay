@@ -844,7 +844,8 @@ TODO
 
 ## Root Field
 
-TODO
+A root field is a top-level field on a GraphQL root type — Query, Mutation, or Subscription. These fields serve as entry points for GraphQL operations, allowing clients to fetch, modify, or subscribe to data.
+
 
 ## Root Type
 
@@ -858,7 +859,23 @@ Roots for entrypoints are referred to by the [`JSResource`](#JSResource) to the 
 
 ## Scalar
 
-TODO
+A scalar in GraphQL is a primitive, indivisible leaf value that cannot have subfields. Scalars represent basic data types, such as numbers, strings, booleans, and identifiers, which are returned directly to the client without further selection or nesting.
+
+GraphQL defines several built-in scalar types:
+* Int: A signed 32‐bit integer
+* Float: A signed double-precision floating-point value
+* String: A UTF‐8 character sequence
+* Boolean: true or false
+* ID: A unique identifier, often serialized as a string
+
+In addition to these built-in types, GraphQL servers may define custom scalars for values like dates, times, or other domain-specific primitive types.
+
+Relay represents GraphQL scalars as corresponding primitive JavaScript values (such as numbers, booleans, and strings). For custom scalars, Relay treats them as opaque values, providing support for their representation and use, but does not interpret their content.
+
+For more details, see:
+* [The GraphQL Specification on Scalars](https://spec.graphql.org/October2021/#sec-Scalars)
+* [Relay Return Types Guide](../guides/relay-resolvers/return-types/#scalar-types)
+
 
 ## Scheduler
 

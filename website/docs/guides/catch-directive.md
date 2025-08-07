@@ -18,6 +18,12 @@ states as part of your fragment/query/mutation data instead of a null value
 (which has been the default behavior), or a runtime exception if
 [`@throwOnFieldError`](./throw-on-field-error-directive.md) is being used.
 
+:::tip
+Both `@catch` and `@throwOnFieldError` only handle field errors in the
+query/fragment/mutation in which they are used. They **do not** handle errors
+related to fields in any spread fragments.
+:::
+
 ## `to` Argument
 
 The `@catch` directive accepts an optional `to` argument which has two options:

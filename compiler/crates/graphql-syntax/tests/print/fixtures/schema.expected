@@ -3,6 +3,7 @@ directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
 directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
 directive @extern_type(schema: String, name: String) on INTERFACE
 directive @fetchable(field_name: String) on OBJECT
+directive @repeats(id: String) repeatable on FIELD_DEFINITION
 
 schema {
   query: Query
@@ -49,7 +50,7 @@ type User implements XIGHuman @fetchable(field_name: "id") {
 }
 
 extend type User @fetchable(field_name: "id") {
-  nickname: String
+  nickname: String @repeats(id: "one") @repeats(id: "two")
 }
 
 type XIGStory
@@ -95,6 +96,8 @@ directive @extern_type(schema: String, name: String) on INTERFACE
 
 directive @fetchable(field_name: String) on OBJECT
 
+directive @repeats(id: String) repeatable on FIELD_DEFINITION
+
 schema {
   query: Query
 }
@@ -138,7 +141,7 @@ type User implements XIGHuman @fetchable(field_name: "id") {
 }
 
 extend type User @fetchable(field_name: "id") {
-  nickname: String
+  nickname: String @repeats(id: "one") @repeats(id: "two")
 }
 
 type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {

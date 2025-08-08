@@ -109,6 +109,9 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
     pub fn print_directive(&mut self, directive: &Directive) -> FmtResult {
         write!(self.writer(), "directive @{}", directive.name.item)?;
         self.print_args(&directive.arguments)?;
+        if directive.repeatable {
+            write!(self.writer(), " repeatable")?;
+        }
         write!(
             self.writer(),
             " on {}",

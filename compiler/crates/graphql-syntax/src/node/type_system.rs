@@ -729,7 +729,7 @@ fn write_directive_definition_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
     arguments: &Option<List<InputValueDefinition>>,
-    _repeatable: &bool,
+    repeatable: &bool,
     locations: &[DirectiveLocation],
     _description: &Option<StringNode>,
     _hack_source: &Option<StringNode>,
@@ -737,6 +737,9 @@ fn write_directive_definition_helper(
     write!(f, "directive @{name}")?;
     if let Some(arguments) = arguments.as_ref() {
         write_arguments(f, &arguments.items)?;
+    }
+    if *repeatable {
+        write!(f, " repeatable")?;
     }
     write!(f, " on ")?;
     write_list(f, locations, " | ")?;

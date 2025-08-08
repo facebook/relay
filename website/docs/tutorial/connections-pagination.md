@@ -532,5 +532,3 @@ We should now be able to scroll to the bottom of the page and see more stories l
 
 * Connections are a schema convention that Relay relies on to model the behavior of paginatable lists.
 * It's generally a good idea to use Connections in your schema rather than simple lists. This gives you the flexibility to paginate if you need to.
-
-Next, we'll finally look at how to update data on the server. Connections will play a role in that as well, as we'll see how to append a newly-created node to an existing Connection.

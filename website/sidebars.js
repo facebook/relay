@@ -176,7 +176,6 @@ module.exports = {
         },
         'tutorial/refetchable-fragments',
         'tutorial/connections-pagination',
-        'tutorial/mutations-updates',
         'tutorial/organizing-mutations-queries-and-subscriptions',
       ],
       'Feature Guides': Guides,

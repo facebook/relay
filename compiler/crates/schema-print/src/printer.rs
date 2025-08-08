@@ -82,13 +82,13 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         write!(self.writer(), "schema {{")?;
         self.print_new_line()?;
         if let Some(type_name) = query_type_name {
-            writeln!(self.writer(), "  query: {}", type_name)?;
+            writeln!(self.writer(), "  query: {type_name}")?;
         }
         if let Some(type_name) = mutation_type_name {
-            writeln!(self.writer(), "  mutation: {}", type_name)?;
+            writeln!(self.writer(), "  mutation: {type_name}")?;
         }
         if let Some(type_name) = subscription_type_name {
-            writeln!(self.writer(), "  subscription: {}", type_name)?;
+            writeln!(self.writer(), "  subscription: {type_name}")?;
         }
         write!(self.writer(), "}}")?;
         self.print_definition_end()
@@ -185,7 +185,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
                 .collect::<Vec<_>>()
                 .iter()
                 .join(" | ");
-            write!(self.writer(), " = {}", union_members)?;
+            write!(self.writer(), " = {union_members}")?;
         }
         self.print_definition_end()
     }
@@ -223,7 +223,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             write!(self.writer(), "{}", field.name.item)?;
             self.print_args(&field.arguments)?;
             let type_string = self.schema.get_type_string(&field.type_);
-            write!(self.writer(), ": {}", type_string)?;
+            write!(self.writer(), ": {type_string}")?;
             self.print_directive_values(&field.directives)?;
             self.print_new_line()?;
         }
@@ -244,7 +244,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             write!(self.writer(), "{}", field.name.item)?;
             self.print_args(&field.arguments)?;
             let type_string = self.schema.get_type_string(&field.type_);
-            write!(self.writer(), ": {}", type_string)?;
+            write!(self.writer(), ": {type_string}")?;
             self.print_directive_values(&field.directives)?;
             self.print_new_line()?;
         }
@@ -266,7 +266,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             let type_string = self.schema.get_type_string(&arg.type_);
             write!(self.writer(), "{}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
-                write!(self.writer(), " = {}", default,)?;
+                write!(self.writer(), " = {default}")?;
             }
             self.print_directive_values(&arg.directives)?;
         }
@@ -297,7 +297,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             let type_string = self.schema.get_type_string(&arg.type_);
             write!(self.writer(), "  {}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
-                write!(self.writer(), " = {}", default,)?;
+                write!(self.writer(), " = {default}")?;
             }
             self.print_directive_values(&arg.directives)?;
             self.print_new_line()?;
@@ -339,13 +339,13 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
                 .iter()
                 .map(|id| self.schema.interface(*id).name.item)
                 .join(" & ");
-            write!(self.writer(), " implements {}", interface_names,)?;
+            write!(self.writer(), " implements {interface_names}")?;
         }
         Ok(())
     }
 
     pub fn print_type_declaration(&mut self, type_name: StringKey) -> FmtResult {
-        writeln!(self.writer(), "type {} {{", type_name)
+        writeln!(self.writer(), "type {type_name} {{")
     }
 
     pub fn print_definition_closure(&mut self) -> FmtResult {

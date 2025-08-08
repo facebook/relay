@@ -241,14 +241,12 @@ mod tests {
         assert_eq!(
             lexer.next(),
             Some(kind),
-            "Testing the lexing of string '{}'",
-            source
+            "Testing the lexing of string '{source}'",
         );
         assert_eq!(
             lexer.span(),
             0..length,
-            "Testing the lexing of string '{}'",
-            source
+            "Testing the lexing of string '{source}'",
         );
     }
 

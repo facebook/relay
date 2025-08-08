@@ -549,7 +549,7 @@ impl fmt::Display for InputValueDefinition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}: {}", self.name, self.type_)?;
         if let Some(v) = &self.default_value {
-            write!(f, " = {}", v)?;
+            write!(f, " = {v}")?;
         }
 
         if !self.directives.is_empty() {
@@ -601,7 +601,7 @@ fn write_list(
         .map(|elem| elem.to_string())
         .collect::<Vec<String>>()
         .join(separator);
-    write!(f, "{}", v)
+    write!(f, "{v}")
 }
 
 fn write_arguments(f: &mut fmt::Formatter<'_>, arguments: &[impl fmt::Display]) -> fmt::Result {
@@ -669,7 +669,7 @@ fn write_object_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "type {}", name)?;
+    write!(f, "type {name}")?;
     if !interfaces.is_empty() {
         write!(f, " implements ")?;
         write_list(f, interfaces, " & ")?;
@@ -693,7 +693,7 @@ fn write_interface_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "interface {}", name)?;
+    write!(f, "interface {name}")?;
     if !interfaces.is_empty() {
         write!(f, " implements ")?;
         write_list(f, interfaces, " & ")?;
@@ -716,7 +716,7 @@ fn write_union_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "union {}", name)?;
+    write!(f, "union {name}")?;
     write_directives(f, directives)?;
     if !members.is_empty() {
         write!(f, " = ")?;
@@ -734,7 +734,7 @@ fn write_directive_definition_helper(
     _description: &Option<StringNode>,
     _hack_source: &Option<StringNode>,
 ) -> fmt::Result {
-    write!(f, "directive @{}", name)?;
+    write!(f, "directive @{name}")?;
     if let Some(arguments) = arguments.as_ref() {
         write_arguments(f, &arguments.items)?;
     }
@@ -754,7 +754,7 @@ fn write_input_object_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "input {}", name)?;
+    write!(f, "input {name}")?;
     write_directives(f, directives)?;
     if let Some(fields) = fields.as_ref() {
         write_fields(f, &fields.items)?;
@@ -773,7 +773,7 @@ fn write_enum_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "enum {}", name)?;
+    write!(f, "enum {name}")?;
     write_directives(f, directives)?;
     if let Some(values) = values.as_ref() {
         write_fields(f, &values.items)?;
@@ -792,7 +792,7 @@ fn write_scalar_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "scalar {}", name)?;
+    write!(f, "scalar {name}")?;
     write_directives(f, directives)?;
     writeln!(f)
 }

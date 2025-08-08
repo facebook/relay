@@ -448,7 +448,7 @@ impl<'a> Parser<'a> {
             "extend" => self.parse_type_system_extension(),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token: `{}`", token_str),
+                    format!("Unexpected token: `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -480,7 +480,7 @@ impl<'a> Parser<'a> {
             "extend" => self.advance_type_system_extension(),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token: `{}`", token_str),
+                    format!("Unexpected token: `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -529,7 +529,7 @@ impl<'a> Parser<'a> {
             )),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token `{}`", token_str),
+                    format!("Unexpected token `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -564,7 +564,7 @@ impl<'a> Parser<'a> {
             "input" => self.advance_input_object_type_extension(),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token `{}`", token_str),
+                    format!("Unexpected token `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -688,8 +688,7 @@ impl<'a> Parser<'a> {
             token_str => {
                 let error = Diagnostic::error(
                     format!(
-                        "Expected one of `query`, `mutation`, `subscription`, got `{}`",
-                        token_str
+                        "Expected one of `query`, `mutation`, `subscription`, got `{token_str}`",
                     ),
                     Location::new(self.source_location, token.span),
                 );
@@ -711,8 +710,7 @@ impl<'a> Parser<'a> {
             token_str => {
                 let error = Diagnostic::error(
                     format!(
-                        "Expected one of `query`, `mutation`, `subscription`, got `{}`",
-                        token_str
+                        "Expected one of `query`, `mutation`, `subscription`, got `{token_str}`",
                     ),
                     Location::new(self.source_location, token.span),
                 );
@@ -1363,7 +1361,7 @@ impl<'a> Parser<'a> {
             "VARIABLE_DEFINITION" => Ok(DirectiveLocation::VariableDefinition),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected `{}`, expected a directive location.", token_str),
+                    format!("Unexpected `{token_str}`, expected a directive location."),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -3078,7 +3076,7 @@ mod tests {
     use super::*;
 
     fn triple_quote(inner: &str) -> String {
-        format!("\"\"\"{}\"\"\"", inner)
+        format!("\"\"\"{inner}\"\"\"")
     }
 
     #[test]

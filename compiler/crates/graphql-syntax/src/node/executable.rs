@@ -71,8 +71,8 @@ impl ExecutableDefinition {
 impl fmt::Debug for ExecutableDefinition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ExecutableDefinition::Operation(node) => f.write_fmt(format_args!("{:#?}", node)),
-            ExecutableDefinition::Fragment(node) => f.write_fmt(format_args!("{:#?}", node)),
+            ExecutableDefinition::Operation(node) => f.write_fmt(format_args!("{node:#?}")),
+            ExecutableDefinition::Fragment(node) => f.write_fmt(format_args!("{node:#?}")),
         }
     }
 }
@@ -211,10 +211,10 @@ impl Selection {
 impl fmt::Debug for Selection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::InlineFragment(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::LinkedField(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::ScalarField(node) => f.write_fmt(format_args!("{:#?}", node)),
+            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::InlineFragment(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::LinkedField(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::ScalarField(node) => f.write_fmt(format_args!("{node:#?}")),
         }
     }
 }

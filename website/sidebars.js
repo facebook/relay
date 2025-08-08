@@ -160,7 +160,12 @@ module.exports = {
         'getting-started/compiler-config',
         'getting-started/lint-rules',
         'editor-support',
-        'getting-started/production',
+        {
+          'Best Practices': [
+            'getting-started/production',
+            'tutorial/organizing-mutations-queries-and-subscriptions',
+          ],
+        },
       ],
       Tutorial: [
         'tutorial/intro',
@@ -176,7 +181,6 @@ module.exports = {
         },
         'tutorial/refetchable-fragments',
         'tutorial/connections-pagination',
-        'tutorial/organizing-mutations-queries-and-subscriptions',
       ],
       'Feature Guides': Guides,
       'API Reference': [

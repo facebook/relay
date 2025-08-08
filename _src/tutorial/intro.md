@@ -4,8 +4,6 @@ This tutorial will get you started with the most important and frequently-used f
 
 * How to fetch data using [Queries](./queries-1.md).
 * How to make components self-contained by breaking [Queries](./queries-1.md) into [Fragments](./fragments-1.md).
-* How to paginate through data with [Connections](./connections-pagination.md).
-* How to update data on the server with [Mutations and Updaters](./mutations-updates.md).
 
 This tutorial assumes a fair familiarity with React. If you’re still new to React, we suggest going through the [React tutorial](https://reactjs.org/tutorial/) and working with React until you’re comfortable with creating components, passing props, and using the basic hooks such as `useState`. The tutorial is based on the Web, but Relay also works great with React Native.
 

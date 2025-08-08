@@ -10,26 +10,35 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
-In GraphQL, data on the server is updated using [GraphQL mutations](https://graphql.org/learn/queries/#mutations). Mutations are read-write server operations, which both modify the data on the backend and allow you to query the modified data in the same request.
+In GraphQL, data on the server is updated using [GraphQL mutations](https://graphql.org/learn/mutations/) -- analogous to an HTTP POST request. Mutations are read-write server operations, which both modify the data on the backend and allow you to query the modified data in the same request. Note that mutations are opaque to Relay and don't directly update the Relay store, they are high-level requests sent to the server to express a user's intent.
 
 ## Writing Mutations
 
 A GraphQL mutation looks very similar to a query, except that it uses the `mutation` keyword:
 
-```graphql
-mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
-  feedback_like(data: $input) {
-    feedback {
-      id
-      viewer_does_like
-      like_count
+```js
+const StoryLikeButtonLikeMutation = graphql`
+  mutation StoreLikeButtonLikeMutation(
+    // color1
+    $id: ID!
+  ) {
+    // color2
+    likeStory(
+      id: $id
+    ) {
+      // color3
+      story {
+        likeCount
+      }
     }
   }
-}
+`;
 ```
 
-* The mutation above modifies the server data to "like" the specified `Feedback` object.
-* `feedback_like` is a *mutation root field* (or just *mutation field*) which updates data on the backend.
+* This mutation is named `StoryLikeButton` + `Like` + `Mutation` (note it must begin with the module name and end with the GraphQL operation).
+* A mutation may declare <span className="color1">variables</span> which are passed from the client to the server when the mutation is dispatched. Each variable has a name (`$id`) and a type (`ID!`).
+* The mutation selects a <span className="color2">mutation field</span> defined in the GraphQL schema. Each mutation field that the server defines should correspond to some action that the client can request of the server, such as liking a story. Just like any field, a mutation field can accept arguments to send to the server.
+* The `likeStory` field returns an edge to a node that represents the mutation response. The fields that are available in the mutation response are specified by the GraphQL schema. In this example, we select the `story` field, which is an <span className="color3">edge to the Story that we just liked</span>. From the `story` field, we can query any fields on the Story type, such as the `likeCount`.
 
 <FbInternalOnly>
 
@@ -41,23 +50,11 @@ You can click on the various mutation fields to see their parameters, descriptio
 
 </FbInternalOnly>
 
-* A mutation is handled in two separate steps: first, the update is processed on the server, and then the query is executed. This ensures that you only see data that has already been updated as part of your mutation response.
-
-:::note
-Note that queries are processed in the same way. Outer selections are calculated before inner selections. It is simply a matter of convention that top-level mutation fields have side-effects, while other fields tend not to.
-:::
-
-* The mutation field (in this case, `feedback_like`) returns a specific GraphQL type which exposes the data for which we can query in the mutation response.
+A mutation is handled in two separate steps: first, the update is processed on the server, and then the query is executed. This ensures that you only see data that has already been updated as part of your mutation response.
 
 <FbInternalOnly>
 
 * [It is a best practice](https://fb.workplace.com/groups/644933736023601/?multi_permalinks=823422684841371) to include the `viewer` object and all updated Ents as part of the mutation response.
-
-</FbInternalOnly>
-
-* In this case, we're querying for the *updated* feedback object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating whether the current viewer likes the feedback object.
-
-<FbInternalOnly>
 
 * Check out the [Hack documentation on writing mutations](https://www.internalfb.com/intern/wiki/Graphql-for-hack-developers/mutation-root-fields/) for information on how to add a mutation field to your backend code.
 
@@ -67,122 +64,77 @@ An example of a successful response for the above mutation could look like this:
 
 ```json
 {
-  "feedback_like": {
-    "feedback": {
-      "id": "feedback-id",
-      "viewer_does_like": true,
-      "like_count": 1,
+  "likeStory": {
+    "story": {
+      "id": "34a8c",
+      "likeCount": 47,
     }
   }
 }
 ```
 
-In Relay, we can declare GraphQL mutations using the `graphql` tag too:
+In the simple case, Relay will automatically update the data in the local store with this new information. In some more complex cases, custom code will be required to tell Relay handle the updates. Read more about this in the [Updaters] section.
 
-```js
-const {graphql} = require('react-relay');
+:::tip[Best Practice]
+In the above example, we select fields individually in the mutation response. Often, these fields will be the same as a fragment related to the mutation (for example, a query for some `StoryLikeButton` component). Rather than have two separate sets of fields that should be kept in sync, it's best practice to spread the component fragment into the mutation response. This way, whenever the fragment changes in your code, the mutation will also return the correct updated data.
 
-const feedbackLikeMutation = graphql`
-  mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
-    feedback_like(data: $input) {
-      feedback {
-        id
-        viewer_does_like
-        like_count
+For example,
+```
+const StoryLikeButtonLikeMutation = graphql`
+  mutation StoryLikeButtonLikeMutation(
+    $id: ID,
+  ) {
+    likeStory(id: $id) {
+      story {
+        ...StoryLikeButtonFragment
       }
     }
   }
 `;
 ```
 
-* Note that mutations can also reference GraphQL [variables](../../rendering/variables/) in the same way queries or fragments do.
-
-## Using `useMutation` to execute a mutation
-
-In order to execute a mutation against the server in Relay, we can use the `commitMutation` and [useMutation](../../../api-reference/use-mutation) APIs. Let's take a look at an example using the `useMutation` API:
-
-```js
-import type {FeedbackLikeData, LikeButtonMutation} from 'LikeButtonMutation.graphql';
-
-const {useMutation, graphql} = require('react-relay');
-
-function LikeButton({
-  feedbackId: string,
-}) {
-  const [commitMutation, isMutationInFlight] = useMutation<LikeButtonMutation>(
-    graphql`
-      mutation LikeButtonMutation($input: FeedbackLikeData!) {
-        feedback_like(data: $input) {
-          feedback {
-            viewer_does_like
-            like_count
-          }
-        }
-      }
-    `
-  );
-
-  return <button
-    onClick={() => commitMutation({
-      variables: {
-        input: {id: feedbackId},
-      },
-    })}
-    disabled={isMutationInFlight}
-  >
-    Like
-  </button>
-}
-```
-
-Let's distill what's happening here.
-
-* `useMutation` takes a graphql literal containing a mutation as its only argument.
-* It returns a tuple of items:
-  * a callback (which we call `commitMutation`) which accepts a `UseMutationConfig`, and
-  * a boolean indicating whether a mutation is in flight.
-* In addition, `useMutation` accepts a Flow type parameter. As with queries, the Flow type of the mutation is exported from the file that the Relay compiler generates.
-  * If this type is provided, the `UseMutationConfig` becomes statically typed as well. **It is a best practice to always provide this type.**
-* Now, when `commitMutation` is called with the mutation variables, Relay will make a network request that executes the `feedback_like` field on the server. In this example, this would find the feedback specified by the variables, and record on the backend that the user liked that piece of feedback.
-* Once that field is executed, the backend will select the updated Feedback object and select the `viewer_does_like` and `like_count` fields off of it.
-  * Since the `Feedback` type contains an `id` field, the Relay compiler will automatically add a selection for the `id` field.
-* When the mutation response is received, Relay will find a feedback object in the store with a matching `id` and update it with the newly received `viewer_does_like` and `like_count` values.
-* If these values have changed as a result, any components which selected these fields off of the feedback object will be re-rendered. Or, to put it colloquially, any component which depends on the updated data will re-render.
-
-:::note
-The name of the type of the parameter `FeedbackLikeData` is derived from the name of the top-level mutation field, i.e. from `feedback_like`. This type is also exported from the generated `graphql.js` file.
+Spreading fragments is also generally preferable to refetching the data after a mutation has completed, since the updated data can be fetched in a single round trip.
 :::
 
-## Refreshing components in response to mutations
+:::info
+**How does Relay know how to update the store?**
+Whenever the response includes an object with an `id` field, Relay will check if the store already contains a record with a matching `ID` in the `id` field of that record. If there is a match, Relay will merge the other fields from the response into the existing record.
+:::
 
-In the previous example, we manually selected `viewer_does_like` and `like_count`. Components that select these fields will be re-rendered, should the value of those fields change.
+## Using a mutation in Relay
+Mutations in Relay are accessed using the [`useMutation`](../../../api-reference/use-mutation) hook. The hook returns a function to actually send the mutation to the server (e.g. `commitMutation` below), along with a boolean variable to indicate if a mutation is in flight (e.g. `isMutationInFlight`). This is useful for showing pending states like a loading spinner or disabling a "submit" button.
 
-However, it is generally better to spread fragments that correspond to components that we want to refresh in response to the mutation. This is because the data selected by components can change.
-
-Requiring developers to know about all mutations that might affect their components' data (and keeping them up-to-date) is an example of the kind of global reasoning that Relay wants to avoid requiring.
-
-For example, we might rewrite the mutation as follows:
-
-```graphql
-mutation FeedbackLikeMutation($input: FeedbackLikeData!) {
-  feedback_like(data: $input) {
-    feedback {
-      ...FeedbackDisplay_feedback
-      ...FeedbackDetail_feedback
-    }
-  }
+For example, using the `StoryLikeButtonLikeMutation` above:
+```
+const [commitMutation, isMutationInFlight] = useMutation(StoryLikeButtonLikeMutation);
+function onLikeButtonClicked() {
+  commitMutation({
+    variables: {
+      id: data.id,
+    },
+  })
 }
+const LikeButton = <button onClick={onLikeButtonClicked} disabled={isMutationInFlight}>Like</button>
 ```
 
-If this mutation is executed, then whatever fields were selected by the `FeedbackDisplay` and `FeedbackDetail` components will be refetched, and those components will remain in a consistent state.
+Note that `commitMutation` takes the variables defined on the mutation in the form of an object.
+
+Once that field is executed, the backend will select the updated Feedback object and select `like_count` field off of it. Since the `Story` type contains an `id` field, the Relay compiler will automatically add a selection for the `id` field. When the mutation response is received, Relay will find a feedback object in the store with a matching `id` and update it with the newly received `like_count` value. If this value changes as a result, any components using the value re-rendered.
 
 :::note
-Spreading fragments is generally preferable to refetching the data after a mutation has completed, since the updated data can be fetched in a single round trip.
+If you are using TypeScript or Flow, it's best practice to include a type parameters to the `useMutation` hook:
+```tsx
+import type {StoryLikeButtonLikeMutation$data, StoryLikeButtonLikeMutation$variables} from 'StoryLikeButtonLikeMutation.graphql';
+const [commitMutation, isMutationInFlight] = useMutation<
+  StoryLikeButtonLikeMutationType$variables,
+  StoryLikeButtonLikeMutationType$data,
+>(StoryLikeButtonLikeMutation);
+```
 :::
 
 ## Executing a callback when the mutation completes or errors
 
-We may want to update some state in response to the mutation succeeding or failing. For example, we might want to alert the user if the mutation failed. The `UseMutationConfig` object can include the following fields to handle such cases:
+We may want to update some state in response to the mutation succeeding or failing. For example, we might want to alert the user if the mutation failed. The `UseMutationConfig` object passed to `commitMutation` can include the following fields to handle such cases:
 
 * `onCompleted`, a callback that is executed when the mutation completes. It is passed the mutation response (stopping at fragment spread boundaries).
   * The value passed to `onCompleted` is the the mutation fragment, as read out from the store, **after** updaters and declarative mutation directives are applied. This means that data from within unmasked fragments will not be read, and records that were deleted (e.g. by `@deleteRecord`) may also be null.
@@ -192,7 +144,7 @@ We may want to update some state in response to the mutation succeeding or faili
 
 ### Manipulating connections in response to mutations
 
-Relay makes it easy to respond to mutations by adding items to or removing items from connections (i.e. lists). For example, you might want to append a newly created user to a given connection. For more, see [Using declarative directives](../../list-data/updating-connections/#using-declarative-directives).
+Relay makes it easy to respond to mutations by adding or removing items from connections (i.e. lists). For example, you might want to append a newly created user to a given connection. For more, see [Using declarative directives](../../list-data/updating-connections/#using-declarative-directives).
 
 ### Deleting items in response to mutations
 
@@ -222,7 +174,7 @@ More generally, in these cases, we want to immediately update the data in our st
 
 ### Optimistic response
 
-In order to enable this, the `UseMutationConfig` can include an `optimisticResponse` field.
+In order to enable optimistic udpates, the `UseMutationConfig` can include an `optimisticResponse` field.
 
 For this field to be Flow-typed, the call to `useMutation` must be passed a Flow type parameter **and** the mutation must be decorated with a `@raw_response_type` directive.
 
@@ -344,11 +296,15 @@ In general, execution of the `updater` and optimistic updates will occur in the 
     * Any optimistic update was applied will be rolled back.
     * The `onError` callback will be called.
 
+:::note
+In the case that the store is updated while the mutation is still in flight, Relay will first revert your optimistic update, then apply the new store update before re-applying the optimistic update.
+:::
+
 ## Invalidating data during a mutation
 
 The recommended approach when executing a mutation is to request *all* the relevant data that was affected by the mutation back from the server (as part of the mutation body), so that our local Relay store is consistent with the state of the server.
 
-However, often times it can be unfeasible to know and specify all the possible data the possible data that would be affected for mutations that have large rippling effects (e.g. imagine "blocking a user" or "leaving a group").
+However, often times it can be unfeasible to know and specify all the possible data that would be affected for mutations that have large rippling effects (e.g. imagine "blocking a user" or "leaving a group").
 
 For these types of mutations, it's often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation APIs documented in our [Staleness of Data section](../../reusing-cached-data/staleness-of-data/).
 

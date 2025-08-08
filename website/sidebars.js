@@ -19,7 +19,6 @@ const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 const Guides = {
   'Fetching Data': [
-    'guided-tour/list-data/introduction',
     ...fbContent({
       internal: [
         {

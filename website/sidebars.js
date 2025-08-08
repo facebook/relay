@@ -19,17 +19,17 @@ const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 const Guides = {
   'Fetching Data': [
-    ...fbContent({
-      internal: [
-        {
-          Pagination: [
-            'guided-tour/list-data/advanced-pagination',
-            'guided-tour/list-data/fb/blocking-pagination',
-          ],
-        },
+    {
+      Pagination: [
+        'guided-tour/list-data/connections',
+        'guided-tour/list-data/pagination',
+        'guided-tour/list-data/advanced-pagination',
+        ...fbContent({
+          internal: ['guided-tour/list-data/fb/blocking-pagination'],
+          external: [],
+        }),
       ],
-      external: ['guided-tour/list-data/advanced-pagination'],
-    }),
+    },
     ...fbContent({
       internal: [
         {
@@ -179,7 +179,6 @@ module.exports = {
           label: 'Interfaces & Polymorphism',
         },
         'tutorial/refetchable-fragments',
-        'tutorial/connections-pagination',
       ],
       'Feature Guides': Guides,
       'API Reference': [

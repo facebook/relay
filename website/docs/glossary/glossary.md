@@ -603,11 +603,23 @@ TODO
 
 ## Optimistic Update
 
-TODO
+An Optimistic Update in Relay is a technique used to immediately reflect the expected outcome of a mutation in the UI before the server response is received.
+
+This approach enhances user experience by providing instant feedback for actions, such as liking a post, without waiting for the server to confirm the change.
+
+Optimistic updates assume the mutation will succeed and temporarily update the store with the anticipated result. If the mutation fails, the optimistic update is rolled back to maintain data consistency. This is typically achieved by providing an optimisticResponse in the mutation configuration, which specifies the expected changes to the data.
+
+See the [documentation on optimistic updates](../guided-tour/updating-data/graphql-mutations/#optimistic-updates) for examples of how to use this feature.
 
 ## Optimistic Updater
 
-TODO
+An Optimistic Updater in Relay is a function that allows developers to imperatively modify the store's data in anticipation of a mutation's success.
+
+Unlike [optimistic responses](../guided-tour/updating-data/graphql-mutations/#optimistic-response), which are declarative, optimistic updaters provide more control and flexibility, enabling updates to data not directly selected in the mutation or complex changes that cannot be handled by declarative mutation directives.
+
+Optimistic updaters are executed when a mutation is triggered and are rolled back if the mutation fails. They are particularly useful for scenarios where multiple optimistic responses affect the same store value, and fine grained control is needed by the developer to ensure that the store remains consistent.
+
+See the documentation on [optimistic updaters](../guided-tour/updating-data/graphql-mutations/#optimistic-updaters) for examples of how to use them.
 
 ## Pagination
 
@@ -924,7 +936,9 @@ TODO
 
 ## Store
 
-TODO
+The Relay Store is a local cache in the Relay runtime that manages the lifecycle of records fetched from a GraphQL server, as well as client-side data. It normalizes and de-dupes data, supports subscriptions and [optimistic updates](#optimistic-update), and handles garbage collection and data retention to ensure efficient data access and consistency.
+
+In addition to server-fetched data, the Relay Store can manage client-side data, including data from resolvers and local state. Client-side resolvers compute derived data based on existing records, allowing components to access both server and client data seamlessly. The store also supports the integration of local state by adding client-specific fields to the GraphQL schema, enabling developers to query and manage local state using Relay.
 
 ## @stream
 
@@ -995,8 +1009,7 @@ See also [abstract type refinement](#abstract-type-refinement).
 
 A callback passed to `commitMutation`, which provides the application developer with imperative control over the data in the store.
 
-<!-- TODO make optimistic updater a link -->
-See [the documentation](../guided-tour/updating-data/introduction.md) and also optimistic updater.
+See [the documentation](../guided-tour/updating-data/introduction.md) and also [optimistic updater](#optimistic-updater).
 
 ## Value
 

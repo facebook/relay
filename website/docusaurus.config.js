@@ -362,6 +362,10 @@ module.exports = {
             to: '/compiler-explorer',
             from: ['/compiler-playground'],
           },
+          {
+            to: '/docs/getting-started/quick-start/',
+            from: ['/docs/guided-tour/'],
+          },
         ],
       },
     ],

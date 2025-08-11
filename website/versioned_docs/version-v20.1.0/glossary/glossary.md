@@ -848,7 +848,14 @@ TODO
 
 ## Render Policy
 
-TODO
+The "Render Policy" in Relay determines how data is rendered in components, specifically whether to use "full" or "partial" rendering. This policy integrates with React's Suspense to manage when components should suspend based on data availability.
+* Full Rendering: This approach waits until all required data is available before rendering a component. It ensures that components do not render with incomplete data, which can prevent flickering or unexpected UI changes.
+* Partial Rendering: This approach allows components to render with the data that is currently available, even if some data is missing. It can improve perceived performance by displaying parts of the UI sooner, but may lead to components rendering with null or incomplete data.
+
+The choice between full and partial rendering can be configured per environment or query, allowing developers to optimize for specific use cases.
+<FbInternalOnly>
+For example, Comet defaults to partial rendering to accommodate certain product behaviors, while other environments may use full rendering to ensure data consistency.
+</FbInternalOnly>
 
 ## Revert
 
@@ -931,7 +938,9 @@ The results of running a reader selector against the data currently in the store
 
 ## Stale
 
-TODO
+In Relay, "stale" describes cached data in the client store that is no longer considered fresh or up-to-date. By default, Relay treats cached data as valid indefinitely unless it is explicitly marked as stale through invalidation APIs (`invalidateRecord`, `invalidateStore`) or if it exceeds the configured query cache expiration time. When data is stale, Relay triggers a network refetch on the next query evaluation to ensure the UI reflects the most current information. Components can also subscribe to invalidation events to respond immediately when data becomes stale (`useSubscribeToInvalidationState` hook). This mechanism helps maintain data consistency and timely updates after changes such as mutations.
+
+For more details, see the [Relay Staleness of Data documentation](../guided-tour/reusing-cached-data/staleness-of-data.md).
 
 ## Store
 

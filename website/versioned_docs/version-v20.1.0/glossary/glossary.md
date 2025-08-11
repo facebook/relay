@@ -497,7 +497,9 @@ A directive that, when used in combination with [@match](#match), allows users t
 
 ## Module
 
-TODO
+A ["Module"](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules) refers to a React component or a piece of JavaScript code.
+
+In the context of Relay, modules can by dynamically loaded with the @module directive. This directive allows developers to specify which JavaScript components should be downloaded (from a CDN for example) based on the type of a field decorated with the @match directive. This approach is part of Relay's [data-driven dependencies](#3d) strategy, where components are only loaded if they are actually needed for rendering.
 
 ## Mutation
 
@@ -599,7 +601,7 @@ A function taking an operation descriptor and returning a network response or er
 
 ## Operation Tracker
 
-TODO
+The Relay Operation Tracker is a component within the Relay runtime that manages and tracks the lifecycle of [operations](#operation) (queries, subscriptions and mutations), in the Relay store. It maintains mappings between operations and affected data owners, manages promises for asynchronous updates, and resolves dependencies by notifying subscribers when data changes, ensuring components render with the latest data. For more implementation details of the Operation Tracker, see the [OSS code here](https://github.com/facebook/relay/blob/main/packages/relay-runtime/store/RelayOperationTracker.js).
 
 ## Optimistic Update
 
@@ -760,7 +762,8 @@ The pattern of keeping track of how many other objects can access a particular o
 
 ## Reference Marker
 
-TODO
+The Relay Reference Marker is a component within the Relay runtime responsible for traversing the data graph and marking references to data that should be retained in the Relay store. It ensures data consistency by preventing premature garbage collection of data required for operations or fragments. The marker handles various data selections, manages variables, and interacts with the operation loader to process module imports, ensuring that all necessary data dependencies are retained.
+See the [OSS code](https://github.com/facebook/relay/blob/main/packages/relay-runtime/store/RelayReferenceMarker.js) for implementation details.
 
 ## @refetchable
 
@@ -916,10 +919,6 @@ If a field is removed from www, but is only used in fbsource, the application de
 For more info, look [here](https://www.internalfb.com/intern/wiki/GraphQL/Build_Infra/Schema_Sync/) and [here](https://www.internalfb.com/intern/wiki/Relay-team/GraphQL_Schema_Sync/).
 </FbInternalOnly>
 
-## Schema Extension
-
-TODO
-
 ## Selection
 
 A "selection of fields" refers to the fields you are requesting on an object that you are accessing, as part of a query, mutation, subscription or fragment.
@@ -995,7 +994,7 @@ There are four tree traversals that are core to understanding the internal behav
 * Using the normalization AST:
   * When Relay normalizes the payload it receives from the GraphQL server in the Response Normalizer;
   * When Relay reads determines whether there is enough data for to fulfill an operation, in the Data Checker; and
-  * When Relay determines what data is no longer accessible during garbage collection, in the Reference Marker.
+  * When Relay determines what data is no longer accessible during garbage collection, in the [Reference Marker](#reference-marker).
 * Using the reader AST:
   * When Relay reads data for rendering, in the Reader.
 

@@ -101,22 +101,22 @@ For example:
 
 ### `dynamicModuleProvider`
 
-In OSS, `dynamicModuleProvider` has two subfields:
+The `dynamicModuleProvider` has two subfields:
 - `mode`: This should be set to "Custom".
 - `statement`: This is the statement that will be used to import your UI module `<$module>` into the
 parent component where 3D is being used. You can set it to whatever you need to import your module successfully.
 
 ### `surface`
 
-In OSS, the `surface` field should be set to `resolvers`.
+The `surface` field should be set to `resolvers`.
 
-Here is an example of what an OSS relay compiler configuration that enables client 3D could look like:
+Here is an example of what a Relay compiler configuration that enables client 3D could look like:
 
 ```js
 "moduleImportConfig": {
     "dynamicModuleProvider": {
         "mode": "Custom",
-        "statement": "() => require('./.<$module>')"
+        "statement": "() => require('./<$module>')"
     },
     "surface": "resolvers"
 }

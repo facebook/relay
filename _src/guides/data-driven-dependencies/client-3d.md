@@ -24,7 +24,7 @@ Here is an example of how Client 3D can be used in a React app.
 <FbInternalOnly>
 
 :::note
-For an example diff implementing Client 3D in a www repository, see D62352682.
+For an example diff implementing Client 3D in www, see D62352682.
 :::
 
 </FbInternalOnly>
@@ -50,7 +50,6 @@ extend type Query {
 
 ### Relay Resolvers
 You have 3 Relay Resolvers that return concrete objects that implement the `IClient3D` interface:
-
 
 <Tabs>
   <TabItem value="1" label="Client3DBar" default>
@@ -180,10 +179,8 @@ component Client3DRelayRenderer() {
 In order to use Client 3D, you don't have to modify your Relay Resolvers or schema at all.
 
 Just modify your component in the following ways:
-1. Declare separate fragments for each concrete type implementing `IClient3D` that you're fetching. So
-in this example, these separate fragments are `FOO_FRAGMENT`, `BAR_FRAGMENT`, and `HELLO_WORLD_FRAGMENT`.
-2. Add the `@module` directive to your fragment, and include the name of the UI component corresponding
-to this fragment's data as an argument.
+1. Declare separate fragments for each concrete type implementing `IClient3D` that you're fetching. So in this example, these separate fragments are `FOO_FRAGMENT`, `BAR_FRAGMENT`, and `HELLO_WORLD_FRAGMENT`.
+2. Add the `@module` directive to your fragment, and include the name of the corresponding UI component to this fragment's data as an argument.
 3. Return the final component using Relay's `MatchContainer`, providing the returned query data as a prop.
 
 Notice that in Client 3D, just as in Server 3D, you cannot use `@module` on multiple fragments on the SAME concrete type (but they can be on the same abstract type i.e. a union or an interface).
@@ -198,7 +195,7 @@ If you are in www, but not in Comet, you should use `RelayFBMatchContainer` inst
 
 </FbInternalOnly>
 
-After Client 3D, your component code should look something like this:
+After Client 3D, your component code will look something like this:
 ```jsx
 const {graphql, useFragment, useClientQuery, MatchContainer} = require('react-relay');
 
@@ -251,7 +248,7 @@ component Client3DRelayRenderer() {
 
 While Client 3D can offer many benefits such as a more intuitive developer experience, enhanced maintanability, and faster performance, it also has some limitations that Server 3D does not.
 
-One key difference is the number of round trips required to fetch data. Server 3D requires at most two round trips: one to the server for data and one to the CDN. In contrast, Client 3D evaluates resolver code as part of rendering the component, which means that the client needs to render the component to discover what JavaScript code is needed. This can lead to additional round trips, especially when dealing with nested Client 3D usage.
+One key difference is the number of round trips required to fetch data. Server 3D requires at most two round trips: one to the server for data and one to the CDN for JavaScript. In contrast, Client 3D evaluates resolver code as part of rendering the component, which means that the client needs to render the component to discover what JavaScript code is needed. This can lead to additional round trips, especially when dealing with nested Client 3D usage.
 
 For example, consider a blog entry that uses Client 3D to render either a photo blog post or text blog post. The text blog post then uses Client 3D again to determine what type of text presentation format should be used. This can result in nested Client 3D usage, leading to multiple round trips.
 

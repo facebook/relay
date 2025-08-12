@@ -147,7 +147,15 @@ function text_style(
   };
 }
 
+/**
+ * @RelayResolver Query.some_todo_description: TodoDescription
+ */
+function some_todo_description(): TodoDescription {
+  return {color: 'red', text: 'some todo description'};
+}
+
 module.exports = {
+  some_todo_description,
   text_style,
   text_with_prefix,
   createTodoDescription,

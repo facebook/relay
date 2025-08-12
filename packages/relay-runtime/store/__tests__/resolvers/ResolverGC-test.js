@@ -827,6 +827,82 @@ test('Resolver reading a client-edge to a client type (recursive)', async () => 
   });
 });
 
+test('Resolver reading a weak edge', async () => {
+  let calls = 0;
+  await testResolverGC({
+    query: graphql`
+      query ResolverGCTestWeakQuery {
+        some_todo_description {
+          text
+        }
+      }
+    `,
+    variables: {},
+    payloads: [
+      {
+        data: {},
+      },
+    ],
+    beforeLookup: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookup: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        some_todo_description: {text: 'some todo description'},
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description:$r:text`,
+      ]);
+    },
+    afterRetainedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        some_todo_description: {text: 'some todo description'},
+      });
+
+      // TODO: Delete this case once the bug is fixed
+      if (calls === 0) {
+        // This function gets called twice. Once after GC and again after a second
+        // lookup call. After GC this record is missing but after a second lookup it's returned.
+        expect(recordIdsInStore).toEqual([
+          'client:root',
+          `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+          `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+
+          // `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description:$r:text`,
+        ]);
+      } else if (calls === 1) {
+        expect(recordIdsInStore).toEqual([
+          'client:root',
+          `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+          `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+          `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description:$r:text`,
+        ]);
+      } else {
+        throw new Error('More calls than expected');
+      }
+
+      calls++;
+    },
+    afterFreedGC: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        some_todo_description: {text: 'some todo description'},
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description:$r:text`,
+      ]);
+    },
+  });
+});
+
 test.each([0, 1, 5])(
   'Live Resolver cleanup when %i references retained',
   async numRetainedReferences => {

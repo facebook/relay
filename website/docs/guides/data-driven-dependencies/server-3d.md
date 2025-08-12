@@ -26,7 +26,7 @@ Throughout this guide, we use `MatchContainer`. If you are in www, but not in Co
 
 <OssOnly>
 
-:::note
+:::warning
 Server 3D requires configuring your server to support various features! It is unlikely to work in OSS without significant work. Relay does not claim to fully support Server 3D in OSS (yet), but [Client 3D](../client-3d/) is fully supported.
 :::
 
@@ -36,7 +36,7 @@ Use server 3D when all the data fields used to render your 3D components are fet
 
 ## Simple 3D with @module
 
-The basic case for 3D are the first two cases described in [Use Cases](../introduction/#use-cases): content that is typically missing (where the corresponding rendering code is typically unused) or a union of many types (where only some of the possible rendering code is typically used). These cases are supported with the `@module(name: String)` directive on fragment spreads, which specifies a React component to download only if the data exists and fragment's type matches.
+The basic cases for 3D are the first two cases described in [Use Cases](../introduction/#use-cases): content that is typically missing (where the corresponding rendering code is typically unused) or a union of many types (where only some of the possible rendering code is typically used). These cases are supported with the `@module(name: String)` directive on fragment spreads, which specifies a React component to download only if the data exists and fragment's type matches.
 
 ### @module Usage Guide
 
@@ -46,7 +46,7 @@ Let's walk through how to handle a comment that may contain an image attachment,
 
 <FbInternalOnly>
 
-* For each concrete (GraphQLObject) type that you want to use `@module` with, update the schema to use the `HasJSDependency` trait. In this case we'd add the trait to the type of the `Comment.image` field - lets say that's `CommentImage`:
+* For each concrete (GraphQLObject) type that you want to use `@module` with, update the schema to use the `HasJSDependency` trait. In this case we'd add the trait to the type of the `Comment.image` field — let's say that is `CommentImage`:
 
 ```php
 <<
@@ -86,6 +86,7 @@ fragment Comment_comment on Comment {
 }
 ```
 
+<FbInternalOnly>
 Which the server receives as the following:
 
 ```graphql
@@ -99,8 +100,13 @@ fragment Comment_comment on Comment {
   }
 }
 ```
+</FbInternalOnly>
 
-To consume the `comment.image` field and render the component when the data exists, you shouldn't statically require the component (which would introduce a static dependency) and instead use `CometRelay.MatchContainer` (Comet) or `RelayFBMatchContainer` (www) to return the dynamically selected component:
+To consume the `comment.image` field and render the component when the data exists, you shouldn't statically require the component (which would introduce a static dependency) and instead use `MatchContainer` to return the dynamically selected component:
+
+<FbInternalOnly>
+Within Meta, use `CometRelay.MatchContainer` (Comet) or `RelayFBMatchContainer` (www).
+</FbInternalOnly>
 
 ```js
 const {useFragment, graphql, MatchContainer} = require('react-relay');
@@ -134,7 +140,7 @@ module.exports = CommentRenderer;
 When using MatchContainer, the component loaded using 3D needs to have the same prop name as the fragment suffix e.g. if your fragment is `Comment_comment`, your prop needs to be called `comment` instead of something like `comment$key`
 :::
 
-## Advanced 3D with match
+## Advanced 3D with @match
 
 In some cases a given piece of content can be rendered in a variety of different rendering strategies. In this case, the client and server have to negotiate to choose the ideal strategy for each piece of content: the content may be eligible to be rendered as SuperFancyMarkdown, but if the client doesn't support that type the app should fallback to just regular Markdown rather than showing nothing at all. Relay supports this client/server negotiation with the `@match` directive.
 
@@ -142,11 +148,11 @@ In some cases a given piece of content can be rendered in a variety of different
 
 * The client specifies which strategies it supports (a given client may not support all possible strategies), how it will render that data (one React component per strategy), and what data it needs (a GraphQL fragment for each strategy, describing the React component's data dependencies).
 * The server - specifically *product logic in the schema* - selects the rendering strategy to use, selecting the "best" strategy given the user, data, and the client's supported strategies.
-* The code (Component) and data (GraphQL) for the selected strategy is downloaded *dynamically* once the strategy is selected. Data is downloaded as normal GraphQL data, and metadata about the code is sent down in a side-channel (technically, in the `extensions` field of the GraphQL payload).
+* The code (Component) and data (GraphQL) for the selected strategy is downloaded *dynamically* once the strategy is selected. Data is downloaded as normal GraphQL data, and metadata about the code is sent down in a side-channel (technically, in the [`extensions`](https://graphql.org/learn/response/#extensions) field of the GraphQL payload).
 
 ### @match Usage Guide
 
-Let's walk through the steps to implementing the above example of adding a new data-driven dependency for a `Comment` type with `markdown` and `plaintext` rendering strategies.
+Let's walk through the steps to implementing an example of adding a new data-driven dependency for a `Comment` type with `markdown` and `plaintext` rendering strategies.
 
 #### Server Changes
 
@@ -275,6 +281,28 @@ public function commentContentRenderer(Traversable<string> $supported): Awaitabl
 * Define a new `GraphQLUnion` type with a variant for each rendering strategy.
 * Add a new field on the `Comment` type that accepts an `Array<string> supported` argument listing the client's supported strategies, and returns one of the union values to indicate the selected strategy.
 
+For example:
+```graphql
+type CommentMarkdownRenderer {
+  markdown_content: String
+  __component: JSDependency
+  __fragment: JSDependency
+}
+
+type CommentPlaintextRenderer {
+  plaintext_content: String
+  __component: JSDependency
+  __fragment: JSDependency
+}
+
+union CommentRenderer = CommentMarkdownRenderer | CommentPlaintextRenderer
+
+type Comment {
+  # ... other fields here
+  comment_content_renderer(supported: [String!]): CommentRenderer
+}
+```
+
 </OssOnly>
 
 
@@ -301,6 +329,8 @@ fragment Comment_comment on Comment {
 ```
 Which the server receives as the following - note that the `supported` argument is generated automatically based on the types that we have provided fragments for above:
 
+<FbInternalOnly>
+
 ```graphql
 fragment Comment_comment on Comment {
   comment_content_renderer(supported: ["CommentMarkdownRenderer", "CommentPlaintextRenderer"]) {
@@ -317,6 +347,26 @@ fragment Comment_comment on Comment {
   }
 }
 ```
+
+</FbInternalOnly>
+
+<OssOnly>
+
+```graphql
+fragment Comment_comment on Comment {
+  comment_content_renderer(supported: ["CommentMarkdownRenderer", "CommentPlaintextRenderer"]) {
+    ... on CommentMarkdownRenderer {
+       ...CommentMarkdownRenderer_comment
+    }
+    ... on CommentPlaintextRenderer {
+       ...CommentPlaintextRenderer_comment
+    }
+  }
+}
+```
+
+</OssOnly>
+
 To consume the comment_content_renderer field and render the appropriate container, you shouldn't statically require the component (which would introduce a static dependency) and instead use `MatchContainer` to return the dynamically selected component:
 
 ```js
@@ -382,7 +432,7 @@ selections must specify a unique 'key' value for each field:
 use 'attachment_renderer @match(key: "ExampleComment_<localName>")'.`
 ```
 
-In this case, follow the suggestion in the error and add `@match(key: "...")` on the second 3D field ('attachment_renderer' in this case):
+In this case, follow the suggestion in the error and add `@match(key: "...")` on the second 3D field (`attachment_renderer` in this case):
 
 ```
 // OK - different keys with @match
@@ -404,7 +454,7 @@ Internally, Relay uses the 'key' value to isolate the results of each field in t
 
 ## Usage with Relay Hooks
 
-The preferred way of using 3D is with with the [`useFragment`](../../../api-reference/use-fragment/) API.
+The preferred way of using 3D is with the [`useFragment`](../../../api-reference/use-fragment/) API.
 
 ```js
 // CommentRenderer.react.js
@@ -445,7 +495,6 @@ module.exports = CommentRenderer;
 
 <FbSuspensePlaceholder />
 
-
 The component that is dynamically loaded via 3D can also be a component that uses `useFragment`:
 
 ```js
@@ -474,19 +523,15 @@ function CommentImageRenderer(props) {
 module.exports = CommentImageRenderer;
 ```
 
+<FbInternalOnly>
+
 ## Using non-React modules
 
 The typical usage of data-driven dependencies is to dynamically load modules that export a React component with data-dependencies expressed via Relay. However, Relay also supports dynamically loading *arbitrary* JS modules. This works the same `@match` / `@module` syntax, but (as you may expect) `MatchContainer` won't work for this case. Instead, use `ModuleResource.read()`. The above example using `MatchContainer` can be rewritten to manually read and use the `@module` result:
 
-<FbInternalOnly>
-
 :::tip
 In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
 :::
-
-</FbInternalOnly>
-
-
 
 ```js
 const React = require('React');
@@ -538,13 +583,9 @@ module.exports = CommentRenderer;
 
 You can also use `@module` directly to load a non-React module for a field if it isn't null (without using `@match`), and similarly consume the module using `ModuleResource.read()`:
 
-<FbInternalOnly>
-
 :::tip
 In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
 :::
-
-</FbInternalOnly>
 
 ```js
 function CommentRenderer(props) {
@@ -605,6 +646,7 @@ function CommentRenderer(props) {
 }
 ```
 
+</FbInternalOnly>
 
 ## Important Notes / Troubleshooting
 
@@ -615,7 +657,7 @@ function CommentRenderer(props) {
 
 ## ServerCallableModule Is No Longer Required
 
-Usage of 3D **previously** required adding an `@ServerCallableModule` annotation to components loaded with `@module`. **This annotation is no longer required**. You may see diffs titled "[Codemod][DeadServerCallable" that remove these now-unnecessary annotations, these diffs are expected and safe to land so long as they are only removing these annotations and not accidentally making other changes (i.e., please sanity-check the bot!).
+Usage of 3D **previously** required adding an `@ServerCallableModule` annotation to components loaded with `@module`. **This annotation is no longer required**. You may see diffs titled "[Codemod][DeadServerCallable]" that remove these now-unnecessary annotations, these diffs are expected and safe to land so long as they are only removing these annotations and not accidentally making other changes (i.e. please sanity-check the bot!).
 
 </FbInternalOnly>
 

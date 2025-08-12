@@ -42,6 +42,14 @@ const Guides = {
       external: ['guided-tour/updating-data/graphql-subscriptions'],
     }),
     'guides/alias-directive',
+    {
+      'Data Driven Dependencies': [
+        'guides/data-driven-dependencies/introduction',
+        'guides/data-driven-dependencies/server-3d',
+        'guides/data-driven-dependencies/client-3d',
+        'guides/data-driven-dependencies/configuration',
+      ],
+    },
     ...fbContent({
       internal: [
         {
@@ -55,14 +63,6 @@ const Guides = {
           ],
           'Web-Only': [
             'guides/fb/incremental-data-delivery',
-            {
-              'Data Driven Dependencies': [
-                'guides/data-driven-dependencies/introduction',
-                'guides/data-driven-dependencies/server-3d',
-                'guides/data-driven-dependencies/client-3d',
-                'guides/data-driven-dependencies/configuration',
-              ],
-            },
             'guides/fb/image-prefetching',
             'guides/fb/web-query-preloading',
             'guides/fb/production-graphql-endpoint-in-sandboxes',

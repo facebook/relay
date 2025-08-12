@@ -255,16 +255,17 @@ class RelayReferenceMarker {
     if (resolverRecord == null) {
       return;
     }
+    const {linkedField} = field;
     if (field.backingField.isOutputType) {
       // Mark all @outputType record IDs
       const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
       if (outputTypeRecordIDs != null) {
         for (const dataID of outputTypeRecordIDs) {
           this._references.add(dataID);
+          this._traverse(linkedField, dataID);
         }
       }
     } else {
-      const {linkedField} = field;
       const concreteType = linkedField.concreteType;
       if (concreteType == null) {
         // TODO: Handle retaining abstract client edges to client types.

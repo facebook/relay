@@ -623,12 +623,22 @@ class LiveResolverCache implements ResolverCache {
       );
     } else {
       shallowFreeze(value);
-      // For "classic" resolvers (or if the value is nullish), we are just setting their
-      // value as is.
+
+      // For "classic" resolvers (or if the value is nullish/suspense), we are
+      // set their value...
       RelayModernRecord.setValue(
         resolverRecord,
         RELAY_RESOLVER_VALUE_KEY,
         value,
+      );
+
+      // ...and clear the output type record IDs, if any since a resolver must
+      // be an output type resolver with a non-suspended, non-null value to
+      // refernce any output type record ids.
+      RelayModernRecord.setValue(
+        resolverRecord,
+        RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
+        new Set(),
       );
     }
 

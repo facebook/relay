@@ -59,7 +59,12 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    const subscription = {backup: null, callback, snapshot, stale: false};
+    const subscription: Subscription = {
+      backup: null,
+      callback,
+      snapshot,
+      stale: false,
+    };
     const dispose = () => {
       this._subscriptions.delete(subscription);
     };

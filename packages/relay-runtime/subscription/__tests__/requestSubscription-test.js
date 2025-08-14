@@ -15,6 +15,7 @@ import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {RequestParameters} from '../../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
+import type {requestSubscriptionTest1CommentCreateSubscription$variables} from './__generated__/requestSubscriptionTest1CommentCreateSubscription.graphql';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -203,12 +204,13 @@ describe('requestSubscription-test', () => {
     const metadata = {
       text: 'Gave Relay',
     };
-    const variables = {
-      input: {
-        feedbackId,
-        text: secondCommentBody,
-      },
-    };
+    const variables: requestSubscriptionTest1CommentCreateSubscription$variables =
+      {
+        input: {
+          feedbackId,
+          text: secondCommentBody,
+        },
+      };
 
     beforeEach(() => {
       CommentCreateSubscription = graphql`

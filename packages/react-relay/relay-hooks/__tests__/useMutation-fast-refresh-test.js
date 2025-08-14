@@ -11,6 +11,8 @@
 
 'use strict';
 
+import type {useMutationFastRefreshTestCommentCreateMutation$variables} from './__generated__/useMutationFastRefreshTestCommentCreateMutation.graphql';
+
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useMutation = require('../useMutation');
 const React = require('react');
@@ -40,7 +42,7 @@ describe('useLazyLoadQueryNode', () => {
     },
   };
 
-  const variables = {
+  const variables: useMutationFastRefreshTestCommentCreateMutation$variables = {
     input: {
       feedbackId: '<id>',
     },

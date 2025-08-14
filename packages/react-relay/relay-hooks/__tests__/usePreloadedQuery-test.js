@@ -62,7 +62,7 @@ const preloadableConcreteRequest: PreloadableConcreteRequest<usePreloadedQueryTe
     params: query.params,
   };
 
-const response = {
+const response: GraphQLResponse = {
   data: {
     node: {
       __typename: 'User',
@@ -75,7 +75,7 @@ const response = {
   },
 };
 
-const responseRefetch = {
+const responseRefetch: GraphQLResponse = {
   data: {
     node: {
       __typename: 'User',

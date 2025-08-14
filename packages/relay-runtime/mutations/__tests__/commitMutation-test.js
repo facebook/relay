@@ -14,6 +14,9 @@ import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 import type {Snapshot} from '../../store/RelayStoreTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {DeclarativeMutationConfig} from '../RelayDeclarativeMutationConfig';
+import type {commitMutationTest1Mutation$variables} from './__generated__/commitMutationTest1Mutation.graphql';
+import type {commitMutationTest2Mutation$variables} from './__generated__/commitMutationTest2Mutation.graphql';
+import type {commitMutationTest3Mutation$variables} from './__generated__/commitMutationTest3Mutation.graphql';
 import type {
   commitMutationTest4Query$data,
   commitMutationTest4Query$variables,
@@ -63,7 +66,9 @@ describe('Configs: NODE_DELETE', () => {
     const feedbackID = 'feedback123';
     const firstCommentID = 'comment456';
     const secondCommentID = 'comment789';
-    const variables = {
+    const variables: commitMutationTest1Mutation$variables = {
+      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+       * commitMutation */
       input: {
         deletedCommentId: firstCommentID,
       },
@@ -150,8 +155,6 @@ describe('Configs: NODE_DELETE', () => {
       optimisticResponse,
       optimisticUpdater,
       updater,
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
-       * commitMutation */
       variables,
     });
     expect(callback.mock.calls.length).toBe(1);
@@ -202,7 +205,7 @@ describe('Configs: RANGE_DELETE', () => {
       }
     `;
     const commentID = 'comment123';
-    const variables = {
+    const variables: commitMutationTest2Mutation$variables = {
       input: {
         commentId: commentID,
       },
@@ -353,7 +356,7 @@ describe('Configs: RANGE_DELETE', () => {
         pathToConnection: ['actor', 'friends'],
       },
     ];
-    const variables = {
+    const variables: commitMutationTest3Mutation$variables = {
       input: {
         friendId: '456',
       },

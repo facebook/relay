@@ -750,12 +750,12 @@ function createContainerWithFragments<
     }
 
     _fetchPage(
-      paginatingVariables: {
+      paginatingVariables: $ReadOnly<{
         count: number,
         cursor: ?string,
         totalCount: number,
         ...
-      },
+      }>,
       observer: Observer<void>,
       options: ?RefetchOptions,
     ): Subscription {

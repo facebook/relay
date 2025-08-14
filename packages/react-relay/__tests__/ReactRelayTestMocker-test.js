@@ -99,7 +99,7 @@ describe('ReactRelayTestMocker', () => {
     });
 
     it('updates properly via default values', () => {
-      const testQueryDefault = {
+      const testQueryDefault: NetworkWriteConfig = {
         query: ReactRelayTestMockerTestQuery,
         payload: {data: payload},
       };

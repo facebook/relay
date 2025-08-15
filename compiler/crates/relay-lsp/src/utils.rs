@@ -86,20 +86,18 @@ pub fn get_file_group_from_uri(
     config: &Config,
 ) -> LSPRuntimeResult<FileGroup> {
     let absolute_file_path = url.to_file_path().map_err(|_| {
-        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {:?}", url))
+        LSPRuntimeError::UnexpectedError(format!("Unable to convert URL to file path: {url:?}"))
     })?;
 
     let file_path = absolute_file_path.strip_prefix(root_dir).map_err(|_e| {
         LSPRuntimeError::UnexpectedError(format!(
-            "Failed to strip prefix {:?} from {:?}",
-            root_dir, absolute_file_path
+            "Failed to strip prefix {root_dir:?} from {absolute_file_path:?}"
         ))
     })?;
 
     file_categorizer.categorize(file_path, config).map_err(|_| {
         LSPRuntimeError::UnexpectedError(format!(
-            "Unable to categorize the file correctly: {:?}",
-            file_path
+            "Unable to categorize the file correctly: {file_path:?}"
         ))
     })
 }
@@ -192,7 +190,7 @@ pub fn extract_feature_from_text(
             // we find the position within the document. Note that the GraphQLSource will
             // already be updated *with the characters that triggered the completion request*
             // since the change event fires before completion.
-            debug!("position_span: {:?}", position_span);
+            debug!("position_span: {position_span:?}");
 
             Ok((
                 Feature::ExecutableDocument(document),

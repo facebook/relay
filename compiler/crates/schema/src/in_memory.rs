@@ -271,31 +271,19 @@ impl Schema for InMemorySchema {
 
         format!(
             r#"Schema {{
-  query_type: {:#?}
-  mutation_type: {:#?}
-  subscription_type: {:#?}
-  directives: {:#?}
-  type_map: {:#?}
-  enums: {:#?}
-  fields: {:#?}
-  input_objects: {:#?}
-  interfaces: {:#?}
-  objects: {:#?}
-  scalars: {:#?}
-  unions: {:#?}
+  query_type: {query_type:#?}
+  mutation_type: {mutation_type:#?}
+  subscription_type: {subscription_type:#?}
+  directives: {ordered_directives:#?}
+  type_map: {ordered_type_map:#?}
+  enums: {enums:#?}
+  fields: {fields:#?}
+  input_objects: {input_objects:#?}
+  interfaces: {interfaces:#?}
+  objects: {objects:#?}
+  scalars: {scalars:#?}
+  unions: {unions:#?}
   }}"#,
-            query_type,
-            mutation_type,
-            subscription_type,
-            ordered_directives,
-            ordered_type_map,
-            enums,
-            fields,
-            input_objects,
-            interfaces,
-            objects,
-            scalars,
-            unions,
         )
     }
 
@@ -912,7 +900,7 @@ impl InMemorySchema {
                     let name = schema.get_type_name(type_);
                     let previous_location = schema.get_type_location(type_);
                     Diagnostic::error(SchemaError::DuplicateType(name), location).annotate(
-                        format!("`{}` was previously defined here:", name),
+                        format!("`{name}` was previously defined here:"),
                         previous_location,
                     )
                 })

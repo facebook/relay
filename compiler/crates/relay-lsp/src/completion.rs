@@ -905,7 +905,7 @@ fn resolve_completion_items_for_input_object(
                 preselect: None,
                 sort_text: None,
                 filter_text: None,
-                insert_text: Some(format!("{}: $1", label)),
+                insert_text: Some(format!("{label}: $1")),
                 insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                 text_edit: None,
                 additional_text_edits: None,
@@ -945,7 +945,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     preselect: None,
                     sort_text: None,
                     filter_text: None,
-                    insert_text: Some(format!("{}: $1", label)),
+                    insert_text: Some(format!("{label}: $1")),
                     insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                     text_edit: None,
                     additional_text_edits: None,
@@ -1083,7 +1083,7 @@ fn resolve_completion_items_for_fields<T: TypeWithFields + Named>(
             let is_deprecated = deprecated.is_some();
             let deprecated_reason = deprecated
                 .and_then(|deprecated| deprecated.reason)
-                .map(|reason| format!("Deprecated: {}", reason));
+                .map(|reason| format!("Deprecated: {reason}"));
             let args = create_arguments_snippets(field.arguments.iter(), schema);
             let insert_text = match (
                 existing_linked_field
@@ -1092,7 +1092,7 @@ fn resolve_completion_items_for_fields<T: TypeWithFields + Named>(
             ) {
                 (true, true) => None,
                 (true, false) => Some(format!("{}({})", field_name, args.join(", "))),
-                (false, true) => Some(format!("{} {{\n\t$1\n}}", field_name)),
+                (false, true) => Some(format!("{field_name} {{\n\t$1\n}}")),
                 (false, false) => Some(format!(
                     "{}({}) {{\n\t${}\n}}",
                     field_name,
@@ -1295,9 +1295,9 @@ fn create_arguments_snippets<T: ArgumentLike>(
     for arg in arguments {
         if let TypeReference::NonNull(type_) = arg.type_() {
             let value_snippet = match type_ {
-                t if t.is_list() => format!("[${}]", cursor_location),
-                t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
-                _ => format!("${}", cursor_location),
+                t if t.is_list() => format!("[${cursor_location}]"),
+                t if schema.is_string(t.inner()) => format!("\"${cursor_location}\""),
+                _ => format!("${cursor_location}"),
             };
             let str = format!("{}: {}", arg.name(), value_snippet);
             args.push(str);
@@ -1374,11 +1374,11 @@ fn make_markdown_table_documentation(
     Documentation::MarkupContent(MarkupContent {
         kind: MarkupKind::Markdown,
         value: [
-            format!("| **Field: {}** |", field_name),
+            format!("| **Field: {field_name}** |"),
             "| :--- |".to_string(),
-            format!("| {} |", field_description),
-            format!("| **Type: {}** |", type_name),
-            format!("| {} |", type_description),
+            format!("| {field_description} |"),
+            format!("| **Type: {type_name}** |"),
+            format!("| {type_description} |"),
         ]
         .join("\n"),
     })

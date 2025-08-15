@@ -376,7 +376,7 @@ mod test {
             NodeKind::FragmentDefinition(fragment) => {
                 assert_eq!(fragment.name.value, "User_data".intern())
             }
-            node_kind => panic!("Unexpected node node_resolution_info.kind {:?}", node_kind),
+            node_kind => panic!("Unexpected node node_resolution_info.kind {node_kind:?}"),
         }
     }
 

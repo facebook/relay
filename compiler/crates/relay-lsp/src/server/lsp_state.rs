@@ -240,7 +240,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn validate_synced_js_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
         let mut diagnostics = vec![];
         let javascript_features = self.synced_javascript_sources.get(url).ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
+            LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {url}"))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
         let project_config = self
@@ -337,7 +337,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn validate_synced_schema_source(&self, url: &Url) -> LSPRuntimeResult<()> {
         let schema_source = self.synced_schema_sources.get(url).ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!("Expected schema source for URL {}", url))
+            LSPRuntimeError::UnexpectedError(format!("Expected schema source for URL {url}"))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
         let project_config = self
@@ -440,8 +440,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .cloned()
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "get_schema: schema is missing (or not ready, yet) for the `{}` project.",
-                    project_name
+                    "get_schema: schema is missing (or not ready, yet) for the `{project_name}` project."
                 ))
             })
     }
@@ -452,8 +451,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .map(|p| p.value().clone())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "get_program: program is missing (or not ready, yet) for the `{}` project.",
-                    project_name
+                    "get_program: program is missing (or not ready, yet) for the `{project_name}` project."
                 ))
             })
     }
@@ -546,8 +544,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not determine project name for \"{}\": {}",
-                url, msg
+                "Could not determine project name for \"{url}\": {msg}"
             ))
         })
     }
@@ -596,8 +593,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .find(|project_config| project_config.name == (*project_name).into())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "Unable to get project config for project {}.",
-                    project_name
+                    "Unable to get project config for project {project_name}."
                 ))
             })?;
 
@@ -642,8 +638,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
         let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not determine project name for \"{}\": {}",
-                uri, msg
+                "Could not determine project name for \"{uri}\": {msg}"
             ))
         })?;
 

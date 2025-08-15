@@ -213,8 +213,8 @@ pub enum ValidationMessage {
 
     #[error(
         "Disallowed selection of field `{}{field_name}`.{}",
-        parent_name.map_or("".to_string(), |name| format!("{}.", name)),
-        reason.map_or("".to_string(), |reason| format!(" Reason: \"{}\"", reason)),
+        parent_name.map_or("".to_string(), |name| format!("{name}.")),
+        reason.map_or("".to_string(), |reason| format!(" Reason: \"{reason}\"")),
     )]
     UnselectableField {
         field_name: StringKey,
@@ -287,7 +287,7 @@ impl WithDiagnosticData for ValidationMessageWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
             ValidationMessageWithData::RelayResolversMissingWaterfall { field_name } => {
-                vec![Box::new(format!("{} @waterfall", field_name,))]
+                vec![Box::new(format!("{field_name} @waterfall",))]
             }
             ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
                 vec![Box::new("")]

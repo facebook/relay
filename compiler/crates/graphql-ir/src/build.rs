@@ -1358,12 +1358,12 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         // Check for repeated directives that are not @repeatable
         if directives.len() > 1 {
             for (index, directive) in directives.iter().enumerate() {
-                let directive_repeatable = self.schema.get_directive(directive.name.item).map_or(
-                    // Default to `false` instead of expecting a definition
-                    // since @arguments directive is not defined in the schema.
-                    false,
-                    |dir| dir.repeatable,
-                );
+                let directive_repeatable =
+                    self.schema.get_directive(directive.name.item).is_some_and(
+                        // Default to `false` instead of expecting a definition
+                        // since @arguments directive is not defined in the schema.
+                        |dir| dir.repeatable,
+                    );
                 if directive_repeatable {
                     continue;
                 }
@@ -2037,7 +2037,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 if !self.options.allow_custom_scalar_literals {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::UnexpectedCustomScalarLiteral {
-                            literal_value: format!("{}", value),
+                            literal_value: format!("{value}"),
                             scalar_type_name: type_definition.name.item,
                         },
                         self.location.with_span(value.span()),

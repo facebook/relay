@@ -394,7 +394,7 @@ fn transform_label(
     directive_name: DirectiveName,
     label: StringKey,
 ) -> StringKey {
-    format!("{}${}${}", parent_name, directive_name, label).intern()
+    format!("{parent_name}${directive_name}${label}").intern()
 }
 
 fn get_literal_string_argument(

@@ -243,7 +243,7 @@ impl ExecutableDefinitionName {
     pub fn unwrap_fragment_definition_name(&self) -> FragmentDefinitionName {
         match self {
             ExecutableDefinitionName::OperationDefinitionName(_) => {
-                panic!("Expected FragmentDefinitionName, found {}", self)
+                panic!("Expected FragmentDefinitionName, found {self}")
             }
             ExecutableDefinitionName::FragmentDefinitionName(name) => *name,
         }
@@ -401,11 +401,11 @@ impl Selection {
 impl fmt::Debug for Selection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::InlineFragment(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::LinkedField(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::ScalarField(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::Condition(node) => f.write_fmt(format_args!("{:#?}", node)),
+            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::InlineFragment(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::LinkedField(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::ScalarField(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::Condition(node) => f.write_fmt(format_args!("{node:#?}")),
         }
     }
 }
@@ -663,7 +663,7 @@ impl Value {
     /// Panics if the value is not a constant.
     pub fn expect_constant(&self) -> &ConstantValue {
         self.get_constant().unwrap_or_else(|| {
-            panic!("expected a constant, got {:?}", self);
+            panic!("expected a constant, got {self:?}");
         })
     }
 
@@ -671,7 +671,7 @@ impl Value {
     /// Panics if the value is not a constant string literal.
     pub fn expect_string_literal(&self) -> StringKey {
         self.get_string_literal().unwrap_or_else(|| {
-            panic!("expected a string literal, got {:?}", self);
+            panic!("expected a string literal, got {self:?}");
         })
     }
 }

@@ -409,7 +409,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     .collect::<Vec<&str>>()
                     .join("_");
                 match_directive_key_argument =
-                    format!("{}_{}", match_directive_key_argument, alias_path_str).intern();
+                    format!("{match_directive_key_argument}_{alias_path_str}").intern();
             }
 
             // If this is the first time we are encountering @module at this path, also ensure
@@ -635,7 +635,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let component_field = Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(WithLocation::new(
                 module_directive.name.location,
-                format!("__module_component_{}", match_directive_key_argument).intern(),
+                format!("__module_component_{match_directive_key_argument}").intern(),
             )),
             definition: WithLocation::new(module_directive.name.location, js_field_id),
             arguments: component_field_arguments,
@@ -645,7 +645,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let operation_field = Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(WithLocation::new(
                 module_directive.name.location,
-                format!("__module_operation_{}", match_directive_key_argument).intern(),
+                format!("__module_operation_{match_directive_key_argument}").intern(),
             )),
             definition: WithLocation::new(module_directive.name.location, js_field_id),
             arguments: operation_field_arguments,

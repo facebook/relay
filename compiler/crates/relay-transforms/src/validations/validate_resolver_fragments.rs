@@ -35,7 +35,7 @@ struct ValidateResolverFragments {
 
 impl ValidateResolverFragments {
     fn new(schema: &SDLSchema) -> Self {
-        let validator = Self {
+        Self {
             current_fragment: None,
             resolver_fragments: schema
                 .fields()
@@ -59,9 +59,7 @@ impl ValidateResolverFragments {
                         })
                 })
                 .collect::<FragmentDefinitionNameSet>(),
-        };
-
-        validator
+        }
     }
 }
 

@@ -541,7 +541,7 @@ trait ResolverIr: Sized {
                         }
                         _ => None,
                     };
-                    let mut is_edge_to_strong_object = fields.map_or(false, |fields| {
+                    let mut is_edge_to_strong_object = fields.is_some_and(|fields| {
                         fields.iter().any(|id| {
                             schema.field(*id).name.item
                                 == project_config.schema_config.node_interface_id_field

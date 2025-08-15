@@ -106,8 +106,8 @@ impl ArtifactWriter for ArtifactFileWriter {
                 self.removed.lock().unwrap().push(path);
             }
             Err(error) => {
-                info!("tried to delete already deleted file: {:?}", path);
-                debug!("[artifact_writer] error when deleting file: {:?}", error);
+                info!("tried to delete already deleted file: {path:?}");
+                debug!("[artifact_writer] error when deleting file: {error:?}");
             }
         }
         Ok(())
@@ -227,7 +227,7 @@ impl ArtifactWriter for ArtifactValidationWriter {
 
 fn write_outdated_artifacts(output: &mut String, title: &str, artifacts: &DashSet<PathBuf>) {
     if !artifacts.is_empty() {
-        writeln!(output, "{}", title).unwrap();
+        writeln!(output, "{title}").unwrap();
         artifacts.iter().for_each(|artifact_path| {
             writeln!(output, " - {:#?}", artifact_path.as_path()).unwrap()
         });

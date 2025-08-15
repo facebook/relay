@@ -283,8 +283,7 @@ impl FileCategorizer {
                     if project_set.has_multiple_projects() {
                         Err(Cow::Owned(format!(
                             "Overlapping input sources are incompatible with relative generated \
-                        directories. Got file in a relative generated directory with source set {:?}.",
-                            project_set,
+                        directories. Got file in a relative generated directory with source set {project_set:?}.",
                         )))
                     } else {
                         let project_name = project_set.into_iter().next().unwrap();
@@ -332,10 +331,7 @@ impl FileCategorizer {
         for project_name in project_set.iter() {
             if let Some(language) = self.source_language.get(project_name) {
                 if !is_valid_source_code_extension(language, extension) {
-                    warn!(
-                        "Unexpected file `{:?}` for language `{:?}`.",
-                        path, language
-                    );
+                    warn!("Unexpected file `{path:?}` for language `{language:?}`.");
                     return false;
                 }
             }

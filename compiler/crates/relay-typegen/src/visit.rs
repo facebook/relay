@@ -430,7 +430,7 @@ fn add_fragment_name_to_encountered_fragments(
 }
 
 fn get_fragment_data_type(fragment_name: StringKey) -> Box<AST> {
-    Box::new(AST::RawType(format!("{}$data", fragment_name).intern()))
+    Box::new(AST::RawType(format!("{fragment_name}$data").intern()))
 }
 
 fn add_model_argument_for_interface_resolver(
@@ -1829,8 +1829,7 @@ pub fn make_custom_error_import(
         .clone();
     if custom_error_type.is_some() && *custom_error_type != current_error_type {
         panic!(
-            "Custom error type is not consistent across fragments. This indicates a bug in Relay. current_error_type: {:?}, custom_error_type: {:?}",
-            current_error_type, custom_error_type
+            "Custom error type is not consistent across fragments. This indicates a bug in Relay. current_error_type: {current_error_type:?}, custom_error_type: {custom_error_type:?}"
         );
     } else if custom_error_type.is_some() && *custom_error_type == current_error_type {
         return Ok(());
@@ -1875,8 +1874,7 @@ fn make_prop(
     let optional = type_selection.is_conditional();
     if typegen_context.generating_updatable_types && optional {
         panic!(
-            "When generating types for updatable operations and fragments, we should never generate optional fields! This indicates a bug in Relay. type_selection: {:?}",
-            type_selection
+            "When generating types for updatable operations and fragments, we should never generate optional fields! This indicates a bug in Relay. type_selection: {type_selection:?}"
         );
     }
 
@@ -2012,7 +2010,7 @@ fn make_prop(
                     match make_custom_error_import(typegen_context, custom_error_import) {
                         Ok(_) => {}
                         Err(e) => {
-                            panic!("Error while generating custom error type: {}", e);
+                            panic!("Error while generating custom error type: {e}");
                         }
                     }
                 }
@@ -2053,7 +2051,7 @@ fn make_prop(
                     match make_custom_error_import(typegen_context, custom_error_import) {
                         Ok(_) => {}
                         Err(e) => {
-                            panic!("Error while generating custom error type: {}", e);
+                            panic!("Error while generating custom error type: {e}");
                         }
                     }
                 }
@@ -2069,10 +2067,7 @@ fn make_prop(
                 })
             }
         }
-        _ => panic!(
-            "Unexpected TypeSelection variant in make_prop, {:?}",
-            type_selection
-        ),
+        _ => panic!("Unexpected TypeSelection variant in make_prop, {type_selection:?}"),
     }
 }
 
@@ -2154,10 +2149,9 @@ fn raw_response_make_prop(
             }
         }
         TypeSelection::RawResponseFragmentSpread(f) => Prop::Spread(SpreadProp { value: f.value }),
-        _ => panic!(
-            "Unexpected TypeSelection variant in raw_response_make_prop {:?}",
-            type_selection
-        ),
+        _ => {
+            panic!("Unexpected TypeSelection variant in raw_response_make_prop {type_selection:?}")
+        }
     }
 }
 
@@ -2590,19 +2584,13 @@ fn merge_selection(
                 );
                 TypeSelection::LinkedField(lf_a)
             } else {
-                panic!(
-                    "Invalid variants passed to merge_selection linked field a={:?} b={:?}",
-                    lf_a, b
-                )
+                panic!("Invalid variants passed to merge_selection linked field a={lf_a:?} b={b:?}")
             }
         } else if let TypeSelection::ScalarField(sf_a) = a {
             if let TypeSelection::ScalarField(_) = b {
                 TypeSelection::ScalarField(sf_a)
             } else {
-                panic!(
-                    "Invalid variants passed to merge_selection scalar field a={:?} b={:?}",
-                    sf_a, b
-                )
+                panic!("Invalid variants passed to merge_selection scalar field a={sf_a:?} b={b:?}")
             }
         } else {
             a

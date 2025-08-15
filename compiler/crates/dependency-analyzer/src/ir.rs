@@ -259,7 +259,7 @@ fn add_related_nodes(
 
     let parents = match dependency_graph.get(&key) {
         None => {
-            panic!("Fragment {:?} not found in IR.", key);
+            panic!("Fragment {key:?} not found in IR.");
         }
         Some(node) => &node.parents,
     };
@@ -301,7 +301,7 @@ fn add_descendants(
             }
         }
         _ => {
-            panic!("Fragment {:?} not found in IR.", key);
+            panic!("Fragment {key:?} not found in IR.");
         }
     }
 }

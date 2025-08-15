@@ -715,7 +715,7 @@ fn on_hover_argument_path(
     let argument_name = argument.name.value.lookup();
     let argument_value = argument.value.to_string();
     let argument_info =
-        MarkedString::String(format!("Argument `{}: {}`", argument_name, argument_value));
+        MarkedString::String(format!("Argument `{argument_name}: {argument_value}`"));
 
     let field_hover_info = match parent.find_argument_root() {
         ArgumentRoot::LinkedField(linked_field_path) => get_scalar_or_linked_field_hover_content(
@@ -831,7 +831,7 @@ fn get_scalar_or_linked_field_hover_content(
             codex_url_for_symbol(field_type_hack_source),
         )));
     } else {
-        hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name,)));
+        hover_contents.push(MarkedString::String(format!("Type: **{type_name}**",)));
     }
 
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
@@ -857,7 +857,7 @@ fn get_scalar_or_linked_field_hover_content(
                     }
                 ),
                 if let Some(default_value) = &arg.default_value {
-                    format!(" = {}", default_value)
+                    format!(" = {default_value}")
                 } else {
                     "".to_string()
                 },
@@ -1095,8 +1095,7 @@ For example:
             )));
         } else {
             hover_contents.push(MarkedString::String(format!(
-                "Type Condition: on **{}**",
-                rendered_fragment_type_name,
+                "Type Condition: on **{rendered_fragment_type_name}**",
             )));
         }
 
@@ -1166,8 +1165,7 @@ fn on_hover_fragment_definition(
     );
 
     let title = MarkedString::from_markdown(format!(
-        "fragment {} on {}",
-        fragment_name, rendered_parent_type_name
+        "fragment {fragment_name} on {rendered_parent_type_name}"
     ));
 
     let mut hover_contents: Vec<MarkedString> = vec![title];
@@ -1193,8 +1191,7 @@ fn on_hover_fragment_definition(
             )));
         } else {
             hover_contents.push(MarkedString::String(format!(
-                "Type Condition: on **{}**",
-                rendered_parent_type_name
+                "Type Condition: on **{rendered_parent_type_name}**"
             )));
         }
 

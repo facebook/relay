@@ -243,8 +243,7 @@ impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
                                 }
                                 Transformed::Keep => field.clone(),
                                 _ => panic!(
-                                    "DeclarativeConnection got unexpected transform result: `{:?}`.",
-                                    transformed_field
+                                    "DeclarativeConnection got unexpected transform result: `{transformed_field:?}`."
                                 ),
                             };
                             let index = next_field
@@ -334,8 +333,7 @@ impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
                                         )) => (*linked_field).clone(),
                                         Transformed::Keep => field.clone(),
                                         _ => panic!(
-                                            "DeclarativeConnection got unexpected transform result: `{:?}`.",
-                                            transformed_field
+                                            "DeclarativeConnection got unexpected transform result: `{transformed_field:?}`."
                                         ),
                                     };
                                     let index = next_field

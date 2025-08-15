@@ -109,10 +109,7 @@ where
             .expect("extract_request_params: could not extract request params")
     })
     .map_err(|err| {
-        LSPRuntimeError::UnexpectedError(format!(
-            "panic in the `extract_request_params`: {:?}",
-            err
-        ))
+        LSPRuntimeError::UnexpectedError(format!("panic in the `extract_request_params`: {err:?}"))
     })
 }
 

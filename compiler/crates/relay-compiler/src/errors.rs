@@ -34,7 +34,7 @@ pub enum Error {
         "Config `{config_path}` is invalid:{}",
         validation_errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {err}"))
             .collect::<Vec<_>>()
             .join("")
     )]
@@ -58,7 +58,7 @@ pub enum Error {
         "Failed to build:{}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {err}"))
             .collect::<Vec<_>>()
             .join("")
     )]
@@ -269,7 +269,7 @@ pub enum BuildProjectError {
     #[error("Persisting operation(s) failed:{0}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {err}"))
             .collect::<Vec<_>>()
             .join("")
     )]

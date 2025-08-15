@@ -57,8 +57,8 @@ impl Writer for TypeScriptPrinter {
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
             AST::Callable(return_type) => self.write_callable(return_type),
-            AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
-            AST::RawType(raw) => write!(&mut self.result, "{}", raw),
+            AST::Identifier(identifier) => write!(&mut self.result, "{identifier}"),
+            AST::RawType(raw) => write!(&mut self.result, "{raw}"),
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
@@ -90,19 +90,19 @@ impl Writer for TypeScriptPrinter {
                 property_name,
             } => {
                 self.write(type_)?;
-                write!(&mut self.result, "['{}']", property_name)
+                write!(&mut self.result, "['{property_name}']")
             }
         }
     }
 
     fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "({} as ", name)?;
+        write!(&mut self.result, "({name} as ")?;
         self.write(value)?;
         writeln!(&mut self.result, ");")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "export type {} = ", name)?;
+        write!(&mut self.result, "export type {name} = ")?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
@@ -111,8 +111,7 @@ impl Writer for TypeScriptPrinter {
         let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
         writeln!(
             &mut self.result,
-            "import {} from \"{}\";",
-            name, from_without_extension
+            "import {name} from \"{from_without_extension}\";"
         )
     }
 
@@ -123,7 +122,7 @@ impl Writer for TypeScriptPrinter {
         from: &str,
     ) -> FmtResult {
         let import_type = if let Some(import_as) = import_as {
-            format!("{} as {}", name, import_as)
+            format!("{name} as {import_as}")
         } else {
             name.to_string()
         };
@@ -184,7 +183,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_string_literal(&mut self, literal: StringKey) -> FmtResult {
-        write!(&mut self.result, "\"{}\"", literal)
+        write!(&mut self.result, "\"{literal}\"")
     }
 
     fn write_other_string(&mut self) -> FmtResult {
@@ -316,7 +315,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
-        write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
+        write!(&mut self.result, "Local3DPayload<\"{document_name}\", ")?;
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
@@ -338,7 +337,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
-        write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+        write!(&mut self.result, "ReturnType<typeof {function_name}>")
     }
 
     fn write_return_type_of_method_call(
@@ -348,7 +347,7 @@ impl TypeScriptPrinter {
     ) -> FmtResult {
         write!(&mut self.result, "ReturnType<")?;
         self.write(object)?;
-        write!(&mut self.result, "[\"{}\"]>", method_name)
+        write!(&mut self.result, "[\"{method_name}\"]>")
     }
 
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
@@ -357,7 +356,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_generic_type(&mut self, outer: StringKey, inner: &[AST]) -> FmtResult {
-        write!(&mut self.result, "{}<", outer)?;
+        write!(&mut self.result, "{outer}<")?;
         for (i, inner_type) in inner.iter().enumerate() {
             if i > 0 {
                 write!(&mut self.result, ", ")?;
@@ -375,17 +374,16 @@ impl TypeScriptPrinter {
     ) -> FmtResult {
         writeln!(
             &mut self.result,
-            "// Type assertion validating that `{}` resolver is correctly implemented.",
-            function_name
+            "// Type assertion validating that `{function_name}` resolver is correctly implemented."
         )?;
         writeln!(
             &mut self.result,
             "// A type error here indicates that the type signature of the resolver module is incorrect."
         )?;
         if arguments.is_empty() {
-            write!(&mut self.result, "({} satisfies (", function_name)?;
+            write!(&mut self.result, "({function_name} satisfies (")?;
         } else {
-            writeln!(&mut self.result, "({} satisfies (", function_name)?;
+            writeln!(&mut self.result, "({function_name} satisfies (")?;
             self.indentation += 1;
             for argument in arguments.iter() {
                 self.write_indentation()?;

@@ -229,7 +229,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
 
         match num {
             0 => OperationDefinitionName(name_root),
-            n => OperationDefinitionName(format!("{}_{}", name_root, n).intern()),
+            n => OperationDefinitionName(format!("{name_root}_{n}").intern()),
         }
     }
 
@@ -248,7 +248,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             // source, and thus will be placed in the same `__generated__`
             // directory. Based on this assumption they import the file using `./`.
             document_name.location,
-            FragmentDefinitionName(format!("Refetchable{}", generated_query_name).intern()),
+            FragmentDefinitionName(format!("Refetchable{generated_query_name}").intern()),
         );
 
         let synthetic_refetchable_fragment = FragmentDefinition {
@@ -321,11 +321,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
 
         let other_directives = directives
             .iter()
-            .filter(|directive| {
-                !allowed_directive_names
-                    .iter()
-                    .any(|item| directive.name.item == *item)
-            })
+            .filter(|directive| !allowed_directive_names.contains(&directive.name.item))
             .collect::<Vec<_>>();
 
         for directive in other_directives {

@@ -128,15 +128,12 @@ fn sort_changes(url: &Url, changes: &mut Vec<TextEdit>) -> Result<(), std::io::E
                 || (change.range.end.line == prev_change.range.start.line
                     && change.range.end.character > prev_change.range.start.character)
             {
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::Other,
-                    format!(
-                        "Codemod produced changes that overlap: File {}, changes: {:?} vs {:?}",
-                        url.path(),
-                        change,
-                        prev_change
-                    ),
-                ));
+                return Err(std::io::Error::other(format!(
+                    "Codemod produced changes that overlap: File {}, changes: {:?} vs {:?}",
+                    url.path(),
+                    change,
+                    prev_change
+                )));
             }
         }
         prev_change = Some(change);

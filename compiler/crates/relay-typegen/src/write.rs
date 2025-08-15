@@ -158,7 +158,7 @@ pub(crate) fn write_operation_type_exports_section(
         match make_custom_error_import(typegen_context, &mut custom_error_import) {
             Ok(_) => {}
             Err(e) => {
-                panic!("Error while generating custom error type: {}", e);
+                panic!("Error while generating custom error type: {e}");
             }
         }
     }
@@ -420,7 +420,7 @@ pub(crate) fn write_fragment_type_exports_section(
     }
 
     let data_type = fragment_definition.name.item;
-    let data_type_name = format!("{}$data", data_type);
+    let data_type_name = format!("{data_type}$data");
 
     let ref_type_data_property = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_DATA,
@@ -485,7 +485,7 @@ pub(crate) fn write_fragment_type_exports_section(
         match make_custom_error_import(typegen_context, &mut custom_error_import) {
             Ok(_) => {}
             Err(e) => {
-                panic!("Error while generating custom error type: {}", e);
+                panic!("Error while generating custom error type: {e}");
             }
         }
     }
@@ -512,7 +512,7 @@ pub(crate) fn write_fragment_type_exports_section(
     write_relay_resolver_imports(imported_resolvers, writer)?;
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
-    let fragment_type_name = format!("{}$fragmentType", fragment_name);
+    let fragment_type_name = format!("{fragment_name}$fragmentType");
     writer.write_export_fragment_type(&fragment_type_name)?;
     if let Some(refetchable_metadata) = refetchable_metadata {
         let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
@@ -534,14 +534,14 @@ pub(crate) fn write_fragment_type_exports_section(
                 )?;
             }
         }
-        let edges_name = format!("{}__edges$data", fragment_name);
+        let edges_name = format!("{fragment_name}__edges$data");
         if refetchable_metadata.is_prefetchable_pagination {
             match typegen_context.project_config.js_module_format {
                 JsModuleFormat::CommonJS => {
                     if typegen_context.has_unified_output {
                         writer.write_import_fragment_type(
                             &[&edges_name],
-                            &format!("./{}__edges.graphql", fragment_name),
+                            &format!("./{fragment_name}__edges.graphql"),
                         )?;
                     } else {
                         writer.write_any_type_definition(&edges_name)?;
@@ -550,7 +550,7 @@ pub(crate) fn write_fragment_type_exports_section(
                 JsModuleFormat::Haste => {
                     writer.write_import_fragment_type(
                         &[&edges_name],
-                        &format!("{}__edges.graphql", fragment_name),
+                        &format!("{fragment_name}__edges.graphql"),
                     )?;
                 }
             }
@@ -597,15 +597,15 @@ fn write_fragment_imports(
         let (current_referenced_fragment, fragment_type_name) = match current_referenced_fragment {
             EncounteredFragment::Key(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$key", current_referenced_fragment),
+                format!("{current_referenced_fragment}$key"),
             ),
             EncounteredFragment::Spread(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$fragmentType", current_referenced_fragment),
+                format!("{current_referenced_fragment}$fragmentType"),
             ),
             EncounteredFragment::Data(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$data", current_referenced_fragment),
+                format!("{current_referenced_fragment}$data"),
             ),
         };
 
@@ -620,17 +620,14 @@ fn write_fragment_imports(
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[&fragment_type_name],
-                        &format!("./{}.graphql", current_referenced_fragment),
+                        &format!("./{current_referenced_fragment}.graphql"),
                     )?;
                 } else {
                     let fragment_location = typegen_context
                         .fragment_locations
                         .location(&current_referenced_fragment)
                         .unwrap_or_else(|| {
-                            panic!(
-                                "Expected location for fragment {}.",
-                                current_referenced_fragment
-                            )
+                            panic!("Expected location for fragment {current_referenced_fragment}.")
                         });
 
                     let fragment_import_path =
@@ -646,14 +643,14 @@ fn write_fragment_imports(
 
                     writer.write_import_fragment_type(
                         &[&fragment_type_name],
-                        &format!("./{}.graphql", fragment_import_path),
+                        &format!("./{fragment_import_path}.graphql"),
                     )?;
                 }
             }
             JsModuleFormat::Haste => {
                 writer.write_import_fragment_type(
                     &[&fragment_type_name],
-                    &format!("{}.graphql", current_referenced_fragment),
+                    &format!("{current_referenced_fragment}.graphql"),
                 )?;
             }
         }
@@ -732,7 +729,7 @@ fn write_split_raw_response_type_imports(
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
-                        &format!("./{}.graphql", imported_raw_response_type),
+                        &format!("./{imported_raw_response_type}.graphql"),
                     )?;
                 } else if let Some(imported_raw_response_document_location) =
                     imported_raw_response_document_location
@@ -750,7 +747,7 @@ fn write_split_raw_response_type_imports(
 
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
-                        &format!("./{}.graphql", artifact_import_path),
+                        &format!("./{artifact_import_path}.graphql"),
                     )?;
                 } else {
                     writer.write_any_type_definition(imported_raw_response_type.lookup())?;
@@ -759,7 +756,7 @@ fn write_split_raw_response_type_imports(
             JsModuleFormat::Haste => {
                 writer.write_import_fragment_type(
                     &[imported_raw_response_type.lookup()],
-                    &format!("{}.graphql", imported_raw_response_type),
+                    &format!("{imported_raw_response_type}.graphql"),
                 )?;
             }
         }
@@ -932,7 +929,7 @@ fn write_abstract_validator_function(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let fragment_name = fragment_definition.name.item.0.lookup();
-    let abstract_fragment_spread_marker = format!("__is{}", fragment_name).intern();
+    let abstract_fragment_spread_marker = format!("__is{fragment_name}").intern();
     let id_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_CLIENTID,
         value: AST::String,

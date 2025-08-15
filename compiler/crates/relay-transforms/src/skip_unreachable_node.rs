@@ -237,7 +237,7 @@ impl Transformer<'_> for SkipUnreachableNodeTransform<'_> {
                         Transformed::Keep => Arc::new(field.clone()),
                         Transformed::Replace(Selection::LinkedField(replacement)) => replacement,
                         Transformed::Replace(other) => {
-                            panic!("unexpected replacement: {:?}", other)
+                            panic!("unexpected replacement: {other:?}")
                         }
                     };
                     let previous_directive_len = next_field.directives.len();

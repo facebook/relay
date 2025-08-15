@@ -505,15 +505,15 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         match value {
             ConstantValue::String(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::String;
-                args.string_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.string_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::Int(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Int;
-                args.int_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.int_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::Float(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Float;
-                args.float_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.float_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::Boolean(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Bool;
@@ -521,7 +521,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             }
             ConstantValue::Enum(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Enum;
-                args.enum_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.enum_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::List(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::List;
@@ -620,7 +620,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             schema_flatbuffer::TypeKind::Union => {
                 type_args.union_id = id;
             }
-            unknown => panic!("unknown TypeKind value: {:?}", unknown),
+            unknown => panic!("unknown TypeKind value: {unknown:?}"),
         }
         type_args
     }

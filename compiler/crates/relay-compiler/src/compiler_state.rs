@@ -124,7 +124,7 @@ impl fmt::Display for ProjectSet {
             .collect::<Vec<String>>()
             .join(",");
 
-        write!(f, "{}", names)
+        write!(f, "{names}")
     }
 }
 
@@ -698,7 +698,7 @@ impl CompilerState {
                 let mut encoder = ZstdEncoder::new(writer, zstd_level)?;
                 match u32::try_from(std::thread::available_parallelism()?.get()) {
                     Ok(threads) => {
-                        debug!("Using {} zstd threads", threads);
+                        debug!("Using {threads} zstd threads");
                         encoder.multithread(threads).ok();
                     }
                     Err(_) => {
@@ -926,7 +926,7 @@ mod clock_json_string {
         S: Serializer,
     {
         let json_string = serde_json::to_string(clock).map_err(|err| {
-            SerializationError::custom(format!("Unable to serialize clock value. Error {}", err))
+            SerializationError::custom(format!("Unable to serialize clock value. Error {err}"))
         })?;
         serializer.serialize_str(&json_string)
     }
@@ -948,10 +948,7 @@ mod clock_json_string {
 
         fn visit_str<E: DeserializationError>(self, v: &str) -> Result<Option<Clock>, E> {
             serde_json::from_str(v).map_err(|err| {
-                DeserializationError::custom(format!(
-                    "Unable deserialize clock value. Error {}",
-                    err
-                ))
+                DeserializationError::custom(format!("Unable deserialize clock value. Error {err}"))
             })
         }
     }

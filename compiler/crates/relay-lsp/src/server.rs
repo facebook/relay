@@ -250,7 +250,7 @@ fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     request: lsp_server::Request,
 ) {
-    debug!("request received {:?}", request);
+    debug!("request received {request:?}");
     let lsp_request_event = lsp_state.perf_logger.create_event("lsp_message");
     let get_server_response_bound = |req| dispatch_request(req, lsp_state.as_ref());
     let get_response = with_request_logging(&lsp_request_event, get_server_response_bound);
@@ -346,7 +346,7 @@ fn handle_notification<
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     notification: Notification,
 ) {
-    debug!("notification received {:?}", notification);
+    debug!("notification received {notification:?}");
     let lsp_notification_event = lsp_state.perf_logger.create_event("lsp_message");
     lsp_notification_event.string("lsp_method", notification.method.clone());
     lsp_notification_event.string("lsp_type", "notification".to_string());

@@ -294,6 +294,6 @@ impl RelayTestOperationMetadata {
 fn next_path(current_path: Option<StringKey>, field_alias_or_name: StringKey) -> StringKey {
     match current_path {
         None => field_alias_or_name,
-        Some(path) => format!("{}.{}", path, field_alias_or_name).intern(),
+        Some(path) => format!("{path}.{field_alias_or_name}").intern(),
     }
 }

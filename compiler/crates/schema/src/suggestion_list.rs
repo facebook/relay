@@ -266,7 +266,7 @@ pub fn did_you_mean(suggestions: &[StringKey]) -> String {
         }
     };
 
-    format!(" Did you mean {}?", suggestions_string)
+    format!(" Did you mean {suggestions_string}?")
 }
 
 #[cfg(test)]

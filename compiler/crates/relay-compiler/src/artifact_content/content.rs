@@ -80,7 +80,7 @@ pub fn generate_preloadable_query_parameters(
     // -- Begin Metadata Annotations Section --
     let mut section = CommentAnnotationsSection::default();
     if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
-        writeln!(section, "@relayRequestID {}", id)?;
+        writeln!(section, "@relayRequestID {id}")?;
     }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
@@ -338,7 +338,7 @@ pub fn generate_operation(
     // -- Begin Metadata Annotations Section --
     let mut section = CommentAnnotationsSection::default();
     if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
-        writeln!(section, "@relayRequestID {}", id)?;
+        writeln!(section, "@relayRequestID {id}")?;
     }
     if project_config.variable_names_comment {
         let mut variables = String::new();
@@ -350,8 +350,8 @@ pub fn generate_operation(
                 non_null_variables.push_str(&format!(" {}", variable_definition.name.item));
             }
         }
-        writeln!(section, "@relayVariables{}", variables)?;
-        writeln!(section, "@relayRequiredVariables{}", non_null_variables)?;
+        writeln!(section, "@relayVariables{variables}")?;
+        writeln!(section, "@relayRequiredVariables{non_null_variables}")?;
     }
     let data_driven_dependency_metadata =
         RelayDataDrivenDependencyMetadata::find(&operation_fragment.directives);
@@ -877,7 +877,7 @@ fn generate_assignable_fragment(
         project_config,
         fragment_locations,
     );
-    writeln!(section, "{}", named_validator_export).unwrap();
+    writeln!(section, "{named_validator_export}").unwrap();
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
 
@@ -892,12 +892,12 @@ fn write_variable_value_with_type(
     value: &str,
 ) -> FmtResult {
     match language {
-        TypegenLanguage::JavaScript => writeln!(section, "var {} = {};", variable_name, value),
+        TypegenLanguage::JavaScript => writeln!(section, "var {variable_name} = {value};"),
         TypegenLanguage::Flow => {
-            writeln!(section, "var {}/*: {}*/ = {};", variable_name, type_, value)
+            writeln!(section, "var {variable_name}/*: {type_}*/ = {value};")
         }
         TypegenLanguage::TypeScript => {
-            writeln!(section, "const {}: {} = {};", variable_name, type_, value)
+            writeln!(section, "const {variable_name}: {type_} = {value};")
         }
     }
 }
@@ -937,7 +937,7 @@ fn write_import_type_from(
     let language = &project_config.typegen_config.language;
     match language {
         TypegenLanguage::JavaScript => Ok(()),
-        TypegenLanguage::Flow => writeln!(section, "import type {{ {} }} from '{}';", type_, from),
+        TypegenLanguage::Flow => writeln!(section, "import type {{ {type_} }} from '{from}';"),
         TypegenLanguage::TypeScript => writeln!(
             section,
             "import {}{{ {} }} from '{}';",
@@ -967,13 +967,13 @@ pub fn write_export_generated_node(
             variable_node.to_string()
         }
         (TypegenLanguage::Flow, Some(forced_type)) => {
-            format!("(({}/*: any*/)/*: {}*/)", variable_node, forced_type)
+            format!("(({variable_node}/*: any*/)/*: {forced_type}*/)")
         }
     };
     if typegen_config.eager_es_modules || typegen_config.language == TypegenLanguage::TypeScript {
-        writeln!(section, "export default {};", export_value)
+        writeln!(section, "export default {export_value};")
     } else {
-        writeln!(section, "module.exports = {};", export_value)
+        writeln!(section, "module.exports = {export_value};")
     }
 }
 
@@ -985,13 +985,13 @@ pub fn generate_docblock_section(
     let mut section = DocblockSection::default();
     if !config.header.is_empty() {
         for header_line in &config.header {
-            writeln!(section, "{}", header_line)?;
+            writeln!(section, "{header_line}")?;
         }
         writeln!(section)?;
     }
-    writeln!(section, "{}", SIGNING_TOKEN)?;
+    writeln!(section, "{SIGNING_TOKEN}")?;
     for annotation in extra_annotations {
-        writeln!(section, "{}", annotation)?;
+        writeln!(section, "{annotation}")?;
     }
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "@flow")?;
@@ -1004,7 +1004,7 @@ pub fn generate_docblock_section(
         .as_ref()
         .or(config.codegen_command.as_ref())
     {
-        writeln!(section, "@codegen-command: {}", codegen_command)?;
+        writeln!(section, "@codegen-command: {codegen_command}")?;
     }
     Ok(section)
 }
@@ -1016,25 +1016,25 @@ fn write_source_hash(
     source_hash: &str,
 ) -> FmtResult {
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
-        writeln!(section, "if ({}) {{", is_dev_variable_name)?;
+        writeln!(section, "if ({is_dev_variable_name}) {{")?;
         match language {
             TypegenLanguage::Flow => {
-                writeln!(section, "  (node/*: any*/).hash = \"{}\";", source_hash)?
+                writeln!(section, "  (node/*: any*/).hash = \"{source_hash}\";")?
             }
-            TypegenLanguage::JavaScript => writeln!(section, "  node.hash = \"{}\";", source_hash)?,
+            TypegenLanguage::JavaScript => writeln!(section, "  node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {
-                writeln!(section, "  (node as any).hash = \"{}\";", source_hash)?
+                writeln!(section, "  (node as any).hash = \"{source_hash}\";")?
             }
         };
         writeln!(section, "}}")?;
     } else {
         match language {
             TypegenLanguage::Flow => {
-                writeln!(section, "(node/*: any*/).hash = \"{}\";", source_hash)?
+                writeln!(section, "(node/*: any*/).hash = \"{source_hash}\";")?
             }
-            TypegenLanguage::JavaScript => writeln!(section, "node.hash = \"{}\";", source_hash)?,
+            TypegenLanguage::JavaScript => writeln!(section, "node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {
-                writeln!(section, "(node as any).hash = \"{}\";", source_hash)?
+                writeln!(section, "(node as any).hash = \"{source_hash}\";")?
             }
         };
     }
@@ -1051,14 +1051,14 @@ fn write_data_driven_dependency_annotation(
         .iter()
         .flatten()
     {
-        writeln!(section, "@dataDrivenDependency {} {}", key, value)?;
+        writeln!(section, "@dataDrivenDependency {key} {value}")?;
     }
     for (key, value) in data_driven_dependency_metadata
         .indirect_dependencies
         .iter()
         .flatten()
     {
-        writeln!(section, "@indirectDataDrivenDependency {} {}", key, value)?;
+        writeln!(section, "@indirectDataDrivenDependency {key} {value}")?;
     }
     Ok(())
 }

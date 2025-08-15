@@ -191,12 +191,9 @@ pub fn generate_named_validator_export(
     let validator_function_body = writer.into_string();
 
     if project_config.typegen_config.eager_es_modules {
-        format!("export {}", validator_function_body)
+        format!("export {validator_function_body}")
     } else {
-        format!(
-            "module.exports.{} = {};",
-            VALIDATOR_EXPORT_NAME, validator_function_body
-        )
+        format!("module.exports.{VALIDATOR_EXPORT_NAME} = {validator_function_body};")
     }
 }
 

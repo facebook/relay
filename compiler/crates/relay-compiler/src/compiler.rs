@@ -157,7 +157,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                                 }
                             }
                             Err(err) => {
-                                panic!("Watchman subscription error: {}", err);
+                                panic!("Watchman subscription error: {err}");
                             }
                         }
                     }
@@ -237,7 +237,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     Ok(b) => b,
                     Err(err) => {
                         let error_event = self.perf_logger.create_event("watch_build_error");
-                        error_event.string("error", format!("Ignored Compilation Error: {}", err));
+                        error_event.string("error", format!("Ignored Compilation Error: {err}"));
                         error_event.complete();
                         return;
                     }

@@ -119,7 +119,7 @@ pub fn apply_fragment_arguments(
             } => {
                 // The fragment ended up empty, do not add to result Program.
             }
-            PendingFragment::Pending => panic!("Unexpected case, {}", fragment_name),
+            PendingFragment::Pending => panic!("Unexpected case, {fragment_name}"),
         }
     }
 
@@ -441,7 +441,7 @@ impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         TransformedValue::Keep
                     }
                     Some(other_binding) => {
-                        panic!("Invalid variable value for condition: {:?}", other_binding);
+                        panic!("Invalid variable value for condition: {other_binding:?}");
                     }
                 }
             }

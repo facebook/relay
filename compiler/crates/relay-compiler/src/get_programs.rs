@@ -53,7 +53,7 @@ pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
     let compiler_state = match compiler.compile().await {
         Ok(compiler_state) => compiler_state,
         Err(e) => {
-            eprintln!("{}", e);
+            eprintln!("{e}");
             std::process::exit(1);
         }
     };

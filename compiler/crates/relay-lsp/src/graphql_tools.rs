@@ -56,7 +56,7 @@ pub(crate) struct GraphQLExecuteQueryParams {
 impl GraphQLExecuteQueryParams {
     fn get_url(&self) -> Option<Url> {
         if let Some(path) = &self.document_path {
-            Url::parse(&format!("file://{}", path)).ok()
+            Url::parse(&format!("file://{path}")).ok()
         } else {
             None
         }
@@ -153,7 +153,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
         custom_transforms_config,
         transferrable_refetchable_query_directives,
     )
-    .map_err(|errors| format!("{:?}", errors))
+    .map_err(|errors| format!("{errors:?}"))
 }
 
 fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> Option<String> {
@@ -186,7 +186,7 @@ fn build_operation_ir_with_fragments(
             allow_custom_scalar_literals: true, // for compatibility
         },
     )
-    .map_err(|errors| format!("{:?}", errors))?;
+    .map_err(|errors| format!("{errors:?}"))?;
 
     match ir.iter().find_map(|item| {
         if let ExecutableDefinition::Operation(operation) = item {
@@ -229,8 +229,7 @@ pub(crate) fn get_query_text<
         .find(|project_config| project_config.name == project_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Unable to get project config for project {}.",
-                project_name
+                "Unable to get project config for project {project_name}."
             ))
         })?;
 

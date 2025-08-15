@@ -100,7 +100,7 @@ impl DiagnosticReporter {
                 // Ignore the cancellation
             }
             error => {
-                self.print_generic_error(format!("{}", error));
+                self.print_generic_error(format!("{error}"));
             }
         }
     }
@@ -266,11 +266,11 @@ impl DiagnosticReporter {
             }
             BuildProjectError::PersistErrors { errors, .. } => {
                 for error in errors {
-                    self.print_generic_error(format!("{}", error));
+                    self.print_generic_error(format!("{error}"));
                 }
             }
             _ => {
-                self.print_generic_error(format!("{}", error));
+                self.print_generic_error(format!("{error}"));
             }
         }
     }

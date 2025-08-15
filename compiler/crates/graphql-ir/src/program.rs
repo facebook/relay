@@ -50,8 +50,7 @@ impl Program {
                     let name = operation.name.item;
                     if let Some(another) = seen_operation_loc.insert(name, loc) {
                         panic!(
-                            "\nDuplicate operation definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
-                            name, loc, another
+                            "\nDuplicate operation definitions named {name}: \nfirst one: {loc:?}\nsecond one: {another:?}\n"
                         );
                     }
                     operations.push(Arc::new(operation)); // Keep the order the operations same as inputs.

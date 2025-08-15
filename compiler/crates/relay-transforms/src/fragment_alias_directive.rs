@@ -297,8 +297,7 @@ impl Transformer<'_> for FragmentAliasTransform<'_> {
     }
 
     fn transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
-        let parent_condition =
-            std::mem::replace(&mut self.maybe_condition, Some(condition.clone()));
+        let parent_condition = self.maybe_condition.replace(condition.clone());
         let selections = self.transform_selections(&condition.selections);
         self.maybe_condition = parent_condition;
         if let TransformedValue::Replace(selections) = &selections {

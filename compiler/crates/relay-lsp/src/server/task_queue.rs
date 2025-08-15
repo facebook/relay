@@ -95,14 +95,14 @@ where
                     // If the task is serial, we need to wait for its thread
                     // to complete, before moving onto the next task.
                     if let Err(error) = handle.join() {
-                        debug!("Thread panicked while joining serial task: {:?}", error);
+                        debug!("Thread panicked while joining serial task: {error:?}");
                     }
                 } else {
                     self.active_thread_handles.push(handle);
                 }
             }
             Err(error) => {
-                debug!("Failed to spawn thread to process task: {:?}", error);
+                debug!("Failed to spawn thread to process task: {error:?}");
             }
         }
     }
@@ -110,7 +110,7 @@ where
     fn ensure_previous_tasks_completed(&mut self) {
         for handle in self.active_thread_handles.drain(..) {
             if let Err(error) = handle.join() {
-                debug!("Thread panicked while joining previous task: {:?}", error);
+                debug!("Thread panicked while joining previous task: {error:?}");
             }
         }
     }

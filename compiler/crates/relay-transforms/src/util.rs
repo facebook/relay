@@ -161,7 +161,7 @@ pub fn generate_abstract_type_refinement_key(schema: &SDLSchema, type_: Type) ->
 }
 
 pub fn get_normalization_operation_name(name: StringKey) -> String {
-    format!("{}$normalization", name)
+    format!("{name}$normalization")
 }
 
 pub fn get_normalization_fragment_filename(fragment_name: FragmentDefinitionName) -> StringKey {

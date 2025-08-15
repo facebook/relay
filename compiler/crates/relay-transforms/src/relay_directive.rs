@@ -54,16 +54,16 @@ impl RelayDirective {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         unmask = !arg_value;
                     } else {
-                        panic!("Invalid @relay(mask: ...) directive argument: {:?}", arg);
+                        panic!("Invalid @relay(mask: ...) directive argument: {arg:?}");
                     }
                 } else if arg.name.item == *PLURAL_ARG_NAME {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         plural = arg_value;
                     } else {
-                        panic!("Invalid @relay(plural: ...) directive argument: {:?}", arg);
+                        panic!("Invalid @relay(plural: ...) directive argument: {arg:?}");
                     }
                 } else {
-                    panic!("Invalid @relay directive argument: {:?}", arg);
+                    panic!("Invalid @relay directive argument: {arg:?}");
                 }
             }
             Some(RelayDirective { unmask, plural })
@@ -78,10 +78,7 @@ impl RelayDirective {
                 if let Value::Constant(ConstantValue::Boolean(arg_value)) = mask_arg.value.item {
                     return !arg_value;
                 } else {
-                    panic!(
-                        "Invalid @relay(mask: ...) directive argument: {:?}",
-                        mask_arg
-                    );
+                    panic!("Invalid @relay(mask: ...) directive argument: {mask_arg:?}");
                 }
             }
         }

@@ -120,7 +120,7 @@ impl fmt::Debug for BuildMode {
             BuildMode::Full => write!(f, "Full"),
             BuildMode::Incremental => write!(f, "Incremental"),
             BuildMode::IncrementalWithSchemaChanges(changes) => {
-                write!(f, "IncrementalWithSchemaChanges({:?})", changes)
+                write!(f, "IncrementalWithSchemaChanges({changes:?})")
             }
         }
     }
@@ -448,7 +448,7 @@ pub fn build_project(
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name;
     log_event.string("project", project_name.to_string());
-    info!("[{}] compiling...", project_name);
+    info!("[{project_name}] compiling...");
 
     // Construct a schema instance including project specific extensions.
     let schema = log_event

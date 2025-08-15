@@ -135,7 +135,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
                     .iter()
                     .find(|&&id| schema.field(id).name.item == id_name)
                     .unwrap_or_else(|| {
-                        panic!("Expected `Node` to contain a field named `{:}`.", id_name)
+                        panic!("Expected `Node` to contain a field named `{id_name:}`.")
                     });
 
                 Some(NodeInterface {
@@ -201,10 +201,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
         for object_id in concrete_ids {
             let object = self.program.schema.object(*object_id);
             let implements_node = if let Some(ref node_interface) = self.node_interface {
-                object
-                    .interfaces
-                    .iter()
-                    .any(|&interface_id| interface_id == node_interface.id)
+                object.interfaces.contains(&node_interface.id)
             } else {
                 false
             };

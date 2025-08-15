@@ -672,16 +672,14 @@ pub fn get_resolver_info(
                         .named_field(
                             resolver_field.parent_type.unwrap_or_else(|| {
                                 panic!(
-                                    "Parent type should be defined for the field `{}`.",
-                                    field_name
+                                    "Parent type should be defined for the field `{field_name}`."
                                 )
                             }),
                             field_name,
                         )
                         .unwrap_or_else(|| {
                             panic!(
-                                "Expect a field `{}` to be defined on the resolvers parent type.",
-                                field_name
+                                "Expect a field `{field_name}` to be defined on the resolvers parent type."
                             )
                         });
                     FragmentDataInjectionMode::Field {
@@ -785,8 +783,8 @@ fn to_camel_case(non_camelized_string: String) -> String {
 }
 
 pub fn resolver_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
-    to_camel_case(format!("{}_{}_resolver", parent_type_name, field_name,)).intern()
+    to_camel_case(format!("{parent_type_name}_{field_name}_resolver",)).intern()
 }
 pub fn resolver_type_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
-    to_camel_case(format!("{}_{}_resolver_type", parent_type_name, field_name,)).intern()
+    to_camel_case(format!("{parent_type_name}_{field_name}_resolver_type",)).intern()
 }

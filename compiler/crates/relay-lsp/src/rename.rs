@@ -326,9 +326,7 @@ fn is_variable_defined_in_variable_definitions(
     fragment_definition
         .variable_definitions
         .as_ref()
-        .map_or(false, |variables| {
-            variables.items.iter().any(|v| v.name.name == variable_name)
-        })
+        .is_some_and(|variables| variables.items.iter().any(|v| v.name.name == variable_name))
 }
 
 fn is_argument_defined_in_argument_definitions(
@@ -339,10 +337,11 @@ fn is_argument_defined_in_argument_definitions(
         .directives
         .named(*ARGUMENTDEFINITIONS_DIRECTIVE)
         .as_ref()
-        .map_or(false, |directive| {
-            directive.arguments.as_ref().map_or(false, |args| {
-                args.items.iter().any(|v| v.name.value == variable_name)
-            })
+        .is_some_and(|directive| {
+            directive
+                .arguments
+                .as_ref()
+                .is_some_and(|args| args.items.iter().any(|v| v.name.value == variable_name))
         })
 }
 
@@ -372,9 +371,7 @@ fn get_rename_kind_for_variable_identifier(
             if !operation_definition
                 .variable_definitions
                 .as_ref()
-                .map_or(false, |defs| {
-                    defs.items.iter().any(|v| v.name.name == variable_name)
-                })
+                .is_some_and(|defs| defs.items.iter().any(|v| v.name.name == variable_name))
             {
                 return Err(LSPRuntimeError::UnexpectedError(
                     "Couldn't find variable definition for variable".into(),

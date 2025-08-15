@@ -48,10 +48,7 @@ impl WatchmanFileSource {
         })?;
         let resolved_root = client.resolve_root(canonical_root).await?;
         perf_logger_event.stop(connect_timer);
-        debug!(
-            "WatchmanFileSource::connect(...) resolved_root = {:?}",
-            resolved_root
-        );
+        debug!("WatchmanFileSource::connect(...) resolved_root = {resolved_root:?}");
         Ok(Self {
             client: Arc::new(client),
             config: config.clone(),
@@ -122,8 +119,7 @@ impl WatchmanFileSource {
                     perf_logger_event
                         .string("try_saved_state_result", saved_state_failure.to_owned());
                     warn!(
-                        "Unable to load saved state, falling back to full build: {}",
-                        saved_state_failure
+                        "Unable to load saved state, falling back to full build: {saved_state_failure}"
                     );
                 }
             }
@@ -280,7 +276,7 @@ impl WatchmanFileSource {
             })
             .map_err(|err| {
                 let error_event = perf_logger.create_event("saved_state_loader_error");
-                error_event.string("error", format!("Failed to deserialize: {}", err));
+                error_event.string("error", format!("Failed to deserialize: {err}"));
                 error_event.complete();
                 "failed to deserialize"
             })?;

@@ -34,7 +34,7 @@ impl ProjectName {
         object_name: StringKey,
         field_name: StringKey,
     ) -> String {
-        format!("{}__{}", object_name, field_name)
+        format!("{object_name}__{field_name}")
     }
 }
 
@@ -47,7 +47,7 @@ impl Default for ProjectName {
 impl fmt::Display for ProjectName {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Self::Named(value) = self {
-            write!(f, "{}", value)
+            write!(f, "{value}")
         } else {
             write!(f, "default")
         }

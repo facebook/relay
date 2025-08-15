@@ -106,9 +106,9 @@ pub fn get_usages(
     type_name: StringKey,
     field_name: StringKey,
 ) -> LSPRuntimeResult<Vec<(String, IRLocation)>> {
-    let type_ = schema.get_type(type_name).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!("Type {} not found!", type_name))
-    })?;
+    let type_ = schema
+        .get_type(type_name)
+        .ok_or_else(|| LSPRuntimeError::UnexpectedError(format!("Type {type_name} not found!")))?;
     let mut usage_finder = FieldUsageFinder::new(schema, type_, field_name);
     usage_finder.visit_program(program);
 
@@ -119,7 +119,7 @@ pub fn get_usages(
             result.push((label.to_string(), *location));
         } else {
             for (idx, location) in locations.into_iter().enumerate() {
-                result.push((format!("{} - {}", label, idx), location));
+                result.push((format!("{label} - {idx}"), location));
             }
         }
     }

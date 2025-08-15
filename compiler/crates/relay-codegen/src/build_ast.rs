@@ -1339,8 +1339,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             if let Some(handle_field_directive) = handle_field_directives.next() {
                 if let Some(other_handle_field_directive) = handle_field_directives.next() {
                     panic!(
-                        "Expected at most one handle directive, got `{:?}` and `{:?}`.",
-                        handle_field_directive, other_handle_field_directive
+                        "Expected at most one handle directive, got `{handle_field_directive:?}` and `{other_handle_field_directive:?}`."
                     );
                 }
                 let values = extract_values_from_handle_field_directive(handle_field_directive);
@@ -1764,7 +1763,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             // `false` constant values should've been transformed away in skip_unreachable_node
             Value::Constant(ConstantValue::Boolean(true)) => None,
             Value::Variable(var) => Some(var.name.item),
-            other => panic!("unexpected value for @defer if argument: {:?}", other),
+            other => panic!("unexpected value for @defer if argument: {other:?}"),
         });
         let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
@@ -1816,7 +1815,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     // `false` constant values should've been transformed away in skip_unreachable_node
                     Value::Constant(ConstantValue::Boolean(true)) => None,
                     Value::Variable(var) => Some(var.name.item),
-                    other => panic!("unexpected value for @stream if argument: {:?}", other),
+                    other => panic!("unexpected value for @stream if argument: {other:?}"),
                 });
                 let label_name = label_arg.unwrap().value.item.expect_string_literal();
                 self.object(object! {
@@ -1955,10 +1954,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
                     self.build_scalar_backed_resolver_field(context, field, resolver_metadata)
                 } else {
-                    panic!(
-                        "Expected field backing a Client Edge to be a Relay Resolver. {:?}",
-                        field
-                    )
+                    panic!("Expected field backing a Client Edge to be a Relay Resolver. {field:?}")
                 }
             }
             _ => panic!(
@@ -2339,7 +2335,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .iter()
                     .enumerate()
                     .map(|(i, val)| {
-                        let item_name = format!("{}.{}", arg_name, i).as_str().intern();
+                        let item_name = format!("{arg_name}.{i}").as_str().intern();
                         match self.build_argument(item_name, val) {
                             None => Primitive::Null,
                             Some(key) => Primitive::Key(key),
@@ -2444,8 +2440,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let fragment_name_str = fragment_name.0.lookup();
         let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
             panic!(
-                "@module fragments should be named 'FragmentName_propName', got '{}'.",
-                fragment_name
+                "@module fragments should be named 'FragmentName_propName', got '{fragment_name}'."
             )
         });
 

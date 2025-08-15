@@ -156,10 +156,9 @@ pub async fn test_fixture<T, U, V>(
             panic!(
                 "Expected transform to succeed but it failed with, use 'expected-to-throw' if this is expected. Error:
 #############################################################################
-{}
+{error}
 #############################################################################
-",
-                error
+"
             );
         }
         _ => {}

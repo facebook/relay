@@ -505,8 +505,8 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         .metadata_for_machine("field_name", field_name.lookup())
         .metadata_for_machine("arg_a", arguments_a_printed)
         .metadata_for_machine("arg_b", arguments_b_printed)
-        .metadata_for_machine("loc_a", format!("{:?}", location_a))
-        .metadata_for_machine("loc_b", format!("{:?}", location_b))
+        .metadata_for_machine("loc_a", format!("{location_a:?}"))
+        .metadata_for_machine("loc_b", format!("{location_b:?}"))
     }
 }
 

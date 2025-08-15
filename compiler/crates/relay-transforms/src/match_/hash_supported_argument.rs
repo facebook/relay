@@ -64,8 +64,7 @@ impl Transformer<'_> for HashSupportedArgumentTransform<'_> {
             Transformed::Replace(Selection::LinkedField(linked_field)) => linked_field,
             Transformed::Delete | Transformed::Replace(_) => {
                 panic!(
-                    "unexpected transformed_field in HashSupportedArgumentTransform: {:?}",
-                    transformed_field
+                    "unexpected transformed_field in HashSupportedArgumentTransform: {transformed_field:?}"
                 )
             }
         };

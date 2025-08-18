@@ -108,7 +108,7 @@ hook useFragmentNode_CURRENT<TFragmentData: mixed>(
 ): ReturnType<TFragmentData> {
   const data = useFragmentInternal_CURRENT(fragment, key, displayName);
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data,
     disableStoreUpdates: () => {},
     enableStoreUpdates: () => {},
@@ -129,7 +129,7 @@ hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
 ): ReturnType<TFragmentData> {
   const data = useFragmentInternal_EXPERIMENTAL(fragment, key, displayName);
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data,
     disableStoreUpdates: () => {},
     enableStoreUpdates: () => {},
@@ -416,7 +416,7 @@ describe.each([
                 <SingularContainer owner={singularQuery} {...props} />
               </ContextProvider>
             </React.Suspense>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {
               unstable_isConcurrent: true,
             },
@@ -430,7 +430,7 @@ describe.each([
                   <SingularContainer owner={singularQuery} {...props} />
                 </ContextProvider>
               </React.Suspense>,
-              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
               {
                 unstable_isConcurrent: true,
               },
@@ -463,7 +463,7 @@ describe.each([
           ReactTestRenderer.act(() => {
             instance = ReactTestRenderer.create(
               elements,
-              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
               {
                 unstable_isConcurrent: true,
               },

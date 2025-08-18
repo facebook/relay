@@ -141,7 +141,7 @@ if (__DEV__) {
   ): ?{[string]: mixed} => {
     const record = source.get(dataID);
     if (record == null) {
-      // $FlowFixMe[incompatible-return]
+      // $FlowFixMe[incompatible-type]
       return record;
     }
     return new Proxy(
@@ -159,7 +159,7 @@ if (__DEV__) {
               return getWrappedRecord(source, value.__ref);
             }
             if (Array.isArray(value.__refs)) {
-              // $FlowFixMe[incompatible-call]
+              // $FlowFixMe[incompatible-type]
               return value.__refs.map((ref: string) =>
                 getWrappedRecord(source, ref),
               );

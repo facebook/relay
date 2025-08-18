@@ -350,7 +350,7 @@ hook useRefetchableFragmentInternal<
   return {
     fragmentData,
     fragmentRef,
-    // $FlowFixMe[incompatible-return] RefetchFn not compatible with RefetchFnDynamic
+    // $FlowFixMe[incompatible-type] RefetchFn not compatible with RefetchFnDynamic
     refetch,
   };
 }

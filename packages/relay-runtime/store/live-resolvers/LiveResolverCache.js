@@ -669,9 +669,9 @@ class LiveResolverCache implements ResolverCache {
       const recordID: string = recordsToVisit.pop();
       visited.add(recordID);
 
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       updatedDataIDs.add(recordID);
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       const fragmentSet = this._recordIDToResolverIDs.get(recordID);
       if (fragmentSet == null) {
         continue;

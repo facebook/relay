@@ -148,7 +148,7 @@ function loadEntryPoint<
         componentModule.default != null
           ? componentModule.default
           : componentModule;
-      // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
+      // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
       return (component: TEntryPointComponent);
     },
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects

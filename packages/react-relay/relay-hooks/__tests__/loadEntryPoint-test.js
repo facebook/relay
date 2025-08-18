@@ -35,7 +35,7 @@ class FakeJSResource<T> {
 
     this.getModuleId = jest.fn(() => 'TheModuleID');
     this.getModuleIfRequired = jest.fn(() => this._resource);
-    // $FlowFixMe[incompatible-type-arg]
+    // $FlowFixMe[incompatible-type]
     this.load = jest.fn(() => {
       return new Promise(resolve => {
         this._resolve = resolve;
@@ -601,7 +601,7 @@ test('it should dispose nested entry points', () => {
     {
       getEnvironment: () => env,
     },
-    // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     entryPoint,
     {},
   );

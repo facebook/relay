@@ -46,5 +46,5 @@ opaque type __SUBTYPE_CHECK_2__: MyComponentEntryPointProps = OtherProps;
 
 ({foo: ''}: MyComponentEntryPointProps);
 
-// $FlowExpectedError[incompatible-cast]
+// $FlowExpectedError[incompatible-type]
 ({foo: null}: MyComponentEntryPointProps);

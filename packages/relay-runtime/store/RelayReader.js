@@ -300,7 +300,7 @@ class RelayReader {
       if (record === undefined) {
         this._markDataAsMissing('<record>');
       }
-      // $FlowFixMe[incompatible-return]
+      // $FlowFixMe[incompatible-type]
       return record;
     }
     const data = prevData || {};

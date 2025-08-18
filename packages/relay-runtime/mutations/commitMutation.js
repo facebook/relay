@@ -122,7 +122,7 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   if (configs) {
     ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert<{
       variables: TVariables,
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       response: TData,
     }>(configs, mutation, optimisticUpdater, updater));
@@ -131,7 +131,7 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   const subscription = environment
     .executeMutation<{
       variables: TVariables,
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       response: TData,
     }>({

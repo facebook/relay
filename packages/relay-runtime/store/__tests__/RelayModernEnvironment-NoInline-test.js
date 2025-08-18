@@ -1122,7 +1122,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           store = new RelayModernStore(source, {
             gcReleaseBufferSize: 0,
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-            // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+            // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
             operationLoader,
           });
           environment = new RelayModernEnvironment({
@@ -1130,7 +1130,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             network: RelayNetwork.create(fetch),
             store,
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-            // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+            // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
             operationLoader,
           });
         });

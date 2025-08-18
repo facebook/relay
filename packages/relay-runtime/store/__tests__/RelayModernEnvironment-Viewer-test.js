@@ -126,7 +126,7 @@ describe('Mutations on viewer', () => {
     callback.mockClear();
     commitMutation(environment, {
       mutation,
-      /* $FlowFixMe[incompatible-call] Natural Inference rollout. See
+      /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
        * https://fburl.com/gdoc/y8dn025u */
       variables,
       onCompleted,

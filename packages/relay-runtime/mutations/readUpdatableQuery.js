@@ -30,7 +30,7 @@ function readUpdatableQuery<TVariables: Variables, TData>(
   const updatableQuery = getUpdatableQuery(query);
 
   return {
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     updatableData: createUpdatableProxy<TData>(
       proxy.getRoot(),
       variables,

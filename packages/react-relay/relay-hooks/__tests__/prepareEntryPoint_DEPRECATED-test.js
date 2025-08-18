@@ -33,7 +33,7 @@ class FakeJSResource<T> {
     this._resource = resource;
 
     this.getModuleIfRequired = jest.fn(() => this._resource);
-    // $FlowFixMe[incompatible-type-arg]
+    // $FlowFixMe[incompatible-type]
     this.load = jest.fn(() => {
       return new Promise(resolve => {
         this._resolve = resolve;
@@ -77,12 +77,12 @@ test('it should preload entry point with queries', () => {
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   prepareEntryPoint_DEPRECATED(
     {
       getEnvironment: () => env,
     },
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     entryPoint,
     {id: 'my-id'},
   );
@@ -133,12 +133,12 @@ test('it should preload entry point with nested entry points', () => {
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   prepareEntryPoint_DEPRECATED(
     {
       getEnvironment: () => env,
     },
-    // $FlowFixMe[incompatible-call] Added after improved typing of PreloadProps
+    // $FlowFixMe[incompatible-type] Added after improved typing of PreloadProps
     entryPoint,
     {id: 'my-id'},
   );
@@ -208,12 +208,12 @@ test('it should preload entry point with both queries and nested entry points', 
     },
     root: (new FakeJSResource(null): $FlowFixMe),
   };
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   prepareEntryPoint_DEPRECATED(
     {
       getEnvironment: () => env,
     },
-    // $FlowFixMe[incompatible-call] Added after improved typing of PreloadProps
+    // $FlowFixMe[incompatible-type] Added after improved typing of PreloadProps
     entryPoint,
     {id: 'my-id'},
   );
@@ -255,13 +255,13 @@ test('with `getEnvironment` function', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const getEnvironment = jest.fn(() => env);
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   prepareEntryPoint_DEPRECATED(
     // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     {
       getEnvironment,
     },
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     entryPoint,
     {id: 'my-id'},
   );

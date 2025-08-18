@@ -76,7 +76,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -234,7 +234,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -398,7 +398,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -636,7 +636,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -840,7 +840,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -983,7 +983,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -1116,7 +1116,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -1244,7 +1244,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -1345,7 +1345,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },
@@ -1362,7 +1362,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       ReactTestRenderer.act(() => {
         testComponentTree = ReactTestRenderer.create(
           <TestComponent />,
-          // $FlowFixMe[prop-missing]
+          // $FlowFixMe[incompatible-type]
           {
             unstable_isConcurrent: true,
           },

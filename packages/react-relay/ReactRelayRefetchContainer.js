@@ -493,7 +493,7 @@ function createContainer<Props: {...}, TComponent: component(...Props)>(
 ): component(
   ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
 ) {
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

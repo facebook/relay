@@ -341,7 +341,7 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
-              // $FlowFixMe[incompatible-call]
+              // $FlowFixMe[incompatible-type]
               this._roots.delete(_id);
             }
             this.scheduleGC();
@@ -470,7 +470,7 @@ class RelayModernStore implements Store {
           fetchTime: Date.now(),
         };
         this._releaseBuffer.push(id);
-        /* $FlowFixMe[incompatible-call] Natural Inference rollout. See
+        /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
          * https://fburl.com/gdoc/y8dn025u */
         this._roots.set(id, temporaryRootEntry);
       }

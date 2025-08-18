@@ -225,7 +225,7 @@ function createMockEnvironment() {
       return Observable.create((sink: Sink<mixed>) => {
         dataSource = sink;
         unsubscribe = jest.fn<[], mixed>();
-        // $FlowFixMe[incompatible-call]
+        // $FlowFixMe[incompatible-type]
         return unsubscribe;
       });
     },
@@ -236,7 +236,7 @@ function createMockEnvironment() {
       return data.id;
     },
     // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-    // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+    // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
     network: Network.create(fetchFn),
     store,
     handlerProvider: _name => {
@@ -615,7 +615,7 @@ beforeEach(() => {
             </ContextProvider>
           </React.Suspense>
         </ErrorBoundary>,
-        // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+        // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
         {unstable_isConcurrent: isConcurrent},
       );
     });
@@ -4490,7 +4490,7 @@ describe.each([
         `;
 
         // $FlowFixMe[prop-missing]
-        // $FlowFixMe[incompatible-type-arg]
+        // $FlowFixMe[incompatible-type]
         gqlFragment = graphql`
           fragment usePaginationFragmentTestStoryFragment on NonNodeStory
           @argumentDefinitions(

@@ -246,7 +246,7 @@ it('fetches and renders the query data', () => {
   });
 
   const data = environment.lookup(query.fragment).data;
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   expectToBeRendered(renderFn, data);
 });
 
@@ -326,7 +326,7 @@ it('fetches and renders correctly even if fetched query data still has missing d
   });
 
   const data = environment.lookup(query.fragment).data;
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   expectToBeRendered(renderFn, data);
 });
 
@@ -386,7 +386,7 @@ it('fetches and renders correctly if component unmounts before it can commit', (
   });
 
   const data = environment.lookup(query.fragment).data;
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   expectToBeRendered(renderFn, data);
 });
 
@@ -510,7 +510,7 @@ it('fetches and renders correctly when re-mounting the same query (even if GC ru
   });
 
   const data = environment.lookup(query.fragment).data;
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   expectToBeRendered(renderFn, data);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -533,7 +533,7 @@ it('fetches and renders correctly when re-mounting the same query (even if GC ru
   expect(environment.execute).toHaveBeenCalledTimes(0);
 
   // Expect to still be able to render the same data
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   expectToBeRendered(renderFn, data);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -569,7 +569,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
   });
 
   const data = environment.lookup(query.fragment).data;
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   expectToBeRendered(renderFn, data);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -683,7 +683,7 @@ it('does not cancel ongoing network request when component unmounts after commit
 
   // Assert that the component unsuspended and mounted
   const data = environment.lookup(query.fragment).data;
-  // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+  // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   expectToBeRendered(renderFn, data);
 
   // Assert request was created
@@ -814,7 +814,7 @@ describe('with @defer and re-rendering', () => {
 
     const data = environment.lookup(query.fragment).data;
 
-    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
 
     expect(errorBoundaryDidCatchFn).not.toBeCalled();
@@ -838,7 +838,7 @@ describe('with @defer and re-rendering', () => {
     expect(errorBoundaryDidCatchFn).not.toBeCalled();
 
     // and we also should re-render the same view as for the initial response
-    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
   });
 });
@@ -909,7 +909,7 @@ describe('partial rendering', () => {
       },
     });
 
-    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, {
       node: {
         id: variables.id,

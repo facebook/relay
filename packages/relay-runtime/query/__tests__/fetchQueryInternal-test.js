@@ -725,7 +725,7 @@ describe('getPromiseForActiveRequest', () => {
         }),
         get: jest.fn<[mixed], NormalizationSplitOperation>(),
       };
-      // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+      // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
       environment = createMockEnvironment({operationLoader});
       gqlQuery = graphql`
         query fetchQueryInternalTest2Query($id: ID!) {
@@ -1036,7 +1036,7 @@ describe('getObservableForActiveRequest', () => {
         }),
         get: jest.fn<[mixed], NormalizationSplitOperation>(),
       };
-      // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+      // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
       environment = createMockEnvironment({operationLoader});
       gqlQuery = graphql`
         query fetchQueryInternalTest3Query($id: ID!) {

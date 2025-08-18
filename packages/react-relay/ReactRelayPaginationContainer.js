@@ -944,7 +944,7 @@ function createContainer<Props: {...}, TComponent: component(...Props)>(
 ): component(
   ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
 ) {
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

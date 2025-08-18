@@ -261,7 +261,7 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
 // because PreloadedQuery's TQuery parameter is almost phantom, and breaking
 // up the union type would cause us to lose track of TQuery.
 type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
-  // $FlowFixMe[incompatible-type-arg]
+  // $FlowFixMe[incompatible-type]
   +t: PreloadedQuery<infer TQuery>,
 ]
   ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>

@@ -222,7 +222,7 @@ function createMockEnvironment(
       cachedPayload = cache.get(cacheID, variables);
     }
     if (cachedPayload !== null) {
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       return Observable.from<GraphQLSingularResponse>(cachedPayload);
     }
 
@@ -438,7 +438,7 @@ function createMockEnvironment(
     return pendingOperation;
   };
 
-  // $FlowExpectedError[prop-missing]
+  // $FlowExpectedError[incompatible-type]
   const environment: RelayMockEnvironment = new Environment({
     configName: 'RelayModernMockEnvironment',
     network: Network.create(execute, execute),

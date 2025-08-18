@@ -164,7 +164,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
 
     const Container = (props: {userRef: $FlowFixMe, ...}) => {
       const isPlural = Array.isArray(props.userRef);
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       const userData = useFragment(
         isPlural ? UsersFragment : UserFragment,
         props.userRef,

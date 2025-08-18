@@ -90,7 +90,7 @@ class FakeJSResource<T> {
 
     this.getModuleId = jest.fn(() => 'TheModuleID');
     this.getModuleIfRequired = jest.fn(() => this._resource);
-    // $FlowFixMe[incompatible-type-arg]
+    // $FlowFixMe[incompatible-type]
     this.load = jest.fn(() => {
       return new Promise(resolve => {
         this._resolve = resolve;
@@ -201,7 +201,7 @@ it('suspends while the query and component are pending', () => {
     renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
-          {/* $FlowFixMe[incompatible-type-arg] */}
+          {/* $FlowFixMe[incompatible-type] */}
           <EntryPointContainer
             entryPointReference={entryPointReference}
             props={{}}
@@ -261,7 +261,7 @@ it.skip('suspends then updates when the query and component load', () => {
     renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
-          {/* $FlowFixMe[incompatible-type-arg] */}
+          {/* $FlowFixMe[incompatible-type] */}
           <EntryPointContainer
             entryPointReference={entryPointReference}
             props={{}}
@@ -346,7 +346,7 @@ it('renders synchronously when the component has already loaded and the data arr
     renderer = TestRenderer.create(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
-          {/* $FlowFixMe[incompatible-type-arg] */}
+          {/* $FlowFixMe[incompatible-type] */}
           <EntryPointContainer
             entryPointReference={entryPointReference}
             props={{}}
@@ -362,7 +362,7 @@ it('renders synchronously when the component has already loaded and the data arr
 });
 
 it.skip('warns if the entryPointReference has already been disposed', () => {
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
@@ -375,7 +375,7 @@ it.skip('warns if the entryPointReference has already been disposed', () => {
       TestRenderer.create(
         <RelayEnvironmentProvider environment={environment}>
           <React.Suspense fallback="Fallback">
-            {/* $FlowFixMe[incompatible-type-arg] */}
+            {/* $FlowFixMe[incompatible-type] */}
             <EntryPointContainer
               entryPointReference={entryPointReference}
               props={{}}

@@ -95,7 +95,7 @@ beforeEach(() => {
     },
   }) {
     renderCount = (renderCount || 0) + 1;
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
       query,
       initialPreloadedQuery,
@@ -338,7 +338,7 @@ it('does not release or cancel the query before the new component tree unsuspend
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -411,7 +411,7 @@ it('releases and cancels query references associated with previous suspensions w
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -508,7 +508,7 @@ it('releases and cancels query references associated with subsequent suspensions
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -668,7 +668,7 @@ it.skip('releases and cancels all queries if a the callback is called, the compo
   ReactTestRenderer.act(() => {
     outerInstance = ReactTestRenderer.create(
       <Outer />,
-      // $FlowFixMe[prop-missing]
+      // $FlowFixMe[incompatible-type]
       {
         unstable_isConcurrent: true,
       },
@@ -726,7 +726,7 @@ it.skip('releases and cancels all queries if the component suspends, another que
   ReactTestRenderer.act(() => {
     outerInstance = ReactTestRenderer.create(
       <Outer />,
-      // $FlowFixMe[prop-missing]
+      // $FlowFixMe[incompatible-type]
       {
         unstable_isConcurrent: true,
       },

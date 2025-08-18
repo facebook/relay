@@ -149,8 +149,8 @@ hook useBlockingPaginationFragment<
   );
 
   return {
-    // $FlowFixMe[incompatible-cast]
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
+    // $FlowFixMe[incompatible-type]
     data: (fragmentData: TData),
     loadNext,
     loadPrevious,

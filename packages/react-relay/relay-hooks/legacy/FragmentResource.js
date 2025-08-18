@@ -307,7 +307,7 @@ class FragmentResourceImpl {
         !missingLiveResolverFields(cachedValue.result.snapshot)?.length
       ) {
         this._throwOrLogErrorsInSnapshot(
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           cachedValue.result.snapshot,
         );
 

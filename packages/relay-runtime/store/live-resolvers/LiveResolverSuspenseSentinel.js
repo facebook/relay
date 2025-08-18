@@ -16,7 +16,7 @@ const LIVE_RESOLVER_SUSPENSE_SENTINEL: mixed = Object.freeze({
 });
 
 function suspenseSentinel(): empty {
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return LIVE_RESOLVER_SUSPENSE_SENTINEL;
 }
 

@@ -617,7 +617,7 @@ describe.each([['New', useFragment]])(
           </EnvironmentWrapper>,
         );
       });
-      // $FlowFixMe[incompatible-call] Yes, it is compatible...
+      // $FlowFixMe[incompatible-type] Yes, it is compatible...
       const response = JSON.parse(renderer?.toJSON() ?? '{}');
       jest.runAllImmediates();
 

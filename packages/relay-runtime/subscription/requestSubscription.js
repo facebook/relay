@@ -107,7 +107,7 @@ function requestSubscription<TVariables: Variables, TData, TRawResponse>(
             );
           }
           const data = environment.lookup(selector).data;
-          // $FlowFixMe[incompatible-cast]
+          // $FlowFixMe[incompatible-type]
           onNext((data: TData));
         }
       },

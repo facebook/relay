@@ -860,7 +860,7 @@ function cloneEventWithSets(event: LogEvent) {
         const zuck = source.get('4');
         expect(zuck).toBeTruthy();
         expect(() => {
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           RelayModernRecord.setValue(zuck, 'pet', 'Beast');
         }).toThrow(TypeError);
       });
@@ -890,7 +890,7 @@ function cloneEventWithSets(event: LogEvent) {
         expect(() => {
           const mergedRecord = source.get('4');
           expect(mergedRecord).toBeTruthy();
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           RelayModernRecord.setValue(mergedRecord, 'pet', null);
         }).toThrow(TypeError);
         // Cannot modify the published record, even though it isn't in the store

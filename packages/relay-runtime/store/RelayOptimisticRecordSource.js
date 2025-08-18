@@ -25,7 +25,7 @@ const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
 
 const UNPUBLISH_RECORD_SENTINEL = RelayModernRecord.fromObject(
-  // $FlowFixMe[incompatible-call] frozen objects are readonly
+  // $FlowFixMe[incompatible-type] frozen objects are readonly
   Object.freeze({
     __UNPUBLISH_RECORD_SENTINEL: true,
   }),
@@ -88,7 +88,7 @@ class RelayOptimisticRecordSource implements MutableRecordSource {
   }
 
   remove(dataID: DataID): void {
-    // $FlowFixMe[incompatible-call] frozen objects are readonly
+    // $FlowFixMe[incompatible-type] frozen objects are readonly
     this._sink.set(dataID, UNPUBLISH_RECORD_SENTINEL);
   }
 

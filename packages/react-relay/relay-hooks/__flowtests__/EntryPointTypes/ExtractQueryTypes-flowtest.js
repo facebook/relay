@@ -35,6 +35,7 @@ const _bad: ExtractQueryTypes<
   EnvironmentProviderOptions,
   {root: PreloadedQuery<Query>},
   // $FlowExpectedError[prop-missing]
+  // $FlowExpectedError[incompatible-type]
 >['root']['variables'] = {
   memebers_are_checked: true,
   // $FlowExpectedError[incompatible-type]

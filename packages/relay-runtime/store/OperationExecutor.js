@@ -1032,7 +1032,7 @@ class Executor<TMutation: MutationParameters> {
                         // OK: always have to run after an async module import resolves
                         if (shouldScheduleAsyncStoreUpdate) {
                           this._scheduleAsyncStoreUpdate(
-                            // $FlowFixMe[incompatible-call] `shouldScheduleAsyncStoreUpdate` check should cover `null` case
+                            // $FlowFixMe[incompatible-type] `shouldScheduleAsyncStoreUpdate` check should cover `null` case
                             batchAsyncModuleUpdatesFN,
                             sink.complete,
                           );

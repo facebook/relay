@@ -165,7 +165,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     );
 
     const data = environment.lookup(query.fragment).data;
-    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
     expectToBeRendered(renderFn, data);
 

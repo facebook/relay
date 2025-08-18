@@ -366,7 +366,7 @@ test('client-only query with error', () => {
     error: jest.fn<[Error], mixed>(),
   };
 
-  // $FlowExpectedError[incompatible-call] - fetch query is expecting a fetchable query, `fetchQueryTest5Query` is client-only
+  // $FlowExpectedError[incompatible-type] - fetch query is expecting a fetchable query, `fetchQueryTest5Query` is client-only
   fetchQuery<{...}, empty, mixed>(environment, query, {}).subscribe(observer);
 
   expect(observer.next).not.toBeCalled();

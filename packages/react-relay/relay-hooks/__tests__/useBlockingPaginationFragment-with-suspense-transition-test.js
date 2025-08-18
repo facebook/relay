@@ -450,7 +450,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       };

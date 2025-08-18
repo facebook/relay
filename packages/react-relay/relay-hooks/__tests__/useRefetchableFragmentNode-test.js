@@ -402,7 +402,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
         jest.runAllImmediates();
@@ -2228,7 +2228,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
                 </RelayEnvironmentProvider>
               </React.Suspense>
             </ErrorBoundary>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
           jest.runAllImmediates();
@@ -3512,7 +3512,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     describe('refetching @fetchable types', () => {
       beforeEach(() => {
         // $FlowFixMe[prop-missing]
-        // $FlowFixMe[incompatible-type-arg]
+        // $FlowFixMe[incompatible-type]
         gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
           @refetchable(
@@ -3755,7 +3755,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             username
           }
         `;
-        // $FlowFixMe[incompatible-type-arg]
+        // $FlowFixMe[incompatible-type]
         gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
           @refetchable(

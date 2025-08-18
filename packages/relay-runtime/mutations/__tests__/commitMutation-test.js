@@ -67,7 +67,7 @@ describe('Configs: NODE_DELETE', () => {
     const firstCommentID = 'comment456';
     const secondCommentID = 'comment789';
     const variables: commitMutationTest1Mutation$variables = {
-      /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing of
        * commitMutation */
       input: {
         deletedCommentId: firstCommentID,
@@ -608,7 +608,7 @@ describe('Configs: RANGE_ADD', () => {
       updater,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       variables,
     });
@@ -665,7 +665,7 @@ describe('Configs: RANGE_ADD', () => {
       mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       variables,
     });
@@ -754,7 +754,7 @@ describe('Configs: RANGE_ADD', () => {
       mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       variables,
     });
@@ -841,7 +841,7 @@ describe('Configs: RANGE_ADD', () => {
       updater,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       variables,
     });
@@ -910,7 +910,7 @@ describe('Configs: RANGE_ADD', () => {
       updater,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       variables,
     });
@@ -966,7 +966,7 @@ describe('Configs: RANGE_ADD', () => {
       mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       variables,
     });
@@ -1061,7 +1061,7 @@ describe('Configs: RANGE_ADD', () => {
       mutation,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       variables,
     });

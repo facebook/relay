@@ -144,7 +144,7 @@ function prepareEntryPoint<
         loadingPromise = loadingPromise ?? entryPoint.root.load();
         throw loadingPromise;
       }
-      // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
+      // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
       return (component: TEntryPointComponent);
     },
     queries: (preloadedQueries: TPreloadedQueries),

@@ -648,11 +648,11 @@ class RelayResponseNormalizer {
       return;
     }
 
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     const typeName = field.concreteType ?? this._getRecordType(fieldValue);
     const nextID =
       this._getDataId(
-        // $FlowFixMe[incompatible-call]
+        // $FlowFixMe[incompatible-type]
         fieldValue,
         typeName,
       ) ||

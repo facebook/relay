@@ -595,7 +595,7 @@ class RelayMockPayloadGenerator {
           );
       }
     });
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     return mockData;
   }
 
@@ -819,7 +819,7 @@ class RelayMockPayloadGenerator {
           ? // $FlowFixMe[incompatible-variance]
             data[applicationName]
           : null,
-        // $FlowFixMe[incompatible-call]
+        // $FlowFixMe[incompatible-type]
         fieldDefaultValue,
       );
     };

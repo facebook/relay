@@ -102,7 +102,7 @@ describe.each([
       },
     }) {
       renderCount = (renderCount || 0) + 1;
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
         query,
         initialPreloadedQuery,
@@ -397,7 +397,7 @@ describe.each([
             <RelayEnvironmentProvider environment={environment}>
               <ConcurrentWrapper />
             </RelayEnvironmentProvider>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -470,7 +470,7 @@ describe.each([
             <RelayEnvironmentProvider environment={environment}>
               <ConcurrentWrapper />
             </RelayEnvironmentProvider>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -567,7 +567,7 @@ describe.each([
         ReactTestRenderer.act(() => {
           instance = ReactTestRenderer.create(
             <ConcurrentWrapper />,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -733,7 +733,7 @@ describe.each([
     ReactTestRenderer.act(() => {
       outerInstance = ReactTestRenderer.create(
         <Outer />,
-        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type]
         {
           unstable_isConcurrent: true,
         },
@@ -793,7 +793,7 @@ describe.each([
     ReactTestRenderer.act(() => {
       outerInstance = ReactTestRenderer.create(
         <Outer />,
-        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type]
         {
           unstable_isConcurrent: true,
         },

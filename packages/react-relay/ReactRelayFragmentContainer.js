@@ -273,7 +273,7 @@ function createContainer<
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
 ): component(ref: Ref, ...$RelayProps<Props, RelayProp>) {
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

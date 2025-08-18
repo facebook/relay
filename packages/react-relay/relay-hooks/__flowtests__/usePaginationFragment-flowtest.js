@@ -48,7 +48,7 @@ type ExpectedReturnType<
 
 // Nullability of returned data type is correct
 // $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-type]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[react-rule-hook]
 (usePaginationFragment(
@@ -64,7 +64,7 @@ type ExpectedReturnType<
 
 // $FlowExpectedError: can't cast nullable to non-nullable
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-type]
 (usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
@@ -74,34 +74,34 @@ type ExpectedReturnType<
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-type]
 (usePaginationFragment(
   refetchableFragmentInput,
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   keyAnotherNonNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
 // $FlowExpectedError
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-type]
 (usePaginationFragment(
   refetchableFragmentInput,
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   keyAnotherNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
 // $FlowExpectedError: Key should not be a user provided object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type]
 usePaginationFragment(refetchableFragmentInput, {abc: 123});
 
 // $FlowExpectedError: Key should not be an empty object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type]
 usePaginationFragment(refetchableFragmentInput, {});
 
 // $FlowExpectedError: Key should be the `<name>$key` type from generated flow
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type]
 usePaginationFragment(refetchableFragmentInput, fragmentData);
 
 // Refetch function options:
@@ -135,7 +135,7 @@ const {loadNext} = usePaginationFragment(
 // Accepts extraVariables
 loadNext(10, {
   // $FlowFixMe[prop-missing]
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   UNSTABLE_extraVariables: extraVariables,
 });
 

@@ -123,7 +123,7 @@ hook useFragmentNode<TFragmentData: mixed>(
   }
 
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentResult.data,
     disableStoreUpdates,
     enableStoreUpdates,

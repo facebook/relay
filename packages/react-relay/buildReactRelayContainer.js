@@ -90,7 +90,7 @@ function buildReactRelayContainer<TBase: component(...empty)>(
     ForwardContainer.displayName = containerName;
   }
 
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return ForwardContainer;
 }
 

@@ -257,26 +257,26 @@ hook usePrefetchableForwardPaginationFragment<
               onComplete: prefetchingOnComplete,
               UNSTABLE_extraVariables:
                 typeof prefetchingUNSTABLE_extraVariables === 'function'
-                  ? // $FlowFixMe[incompatible-call]
+                  ? // $FlowFixMe[incompatible-type]
                     prefetchingUNSTABLE_extraVariables({
                       hasNext,
-                      // $FlowFixMe[incompatible-call]
+                      // $FlowFixMe[incompatible-type]
                       data: fragmentData,
                       getServerEdges: () => {
                         const selector = getSelector(
-                          // $FlowFixMe[incompatible-call]
+                          // $FlowFixMe[incompatible-type]
                           edgesFragment,
                           edgeKeys,
                         );
                         if (selector == null) {
-                          // $FlowFixMe[incompatible-call]
+                          // $FlowFixMe[incompatible-type]
                           return [];
                         }
                         invariant(
                           selector.kind === 'PluralReaderSelector',
                           'Expected a plural selector',
                         );
-                        // $FlowFixMe[incompatible-call]
+                        // $FlowFixMe[incompatible-type]
                         return selector.selectors.map(
                           sel => environment.lookup(sel).data,
                         );
@@ -332,22 +332,22 @@ hook usePrefetchableForwardPaginationFragment<
           onComplete,
           UNSTABLE_extraVariables:
             typeof prefetchingUNSTABLE_extraVariables === 'function'
-              ? // $FlowFixMe[incompatible-call]
+              ? // $FlowFixMe[incompatible-type]
                 prefetchingUNSTABLE_extraVariables({
                   hasNext,
-                  // $FlowFixMe[incompatible-call]
+                  // $FlowFixMe[incompatible-type]
                   data: fragmentData,
                   getServerEdges: () => {
                     const selector = getSelector(edgesFragment, edgeKeys);
                     if (selector == null) {
-                      // $FlowFixMe[incompatible-call]
+                      // $FlowFixMe[incompatible-type]
                       return [];
                     }
                     invariant(
                       selector.kind === 'PluralReaderSelector',
                       'Expected a plural selector',
                     );
-                    // $FlowFixMe[incompatible-call]
+                    // $FlowFixMe[incompatible-type]
                     return selector.selectors.map(
                       sel => environment.lookup(sel).data,
                     );
@@ -380,7 +380,7 @@ hook usePrefetchableForwardPaginationFragment<
     [edgeKeys, realNumInUse],
   );
 
-  // $FlowExpectedError[incompatible-call] - we know derivedEdgeKeys are the correct keys
+  // $FlowExpectedError[incompatible-type] - we know derivedEdgeKeys are the correct keys
   const edges: TEdgeData = useFragment(edgesFragment, derivedEdgeKeys);
 
   const refetchPagination = useCallback(
@@ -422,7 +422,7 @@ hook usePrefetchableForwardPaginationFragment<
 
   return {
     edges,
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentData,
     loadNext: showMore,
     hasNext: hasNext || sourceSize > numInUse,

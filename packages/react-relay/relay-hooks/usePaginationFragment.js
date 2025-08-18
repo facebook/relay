@@ -155,7 +155,7 @@ hook usePaginationFragment<
     });
   }
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentData,
     loadNext,
     loadPrevious,

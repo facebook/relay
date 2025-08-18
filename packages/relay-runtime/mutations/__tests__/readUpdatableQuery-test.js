@@ -774,7 +774,7 @@ describe('readUpdatableQuery', () => {
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
-          // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
+          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           updatableData.node2.parents = [];
           expect(updatableData.node2.parents).toEqual([]);
           expect(
@@ -941,7 +941,7 @@ describe('readUpdatableQuery', () => {
 
     commitLocalUpdate(environment, store => {
       const updatableData = store.readUpdatableQuery(
-        // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
+        // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         updatableQuery2,
         {id: '4', foo: 'bar'},
       ).updatableData;

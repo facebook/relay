@@ -88,7 +88,7 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
             <Component prefetched={prefetched} />
           </React.Suspense>
         </RelayEnvironmentProvider>,
-        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type]
         {
           unstable_isConcurrent: true,
         },
@@ -198,7 +198,7 @@ describe('when generating multiple payloads for deferred data', () => {
             <Component />
           </React.Suspense>
         </RelayEnvironmentProvider>,
-        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type]
         {
           unstable_isConcurrent: true,
         },

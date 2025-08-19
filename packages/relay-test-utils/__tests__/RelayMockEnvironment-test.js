@@ -206,6 +206,8 @@ describe('when generating multiple payloads for deferred data', () => {
     });
     invariant(renderer != null, 'should have been rendered');
 
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/4oq3zi07. */
     const isSuspended = () => renderer.toJSON() === 'Fallback';
 
     const generateData = (resolvers: MockResolvers) => {

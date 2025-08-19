@@ -499,6 +499,8 @@ function createContainerWithFragments<
       const keys = Object.keys(nextProps);
       for (let ii = 0; ii < keys.length; ii++) {
         const key = keys[ii];
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/4oq3zi07. */
         if (key === '__relayContext') {
           if (
             nextState.prevContext.environment !==

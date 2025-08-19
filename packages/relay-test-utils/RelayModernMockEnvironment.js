@@ -487,6 +487,8 @@ function createMockEnvironment(
   );
 
   // $FlowFixMe[incompatible-type]
+  /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+   * roll out. See https://fburl.com/workplace/4oq3zi07. */
   if (global?.process?.env?.NODE_ENV === 'test') {
     // Mock all the functions with their original behavior
     mockDisposableMethod(environment, 'applyUpdate');

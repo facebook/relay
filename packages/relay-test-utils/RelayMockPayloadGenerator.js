@@ -278,6 +278,8 @@ class RelayMockPayloadGenerator {
           break;
         }
         // $FlowFixMe[incompatible-type]
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/4oq3zi07. */
         case CONNECTION: {
           mockData = this._traverseSelections(
             [selection.edges, selection.pageInfo],

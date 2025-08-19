@@ -218,6 +218,8 @@ class RelayPublishQueue implements PublishQueue {
   ): $ReadOnlyArray<RequestDescriptor> {
     const runWillClearGcHold =
       // $FlowFixMe[incompatible-type]
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/4oq3zi07. */
       this._appliedOptimisticUpdates === 0 && !!this._gcHold;
     const runIsANoop =
       // this._pendingBackupRebase is true if an applied optimistic

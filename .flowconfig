@@ -16,7 +16,6 @@ munge_underscores=true
 ; https://fburl.com/code/h2jnts20 - to match internval value
 
 experimental.error_code_migration=new
-suppress_type=$FlowFixMe
 
 format.bracket_spacing=false
 

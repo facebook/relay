@@ -34,11 +34,7 @@ function getEnvironment(
 ): RelayModernEnvironment {
   let subject;
   const fetch = jest.fn(
-    (
-      _query: $FlowExpectedError,
-      _variables: $FlowExpectedError,
-      _cacheConfig: $FlowExpectedError,
-    ) =>
+    (_query: $FlowFixMe, _variables: $FlowFixMe, _cacheConfig: $FlowFixMe) =>
       RelayObservable.create(
         (
           sink: Sink<{

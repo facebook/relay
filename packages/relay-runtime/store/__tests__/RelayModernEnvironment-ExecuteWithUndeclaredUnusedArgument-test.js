@@ -78,11 +78,7 @@ describe('query with undeclared, unused fragment argument', () => {
     `;
     operation = createOperationDescriptor(query, {id: '4'});
     fetch = jest.fn(
-      (
-        _query: $FlowExpectedError,
-        _variables: $FlowExpectedError,
-        _cacheConfig: $FlowExpectedError,
-      ) =>
+      (_query: $FlowFixMe, _variables: $FlowFixMe, _cacheConfig: $FlowFixMe) =>
         RelayObservable.create(
           (
             sink: Sink<{

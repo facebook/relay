@@ -570,9 +570,7 @@ class Executor<TMutation: MutationParameters> {
       const payloadFollowups = [];
       for (let i = 0; i < normalizedResponses.length; i++) {
         const response = normalizedResponses[i];
-        const source = new RelayRecordSource(
-          response.data as $FlowExpectedError,
-        );
+        const source = new RelayRecordSource(response.data as $FlowFixMe);
         const isFinal = response.extensions?.is_final === true;
         const payload: RelayResponsePayload = {
           errors: [],

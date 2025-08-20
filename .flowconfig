@@ -17,7 +17,6 @@ munge_underscores=true
 
 experimental.error_code_migration=new
 suppress_type=$FlowFixMe
-suppress_type=$FlowExpectedError
 
 format.bracket_spacing=false
 

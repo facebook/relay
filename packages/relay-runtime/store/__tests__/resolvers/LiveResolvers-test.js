@@ -86,7 +86,7 @@ test('unsubscribe happens when record is updated due to missing data', () => {
 
   const snapshot = environment.lookup(operation.fragment);
   // lookup() doesn't have the nice types of reading a fragment through the actual APIs
-  let data: $FlowExpectedError = snapshot.data;
+  let data: $FlowFixMe = snapshot.data;
   const environmentUpdateHandler = jest.fn(() => {
     data = environment.lookup(operation.fragment).data;
   });
@@ -266,7 +266,7 @@ test('Errors thrown during _initial_ read() are caught as resolver errors', () =
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.counter_throws_when_odd).toBe(null);
 });
 
@@ -300,7 +300,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
 
   // Confirm there are no initial errors
   expect(snapshot.fieldErrors).toEqual(null);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.counter_throws_when_odd).toBe(0);
 
   // This should trigger a read that throws
@@ -320,7 +320,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
       handled: false,
     },
   ]);
-  const nextData: $FlowExpectedError = nextSnapshot.data;
+  const nextData: $FlowFixMe = nextSnapshot.data;
   expect(nextData.counter_throws_when_odd).toBe(null);
 
   handler.mockReset();
@@ -332,7 +332,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
 
   // Confirm there are no initial errors
   expect(finalSnapshot.fieldErrors).toEqual(null);
-  const finalData: $FlowExpectedError = finalSnapshot.data;
+  const finalData: $FlowFixMe = finalSnapshot.data;
   expect(finalData.counter_throws_when_odd).toBe(2);
 });
 

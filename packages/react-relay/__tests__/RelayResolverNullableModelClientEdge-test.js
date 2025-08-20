@@ -503,7 +503,7 @@ test('Errors thrown when reading the model a client edge points to are caught as
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_model_that_throws).toBe(null);
 });
 
@@ -537,7 +537,7 @@ test('Errors thrown when reading plural client edge are caught as resolver error
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_plural_models_that_throw).toStrictEqual([null, null]);
 });
 
@@ -564,7 +564,7 @@ test('Errors thrown when reading plural client edge are caught as resolver error
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_plural_models_some_throw).toStrictEqual([
     null,
     {id: 'a valid id!'},

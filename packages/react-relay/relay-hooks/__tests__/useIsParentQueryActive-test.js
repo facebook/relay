@@ -46,11 +46,7 @@ beforeEach(() => {
   const source = new RecordSource();
   const store = new Store(source);
   fetch = jest.fn(
-    (
-      _query: $FlowExpectedError,
-      _variables: $FlowExpectedError,
-      _cacheConfig: $FlowExpectedError,
-    ) =>
+    (_query: $FlowFixMe, _variables: $FlowFixMe, _cacheConfig: $FlowFixMe) =>
       Observable.create(
         (
           sink: Sink<

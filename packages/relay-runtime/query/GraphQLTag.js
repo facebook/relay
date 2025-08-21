@@ -82,6 +82,8 @@ function isFragment(node: GraphQLTaggedNode): boolean {
   const fragment = getNode(node);
   return (
     typeof fragment === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     fragment !== null &&
     fragment.kind === RelayConcreteNode.FRAGMENT
   );
@@ -91,6 +93,8 @@ function isRequest(node: GraphQLTaggedNode): boolean {
   const request = getNode(node);
   return (
     typeof request === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     request !== null &&
     request.kind === RelayConcreteNode.REQUEST
   );
@@ -100,6 +104,8 @@ function isUpdatableQuery(node: GraphQLTaggedNode): boolean {
   const updatableQuery = getNode(node);
   return (
     typeof updatableQuery === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     updatableQuery !== null &&
     updatableQuery.kind === RelayConcreteNode.UPDATABLE_QUERY
   );
@@ -109,6 +115,8 @@ function isInlineDataFragment(node: GraphQLTaggedNode): boolean {
   const fragment = getNode(node);
   return (
     typeof fragment === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     fragment !== null &&
     fragment.kind === RelayConcreteNode.INLINE_DATA_FRAGMENT
   );
@@ -131,6 +139,8 @@ function getPaginationFragment(
   const refetch = fragment.metadata?.refetch;
   const connection = refetch?.connection;
   if (
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     refetch === null ||
     typeof refetch !== 'object' ||
     connection === null ||
@@ -146,6 +156,8 @@ function getRefetchableFragment(
 ): ReaderRefetchableFragment | null {
   const fragment = getFragment(taggedNode);
   const refetch = fragment.metadata?.refetch;
+  /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+   * roll out. See https://fburl.com/workplace/5whu3i34. */
   if (refetch === null || typeof refetch !== 'object') {
     return null;
   }

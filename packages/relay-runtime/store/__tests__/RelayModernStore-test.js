@@ -65,6 +65,8 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
   expect(Object.isFrozen(value)).toBe(true);
   if (Array.isArray(value)) {
     value.forEach(item => assertIsDeeplyFrozen(item));
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
   } else if (typeof value === 'object' && value !== null) {
     for (const key in value) {
       // $FlowFixMe[invalid-computed-prop]

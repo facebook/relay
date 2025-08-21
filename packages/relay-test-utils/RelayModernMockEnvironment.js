@@ -334,6 +334,8 @@ function createMockEnvironment(
   function ensureValidPayload(payload: GraphQLSingularResponse) {
     invariant(
       typeof payload === 'object' &&
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/5whu3i34. */
         payload !== null &&
         payload.hasOwnProperty('data'),
       'MockEnvironment(): Expected payload to be an object with a `data` key.',
@@ -379,6 +381,8 @@ function createMockEnvironment(
     const rejectError = typeof error === 'string' ? new Error(error) : error;
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       sink.error(rejectError);
     });
@@ -390,6 +394,8 @@ function createMockEnvironment(
   ): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       sink.next(ensureValidPayload(payload));
     });
@@ -398,6 +404,8 @@ function createMockEnvironment(
   const complete = (request: ConcreteRequest | OperationDescriptor): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       sink.complete();
     });
@@ -409,6 +417,8 @@ function createMockEnvironment(
   ): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       const payloads = Array.isArray(response) ? response : [response];
       payloads.forEach(payload => {

@@ -792,6 +792,8 @@ function createContainerWithFragments<
         fragmentVariables,
       );
       invariant(
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/5whu3i34. */
         typeof fetchVariables === 'object' && fetchVariables !== null,
         'ReactRelayPaginationContainer: Expected `getVariables()` to ' +
           'return an object, got `%s` in `%s`.',

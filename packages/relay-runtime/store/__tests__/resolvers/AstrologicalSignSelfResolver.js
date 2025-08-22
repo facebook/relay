@@ -41,7 +41,7 @@ function self(
 
   // id is ID in the schema, but `AstrologicalSignID` in the resolver
   // which actually returns it. This is a typehole we'll need to patch.
-  // $FlowFixMe
+  // $FlowFixMe[unclear-type]
   const id: AstrologicalSignID = (sign.id: any);
   return {
     name: sign.id, // The id is actually the human readable name.

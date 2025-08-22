@@ -137,7 +137,8 @@ beforeEach(() => {
     const [nextProps, setNextProps] = React.useState(props);
     _setProps = setNextProps;
     return (
-      //$FlowFixMe
+      //$FlowFixMe[incompatible-type]
+      //$FlowFixMe[not-a-component]
       <Activity mode={mode}>
         <Renderer {...nextProps} />
       </Activity>

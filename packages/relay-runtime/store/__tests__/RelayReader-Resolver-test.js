@@ -544,7 +544,7 @@ it('does not recompute if the upstream has the same value as before', () => {
   `;
 
   const resolverInternals: {_relayResolverTestCallCount: number} =
-    // $FlowFixMe
+    // $FlowFixMe[unclear-type]
     (UserConstantDependentResolver: any);
 
   expect(resolverInternals._relayResolverTestCallCount).toBe(undefined);

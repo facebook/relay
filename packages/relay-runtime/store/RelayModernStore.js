@@ -795,7 +795,7 @@ class RelayModernStore implements Store {
               RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
             );
             if (maybeResolverSubscription != null) {
-              // $FlowFixMe - this value if it is not null, it is a function
+              // $FlowFixMe[not-a-function] - this value if it is not null, it is a function
               maybeResolverSubscription();
             }
           }

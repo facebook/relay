@@ -865,7 +865,7 @@ describe('partial rendering', () => {
 
     function FragmentComponent(props: {query: mixed}) {
       const fragment = getFragment(gqlFragment);
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-type]
       const data = useFragmentImpl(fragment, props.query);
       renderFn(data);
       return null;

@@ -139,7 +139,8 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         }
       }
     `;
-    // $FlowFixMe
+    // $FlowFixMe[cannot-write]
+    // $FlowFixMe[prop-missing]
     gqlQuery.params.cacheID = 'TestQuery';
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
@@ -277,7 +278,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-type]
           {unstable_isConcurrent: true},
         );
       });

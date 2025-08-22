@@ -69,7 +69,7 @@ type BadParentEntrypointParams = $ReadOnly<{}>;
       entryPoints: {
         nestedComponent: NestedRelayEntryPoint({
           /**
-           $FlowExpectedError The entryPointParams here should be of type
+           $FlowExpectedError[incompatible-type] The entryPointParams here should be of type
             NestedEntrypointPreloadParams, but it does not contain subEntrypointPreloadParam
           */
           entryPoint: NestedEntryPoint,

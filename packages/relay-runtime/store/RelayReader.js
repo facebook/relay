@@ -1665,7 +1665,7 @@ class RelayReader {
       // still in flight.
       this._markDataAsMissing('<abstract-type-hint>');
     }
-    // $FlowFixMe Casting record value
+    // $FlowFixMe[incompatible-type] Casting record value
     return implementsInterface;
   }
 }

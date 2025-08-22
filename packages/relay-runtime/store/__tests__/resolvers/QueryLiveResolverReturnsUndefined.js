@@ -19,7 +19,7 @@ import type {LiveState} from 'relay-runtime';
  *
  * A @live resolver that returns undefined
  */
-// $FlowFixMe - this resolver returns undefined, but should return LiveState
+// $FlowFixMe[incompatible-type] - this resolver returns undefined, but should return LiveState
 function live_resolver_return_undefined(): LiveState<$FlowFixMe> {}
 
 module.exports = {

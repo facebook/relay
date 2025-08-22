@@ -643,7 +643,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector1 = nullthrows(
             getSingularSelector(
               NoInlineFragmentNested,
-              // $FlowFixMe
+              // $FlowFixMe[incompatible-use]
               selectorData.data.mark,
             ),
           );
@@ -655,7 +655,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector2 = nullthrows(
             getSingularSelector(
               NoInlineFragmentNested,
-              // $FlowFixMe
+              // $FlowFixMe[incompatible-use]
               selectorData.data.zuck,
             ),
           );
@@ -667,7 +667,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector3 = nullthrows(
             getSingularSelector(
               NoInlineFragmentNested,
-              // $FlowFixMe
+              // $FlowFixMe[incompatible-use]
               selectorData.data.joe,
             ),
           );

@@ -147,7 +147,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
         <React.StrictMode>
           <QueryContainer variables={variables} />
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true, unstable_strictMode: true},
       );
     });

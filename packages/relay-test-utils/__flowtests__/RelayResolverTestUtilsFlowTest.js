@@ -32,11 +32,11 @@ function myTestResolver(rootKey: RelayResolverTestUtilsFlowTest$key): string {
 
 testResolver(myTestResolver, {name: 'Elizabeth'});
 
-// $FlowExpectedError foo is an unexpected key
+// $FlowExpectedError[incompatible-type]  foo is an unexpected key
 testResolver(myTestResolver, {
   name: 'Elizabeth',
   foo: 'bar',
 });
 
-// $FlowExpectedError Object is not a string
+// $FlowExpectedError[incompatible-type]  Object is not a string
 testResolver(myTestResolver, {name: {}});

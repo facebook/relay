@@ -28,7 +28,7 @@ function unwrapContainer<Props: {...}>(
     ...$RelayProps<Props, RelayProp | RelayPaginationProp | RelayRefetchProp>
   ),
 ): component(...Props) {
-  // $FlowExpectedError
+  // $FlowExpectedError[prop-missing]
   const unwrapped = ComponentClass.__ComponentClass;
   invariant(
     unwrapped != null,

@@ -106,12 +106,12 @@ const [, refetch] = useRefetchableFragment(
   refetchableFragmentInput,
   keyNonNullable,
 );
-// $FlowExpectedError: internal option
+// $FlowExpectedError[incompatible-type] : internal option
 refetch(variables, {
   __environment: environment,
 });
 
-// $FlowExpectedError: doesn't exist
+// $FlowExpectedError[incompatible-type] : doesn't exist
 refetch(variables, {
   NON_EXIST: 'NON_EXIST',
 });

@@ -53,7 +53,7 @@ class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
     this.setState({error});
   }
 
-  //$FlowFixMe
+  //$FlowFixMe[unclear-type]
   render(): any {
     const {children, fallback} = this.props;
     const {error} = this.state;
@@ -163,13 +163,13 @@ describe('ClientUser', () => {
       CLIENT_3D_TEST_FRAGMENT,
       querySnapshot.data?.persona,
     );
-    //$FlowFixMe
+    //$FlowFixMe[incompatible-type]
     const fragmentSnapshot = environment.lookup(fragmentSelector);
     const dataSelector = getSelector(
       CLIENT_USER_FRAGMENT,
       fragmentSnapshot.data?.basicUser,
     );
-    //$FlowFixMe
+    //$FlowFixMe[incompatible-type]
     const dataSnapshot = environment.lookup(dataSelector);
 
     expect(dataSnapshot.data?.data).toBe('clientUserData');
@@ -237,13 +237,13 @@ describe('SpecialUser', () => {
       CLIENT_3D_TEST_FRAGMENT,
       querySnapshot.data?.persona,
     );
-    //$FlowFixMe
+    //$FlowFixMe[incompatible-type]
     const fragmentSnapshot = environment.lookup(fragmentSelector);
     const dataSelector = getSelector(
       SPECIAL_USER_FRAGMENT,
       fragmentSnapshot.data?.basicUser,
     );
-    //$FlowFixMe
+    //$FlowFixMe[incompatible-type]
     const dataSnapshot = environment.lookup(dataSelector);
 
     expect(dataSnapshot.data?.data).toBe('specialUserData');

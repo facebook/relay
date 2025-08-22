@@ -206,7 +206,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-type]
           {unstable_isConcurrent: true},
         );
       });

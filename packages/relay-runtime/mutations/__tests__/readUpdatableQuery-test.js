@@ -838,7 +838,9 @@ describe('readUpdatableQuery', () => {
             if (readOnlyData.node.__typename === 'User') {
               expect(() => {
                 /* eslint-disable-next-line ft-flow/no-flow-fix-me-comments */
-                // $FlowFixMe
+                // $FlowFixMe[incompatible-type]
+                // $FlowFixMe[incompatible-use]
+                // $FlowFixMe[prop-missing]
                 updatableData.node2.parents = null;
               }).toThrowError();
             }

@@ -114,7 +114,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
             <FragmentContainer user={data?.node} />
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true, unstable_strictMode: true},
       );
     });

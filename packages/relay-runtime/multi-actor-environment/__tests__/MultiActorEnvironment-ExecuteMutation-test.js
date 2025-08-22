@@ -117,7 +117,7 @@ describe('executeMutation()', () => {
       // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
       createNetworkForActor: _id => RelayNetwork.create(fetch),
     }).forActor(
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-type]
       'actor:12345',
     );
     complete = jest.fn<[], mixed>();
@@ -489,7 +489,7 @@ describe('executeMutation()', () => {
       createNetworkForActor: _id => RelayNetwork.create(fetch),
       treatMissingFieldsAsNull: true,
     }).forActor(
-      // $FlowFixMe
+      // $FlowFixMe[incompatible-type]
       'actor:12345',
     );
 

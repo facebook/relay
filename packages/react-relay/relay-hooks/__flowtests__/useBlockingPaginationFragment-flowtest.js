@@ -114,12 +114,12 @@ const {refetch} = useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
 );
-// $FlowExpectedError: internal option
+// $FlowExpectedError[incompatible-type] : internal option
 refetch(variables, {
   __environment: environment,
 });
 
-// $FlowExpectedError: doesn't exist
+// $FlowExpectedError[incompatible-type] : doesn't exist
 refetch(variables, {
   NON_EXIST: 'NON_EXIST',
 });
@@ -142,11 +142,11 @@ loadNext(10, {
 
 // $FlowFixMe[prop-missing]
 loadNext(10, {
-  // $FlowExpectedError: doesn't accept variables not available in the Flow type
+  // $FlowExpectedError[incompatible-type] : doesn't accept variables not available in the Flow type
   UNSTABLE_extraVariables: invalidVariables,
 });
 
-// $FlowExpectedError: doesn't exist
+// $FlowExpectedError[incompatible-type] : doesn't exist
 loadNext(10, {
   UNSTABLE_foo: invalidVariables,
 });

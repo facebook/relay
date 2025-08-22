@@ -171,7 +171,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true},
       );
     });
@@ -306,7 +306,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true},
       );
     });
@@ -431,7 +431,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-type]
           {unstable_isConcurrent: true},
         );
       });
@@ -615,7 +615,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
+          // $FlowFixMe[incompatible-type]
           {unstable_isConcurrent: true},
         );
       });

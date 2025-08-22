@@ -59,7 +59,8 @@ test('toPromise state ok', async () => {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.me);
   const result = await observable.toPromise();
   expect(result).toEqual({state: 'ok', value: {name: 'Elizabeth'}});
@@ -89,7 +90,8 @@ test('resolver suspense suspends', async () => {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.me);
   withObservableValues(observable, results => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
@@ -131,7 +133,8 @@ test('Missing required data', async () => {
     },
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.me);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -165,7 +168,7 @@ test('Keep loading on network error', async () => {
   const operation = createOperationDescriptor(query, variables);
   fetchQuery(environment, query, variables).subscribe({});
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type] Data is untyped
   const observable = observeFragment(environment, fragment, data);
   withObservableValues(observable, results => {
     expect(results).toEqual([{state: 'loading'}]);
@@ -216,7 +219,8 @@ test('Field error with @throwOnFieldError', async () => {
   });
 
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.me);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -253,7 +257,8 @@ test('Resolver error with @throwOnFieldError', async () => {
   const operation = createOperationDescriptor(query, variables);
   environment.commitPayload(operation, {me: {id: '7', __typename: 'User'}});
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.me);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -293,7 +298,8 @@ test('Resolver with client edge to server object', async () => {
   const {data} = environment.lookup(operation.fragment);
   let result;
   try {
-    // $FlowFixMe Data is untyped
+    // $FlowFixMe[incompatible-type]
+    // $FlowFixMe[incompatible-use] Data is untyped
     const observable = observeFragment(environment, fragment, data.me);
     // Today we never get to this, but once client edges are supported, we will
     withObservableValues(observable, results => {
@@ -349,7 +355,8 @@ test('read deferred fragment', async () => {
   dataSource.next({data: {me: {id: '1', __typename: 'User'}}});
 
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.me);
   withObservableValues(observable, results => {
     dataSource.next({
@@ -393,7 +400,8 @@ test('observes a plural fragment', async () => {
     ],
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.nodes);
   const result = await observable.toPromise();
   expect(result).toEqual({
@@ -430,7 +438,8 @@ test('Missing required data on plural fragment', async () => {
   });
 
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.nodes);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -492,7 +501,8 @@ test('Field error with @relay(plural: true) @throwOnFieldError', async () => {
   });
 
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.nodes);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -535,7 +545,8 @@ test('Resolver error with @relay(plural: true) @throwOnFieldError', async () => 
     ],
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.nodes);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -577,7 +588,8 @@ test('Store update across list items notifies multiple times', async () => {
     ],
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] Data is untyped
   const observable = observeFragment(environment, fragment, data.nodes);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -629,7 +641,7 @@ test('data goes missing due to unrelated query response', async () => {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type] Data is untyped
   const observable = observeFragment(environment, fragment, data);
 
   // Now an unrelated query comes in and changes the Query.me relationship to a
@@ -680,7 +692,7 @@ test('data goes missing due to unrelated query response (@throwOnFieldErrro)', a
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
+  // $FlowFixMe[incompatible-type] Data is untyped
   const observable = observeFragment(environment, fragment, data);
 
   // Now an unrelated query comes in and changes the Query.me relationship to a

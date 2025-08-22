@@ -41,11 +41,11 @@ function testResolver<D: ?{+$fragmentType?: mixed, ...}, Ret>(
   fragmentData: NoInfer<Omit<$NonMaybeType<D>, '$fragmentType'>>,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
-  // $FlowFixMe: a test utility, so... YOLO!!
+  // $FlowFixMe[incompatible-type]: a test utility, so... YOLO!!
   ResolverFragments.readFragment = () => fragmentData;
   const result = resolver(
     // This will be ignored since we mock the function it gets passed to.
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-type]
     null,
   );
   ResolverFragments.readFragment = readFragment;

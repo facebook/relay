@@ -30,7 +30,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
       }
     `;
     // Get the selections on `me.addresss`.
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-use]
     selections = TestQuery.operation.selections[0].selections[0].selections;
   });
 

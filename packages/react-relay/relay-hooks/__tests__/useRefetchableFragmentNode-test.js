@@ -2196,7 +2196,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           }
           useEffect(() => {
             refetchCount++;
-            // $FlowFixMe useRefetchableFragmentNode is untyped
+            // $FlowFixMe[incompatible-use] useRefetchableFragmentNode is untyped
             refetch({id: fragmentData.id});
           }, [fragmentData, refetch]);
 

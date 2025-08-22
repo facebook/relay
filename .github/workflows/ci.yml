@@ -98,7 +98,7 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
-          toolchain: nightly-2025-05-09
+          toolchain: nightly-2025-06-20
           override: true
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}

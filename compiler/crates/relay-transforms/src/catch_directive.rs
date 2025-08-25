@@ -26,7 +26,7 @@ use graphql_ir::Transformer;
 use graphql_ir::associated_data_impl;
 use intern::intern;
 use lazy_static::lazy_static;
-mod catchable_node;
+pub(crate) mod catchable_node;
 mod validation_message;
 
 use self::catchable_node::CatchMetadata;

@@ -20,7 +20,7 @@ import {
 import TestRenderer from 'react-test-renderer';
 import {createMockEnvironment} from 'relay-test-utils';
 
-test('Repro for bug where @catch breaks the hasNext value returned by usePaginationFragment', async () => {
+test('@catch does not interfere with the hasNext value returned by usePaginationFragment', async () => {
   const QUERY = graphql`
     query usePaginationFragmentCatchTestQuery($first: Int, $after: ID) {
       me {
@@ -103,9 +103,5 @@ test('Repro for bug where @catch breaks the hasNext value returned by usePaginat
     });
   });
 
-  // This is the expected behavior and what we see without @catch
-  // expect(container?.toJSON()).toBe('Connection has more items');
-
-  // This is the INCORRECT behavior introducted by a bug with @catch
-  expect(container?.toJSON()).toBe('Connection has NO more items');
+  expect(container?.toJSON()).toBe('Connection has more items');
 });

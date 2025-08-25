@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5c9169b69df1c7a70b27d0cfc62cb630>>
+ * @generated SignedSource<<d47c0a3d7689af8f1d9e7f8d437af74d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -41,7 +41,8 @@ export type usePaginationFragmentCatchTestFragment$key = {
 
 var node/*: ReaderFragment*/ = (function(){
 var v0 = [
-  "friends"
+  "friends",
+  "value"
 ];
 return {
   "argumentDefinitions": [

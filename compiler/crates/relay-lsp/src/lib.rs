@@ -98,12 +98,11 @@ where
 {
     let (connection, io_handles) = Connection::stdio();
     debug!("Initialized stdio transport layer");
-    let params = server::initialize(&connection)?;
+    server::initialize(&connection)?;
     debug!("JSON-RPC handshake completed");
     server::run(
         connection,
         config,
-        params,
         perf_logger,
         extra_data_provider,
         schema_documentation_loader,
@@ -167,8 +166,7 @@ mod tests {
             locale: None,
         };
         client::initialize(&client, &init_params, 0);
-        let params = server::initialize(&connection)?;
-        assert_eq!(params, init_params);
+        server::initialize(&connection)?;
         Ok(())
     }
 }

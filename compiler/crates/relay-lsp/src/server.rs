@@ -37,7 +37,6 @@ pub use lsp_state::build_ir_for_lsp;
 use lsp_types::CodeActionOptions;
 use lsp_types::CodeActionProviderCapability;
 use lsp_types::CompletionOptions;
-use lsp_types::InitializeParams;
 use lsp_types::RenameOptions;
 use lsp_types::ServerCapabilities;
 use lsp_types::TextDocumentSyncCapability;
@@ -107,7 +106,7 @@ use crate::type_information::on_type_information;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
-pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
+pub fn initialize(connection: &Connection) -> LSPProcessResult<()> {
     // We don't currently negotiate character encoding in the Relay LSP.
     // This means we fall back to the LSP default of UTF-16, but we make no effort to
     // ensure that the LSP positions we emit are actually representing the source text as UTF-16.
@@ -144,9 +143,8 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
     };
 
     let server_capabilities = serde_json::to_value(server_capabilities)?;
-    let params = connection.initialize(server_capabilities)?;
-    let params: InitializeParams = serde_json::from_value(params)?;
-    Ok(params)
+    connection.initialize(server_capabilities)?;
+    Ok(())
 }
 
 #[derive(Debug)]
@@ -162,7 +160,6 @@ pub async fn run<
 >(
     connection: Connection,
     mut config: Config,
-    _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,

@@ -190,9 +190,12 @@ pub async fn run<
 
     LSPStateResources::new(Arc::clone(&lsp_state)).watch();
 
-    while let Some(task) = next_task(&connection.receiver, &task_queue.receiver) {
-        task_queue.process(Arc::clone(&lsp_state), task);
-    }
+    tokio::task::spawn_blocking(move || {
+        while let Some(task) = next_task(&connection.receiver, &task_queue.receiver) {
+            task_queue.process(Arc::clone(&lsp_state), task);
+        }
+    })
+    .await?;
 
     panic!("Client exited without proper shutdown sequence.")
 }

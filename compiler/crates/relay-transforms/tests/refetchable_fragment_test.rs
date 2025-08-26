@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<733f08cd406c19e1403b12a718566e81>>
+ * @generated SignedSource<<b5ce6ba653f419089b892dcdd3b4b32d>>
  */
 
 mod refetchable_fragment;
@@ -178,6 +178,20 @@ async fn refetchable_fragment_with_connection_unstable_path_invalid() {
     let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-unstable-path.invalid.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-unstable-path.invalid.expected");
     test_fixture(transform_fixture, file!(), "refetchable-fragment-with-connection-unstable-path.invalid.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-unstable-path.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_fragment_with_connection_with_catch() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-catch.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-catch.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-with-connection-with-catch.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-catch.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn refetchable_fragment_with_connection_with_catch_to_null() {
+    let input = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-catch-to-null.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-catch-to-null.expected");
+    test_fixture(transform_fixture, file!(), "refetchable-fragment-with-connection-with-catch-to-null.graphql", "refetchable_fragment/fixtures/refetchable-fragment-with-connection-with-catch-to-null.expected", input, expected).await;
 }
 
 #[tokio::test]

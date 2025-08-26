@@ -28,7 +28,7 @@ pub mod references;
 pub mod rename;
 mod resolved_types_at_location;
 mod search_schema_items;
-mod server;
+pub mod server;
 mod shutdown;
 mod status_reporter;
 pub mod status_updater;

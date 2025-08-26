@@ -282,7 +282,7 @@ macro_rules! string_id {
             $crate::string::Lazy::new(|| $crate::string::intern($value));
         *INSTANCE
     }};
-    ($_:expr_2021) => {
+    ($_:expr) => {
         compile_error!("string_id! macro can only be used with string literals.")
     };
 }
@@ -295,7 +295,7 @@ macro_rules! bytes_id {
             $crate::string::Lazy::new(|| $crate::string::intern_bytes($value as &[u8]));
         *INSTANCE
     }};
-    ($_:expr_2021) => {
+    ($_:expr) => {
         compile_error!("bytes_id! macro can only be used with literals.")
     };
 }

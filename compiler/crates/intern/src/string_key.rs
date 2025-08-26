@@ -125,7 +125,7 @@ macro_rules! intern {
         static INSTANCE: Lazy<$crate::string_key::StringKey> = Lazy::new(|| $value.intern());
         *INSTANCE
     }};
-    ($_:expr_2021) => {
+    ($_:expr) => {
         compile_error!("intern! macro can only be used with string literals.")
     };
 }

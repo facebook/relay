@@ -455,9 +455,11 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 /// environment variable. If this `FORCE_NO_WATCHMAN` is set, this method will return `false`
 /// and compiler will use non-watchman file finder.
 fn should_use_watchman() -> bool {
-    let check_watchman = Command::new("watchman")
+    if env::var("FORCE_NO_WATCHMAN").is_ok() {
+        return false;
+    }
+    Command::new("watchman")
         .args(["list-capabilities"])
-        .output();
-
-    check_watchman.is_ok() && env::var("FORCE_NO_WATCHMAN").is_err()
+        .output()
+        .is_ok()
 }

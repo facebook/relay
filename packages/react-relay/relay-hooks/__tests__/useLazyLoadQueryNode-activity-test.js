@@ -39,7 +39,7 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-// $FlowFixMe Not yet exists in the Flow types in OSS
+// $FlowFixMe[missing-export] Not yet exists in the Flow types in OSS
 const Activity = React.unstable_Activity;
 
 const defaultFetchPolicy = 'network-only';

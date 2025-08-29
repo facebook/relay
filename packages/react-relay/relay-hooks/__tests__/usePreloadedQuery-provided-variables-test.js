@@ -86,7 +86,7 @@ const preloadableConcreteRequestPV = {
 const IdPV = 'providedVariables12346';
 (queryPV.params: $FlowFixMe).id = IdPV;
 
-const responsePV = {
+const responsePV: GraphQLResponse = {
   data: {
     node: {
       __typename: 'User',

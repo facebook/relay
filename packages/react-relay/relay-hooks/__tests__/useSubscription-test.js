@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {useSubscriptionTestCommentCreateSubscription$variables} from './__generated__/useSubscriptionTestCommentCreateSubscription.graphql';
 import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -38,7 +39,7 @@ const CommentCreateSubscription = graphql`
 describe('useSubscription', () => {
   const mockEnv = createMockEnvironment();
   const config = {
-    variables: {},
+    variables: {} as useSubscriptionTestCommentCreateSubscription$variables,
     subscription: CommentCreateSubscription,
   };
   const dispose = jest.fn<$ReadOnlyArray<mixed>, mixed>();

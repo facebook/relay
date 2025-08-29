@@ -806,6 +806,7 @@ class RelayReader {
           key[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
         }
         const resolverContext = {getDataForResolverFragment};
+        // $FlowFixMe[incompatible-type]
         return withResolverContext(resolverContext, () => {
           const [resolverResult, resolverError] = getResolverValue(
             field,

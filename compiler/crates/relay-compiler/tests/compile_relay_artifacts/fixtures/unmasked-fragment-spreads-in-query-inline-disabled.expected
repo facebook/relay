@@ -1,0 +1,370 @@
+==================================== INPUT ====================================
+query unmaskedFragmentSpreadsInQueryInlineDisabled_TestQuery($isRelative: Boolean) {
+  me {
+    ...unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user @relay(mask: false)
+    nearest_neighbor {
+      ...unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user @relay(mask: false)
+    }
+  }
+}
+
+fragment unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user on User {
+  url(relative: $isRelative)
+  canViewerLike
+  doesViewerLike
+  lastName
+  name
+}
+
+%project_config%
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "featureFlags": {
+    "use_native_fragment_spreads_for_unmasked_fragments": true
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "isRelative"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "unmaskedFragmentSpreadsInQueryInlineDisabled_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "relative",
+                "variableName": "isRelative"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "url",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "canViewerLike",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "doesViewerLike",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "lastName",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "nearest_neighbor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "relative",
+                    "variableName": "isRelative"
+                  }
+                ],
+                "kind": "ScalarField",
+                "name": "url",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "canViewerLike",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "doesViewerLike",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "isRelative"
+      }
+    ],
+    "kind": "Operation",
+    "name": "unmaskedFragmentSpreadsInQueryInlineDisabled_TestQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "relative",
+                "variableName": "isRelative"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "url",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "canViewerLike",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "doesViewerLike",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "lastName",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "nearest_neighbor",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "relative",
+                    "variableName": "isRelative"
+                  }
+                ],
+                "kind": "ScalarField",
+                "name": "url",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "canViewerLike",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "doesViewerLike",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "lastName",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "3de23a25a89b722aee3f7748aa98647b",
+    "id": null,
+    "metadata": {},
+    "name": "unmaskedFragmentSpreadsInQueryInlineDisabled_TestQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query unmaskedFragmentSpreadsInQueryInlineDisabled_TestQuery(
+  $isRelative: Boolean
+) {
+  me {
+    ...unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user
+    nearest_neighbor {
+      ...unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user
+      id
+    }
+    id
+  }
+}
+
+fragment unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user on User {
+  url(relative: $isRelative)
+  canViewerLike
+  doesViewerLike
+  lastName
+  name
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "isRelative"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "relative",
+          "variableName": "isRelative"
+        }
+      ],
+      "kind": "ScalarField",
+      "name": "url",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "canViewerLike",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "doesViewerLike",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "lastName",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

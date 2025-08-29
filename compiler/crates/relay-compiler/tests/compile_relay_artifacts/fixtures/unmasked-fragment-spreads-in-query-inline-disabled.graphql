@@ -1,0 +1,25 @@
+query unmaskedFragmentSpreadsInQueryInlineDisabled_TestQuery($isRelative: Boolean) {
+  me {
+    ...unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user @relay(mask: false)
+    nearest_neighbor {
+      ...unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user @relay(mask: false)
+    }
+  }
+}
+
+fragment unmaskedFragmentSpreadsInQueryInlineDisabled_UserUtil_user on User {
+  url(relative: $isRelative)
+  canViewerLike
+  doesViewerLike
+  lastName
+  name
+}
+
+%project_config%
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "featureFlags": {
+    "use_native_fragment_spreads_for_unmasked_fragments": true
+  }
+}

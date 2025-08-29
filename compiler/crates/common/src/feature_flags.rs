@@ -179,6 +179,14 @@ pub struct FeatureFlags {
     /// across a number of diffs.
     #[serde(default)]
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
+
+    /// Produce native GraphQL fragment spreads when spreading a fragment with
+    /// @relay(mask: false) into a query, instead of inlining the contents of
+    /// that fragment for each use. This significantly reduces the uncompressed
+    /// size of query text when several mask:false fragment spreads are present,
+    /// but has no impact on masking behavior.
+    #[serde(default)]
+    pub use_native_fragment_spreads_for_unmasked_fragments: bool,
 }
 
 #[derive(Debug, serde::Deserialize, Clone, Serialize, Default, JsonSchema)]

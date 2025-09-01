@@ -299,7 +299,7 @@ mod tests {
     }
 
     #[test]
-    fn serde_default_from_empty_object_matches_intent() {
+    fn serde_empty_object_deserializes_to_default() {
         // When deserializing from an empty JSON object, serde applies per-field defaults.
         let flags: FeatureFlags = serde_json::from_str("{} ").expect("valid json");
         assert_eq!(flags, FeatureFlags::default());

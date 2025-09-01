@@ -1,13 +1,13 @@
 ==================================== INPUT ====================================
 query providedVariableReusedNestedFragment_1Query($id: ID!) {
     node(id: $id) {
-    ...providedVariableReusedNestedFragment_FragmentCommon @alias
+        ...providedVariableReusedNestedFragment_FragmentCommon @alias
     }
 }
 
 query providedVariableReusedNestedFragment_2Query($id: ID!) {
     node(id: $id) {
-    ...providedVariableReusedNestedFragment_Fragment @alias
+        ...providedVariableReusedNestedFragment_Fragment @alias
     }
 }
 

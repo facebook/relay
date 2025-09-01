@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithModuleDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-  ...queryWithModuleDirective_NameRendererFragment @alias
+    ...queryWithModuleDirective_NameRendererFragment @alias
   }
 }
 

@@ -4,7 +4,7 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node
   id
   ... on User {
     name
-  ...fragmentOnNodeInterface_ProfilePicture @alias
+    ...fragmentOnNodeInterface_ProfilePicture @alias
   }
 }
 

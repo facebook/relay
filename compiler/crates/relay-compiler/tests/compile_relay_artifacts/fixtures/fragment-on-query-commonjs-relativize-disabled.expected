@@ -6,7 +6,7 @@ fragment fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment on Query
     ... on User {
       id
       name
-  ...fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture @alias
+      ...fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture @alias
     }
   }
 }

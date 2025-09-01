@@ -1,6 +1,6 @@
 query streamAndHandleQuery {
   node(id: "<id>") {
-  ...streamAndHandleFragment @alias
+    ...streamAndHandleFragment @alias
   }
 }
 

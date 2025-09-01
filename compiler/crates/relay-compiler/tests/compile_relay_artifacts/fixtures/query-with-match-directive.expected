@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithMatchDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-  ...queryWithMatchDirective_NameRendererFragment @alias
+    ...queryWithMatchDirective_NameRendererFragment @alias
   }
 }
 

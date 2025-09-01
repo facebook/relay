@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithModuleDirectiveJsresourceImport_NameRendererQuery($id: ID!) {
   node(id: $id) {
-  ...queryWithModuleDirectiveJsresourceImport_NameRendererFragment @alias
+    ...queryWithModuleDirectiveJsresourceImport_NameRendererFragment @alias
   }
 }
 

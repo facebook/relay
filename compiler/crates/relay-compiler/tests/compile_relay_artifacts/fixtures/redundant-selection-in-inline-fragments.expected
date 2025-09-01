@@ -4,8 +4,8 @@ query redundantSelectionInInlineFragmentsQuery {
     ... on Story {
       __typename
     }
-  ...redundantSelectionInInlineFragments_interface_concrete @alias
-  ...redundantSelectionInInlineFragments_interface @alias
+    ...redundantSelectionInInlineFragments_interface_concrete @alias
+    ...redundantSelectionInInlineFragments_interface @alias
   }
 }
 

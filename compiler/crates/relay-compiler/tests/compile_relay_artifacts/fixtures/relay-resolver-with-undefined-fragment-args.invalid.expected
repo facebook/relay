@@ -24,10 +24,10 @@ extend type User {
   pop_star_name(includeName: Boolean!): String @relay_resolver(fragment_name: "relayResolverWithUndefinedFragmentArgs_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
 }
 ==================================== ERROR ====================================
-✖︎ Operation 'relayResolverWithUndefinedFragmentArgsQuery' references undefined variable: '$undefined'.
+✖︎ Expected `@alias` directive. `relayResolverWithUndefinedFragmentArgs_PopStarName` is defined on `User` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
 
-  relay-resolver-with-undefined-fragment-args.invalid.graphql:10:30
-    9 │ fragment relayResolverWithUndefinedFragmentArgs_PopStarName on User {
-   10 │   pop_star_name(includeName: $undefined)
-      │                              ^^^^^^^^^^
-   11 │ }
+  relay-resolver-with-undefined-fragment-args.invalid.graphql:5:8
+    4 │   node(id: "SOME_ID") {
+    5 │     ...relayResolverWithUndefinedFragmentArgs_PopStarName
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   }

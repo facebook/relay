@@ -37,19 +37,19 @@ fragment connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment on Fe
   }
 }
 ==================================== ERROR ====================================
-✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery' references undefined variable: '$commentsKey'.
+✖︎ Expected `@alias` directive. `connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment` is defined on `Feedback` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
 
-  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
-   27 │       key: "FeedbackFragment_comments"
-   28 │       dynamicKey_UNSTABLE: $commentsKey
-      │                            ^^^^^^^^^^^^
-   29 │       filters: ["orderby"]
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:14:8
+   13 │   node(id: $id) {
+   14 │     ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │       @arguments(count: $count, cursor: $cursor)
 
 
-✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery' references undefined variable: '$commentsKey'.
+✖︎ Expected `@alias` directive. `connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment` is defined on `Feedback` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
 
-  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
-   27 │       key: "FeedbackFragment_comments"
-   28 │       dynamicKey_UNSTABLE: $commentsKey
-      │                            ^^^^^^^^^^^^
-   29 │       filters: ["orderby"]
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:4:8
+    3 │   node(id: $id) {
+    4 │     ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   }

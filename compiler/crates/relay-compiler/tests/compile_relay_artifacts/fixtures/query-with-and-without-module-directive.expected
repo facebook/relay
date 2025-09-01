@@ -24,7 +24,7 @@ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on Mar
   }
 }
 ==================================== ERROR ====================================
-✖︎ The 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name'.
+✖︎ Expected `@alias` directive. `queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name` is defined on `MarkdownUserNameRenderer` which might not match this selection type of `UserNameRenderer`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
 
   query-with-and-without-module-directive.graphql:15:8
    14 │   without_module: nameRenderer {
@@ -32,10 +32,11 @@ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on Mar
       │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    16 │   }
 
-  ℹ︎ fragment definition
 
-  query-with-and-without-module-directive.graphql:19:10
-   18 │ 
-   19 │ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   20 │   markdown
+✖︎ Expected `@alias` directive. `queryWithAndWithoutModuleDirective_NameRendererFragment` is defined on `User` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
+
+  query-with-and-without-module-directive.graphql:4:8
+    3 │   node(id: $id) {
+    4 │     ...queryWithAndWithoutModuleDirective_NameRendererFragment
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   }

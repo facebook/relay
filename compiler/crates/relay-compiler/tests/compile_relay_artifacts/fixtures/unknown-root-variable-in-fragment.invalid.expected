@@ -22,10 +22,10 @@ fragment unknownRootVariableInFragmentProfile on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Operation 'unknownRootVariableInFragmentQuery' references undefined variable: '$includeFriends'.
+✖︎ Expected `@alias` directive. `unknownRootVariableInFragmentProfile` is defined on `User` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
 
-  unknown-root-variable-in-fragment.invalid.graphql:13:20
-   12 │   # includeFriends is not defined on the referencing query, should error
-   13 │   ... @include(if: $includeFriends) {
-      │                    ^^^^^^^^^^^^^^^
-   14 │     friends(first: 10) {
+  unknown-root-variable-in-fragment.invalid.graphql:5:8
+    4 │     id
+    5 │     ...unknownRootVariableInFragmentProfile @relay(mask: false)
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   }

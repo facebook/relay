@@ -5,7 +5,7 @@ fragment fragmentOnQueryCommonjs_RefetchableFragment on Query
     ... on User {
       id
       name
-      ...fragmentOnQueryCommonjs_ProfilePicture
+  ...fragmentOnQueryCommonjs_ProfilePicture @alias
     }
   }
 }

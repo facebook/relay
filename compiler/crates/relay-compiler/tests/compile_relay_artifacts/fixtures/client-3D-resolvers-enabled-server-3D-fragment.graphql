@@ -1,6 +1,6 @@
 query client3DResolversEnabledServer3DFragment_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...client3DResolversEnabledServer3DFragment_NameRendererFragment
+    ...client3DResolversEnabledServer3DFragment_NameRendererFragment @alias
   }
 }
 

@@ -2,7 +2,7 @@
 query fragmentWithStream_QueryWithFragmentWithStreamQuery($id: ID!) {
   node(id: $id) {
     id
-    ...fragmentWithStream_FeedbackFragment
+    ...fragmentWithStream_FeedbackFragment @alias
   }
 }
 
@@ -48,8 +48,19 @@ fragment fragmentWithStream_FeedbackFragment on Feedback {
             "storageKey": null
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "fragmentWithStream_FeedbackFragment"
+                }
+              ],
+              "type": "Feedback",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "fragmentWithStream_FeedbackFragment"
           }
         ],

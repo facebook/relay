@@ -1,8 +1,8 @@
 ==================================== INPUT ====================================
 query providedVariableInFragment_Query($id: ID!) {
     node(id: $id) {
-        ...providedVariableInFragment_Fragment1
-        ...providedVariableInFragment_Fragment2
+        ...providedVariableInFragment_Fragment1 @alias
+        ...providedVariableInFragment_Fragment2 @alias
     }
 }
 
@@ -49,13 +49,35 @@ fragment providedVariableInFragment_Fragment2 on User
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "providedVariableInFragment_Fragment1"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "providedVariableInFragment_Fragment1"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "providedVariableInFragment_Fragment2"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "providedVariableInFragment_Fragment2"
           }
         ],

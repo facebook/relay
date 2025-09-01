@@ -15,7 +15,7 @@ fragment inlineDataFragment_ParentFragment on Query {
 
   username(name: "test") {
     # Should refine from type Actor to User.
-    ...inlineDataFragment_Profile
+    ...inlineDataFragment_Profile @alias
   }
 }
 
@@ -317,50 +317,54 @@ fragment inlineDataFragment_Profile on User {
       "plural": false,
       "selections": [
         {
-          "kind": "InlineDataFragmentSpread",
-          "name": "inlineDataFragment_Profile",
-          "selections": [
-            {
-              "kind": "InlineFragment",
-              "selections": [
-                {
-                  "alias": null,
-                  "args": [
-                    {
-                      "kind": "Literal",
-                      "name": "size",
-                      "value": 100
-                    }
-                  ],
-                  "concreteType": "Image",
-                  "kind": "LinkedField",
-                  "name": "profilePicture",
-                  "plural": false,
-                  "selections": [
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "uri",
-                      "storageKey": null
-                    },
-                    {
-                      "alias": null,
-                      "args": null,
-                      "kind": "ScalarField",
-                      "name": "width",
-                      "storageKey": null
-                    }
-                  ],
-                  "storageKey": "profilePicture(size:100)"
-                }
-              ],
-              "type": "User",
-              "abstractKey": null
-            }
-          ],
-          "args": null,
-          "argumentDefinitions": []
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "kind": "InlineDataFragmentSpread",
+                "name": "inlineDataFragment_Profile",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "size",
+                        "value": 100
+                      }
+                    ],
+                    "concreteType": "Image",
+                    "kind": "LinkedField",
+                    "name": "profilePicture",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "uri",
+                        "storageKey": null
+                      },
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "width",
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": "profilePicture(size:100)"
+                  }
+                ],
+                "args": null,
+                "argumentDefinitions": []
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
+          "name": "inlineDataFragment_Profile"
         }
       ],
       "storageKey": "username(name:\"test\")"

@@ -6,7 +6,7 @@ fragment fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment on Query
     ... on User {
       id
       name
-      ...fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture
+  ...fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture @alias
     }
   }
 }
@@ -277,8 +277,19 @@ import RefetchableFragmentQuery_graphql from './RefetchableFragmentQuery.graphql
               "storageKey": null
             },
             {
-              "args": null,
-              "kind": "FragmentSpread",
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture"
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "AliasedInlineFragmentSpread",
               "name": "fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture"
             }
           ],

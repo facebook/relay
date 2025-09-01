@@ -1,8 +1,8 @@
 ==================================== INPUT ====================================
 query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...moduleOverlapWithinDocument_FooNameRendererFragment
-    ...moduleOverlapWithinDocument_BarNameRendererFragment
+    ...moduleOverlapWithinDocument_FooNameRendererFragment @alias
+    ...moduleOverlapWithinDocument_BarNameRendererFragment @alias
   }
 }
 
@@ -108,13 +108,35 @@ fragment moduleOverlapWithinDocument_MarkdownUserNameRenderer_name on MarkdownUs
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "moduleOverlapWithinDocument_FooNameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "moduleOverlapWithinDocument_FooNameRendererFragment"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "moduleOverlapWithinDocument_BarNameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "moduleOverlapWithinDocument_BarNameRendererFragment"
           }
         ],

@@ -7,8 +7,7 @@ query spreadOfAssignableFragmentQuery {
     ...spreadOfAssignableFragmentAssignable_node
   }
   node2: node(id: 5) {
-    ...spreadOfAssignableFragmentAssignable_user
-    ...spreadOfAssignableFragmentAssignable_node
+  ...spreadOfAssignableFragmentAssignable_node
   }
 }
 
@@ -110,10 +109,10 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "spreadOfAssignableFragmentAssignable_user"
+            "name": "spreadOfAssignableFragmentAssignable_node"
           },
           {
-            "alias": null,
+            "alias": "__isspreadOfAssignableFragmentAssignable_node",
             "args": null,
             "kind": "ScalarField",
             "name": "__typename",
@@ -124,18 +123,6 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
             "args": null,
             "kind": "ScalarField",
             "name": "__id",
-            "storageKey": null
-          },
-          {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "spreadOfAssignableFragmentAssignable_node"
-          },
-          {
-            "alias": "__isspreadOfAssignableFragmentAssignable_node",
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
             "storageKey": null
           }
         ],
@@ -272,7 +259,6 @@ query spreadOfAssignableFragmentQuery {
   }
   node2: node(id: 5) {
     __typename
-    ...spreadOfAssignableFragmentAssignable_user
     ...spreadOfAssignableFragmentAssignable_node
     id
   }

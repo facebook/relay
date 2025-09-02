@@ -140,20 +140,13 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
                         ));
                     }
                 } else {
-                    // Look for `@live` query root fields
-                    let live_directives = operation
-                        .selections
-                        .iter()
-                        .filter(|sel| !matches!(sel, Selection::Condition(_)))
-                        .filter_map(|sel| sel.directives().named(*LIVE_DIRECTIVE_NAME))
-                        .collect::<Vec<_>>();
-
-                    if live_directives.is_empty() {
+                    if !has_live_directive(&operation.selections) {
                         return Transformed::Keep;
                     }
                     next_directives.push(create_metadata_directive(
                         *LIVE_METADATA_KEY,
                         ConstantValue::Object(vec![ConstantArgument {
+                            // Setting a non null config id value to make sure query is executed in live stack.
                             name: WithLocation::generated(*CONFIG_ID_ARG),
                             value: WithLocation::generated(ConstantValue::String(
                                 StringKey::from_str("").unwrap(),
@@ -169,6 +162,26 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
             _ => Transformed::Keep,
         }
     }
+}
+
+fn has_live_directive(selections: &[Selection]) -> bool {
+    selections.iter().any(|selection| -> bool {
+        match selection {
+            Selection::FragmentSpread(_) => is_live_selection(selection),
+            Selection::InlineFragment(inline_fragment) => {
+                is_live_selection(selection) || has_live_directive(&inline_fragment.selections)
+            }
+            Selection::LinkedField(linked_field) => {
+                is_live_selection(selection) || has_live_directive(&linked_field.selections)
+            }
+            Selection::ScalarField(_) => false,
+            Selection::Condition(_) => false,
+        }
+    })
+}
+
+fn is_live_selection(selection: &Selection) -> bool {
+    selection.directives().named(*LIVE_DIRECTIVE_NAME).is_some()
 }
 
 #[derive(Error, Debug, serde::Serialize)]

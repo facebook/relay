@@ -1,11 +1,39 @@
-query NodeQuery($id: ID!) {
+query TestRootField($id: ID!) {
   node(id: $id) @live {
     id
-    ... on User {
+  }
+}
+
+query TestFragmentSpread($id: ID!) {
+  node(id: $id) {
+    id
+    ... on User @live {
       birthdate {
         day
-        month
-        year
+      }
+    }
+  }
+}
+
+query TestInlineFragment($id: ID!) {
+  node(id: $id) {
+    id
+    ... UserBirthdate @live
+  }
+}
+
+fragment UserBirthdate on User {
+  birthdate {
+    day
+  }
+}
+
+query TestLinkedField($id: ID!) {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate @live {
+        day
       }
     }
   }

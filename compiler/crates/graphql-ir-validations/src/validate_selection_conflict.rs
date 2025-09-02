@@ -297,17 +297,17 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             match (existing_field, &field) {
                 (Field::LinkedField(l), Field::LinkedField(r)) => {
                     let fields_mutually_exclusive = is_parent_fields_mutually_exclusive();
-                    if !fields_mutually_exclusive {
-                        if let Err(err) = self.validate_same_field(
+                    if !fields_mutually_exclusive
+                        && let Err(err) = self.validate_same_field(
                             key,
                             l_definition.name.item,
                             r_definition.name.item,
                             *l,
                             *r,
-                        ) {
-                            errors.push(err);
-                        };
-                    }
+                        )
+                    {
+                        errors.push(err);
+                    };
                     if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
                         let mut l_fields = self.validate_linked_field_selections(l)?;
                         let r_fields = self.validate_linked_field_selections(r)?;

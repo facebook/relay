@@ -75,19 +75,19 @@ fn main() {
             }
         }
         for test_case in test_cases.values_mut() {
-            if test_case.expected.is_none() {
-                if let Some(ref input) = test_case.input {
-                    let mut expected = input.clone();
-                    expected.set_extension(EXPECTED_EXTENSION);
-                    let fixer = match &opt.customized_snapshot_fixer {
+            if test_case.expected.is_none()
+                && let Some(ref input) = test_case.input
+            {
+                let mut expected = input.clone();
+                expected.set_extension(EXPECTED_EXTENSION);
+                let fixer = match &opt.customized_snapshot_fixer {
                         Some(customized) => customized.as_str().as_bytes(),
                         None => {
                             "\x40nocommit\nRun snapshot tests with UPDATE_SNAPSHOTS=1 to update this new file.\n".as_bytes()
                         }
                     };
-                    File::create(&expected).unwrap().write_all(fixer).unwrap();
-                    test_case.expected = Some(expected);
-                }
+                File::create(&expected).unwrap().write_all(fixer).unwrap();
+                test_case.expected = Some(expected);
             }
         }
         let mut test_cases: Vec<(_, _)> = test_cases.into_iter().collect();

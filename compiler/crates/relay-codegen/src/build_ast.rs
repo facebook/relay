@@ -565,10 +565,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         let mut metadata = vec![];
-        if !skip_connection_metadata {
-            if let Some(connection_metadata) = &connection_metadata {
-                metadata.push(self.build_connection_metadata(connection_metadata))
-            }
+        if !skip_connection_metadata && let Some(connection_metadata) = &connection_metadata {
+            metadata.push(self.build_connection_metadata(connection_metadata))
         }
         if unmask {
             metadata.push(ObjectEntry {
@@ -2472,20 +2470,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         match self.variant {
             CodegenVariant::Reader => {
-                if module_metadata.read_time_resolvers || should_use_reader_module_imports {
-                    if let Some(dynamic_module_provider) = self
+                if (module_metadata.read_time_resolvers || should_use_reader_module_imports)
+                    && let Some(dynamic_module_provider) = self
                         .project_config
                         .module_import_config
                         .dynamic_module_provider
-                    {
-                        module_import.push(ObjectEntry {
-                            key: CODEGEN_CONSTANTS.component_module_provider,
-                            value: Primitive::DynamicImport {
-                                provider: dynamic_module_provider,
-                                module: module_metadata.module_name,
-                            },
-                        });
-                    }
+                {
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.component_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: dynamic_module_provider,
+                            module: module_metadata.module_name,
+                        },
+                    });
                 }
             }
             CodegenVariant::Normalization => {
@@ -2493,36 +2490,34 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .project_config
                     .module_import_config
                     .dynamic_module_provider
-                {
-                    if self.project_config.module_import_config.surface.is_none()
+                    && (self.project_config.module_import_config.surface.is_none()
                         || self.project_config.module_import_config.surface == Some(Surface::All)
                         || (self.project_config.module_import_config.surface
                             == Some(Surface::Resolvers)
-                            && module_metadata.read_time_resolvers)
+                            && module_metadata.read_time_resolvers))
+                {
+                    let operation_module_provider = match self
+                        .project_config
+                        .module_import_config
+                        .operation_module_provider
                     {
-                        let operation_module_provider = match self
-                            .project_config
-                            .module_import_config
-                            .operation_module_provider
-                        {
-                            Some(operation_module_provider) => operation_module_provider,
-                            None => dynamic_module_provider,
-                        };
-                        module_import.push(ObjectEntry {
-                            key: CODEGEN_CONSTANTS.component_module_provider,
-                            value: Primitive::DynamicImport {
-                                provider: dynamic_module_provider,
-                                module: module_metadata.module_name,
-                            },
-                        });
-                        module_import.push(ObjectEntry {
-                            key: CODEGEN_CONSTANTS.operation_module_provider,
-                            value: Primitive::DynamicImport {
-                                provider: operation_module_provider,
-                                module: get_normalization_fragment_filename(fragment_name),
-                            },
-                        });
-                    }
+                        Some(operation_module_provider) => operation_module_provider,
+                        None => dynamic_module_provider,
+                    };
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.component_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: dynamic_module_provider,
+                            module: module_metadata.module_name,
+                        },
+                    });
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.operation_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: operation_module_provider,
+                            module: get_normalization_fragment_filename(fragment_name),
+                        },
+                    });
                 }
             }
         }

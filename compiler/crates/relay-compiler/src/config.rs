@@ -546,13 +546,13 @@ impl Config {
             }
 
             // If a base of the project is set, it should exist
-            if let Some(base_name) = project_config.base {
-                if self.projects.get(&base_name).is_none() {
-                    errors.push(ConfigValidationError::ProjectBaseMissing {
-                        project_name,
-                        base_project_name: base_name,
-                    })
-                }
+            if let Some(base_name) = project_config.base
+                && self.projects.get(&base_name).is_none()
+            {
+                errors.push(ConfigValidationError::ProjectBaseMissing {
+                    project_name,
+                    base_project_name: base_name,
+                })
             }
         }
     }

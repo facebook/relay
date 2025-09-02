@@ -124,10 +124,10 @@ impl ArtifactWriter for ArtifactFileWriter {
 }
 
 fn ensure_file_directory_exists(file_path: &Path) -> io::Result<()> {
-    if let Some(file_directory) = file_path.parent() {
-        if !file_directory.exists() {
-            create_dir_all(file_directory)?;
-        }
+    if let Some(file_directory) = file_path.parent()
+        && !file_directory.exists()
+    {
+        create_dir_all(file_directory)?;
     }
 
     Ok(())

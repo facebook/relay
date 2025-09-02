@@ -500,39 +500,39 @@ impl CompilerState {
         project_name: ProjectName,
         schema_config: &SchemaConfig,
     ) -> SchemaChangeSafety {
-        if let Some(extension) = self.extensions.get(&project_name) {
-            if !extension.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "extension".to_owned());
-                return SchemaChangeSafety::Unsafe;
-            }
+        if let Some(extension) = self.extensions.get(&project_name)
+            && !extension.pending.is_empty()
+        {
+            log_event.string("has_breaking_schema_change", "extension".to_owned());
+            return SchemaChangeSafety::Unsafe;
         }
-        if let Some(docblocks) = self.docblocks.get(&project_name) {
-            if !docblocks.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "docblock".to_owned());
-                return SchemaChangeSafety::Unsafe;
-            }
+        if let Some(docblocks) = self.docblocks.get(&project_name)
+            && !docblocks.pending.is_empty()
+        {
+            log_event.string("has_breaking_schema_change", "docblock".to_owned());
+            return SchemaChangeSafety::Unsafe;
         }
-        if let Some(full_sources) = self.full_sources.get(&project_name) {
-            if !full_sources.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "full_source".to_owned());
-                return SchemaChangeSafety::Unsafe;
-            }
+        if let Some(full_sources) = self.full_sources.get(&project_name)
+            && !full_sources.pending.is_empty()
+        {
+            log_event.string("has_breaking_schema_change", "full_source".to_owned());
+            return SchemaChangeSafety::Unsafe;
         }
-        if let Some(schema) = self.schemas.get(&project_name) {
-            if !schema.pending.is_empty() {
-                let schema_change = self.get_schema_change(schema);
-                let schema_change_string = schema_change.to_string();
-                let schema_change_safety =
-                    self.get_schema_change_safety(schema, schema_change, schema_config);
-                match schema_change_safety {
-                    SchemaChangeSafety::Unsafe => {
-                        log_event.string("schema_change", schema_change_string);
-                        log_event.string("has_breaking_schema_change", "schema_change".to_owned());
-                    }
-                    SchemaChangeSafety::SafeWithIncrementalBuild(_) | SchemaChangeSafety::Safe => {}
+        if let Some(schema) = self.schemas.get(&project_name)
+            && !schema.pending.is_empty()
+        {
+            let schema_change = self.get_schema_change(schema);
+            let schema_change_string = schema_change.to_string();
+            let schema_change_safety =
+                self.get_schema_change_safety(schema, schema_change, schema_config);
+            match schema_change_safety {
+                SchemaChangeSafety::Unsafe => {
+                    log_event.string("schema_change", schema_change_string);
+                    log_event.string("has_breaking_schema_change", "schema_change".to_owned());
                 }
-                return schema_change_safety;
+                SchemaChangeSafety::SafeWithIncrementalBuild(_) | SchemaChangeSafety::Safe => {}
             }
+            return schema_change_safety;
         }
         SchemaChangeSafety::Safe
     }

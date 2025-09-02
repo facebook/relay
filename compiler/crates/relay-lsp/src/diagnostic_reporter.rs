@@ -149,11 +149,11 @@ impl DiagnosticReporter {
     }
 
     pub fn clear_quick_diagnostics_for_url(&self, url: &Url) {
-        if let Some(mut diagnostics) = self.active_diagnostics.get_mut(url) {
-            if !diagnostics.quick_diagnostics.is_empty() {
-                diagnostics.quick_diagnostics.clear();
-                self.publish_diagnostics_set(url, &diagnostics)
-            }
+        if let Some(mut diagnostics) = self.active_diagnostics.get_mut(url)
+            && !diagnostics.quick_diagnostics.is_empty()
+        {
+            diagnostics.quick_diagnostics.clear();
+            self.publish_diagnostics_set(url, &diagnostics)
         }
     }
 

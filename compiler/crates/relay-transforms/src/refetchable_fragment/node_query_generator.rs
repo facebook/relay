@@ -194,10 +194,10 @@ fn get_node_field_id_and_id_arg<'s>(
     if let Some(node_field_id) = node_field_id {
         let node_field = schema.field(node_field_id);
         let mut arg_iter = node_field.arguments.iter();
-        if let Some(id_arg) = arg_iter.next() {
-            if arg_iter.len() == 0 {
-                return Ok((node_field_id, id_arg));
-            }
+        if let Some(id_arg) = arg_iter.next()
+            && arg_iter.len() == 0
+        {
+            return Ok((node_field_id, id_arg));
         }
     }
     Err(vec![Diagnostic::error(

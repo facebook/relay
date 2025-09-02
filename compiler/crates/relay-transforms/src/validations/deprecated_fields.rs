@@ -81,22 +81,22 @@ impl<'a> DeprecatedFields<'a> {
         }
 
         for arg in arguments {
-            if let Some(arg_definition) = field_definition.arguments.named(arg.name.item) {
-                if let Some(directive) = arg_definition.deprecated() {
-                    let parent_type = field_definition.parent_type.unwrap();
-                    let parent_name = schema.get_type_name(parent_type);
+            if let Some(arg_definition) = field_definition.arguments.named(arg.name.item)
+                && let Some(directive) = arg_definition.deprecated()
+            {
+                let parent_type = field_definition.parent_type.unwrap();
+                let parent_name = schema.get_type_name(parent_type);
 
-                    self.warnings.push(Diagnostic::hint(
-                        ValidationMessage::DeprecatedFieldArgument {
-                            argument_name: arg.name.item,
-                            field_name: field_definition.name.item,
-                            parent_name,
-                            deprecation_reason: directive.reason,
-                        },
-                        arg.name.location,
-                        vec![DiagnosticTag::DEPRECATED],
-                    ));
-                }
+                self.warnings.push(Diagnostic::hint(
+                    ValidationMessage::DeprecatedFieldArgument {
+                        argument_name: arg.name.item,
+                        field_name: field_definition.name.item,
+                        parent_name,
+                        deprecation_reason: directive.reason,
+                    },
+                    arg.name.location,
+                    vec![DiagnosticTag::DEPRECATED],
+                ));
             }
         }
     }
@@ -143,18 +143,18 @@ impl Validator for DeprecatedFields<'_> {
                 ));
             }
             for arg in &directive.arguments {
-                if let Some(arg_definition) = directive_definition.arguments.named(arg.name.item) {
-                    if let Some(deprecation) = arg_definition.deprecated() {
-                        self.warnings.push(Diagnostic::hint(
-                            ValidationMessage::DeprecatedDirectiveArgument {
-                                argument_name: arg.name.item,
-                                directive_name: directive.name.item,
-                                deprecation_reason: deprecation.reason,
-                            },
-                            arg.name.location,
-                            vec![DiagnosticTag::DEPRECATED],
-                        ));
-                    }
+                if let Some(arg_definition) = directive_definition.arguments.named(arg.name.item)
+                    && let Some(deprecation) = arg_definition.deprecated()
+                {
+                    self.warnings.push(Diagnostic::hint(
+                        ValidationMessage::DeprecatedDirectiveArgument {
+                            argument_name: arg.name.item,
+                            directive_name: directive.name.item,
+                            deprecation_reason: deprecation.reason,
+                        },
+                        arg.name.location,
+                        vec![DiagnosticTag::DEPRECATED],
+                    ));
                 }
             }
         }

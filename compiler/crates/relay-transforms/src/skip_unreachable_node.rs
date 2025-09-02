@@ -48,10 +48,10 @@ pub fn skip_unreachable_node_strict(
     let mut validation_mode = ValidationMode::Strict(errors);
     let next_program = skip_unreachable_node(program, &mut validation_mode, defer_stream_interface);
 
-    if let ValidationMode::Strict(errors) = validation_mode {
-        if !errors.is_empty() {
-            return Err(errors);
-        }
+    if let ValidationMode::Strict(errors) = validation_mode
+        && !errors.is_empty()
+    {
+        return Err(errors);
     }
     Ok(next_program)
 }
@@ -184,10 +184,10 @@ impl Transformer<'_> for SkipUnreachableNodeTransform<'_> {
     ) -> Transformed<FragmentDefinition> {
         // Remove the fragment with empty selections
         let selections = self.transform_selections(&fragment.selections);
-        if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
         let directives = self.transform_directives(&fragment.directives);
         if selections.should_keep() && directives.should_keep() {
@@ -227,33 +227,28 @@ impl Transformer<'_> for SkipUnreachableNodeTransform<'_> {
         if let Some(directive) = field
             .directives
             .named(self.defer_stream_interface.stream_name)
-        {
-            if let Some(if_arg) =
+            && let Some(if_arg) =
                 StreamDirective::from(directive, &self.defer_stream_interface).if_arg
-            {
-                if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
-                    let mut next_field = match transformed_field {
-                        Transformed::Delete => return Transformed::Delete,
-                        Transformed::Keep => Arc::new(field.clone()),
-                        Transformed::Replace(Selection::LinkedField(replacement)) => replacement,
-                        Transformed::Replace(other) => {
-                            panic!("unexpected replacement: {other:?}")
-                        }
-                    };
-                    let previous_directive_len = next_field.directives.len();
-                    Arc::make_mut(&mut next_field)
-                        .directives
-                        .retain(|directive| {
-                            directive.name.item != self.defer_stream_interface.stream_name
-                        });
-                    assert_eq!(
-                        previous_directive_len,
-                        next_field.directives.len() + 1,
-                        "should have removed exactly one directive"
-                    );
-                    return Transformed::Replace(Selection::LinkedField(next_field));
+            && let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item
+        {
+            let mut next_field = match transformed_field {
+                Transformed::Delete => return Transformed::Delete,
+                Transformed::Keep => Arc::new(field.clone()),
+                Transformed::Replace(Selection::LinkedField(replacement)) => replacement,
+                Transformed::Replace(other) => {
+                    panic!("unexpected replacement: {other:?}")
                 }
-            }
+            };
+            let previous_directive_len = next_field.directives.len();
+            Arc::make_mut(&mut next_field)
+                .directives
+                .retain(|directive| directive.name.item != self.defer_stream_interface.stream_name);
+            assert_eq!(
+                previous_directive_len,
+                next_field.directives.len() + 1,
+                "should have removed exactly one directive"
+            );
+            return Transformed::Replace(Selection::LinkedField(next_field));
         }
         transformed_field
     }
@@ -318,13 +313,12 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
             assert!(inline_fragment.directives.len() == 1);
             if let Some(if_arg) =
                 DeferDirective::from(directive, &self.defer_stream_interface).if_arg
+                && let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item
             {
-                if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
-                    return TransformedMulti::ReplaceMultiple(
-                        self.transform_selections(&inline_fragment.selections)
-                            .replace_or_else(|| inline_fragment.selections.clone()),
-                    );
-                }
+                return TransformedMulti::ReplaceMultiple(
+                    self.transform_selections(&inline_fragment.selections)
+                        .replace_or_else(|| inline_fragment.selections.clone()),
+                );
             }
         };
         self.default_transform_inline_fragment(inline_fragment)

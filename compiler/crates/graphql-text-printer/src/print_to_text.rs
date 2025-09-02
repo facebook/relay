@@ -427,14 +427,14 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "@{}", directive.name.item)?;
         self.print_arguments(&directive.arguments)?;
 
-        if self.options.debug_directive_data {
-            if let Some(data) = &directive.data {
-                for debug_line in format!("{data:#?}").lines() {
-                    self.print_new_line(false)?;
-                    write!(self.writer, "# {debug_line}")?;
-                }
+        if self.options.debug_directive_data
+            && let Some(data) = &directive.data
+        {
+            for debug_line in format!("{data:#?}").lines() {
                 self.print_new_line(false)?;
+                write!(self.writer, "# {debug_line}")?;
             }
+            self.print_new_line(false)?;
         }
 
         Ok(())
@@ -660,11 +660,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         alias: &Option<WithLocation<StringKey>>,
         name: StringKey,
     ) -> FmtResult {
-        if let Some(alias) = alias {
-            if alias.item != name {
-                write!(self.writer, "{}", alias.item)?;
-                self.print_colon_separator()?;
-            }
+        if let Some(alias) = alias
+            && alias.item != name
+        {
+            write!(self.writer, "{}", alias.item)?;
+            self.print_colon_separator()?;
         }
         write!(self.writer, "{name}")
     }

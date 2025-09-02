@@ -79,14 +79,14 @@ fn apply_actions(actions: Vec<CodeActionOrCommand>) -> Result<(), std::io::Error
 
     // Collect all the changes into a map of file-to-list-of-changes
     for action in actions {
-        if let CodeActionOrCommand::CodeAction(code_action) = action {
-            if let Some(changes) = code_action.edit.unwrap().changes {
-                for (file, changes) in changes {
-                    collected_changes
-                        .entry(file)
-                        .or_insert_with(Vec::new)
-                        .extend(changes);
-                }
+        if let CodeActionOrCommand::CodeAction(code_action) = action
+            && let Some(changes) = code_action.edit.unwrap().changes
+        {
+            for (file, changes) in changes {
+                collected_changes
+                    .entry(file)
+                    .or_insert_with(Vec::new)
+                    .extend(changes);
             }
         }
     }
@@ -123,18 +123,17 @@ fn sort_changes(url: &Url, changes: &mut Vec<TextEdit>) -> Result<(), std::io::E
     // Verify none of the changes overlap
     let mut prev_change: Option<&TextEdit> = None;
     for change in changes {
-        if let Some(prev_change) = prev_change {
-            if change.range.end.line > prev_change.range.start.line
+        if let Some(prev_change) = prev_change
+            && (change.range.end.line > prev_change.range.start.line
                 || (change.range.end.line == prev_change.range.start.line
-                    && change.range.end.character > prev_change.range.start.character)
-            {
-                return Err(std::io::Error::other(format!(
-                    "Codemod produced changes that overlap: File {}, changes: {:?} vs {:?}",
-                    url.path(),
-                    change,
-                    prev_change
-                )));
-            }
+                    && change.range.end.character > prev_change.range.start.character))
+        {
+            return Err(std::io::Error::other(format!(
+                "Codemod produced changes that overlap: File {}, changes: {:?} vs {:?}",
+                url.path(),
+                change,
+                prev_change
+            )));
         }
         prev_change = Some(change);
     }

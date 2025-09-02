@@ -52,20 +52,18 @@ impl Transformer<'_> for UnwrapCustomDirectiveSelection {
             let defer = fragment
                 .directives
                 .named(self.defer_stream_interface.defer_name);
-            if let Some(defer) = defer {
-                if let Selection::FragmentSpread(frag_spread) = &fragment.selections[0] {
-                    return Transformed::Replace(Selection::FragmentSpread(Arc::new(
-                        FragmentSpread {
-                            directives: frag_spread
-                                .directives
-                                .iter()
-                                .chain(iter::once(defer))
-                                .cloned()
-                                .collect(),
-                            ..frag_spread.as_ref().clone()
-                        },
-                    )));
-                }
+            if let Some(defer) = defer
+                && let Selection::FragmentSpread(frag_spread) = &fragment.selections[0]
+            {
+                return Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    directives: frag_spread
+                        .directives
+                        .iter()
+                        .chain(iter::once(defer))
+                        .cloned()
+                        .collect(),
+                    ..frag_spread.as_ref().clone()
+                })));
             }
         }
         self.default_transform_inline_fragment(fragment)

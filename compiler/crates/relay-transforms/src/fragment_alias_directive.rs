@@ -172,10 +172,10 @@ impl<'program> FragmentAliasTransform<'program> {
         type_condition: Option<Type>,
         spread: &FragmentSpread,
     ) {
-        if let Some(parent_name) = self.parent_name {
-            if !self.is_enforced.is_enabled_for(parent_name) {
-                return;
-            }
+        if let Some(parent_name) = self.parent_name
+            && !self.is_enforced.is_enabled_for(parent_name)
+        {
+            return;
         }
         if spread
             .directives
@@ -300,10 +300,11 @@ impl Transformer<'_> for FragmentAliasTransform<'_> {
         let parent_condition = self.maybe_condition.replace(condition.clone());
         let selections = self.transform_selections(&condition.selections);
         self.maybe_condition = parent_condition;
-        if let TransformedValue::Replace(selections) = &selections {
-            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && !Self::RETAIN_EMPTY_SELECTION_SETS
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
         let condition_value = self.transform_condition_value(&condition.value);
         if selections.should_keep() && condition_value.should_keep() {

@@ -380,49 +380,49 @@ async fn query_file_result(
 }
 
 fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filter: &str) {
-    if let Ok(rust_log) = std::env::var("RUST_LOG") {
-        if rust_log == *"debug" {
+    if let Ok(rust_log) = std::env::var("RUST_LOG")
+        && rust_log == *"debug"
+    {
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.version = {:?}",
+            query_result.version
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.clock = {:?}",
+            query_result.clock
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.is_fresh_instance = {:?}",
+            query_result.is_fresh_instance
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.saved_state_info = {:?}",
+            query_result.saved_state_info
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.state_metadata = {:?}",
+            query_result.state_metadata
+        );
+        if let Some(files) = &query_result.files {
             debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.version = {:?}",
-                query_result.version
+                "WatchmanFileSource::query_file_result(...) query_result.files(only=*.{}) = \n{}",
+                extension_filter,
+                files
+                    .iter()
+                    .filter_map(|file| {
+                        if file.name.extension().is_some()
+                            && file.name.extension().unwrap() == extension_filter
+                        {
+                            Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<String>>()
+                    .join("\n")
             );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.clock = {:?}",
-                query_result.clock
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.is_fresh_instance = {:?}",
-                query_result.is_fresh_instance
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.saved_state_info = {:?}",
-                query_result.saved_state_info
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.state_metadata = {:?}",
-                query_result.state_metadata
-            );
-            if let Some(files) = &query_result.files {
-                debug!(
-                    "WatchmanFileSource::query_file_result(...) query_result.files(only=*.{}) = \n{}",
-                    extension_filter,
-                    files
-                        .iter()
-                        .filter_map(|file| {
-                            if file.name.extension().is_some()
-                                && file.name.extension().unwrap() == extension_filter
-                            {
-                                Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
-                            } else {
-                                None
-                            }
-                        })
-                        .collect::<Vec<String>>()
-                        .join("\n")
-                );
-            } else {
-                debug!("WatchmanFileSource::query_file_result(...): no files found");
-            }
+        } else {
+            debug!("WatchmanFileSource::query_file_result(...): no files found");
         }
     }
 }

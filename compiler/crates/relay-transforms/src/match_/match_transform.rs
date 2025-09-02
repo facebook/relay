@@ -1135,19 +1135,17 @@ fn has_relay_resolver_model(
     transform: &mut MatchTransform<'_, '_>,
     spread: &FragmentSpread,
 ) -> Result<bool, Diagnostic> {
-    if let Some(fragment_object) = transform.program.fragment(spread.fragment.item) {
-        if let Type::Object(object_id) = fragment_object.type_condition {
-            if transform
-                .program
-                .schema
-                .object(object_id)
-                .directives
-                .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
-                .is_some()
-            {
-                return validate_parent_type_of_fragment_with_read_time_resolver(transform, spread);
-            }
-        }
+    if let Some(fragment_object) = transform.program.fragment(spread.fragment.item)
+        && let Type::Object(object_id) = fragment_object.type_condition
+        && transform
+            .program
+            .schema
+            .object(object_id)
+            .directives
+            .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+            .is_some()
+    {
+        return validate_parent_type_of_fragment_with_read_time_resolver(transform, spread);
     }
     Ok(false)
 }

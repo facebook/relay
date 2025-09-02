@@ -88,10 +88,10 @@ impl Printer {
         let last = variable_definitions.items.last();
         for variable_definition in &variable_definitions.items {
             self.print_variable_definition(variable_definition)?;
-            if let Some(last) = last {
-                if last != variable_definition {
-                    write!(self.output, ", ")?;
-                }
+            if let Some(last) = last
+                && last != variable_definition
+            {
+                write!(self.output, ", ")?;
             }
         }
         write!(self.output, ")")?;
@@ -136,10 +136,10 @@ impl Printer {
         let last_arg = arguments.items.last();
         for argument in &arguments.items {
             write!(self.output, "{argument}")?;
-            if let Some(last_arg) = last_arg {
-                if last_arg != argument {
-                    write!(self.output, ", ")?;
-                }
+            if let Some(last_arg) = last_arg
+                && last_arg != argument
+            {
+                write!(self.output, ", ")?;
             }
         }
         write!(self.output, ")")?;

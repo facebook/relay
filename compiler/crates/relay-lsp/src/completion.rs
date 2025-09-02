@@ -257,15 +257,15 @@ impl CompletionRequestBuilder {
                             ..
                         } = node;
                         type_path.push(TypePathItem::LinkedField { name: name.value });
-                        if let Some(arguments) = arguments {
-                            if arguments.span.contains(position_span) {
-                                return self.build_request_from_arguments(
-                                    arguments,
-                                    position_span,
-                                    type_path,
-                                    ArgumentKind::Field,
-                                );
-                            }
+                        if let Some(arguments) = arguments
+                            && arguments.span.contains(position_span)
+                        {
+                            return self.build_request_from_arguments(
+                                arguments,
+                                position_span,
+                                type_path,
+                                ArgumentKind::Field,
+                            );
                         }
                         self.build_request_from_selection_or_directives(
                             selections,
@@ -335,15 +335,15 @@ impl CompletionRequestBuilder {
                             ..
                         } = node;
                         type_path.push(TypePathItem::ScalarField { name: name.value });
-                        if let Some(arguments) = arguments {
-                            if arguments.span.contains(position_span) {
-                                return self.build_request_from_arguments(
-                                    arguments,
-                                    position_span,
-                                    type_path,
-                                    ArgumentKind::Field,
-                                );
-                            }
+                        if let Some(arguments) = arguments
+                            && arguments.span.contains(position_span)
+                        {
+                            return self.build_request_from_arguments(
+                                arguments,
+                                position_span,
+                                type_path,
+                                ArgumentKind::Field,
+                            );
                         }
                         self.build_request_from_directives(
                             directives,
@@ -1052,16 +1052,16 @@ fn resolve_completion_items_for_argument_value(
         }
     };
 
-    if !type_.is_list() {
-        if let Type::Enum(id) = type_.inner() {
-            let enum_ = schema.enum_(id);
-            completion_items.extend(
-                enum_
-                    .values
-                    .iter()
-                    .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
-            )
-        }
+    if !type_.is_list()
+        && let Type::Enum(id) = type_.inner()
+    {
+        let enum_ = schema.enum_(id);
+        completion_items.extend(
+            enum_
+                .values
+                .iter()
+                .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
+        )
     }
 
     completion_items
@@ -1402,10 +1402,10 @@ fn get_abstract_type_suggestions(
         for interface_id in &object_type.interfaces {
             let interface_type = schema.interface(*interface_id);
 
-            if let Some(base_id) = base_interface_id {
-                if interface_id == base_id || !interface_type.interfaces.contains(base_id) {
-                    continue;
-                }
+            if let Some(base_id) = base_interface_id
+                && (interface_id == base_id || !interface_type.interfaces.contains(base_id))
+            {
+                continue;
             }
 
             if let Some(t) = schema.get_type(interface_type.name.item.0) {

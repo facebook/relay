@@ -429,15 +429,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let directives = self.build_directives(&operation.directives, kind.into());
         let operation_type_reference = TypeReference::Named(operation_type);
         // assert the subscription only contains one selection
-        if let OperationKind::Subscription = kind {
-            if operation.selections.items.len() != 1 {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
-                        subscription_name: name.value,
-                    },
-                    operation.location,
-                )]);
-            }
+        if let OperationKind::Subscription = kind
+            && operation.selections.items.len() != 1
+        {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
+                    subscription_name: name.value,
+                },
+                operation.location,
+            )]);
         }
         let selections =
             self.build_selections(&operation.selections.items, &[operation_type_reference]);
@@ -990,19 +990,18 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             None => None,
         };
 
-        if let Some((type_condition, span)) = type_condition_with_span {
-            if let Some(parent_type) =
+        if let Some((type_condition, span)) = type_condition_with_span
+            && let Some(parent_type) =
                 self.find_conflicting_parent_type(parent_types, type_condition)
-            {
-                // no possible overlap
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::InvalidInlineFragmentTypeCondition {
-                        parent_type: self.schema.get_type_name(parent_type.inner()),
-                        type_condition: self.schema.get_type_name(type_condition),
-                    },
-                    self.location.with_span(span),
-                )]);
-            }
+        {
+            // no possible overlap
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::InvalidInlineFragmentTypeCondition {
+                    parent_type: self.schema.get_type_name(parent_type.inner()),
+                    type_condition: self.schema.get_type_name(type_condition),
+                },
+                self.location.with_span(span),
+            )]);
         }
 
         let type_condition = type_condition_with_span.map(|(type_, _)| type_);

@@ -719,20 +719,20 @@ impl<'b> JSONPrinter<'b> {
                 let should_relativize = matches!(origin, ModuleOrigin::Artifact)
                     || (self.relativize_js_module_paths && !has_path_prefix);
 
-                if let Some(extension) = extension {
-                    if extension == "ts" || extension == "tsx" || extension == "js" {
-                        let path_without_extension = path.with_extension("");
+                if let Some(extension) = extension
+                    && (extension == "ts" || extension == "tsx" || extension == "js")
+                {
+                    let path_without_extension = path.with_extension("");
 
-                        let path_without_extension = path_without_extension
-                            .to_str()
-                            .expect("could not convert `path_without_extension` to a str");
+                    let path_without_extension = path_without_extension
+                        .to_str()
+                        .expect("could not convert `path_without_extension` to a str");
 
-                        return Cow::Owned(if should_relativize {
-                            format!("./{path_without_extension}")
-                        } else {
-                            path_without_extension.to_string()
-                        });
-                    }
+                    return Cow::Owned(if should_relativize {
+                        format!("./{path_without_extension}")
+                    } else {
+                        path_without_extension.to_string()
+                    });
                 }
                 Cow::Owned(if should_relativize {
                     format!("./{}", key.borrow())

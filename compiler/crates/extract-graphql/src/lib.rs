@@ -78,12 +78,11 @@ impl Iterator for CharReader<'_> {
                 // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
                 '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
                     // <CRLF>
-                    if ch == '\u{000D}' {
-                        if let Some((_, ch)) = self.chars.peek() {
-                            if ch == &'\u{00A}' {
-                                return pair;
-                            }
-                        }
+                    if ch == '\u{000D}'
+                        && let Some((_, ch)) = self.chars.peek()
+                        && ch == &'\u{00A}'
+                    {
+                        return pair;
                     }
                     self.line_index += 1;
                     self.column_index = 0;
@@ -109,11 +108,11 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
         match c {
             'g' => {
                 for expected in ['r', 'a', 'p', 'h', 'q', 'l'] {
-                    if let Some((_, c)) = it.next() {
-                        if c != expected {
-                            consume_identifier(&mut it);
-                            continue 'code;
-                        }
+                    if let Some((_, c)) = it.next()
+                        && c != expected
+                    {
+                        consume_identifier(&mut it);
+                        continue 'code;
                     }
                 }
 

@@ -324,10 +324,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let build_results: Vec<_> = config
         .par_enabled_projects()
         .filter(|project_config| {
-            if let Some(base) = project_config.base {
-                if compiler_state.project_has_pending_changes(base) {
-                    return true;
-                }
+            if let Some(base) = project_config.base
+                && compiler_state.project_has_pending_changes(base)
+            {
+                return true;
             }
             compiler_state.project_has_pending_changes(project_config.name)
         })

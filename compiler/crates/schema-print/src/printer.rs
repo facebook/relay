@@ -369,12 +369,11 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
     }
 
     fn writer(&mut self) -> &mut String {
-        if let Some(type_writers) = &mut self.type_writers {
-            if let Some((type_name, index)) = self.type_writers_index {
-                if let Some(writers) = type_writers.get_mut(&type_name) {
-                    return writers.get_mut(index).unwrap();
-                }
-            }
+        if let Some(type_writers) = &mut self.type_writers
+            && let Some((type_name, index)) = self.type_writers_index
+            && let Some(writers) = type_writers.get_mut(&type_name)
+        {
+            return writers.get_mut(index).unwrap();
         }
         self.writers.get_mut(self.writers_index).unwrap()
     }
@@ -384,10 +383,10 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             let type_name = self.schema.get_type_name(*type_);
             let type_hash = calculate_hash(&type_name.lookup()) as usize;
             self.writers_index = type_hash % self.shard_count;
-            if let Some(type_writers) = &self.type_writers {
-                if type_writers.contains_key(&type_name) {
-                    self.type_writers_index = Some((type_name, 0));
-                }
+            if let Some(type_writers) = &self.type_writers
+                && type_writers.contains_key(&type_name)
+            {
+                self.type_writers_index = Some((type_name, 0));
             }
         }
     }
@@ -397,19 +396,19 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
     }
 
     fn update_writer_index_for_field_start(&mut self, field_name: StringKey, type_name: StringKey) {
-        if let Some(type_writers) = &mut self.type_writers {
-            if let Some(writers) = type_writers.get_mut(&type_name) {
-                let index = (calculate_hash(&field_name.lookup()) as usize) % writers.len();
-                self.type_writers_index = Some((type_name, index));
-            }
+        if let Some(type_writers) = &mut self.type_writers
+            && let Some(writers) = type_writers.get_mut(&type_name)
+        {
+            let index = (calculate_hash(&field_name.lookup()) as usize) % writers.len();
+            self.type_writers_index = Some((type_name, index));
         }
     }
 
     fn update_writer_index_for_all_field_end(&mut self, type_name: StringKey) {
-        if let Some(type_writers) = &self.type_writers {
-            if let Some(writers) = type_writers.get(&type_name) {
-                self.type_writers_index = Some((type_name, writers.len() - 1));
-            }
+        if let Some(type_writers) = &self.type_writers
+            && let Some(writers) = type_writers.get(&type_name)
+        {
+            self.type_writers_index = Some((type_name, writers.len() - 1));
         }
     }
 }

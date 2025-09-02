@@ -1366,10 +1366,10 @@ fn invert_custom_scalar_map(
 ) -> DiagnosticsResult<FnvIndexMap<CustomType, ScalarName>> {
     let mut custom_scalar_map = FnvIndexMap::default();
     for (graphql_scalar, flow_type) in custom_scalar_types.iter() {
-        if let CustomType::Name(scalar) = flow_type {
-            if FLOW_PRIMATIVES.contains(scalar.lookup()) {
-                continue;
-            }
+        if let CustomType::Name(scalar) = flow_type
+            && FLOW_PRIMATIVES.contains(scalar.lookup())
+        {
+            continue;
         }
         if custom_scalar_map.contains_key(flow_type) {
             // Multiple custom GraphQL scalars map to one Flow type

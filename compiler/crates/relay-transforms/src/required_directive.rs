@@ -502,10 +502,10 @@ impl Transformer<'_> for RequiredDirective<'_> {
                 })))
             }
         } else {
-            if let Some(type_) = fragment.type_condition {
-                if type_.is_abstract_type() {
-                    self.within_abstract_inline_fragment = true;
-                }
+            if let Some(type_) = fragment.type_condition
+                && type_.is_abstract_type()
+            {
+                self.within_abstract_inline_fragment = true;
             }
             self.default_transform_inline_fragment(fragment)
         };

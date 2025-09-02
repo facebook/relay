@@ -246,14 +246,14 @@ impl Visitor for VariablesVisitor<'_, '_> {
     const VISIT_DIRECTIVES: bool = true;
 
     fn visit_directive(&mut self, directive: &graphql_ir::Directive) {
-        if directive.name.item == RelayResolverMetadata::directive_name() {
-            if let Some(relay_resolver_metadata) = RelayResolverMetadata::from(directive) {
-                for arg in relay_resolver_metadata.field_arguments.iter() {
-                    if let Value::Variable(var) = &arg.value.item {
-                        if self.is_root_variable(var.name.item) {
-                            self.record_root_variable_usage(&var.name, &var.type_);
-                        }
-                    }
+        if directive.name.item == RelayResolverMetadata::directive_name()
+            && let Some(relay_resolver_metadata) = RelayResolverMetadata::from(directive)
+        {
+            for arg in relay_resolver_metadata.field_arguments.iter() {
+                if let Value::Variable(var) = &arg.value.item
+                    && self.is_root_variable(var.name.item)
+                {
+                    self.record_root_variable_usage(&var.name, &var.type_);
                 }
             }
         }
@@ -271,15 +271,13 @@ impl Visitor for VariablesVisitor<'_, '_> {
         // recover the expected type from the corresponding argument definitions.
         if !fragment.variable_definitions.is_empty() {
             for arg in spread.arguments.iter() {
-                if let Value::Variable(var) = &arg.value.item {
-                    if let Some(def) = fragment
+                if let Value::Variable(var) = &arg.value.item
+                    && let Some(def) = fragment
                         .variable_definitions
                         .named(VariableName(arg.name.item.0))
-                    {
-                        if self.is_root_variable(var.name.item) {
-                            self.record_root_variable_usage(&var.name, &def.type_);
-                        }
-                    }
+                    && self.is_root_variable(var.name.item)
+                {
+                    self.record_root_variable_usage(&var.name, &def.type_);
                 }
             }
         }

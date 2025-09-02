@@ -244,11 +244,11 @@ impl TypeScriptPrinter {
 
         // Replication of babel printer oddity: objects only containing a spread
         // are missing a newline.
-        if props.len() == 1 {
-            if let Prop::Spread(_) = props[0] {
-                write!(&mut self.result, "Record<PropertyKey, never>")?;
-                return Ok(());
-            }
+        if props.len() == 1
+            && let Prop::Spread(_) = props[0]
+        {
+            write!(&mut self.result, "Record<PropertyKey, never>")?;
+            return Ok(());
         }
 
         writeln!(&mut self.result, "{{")?;

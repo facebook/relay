@@ -70,10 +70,11 @@ pub trait Transformer<'a> {
             self.transform_variable_definitions(&fragment.variable_definitions);
 
         // Special-case for empty selections
-        if let TransformedValue::Replace(selections) = &selections {
-            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && !Self::RETAIN_EMPTY_SELECTION_SETS
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
 
         if selections.should_keep()
@@ -110,10 +111,11 @@ pub trait Transformer<'a> {
             self.transform_variable_definitions(&operation.variable_definitions);
 
         // Special-case for empty selections
-        if let TransformedValue::Replace(selections) = &selections {
-            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && !Self::RETAIN_EMPTY_SELECTION_SETS
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
 
         if variable_definitions.should_keep()
@@ -216,10 +218,11 @@ pub trait Transformer<'a> {
     fn default_transform_linked_field(&mut self, field: &'a LinkedField) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&field.selections);
-        if let TransformedValue::Replace(selections) = &selections {
-            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && !Self::RETAIN_EMPTY_SELECTION_SETS
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
         let arguments = self.transform_arguments(&field.arguments);
         let directives = self.transform_directives(&field.directives);
@@ -247,10 +250,11 @@ pub trait Transformer<'a> {
     ) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&fragment.selections);
-        if let TransformedValue::Replace(selections) = &selections {
-            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && !Self::RETAIN_EMPTY_SELECTION_SETS
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
         let directives = self.transform_directives(&fragment.directives);
         if selections.should_keep() && directives.should_keep() {
@@ -290,10 +294,11 @@ pub trait Transformer<'a> {
     fn default_transform_condition(&mut self, condition: &'a Condition) -> Transformed<Selection> {
         // Special-case for empty selections
         let selections = self.transform_selections(&condition.selections);
-        if let TransformedValue::Replace(selections) = &selections {
-            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && !Self::RETAIN_EMPTY_SELECTION_SETS
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
         let condition_value = self.transform_condition_value(&condition.value);
         if selections.should_keep() && condition_value.should_keep() {

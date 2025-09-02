@@ -288,14 +288,12 @@ impl Transformer<'_> for AssignableFragmentSpread<'_> {
         if matches!(
             valid_generated_flow_type,
             ValidGeneratedFlowType::OnlyDiscriminatedUnion
+        ) && let Err(e) = ensure_discriminated_union_is_created(
+            &self.program.schema,
+            linked_field,
+            "an assignable fragment was spread in this linked field",
         ) {
-            if let Err(e) = ensure_discriminated_union_is_created(
-                &self.program.schema,
-                linked_field,
-                "an assignable fragment was spread in this linked field",
-            ) {
-                self.errors.extend(e);
-            }
+            self.errors.extend(e);
         }
 
         response

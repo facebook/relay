@@ -515,14 +515,12 @@ impl Visitor for FragmentArgumentFinder {
     }
 
     fn visit_argument(&mut self, argument: &graphql_ir::Argument) {
-        if let Some(fragment_name) = self.current_scope.fragment_name {
-            if fragment_name == self.fragment_name {
-                if let graphql_ir::Value::Variable(variable) = &argument.value.item {
-                    if variable.name.item.0 == self.argument_name {
-                        self.add_argument_location(variable.name.location);
-                    }
-                }
-            }
+        if let Some(fragment_name) = self.current_scope.fragment_name
+            && fragment_name == self.fragment_name
+            && let graphql_ir::Value::Variable(variable) = &argument.value.item
+            && variable.name.item.0 == self.argument_name
+        {
+            self.add_argument_location(variable.name.location);
         }
     }
 
@@ -559,10 +557,11 @@ impl Visitor for FragmentArgumentFinder {
 
     // This is necessary to visit variable usages within conditionals like @skip.
     fn visit_variable(&mut self, value: &graphql_ir::Variable) {
-        if let Some(fragment_name) = self.current_scope.fragment_name {
-            if fragment_name == self.fragment_name && value.name.item.0 == self.argument_name {
-                self.add_argument_location(value.name.location);
-            }
+        if let Some(fragment_name) = self.current_scope.fragment_name
+            && fragment_name == self.fragment_name
+            && value.name.item.0 == self.argument_name
+        {
+            self.add_argument_location(value.name.location);
         }
     }
 }

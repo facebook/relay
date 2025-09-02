@@ -692,20 +692,20 @@ fn write_relay_resolver_imports(
             }
         }
 
-        if let Some(ref live_resolver_context_import) = resolver.context_import {
-            if !live_resolver_context_import_written {
-                writer.write_import_type(
-                    &[live_resolver_context_import.name.lookup()],
-                    live_resolver_context_import.import_path.lookup(),
-                )?;
-                live_resolver_context_import_written = true;
-            }
+        if let Some(ref live_resolver_context_import) = resolver.context_import
+            && !live_resolver_context_import_written
+        {
+            writer.write_import_type(
+                &[live_resolver_context_import.name.lookup()],
+                live_resolver_context_import.import_path.lookup(),
+            )?;
+            live_resolver_context_import_written = true;
         }
 
-        if let Some(resolver_type) = &resolver.resolver_type {
-            if let AST::AssertFunctionType(_) = resolver_type {
-                writer.write(resolver_type)?;
-            }
+        if let Some(resolver_type) = &resolver.resolver_type
+            && let AST::AssertFunctionType(_) = resolver_type
+        {
+            writer.write(resolver_type)?;
         }
     }
     Ok(())

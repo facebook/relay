@@ -71,21 +71,21 @@ impl Validator for NoInlineRawResponseTypeValidator<'_> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
-            if !is_raw_response_type_enabled(directive) {
-                return Err(vec![
-                    Diagnostic::error(
-                        ValidationMessage::RequiredRawResponseTypeOnNoInline {
-                            fragment_name: fragment.name.item,
-                        },
-                        fragment.name.location,
-                    )
-                    .annotate(
-                        "The query with @raw_response_type",
-                        self.current_query_location,
-                    ),
-                ]);
-            }
+        if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME)
+            && !is_raw_response_type_enabled(directive)
+        {
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::RequiredRawResponseTypeOnNoInline {
+                        fragment_name: fragment.name.item,
+                    },
+                    fragment.name.location,
+                )
+                .annotate(
+                    "The query with @raw_response_type",
+                    self.current_query_location,
+                ),
+            ]);
         }
         self.default_validate_fragment(fragment)
     }

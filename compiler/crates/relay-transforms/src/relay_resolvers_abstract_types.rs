@@ -134,14 +134,12 @@ impl RelayResolverAbstractTypesTransform<'_> {
             .directives
             .iter()
             .find(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
-        {
-            if resolver_directive
+            && resolver_directive
                 .arguments
                 .named(ArgumentName(*ROOT_FRAGMENT_FIELD))
                 .is_some()
-            {
-                return true;
-            }
+        {
+            return true;
         }
         // Any of the implementing objects' corresponding field is a resolver field
         let selection_name = interface_field.name.item;

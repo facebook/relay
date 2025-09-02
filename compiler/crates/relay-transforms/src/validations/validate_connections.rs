@@ -584,15 +584,15 @@ impl<'s> ConnectionValidation<'s> {
                 }
                 _ => None,
             });
-        if let Some(page_info_selection) = page_info_selection {
-            if page_info_selection.alias.is_some() {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnsupportedAliasingInStreamConnection {
-                        field_name: self.connection_interface.page_info,
-                    },
-                    page_info_selection.definition.location,
-                )]);
-            }
+        if let Some(page_info_selection) = page_info_selection
+            && page_info_selection.alias.is_some()
+        {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::UnsupportedAliasingInStreamConnection {
+                    field_name: self.connection_interface.page_info,
+                },
+                page_info_selection.definition.location,
+            )]);
         }
 
         Ok(())

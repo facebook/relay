@@ -3053,10 +3053,10 @@ fn get_common_indent(source: &str) -> usize {
     let lines = source.lines().skip(1);
     let mut common_indent: Option<usize> = None;
     for line in lines {
-        if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next() {
-            if common_indent.is_none_or(|indent| first_index < indent) {
-                common_indent = Some(first_index)
-            }
+        if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next()
+            && common_indent.is_none_or(|indent| first_index < indent)
+        {
+            common_indent = Some(first_index)
         }
     }
     common_indent.unwrap_or(0)

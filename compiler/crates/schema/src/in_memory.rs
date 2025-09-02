@@ -977,20 +977,20 @@ impl InMemorySchema {
     // This is not standard GraphQL behavior, and we might want to remove
     // this at some point.
     fn load_default_root_types(&mut self) {
-        if self.query_type.is_none() {
-            if let Some(Type::Object(id)) = self.type_map.get(&"Query".intern()) {
-                self.query_type = Some(*id);
-            }
+        if self.query_type.is_none()
+            && let Some(Type::Object(id)) = self.type_map.get(&"Query".intern())
+        {
+            self.query_type = Some(*id);
         }
-        if self.mutation_type.is_none() {
-            if let Some(Type::Object(id)) = self.type_map.get(&"Mutation".intern()) {
-                self.mutation_type = Some(*id);
-            }
+        if self.mutation_type.is_none()
+            && let Some(Type::Object(id)) = self.type_map.get(&"Mutation".intern())
+        {
+            self.mutation_type = Some(*id);
         }
-        if self.subscription_type.is_none() {
-            if let Some(Type::Object(id)) = self.type_map.get(&"Subscription".intern()) {
-                self.subscription_type = Some(*id);
-            }
+        if self.subscription_type.is_none()
+            && let Some(Type::Object(id)) = self.type_map.get(&"Subscription".intern())
+        {
+            self.subscription_type = Some(*id);
         }
     }
 

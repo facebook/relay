@@ -329,11 +329,11 @@ impl FileCategorizer {
         path: &Path,
     ) -> bool {
         for project_name in project_set.iter() {
-            if let Some(language) = self.source_language.get(project_name) {
-                if !is_valid_source_code_extension(language, extension) {
-                    warn!("Unexpected file `{path:?}` for language `{language:?}`.");
-                    return false;
-                }
+            if let Some(language) = self.source_language.get(project_name)
+                && !is_valid_source_code_extension(language, extension)
+            {
+                warn!("Unexpected file `{path:?}` for language `{language:?}`.");
+                return false;
             }
         }
         true

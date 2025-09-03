@@ -608,15 +608,20 @@ hook useFragmentInternal_EXPERIMENTAL(
   //   or detaches (<Activity> going hidden), and then re-subscribes when the component
   //   re-attaches (<Activity> going visible). These cases wouldn't fire the
   //   "update" effect because the state and environment don't change.
-  const storeSubscriptionRef = useRef<{
-    dispose: () => void,
-    selector: ?ReaderSelector,
-    environment: IEnvironment,
-  } | null>(null);
+  const storeSubscriptionRef = useRef<
+    | {
+        kind: 'initialized',
+        dispose: () => void,
+        selector: ?ReaderSelector,
+        environment: IEnvironment,
+      }
+    | {kind: 'missed-updates'}
+    | {kind: 'uninitialized'},
+  >({kind: 'uninitialized'});
   // $FlowFixMe[react-rule-hook] - the condition is static
   useEffect(() => {
     const storeSubscription = storeSubscriptionRef.current;
-    if (storeSubscription != null) {
+    if (storeSubscription.kind === 'initialized') {
       if (
         state.environment === storeSubscription.environment &&
         state.selector === storeSubscription.selector
@@ -626,6 +631,7 @@ hook useFragmentInternal_EXPERIMENTAL(
       } else {
         // The selector has changed, so we need to dispose of the previous subscription
         storeSubscription.dispose();
+        storeSubscriptionRef.current = {kind: 'uninitialized'};
       }
     }
     if (state.kind === 'bailout') {
@@ -650,7 +656,11 @@ hook useFragmentInternal_EXPERIMENTAL(
       // to using the latest snapshot to subscribe.
       if (didMissUpdates) {
         setState(updatedState);
+        storeSubscriptionRef.current = {kind: 'missed-updates'};
         // We missed updates, we're going to render again anyway so wait until then to subscribe
+        // Setting the ref to kind: missed-updates ensures the second useEffect (simulating the
+        // setup/teardown part of the crud effect) will not set up the subscription w the stale
+        // state
         return;
       }
       stateForSubscription = updatedState;
@@ -661,6 +671,7 @@ hook useFragmentInternal_EXPERIMENTAL(
       setState,
     );
     storeSubscriptionRef.current = {
+      kind: 'initialized',
       dispose,
       selector: state.selector,
       environment: state.environment,
@@ -668,17 +679,23 @@ hook useFragmentInternal_EXPERIMENTAL(
   }, [state]);
   // $FlowFixMe[react-rule-hook] - the condition is static
   useEffect(() => {
-    if (storeSubscriptionRef.current == null && state.kind !== 'bailout') {
+    if (
+      storeSubscriptionRef.current.kind === 'uninitialized' &&
+      state.kind !== 'bailout'
+    ) {
       const dispose = subscribeToSnapshot(state.environment, state, setState);
       storeSubscriptionRef.current = {
+        kind: 'initialized',
         dispose,
         selector: state.selector,
         environment: state.environment,
       };
     }
     return () => {
-      storeSubscriptionRef.current?.dispose();
-      storeSubscriptionRef.current = null;
+      if (storeSubscriptionRef.current.kind === 'initialized') {
+        storeSubscriptionRef.current.dispose();
+      }
+      storeSubscriptionRef.current = {kind: 'uninitialized'};
     };
     // NOTE: this intentionally has no dependencies, see above comment about
     // simulating a CRUD effect

@@ -62,25 +62,22 @@ type ExpectedReturnType<
   keyNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
 
-// $FlowExpectedError: can't cast nullable to non-nullable
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-type]
+// $FlowFixMe[incompatible-type] can't cast nullable to non-nullable
 (usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
-// $FlowExpectedError: actual type of returned data is correct
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-type]
+// $FlowFixMe[incompatible-type] actual type of returned data is correct
 (usePaginationFragment(
   refetchableFragmentInput,
   // $FlowFixMe[incompatible-type]
   keyAnotherNonNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
-// $FlowExpectedError
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-type]
 (usePaginationFragment(
@@ -89,19 +86,16 @@ type ExpectedReturnType<
   keyAnotherNullable,
 ): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
 
-// $FlowExpectedError: Key should not be a user provided object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-type]
+// $FlowFixMe[incompatible-type] Key should not be a user provided object
 usePaginationFragment(refetchableFragmentInput, {abc: 123});
 
-// $FlowExpectedError: Key should not be an empty object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-type]
+// $FlowFixMe[incompatible-type] Key should not be an empty object
 usePaginationFragment(refetchableFragmentInput, {});
 
-// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-type]
+// $FlowFixMe[incompatible-type] Key should be the `<name>$key` type from generated flow
 usePaginationFragment(refetchableFragmentInput, fragmentData);
 
 // Refetch function options:

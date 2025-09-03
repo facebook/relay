@@ -114,7 +114,6 @@ test('resolver suspense suspends', async () => {
   environment.commitPayload(operation, {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
-  // $FlowFixMe Data is untyped
   const observable = observeQuery(environment, query, variables);
   withObservableValues(observable, results => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
@@ -246,7 +245,6 @@ test('Resolver error with @throwOnFieldError', async () => {
   const variables = {};
   const operation = createOperationDescriptor(query, variables);
   environment.commitPayload(operation, {me: {id: '7', __typename: 'User'}});
-  // $FlowFixMe Data is untyped
   const observable = observeQuery(environment, query, variables);
   withObservableValues(observable, results => {
     expect(results).toEqual([
@@ -278,7 +276,6 @@ test('Resolver with client edge to server object', async () => {
   environment.commitPayload(operation, {me: {id: '7', __typename: 'User'}});
   let result;
   try {
-    // $FlowFixMe Data is untyped
     const observable = observeQuery(environment, query, variables);
     // Today we never get to this, but once client edges are supported, we will
     withObservableValues(observable, results => {
@@ -315,7 +312,6 @@ test('data goes missing due to unrelated query response', async () => {
   environment.commitPayload(operation, {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
-  // $FlowFixMe Data is untyped
   const observable = observeQuery(environment, query, variables);
 
   // Now an unrelated query comes in and changes the Query.me relationship to a
@@ -358,7 +354,6 @@ test('data goes missing due to unrelated query response (@throwOnFieldErrro)', a
   environment.commitPayload(operation, {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
-  // $FlowFixMe Data is untyped
   const observable = observeQuery(environment, query, variables);
 
   // Now an unrelated query comes in and changes the Query.me relationship to a

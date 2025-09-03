@@ -111,7 +111,6 @@ class PluralTest extends React.Component<{
 }> {
   render(): React.Node {
     const names = this.props.users.map(user => user.name).filter(Boolean);
-    // $FlowExpectedError
     (names: Array<string>);
     // $FlowExpectedError[incompatible-type]
     (names: Array<number>);
@@ -204,7 +203,6 @@ function cb(): void {}
   string="x"
   user={aUserRef}
   nullableUser={null}
-  // $FlowExpectedError - optional, not nullable!
   optionalUser={null}
 />;
 
@@ -247,7 +245,6 @@ declare var aComplexUserRef: {
 <PluralTestFragment
   users={usersRef}
   nullableUsers={null}
-  // $FlowExpectedError - optional, not nullable!
   optionalUsers={null}
 />;
 

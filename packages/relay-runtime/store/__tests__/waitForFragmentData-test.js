@@ -154,7 +154,6 @@ test('data goes missing due to unrelated query response', async () => {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
 
   // Now an unrelated query comes in and changes the Query.me relationship to a
   // new user, but does not fetch `name` for that user. Now we are missing data
@@ -202,7 +201,6 @@ test('data goes missing due to unrelated query response (@throwOnFieldErrro)', a
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
 
   // Now an unrelated query comes in and changes the Query.me relationship to a
   // new user, but does not fetch `name` for that user. Now we are missing data

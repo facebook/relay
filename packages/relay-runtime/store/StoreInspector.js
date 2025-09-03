@@ -145,7 +145,6 @@ if (__DEV__) {
       return record;
     }
     return new Proxy(
-      // $FlowFixMe: Do not assume that record is an object
       {...record},
       {
         get(target, prop) {

@@ -90,31 +90,31 @@ Type(
     WeakObjectType(
         WeakObjectIr {
             type_name: Identifier {
-                span: 39:46,
+                span: 104:111,
                 token: Token {
-                    span: 39:46,
+                    span: 104:111,
                     kind: Identifier,
                 },
                 value: "WeakCat",
             },
-            rhs_location: WeakCat.js:39:46,
+            rhs_location: AnotherWeakCat.js:104:111,
             description: None,
             hack_source: None,
             deprecated: None,
-            location: WeakCat.js:39:46,
+            location: AnotherWeakCat.js:104:111,
             implements_interfaces: [],
             source_hash: ResolverSourceHash(
-                "d87c48cc6e55a86fc69fd0d1f73d6bea",
+                "fbdfc15b898dadb276e02cb59997fd3e",
             ),
             type_confirmed: true,
         },
     ),
 )
-scalar WeakCatModel @__RelayCustomScalar(path: "WeakCat.js", export_name: "WeakCat")
+scalar WeakCatModel @__RelayCustomScalar(path: "AnotherWeakCat.js", export_name: "WeakCat")
 
 
 type WeakCat @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
-  __relay_model_instance: WeakCatModel! @resolver_source_hash(value: "d87c48cc6e55a86fc69fd0d1f73d6bea") @unselectable(reason: "This field is intended only for Relay's internal use")
+  __relay_model_instance: WeakCatModel! @resolver_source_hash(value: "fbdfc15b898dadb276e02cb59997fd3e") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 
 
@@ -137,8 +137,8 @@ type WeakCat @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
 
 ✖︎ Duplicate definition for type 'WeakCatModel'.
 
-  AnotherWeakCat.js:6:13
-    5 │  */
-    6 │ export type WeakCat = {
+  WeakCat.js:5:13
+    4 │  */
+    5 │ export type WeakCat = {
       │             ^^^^^^^
-    7 │   name: string
+    6 │   name: string

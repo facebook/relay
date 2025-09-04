@@ -1,0 +1,5 @@
+query execTimeExperimentalProviderQuery @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider", useExperimentalProvider: "useExperimentalProvider") {
+  me {
+    name
+  }
+}

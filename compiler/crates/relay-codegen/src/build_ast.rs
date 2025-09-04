@@ -389,11 +389,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
         let has_exec_time_resolvers_directive =
             operation.directives.named(*EXEC_TIME_RESOLVERS).is_some();
-        let exec_time_resolvers_enabled_provider = operation
-            .directives
-            .named(*EXEC_TIME_RESOLVERS)
-            .and_then(|directive| {
-                directive
+        // `exec_time_resolvers_enabled_provider` make the query use exec time resolvers, for a query with
+        //  @exec_time_resolvers but without the exec time provider argument, exec time is enabled by default.
+        // `use_experimental_provider` make the exec time query use the experimental exec time exeuctor in runtime
+        let (exec_time_resolvers_enabled_provider, use_experimental_provider) = if let Some(
+            directive,
+        ) =
+            operation.directives.named(*EXEC_TIME_RESOLVERS)
+        {
+            (directive
                     .arguments
                     .named(*EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT)
                     .map(|arg| match &arg.value.item {
@@ -404,14 +408,30 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         _ => panic!(
                             "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
                         ),
-                    })
-            });
+                    }),
+                    directive
+                    .arguments
+                    .named(ArgumentName(intern!("useExperimentalProvider")))
+                    .map(|arg| match &arg.value.item {
+                        Value::Constant(ConstantValue::String(cons)) => WithLocation {
+                            item: *cons,
+                            location: arg.value.location,
+                        },
+                        _ => panic!(
+                            "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
+                        ),
+                    }),
+                )
+        } else {
+            (None, None)
+        };
 
         let mut context = ContextualMetadata {
             has_client_edges: false,
             has_exec_time_resolvers_directive,
             has_exec_time_resolvers_enabled_provider: exec_time_resolvers_enabled_provider
                 .is_some(),
+            use_experimental_provider,
         };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
             Some(_split_directive) => {
@@ -473,6 +493,17 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             }
                         },
                     );
+                    if let Some(use_experimental_provider) = context.use_experimental_provider {
+                        fields.push(ObjectEntry {
+                            key: "use_experimental_provider".intern(),
+                            value: Primitive::JSModuleDependency(JSModuleDependency {
+                                path: use_experimental_provider.item,
+                                import_name: ModuleImportName::Default(
+                                    use_experimental_provider.item,
+                                ),
+                            }),
+                        })
+                    }
                 }
                 if let Some(client_abstract_types) =
                     self.maybe_build_client_abstract_types(operation)
@@ -2820,4 +2851,5 @@ struct ContextualMetadata {
     has_client_edges: bool,
     has_exec_time_resolvers_directive: bool,
     has_exec_time_resolvers_enabled_provider: bool,
+    use_experimental_provider: Option<WithLocation<StringKey>>,
 }

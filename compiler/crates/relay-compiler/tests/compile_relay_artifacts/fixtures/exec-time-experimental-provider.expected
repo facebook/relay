@@ -1,0 +1,89 @@
+==================================== INPUT ====================================
+query execTimeExperimentalProviderQuery @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider", useExperimentalProvider: "useExperimentalProvider") {
+  me {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "execTimeExperimentalProviderQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "execTimeExperimentalProviderQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "exec_time_resolvers_enabled_provider": require('execTimeResolversFlagProvider'),
+    "use_experimental_provider": require('useExperimentalProvider')
+  },
+  "params": {
+    "cacheID": "654ebcae93bbbc912b6510d6732c9e4b",
+    "id": null,
+    "metadata": {},
+    "name": "execTimeExperimentalProviderQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query execTimeExperimentalProviderQuery {
+  me {
+    name
+    id
+  }
+}

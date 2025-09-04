@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<67aa79681f4c3c1406944dd059174dc7>>
+ * @generated SignedSource<<b067c3cf6082d7d5782cf04af2b4e311>>
  */
 
 mod compile_relay_artifacts;
@@ -591,6 +591,13 @@ async fn duplicate_query_name() {
     let input = include_str!("compile_relay_artifacts/fixtures/duplicate_query_name.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/duplicate_query_name.expected");
     test_fixture(transform_fixture, file!(), "duplicate_query_name.graphql", "compile_relay_artifacts/fixtures/duplicate_query_name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn exec_time_experimental_provider() {
+    let input = include_str!("compile_relay_artifacts/fixtures/exec-time-experimental-provider.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/exec-time-experimental-provider.expected");
+    test_fixture(transform_fixture, file!(), "exec-time-experimental-provider.graphql", "compile_relay_artifacts/fixtures/exec-time-experimental-provider.expected", input, expected).await;
 }
 
 #[tokio::test]

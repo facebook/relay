@@ -16,6 +16,7 @@ import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
 import type {
   NormalizationActorChange,
   NormalizationDefer,
+  NormalizationInlineFragment,
   NormalizationLinkedField,
   NormalizationLiveResolverField,
   NormalizationModuleImport,
@@ -54,6 +55,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   ROOT_ID,
+  ROOT_TYPE,
   TYPENAME_KEY,
   getArgumentValues,
   getHandleStorageKey,
@@ -243,34 +245,7 @@ class RelayResponseNormalizer {
           break;
         }
         case 'InlineFragment': {
-          const {abstractKey} = selection;
-          if (abstractKey == null) {
-            const typeName = RelayModernRecord.getType(record);
-            if (typeName === selection.type) {
-              this._traverseSelections(selection, record, data);
-            }
-          } else {
-            // $FlowFixMe[method-unbinding] - data could be prototype less
-            const implementsInterface = Object.prototype.hasOwnProperty.call(
-              data,
-              abstractKey,
-            );
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            let typeRecord = this._recordSource.get(typeID);
-            if (typeRecord == null) {
-              typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
-              this._recordSource.set(typeID, typeRecord);
-            }
-            RelayModernRecord.setValue(
-              typeRecord,
-              abstractKey,
-              implementsInterface,
-            );
-            if (implementsInterface) {
-              this._traverseSelections(selection, record, data);
-            }
-          }
+          this._normalizeInlineFragment(selection, record, data);
           break;
         }
         case 'TypeDiscriminator': {
@@ -358,13 +333,62 @@ class RelayResponseNormalizer {
     }
   }
 
+  _normalizeInlineFragment(
+    selection: NormalizationInlineFragment,
+    record: Record,
+    data: PayloadData,
+  ) {
+    const {abstractKey} = selection;
+    if (abstractKey == null) {
+      const typeName = RelayModernRecord.getType(record);
+      if (
+        typeName === selection.type ||
+        // The root record type is a special `__Root` type and may not match the
+        // type on the ast, so ignore type mismatches at the root.  We currently
+        // detect whether we're at the root by checking against ROOT_ID, but this
+        // does not work for mutations/subscriptions which generate unique root
+        // ids. This is acceptable in practice as we don't read data for
+        // mutations/subscriptions in a situation where we would use
+        // isMissingData to decide whether to suspend or not.
+        // TODO T96653810: Correctly detect reading from root of mutation/subscription
+        (typeName === ROOT_TYPE &&
+          !RelayFeatureFlags.DISABLE_RESOLVER_ROOT_FRAGMENT_NORMALIZATION_BUG_FIX)
+      ) {
+        this._traverseSelections(selection, record, data);
+      }
+    } else {
+      // $FlowFixMe[method-unbinding] - data could be prototype less
+      const implementsInterface = Object.prototype.hasOwnProperty.call(
+        data,
+        abstractKey,
+      );
+      const typeName = RelayModernRecord.getType(record);
+      const typeID = generateTypeID(typeName);
+      let typeRecord = this._recordSource.get(typeID);
+      if (typeRecord == null) {
+        typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
+        this._recordSource.set(typeID, typeRecord);
+      }
+      RelayModernRecord.setValue(typeRecord, abstractKey, implementsInterface);
+      if (implementsInterface) {
+        this._traverseSelections(selection, record, data);
+      }
+    }
+  }
+
   _normalizeResolver(
     resolver: NormalizationResolverField | NormalizationLiveResolverField,
     record: Record,
     data: PayloadData,
   ) {
     if (resolver.fragment != null) {
-      this._traverseSelections(resolver.fragment, record, data);
+      if (
+        RelayFeatureFlags.DISABLE_RESOLVER_ROOT_FRAGMENT_NORMALIZATION_BUG_FIX
+      ) {
+        this._traverseSelections(resolver.fragment, record, data);
+      } else {
+        this._normalizeInlineFragment(resolver.fragment, record, data);
+      }
     }
   }
 

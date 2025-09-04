@@ -15,11 +15,6 @@ module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 munge_underscores=true
 ; https://fburl.com/code/h2jnts20 - to match internval value
 
-experimental.only_support_flow_fixme_and_expected_error=true
-experimental.require_suppression_with_error_code=true
-experimental.invariant_subtyping_error_message_improvement=true
-experimental.natural_inference.local_object_literals.followup_fix=true
-
 format.bracket_spacing=false
 
 [lints]
@@ -35,4 +30,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.280.0
+^0.281.0

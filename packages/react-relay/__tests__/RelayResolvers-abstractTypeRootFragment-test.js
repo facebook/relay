@@ -88,15 +88,6 @@ test('Can read a resolver with a rootFragment on an abstract type', async () => 
     jest.runAllImmediates();
   });
 
-  // Incorrect! We provided `__isNode`!
-  expect(logEvents).toEqual([
-    {
-      fieldPath: '<abstract-type-hint>',
-      kind: 'missing_expected_data.log',
-      owner: 'NodeResolversGreeting',
-      uiContext: undefined,
-    },
-  ]);
-  // Incorrect! Should be the greeting.
-  expect(renderer?.toJSON()).toEqual(null);
+  expect(logEvents).toEqual([]);
+  expect(renderer?.toJSON()).toEqual('Hello Node with id 4!');
 });

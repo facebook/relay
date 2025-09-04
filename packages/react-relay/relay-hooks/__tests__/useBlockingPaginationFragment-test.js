@@ -892,7 +892,7 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       describe('cancellation', () => {
-        it('cancels load more if component unmounts', () => {
+        it('does not cancel load more if component unmounts', () => {
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
@@ -938,7 +938,8 @@ describe('useBlockingPaginationFragment', () => {
           TestRenderer.act(() => {
             renderer.unmount();
           });
-          expect(unsubscribe).toHaveBeenCalledTimes(1);
+          // not cancelled, for activity compatibility
+          expect(unsubscribe).toHaveBeenCalledTimes(0);
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
           expect(callback).toBeCalledTimes(0);
@@ -3073,7 +3074,7 @@ describe('useBlockingPaginationFragment', () => {
           ]);
         });
 
-        it('disposes ongoing request on unmount', () => {
+        it('does not dispose ongoing request on unmount', () => {
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
@@ -3120,17 +3121,17 @@ describe('useBlockingPaginationFragment', () => {
             renderer.unmount();
           });
 
-          // Assert request was canceled
-          expect(unsubscribe).toBeCalledTimes(1);
+          // Assert request was not canceled (for activity compatibility)
+          expect(unsubscribe).toBeCalledTimes(0);
           expectRequestIsInFlight({
-            inFlight: false,
+            inFlight: true,
             requestCount: 1,
             gqlPaginationQuery,
             paginationVariables,
           });
         });
 
-        it('disposes ongoing request if it is manually disposed', () => {
+        it('does not dispose ongoing request if it is manually disposed', () => {
           const callback = jest.fn<[Error | null], void>();
           const renderer = renderFragment();
           expectFragmentResults([
@@ -3178,10 +3179,10 @@ describe('useBlockingPaginationFragment', () => {
           // $FlowFixMe[incompatible-use]
           disposable.dispose();
 
-          // Assert request was canceled
-          expect(unsubscribe).toBeCalledTimes(1);
+          // Assert request was not canceled (for activity compatibility)
+          expect(unsubscribe).toBeCalledTimes(0);
           expectRequestIsInFlight({
-            inFlight: false,
+            inFlight: true,
             requestCount: 1,
             gqlPaginationQuery,
             paginationVariables,

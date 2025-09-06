@@ -1,0 +1,34 @@
+
+//- foo.ts
+graphql`
+  fragment fooFragment on User
+  @argumentDefinitions(
+    include_name: { type: "Boolean!", provider: "file_provider.relayprovider" }
+  ) {
+    name @include(if: $include_name)
+  }
+`;
+
+graphql`
+  query fooQuery {
+    me {
+      ...fooFragment
+    }
+  }
+`;
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "./schema.graphql",
+  "persistConfig": {
+    "file": "./operations.json"
+  }
+}
+
+//- operations.json
+{}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

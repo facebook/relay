@@ -13,10 +13,10 @@ fragment queryWithMatchDirectiveNoModules_NameRendererFragment on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection.
+✖︎ Expected `@alias` directive. `queryWithMatchDirectiveNoModules_NameRendererFragment` is defined on `User` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
 
-  query-with-match-directive-no-modules.invalid.graphql:10:16
-    9 │   id
-   10 │   nameRenderer @match {
-      │                ^^^^^^
-   11 │     __typename
+  query-with-match-directive-no-modules.invalid.graphql:4:8
+    3 │   node(id: $id) {
+    4 │     ...queryWithMatchDirectiveNoModules_NameRendererFragment
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   }

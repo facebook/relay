@@ -10,8 +10,8 @@ fragment selectionsOnInterfacePageFragment on Page {
 
 query selectionsOnInterfaceQuery($id: ID!) {
   node(id: $id) {
-    ...selectionsOnInterfaceUserFragment
-    ...selectionsOnInterfacePageFragment
+    ...selectionsOnInterfaceUserFragment @alias
+    ...selectionsOnInterfacePageFragment @alias
   }
 }
 ==================================== OUTPUT ===================================
@@ -43,13 +43,35 @@ query selectionsOnInterfaceQuery($id: ID!) {
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "selectionsOnInterfaceUserFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "selectionsOnInterfaceUserFragment"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "selectionsOnInterfacePageFragment"
+                }
+              ],
+              "type": "Page",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "selectionsOnInterfacePageFragment"
           }
         ],

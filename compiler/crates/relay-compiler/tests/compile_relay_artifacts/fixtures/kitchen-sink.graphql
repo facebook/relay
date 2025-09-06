@@ -4,7 +4,7 @@ query kitchenSink_NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
     ... on User @include(if: $cond) {
       name
     }
-    ...kitchenSink_UserFragment @include(if: $cond) @arguments(size: $PictureSize)
+    ...kitchenSink_UserFragment @include(if: $cond) @arguments(size: $PictureSize) @alias
   }
 }
 

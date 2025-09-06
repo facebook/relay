@@ -1,8 +1,8 @@
 ==================================== INPUT ====================================
 query prefetchablePaginationQueryWithoutConflictingArgsQuery($site: String) {
   node(id: "x") {
-    ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment @arguments(site: $site)
-    ...prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment @arguments(site: $site)
+    ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment @arguments(site: $site) @alias
+    ...prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment @arguments(site: $site) @alias
   }
 }
 
@@ -387,25 +387,47 @@ fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment__edges_
         "plural": false,
         "selections": [
           {
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "site",
-                "variableName": "site"
-              }
-            ],
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "site",
+                      "variableName": "site"
+                    }
+                  ],
+                  "kind": "FragmentSpread",
+                  "name": "prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment"
+                }
+              ],
+              "type": "Page",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment"
           },
           {
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "site",
-                "variableName": "site"
-              }
-            ],
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "site",
+                      "variableName": "site"
+                    }
+                  ],
+                  "kind": "FragmentSpread",
+                  "name": "prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment"
           }
         ],

@@ -4,8 +4,8 @@ query redundantSelectionInInlineFragmentsQuery {
     ... on Story {
       __typename
     }
-    ...redundantSelectionInInlineFragments_interface_concrete
-    ...redundantSelectionInInlineFragments_interface
+    ...redundantSelectionInInlineFragments_interface_concrete @alias
+    ...redundantSelectionInInlineFragments_interface @alias
   }
 }
 
@@ -55,13 +55,35 @@ fragment redundantSelectionInInlineFragments_interface_concrete on MaybeNodeInte
             "abstractKey": null
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "redundantSelectionInInlineFragments_interface_concrete"
+                }
+              ],
+              "type": "MaybeNodeInterface",
+              "abstractKey": "__isMaybeNodeInterface"
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "redundantSelectionInInlineFragments_interface_concrete"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "redundantSelectionInInlineFragments_interface"
+                }
+              ],
+              "type": "MaybeNodeInterface",
+              "abstractKey": "__isMaybeNodeInterface"
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "redundantSelectionInInlineFragments_interface"
           }
         ],

@@ -41,7 +41,7 @@ fragment noInlineAbstractFragment_parent on Actor
         scalar_from_parent: $scalar_from_parent
         local_from_parent: $global_from_parent
         shadowed_global: $shadowed_global
-      )
+      ) @alias
   }
 }
 

@@ -1,6 +1,6 @@
 query moduleInInlineFragment_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...moduleInInlineFragment_FooNameRendererFragment
+    ...moduleInInlineFragment_FooNameRendererFragment @alias
   }
 }
 

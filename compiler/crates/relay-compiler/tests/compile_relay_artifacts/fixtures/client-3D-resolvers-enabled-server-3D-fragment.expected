@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query client3DResolversEnabledServer3DFragment_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...client3DResolversEnabledServer3DFragment_NameRendererFragment
+    ...client3DResolversEnabledServer3DFragment_NameRendererFragment @alias
   }
 }
 
@@ -107,8 +107,19 @@ fragment client3DResolversEnabledServer3DFragment_MarkdownUserNameRenderer_name 
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "client3DResolversEnabledServer3DFragment_NameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "client3DResolversEnabledServer3DFragment_NameRendererFragment"
           }
         ],

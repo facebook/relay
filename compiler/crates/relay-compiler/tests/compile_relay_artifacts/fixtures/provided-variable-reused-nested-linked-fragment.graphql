@@ -14,7 +14,7 @@ fragment providedVariableReusedNestedLinkedFragment_Fragment on Query
 fragment providedVariableReusedNestedLinkedFragment_FragmentCommon on Query
 {
   node(id: $id) {
-    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider
+    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider @alias
   }
 }
 

@@ -4,10 +4,14 @@ query actorChangeSimpleQuery {
     id
     ... on User {
       actor @fb_actor_change {
-        ...actorChangeSimpleQueryUserFragment
+        ...actorChangeSimpleQuery_ActorFragment
       }
     }
   }
+}
+
+fragment actorChangeSimpleQuery_ActorFragment on Actor {
+  ...actorChangeSimpleQueryUserFragment @alias
 }
 
 fragment actorChangeSimpleQueryUserFragment on User {
@@ -54,7 +58,7 @@ fragment actorChangeSimpleQueryUserFragment on User {
                 "fragmentSpread": {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "actorChangeSimpleQueryUserFragment"
+                  "name": "actorChangeSimpleQuery_ActorFragment"
                 }
               }
             ],
@@ -123,6 +127,10 @@ fragment actorChangeSimpleQueryUserFragment on User {
                       "storageKey": null
                     },
                     {
+                      "kind": "TypeDiscriminator",
+                      "abstractKey": "__isActor"
+                    },
+                    {
                       "kind": "InlineFragment",
                       "selections": [
                         {
@@ -182,7 +190,7 @@ query actorChangeSimpleQuery {
     ... on User {
       actor @fb_actor_change {
         __typename
-        ...actorChangeSimpleQueryUserFragment
+        ...actorChangeSimpleQuery_ActorFragment
         actor_key
         id
       }
@@ -192,6 +200,11 @@ query actorChangeSimpleQuery {
 
 fragment actorChangeSimpleQueryUserFragment on User {
   name
+}
+
+fragment actorChangeSimpleQuery_ActorFragment on Actor {
+  __isActor: __typename
+  ...actorChangeSimpleQueryUserFragment
 }
 
 
@@ -211,4 +224,31 @@ fragment actorChangeSimpleQueryUserFragment on User {
   ],
   "type": "User",
   "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "actorChangeSimpleQuery_ActorFragment",
+  "selections": [
+    {
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "actorChangeSimpleQueryUserFragment"
+          }
+        ],
+        "type": "User",
+        "abstractKey": null
+      },
+      "kind": "AliasedInlineFragmentSpread",
+      "name": "actorChangeSimpleQueryUserFragment"
+    }
+  ],
+  "type": "Actor",
+  "abstractKey": "__isActor"
 }

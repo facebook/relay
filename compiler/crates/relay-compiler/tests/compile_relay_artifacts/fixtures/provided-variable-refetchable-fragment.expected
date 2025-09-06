@@ -8,7 +8,7 @@ query providedVariableRefetchableFragmentQuery {
 fragment providedVariableRefetchableFragment on Node
   @refetchable(queryName: "refetchableQuery")
 {
-    ...providedVariableRefetchableFragment_providedVariableFragment
+    ...providedVariableRefetchableFragment_providedVariableFragment @alias
 }
 
 fragment providedVariableRefetchableFragment_providedVariableFragment on User
@@ -330,8 +330,19 @@ fragment providedVariableRefetchableFragment_providedVariableFragment on User {
   "name": "providedVariableRefetchableFragment",
   "selections": [
     {
-      "args": null,
-      "kind": "FragmentSpread",
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableRefetchableFragment_providedVariableFragment"
+          }
+        ],
+        "type": "User",
+        "abstractKey": null
+      },
+      "kind": "AliasedInlineFragmentSpread",
       "name": "providedVariableRefetchableFragment_providedVariableFragment"
     },
     {

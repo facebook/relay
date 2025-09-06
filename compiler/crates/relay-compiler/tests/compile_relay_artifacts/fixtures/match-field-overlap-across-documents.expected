@@ -1,8 +1,8 @@
 ==================================== INPUT ====================================
 query matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment
-    ...matchFieldOverlapAcrossDocuments_BarNameRendererFragment
+    ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment @alias
+    ...matchFieldOverlapAcrossDocuments_BarNameRendererFragment @alias
   }
 }
 
@@ -98,13 +98,35 @@ fragment matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name on Markd
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "matchFieldOverlapAcrossDocuments_FooNameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "matchFieldOverlapAcrossDocuments_FooNameRendererFragment"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "matchFieldOverlapAcrossDocuments_BarNameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "matchFieldOverlapAcrossDocuments_BarNameRendererFragment"
           }
         ],

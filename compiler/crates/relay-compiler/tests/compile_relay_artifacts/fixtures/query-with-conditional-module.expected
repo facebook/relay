@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithConditionalModule_NameRendererQuery($id: ID!, $fetchModule: Boolean!) {
   node(id: $id) {
-    ...queryWithConditionalModule_NameRendererFragment
+    ...queryWithConditionalModule_NameRendererFragment @alias
   }
 }
 
@@ -95,8 +95,19 @@ fragment queryWithConditionalModule_MarkdownUserNameRenderer_name on MarkdownUse
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "queryWithConditionalModule_NameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "queryWithConditionalModule_NameRendererFragment"
           }
         ],

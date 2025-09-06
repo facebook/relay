@@ -1,6 +1,6 @@
 query providedVariableSplitOperation_Query($id: ID!) {
   node(id: $id) {
-    ...providedVariableSplitOperationFragment
+    ...providedVariableSplitOperationFragment @alias
   }
 }
 

@@ -18,10 +18,10 @@ extend type User {
   pop_star(name: String): User @relay_resolver(import_path: "./path/to/PopStarResolver.js")
 }
 ==================================== ERROR ====================================
-✖︎ Operation 'relayResolverWithUndefinedFieldArgsLinkedFieldQuery' references undefined variable: '$undefined'.
+✖︎ Expected `@alias` directive. `relayResolverWithUndefinedFieldArgsLinkedField_PopStar` is defined on `User` which might not match this selection type of `Node`. Add `@alias` to this spread to expose the fragment reference as a nullable property.
 
-  relay-resolver-with-undefined-field-args-linked-field.invalid.graphql:10:18
-    9 │ fragment relayResolverWithUndefinedFieldArgsLinkedField_PopStar on User {
-   10 │   pop_star(name: $undefined) @waterfall {
-      │                  ^^^^^^^^^^
-   11 │     id
+  relay-resolver-with-undefined-field-args-linked-field.invalid.graphql:5:8
+    4 │   node(id: "SOME_ID") {
+    5 │     ...relayResolverWithUndefinedFieldArgsLinkedField_PopStar
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    6 │   }

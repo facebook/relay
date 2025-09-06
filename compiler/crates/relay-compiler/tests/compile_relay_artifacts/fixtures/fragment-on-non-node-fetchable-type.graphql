@@ -1,7 +1,7 @@
 fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory
   @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
-    ...fragmentOnNonNodeFetchableType_ProfilePicture
+    ...fragmentOnNonNodeFetchableType_ProfilePicture @alias
   }
 }
 

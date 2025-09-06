@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query unusedFragmentArgUnchecked_QueryWithUnusedFragmentArgumentQuery($id: ID!) {
   node(id: $id) {
-    ...unusedFragmentArgUnchecked_Profile
+    ...unusedFragmentArgUnchecked_Profile @alias
   }
 }
 
@@ -50,8 +50,19 @@ fragment unusedFragmentArgUnchecked_ProfilePhoto on User {
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "unusedFragmentArgUnchecked_Profile"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "unusedFragmentArgUnchecked_Profile"
           }
         ],

@@ -15,7 +15,7 @@ fragment providedVariableReusedNestedLinkedFragment_Fragment on Query
 fragment providedVariableReusedNestedLinkedFragment_FragmentCommon on Query
 {
   node(id: $id) {
-    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider
+    ...providedVariableReusedNestedLinkedFragment_FragmentWithProvider @alias
   }
 }
 
@@ -327,8 +327,19 @@ fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User
       "plural": false,
       "selections": [
         {
-          "args": null,
-          "kind": "FragmentSpread",
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "providedVariableReusedNestedLinkedFragment_FragmentWithProvider"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
           "name": "providedVariableReusedNestedLinkedFragment_FragmentWithProvider"
         }
       ],

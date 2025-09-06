@@ -1,6 +1,6 @@
 query moduleWithDefer_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...moduleWithDefer_FooNameRendererFragment
+    ...moduleWithDefer_FooNameRendererFragment @alias
   }
 }
 

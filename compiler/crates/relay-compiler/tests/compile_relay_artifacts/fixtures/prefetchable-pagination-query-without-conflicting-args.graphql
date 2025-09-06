@@ -1,7 +1,7 @@
 query prefetchablePaginationQueryWithoutConflictingArgsQuery($site: String) {
   node(id: "x") {
-    ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment @arguments(site: $site)
-    ...prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment @arguments(site: $site)
+    ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment @arguments(site: $site) @alias
+    ...prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment @arguments(site: $site) @alias
   }
 }
 

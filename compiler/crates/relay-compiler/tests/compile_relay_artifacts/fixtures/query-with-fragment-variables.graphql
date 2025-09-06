@@ -1,8 +1,8 @@
 query queryWithFragmentVariables_TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
   node(id: $id) {
     id
-    ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize)
-    ...queryWithFragmentVariables_ProfileFriends @include(if: $cond)
+    ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize) @alias
+    ...queryWithFragmentVariables_ProfileFriends @include(if: $cond) @alias
   }
 }
 

@@ -5,7 +5,7 @@ query kitchenSink_NodeQuery($id: ID!, $cond: Boolean!, $PictureSize: [Int]!) {
     ... on User @include(if: $cond) {
       name
     }
-    ...kitchenSink_UserFragment @include(if: $cond) @arguments(size: $PictureSize)
+    ...kitchenSink_UserFragment @include(if: $cond) @arguments(size: $PictureSize) @alias
   }
 }
 
@@ -101,14 +101,25 @@ fragment kitchenSink_UserFragment on User
                 "abstractKey": null
               },
               {
-                "args": [
-                  {
-                    "kind": "Variable",
-                    "name": "size",
-                    "variableName": "PictureSize"
-                  }
-                ],
-                "kind": "FragmentSpread",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": [
+                        {
+                          "kind": "Variable",
+                          "name": "size",
+                          "variableName": "PictureSize"
+                        }
+                      ],
+                      "kind": "FragmentSpread",
+                      "name": "kitchenSink_UserFragment"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "AliasedInlineFragmentSpread",
                 "name": "kitchenSink_UserFragment"
               }
             ]
@@ -184,7 +195,14 @@ fragment kitchenSink_UserFragment on User
                     "kind": "ScalarField",
                     "name": "name",
                     "storageKey": null
-                  },
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              {
+                "kind": "InlineFragment",
+                "selections": [
                   {
                     "alias": null,
                     "args": [

@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithModuleDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithModuleDirective_NameRendererFragment
+    ...queryWithModuleDirective_NameRendererFragment @alias
   }
 }
 
@@ -89,8 +89,19 @@ fragment queryWithModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserN
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "queryWithModuleDirective_NameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "queryWithModuleDirective_NameRendererFragment"
           }
         ],

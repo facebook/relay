@@ -15,7 +15,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {getRequest, graphql, RelayFeatureFlags} = require('relay-runtime');
 const {
   createMockEnvironment,
   injectPromisePolyfill__DEPRECATED,
@@ -59,6 +59,8 @@ jest.mock('../loadQuery', () => ({
 }));
 
 beforeEach(() => {
+  // Disable Activity compatibility for live query tests to maintain original behavior
+  RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = false;
   renderCount = undefined;
   dispose = undefined;
   environment = createMockEnvironment();
@@ -118,6 +120,11 @@ beforeEach(() => {
   };
 
   loadQuery.mockClear();
+});
+
+afterEach(() => {
+  // Reset the feature flag to its default state
+  RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = true;
 });
 
 afterAll(() => {

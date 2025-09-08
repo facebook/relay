@@ -15,7 +15,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
+const {getRequest, graphql} = require('relay-runtime');
 const {
   createMockEnvironment,
   injectPromisePolyfill__DEPRECATED,
@@ -60,7 +60,6 @@ jest.mock('../loadQuery', () => ({
 
 beforeEach(() => {
   // Disable Activity compatibility for live query tests to maintain original behavior
-  RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = false;
   renderCount = undefined;
   dispose = undefined;
   environment = createMockEnvironment();
@@ -124,8 +123,6 @@ beforeEach(() => {
 
 afterAll(() => {
   jest.clearAllMocks();
-  // Reset the feature flag to its default state
-  RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = true;
 });
 
 it('releases and cancels the old preloaded query and calls loadQuery anew if the callback is called again', () => {
@@ -604,6 +601,7 @@ it('should release and cancel prior queries if the callback is called multiple t
 });
 
 it('should release and cancel queries on unmount if the callback is called, the component suspends and then unmounts', () => {
+  return; // @oss-only
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});

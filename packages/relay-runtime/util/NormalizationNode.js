@@ -29,6 +29,7 @@ export type NormalizationOperation = {
   },
   +use_exec_time_resolvers?: boolean,
   +exec_time_resolvers_enabled_provider?: ProvidedVariableType,
+  +use_experimental_provider?: ProvidedVariableType,
 };
 
 export type NormalizationHandle =

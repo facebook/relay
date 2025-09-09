@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query connectionWithDynamicKey_FeedbackQuery($id: ID!, $commentsKey: String) {
   node(id: $id) {
-    ...connectionWithDynamicKey_FeedbackFragment
+    ...connectionWithDynamicKey_FeedbackFragment @alias
   }
 }
 
@@ -12,7 +12,7 @@ query connectionWithDynamicKey_PaginationQuery(
   $cursor: ID!
 ) {
   node(id: $id) {
-    ...connectionWithDynamicKey_FeedbackFragment @arguments(count: $count, cursor: $cursor)
+    ...connectionWithDynamicKey_FeedbackFragment @alias @arguments(count: $count, cursor: $cursor)
   }
 }
 
@@ -69,8 +69,19 @@ fragment connectionWithDynamicKey_FeedbackFragment on Feedback
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "connectionWithDynamicKey_FeedbackFragment"
+                }
+              ],
+              "type": "Feedback",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "connectionWithDynamicKey_FeedbackFragment"
           }
         ],
@@ -337,19 +348,30 @@ fragment connectionWithDynamicKey_FeedbackFragment on Feedback {
         "plural": false,
         "selections": [
           {
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "count",
-                "variableName": "count"
-              },
-              {
-                "kind": "Variable",
-                "name": "cursor",
-                "variableName": "cursor"
-              }
-            ],
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "count",
+                      "variableName": "count"
+                    },
+                    {
+                      "kind": "Variable",
+                      "name": "cursor",
+                      "variableName": "cursor"
+                    }
+                  ],
+                  "kind": "FragmentSpread",
+                  "name": "connectionWithDynamicKey_FeedbackFragment"
+                }
+              ],
+              "type": "Feedback",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "connectionWithDynamicKey_FeedbackFragment"
           }
         ],

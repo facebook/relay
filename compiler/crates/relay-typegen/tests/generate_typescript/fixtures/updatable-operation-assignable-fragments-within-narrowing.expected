@@ -4,11 +4,11 @@ query UpdatableQuery @updatable {
     actor {
       ... on User {
         __typename
-        ...Assignable_user
+        ...Assignable_user @alias
       }
       ... on Page {
         __typename
-        ...Assignable_page
+        ...Assignable_page @alias
       }
     }
   }
@@ -28,22 +28,26 @@ export type UpdatableQuery$data = {
   get me(): {
     get actor(): {
       readonly __typename: "Page";
+      get Assignable_page(): Record<PropertyKey, never> | null | undefined;
+      set Assignable_page(value: {
+        readonly __typename: "Page";
+        readonly __id: string;
+        readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
+      } | null | undefined);
     } | {
       readonly __typename: "User";
+      get Assignable_user(): Record<PropertyKey, never> | null | undefined;
+      set Assignable_user(value: {
+        readonly __typename: "User";
+        readonly __id: string;
+        readonly " $fragmentSpreads": FragmentRefs<"Assignable_user">;
+      } | null | undefined);
     } | {
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
       readonly __typename: "%other";
     } | null | undefined;
-    set actor(value: {
-      readonly __typename: "Page";
-      readonly __id: string;
-      readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
-    } | {
-      readonly __typename: "User";
-      readonly __id: string;
-      readonly " $fragmentSpreads": FragmentRefs<"Assignable_user">;
-    } | null | undefined);
+    set actor(value: null | undefined);
   } | null | undefined;
   set me(value: null | undefined);
 };

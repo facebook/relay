@@ -19,7 +19,7 @@ use serde::Serialize;
 use crate::Rollout;
 use crate::rollout::RolloutRange;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
@@ -181,7 +181,51 @@ pub struct FeatureFlags {
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
 }
 
-#[derive(Debug, serde::Deserialize, Clone, Serialize, Default, JsonSchema)]
+impl Default for FeatureFlags {
+    fn default() -> Self {
+        FeatureFlags {
+            relay_resolver_enable_interface_output_type: Default::default(),
+            allow_output_type_resolvers: Default::default(),
+            no_inline: Default::default(),
+            enable_3d_branch_arg_generation: Default::default(),
+            actor_change_support: Default::default(),
+            text_artifacts: Default::default(),
+            skip_printing_nulls: Default::default(),
+            compact_query_text: Default::default(),
+            enable_resolver_normalization_ast: Default::default(),
+            enable_exec_time_resolvers_directive: Default::default(),
+            enable_relay_resolver_mutations: Default::default(),
+            enable_strict_custom_scalars: Default::default(),
+            allow_resolvers_in_mutation_response: Default::default(),
+            allow_required_in_mutation_response: Default::default(),
+            disable_resolver_reader_ast: Default::default(),
+            enable_fragment_argument_transform: Default::default(),
+            allow_resolver_non_nullable_return_type: Default::default(),
+            disable_schema_validation: Default::default(),
+            prefer_fetchable_in_refetch_queries: Default::default(),
+            disable_edge_type_name_validation_on_declerative_connection_directives:
+                Default::default(),
+            disable_full_argument_type_validation: Default::default(),
+            use_reader_module_imports: Default::default(),
+            omit_resolver_type_assertions_for_confirmed_types: Default::default(),
+            disable_deduping_common_structures_in_artifacts: Default::default(),
+            legacy_include_path_in_required_reader_nodes: Default::default(),
+
+            // enabled-by-default
+            enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,
+        }
+    }
+}
+
+#[derive(
+    Debug,
+    serde::Deserialize,
+    Clone,
+    Serialize,
+    Default,
+    PartialEq,
+    JsonSchema
+)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature
@@ -235,5 +279,29 @@ impl Display for FeatureFlag {
             FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {rollout:#?}"),
             FeatureFlag::RolloutRange { rollout } => write!(f, "RolloutRange: {rollout:#?}"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_trait_sets_enforce_fragment_alias_enabled() {
+        let flags = FeatureFlags::default();
+        assert!(matches!(
+            flags.enforce_fragment_alias_where_ambiguous,
+            FeatureFlag::Enabled
+        ));
+        // A couple of quick sanity checks for other defaults
+        assert!(matches!(flags.no_inline, FeatureFlag::Disabled));
+        assert!(!flags.enable_resolver_normalization_ast);
+    }
+
+    #[test]
+    fn serde_empty_object_deserializes_to_default() {
+        // When deserializing from an empty JSON object, serde applies per-field defaults.
+        let flags: FeatureFlags = serde_json::from_str("{} ").expect("valid json");
+        assert_eq!(flags, FeatureFlags::default());
     }
 }

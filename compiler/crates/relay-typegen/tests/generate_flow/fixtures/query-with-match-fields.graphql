@@ -1,6 +1,6 @@
 query Test @raw_response_type {
   node(id: "1") {
-    ...NameRendererFragment
+    ...NameRendererFragment @alias
   }
 }
 

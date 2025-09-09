@@ -908,7 +908,7 @@
             "enable_resolver_normalization_ast": false,
             "enable_strict_custom_scalars": false,
             "enforce_fragment_alias_where_ambiguous": {
-              "kind": "disabled"
+              "kind": "enabled"
             },
             "legacy_include_path_in_required_reader_nodes": {
               "kind": "disabled"

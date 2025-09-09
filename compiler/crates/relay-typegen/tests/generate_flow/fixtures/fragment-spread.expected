@@ -10,8 +10,8 @@ fragment FragmentSpread on Node {
     ...PictureFragment
   }
   ... on User {
-    ...UserFrag1
-    ...UserFrag2
+    ...UserFrag1 @alias
+    ...UserFrag2 @alias
   }
 }
 
@@ -20,7 +20,7 @@ fragment ConcreateTypes on Viewer {
     __typename
     ... on Page {
       id
-      ...PageFragment
+      ...PageFragment @alias
     }
     ... on User {
       name
@@ -54,8 +54,10 @@ declare export opaque type ConcreateTypes$fragmentType: FragmentType;
 export type ConcreateTypes$data = {|
   +actor: ?({|
     +__typename: "Page",
+    +PageFragment: ?{|
+      +$fragmentSpreads: PageFragment$fragmentType,
+    |},
     +id: string,
-    +$fragmentSpreads: PageFragment$fragmentType,
   |} | {|
     +__typename: "User",
     +name: ?string,
@@ -79,6 +81,12 @@ import type { UserFrag2$fragmentType } from "UserFrag2.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentSpread$fragmentType: FragmentType;
 export type FragmentSpread$data = {|
+  +UserFrag1?: ?{|
+    +$fragmentSpreads: UserFrag1$fragmentType,
+  |},
+  +UserFrag2?: ?{|
+    +$fragmentSpreads: UserFrag2$fragmentType,
+  |},
   +fragAndField: ?{|
     +uri: ?string,
     +$fragmentSpreads: PictureFragment$fragmentType,
@@ -87,7 +95,7 @@ export type FragmentSpread$data = {|
   +justFrag: ?{|
     +$fragmentSpreads: PictureFragment$fragmentType,
   |},
-  +$fragmentSpreads: OtherFragment$fragmentType & UserFrag1$fragmentType & UserFrag2$fragmentType,
+  +$fragmentSpreads: OtherFragment$fragmentType,
   +$fragmentType: FragmentSpread$fragmentType,
 |};
 export type FragmentSpread$key = {

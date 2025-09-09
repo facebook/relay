@@ -6,7 +6,7 @@ query spreadOfAssignableFragmentQuery {
     ...spreadOfAssignableFragmentAssignable_node
   }
   node2: node(id: 5) {
-    ...spreadOfAssignableFragmentAssignable_user
+    ...spreadOfAssignableFragmentAssignable_user @dangerously_unaliased_fixme
     ...spreadOfAssignableFragmentAssignable_node
   }
 }

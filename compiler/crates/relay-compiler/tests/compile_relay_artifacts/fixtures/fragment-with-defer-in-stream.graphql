@@ -1,7 +1,7 @@
 query fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery($id: ID!) {
   node(id: $id) {
     id
-    ...fragmentWithDeferInStream_FeedbackFragment
+    ...fragmentWithDeferInStream_FeedbackFragment @alias
   }
 }
 

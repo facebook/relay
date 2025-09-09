@@ -2,12 +2,12 @@
 query nestedConditions2Query($c1: Boolean!, $c2: Boolean!, $c3: Boolean!, $c4: Boolean!, $c5: Boolean!, $c6: Boolean!, $c7: Boolean!) {
   node {
     ... @include(if: $c1){
-        ...nestedConditions2_NestedFragment @include(if: $c2)
-        ...nestedConditions2_NestedFragment2 @skip(if: $c2)
+        ...nestedConditions2_NestedFragment @include(if: $c2) @alias
+        ...nestedConditions2_NestedFragment2 @skip(if: $c2) @alias
         ...@skip(if: $c3) {
           ...@skip(if: $c4) @include(if: $c5) {
-            ...nestedConditions2_NestedFragment @skip(if: $c6)
-            ...nestedConditions2_NestedFragment2 @skip(if: $c6) @include(if: $c7)
+            ...nestedConditions2_NestedFragment @skip(if: $c6) @alias(as: "nestedConditions2_NestedFragment_nested")
+            ...nestedConditions2_NestedFragment2 @skip(if: $c6) @include(if: $c7) @alias(as: "nestedConditions2_NestedFragment_nested2")
           }
         }
     }
@@ -84,8 +84,19 @@ fragment nestedConditions2_NestedFragment2 on User {
                 "passingValue": true,
                 "selections": [
                   {
-                    "args": null,
-                    "kind": "FragmentSpread",
+                    "fragment": {
+                      "kind": "InlineFragment",
+                      "selections": [
+                        {
+                          "args": null,
+                          "kind": "FragmentSpread",
+                          "name": "nestedConditions2_NestedFragment"
+                        }
+                      ],
+                      "type": "User",
+                      "abstractKey": null
+                    },
+                    "kind": "AliasedInlineFragmentSpread",
                     "name": "nestedConditions2_NestedFragment"
                   }
                 ]
@@ -96,8 +107,19 @@ fragment nestedConditions2_NestedFragment2 on User {
                 "passingValue": false,
                 "selections": [
                   {
-                    "args": null,
-                    "kind": "FragmentSpread",
+                    "fragment": {
+                      "kind": "InlineFragment",
+                      "selections": [
+                        {
+                          "args": null,
+                          "kind": "FragmentSpread",
+                          "name": "nestedConditions2_NestedFragment2"
+                        }
+                      ],
+                      "type": "User",
+                      "abstractKey": null
+                    },
+                    "kind": "AliasedInlineFragmentSpread",
                     "name": "nestedConditions2_NestedFragment2"
                   }
                 ]
@@ -123,9 +145,20 @@ fragment nestedConditions2_NestedFragment2 on User {
                             "passingValue": false,
                             "selections": [
                               {
-                                "args": null,
-                                "kind": "FragmentSpread",
-                                "name": "nestedConditions2_NestedFragment"
+                                "fragment": {
+                                  "kind": "InlineFragment",
+                                  "selections": [
+                                    {
+                                      "args": null,
+                                      "kind": "FragmentSpread",
+                                      "name": "nestedConditions2_NestedFragment"
+                                    }
+                                  ],
+                                  "type": "User",
+                                  "abstractKey": null
+                                },
+                                "kind": "AliasedInlineFragmentSpread",
+                                "name": "nestedConditions2_NestedFragment_nested"
                               }
                             ]
                           },
@@ -140,9 +173,20 @@ fragment nestedConditions2_NestedFragment2 on User {
                                 "passingValue": false,
                                 "selections": [
                                   {
-                                    "args": null,
-                                    "kind": "FragmentSpread",
-                                    "name": "nestedConditions2_NestedFragment2"
+                                    "fragment": {
+                                      "kind": "InlineFragment",
+                                      "selections": [
+                                        {
+                                          "args": null,
+                                          "kind": "FragmentSpread",
+                                          "name": "nestedConditions2_NestedFragment2"
+                                        }
+                                      ],
+                                      "type": "User",
+                                      "abstractKey": null
+                                    },
+                                    "kind": "AliasedInlineFragmentSpread",
+                                    "name": "nestedConditions2_NestedFragment_nested2"
                                   }
                                 ]
                               }
@@ -311,6 +355,34 @@ fragment nestedConditions2_NestedFragment2 on User {
                                 ],
                                 "type": "User",
                                 "abstractKey": null
+                              }
+                            ]
+                          },
+                          {
+                            "condition": "c7",
+                            "kind": "Condition",
+                            "passingValue": true,
+                            "selections": [
+                              {
+                                "condition": "c6",
+                                "kind": "Condition",
+                                "passingValue": false,
+                                "selections": [
+                                  {
+                                    "kind": "InlineFragment",
+                                    "selections": [
+                                      {
+                                        "alias": null,
+                                        "args": null,
+                                        "kind": "ScalarField",
+                                        "name": "name",
+                                        "storageKey": null
+                                      }
+                                    ],
+                                    "type": "User",
+                                    "abstractKey": null
+                                  }
+                                ]
                               }
                             ]
                           }

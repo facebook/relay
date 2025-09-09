@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
 query originalClientFieldsTest_BestFriendsQuery($id: ID!) {
   node(id: $id) {
-    ...originalClientFieldsTest_BestFriends
-    ...originalClientFieldsTest_OnlyClientFields
+    ...originalClientFieldsTest_BestFriends @alias
+    ...originalClientFieldsTest_OnlyClientFields @alias
   }
   named {
     # fragments on extension types are skipped
-    ...originalClientFieldsTest_FooFragment
+    ...originalClientFieldsTest_FooFragment @alias
     ... on Foo {
       name
     }
@@ -83,13 +83,35 @@ type Foo implements Named {
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "originalClientFieldsTest_BestFriends"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "originalClientFieldsTest_BestFriends"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "originalClientFieldsTest_OnlyClientFields"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "originalClientFieldsTest_OnlyClientFields"
           }
         ],
@@ -104,13 +126,24 @@ type Foo implements Named {
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "originalClientFieldsTest_FooFragment"
-          },
-          {
             "kind": "ClientExtension",
             "selections": [
+              {
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "originalClientFieldsTest_FooFragment"
+                    }
+                  ],
+                  "type": "Foo",
+                  "abstractKey": null
+                },
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "originalClientFieldsTest_FooFragment"
+              },
               {
                 "kind": "InlineFragment",
                 "selections": [
@@ -297,6 +330,20 @@ type Foo implements Named {
           {
             "kind": "ClientExtension",
             "selections": [
+              {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ],
+                "type": "Foo",
+                "abstractKey": null
+              },
               {
                 "kind": "InlineFragment",
                 "selections": [

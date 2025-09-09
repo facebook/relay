@@ -2,8 +2,8 @@
 query queryWithFragmentVariables_TestQuery($id: ID!, $cond: Boolean!, $pictureSize: [Int] = [128]) {
   node(id: $id) {
     id
-    ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize)
-    ...queryWithFragmentVariables_ProfileFriends @include(if: $cond)
+    ...queryWithFragmentVariables_Profile @arguments(pictureSize: $pictureSize) @alias
+    ...queryWithFragmentVariables_ProfileFriends @include(if: $cond) @alias
   }
 }
 
@@ -70,14 +70,25 @@ fragment queryWithFragmentVariables_Profile on User @argumentDefinitions(picture
             "storageKey": null
           },
           {
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "pictureSize",
-                "variableName": "pictureSize"
-              }
-            ],
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": [
+                    {
+                      "kind": "Variable",
+                      "name": "pictureSize",
+                      "variableName": "pictureSize"
+                    }
+                  ],
+                  "kind": "FragmentSpread",
+                  "name": "queryWithFragmentVariables_Profile"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "queryWithFragmentVariables_Profile"
           },
           {
@@ -86,8 +97,19 @@ fragment queryWithFragmentVariables_Profile on User @argumentDefinitions(picture
             "passingValue": true,
             "selections": [
               {
-                "args": null,
-                "kind": "FragmentSpread",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "queryWithFragmentVariables_ProfileFriends"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "AliasedInlineFragmentSpread",
                 "name": "queryWithFragmentVariables_ProfileFriends"
               }
             ]

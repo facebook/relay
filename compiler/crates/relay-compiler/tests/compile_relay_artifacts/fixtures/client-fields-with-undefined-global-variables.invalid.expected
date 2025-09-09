@@ -3,7 +3,7 @@
 
 query clientFieldsWithUndefinedGlobalVariablesQuery($id: ID!) {
   node(id: $id) {
-    ...clientFieldsWithUndefinedGlobalVariables_user
+    ...clientFieldsWithUndefinedGlobalVariables_user @alias
   }
 }
 

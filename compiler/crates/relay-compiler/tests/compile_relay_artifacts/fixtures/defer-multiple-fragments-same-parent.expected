@@ -2,8 +2,8 @@
 query deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery($id: ID!) {
   feedback: node(id: $id) {
     id
-    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @defer
-    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @defer
+    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @alias @defer
+    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @alias @defer
   }
 }
 
@@ -61,24 +61,46 @@ fragment deferMultipleFragmentsSameParent_FeedbackText_feedback on Feedback {
             "storageKey": null
           },
           {
-            "kind": "Defer",
-            "selections": [
-              {
-                "args": null,
-                "kind": "FragmentSpread",
-                "name": "deferMultipleFragmentsSameParent_FeedbackComments_feedback"
-              }
-            ]
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "kind": "Defer",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "deferMultipleFragmentsSameParent_FeedbackComments_feedback"
+                    }
+                  ]
+                }
+              ],
+              "type": "Feedback",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "deferMultipleFragmentsSameParent_FeedbackComments_feedback"
           },
           {
-            "kind": "Defer",
-            "selections": [
-              {
-                "args": null,
-                "kind": "FragmentSpread",
-                "name": "deferMultipleFragmentsSameParent_FeedbackText_feedback"
-              }
-            ]
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "kind": "Defer",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "deferMultipleFragmentsSameParent_FeedbackText_feedback"
+                    }
+                  ]
+                }
+              ],
+              "type": "Feedback",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "deferMultipleFragmentsSameParent_FeedbackText_feedback"
           }
         ],
         "storageKey": null

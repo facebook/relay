@@ -2,7 +2,7 @@
 # expected-to-throw
 query queryWithAndWithoutModuleDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithAndWithoutModuleDirective_NameRendererFragment
+    ...queryWithAndWithoutModuleDirective_NameRendererFragment @alias
   }
 }
 
@@ -10,10 +10,11 @@ fragment queryWithAndWithoutModuleDirective_NameRendererFragment on User {
   id
   nameRenderer {
     ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+      @alias
       @module(name: "MarkdownUserNameRenderer.react")
   }
   without_module: nameRenderer {
-    ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+    ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name @alias
   }
 }
 
@@ -26,16 +27,16 @@ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on Mar
 ==================================== ERROR ====================================
 ✖︎ The 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name' is transformed to use @no_inline implicitly by `@module`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of 'queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name'.
 
-  query-with-and-without-module-directive.graphql:15:8
-   14 │   without_module: nameRenderer {
-   15 │     ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+  query-with-and-without-module-directive.graphql:16:8
+   15 │   without_module: nameRenderer {
+   16 │     ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name @alias
       │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   16 │   }
+   17 │   }
 
   ℹ︎ fragment definition
 
-  query-with-and-without-module-directive.graphql:19:10
-   18 │ 
-   19 │ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  query-with-and-without-module-directive.graphql:20:10
+   19 │ 
+   20 │ fragment queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   20 │   markdown
+   21 │   markdown

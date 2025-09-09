@@ -45,7 +45,7 @@ fragment InlineFragmentKitchenSink on Story {
     ... on User {
       id
       name
-      ...SomeFragment
+      ...SomeFragment @alias
       profilePicture {
         width
       }

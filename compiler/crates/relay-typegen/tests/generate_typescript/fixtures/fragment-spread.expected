@@ -10,8 +10,8 @@ fragment FragmentSpread on Node {
     ...PictureFragment
   }
   ... on User {
-    ...UserFrag1
-    ...UserFrag2
+    ...UserFrag1 @alias
+    ...UserFrag2 @alias
   }
 }
 
@@ -20,7 +20,7 @@ fragment ConcreateTypes on Viewer {
     __typename
     ... on Page {
       id
-      ...PageFragment
+      ...PageFragment @alias
     }
     ... on User {
       name
@@ -52,8 +52,10 @@ import { FragmentRefs } from "relay-runtime";
 export type ConcreateTypes$data = {
   readonly actor: {
     readonly __typename: "Page";
+    readonly PageFragment: {
+      readonly " $fragmentSpreads": FragmentRefs<"PageFragment">;
+    } | null | undefined;
     readonly id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"PageFragment">;
   } | {
     readonly __typename: "User";
     readonly name: string | null | undefined;
@@ -71,6 +73,12 @@ export type ConcreateTypes$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread$data = {
+  readonly UserFrag1?: {
+    readonly " $fragmentSpreads": FragmentRefs<"UserFrag1">;
+  } | null | undefined;
+  readonly UserFrag2?: {
+    readonly " $fragmentSpreads": FragmentRefs<"UserFrag2">;
+  } | null | undefined;
   readonly fragAndField: {
     readonly uri: string | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
@@ -79,7 +87,7 @@ export type FragmentSpread$data = {
   readonly justFrag: {
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
   } | null | undefined;
-  readonly " $fragmentSpreads": FragmentRefs<"OtherFragment" | "UserFrag1" | "UserFrag2">;
+  readonly " $fragmentSpreads": FragmentRefs<"OtherFragment">;
   readonly " $fragmentType": "FragmentSpread";
 };
 export type FragmentSpread$key = {

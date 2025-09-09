@@ -3,7 +3,7 @@
 
 query relayResolverWithUndefinedFragmentArgsQuery {
   node(id: "SOME_ID") {
-    ...relayResolverWithUndefinedFragmentArgs_PopStarName
+    ...relayResolverWithUndefinedFragmentArgs_PopStarName @alias
   }
 }
 
@@ -11,9 +11,8 @@ fragment relayResolverWithUndefinedFragmentArgs_PopStarName on User {
   pop_star_name(includeName: $undefined)
 }
 
-fragment relayResolverWithUndefinedFragmentArgs_PopStarNameResolverFragment_name on User @argumentDefinitions(
-    includeName: {type: "Boolean!"}
-  ) {
+fragment relayResolverWithUndefinedFragmentArgs_PopStarNameResolverFragment_name on User
+@argumentDefinitions(includeName: {type: "Boolean!"}) {
   name
   id @include(if: $includeName)
 }
@@ -21,7 +20,11 @@ fragment relayResolverWithUndefinedFragmentArgs_PopStarNameResolverFragment_name
 # %extensions%
 
 extend type User {
-  pop_star_name(includeName: Boolean!): String @relay_resolver(fragment_name: "relayResolverWithUndefinedFragmentArgs_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+  pop_star_name(includeName: Boolean!): String
+    @relay_resolver(
+      fragment_name: "relayResolverWithUndefinedFragmentArgs_PopStarNameResolverFragment_name"
+      import_path: "./path/to/PopStarNameResolver.js"
+    )
 }
 ==================================== ERROR ====================================
 ✖︎ Operation 'relayResolverWithUndefinedFragmentArgsQuery' references undefined variable: '$undefined'.

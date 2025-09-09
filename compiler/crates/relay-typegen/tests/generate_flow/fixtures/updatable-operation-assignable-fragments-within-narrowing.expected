@@ -4,11 +4,11 @@ query UpdatableQuery @updatable {
     actor {
       ... on User {
         __typename
-        ...Assignable_user
+        ...Assignable_user @alias
       }
       ... on Page {
         __typename
-        ...Assignable_page
+        ...Assignable_page @alias
       }
     }
   }
@@ -29,24 +29,28 @@ export type UpdatableQuery$data = {|
   get me(): ?{|
     get actor(): ?({|
       +__typename: "Page",
+      get Assignable_page(): ?{||},
+      set Assignable_page(value: ?{
+        +__typename: "Page",
+        +__id: string,
+        +$fragmentSpreads: Assignable_page$fragmentType,
+        ...
+      }): void,
     |} | {|
       +__typename: "User",
+      get Assignable_user(): ?{||},
+      set Assignable_user(value: ?{
+        +__typename: "User",
+        +__id: string,
+        +$fragmentSpreads: Assignable_user$fragmentType,
+        ...
+      }): void,
     |} | {|
       // This will never be '%other', but we need some
       // value in case none of the concrete values match.
       +__typename: "%other",
     |}),
-    set actor(value: ?({
-      +__typename: "Page",
-      +__id: string,
-      +$fragmentSpreads: Assignable_page$fragmentType,
-      ...
-    } | {
-      +__typename: "User",
-      +__id: string,
-      +$fragmentSpreads: Assignable_user$fragmentType,
-      ...
-    })): void,
+    set actor(value: null | void): void,
   |},
   set me(value: null | void): void,
 |};

@@ -1,9 +1,9 @@
 ==================================== INPUT ====================================
 fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   ... on User {
     name
-    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture @alias
   }
 }
 
@@ -262,8 +262,19 @@ fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node {
           "storageKey": null
         },
         {
-          "args": null,
-          "kind": "FragmentSpread",
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
           "name": "refetchableFragmentOnNodeWithMissingId_ProfilePicture"
         }
       ],

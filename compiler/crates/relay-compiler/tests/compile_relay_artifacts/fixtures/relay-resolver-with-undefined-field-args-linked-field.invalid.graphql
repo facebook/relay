@@ -2,7 +2,7 @@
 
 query relayResolverWithUndefinedFieldArgsLinkedFieldQuery {
   node(id: "SOME_ID") {
-    ...relayResolverWithUndefinedFieldArgsLinkedField_PopStar
+    ...relayResolverWithUndefinedFieldArgsLinkedField_PopStar @alias
   }
 }
 
@@ -14,5 +14,6 @@ fragment relayResolverWithUndefinedFieldArgsLinkedField_PopStar on User {
 # %extensions%
 
 extend type User {
-  pop_star(name: String): User @relay_resolver(import_path: "./path/to/PopStarResolver.js")
+  pop_star(name: String): User
+    @relay_resolver(import_path: "./path/to/PopStarResolver.js")
 }

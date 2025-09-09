@@ -1,7 +1,7 @@
 query unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
   node(id: $id) {
     id
-    ...unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment @arguments(fetchConnection: false)
+    ...unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment @arguments(fetchConnection: false) @alias
   }
 }
 

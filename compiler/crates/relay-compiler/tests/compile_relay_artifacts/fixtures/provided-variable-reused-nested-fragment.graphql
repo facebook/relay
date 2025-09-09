@@ -1,12 +1,12 @@
 query providedVariableReusedNestedFragment_1Query($id: ID!) {
     node(id: $id) {
-        ...providedVariableReusedNestedFragment_FragmentCommon
+        ...providedVariableReusedNestedFragment_FragmentCommon @alias
     }
 }
 
 query providedVariableReusedNestedFragment_2Query($id: ID!) {
     node(id: $id) {
-       ...providedVariableReusedNestedFragment_Fragment
+        ...providedVariableReusedNestedFragment_Fragment @alias
     }
 }
 

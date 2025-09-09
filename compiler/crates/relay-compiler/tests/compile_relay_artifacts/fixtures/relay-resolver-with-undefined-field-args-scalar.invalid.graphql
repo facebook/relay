@@ -2,7 +2,7 @@
 
 query relayResolverWithUndefinedFieldArgsScalarQuery {
   node(id: "SOME_ID") {
-    ...relayResolverWithUndefinedFieldArgsScalar_name
+    ...relayResolverWithUndefinedFieldArgsScalar_name @alias
   }
 }
 
@@ -13,5 +13,6 @@ fragment relayResolverWithUndefinedFieldArgsScalar_name on User {
 # %extensions%
 
 extend type User {
-  pop_star_name(scale: Float!): String @relay_resolver(import_path: "./path/to/PopStarNameResolver.js")
+  pop_star_name(scale: Float!): String
+    @relay_resolver(import_path: "./path/to/PopStarNameResolver.js")
 }

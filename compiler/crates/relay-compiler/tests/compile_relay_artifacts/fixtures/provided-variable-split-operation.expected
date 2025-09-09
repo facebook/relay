@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query providedVariableSplitOperation_Query($id: ID!) {
   node(id: $id) {
-    ...providedVariableSplitOperationFragment
+    ...providedVariableSplitOperationFragment @alias
   }
 }
 
@@ -150,8 +150,19 @@ fragment providedVariableSplitOperation_PlainUserNameRenderer_name on PlainUserN
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "providedVariableSplitOperationFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "providedVariableSplitOperationFragment"
           }
         ],

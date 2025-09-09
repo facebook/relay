@@ -10,7 +10,7 @@ fragment selectionsOnInterfacePageFragment on Page {
 
 query selectionsOnInterfaceQuery($id: ID!) {
   node(id: $id) {
-    ...selectionsOnInterfaceUserFragment
-    ...selectionsOnInterfacePageFragment
+    ...selectionsOnInterfaceUserFragment @alias
+    ...selectionsOnInterfacePageFragment @alias
   }
 }

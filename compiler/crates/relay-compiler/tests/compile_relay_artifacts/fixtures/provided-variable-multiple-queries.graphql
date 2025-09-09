@@ -1,13 +1,13 @@
 query providedVariableMultipleQueries_OneFragmentQuery {
   node(id: 4) {
-    ...providedVariableMultipleQueries_OneProvidedVar
+    ...providedVariableMultipleQueries_OneProvidedVar @alias
   }
 }
 
 query providedVariableMultipleQueries_MultiFragmentQuery {
   node(id: 5) {
-    ...providedVariableMultipleQueries_OneProvidedVar,
-    ...providedVariableMultipleQueries_MultiProvidedVar,
+    ...providedVariableMultipleQueries_OneProvidedVar @alias,
+    ...providedVariableMultipleQueries_MultiProvidedVar @alias,
   }
 }
 

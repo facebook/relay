@@ -9,8 +9,8 @@ fragment FragmentSpread on Node {
     ...PictureFragment
   }
   ... on User {
-    ...UserFrag1
-    ...UserFrag2
+    ...UserFrag1 @alias
+    ...UserFrag2 @alias
   }
 }
 
@@ -19,7 +19,7 @@ fragment ConcreateTypes on Viewer {
     __typename
     ... on Page {
       id
-      ...PageFragment
+      ...PageFragment @alias
     }
     ... on User {
       name

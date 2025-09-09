@@ -2,7 +2,7 @@
 query fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery($id: ID!) {
   node(id: $id) {
     id
-    ...fragmentWithDeferInStream_FeedbackFragment
+    ...fragmentWithDeferInStream_FeedbackFragment @alias
   }
 }
 
@@ -52,8 +52,19 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
             "storageKey": null
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "fragmentWithDeferInStream_FeedbackFragment"
+                }
+              ],
+              "type": "Feedback",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "fragmentWithDeferInStream_FeedbackFragment"
           }
         ],

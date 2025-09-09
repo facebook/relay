@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query moduleInInlineFragment_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...moduleInInlineFragment_FooNameRendererFragment
+    ...moduleInInlineFragment_FooNameRendererFragment @alias
   }
 }
 
@@ -95,8 +95,19 @@ fragment moduleInInlineFragment_MarkdownUserNameRenderer_name on MarkdownUserNam
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "moduleInInlineFragment_FooNameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "moduleInInlineFragment_FooNameRendererFragment"
           }
         ],

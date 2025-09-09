@@ -3,14 +3,14 @@ query Test @raw_response_type {
   node(id: "1") {
     ... on User {
       username
-      ...NameRendererFragment
+      ...NameRendererFragment @alias
     }
   }
   viewer {
     actor {
       ... on User {
         name
-        ...AnotherNameRendererFragment
+        ...AnotherNameRendererFragment @alias
       }
     }
   }
@@ -52,13 +52,17 @@ import { FragmentRefs, Local3DPayload } from "relay-runtime";
 export type Test$variables = Record<PropertyKey, never>;
 export type Test$data = {
   readonly node: {
+    readonly NameRendererFragment?: {
+      readonly " $fragmentSpreads": FragmentRefs<"NameRendererFragment">;
+    } | null | undefined;
     readonly username?: string | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"NameRendererFragment">;
   } | null | undefined;
   readonly viewer: {
     readonly actor: {
+      readonly AnotherNameRendererFragment?: {
+        readonly " $fragmentSpreads": FragmentRefs<"AnotherNameRendererFragment">;
+      } | null | undefined;
       readonly name?: string | null | undefined;
-      readonly " $fragmentSpreads": FragmentRefs<"AnotherNameRendererFragment">;
     } | null | undefined;
   } | null | undefined;
 };

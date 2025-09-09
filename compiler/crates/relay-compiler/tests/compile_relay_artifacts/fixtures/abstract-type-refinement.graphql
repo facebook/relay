@@ -3,7 +3,7 @@ query abstractTypeRefinement_AbstractTypeRefinementQuery {
     ... on Named {
       name_from_query: name
     }
-    ...abstractTypeRefinement_ActorFragment
+    ...abstractTypeRefinement_ActorFragment @alias
   }
 }
 

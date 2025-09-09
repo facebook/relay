@@ -1,6 +1,6 @@
 query clientInlineFragmentsInQuery_FooQuery($id: ID!) {
   node(id: $id) {
-    ...clientInlineFragmentsInQuery_Foo_user
+    ...clientInlineFragmentsInQuery_Foo_user @alias
   }
 }
 

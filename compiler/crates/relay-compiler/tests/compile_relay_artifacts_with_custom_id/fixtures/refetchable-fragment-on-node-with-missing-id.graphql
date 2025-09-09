@@ -1,8 +1,8 @@
 fragment refetchableFragmentOnNodeWithMissingId_RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   ... on User {
     name
-    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture
+    ...refetchableFragmentOnNodeWithMissingId_ProfilePicture @alias
   }
 }
 

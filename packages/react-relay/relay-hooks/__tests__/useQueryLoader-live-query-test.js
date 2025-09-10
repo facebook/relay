@@ -601,9 +601,10 @@ it('should release and cancel prior queries if the callback is called multiple t
 });
 
 it('should release and cancel queries on unmount if the callback is called, the component suspends and then unmounts', () => {
-  return; // @oss-only
+  // @oss-only: return;
   let shouldSuspend;
   let setShouldSuspend;
+  // @oss-only: $FlowFixMe[unreachable-code]
   const suspensePromise = new Promise(() => {});
   function SuspendingComponent() {
     [shouldSuspend, setShouldSuspend] = React.useState(false);
@@ -624,23 +625,32 @@ it('should release and cancel queries on unmount if the callback is called, the 
   }
 
   let outerInstance;
+  // @oss-only: $FlowFixMe[unreachable-code]
   ReactTestRenderer.act(() => {
     outerInstance = ReactTestRenderer.create(<Outer />);
   });
+  // @oss-only: $FlowFixMe[unreachable-code]
   expect(renderCount).toEqual(1);
+  // @oss-only: $FlowFixMe[unreachable-code]
   ReactTestRenderer.act(() => {
     /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
      * useQueryLoader */
     queryLoaderCallback({});
   });
+  // @oss-only: $FlowFixMe[unreachable-code]
   expect(renderCount).toEqual(2);
+  // @oss-only: $FlowFixMe[unreachable-code]
   ReactTestRenderer.act(() => {
     setShouldSuspend(true);
   });
+  // @oss-only: $FlowFixMe[unreachable-code]
   expect(renderCount).toEqual(2);
+  // @oss-only: $FlowFixMe[unreachable-code]
   expect(outerInstance?.toJSON()).toEqual('fallback');
+  // @oss-only: $FlowFixMe[unreachable-code]
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());
+  // @oss-only: $FlowFixMe[unreachable-code]
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 

@@ -67,6 +67,7 @@ pub use server::LSPState;
 pub use server::Schemas;
 pub use utils::position_to_offset;
 
+#[allow(clippy::large_enum_variant)]
 pub enum Feature {
     ExecutableDocument(ExecutableDocument),
     DocblockIr(DocblockIr),

@@ -191,8 +191,13 @@ pub async fn run<
     LSPStateResources::new(Arc::clone(&lsp_state)).watch();
 
     tokio::task::spawn_blocking(move || {
+        // `next_task` is a blocking function that will block until a message is received, that's why we
+        // need to spawn a blocking task here and then go back to async execution with `block_in_place`.
         while let Some(task) = next_task(&connection.receiver, &task_queue.receiver) {
-            task_queue.process(Arc::clone(&lsp_state), task);
+            tokio::task::block_in_place(|| {
+                tokio::runtime::Handle::current()
+                    .block_on(async { task_queue.process(Arc::clone(&lsp_state), task).await })
+            });
         }
     })
     .await?;

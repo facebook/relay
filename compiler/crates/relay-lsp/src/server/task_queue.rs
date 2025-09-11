@@ -6,20 +6,21 @@
  */
 
 use std::sync::Arc;
-use std::thread;
-use std::thread::JoinHandle;
 use std::time::Instant;
 
 use crossbeam::channel::Receiver;
 use crossbeam::channel::Sender;
 use crossbeam::channel::unbounded;
 use log::debug;
+use log::error;
+use tokio::sync::Semaphore;
 
 pub struct TaskQueue<S, T> {
     processor: Arc<dyn TaskProcessor<S, T>>,
     pub receiver: Receiver<T>,
+    handles: Vec<tokio::task::JoinHandle<()>>,
     scheduler: Arc<TaskScheduler<T>>,
-    active_thread_handles: Vec<JoinHandle<()>>,
+    permits: Arc<Semaphore>,
 }
 
 pub trait TaskProcessor<S, T>: Send + Sync + 'static {
@@ -39,6 +40,8 @@ impl<T> TaskScheduler<T> {
     }
 }
 
+const MAX_PARALLEL_TASKS: u32 = 10;
+
 impl<S, T> TaskQueue<S, T>
 where
     S: Send + Sync + 'static,
@@ -50,8 +53,9 @@ where
         Self {
             processor,
             receiver,
+            handles: Default::default(),
             scheduler: Arc::new(TaskScheduler { sender }),
-            active_thread_handles: Vec::new(),
+            permits: Arc::new(Semaphore::new(MAX_PARALLEL_TASKS as usize)),
         }
     }
 
@@ -59,27 +63,36 @@ where
         Arc::clone(&self.scheduler)
     }
 
-    pub fn process(&mut self, state: Arc<S>, task: T) {
+    /// Process a task.
+    ///
+    /// NOTE: This should not do any heavy work and expensive processing should be moved into
+    ///       `tokio::spawn_blocking` or other appropriate handling.
+    pub async fn process(&mut self, state: Arc<S>, task: T) {
+        // check for finished tasks to potentially propagate errors
+        for finished_handle in self.handles.extract_if(.., |handle| handle.is_finished()) {
+            if let Err(err) = finished_handle.await {
+                error!("Task finished with error in Relay Compiler TaskQueue: {err:?}");
+            }
+        }
+
         let processor = Arc::clone(&self.processor);
         let is_serial_task = processor.is_serial_task(&task);
-        let should_join_active_threads = self.active_thread_handles.len() > 10;
 
-        if is_serial_task || should_join_active_threads {
-            // Before starting a serial task, we need to make sure that all
-            // previous tasks have been completed, otherwise the serial task
-            // might interfere with them.
-            // We also do this if there are too many "tracked" threads, since
-            // the threads we spawn are now no longer "detached" and it's our
-            // responsibility to join them at some point.
-            self.ensure_previous_tasks_completed();
+        let permit = if is_serial_task {
+            // Acquire all permits, ensuring that no other tasks are running in parallel
+            Arc::clone(&self.permits)
+                .acquire_many_owned(MAX_PARALLEL_TASKS)
+                .await
+        } else {
+            Arc::clone(&self.permits).acquire_owned().await
         }
+        .expect("Semaphore unexpectedly closed");
 
         let task_str = format!("{:?}", &task);
         let now = Instant::now();
         debug!("Processing task {:?}", &task_str);
 
-        let thread_builder = thread::Builder::new();
-        let spawn_result = thread_builder.spawn(move || {
+        let handle = tokio::task::spawn_blocking(move || {
             processor.process(state, task);
 
             debug!(
@@ -87,31 +100,12 @@ where
                 task_str,
                 now.elapsed().as_millis()
             );
+
+            // explicitly move the permit into this task and only
+            // release after the async task was completed
+            drop(permit);
         });
 
-        match spawn_result {
-            Ok(handle) => {
-                if is_serial_task {
-                    // If the task is serial, we need to wait for its thread
-                    // to complete, before moving onto the next task.
-                    if let Err(error) = handle.join() {
-                        debug!("Thread panicked while joining serial task: {error:?}");
-                    }
-                } else {
-                    self.active_thread_handles.push(handle);
-                }
-            }
-            Err(error) => {
-                debug!("Failed to spawn thread to process task: {error:?}");
-            }
-        }
-    }
-
-    fn ensure_previous_tasks_completed(&mut self) {
-        for handle in self.active_thread_handles.drain(..) {
-            if let Err(error) = handle.join() {
-                debug!("Thread panicked while joining previous task: {error:?}");
-            }
-        }
+        self.handles.push(handle);
     }
 }

@@ -79,7 +79,15 @@ pub type ProjectStatusMap = Arc<DashMap<StringKey, ProjectStatus, FnvBuildHasher
 
 #[derive(Eq, PartialEq)]
 pub enum ProjectStatus {
-    Activated,
+    /// The project was just activated, but not yet built.
+    Activated {
+        /// Can be awaited to wait for the project to be built.
+        /// The value is set to () the first time the schema project completed, even if it failed.
+        /// This should be safe to await as the first project to complete.
+        when_completed: Arc<tokio::sync::SetOnce<()>>,
+    },
+
+    /// The project was built at least once.
     Completed,
 }
 
@@ -415,10 +423,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .clear_quick_diagnostics_for_url(url);
     }
 
-    fn initialize_lsp_state_resources(&self, project_name: StringKey) {
+    /// Marks a project to be built. Returns a token that can be awaited for the project to complete building
+    /// the project schema (or error, then the schema would still not be set).
+    pub fn initialize_lsp_state_resources(
+        &self,
+        project_name: StringKey,
+    ) -> Option<Arc<tokio::sync::SetOnce<()>>> {
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
+            let when_completed = Arc::new(tokio::sync::SetOnce::new());
+            e.insert(ProjectStatus::Activated {
+                when_completed: Arc::clone(&when_completed),
+            });
             self.notify_lsp_state_resources.notify_one();
+            Some(when_completed)
+        } else {
+            None
         }
     }
 }

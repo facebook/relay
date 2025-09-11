@@ -15,6 +15,7 @@ use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::debug;
+use log::error;
 use rayon::iter::ParallelIterator;
 use relay_compiler::ArtifactSourceKey;
 use relay_compiler::BuildProjectFailure;
@@ -215,7 +216,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 .lsp_state
                 .project_status
                 .iter()
-                .any(|r| r.value() == &ProjectStatus::Activated)
+                .any(|r| matches!(r.value(), ProjectStatus::Activated { .. }))
         {
             debug!("LSP server detected changes...");
 
@@ -314,9 +315,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         compiler_state: &CompilerState,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<ProjectName, BuildProjectFailure> {
-        self.lsp_state
-            .project_status
-            .insert(project_config.name.into(), ProjectStatus::Completed);
         let log_event = self.lsp_state.perf_logger.create_event("build_lsp_project");
         let project_name = project_config.name;
         let build_time = log_event.start("build_lsp_project_time");
@@ -330,7 +328,25 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 graphql_asts_map,
                 &log_event,
             )
-        })?;
+        });
+
+        // mark the project as completed no matter if the schema build succeeded or not such that
+        // the `when_completed` token can be awaited whether the project succeeds to build or not.
+        if let Some(ProjectStatus::Activated { when_completed }) = self
+            .lsp_state
+            .project_status
+            .insert(project_config.name.into(), ProjectStatus::Completed)
+        {
+            match when_completed.set(()) {
+                Ok(()) => {}
+                Err(tokio::sync::SetOnceError(())) => {
+                    // We don't expect this as the project should be set to completed after the first (try to) build the schema.
+                    error!("Project status was already set to completed");
+                }
+            }
+        }
+
+        let schema = schema?;
 
         let ProjectAstData {
             project_asts,

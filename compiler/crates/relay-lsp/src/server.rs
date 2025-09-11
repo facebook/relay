@@ -68,6 +68,8 @@ pub use crate::LSPExtraDataProvider;
 use crate::code_action::on_code_action;
 use crate::completion::on_completion;
 use crate::completion::on_resolve_completion_item;
+use crate::daemon;
+use crate::daemon::DeamonRequestMessage;
 use crate::explore_schema_for_type::ExploreSchemaForType;
 use crate::explore_schema_for_type::on_explore_schema_for_type;
 use crate::find_field_usages::FindFieldUsages;
@@ -102,6 +104,7 @@ use crate::text_documents::on_did_close_text_document;
 use crate::text_documents::on_did_open_text_document;
 use crate::text_documents::on_did_save_text_document;
 use crate::type_information::TypeInformation;
+use crate::type_information::TypeInformationParams;
 use crate::type_information::on_type_information;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
@@ -151,6 +154,7 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<()> {
 pub enum Task {
     InboundMessage(lsp_server::Message),
     LSPState(lsp_state::Task),
+    DeamonRequest(daemon::DeamonRequest),
 }
 
 /// Run the main server loop
@@ -189,6 +193,11 @@ pub async fn run<
     ));
 
     LSPStateResources::new(Arc::clone(&lsp_state)).watch();
+
+    let daemon_task_scheduler = Arc::clone(&task_scheduler);
+    tokio::spawn(daemon::start_server(Arc::new(move |request| {
+        daemon_task_scheduler.schedule(Task::DeamonRequest(request));
+    })));
 
     tokio::task::spawn_blocking(move || {
         // `next_task` is a blocking function that will block until a message is received, that's why we
@@ -238,6 +247,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Task::InboundMessage(Message::Response(_)) => {
                 // TODO: handle response from the client -> cancel message, etc
             }
+            Task::DeamonRequest(daemon_request) => {
+                tokio::spawn(async {
+                    let response = handle_daemon_request(state, daemon_request.message).await;
+                    daemon_request.responder.respond(response);
+                });
+            }
         }
     }
 
@@ -247,6 +262,46 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 NOTIFCATIONS_MUTATING_LSP_STATE.contains(&notification.method.as_str())
             }
             _ => false,
+        }
+    }
+}
+
+async fn handle_daemon_request<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
+    state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
+    daemon_request_message: DeamonRequestMessage,
+) -> Result<String, String> {
+    match daemon_request_message {
+        daemon::DeamonRequestMessage::TypeInformation {
+            file_name,
+            type_name,
+        } => {
+            let Ok(project_name) = state.extract_project_name_from_url(&file_name) else {
+                return Err(format!(
+                    "Unable to map {file_name:?} to Relay GraphQL project."
+                ));
+            };
+            if let Some(when_ready) = state.initialize_lsp_state_resources(project_name) {
+                debug!("Waiting for LSP state resources to be ready");
+                when_ready.wait().await;
+                debug!("LSP state resources are ready");
+            } else {
+                debug!("LSP state resources are already ready");
+            }
+
+            match on_type_information(
+                state.as_ref(),
+                TypeInformationParams {
+                    uri: file_name,
+                    type_name,
+                },
+            ) {
+                Ok(response) => serde_json::to_string_pretty(&response)
+                    .map_err(|err| format!("JSON deserialization error: {err:?}")),
+                Err(err) => Err(format!("{err:?}")),
+            }
         }
     }
 }

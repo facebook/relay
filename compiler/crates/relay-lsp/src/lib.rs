@@ -10,6 +10,7 @@
 mod client;
 pub mod code_action;
 pub mod completion;
+pub mod daemon;
 pub mod diagnostic_reporter;
 mod docblock_resolution_info;
 mod explore_schema_for_type;

@@ -641,6 +641,7 @@ it('should release and cancel queries on unmount if the callback is called, the 
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());
   return; // @oss-only
+  // $FlowFixMe[unreachable-code]
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 

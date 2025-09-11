@@ -601,7 +601,6 @@ it('should release and cancel prior queries if the callback is called multiple t
 });
 
 it('should release and cancel queries on unmount if the callback is called, the component suspends and then unmounts', () => {
-  return; // @oss-only
   let shouldSuspend;
   let setShouldSuspend;
   const suspensePromise = new Promise(() => {});
@@ -641,6 +640,7 @@ it('should release and cancel queries on unmount if the callback is called, the 
   expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());
+  return; // @oss-only
   expect(dispose).toHaveBeenCalledTimes(1);
 });
 

@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables} from './__generated__/RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription.graphql';
 import type {RenderProps} from 'react-relay/ReactRelayQueryRenderer';
 import type {
   HandleFieldPayload,
@@ -1061,7 +1062,7 @@ describe('ReactRelayTestMocker with Containers', () => {
               input: {
                 feedbackId: props.feedback.id,
               },
-            },
+            } as RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
           });
           return () => {
             subscription.dispose();

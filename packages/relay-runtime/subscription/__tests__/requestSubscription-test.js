@@ -10,12 +10,15 @@
  */
 
 'use strict';
+
 import type {DeclarativeMutationConfig} from '../../mutations/RelayDeclarativeMutationConfig';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
 import type {RequestParameters} from '../../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../../util/RelayRuntimeTypes';
 import type {requestSubscriptionTest1CommentCreateSubscription$variables} from './__generated__/requestSubscriptionTest1CommentCreateSubscription.graphql';
+import type {requestSubscriptionTestCommentCreateSubscription$variables} from './__generated__/requestSubscriptionTestCommentCreateSubscription.graphql';
+import type {requestSubscriptionTestSubscription$variables} from './__generated__/requestSubscriptionTestSubscription.graphql';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -132,7 +135,7 @@ describe('requestSubscription-test', () => {
       subscription: CommentCreateSubscription,
       variables: {
         input: {feedbackId, text: secondCommentBody},
-      },
+      } as requestSubscriptionTestCommentCreateSubscription$variables,
     });
 
     const subscriptionPayload = {
@@ -480,7 +483,7 @@ describe('requestSubscription-test', () => {
 
     requestSubscription(environment, {
       subscription,
-      variables: {input: {}},
+      variables: {input: {}} as requestSubscriptionTestSubscription$variables,
       updater,
       onNext,
     });

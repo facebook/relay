@@ -12,6 +12,7 @@
 'use strict';
 
 import type {RelayResolverInterfaceTestAnimalLegsFragment$key} from './__generated__/RelayResolverInterfaceTestAnimalLegsFragment.graphql';
+import type {RelayResolverInterfaceTestAnimalsLegsQuery$variables} from './__generated__/RelayResolverInterfaceTestAnimalsLegsQuery.graphql';
 import type {RelayResolverInterfaceTestWeakAnimalColorFragment$key} from './__generated__/RelayResolverInterfaceTestWeakAnimalColorFragment.graphql';
 
 const React = require('react');
@@ -371,7 +372,9 @@ test('resolvers can return a list of interfaces where all implementors are stron
           }
         }
       `,
-      {requests: props.requests},
+      {
+        requests: props.requests,
+      } as RelayResolverInterfaceTestAnimalsLegsQuery$variables,
     );
 
     return data.animals?.map((animal, index) => {

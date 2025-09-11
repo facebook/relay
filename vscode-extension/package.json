@@ -159,7 +159,7 @@
     "@types/vscode": "^1.60.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "@vscode/vsce": "^2.18.0",
+    "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.17.12",
     "eslint": "^8.19.0",
     "eslint-config-airbnb-base": "^15.0.0",

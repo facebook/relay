@@ -142,6 +142,7 @@ export type InternalEntryPointRepresentation<
   TPreloadedEntryPoints = {...},
   TRuntimeProps = {...},
   TExtraProps = null,
+  +TRenders: React.Node = React.Node,
 > = $ReadOnly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
@@ -157,6 +158,7 @@ export type InternalEntryPointRepresentation<
       TPreloadedEntryPoints,
       TRuntimeProps,
       TExtraProps,
+      TRenders,
     >,
   >,
 }>;
@@ -180,7 +182,7 @@ export type EntryPointComponent<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-  TRenders: React.Node = React.Node,
+  +TRenders: React.Node = React.Node,
 > = component(
   ...EntryPointProps<
     TPreloadedQueries,
@@ -282,6 +284,11 @@ export type ExtractQueryTypes<
   >,
 };
 
+// $FlowFixMe[unclear-type]: we don't care about the props
+type Renders<+C: component(...any)> =
+  // $FlowFixMe[unclear-type]: we don't care about the props
+  C extends component(...any) renders infer R extends React.Node ? R : empty;
+
 export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,
@@ -289,6 +296,7 @@ export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
     ElementConfig<TEntryPointComponent>['entryPoints'],
     ElementConfig<TEntryPointComponent>['props'],
     ElementConfig<TEntryPointComponent>['extraProps'],
+    Renders<TEntryPointComponent>,
   >;
 
 export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];

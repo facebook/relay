@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b067c3cf6082d7d5782cf04af2b4e311>>
+ * @generated SignedSource<<5ad6f57edc5880bba323992bb2575b54>>
  */
 
 mod compile_relay_artifacts;
@@ -2005,6 +2005,13 @@ async fn supported_arg_non_static_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.expected");
     test_fixture(transform_fixture, file!(), "supported_arg_non_static.invalid.graphql", "compile_relay_artifacts/fixtures/supported_arg_non_static.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn todo_multiple_overlapping_modules() {
+    let input = include_str!("compile_relay_artifacts/fixtures/TODO-multiple-overlapping-modules.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/TODO-multiple-overlapping-modules.expected");
+    test_fixture(transform_fixture, file!(), "TODO-multiple-overlapping-modules.graphql", "compile_relay_artifacts/fixtures/TODO-multiple-overlapping-modules.expected", input, expected).await;
 }
 
 #[tokio::test]

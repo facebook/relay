@@ -1,0 +1,530 @@
+==================================== INPUT ====================================
+#TODO: This should fail
+query TODOMultipleOverlappingModulesQuery {
+  node(id: "<user-id>") {
+    ... on User {
+      ...TODOMultipleOverlappingModulesInner1 @alias(as: "modules1")
+      ...TODOMultipleOverlappingModulesInner2 @alias(as: "modules2")
+    }
+  }
+}
+fragment TODOMultipleOverlappingModulesInner1 on User {
+    nameRenderer {
+    ...TODOMultipleOverlappingModulesPlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+
+fragment TODOMultipleOverlappingModulesInner2 on User {
+    nameRenderer {
+    ...TODOMultipleOverlappingModulesPlainUserNameRenderer_name @module(name: "AnotherPlainUserNameRenderer.react")
+    ...TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name
+        @module(name: "AnotherMarkdownUserNameRenderer.react")
+    }
+}
+
+
+fragment TODOMultipleOverlappingModulesPlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    ... on PlainUserNameData {
+      text
+    }
+  }
+}
+
+fragment TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    ... on MarkdownUserNameData {
+      markup
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "TODOMultipleOverlappingModulesPlainUserNameRenderer_name$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "TODOMultipleOverlappingModulesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "<user-id>"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "TODOMultipleOverlappingModulesInner1"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "modules1"
+              },
+              {
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "args": null,
+                      "kind": "FragmentSpread",
+                      "name": "TODOMultipleOverlappingModulesInner2"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "AliasedInlineFragmentSpread",
+                "name": "modules2"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": "node(id:\"<user-id>\")"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "TODOMultipleOverlappingModulesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": "<user-id>"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "TODOMultipleOverlappingModulesInner1",
+                        "fragmentName": "TODOMultipleOverlappingModulesPlainUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "TODOMultipleOverlappingModulesInner1",
+                        "fragmentName": "TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name",
+                        "fragmentPropName": "name",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": "node(id:\"<user-id>\")"
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "b521dd416c3a931018e33f10e29af872",
+    "id": null,
+    "metadata": {},
+    "name": "TODOMultipleOverlappingModulesQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query TODOMultipleOverlappingModulesQuery {
+  node(id: "<user-id>") {
+    __typename
+    ... on User {
+      ...TODOMultipleOverlappingModulesInner1
+      ...TODOMultipleOverlappingModulesInner2
+    }
+    id
+  }
+}
+
+fragment TODOMultipleOverlappingModulesInner1 on User {
+  nameRenderer {
+    __typename
+    ... on PlainUserNameRenderer {
+      ...TODOMultipleOverlappingModulesPlainUserNameRenderer_name
+      __module_operation_TODOMultipleOverlappingModulesInner1: js(module: "TODOMultipleOverlappingModulesPlainUserNameRenderer_name$normalization.graphql", id: "TODOMultipleOverlappingModulesInner1.nameRenderer", branch: "PlainUserNameRenderer")
+      __module_component_TODOMultipleOverlappingModulesInner1: js(module: "PlainUserNameRenderer.react", id: "TODOMultipleOverlappingModulesInner1.nameRenderer", branch: "PlainUserNameRenderer")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name
+      __module_operation_TODOMultipleOverlappingModulesInner1: js(module: "TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name$normalization.graphql", id: "TODOMultipleOverlappingModulesInner1.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_TODOMultipleOverlappingModulesInner1: js(module: "MarkdownUserNameRenderer.react", id: "TODOMultipleOverlappingModulesInner1.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+  }
+}
+
+fragment TODOMultipleOverlappingModulesInner2 on User {
+  nameRenderer {
+    __typename
+    ... on PlainUserNameRenderer {
+      ...TODOMultipleOverlappingModulesPlainUserNameRenderer_name
+      __module_operation_TODOMultipleOverlappingModulesInner2: js(module: "TODOMultipleOverlappingModulesPlainUserNameRenderer_name$normalization.graphql", id: "TODOMultipleOverlappingModulesInner2.nameRenderer", branch: "PlainUserNameRenderer")
+      __module_component_TODOMultipleOverlappingModulesInner2: js(module: "AnotherPlainUserNameRenderer.react", id: "TODOMultipleOverlappingModulesInner2.nameRenderer", branch: "PlainUserNameRenderer")
+    }
+    ... on MarkdownUserNameRenderer {
+      ...TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name
+      __module_operation_TODOMultipleOverlappingModulesInner2: js(module: "TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name$normalization.graphql", id: "TODOMultipleOverlappingModulesInner2.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_TODOMultipleOverlappingModulesInner2: js(module: "AnotherMarkdownUserNameRenderer.react", id: "TODOMultipleOverlappingModulesInner2.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+  }
+}
+
+fragment TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    id
+  }
+}
+
+fragment TODOMultipleOverlappingModulesPlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "TODOMultipleOverlappingModulesInner1",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "TODOMultipleOverlappingModulesInner1",
+              "fragmentName": "TODOMultipleOverlappingModulesPlainUserNameRenderer_name",
+              "fragmentPropName": "name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "PlainUserNameRenderer",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "TODOMultipleOverlappingModulesInner1",
+              "fragmentName": "TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name",
+              "fragmentPropName": "name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "TODOMultipleOverlappingModulesInner2",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "TODOMultipleOverlappingModulesInner2",
+              "fragmentName": "TODOMultipleOverlappingModulesPlainUserNameRenderer_name",
+              "fragmentPropName": "name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "PlainUserNameRenderer",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "TODOMultipleOverlappingModulesInner2",
+              "fragmentName": "TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name",
+              "fragmentPropName": "name",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "TODOMultipleOverlappingModulesPlainUserNameRenderer_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}

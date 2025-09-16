@@ -121,8 +121,8 @@ function createContainerWithFragments<
 
         return {
           data: resolver.resolve(),
-          prevPropsContext: relayContext,
           prevProps: nextProps,
+          prevPropsContext: relayContext,
           relayProp: getRelayProp(relayContext.environment),
           resolver,
         };
@@ -268,11 +268,11 @@ function getRelayProp(environment: IEnvironment) {
 function createContainer<
   Props: {...},
   Ref,
-  TComponent: component(ref: Ref, ...Props),
+  TComponent: component(ref?: Ref, ...Props),
 >(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
-): component(ref: Ref, ...$RelayProps<Props, RelayProp>) {
+): component(ref?: Ref, ...$RelayProps<Props, RelayProp>) {
   // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,

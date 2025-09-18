@@ -11,7 +11,12 @@
 
 'use strict';
 
-import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
+import type {
+  Direction,
+  OperationDescriptor,
+  RelayContext,
+  Variables,
+} from 'relay-runtime';
 
 const useBlockingPaginationFragmentOriginal = require('../legacy/useBlockingPaginationFragment');
 const invariant = require('invariant');
@@ -422,7 +427,10 @@ describe('useBlockingPaginationFragment', () => {
 
     const ContextProvider = ({children}: {children: React.Node}) => {
       const [env, _setEnv] = useState(environment);
-      const relayContext = useMemo(() => ({environment: env}), [env]);
+      const relayContext = useMemo(
+        (): RelayContext => ({environment: env}),
+        [env],
+      );
 
       setEnvironment = _setEnv;
 

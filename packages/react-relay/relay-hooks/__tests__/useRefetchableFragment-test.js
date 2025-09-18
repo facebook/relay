@@ -12,6 +12,7 @@
 'use strict';
 import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
 import type {RefetchFn} from '../useRefetchableFragment';
+import type {RelayContext} from 'relay-runtime';
 
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
 const React = require('react');
@@ -151,7 +152,7 @@ describe('useRefetchableFragment', () => {
     };
 
     const ContextProvider = ({children}: {children: React.Node}) => {
-      const relayContext = useMemo(() => ({environment}), []);
+      const relayContext = useMemo((): RelayContext => ({environment}), []);
 
       return (
         <ReactRelayContext.Provider value={relayContext}>

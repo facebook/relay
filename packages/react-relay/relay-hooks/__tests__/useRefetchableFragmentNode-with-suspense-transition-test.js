@@ -11,7 +11,7 @@
 
 'use strict';
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {OperationDescriptor, RelayContext, Variables} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useRefetchableFragmentNodeOriginal = require('../legacy/useRefetchableFragmentNode');
@@ -287,7 +287,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useRefetchableFragmentNode does not use them, instead it uses
         // the variables from the fragment owner.
-        const relayContext = useMemo(() => ({environment}), []);
+        const relayContext = useMemo((): RelayContext => ({environment}), []);
         return (
           <ReactRelayContext.Provider value={relayContext}>
             {children}

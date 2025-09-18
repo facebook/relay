@@ -20,6 +20,7 @@ import type {
   useFragmentTestUsersFragment$data,
   useFragmentTestUsersFragment$fragmentType,
 } from './__generated__/useFragmentTestUsersFragment.graphql';
+import type {RelayContext} from 'relay-runtime';
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
@@ -236,7 +237,10 @@ describe.each([
       // $FlowFixMe[react-rule-hook]
       const [env, _setEnv] = React.useState(environment);
       // $FlowFixMe[react-rule-hook]
-      const relayContext = React.useMemo(() => ({environment: env}), [env]);
+      const relayContext = React.useMemo(
+        (): RelayContext => ({environment: env}),
+        [env],
+      );
 
       setEnvironment = _setEnv;
       return (

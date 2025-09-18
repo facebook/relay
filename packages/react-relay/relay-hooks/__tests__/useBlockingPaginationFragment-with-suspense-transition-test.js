@@ -10,7 +10,12 @@
  */
 
 'use strict';
-import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
+import type {
+  Direction,
+  OperationDescriptor,
+  RelayContext,
+  Variables,
+} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useBlockingPaginationFragmentOriginal = require('../legacy/useBlockingPaginationFragment');
@@ -417,7 +422,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useBlockingPaginationFragment does not use them, instead it uses
         // the variables from the fragment owner.
-        const relayContext = useMemo(() => ({environment}), []);
+        const relayContext = useMemo((): RelayContext => ({environment}), []);
 
         return (
           <ReactRelayContext.Provider value={relayContext}>

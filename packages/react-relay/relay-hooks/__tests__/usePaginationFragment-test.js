@@ -30,7 +30,12 @@ import type {
   usePaginationFragmentTestUserQuery$data,
   usePaginationFragmentTestUserQuery$variables,
 } from './__generated__/usePaginationFragmentTestUserQuery.graphql';
-import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
+import type {
+  Direction,
+  OperationDescriptor,
+  RelayContext,
+  Variables,
+} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const usePaginationFragmentImpl = require('../usePaginationFragment');
@@ -586,7 +591,10 @@ beforeEach(() => {
 
   const ContextProvider = ({children}: {children: React.Node}) => {
     const [env, _setEnv] = useState(environment);
-    const relayContext = useMemo(() => ({environment: env}), [env]);
+    const relayContext = useMemo(
+      (): RelayContext => ({environment: env}),
+      [env],
+    );
 
     setEnvironment = _setEnv;
 

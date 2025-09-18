@@ -20,7 +20,7 @@ import type {
   useFragmentNodeTestUsersFragment$data,
   useFragmentNodeTestUsersFragment$fragmentType,
 } from './__generated__/useFragmentNodeTestUsersFragment.graphql';
-import type {OperationDescriptor} from 'relay-runtime';
+import type {OperationDescriptor, RelayContext} from 'relay-runtime';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
@@ -392,7 +392,10 @@ describe.each([
 
       const ContextProvider = ({children}: {children: React.Node}) => {
         const [env, _setEnv] = useState(environment);
-        const relayContext = useMemo(() => ({environment: env}), [env]);
+        const relayContext = useMemo(
+          (): RelayContext => ({environment: env}),
+          [env],
+        );
 
         setEnvironment = _setEnv;
 

@@ -823,9 +823,7 @@ impl InMemorySchema {
                 TypeSystemDefinition::SchemaExtension { .. } => {
                     todo!("SchemaExtension not implemented: {}", definition)
                 }
-                TypeSystemDefinition::UnionTypeExtension { .. } => {
-                    todo!("UnionTypeExtension not implemented: {}", definition)
-                }
+                TypeSystemDefinition::UnionTypeExtension { .. } => {}
                 TypeSystemDefinition::InputObjectTypeExtension { .. } => {
                     todo!("InputObjectTypeExtension not implemented: {}", definition)
                 }
@@ -1608,7 +1606,36 @@ impl InMemorySchema {
             }
             TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
 
-            TypeSystemDefinition::UnionTypeExtension { .. } => todo!("UnionTypeExtension"),
+            TypeSystemDefinition::UnionTypeExtension(UnionTypeExtension {
+                name,
+                directives,
+                members,
+                ..
+            }) => match self.type_map.get(&name.value).cloned() {
+                Some(Type::Union(id)) => {
+                    let index = id.as_usize();
+                    self.unions.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::new(*location_key, name.span),
+                        )]
+                    })?;
+                    let client_members = members
+                        .iter()
+                        .map(|name| self.build_object_id(name.value))
+                        .collect::<DiagnosticsResult<Vec<_>>>()?;
+                    extend_without_duplicates(&mut self.unions[index].members, client_members);
+
+                    let built_directives = self.build_directive_values(directives);
+                    extend_without_duplicates(&mut self.unions[index].directives, built_directives);
+                }
+                _ => {
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(*location_key, name.span),
+                    )]);
+                }
+            },
             TypeSystemDefinition::InputObjectTypeExtension { .. } => {
                 todo!("InputObjectTypeExtension")
             }

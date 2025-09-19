@@ -51,8 +51,14 @@ describe('commitMultiActorUpdate', () => {
       expect(RelayModernRecord.getValue(testRecord, 'test')).toBe(42);
     });
 
+    /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+     * Array.{includes,indexOf,lastIndexOf} */
     expect(actorsCalled.includes('actor1')).toBe(true);
+    /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+     * Array.{includes,indexOf,lastIndexOf} */
     expect(actorsCalled.includes('actor2')).toBe(true);
+    /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+     * Array.{includes,indexOf,lastIndexOf} */
     expect(actorsCalled.includes('actor3')).toBe(true);
   });
 });

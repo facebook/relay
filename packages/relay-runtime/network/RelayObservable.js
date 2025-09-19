@@ -351,6 +351,8 @@ class RelayObservable<+T> implements Subscribable<T> {
       }
 
       function complete(this: ObservableContext) {
+        /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+         * Array.{includes,indexOf,lastIndexOf} */
         subscriptions.splice(subscriptions.indexOf(this._sub), 1);
         if (subscriptions.length === 0) {
           sink.complete();

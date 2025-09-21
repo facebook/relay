@@ -265,14 +265,10 @@ function getRelayProp(environment: IEnvironment) {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<
-  Props: {...},
-  Ref,
-  TComponent: component(ref?: Ref, ...Props),
->(
+function createContainer<Props: {...}, TComponent: component(...Props)>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
-): component(ref?: Ref, ...$RelayProps<Props, RelayProp>) {
+): component(...$RelayProps<Props, RelayProp>) {
   // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,

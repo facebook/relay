@@ -13,3 +13,4 @@ mod codemod;
 
 pub use crate::codemod::AvailableCodemod;
 pub use crate::codemod::run_codemod;
+pub use crate::codemod::run_codemod_impl;

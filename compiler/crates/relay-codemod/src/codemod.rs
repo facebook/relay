@@ -10,6 +10,7 @@ use std::sync::Arc;
 
 use clap::Args;
 use clap::Subcommand;
+use common::DiagnosticsResult;
 use common::FeatureFlag;
 use common::Rollout;
 use common::RolloutRange;
@@ -45,20 +46,35 @@ pub async fn run_codemod(
     config: Arc<Config>,
     codemod: AvailableCodemod,
 ) -> Result<(), std::io::Error> {
-    let diagnostics = programs
-        .iter()
-        .flat_map(|programs| match &codemod {
+    run_codemod_impl(
+        programs,
+        config,
+        |programs: &Arc<Programs>| match &codemod {
             AvailableCodemod::MarkDangerousConditionalFragmentSpreads(opts) => {
-                match fragment_alias_directive(&programs.source, &opts.rollout_percentage) {
-                    Ok(_) => vec![],
-                    Err(e) => e,
-                }
+                fragment_alias_directive(&programs.source, &opts.rollout_percentage).map(|_| ()) // Codemods don't return anything for OK
             }
             AvailableCodemod::RemoveUnnecessaryRequiredDirectives => {
-                match disallow_required_on_non_null_field(&programs.reader) {
-                    Ok(_) => vec![],
-                    Err(e) => e,
-                }
+                disallow_required_on_non_null_field(&programs.reader)
+            }
+        },
+        format!("{codemod:?}").as_str(),
+    )
+    .await
+}
+
+pub async fn run_codemod_impl(
+    programs: Vec<Arc<Programs>>,
+    config: Arc<Config>,
+    f: impl Fn(&Arc<Programs>) -> DiagnosticsResult<()>,
+    codemod: &str,
+) -> Result<(), std::io::Error> {
+    let diagnostics = programs
+        .iter()
+        .flat_map(|programs| {
+            let result = f(programs);
+            match result {
+                Ok(_) => vec![],
+                Err(e) => e,
             }
         })
         .collect::<Vec<_>>();

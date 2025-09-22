@@ -281,6 +281,12 @@ pub enum ValidationMessageWithData {
         fragment_name: FragmentDefinitionName,
         condition_name: String,
     },
+
+    #[error("The Codemod '{codemod_name}' wants to update the query at this location to '{fix}.")]
+    CodemodCustomErrorWithFix {
+        codemod_name: StringKey,
+        fix: String,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
@@ -324,6 +330,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                     Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
                     Box::new(format!("{fragment_name} @alias")),
                 ]
+            }
+            ValidationMessageWithData::CodemodCustomErrorWithFix { fix, .. } => {
+                vec![Box::new(fix.to_owned())]
             }
         }
     }

@@ -103,9 +103,7 @@ use crate::text_documents::on_did_change_text_document;
 use crate::text_documents::on_did_close_text_document;
 use crate::text_documents::on_did_open_text_document;
 use crate::text_documents::on_did_save_text_document;
-use crate::type_information::TypeInformation;
-use crate::type_information::TypeInformationParams;
-use crate::type_information::on_type_information;
+use crate::type_information::get_type_information;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
@@ -275,12 +273,12 @@ async fn handle_daemon_request<
 ) -> Result<String, String> {
     match daemon_request_message {
         daemon::DeamonRequestMessage::TypeInformation {
-            file_name,
+            file_uri,
             type_name,
         } => {
-            let Ok(project_name) = state.extract_project_name_from_url(&file_name) else {
+            let Ok(project_name) = state.extract_project_name_from_url(&file_uri) else {
                 return Err(format!(
-                    "Unable to map {file_name:?} to Relay GraphQL project."
+                    "Unable to map {file_uri:?} to Relay GraphQL project."
                 ));
             };
             if let Some(when_ready) = state.initialize_lsp_state_resources(project_name) {
@@ -291,13 +289,7 @@ async fn handle_daemon_request<
                 debug!("LSP state resources are already ready");
             }
 
-            match on_type_information(
-                state.as_ref(),
-                TypeInformationParams {
-                    uri: file_name,
-                    type_name,
-                },
-            ) {
+            match get_type_information(state.as_ref(), file_uri, type_name) {
                 Ok(response) => serde_json::to_string_pretty(&response)
                     .map_err(|err| format!("JSON deserialization error: {err:?}")),
                 Err(err) => Err(format!("{err:?}")),
@@ -328,7 +320,6 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
             .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
-            .on_request_sync::<TypeInformation>(on_type_information)?
             .on_request_sync::<ExploreSchemaForType>(on_explore_schema_for_type)?
             .on_request_sync::<GetSourceLocationOfTypeDefinition>(
                 on_get_source_location_of_type_definition,

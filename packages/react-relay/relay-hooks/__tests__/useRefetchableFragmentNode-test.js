@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
@@ -35,6 +36,7 @@ import type {
   useRefetchableFragmentNodeTestUserQuery$data,
   useRefetchableFragmentNodeTestUserQuery$variables,
 } from './__generated__/useRefetchableFragmentNodeTestUserQuery.graphql';
+import type {RelayContext} from 'relay-runtime';
 import type {
   FetchPolicy,
   OperationDescriptor,
@@ -364,7 +366,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
 
     const ContextProvider = ({children}: {children: React.Node}) => {
       const [env, _setEnv] = useState(environment);
-      const relayContext = useMemo(() => ({environment: env}), [env]);
+      const relayContext = useMemo(
+        (): RelayContext => ({environment: env}),
+        [env],
+      );
 
       setEnvironment = _setEnv;
 

@@ -184,7 +184,7 @@ hook useRefetchableFragmentInternal<
     refetchEnvironment: null,
     refetchQuery: null,
     renderPolicy: undefined,
-  });
+  } as RefetchState);
   const {
     fetchPolicy,
     mirroredEnvironment,

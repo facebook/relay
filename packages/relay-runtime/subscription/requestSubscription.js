@@ -46,7 +46,7 @@ export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> =
     configs?: Array<DeclarativeMutationConfig>,
     cacheConfig?: CacheConfig,
     subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,
-    variables: TVariables,
+    variables: NoInfer<TVariables>,
     onCompleted?: ?() => void,
     onError?: ?(error: Error) => void,
     onNext?: ?(response: ?TData) => void,

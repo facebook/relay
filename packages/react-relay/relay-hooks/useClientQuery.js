@@ -22,7 +22,7 @@ const useLazyLoadQuery = require('./useLazyLoadQuery');
  */
 hook useClientQuery<TVariables: Variables, TData, TRawResponse>(
   gqlQuery: ClientQuery<TVariables, TData, TRawResponse>,
-  variables: TVariables,
+  variables: NoInfer<TVariables>,
   options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
   },

@@ -10,8 +10,8 @@ keywords:
 
 Relay requires a [Babel plugin](https://www.npmjs.com/package/babel-plugin-relay) to convert GraphQL to compiler-generated runtime artifacts. Depending upon what framework/bundler you are using, there may be a framwork-specific plugin you can use:
 
-- Vite: [vite-pugin-relay](https://github.com/oscartbeaumont/vite-plugin-relay)
-- Next.js: [Relay config opton](https://nextjs.org/docs/architecture/nextjs-compiler#relay)
+- Vite: [vite-plugin-relay](https://github.com/oscartbeaumont/vite-plugin-relay)
+- Next.js: [Relay config option](https://nextjs.org/docs/architecture/nextjs-compiler#relay)
 - SWC: [@swc/plugin-relay](https://www.npmjs.com/package/@swc/plugin-relay)
 
 If not, you can install the Babel plugin manually:

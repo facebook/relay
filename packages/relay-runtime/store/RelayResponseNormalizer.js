@@ -351,8 +351,7 @@ class RelayResponseNormalizer {
         // mutations/subscriptions in a situation where we would use
         // isMissingData to decide whether to suspend or not.
         // TODO T96653810: Correctly detect reading from root of mutation/subscription
-        (typeName === ROOT_TYPE &&
-          !RelayFeatureFlags.DISABLE_RESOLVER_ROOT_FRAGMENT_NORMALIZATION_BUG_FIX)
+        typeName === ROOT_TYPE
       ) {
         this._traverseSelections(selection, record, data);
       }
@@ -382,13 +381,7 @@ class RelayResponseNormalizer {
     data: PayloadData,
   ) {
     if (resolver.fragment != null) {
-      if (
-        RelayFeatureFlags.DISABLE_RESOLVER_ROOT_FRAGMENT_NORMALIZATION_BUG_FIX
-      ) {
-        this._traverseSelections(resolver.fragment, record, data);
-      } else {
-        this._normalizeInlineFragment(resolver.fragment, record, data);
-      }
+      this._normalizeInlineFragment(resolver.fragment, record, data);
     }
   }
 

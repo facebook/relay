@@ -80,10 +80,6 @@ export type FeatureFlags = {
   //
   // See https://github.com/facebook/relay/issues/4882
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: boolean,
-
-  // Killswitch in case the fix in https://github.com/facebook/relay/pull/5059
-  // causes issues.
-  DISABLE_RESOLVER_ROOT_FRAGMENT_NORMALIZATION_BUG_FIX: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -113,7 +109,6 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
   ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: false,
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: false,
-  DISABLE_RESOLVER_ROOT_FRAGMENT_NORMALIZATION_BUG_FIX: false,
 };
 
 module.exports = RelayFeatureFlags;

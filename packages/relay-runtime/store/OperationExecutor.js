@@ -88,6 +88,7 @@ export type ExecuteConfig<TMutation: MutationParameters> = {
   +sink: Sink<GraphQLResponse>,
   +source: RelayObservable<GraphQLResponse>,
   +treatMissingFieldsAsNull: boolean,
+  +deferDeduplicatedFields: boolean,
   +updater?: ?SelectorStoreUpdater<TMutation['response']>,
   +log: LogFunction,
 };
@@ -127,6 +128,7 @@ class Executor<TMutation: MutationParameters> {
   _actorIdentifier: ActorIdentifier;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
+  _deferDeduplicatedFields: boolean;
   _incrementalPayloadsPending: boolean;
   _incrementalResults: Map<Label, Map<PathKey, IncrementalResults>>;
   _log: LogFunction;
@@ -178,6 +180,7 @@ class Executor<TMutation: MutationParameters> {
     sink,
     source,
     treatMissingFieldsAsNull,
+    deferDeduplicatedFields,
     updater,
     log,
     normalizeResponse,
@@ -185,6 +188,7 @@ class Executor<TMutation: MutationParameters> {
     this._actorIdentifier = actorIdentifier;
     this._getDataID = getDataID;
     this._treatMissingFieldsAsNull = treatMissingFieldsAsNull;
+    this._deferDeduplicatedFields = deferDeduplicatedFields;
     this._incrementalPayloadsPending = false;
     this._incrementalResults = new Map();
     this._log = log;
@@ -684,6 +688,7 @@ class Executor<TMutation: MutationParameters> {
         ROOT_TYPE,
         {
           actorIdentifier: this._actorIdentifier,
+          deferDeduplicatedFields: false,
           getDataID: this._getDataID,
           log: this._log,
           path: [],
@@ -802,6 +807,7 @@ class Executor<TMutation: MutationParameters> {
       followupPayload.typeName,
       {
         actorIdentifier: this._actorIdentifier,
+        deferDeduplicatedFields: false,
         getDataID: this._getDataID,
         log: this._log,
         path: followupPayload.path,
@@ -886,6 +892,7 @@ class Executor<TMutation: MutationParameters> {
         ROOT_TYPE,
         {
           actorIdentifier: this._actorIdentifier,
+          deferDeduplicatedFields: false,
           getDataID: this._getDataID,
           log: this._log,
           path: [],
@@ -1352,6 +1359,7 @@ class Executor<TMutation: MutationParameters> {
       placeholder.typeName,
       {
         actorIdentifier: this._actorIdentifier,
+        deferDeduplicatedFields: this._deferDeduplicatedFields,
         getDataID: this._getDataID,
         log: this._log,
         path: placeholder.path,
@@ -1585,6 +1593,7 @@ class Executor<TMutation: MutationParameters> {
       typeName,
       {
         actorIdentifier: this._actorIdentifier,
+        deferDeduplicatedFields: false,
         getDataID: this._getDataID,
         log: this._log,
         path: [...normalizationPath, responseKey, String(itemIndex)],

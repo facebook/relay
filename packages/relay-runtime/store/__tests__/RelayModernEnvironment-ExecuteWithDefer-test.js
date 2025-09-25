@@ -312,6 +312,83 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
+      it('processes deferred payloads with deduplicated fields', () => {
+        environment = new RelayModernEnvironment({
+          network: RelayNetwork.create(fetch),
+          store,
+          handlerProvider,
+          deferDeduplicatedFields: true,
+        });
+
+        query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                name
+                ...RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "UserFragment")
+              }
+            }
+          }
+        `;
+        fragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment on User {
+            name
+            alternate_name
+          }
+        `;
+
+        variables = {id: '1'};
+        operation = createOperationDescriptor(query, variables);
+        selector = createReaderSelector(fragment, '1', {}, operation.request);
+
+        const initialSnapshot = environment.lookup(selector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment.execute({operation}).subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'joe',
+            },
+          },
+        });
+
+        jest.runAllTimers();
+        next.mockClear();
+        callback.mockClear();
+
+        dataSource.next({
+          data: {
+            alternate_name: 'joe2',
+          },
+          label:
+            'RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$defer$UserFragment',
+          path: ['node'],
+          extensions: {
+            is_final: true,
+          },
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        expect(next).toBeCalledTimes(1);
+        expect(callback).toBeCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          name: 'joe',
+          alternate_name: 'joe2',
+        });
+      });
+
       describe('Query with exec time resolvers', () => {
         let resolverOperation;
         beforeEach(() => {

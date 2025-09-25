@@ -32,6 +32,7 @@ const {ROOT_ID} = require('relay-runtime/store/RelayStoreUtils');
 const defaultOptions = {
   getDataID: defaultGetDataID,
   treatMissingFieldsAsNull: false,
+  deferDeduplicatedFields: false,
   log: null,
 };
 

@@ -48,5 +48,6 @@ Notable options include:
 * [`missingFieldHandlers`](../../guided-tour/reusing-cached-data/filling-in-missing-data.md) - A list of handlers that will be called when a field is missing from the store. This can be used to enable fulfilling queries to fields like `Query.node` from cache.
 * `getDataID` - A function that will be called to generate a unique ID for a given object. This can be used to customize the way that Relay generates IDs for objects if your server does not implement the [Global Object Identification spec](https://graphql.org/learn/global-object-identification/).
 * [`relayFieldLogger`](./field-logger.md) - A function that will be called when Relay encounters a field-level error.
+* [`_deferDeduplicatedFields`] - Set to true if you are using the latest `@defer` spec proposal, which does not send duplicate fields in deferred responses.
 
 For a full list of options, inspect the [provided TypeScript types](https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/relay-runtime/lib/store/RelayModernEnvironment.d.ts#L26-L43).

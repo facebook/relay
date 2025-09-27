@@ -325,10 +325,6 @@ If the component which calls `.read` successfully loads a query, but suspends on
 
 Compare to [query resource](#query-resource).
 
-## Fragment Spec Resolver
-
-TODO
-
 ## Fragment Spread
 
 A fragment spread is how one fragment is contained in a query, subscription, mutation or other fragment. In the following example, `...Component_name` is a fragment spread:

@@ -86,7 +86,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { RelayEnvironmentProvider } from "react-relay";
-import { Environment, Network, FetchFunction } from "relay-runtime";
+import { Environment, Network, type FetchFunction } from "relay-runtime";
 
 const HTTP_ENDPOINT = "https://graphql.org/graphql/";
 

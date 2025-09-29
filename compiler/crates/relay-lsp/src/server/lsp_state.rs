@@ -746,6 +746,7 @@ pub fn build_ir_for_lsp(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,

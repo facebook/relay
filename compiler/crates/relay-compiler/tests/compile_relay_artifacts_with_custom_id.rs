@@ -74,6 +74,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         &ast.definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,

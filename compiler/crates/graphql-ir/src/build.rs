@@ -93,6 +93,11 @@ pub struct BuilderOptions {
     /// defined in the same program.
     pub allow_undefined_fragment_spreads: bool,
 
+    /// Do not error when an abstract fragment spread's type has no overlap with the
+    /// abstract parent type. This allows old definitions to still be built after
+    /// a type no longer implements an interface or is removed from a union.
+    pub allow_non_overlapping_abstract_spreads: bool,
+
     /// The semantic of defining variables on a fragment definition.
     pub fragment_variables_semantic: FragmentVariablesSemantic,
 
@@ -122,6 +127,7 @@ pub fn build_ir_in_relay_mode(
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let builder_options = BuilderOptions {
         allow_undefined_fragment_spreads: false,
+        allow_non_overlapping_abstract_spreads: false,
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
         relay_mode: Some(RelayMode),
         default_anonymous_operation_name: None,
@@ -140,6 +146,7 @@ pub fn build_ir(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -175,6 +182,7 @@ pub fn build_type_annotation(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -197,6 +205,7 @@ pub fn build_directive(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -220,6 +229,7 @@ pub fn build_constant_value(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -241,6 +251,7 @@ pub fn build_variable_definitions(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -263,6 +274,7 @@ pub fn build_directives(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -1091,8 +1103,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 }
             },
         );
-        let selections =
-            self.build_selections(&field.selections.items, &[field_definition.type_.clone()]);
+        let selections = self.build_selections(
+            &field.selections.items,
+            std::slice::from_ref(&field_definition.type_),
+        );
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
         Ok(LinkedField {
@@ -2125,10 +2139,16 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         parent_types: &'a [TypeReference<Type>],
         type_condition: Type,
     ) -> Option<&'a TypeReference<Type>> {
+        let allow_non_overlapping_abstract_spreads =
+            self.options.allow_non_overlapping_abstract_spreads
+                && type_condition.is_abstract_type();
         parent_types.iter().find(|parent_type| {
-            !self
-                .schema
-                .are_overlapping_types(parent_type.inner(), type_condition)
+            let is_allowed_abstract_spread =
+                allow_non_overlapping_abstract_spreads && type_condition.is_abstract_type();
+            !is_allowed_abstract_spread
+                && !self
+                    .schema
+                    .are_overlapping_types(parent_type.inner(), type_condition)
         })
     }
 }

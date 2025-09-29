@@ -180,6 +180,7 @@ fn build_operation_ir_with_fragments(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(graphql_ir::RelayMode),
             default_anonymous_operation_name: Some("anonymous".intern()),

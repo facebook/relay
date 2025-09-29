@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cbf75b3a347f72685bc732f1d587539a>>
+ * @generated SignedSource<<5b2abeace41115052593de1a35f81a74>>
  */
 
 mod ir;
@@ -80,6 +80,13 @@ async fn new_resolver_model_field_with_custom_fragment() {
     let input = include_str!("ir/fixtures/new-resolver-model-field-with-custom-fragment.graphql");
     let expected = include_str!("ir/fixtures/new-resolver-model-field-with-custom-fragment.expected");
     test_fixture(transform_fixture, file!(), "new-resolver-model-field-with-custom-fragment.graphql", "ir/fixtures/new-resolver-model-field-with-custom-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn new_resolver_on_interface() {
+    let input = include_str!("ir/fixtures/new-resolver-on-interface.graphql");
+    let expected = include_str!("ir/fixtures/new-resolver-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "new-resolver-on-interface.graphql", "ir/fixtures/new-resolver-on-interface.expected", input, expected).await;
 }
 
 #[tokio::test]

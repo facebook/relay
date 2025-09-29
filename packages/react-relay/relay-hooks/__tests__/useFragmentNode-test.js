@@ -231,11 +231,11 @@ describe.each([
 
     function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
-        [ID_KEY]: id,
+        [FRAGMENT_OWNER_KEY]: owner.request,
         [FRAGMENTS_KEY]: {
           useFragmentNodeTestNestedUserFragment: {},
         },
-        [FRAGMENT_OWNER_KEY]: owner.request,
+        [ID_KEY]: id,
       };
     }
 
@@ -317,8 +317,8 @@ describe.each([
           __typename: 'User',
           id: '1',
           name: 'Alice',
-          username: 'useralice',
           profile_picture: null,
+          username: 'useralice',
         },
       });
       environment.commitPayload(pluralQuery, {
@@ -327,15 +327,15 @@ describe.each([
             __typename: 'User',
             id: '1',
             name: 'Alice',
-            username: 'useralice',
             profile_picture: null,
+            username: 'useralice',
           },
           {
             __typename: 'User',
             id: '2',
             name: 'Bob',
-            username: 'userbob',
             profile_picture: null,
+            username: 'userbob',
           },
         ],
       });
@@ -355,11 +355,11 @@ describe.each([
         const userRef = props.hasOwnProperty('userRef')
           ? props.userRef
           : {
-              [ID_KEY]: owner.request.variables.id,
+              [FRAGMENT_OWNER_KEY]: owner.request,
               [FRAGMENTS_KEY]: {
                 useFragmentNodeTestUserFragment: {},
               },
-              [FRAGMENT_OWNER_KEY]: owner.request,
+              [ID_KEY]: owner.request.variables.id,
             };
 
         setSingularOwner = _setOwner;
@@ -379,11 +379,11 @@ describe.each([
         const usersRef = props.hasOwnProperty('usersRef')
           ? props.usersRef
           : owner.request.variables.ids.map(id => ({
-              [ID_KEY]: id,
+              [FRAGMENT_OWNER_KEY]: owner.request,
               [FRAGMENTS_KEY]: {
                 useFragmentNodeTestUsersFragment: {},
               },
-              [FRAGMENT_OWNER_KEY]: owner.request,
+              [ID_KEY]: id,
             }));
 
         const [usersData] = useFragmentNode(gqlPluralFragment, usersRef);
@@ -583,8 +583,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice in Wonderland',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });
@@ -622,8 +622,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice in Wonderland',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });
@@ -682,8 +682,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice in Wonderland',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });
@@ -828,8 +828,8 @@ describe.each([
           __typename: 'User',
           id: '200',
           name: 'Foo',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -854,8 +854,8 @@ describe.each([
           id: '1',
           // Update name
           name: 'Alice in Wonderland',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -883,8 +883,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice Updated',
-            username: 'userfoo',
             profile_picture: null,
+            username: 'userfoo',
           },
         });
       });
@@ -949,8 +949,8 @@ describe.each([
             __typename: 'User',
             id: '200',
             name: 'Foo',
-            username: 'userfoo',
             profile_picture: null,
+            username: 'userfoo',
           },
         });
       });
@@ -972,8 +972,8 @@ describe.each([
           __typename: 'User',
           id: '1',
           name: 'Alice in Wonderland',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -1008,8 +1008,8 @@ describe.each([
           id: '200',
           // Update name
           name: 'Foo Updated',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -1080,8 +1080,8 @@ describe.each([
           __typename: 'User',
           id: '200',
           name: 'Foo',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -1136,8 +1136,8 @@ describe.each([
           id: '200',
           // Update name
           name: 'Foo Updated',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
       expectSchedulerToFlushAndYield([
@@ -1330,10 +1330,10 @@ describe.each([
           __typename: 'User',
           id: '1',
           name: 'Alice',
-          username: 'useralice',
           profile_picture: {
             uri: 'uri32',
           },
+          username: 'useralice',
         },
       });
 
@@ -1523,7 +1523,7 @@ describe.each([
       // Clearing the data in the environment will make it so the fragment ref
       // we pass to useFragmentNode points to data that does not exist; we expect
       // an error to be thrown in this case.
-      (environment.getStore().getSource(): $FlowFixMe).clear();
+      (environment.getStore().getSource() as $FlowFixMe).clear();
 
       expectWarningWillFire(
         "Relay: Expected to have been able to read non-null data for fragment `useFragmentNodeTestUserFragment` declared in `TestDisplayName`, since fragment reference was non-null. Make sure that that `TestDisplayName`'s parent isn't holding on to and/or passing a fragment reference for data that has been deleted.",
@@ -1537,8 +1537,9 @@ describe.each([
         nodes: [],
       });
       // Pass the updated fragment ref
-      const usersRef = (environment.lookup(pluralQuery.fragment)
-        .data: $FlowFixMe).nodes;
+      const usersRef = (
+        environment.lookup(pluralQuery.fragment).data as $FlowFixMe
+      ).nodes;
       renderPluralFragment({usersRef});
     });
 
@@ -1546,7 +1547,7 @@ describe.each([
       // Clearing the data in the environment will make it so the fragment ref
       // we pass to useFragmentNode points to data that does not exist; we expect
       // an error to be thrown in this case.
-      (environment.getStore().getSource(): $FlowFixMe).clear();
+      (environment.getStore().getSource() as $FlowFixMe).clear();
 
       expectWarningWillFire(
         "Relay: Expected to have been able to read non-null data for fragment `useFragmentNodeTestUsersFragment` declared in `TestDisplayName`, since fragment reference was non-null. Make sure that that `TestDisplayName`'s parent isn't holding on to and/or passing a fragment reference for data that has been deleted.",
@@ -1598,8 +1599,8 @@ describe.each([
             __typename: 'User',
             id: '4',
             name: 'Mark',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });

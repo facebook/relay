@@ -54,7 +54,7 @@ class BadReferenceTest_ extends React.Component<{
   ...
 }> {
   render(): React.Node {
-    (this.props.badref.id: string);
+    this.props.badref.id as string;
     // $FlowExpectedError[prop-missing]
     this.props.badref.name;
     // $FlowExpectedError[incompatible-type]  The notref fragment was not used.
@@ -85,13 +85,13 @@ class SingularTest extends React.Component<{
   ...
 }> {
   render(): React.Node {
-    (nullthrows(this.props.user.name): string);
+    nullthrows(this.props.user.name) as string;
     // $FlowExpectedError[incompatible-use]
     this.props.nullableUser.name;
     // $FlowExpectedError[incompatible-use]
     this.props.optionalUser.name;
-    (nullthrows(nullthrows(this.props.nullableUser).name): string);
-    (nullthrows(nullthrows(this.props.optionalUser).name): string);
+    nullthrows(nullthrows(this.props.nullableUser).name) as string;
+    nullthrows(nullthrows(this.props.optionalUser).name) as string;
     return null;
   }
 }
@@ -111,9 +111,9 @@ class PluralTest extends React.Component<{
 }> {
   render(): React.Node {
     const names = this.props.users.map(user => user.name).filter(Boolean);
-    (names: Array<string>);
+    names as Array<string>;
     // $FlowExpectedError[incompatible-type]
-    (names: Array<number>);
+    names as Array<number>;
     return null;
   }
 }
@@ -231,7 +231,7 @@ declare var aComplexUserRef: {
 <PluralTestFragment users={usersRef} nullableUsers={null} />;
 
 <PluralTestFragment
-  users={([oneOfUsersRef]: Array<typeof oneOfUsersRef>)}
+  users={[oneOfUsersRef] as Array<typeof oneOfUsersRef>}
   nullableUsers={null}
 />;
 <PluralTestFragment users={[oneOfUsersRef]} nullableUsers={null} />;

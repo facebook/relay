@@ -127,7 +127,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
     __fragmentOwner,
     __fragmentPropName,
     __module_component,
-  } = (match: $FlowFixMe) ?? {};
+  } = (match as $FlowFixMe) ?? {};
   if (
     (__fragmentOwner != null && typeof __fragmentOwner !== 'object') ||
     (__fragmentPropName != null && typeof __fragmentPropName !== 'string') ||

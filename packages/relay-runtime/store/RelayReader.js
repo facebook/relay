@@ -202,6 +202,7 @@ class RelayReader {
     }
     return {
       data,
+      fieldErrors: this._fieldErrors,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
       missingClientEdges: this._missingClientEdges.length
         ? this._missingClientEdges
@@ -209,7 +210,6 @@ class RelayReader {
       missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
-      fieldErrors: this._fieldErrors,
     };
   }
 
@@ -227,12 +227,12 @@ class RelayReader {
     for (let i = 0; i < errors.length; i++) {
       const error = errors[i];
       this._fieldErrors.push({
+        error,
+        fieldPath: (error.path ?? []).join('.'),
+        handled: false,
         kind: 'relay_field_payload.error',
         owner,
-        fieldPath: (error.path ?? []).join('.'),
-        error,
         shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
-        handled: false,
         // the uiContext is always undefined here.
         // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
         uiContext: undefined,
@@ -254,18 +254,18 @@ class RelayReader {
     this._fieldErrors.push(
       (this._selector.node.metadata?.throwOnFieldError ?? false)
         ? {
-            kind: 'missing_expected_data.throw',
-            owner,
             fieldPath: fieldName,
             handled: false,
+            kind: 'missing_expected_data.throw',
+            owner,
             // the uiContext is always undefined here.
             // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
             uiContext: undefined,
           }
         : {
+            fieldPath: fieldName,
             kind: 'missing_expected_data.log',
             owner,
-            fieldPath: fieldName,
             // the uiContext is always undefined here.
             // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
             uiContext: undefined,
@@ -282,8 +282,8 @@ class RelayReader {
       // data off of a client extension field.
       if (top !== null) {
         this._missingClientEdges.push({
-          request: top.readerClientEdge.operation,
           clientEdgeDestinationID: top.clientEdgeDestinationID,
+          request: top.readerClientEdge.operation,
         });
       }
     }
@@ -342,10 +342,10 @@ class RelayReader {
     switch (selection.action) {
       case 'THROW':
         this._fieldErrors.push({
-          kind: 'missing_required_field.throw',
           fieldPath: fieldName,
-          owner,
           handled: false,
+          kind: 'missing_required_field.throw',
+          owner,
           // the uiContext is always undefined here.
           // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
           uiContext: undefined,
@@ -353,8 +353,8 @@ class RelayReader {
         return;
       case 'LOG':
         this._fieldErrors.push({
-          kind: 'missing_required_field.log',
           fieldPath: fieldName,
+          kind: 'missing_required_field.log',
           owner,
           // the uiContext is always undefined here.
           // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
@@ -362,7 +362,7 @@ class RelayReader {
         });
         return;
       default:
-        (selection.action: empty);
+        selection.action as empty;
     }
   }
 
@@ -414,7 +414,7 @@ class RelayReader {
         }
         break;
       default:
-        (to: empty);
+        to as empty;
     }
 
     const childrenFieldErrors = this._fieldErrors;
@@ -477,7 +477,7 @@ class RelayReader {
             // For backwards compatibility, we don't surface log level missing required fields
             return null;
           default:
-            (error.kind: empty);
+            error.kind as empty;
             invariant(
               false,
               'Unexpected error fieldError kind: %s',
@@ -487,7 +487,7 @@ class RelayReader {
       })
       .filter(Boolean);
 
-    return {ok: false, errors};
+    return {errors, ok: false};
   }
 
   _traverseSelections(
@@ -656,7 +656,7 @@ class RelayReader {
           }
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayReader(): Unexpected ast kind `%s`.',
@@ -709,7 +709,7 @@ class RelayReader {
       case 'AliasedInlineFragmentSpread':
         return this._readAliasedInlineFragment(selection.field, record, data);
       default:
-        (selection.field.kind: empty);
+        selection.field.kind as empty;
         invariant(
           false,
           'RelayReader(): Unexpected ast kind `%s`.',
@@ -762,8 +762,8 @@ class RelayReader {
         // already been set and will still be used in this case.
         return {
           data: snapshot.data,
-          isMissingData: snapshot.isMissingData,
           fieldErrors: snapshot.fieldErrors,
+          isMissingData: snapshot.isMissingData,
         };
       }
 
@@ -775,8 +775,8 @@ class RelayReader {
 
       return {
         data: snapshot.data,
-        isMissingData: snapshot.isMissingData,
         fieldErrors: snapshot.fieldErrors,
+        isMissingData: snapshot.isMissingData,
       };
     };
 
@@ -789,13 +789,13 @@ class RelayReader {
     const evaluate = (): EvaluationResult<mixed> => {
       if (fragment != null) {
         const key: SelectorData = {
-          __id: parentRecordID,
           __fragmentOwner: this._owner,
           __fragments: {
             [fragment.name]: fragment.args
               ? getArgumentValues(fragment.args, this._variables)
               : {},
           },
+          __id: parentRecordID,
         };
         if (
           this._clientEdgeTraversalPath.length > 0 &&
@@ -814,7 +814,7 @@ class RelayReader {
             key,
             this._resolverContext,
           );
-          return {resolverResult, snapshot, error: resolverError};
+          return {error: resolverError, resolverResult, snapshot};
         });
       } else {
         const [resolverResult, resolverError] = getResolverValue(
@@ -823,7 +823,7 @@ class RelayReader {
           null,
           this._resolverContext,
         );
-        return {resolverResult, snapshot: undefined, error: resolverError};
+        return {error: resolverError, resolverResult, snapshot: undefined};
       }
     };
 
@@ -919,12 +919,12 @@ class RelayReader {
     // to be logged.
     if (resolverError) {
       const errorEvent: FieldError = {
-        kind: 'relay_resolver.error',
-        fieldPath,
-        owner: this._fragmentName,
         error: resolverError,
-        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
+        fieldPath,
         handled: false,
+        kind: 'relay_resolver.error',
+        owner: this._fragmentName,
+        shouldThrow: this._selector.node.metadata?.throwOnFieldError ?? false,
         // the uiContext is always undefined here.
         // the loggingContext is provided by hooks - and assigned to uiContext in handlePotentialSnapshotErrors
         uiContext: undefined,
@@ -1085,8 +1085,8 @@ class RelayReader {
       } else {
         storeID = id;
         traversalPathSegment = {
-          readerClientEdge: field,
           clientEdgeDestinationID: id,
+          readerClientEdge: field,
         };
       }
 
@@ -1411,9 +1411,9 @@ class RelayReader {
     // - For the matched module, create a reference to the module
     this._createFragmentPointer(
       {
+        args: moduleImport.args,
         kind: 'FragmentSpread',
         name: moduleImport.fragmentName,
-        args: moduleImport.args,
       },
       record,
       data,
@@ -1570,9 +1570,9 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {
+      fragmentPointers = data[FRAGMENTS_KEY] = {} as {
         [string]: Arguments,
-      });
+      };
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,
@@ -1608,7 +1608,7 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {[string]: {...}});
+      fragmentPointers = data[FRAGMENTS_KEY] = {} as {[string]: {...}};
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,

@@ -27,7 +27,7 @@ function assertRelayContext(relay: mixed): RelayContext {
       'the `RelayContext` interface, got `%s`.',
     relay,
   );
-  return (relay: any);
+  return relay as any;
 }
 
 /**

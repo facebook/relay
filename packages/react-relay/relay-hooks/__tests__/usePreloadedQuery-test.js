@@ -54,7 +54,7 @@ const query = graphql`
 
 // Only queries with an ID are preloadable
 const ID = '12345';
-(query.params: $FlowFixMe).id = ID;
+(query.params as $FlowFixMe).id = ID;
 
 const preloadableConcreteRequest: PreloadableConcreteRequest<usePreloadedQueryTestQuery> =
   {

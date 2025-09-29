@@ -53,11 +53,11 @@ beforeEach(() => {
 
 function createEnvironment() {
   return new RelayModernEnvironment({
+    log: logFn,
     network: RelayNetwork.create(jest.fn()),
     store: new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
     }),
-    log: logFn,
   });
 }
 
@@ -555,7 +555,7 @@ test('renders after GC', () => {
     'color: color is red',
   ]);
 
-  (environment.getStore(): $FlowFixMe).__gc();
+  (environment.getStore() as $FlowFixMe).__gc();
   jest.runAllTimers();
 
   expect(() => {

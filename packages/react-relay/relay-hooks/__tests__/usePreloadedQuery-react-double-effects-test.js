@@ -42,9 +42,9 @@ const {createMockEnvironment} = require('relay-test-utils');
 function expectToHaveFetched(
   environment: RelayMockEnvironment,
   query: OperationDescriptor,
-  {count}: {count?: number} = ({}: {
+  {count}: {count?: number} = {} as {
     count?: number,
-  }),
+  },
 ) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(count ?? 1);
@@ -95,7 +95,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
-    (environment: $FlowFixMe).retain = jest.fn(operation => {
+    (environment as $FlowFixMe).retain = jest.fn(operation => {
       const originalDisposable = originalRetain(operation);
       return {
         dispose() {
@@ -108,7 +108,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
     cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
-    (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
+    (environment as $FlowFixMe).executeWithSource = jest.fn((...args) => {
       const originalObservable = originalExecuteWithSource(...args);
 
       return Observable.create(sink => {

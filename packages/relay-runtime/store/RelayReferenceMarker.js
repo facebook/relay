@@ -229,7 +229,7 @@ class RelayReferenceMarker {
           this._traverseClientEdgeToClientObject(selection, record);
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayReferenceMarker: Unknown AST node `%s`.',

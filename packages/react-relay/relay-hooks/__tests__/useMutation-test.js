@@ -48,10 +48,10 @@ const data = {
         __typename: 'CommentsEdge',
         cursor: '<cursor>',
         node: {
-          id: '<id>',
           body: {
             text: '<text>',
           },
+          id: '<id>',
         },
       },
     },
@@ -265,10 +265,10 @@ it('returns in-flight state that tracks all in-flight mutations', async () => {
             __typename: 'CommentsEdge',
             cursor: '<cursor>',
             node: {
-              id: '<new-id-1>',
               body: {
                 text: '<text>',
               },
+              id: '<new-id-1>',
             },
           },
         },
@@ -288,10 +288,10 @@ it('returns in-flight state that tracks all in-flight mutations', async () => {
             __typename: 'CommentsEdge',
             cursor: '<cursor>',
             node: {
-              id: '<new-id-2>',
               body: {
                 text: '<text>',
               },
+              id: '<new-id-2>',
             },
           },
         },
@@ -340,22 +340,22 @@ it('calls onCompleted when mutation responses contains server errors', async () 
   const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   await render(environment, CommentCreateMutation);
-  await commit({variables, onError, onCompleted});
+  await commit({onCompleted, onError, variables});
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
 
   isInFlightFn.mockClear();
   await ReactTestingLibrary.act(() =>
     environment.mock.resolve(operation, {
-      data: (data.data: PayloadData),
-      errors: ([
+      data: data.data as PayloadData,
+      errors: [
         {
           message: '<error0>',
         },
         {
           message: '<error1>',
         },
-      ]: Array<PayloadError>),
+      ] as Array<PayloadError>,
     }),
   );
   expect(onError).toBeCalledTimes(0);
@@ -387,7 +387,7 @@ it('calls onError when mutation errors in commitMutation', async () => {
     throw new Error('<error0>');
   };
   await render(environment, CommentCreateMutation);
-  await commit({variables, onError, onCompleted, updater: throwingUpdater});
+  await commit({onCompleted, onError, updater: throwingUpdater, variables});
 
   isInFlightFn.mockClear();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -405,7 +405,7 @@ it('calls onComplete when mutation successfully resolved', async () => {
   const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
   await render(environment, CommentCreateMutation);
-  await commit({variables, onError, onCompleted});
+  await commit({onCompleted, onError, variables});
 
   isInFlightFn.mockClear();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -421,10 +421,10 @@ it('calls onComplete when mutation successfully resolved', async () => {
         feedbackCommentEdge: {
           cursor: '<cursor>',
           node: {
-            id: '<id>',
             body: {
               text: '<text>',
             },
+            id: '<id>',
           },
         },
       },
@@ -577,7 +577,7 @@ describe('unmount', () => {
   it('does not dispose previous in-flight mutaiton ', async () => {
     const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
     await render(environment, CommentCreateMutation);
-    await commit({variables, onCompleted});
+    await commit({onCompleted, variables});
     await ReactTestingLibrary.act(() => {
       instance.unmount();
     });
@@ -593,10 +593,10 @@ describe('unmount', () => {
           feedbackCommentEdge: {
             cursor: '<cursor>',
             node: {
-              id: '<id>',
               body: {
                 text: '<text>',
               },
+              id: '<id>',
             },
           },
         },

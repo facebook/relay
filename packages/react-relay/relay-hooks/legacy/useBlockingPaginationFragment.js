@@ -151,11 +151,11 @@ hook useBlockingPaginationFragment<
   return {
     // $FlowFixMe[incompatible-type]
     // $FlowFixMe[incompatible-type]
-    data: (fragmentData: TData),
-    loadNext,
-    loadPrevious,
+    data: fragmentData as TData,
     hasNext,
     hasPrevious,
+    loadNext,
+    loadPrevious,
     refetch: refetchPagination,
   };
 }
@@ -185,6 +185,15 @@ hook useLoadMore<TVariables: Variables>(args: {
 
   const observer = {
     complete: promiseResolve,
+    // TODO: Handle error; we probably don't want to throw an error
+    // and blow away the whole list of items.
+    error: promiseResolve,
+    // NOTE: Since streaming is disallowed with this hook, this means that the
+    // first payload will always contain the entire next page of items,
+    // while subsequent paylaods will contain @defer'd payloads.
+    // This allows us to unsuspend here, on the first payload, and allow
+    // descendant components to suspend on their respective @defer payloads
+    next: promiseResolve,
     // NOTE: loadMore is a no-op if a request is already in flight, so we
     // can safely assume that `start` will only be called once while a
     // request is in flight.
@@ -203,17 +212,6 @@ hook useLoadMore<TVariables: Variables>(args: {
       requestPromiseRef.current = promise;
       setRequestPromise(promise);
     },
-
-    // NOTE: Since streaming is disallowed with this hook, this means that the
-    // first payload will always contain the entire next page of items,
-    // while subsequent paylaods will contain @defer'd payloads.
-    // This allows us to unsuspend here, on the first payload, and allow
-    // descendant components to suspend on their respective @defer payloads
-    next: promiseResolve,
-
-    // TODO: Handle error; we probably don't want to throw an error
-    // and blow away the whole list of items.
-    error: promiseResolve,
   };
   const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({
     ...loadMoreArgs,

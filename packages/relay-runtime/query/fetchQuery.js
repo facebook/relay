@@ -161,7 +161,7 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
       );
     }
     default:
-      (fetchPolicy: empty);
+      fetchPolicy as empty;
       throw new Error('fetchQuery: Invalid fetchPolicy ' + fetchPolicy);
   }
 }

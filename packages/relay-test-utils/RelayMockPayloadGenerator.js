@@ -530,7 +530,7 @@ class RelayMockPayloadGenerator {
             );
 
             const splitOperation: NormalizationSplitOperation =
-              (operation: $FlowFixMe);
+              operation as $FlowFixMe;
             const {documentName} = selection;
             if (mockData == null) {
               mockData = {};
@@ -589,7 +589,7 @@ class RelayMockPayloadGenerator {
           );
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayMockPayloadGenerator(): Unexpected AST kind `%s`.',
@@ -668,7 +668,7 @@ class RelayMockPayloadGenerator {
     mockData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    const data = mockData ?? ({}: {[string]: mixed});
+    const data = mockData ?? ({} as {[string]: mixed});
     const applicationName = field.alias ?? field.name;
     if (data.hasOwnProperty(applicationName) && field.name !== TYPENAME_KEY) {
       return data;
@@ -1052,7 +1052,7 @@ function generateWithDefer(
     operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
-    {...otherOptions, generateDeferredPayload: generateDeferredPayload},
+    {...otherOptions, generateDeferredPayload},
   );
 
   if (!generateDeferredPayload) {

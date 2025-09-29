@@ -155,19 +155,19 @@ function handleMissedUpdates(
     );
     const updatedCurrentSnapshot: Snapshot = {
       data: updatedData,
+      fieldErrors: currentSnapshot.fieldErrors,
       isMissingData: currentSnapshot.isMissingData,
       missingClientEdges: currentSnapshot.missingClientEdges,
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      fieldErrors: currentSnapshot.fieldErrors,
     };
     return [
       updatedData !== state.snapshot.data,
       {
+        epoch: currentEpoch,
         kind: 'singular',
         snapshot: updatedCurrentSnapshot,
-        epoch: currentEpoch,
       },
     ];
   } else {
@@ -179,12 +179,12 @@ function handleMissedUpdates(
       const updatedData = recycleNodesInto(snapshot.data, currentSnapshot.data);
       const updatedCurrentSnapshot: Snapshot = {
         data: updatedData,
+        fieldErrors: currentSnapshot.fieldErrors,
         isMissingData: currentSnapshot.isMissingData,
         missingClientEdges: currentSnapshot.missingClientEdges,
         missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
         seenRecords: currentSnapshot.seenRecords,
         selector: currentSnapshot.selector,
-        fieldErrors: currentSnapshot.fieldErrors,
       };
       if (updatedData !== snapshot.data) {
         didMissUpdates = true;
@@ -198,9 +198,9 @@ function handleMissedUpdates(
     return [
       didMissUpdates,
       {
+        epoch: currentEpoch,
         kind: 'plural',
         snapshots: currentSnapshots,
-        epoch: currentEpoch,
       },
     ];
   }
@@ -265,8 +265,8 @@ function subscribeToSnapshot(
           if (updates != null) {
             const [dataChanged, nextState] = updates;
             environment.__log({
-              name: 'useFragment.subscription.missedUpdates',
               hasDataChanges: dataChanged,
+              name: 'useFragment.subscription.missedUpdates',
             });
             hasPendingStateChanges.current = dataChanged;
             return dataChanged ? nextState : prevState;
@@ -277,9 +277,9 @@ function subscribeToSnapshot(
 
         hasPendingStateChanges.current = true;
         return {
+          epoch: environment.getStore().getEpoch(),
           kind: 'singular',
           snapshot: latestSnapshot,
-          epoch: environment.getStore().getEpoch(),
         };
       });
     });
@@ -301,8 +301,8 @@ function subscribeToSnapshot(
             if (updates != null) {
               const [dataChanged, nextState] = updates;
               environment.__log({
-                name: 'useFragment.subscription.missedUpdates',
                 hasDataChanges: dataChanged,
+                name: 'useFragment.subscription.missedUpdates',
               });
               hasPendingStateChanges.current =
                 hasPendingStateChanges.current || dataChanged;
@@ -315,9 +315,9 @@ function subscribeToSnapshot(
           updated[index] = latestSnapshot;
           hasPendingStateChanges.current = true;
           return {
+            epoch: environment.getStore().getEpoch(),
             kind: 'plural',
             snapshots: updated,
-            epoch: environment.getStore().getEpoch(),
           };
         });
       }),
@@ -340,15 +340,15 @@ function getFragmentState(
     // Note that if fragmentRef is an empty array, fragmentSelector will be null so we'll hit the above case.
     // Null is returned by getSelector if fragmentRef has no non-null items.
     return {
+      epoch: environment.getStore().getEpoch(),
       kind: 'plural',
       snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
-      epoch: environment.getStore().getEpoch(),
     };
   } else {
     return {
+      epoch: environment.getStore().getEpoch(),
       kind: 'singular',
       snapshot: environment.lookup(fragmentSelector),
-      epoch: environment.getStore().getEpoch(),
     };
   }
 }
@@ -478,7 +478,7 @@ hook useFragmentInternal(
       let clientEdgeQueries;
       const activeRequestPromises = [];
       if (missingClientEdges?.length) {
-        clientEdgeQueries = ([]: Array<QueryResult>);
+        clientEdgeQueries = [] as Array<QueryResult>;
         for (const edge of missingClientEdges) {
           const [queryResult, requestPromise] = handleMissingClientEdge(
             environment,
@@ -667,7 +667,7 @@ hook useFragmentInternal(
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
     // $FlowFixMe[react-rule-hook-conditional]
-    useDebugValue({fragment: fragmentNode.name, data});
+    useDebugValue({data, fragment: fragmentNode.name});
   }
 
   return data;

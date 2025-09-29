@@ -150,7 +150,7 @@ beforeEach(() => {
         },
       };
     }),
-    root: (new FakeJSResource(): $FlowFixMe),
+    root: new FakeJSResource() as $FlowFixMe,
   };
 });
 
@@ -565,7 +565,7 @@ it('should use environment from `getEnvironment` prop to fetch a query', () => {
         },
       };
     }),
-    root: (new FakeJSResource(): $FlowFixMe),
+    root: new FakeJSResource() as $FlowFixMe,
   };
   const fetchFn = jest.fn<
     [

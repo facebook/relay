@@ -134,16 +134,16 @@ function getFragmentState(
       return {kind: 'bailout'};
     } else {
       return {
+        epoch: environment.getStore().getEpoch(),
         kind: 'plural',
         snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
-        epoch: environment.getStore().getEpoch(),
       };
     }
   } else {
     return {
+      epoch: environment.getStore().getEpoch(),
       kind: 'singular',
       snapshot: environment.lookup(fragmentSelector),
-      epoch: environment.getStore().getEpoch(),
     };
   }
 }
@@ -220,7 +220,7 @@ function readFragmentInternal(
   ) {
     const missingClientEdges = getMissingClientEdges(state);
     if (missingClientEdges?.length) {
-      clientEdgeQueries = ([]: Array<QueryResult>);
+      clientEdgeQueries = [] as Array<QueryResult>;
       for (const edge of missingClientEdges) {
         clientEdgeQueries.push(
           handleMissingClientEdge(
@@ -288,7 +288,7 @@ function readFragmentInternal(
     }
   }
 
-  return {data, clientEdgeQueries};
+  return {clientEdgeQueries, data};
 }
 
 module.exports = readFragmentInternal;

@@ -84,16 +84,16 @@ const preloadableConcreteRequestPV = {
 
 // Only queries with an ID are preloadable
 const IdPV = 'providedVariables12346';
-(queryPV.params: $FlowFixMe).id = IdPV;
+(queryPV.params as $FlowFixMe).id = IdPV;
 
 const responsePV: GraphQLResponse = {
   data: {
     node: {
       __typename: 'User',
-      id: '4',
-      name: 'testName',
       firstName: 'testLastName',
+      id: '4',
       lastName: 'testLastName',
+      name: 'testName',
       username: 'testUsername',
     },
   },
@@ -170,8 +170,8 @@ describe('usePreloadedQuery provided variables (%s)', () => {
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
-        name: 'testName',
         lastName: 'testLastName',
+        name: 'testName',
       });
     });
   });
@@ -209,8 +209,8 @@ describe('usePreloadedQuery provided variables (%s)', () => {
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
-        name: 'testName',
         lastName: 'testLastName',
+        name: 'testName',
       });
     });
 
@@ -239,8 +239,8 @@ describe('usePreloadedQuery provided variables (%s)', () => {
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
-        name: 'testName',
         lastName: 'testLastName',
+        name: 'testName',
       });
     });
   });

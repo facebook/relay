@@ -167,8 +167,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // Assert that store invalidation during optimistic update
         // was a no-op
         expect(environment.check(queryOperation)).toEqual({
-          status: 'available',
           fetchTime: null,
+          status: 'available',
         });
       });
 
@@ -196,7 +196,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 if (!body) {
                   throw new Error('Expected comment to have a body');
                 }
-                const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+                const bodyValue: string = body.getValue('text') as $FlowFixMe;
                 if (bodyValue == null) {
                   throw new Error('Expected comment body to have text');
                 }
@@ -213,10 +213,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               commentCreate: {
                 comment: {
-                  id: commentID,
                   body: {
                     text: 'Gave Relay', // server data is lowercase
                   },
+                  id: commentID,
                 },
               },
             },
@@ -238,10 +238,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environment.commitPayload(queryOperation, {
             node: {
               __typename: 'Comment',
-              id: commentID,
               body: {
                 text: 'Foo',
               },
+              id: commentID,
             },
           });
           jest.runAllTimers();
@@ -269,7 +269,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 if (!body) {
                   throw new Error('Expected comment to have a body');
                 }
-                const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+                const bodyValue: string = body.getValue('text') as $FlowFixMe;
                 if (bodyValue == null) {
                   throw new Error('Expected comment body to have text');
                 }
@@ -286,10 +286,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               commentCreate: {
                 comment: {
-                  id: commentID,
                   body: {
                     text: 'Gave Relay', // server data is lowercase
                   },
+                  id: commentID,
                 },
               },
             },
@@ -328,7 +328,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 if (!body) {
                   throw new Error('Expected comment to have a body');
                 }
-                const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+                const bodyValue: string = body.getValue('text') as $FlowFixMe;
                 if (bodyValue == null) {
                   throw new Error('Expected comment body to have text');
                 }
@@ -345,10 +345,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               commentCreate: {
                 comment: {
-                  id: commentID,
                   body: {
                     text: 'Gave Relay', // server data is lowercase
                   },
+                  id: commentID,
                 },
               },
             },
@@ -370,17 +370,17 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           environment.commitPayload(queryOperation, {
             node: {
               __typename: 'Comment',
-              id: commentID,
               body: {
                 text: 'Foo',
               },
+              id: commentID,
             },
           });
           jest.runAllTimers();
           // Assert that query is currently available
           expect(environment.check(queryOperation)).toEqual({
-            status: 'available',
             fetchTime,
+            status: 'available',
           });
           // Assert that operation that was written during the same update as invalidation
           // is still stale

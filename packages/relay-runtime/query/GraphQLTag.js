@@ -65,7 +65,7 @@ function getNode(
   | ConcreteUpdatableQuery {
   let node = taggedNode;
   if (typeof node === 'function') {
-    node = (node(): ReaderFragment | ConcreteRequest);
+    node = node() as ReaderFragment | ConcreteRequest;
     warning(
       false,
       'RelayGraphQLTag: node `%s` unexpectedly wrapped in a function.',
@@ -129,7 +129,7 @@ function getFragment(taggedNode: GraphQLTaggedNode): ReaderFragment {
     'GraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
-  return (fragment: any);
+  return fragment as any;
 }
 
 function getPaginationFragment(
@@ -148,7 +148,7 @@ function getPaginationFragment(
   ) {
     return null;
   }
-  return (fragment: any);
+  return fragment as any;
 }
 
 function getRefetchableFragment(
@@ -161,7 +161,7 @@ function getRefetchableFragment(
   if (refetch === null || typeof refetch !== 'object') {
     return null;
   }
-  return (fragment: any);
+  return fragment as any;
 }
 
 function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
@@ -171,7 +171,7 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
     'GraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
-  return (request: any);
+  return request as any;
 }
 
 function getUpdatableQuery(
@@ -183,7 +183,7 @@ function getUpdatableQuery(
     'GraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(updatableQuery),
   );
-  return (updatableQuery: any);
+  return updatableQuery as any;
 }
 
 function getInlineDataFragment(
@@ -195,20 +195,20 @@ function getInlineDataFragment(
     'GraphQLTag: Expected an inline data fragment, got `%s`.',
     JSON.stringify(fragment),
   );
-  return (fragment: any);
+  return fragment as any;
 }
 
 module.exports = {
   getFragment,
+  getInlineDataFragment,
   getNode,
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
   getUpdatableQuery,
-  getInlineDataFragment,
   graphql,
   isFragment,
+  isInlineDataFragment,
   isRequest,
   isUpdatableQuery,
-  isInlineDataFragment,
 };

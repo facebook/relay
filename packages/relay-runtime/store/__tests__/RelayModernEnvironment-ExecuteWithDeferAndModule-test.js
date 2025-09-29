@@ -93,11 +93,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {id: '1'};
         operation = createOperationDescriptor(
-          ((query: any): ConcreteRequest),
+          query as any as ConcreteRequest,
           variables,
         );
         selector = createReaderSelector(
-          ((fragment: any): ReaderFragment),
+          fragment as any as ReaderFragment,
           '1',
           {},
           operation.request,
@@ -118,20 +118,20 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         };
         operationLoader = {
+          get: jest.fn(),
           load: jest.fn(moduleName => {
             return new Promise(resolve => {
               resolveFragment = resolve;
             });
           }),
-          get: jest.fn(),
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
 
         environment = new RelayModernEnvironment({
           network: RelayNetwork.create(fetch),
-          store,
           operationLoader,
+          store,
         });
 
         const multiActorEnvironment = new MultiActorEnvironment({
@@ -144,8 +144,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
                 network: RelayNetwork.create(fetch),
-                store,
                 operationLoader,
+                store,
               });
 
         const operationSnapshot = environment.lookup(operation.fragment);
@@ -162,8 +162,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const payload = {
           data: {
             node: {
-              id: '1',
               __typename: 'User',
+              id: '1',
             },
           },
         };
@@ -192,8 +192,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         dataSource.next({
           data: {
             node: {
-              id: '1',
               __typename: 'User',
+              id: '1',
             },
           },
         });
@@ -205,13 +205,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         dataSource.next({
           data: {
-            id: '1',
-            name: 'joe',
-            __typename: 'User',
             __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'User.react',
             __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+            __typename: 'User',
+            id: '1',
+            name: 'joe',
           },
           label:
             'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
@@ -252,8 +252,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         dataSource.next({
           data: {
             node: {
-              id: '1',
               __typename: 'User',
+              id: '1',
             },
           },
         });
@@ -265,13 +265,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         dataSource.next({
           data: {
-            id: '1',
-            name: 'joe',
-            __typename: 'User',
             __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'User.react',
             __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+            __typename: 'User',
+            id: '1',
+            name: 'joe',
           },
           label:
             'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
@@ -303,20 +303,20 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           {
             data: {
               node: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
               },
             },
           },
           {
             data: {
-              id: '1',
-              name: 'joe',
-              __typename: 'User',
               __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
                 'User.react',
               __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
                 'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+              __typename: 'User',
+              id: '1',
+              name: 'joe',
             },
             label:
               'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
@@ -354,13 +354,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               {
                 data: {
                   node: {
-                    id: '1',
-                    __typename: 'User',
-                    name: 'joe',
                     __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
                       'User.react',
                     __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
                       'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+                    __typename: 'User',
+                    id: '1',
+                    name: 'joe',
                   },
                 },
                 extensions: {
@@ -448,14 +448,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               {
                 data: {
                   node: {
-                    id: '1',
-                    __typename: 'User',
-                    name: 'joe',
-                    lastName: 'eoj',
                     __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery:
                       'User.react',
                     __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery:
                       'RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$normalization.graphql',
+                    __typename: 'User',
+                    id: '1',
+                    lastName: 'eoj',
+                    name: 'joe',
                   },
                 },
                 extensions: {

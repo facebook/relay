@@ -246,17 +246,17 @@ class Executor<TMutation: MutationParameters> {
       start: subscription => {
         this._start(id, subscription);
         this._log({
-          name: 'execute.start',
+          cacheConfig: this._operation.request.cacheConfig ?? {},
           executeId: this._executeId,
+          name: 'execute.start',
           params: this._operation.request.node.params,
           variables: this._operation.request.variables,
-          cacheConfig: this._operation.request.cacheConfig ?? {},
         });
       },
       unsubscribe: () => {
         this._log({
-          name: 'execute.unsubscribe',
           executeId: this._executeId,
+          name: 'execute.unsubscribe',
         });
       },
     });
@@ -331,7 +331,7 @@ class Executor<TMutation: MutationParameters> {
         break;
       }
       default:
-        (this._state: empty);
+        this._state as empty;
         invariant(false, 'OperationExecutor: invalid executor state.');
     }
     this._operationExecutions.set(
@@ -370,8 +370,8 @@ class Executor<TMutation: MutationParameters> {
       this.cancel();
       this._sink.complete();
       this._log({
-        name: 'execute.complete',
         executeId: this._executeId,
+        name: 'execute.complete',
       });
     }
   }
@@ -380,9 +380,9 @@ class Executor<TMutation: MutationParameters> {
     this.cancel();
     this._sink.error(error);
     this._log({
-      name: 'execute.error',
-      executeId: this._executeId,
       error,
+      executeId: this._executeId,
+      name: 'execute.error',
     });
   }
 
@@ -396,18 +396,18 @@ class Executor<TMutation: MutationParameters> {
     const priority = this._state === 'loading_incremental' ? 'low' : 'default';
     this._schedule(() => {
       this._log({
-        name: 'execute.next.start',
         executeId: this._executeId,
-        response,
+        name: 'execute.next.start',
         operation: this._operation,
+        response,
       });
       this._handleNext(response);
       this._maybeCompleteSubscriptionOperationTracking();
       this._log({
-        name: 'execute.next.end',
         executeId: this._executeId,
-        response,
+        name: 'execute.next.end',
         operation: this._operation,
+        response,
       });
     }, priority);
   }
@@ -442,7 +442,7 @@ class Executor<TMutation: MutationParameters> {
             messages +
             '\n\nSee the error `source` property for more information.',
         );
-        (error: $FlowFixMe).source = {
+        (error as $FlowFixMe).source = {
           errors,
           operation: this._operation.request.node,
           variables: this._operation.request.variables,
@@ -453,7 +453,7 @@ class Executor<TMutation: MutationParameters> {
         throw error;
       } else {
         const responseWithData: GraphQLResponseWithData =
-          (response: $FlowFixMe);
+          response as $FlowFixMe;
         results.push(responseWithData);
       }
     });
@@ -547,13 +547,13 @@ class Executor<TMutation: MutationParameters> {
       if (this._isSubscriptionOperation) {
         const nextID = generateUniqueClientID();
         this._operation = {
-          request: this._operation.request,
           fragment: createReaderSelector(
             this._operation.fragment.node,
             nextID,
             this._operation.fragment.variables,
             this._operation.fragment.owner,
           ),
+          request: this._operation.request,
           root: createNormalizationSelector(
             this._operation.root.node,
             nextID,
@@ -676,12 +676,12 @@ class Executor<TMutation: MutationParameters> {
         payload: {
           errors: null,
           fieldPayloads: null,
-          incrementalPlaceholders: null,
           followupPayloads: null,
-          source: RelayRecordSource.create(),
+          incrementalPlaceholders: null,
           isFinal: false,
+          source: RelayRecordSource.create(),
         },
-        updater: updater,
+        updater,
       });
     }
     this._optimisticUpdates = optimisticUpdates;
@@ -724,7 +724,7 @@ class Executor<TMutation: MutationParameters> {
             );
             break;
           default:
-            (followupPayload: empty);
+            followupPayload as empty;
             invariant(
               false,
               'OperationExecutor: Unexpected followup kind `%s`. when processing optimistic updates.',
@@ -776,8 +776,8 @@ class Executor<TMutation: MutationParameters> {
         getDataID: this._getDataID,
         log: this._log,
         path: followupPayload.path,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       this._useExecTimeResolvers,
     );
@@ -860,8 +860,8 @@ class Executor<TMutation: MutationParameters> {
           getDataID: this._getDataID,
           log: this._log,
           path: [],
-          treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
           shouldProcessClientComponents: this._shouldProcessClientComponents,
+          treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         },
         this._useExecTimeResolvers,
       );
@@ -1015,6 +1015,7 @@ class Executor<TMutation: MutationParameters> {
           RelayObservable.create<empty>(sink => {
             let cancellationToken;
             const subscription = networkObservable.subscribe({
+              error: sink.error,
               next: (loadedNode: ?NormalizationRootNode) => {
                 if (loadedNode != null) {
                   const publishModuleImportPayload = () => {
@@ -1040,10 +1041,10 @@ class Executor<TMutation: MutationParameters> {
                         }
                       });
                       this._log({
-                        name: 'execute.async.module',
-                        executeId: this._executeId,
-                        operationName: operation.name,
                         duration,
+                        executeId: this._executeId,
+                        name: 'execute.async.module',
+                        operationName: operation.name,
                       });
                       if (!shouldScheduleAsyncStoreUpdate) {
                         sink.complete();
@@ -1064,7 +1065,6 @@ class Executor<TMutation: MutationParameters> {
                   sink.complete();
                 }
               },
-              error: sink.error,
             });
             return () => {
               subscription.unsubscribe();
@@ -1092,7 +1092,7 @@ class Executor<TMutation: MutationParameters> {
         );
         break;
       default:
-        (followupPayload: empty);
+        followupPayload as empty;
         invariant(
           false,
           'OperationExecutor: Unexpected followup kind `%s`.',
@@ -1169,7 +1169,7 @@ class Executor<TMutation: MutationParameters> {
     } else if (placeholder.kind === 'defer') {
       parentID = placeholder.selector.dataID;
     } else {
-      (placeholder: empty);
+      placeholder as empty;
       invariant(
         false,
         'OperationExecutor: Unsupported incremental placeholder kind `%s`.',
@@ -1222,8 +1222,8 @@ class Executor<TMutation: MutationParameters> {
       nextParentPayloads = parentPayloads;
     }
     this._source.set(parentID, {
-      record: nextParentRecord,
       fieldPayloads: nextParentPayloads,
+      record: nextParentRecord,
     });
 
     // If there were any queued responses, process them now that placeholders
@@ -1326,8 +1326,8 @@ class Executor<TMutation: MutationParameters> {
         getDataID: this._getDataID,
         log: this._log,
         path: placeholder.path,
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       this._useExecTimeResolvers,
     );
@@ -1350,10 +1350,10 @@ class Executor<TMutation: MutationParameters> {
       const handleFieldsRelayPayload = {
         errors: null,
         fieldPayloads,
-        incrementalPlaceholders: null,
         followupPayloads: null,
-        source: RelayRecordSource.create(),
+        incrementalPlaceholders: null,
         isFinal: response.extensions?.is_final === true,
+        source: RelayRecordSource.create(),
       };
       this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
@@ -1440,10 +1440,10 @@ class Executor<TMutation: MutationParameters> {
       const handleFieldsRelayPayload = {
         errors: null,
         fieldPayloads,
-        incrementalPlaceholders: null,
         followupPayloads: null,
-        source: RelayRecordSource.create(),
+        incrementalPlaceholders: null,
         isFinal: false,
+        source: RelayRecordSource.create(),
       };
       this._getPublishQueueAndSaveActor().commitPayload(
         this._operation,
@@ -1547,8 +1547,8 @@ class Executor<TMutation: MutationParameters> {
     nextIDs[itemIndex] = itemID;
     RelayModernRecord.setLinkedRecordIDs(nextParentRecord, storageKey, nextIDs);
     this._source.set(parentID, {
-      record: nextParentRecord,
       fieldPayloads,
+      record: nextParentRecord,
     });
     const relayPayload = this._normalizeResponse(
       response,
@@ -1559,8 +1559,8 @@ class Executor<TMutation: MutationParameters> {
         getDataID: this._getDataID,
         log: this._log,
         path: [...normalizationPath, responseKey, String(itemIndex)],
-        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
+        treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
       },
       this._useExecTimeResolvers,
     );

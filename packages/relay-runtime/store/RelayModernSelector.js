@@ -90,9 +90,9 @@ function getSingularSelector(
     (mixedClientEdgeTraversalPath == null ||
       Array.isArray(mixedClientEdgeTraversalPath))
   ) {
-    const owner: RequestDescriptor = (mixedOwner: $FlowFixMe);
+    const owner: RequestDescriptor = mixedOwner as $FlowFixMe;
     const clientEdgeTraversalPath: ?ClientEdgeTraversalPath =
-      (mixedClientEdgeTraversalPath: $FlowFixMe);
+      mixedClientEdgeTraversalPath as $FlowFixMe;
 
     const argumentVariables = fragments[fragment.name];
     const fragmentVariables = getFragmentVariables(
@@ -519,13 +519,13 @@ function createReaderSelector(
   clientEdgeTraversalPath: ?ClientEdgeTraversalPath,
 ): SingularReaderSelector {
   return {
-    kind: 'SingularReaderSelector',
+    clientEdgeTraversalPath: clientEdgeTraversalPath ?? null,
     dataID,
     isWithinUnmatchedTypeRefinement,
-    clientEdgeTraversalPath: clientEdgeTraversalPath ?? null,
+    kind: 'SingularReaderSelector',
     node: fragment,
-    variables,
     owner: request,
+    variables,
   };
 }
 
@@ -539,16 +539,16 @@ function createNormalizationSelector(
 
 module.exports = {
   areEqualSelectors,
-  createReaderSelector,
   createNormalizationSelector,
+  createReaderSelector,
   getDataIDsFromFragment,
   getDataIDsFromObject,
-  getSingularSelector,
   getPluralSelector,
   getSelector,
   getSelectorsFromObject,
-  getVariablesFromSingularFragment,
-  getVariablesFromPluralFragment,
+  getSingularSelector,
   getVariablesFromFragment,
   getVariablesFromObject,
+  getVariablesFromPluralFragment,
+  getVariablesFromSingularFragment,
 };

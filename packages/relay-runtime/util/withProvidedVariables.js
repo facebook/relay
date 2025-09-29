@@ -64,10 +64,12 @@ function withProvidedVariables(
   }
 }
 
-withProvidedVariables.tests_only_resetDebugCache = ((__DEV__
-  ? () => {
-      debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
-    }
-  : undefined): void | (() => void));
+withProvidedVariables.tests_only_resetDebugCache = (
+  __DEV__
+    ? () => {
+        debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+      }
+    : undefined
+) as void | (() => void);
 
 module.exports = withProvidedVariables;

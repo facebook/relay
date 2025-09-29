@@ -30,11 +30,9 @@ describe('commitMultiActorUpdate', () => {
       multiActorEnvironment.forActor(getActorIdentifier('actor3')),
     ];
 
-    const updater = jest.fn(
-      ((actorID, env, store) => {
-        store.create('foo123', 'Test').setValue(42, 'test');
-      }: MultiActorStoreUpdater),
-    );
+    const updater = jest.fn(((actorID, env, store) => {
+      store.create('foo123', 'Test').setValue(42, 'test');
+    }) as MultiActorStoreUpdater);
 
     multiActorEnvironment.commitMultiActorUpdate(updater);
     const environmentsCalled = updater.mock.calls.map(([, env]) => env);

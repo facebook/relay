@@ -49,41 +49,41 @@ type ExpectedReturnType<
 // $FlowFixMe[incompatible-type]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[react-rule-hook]
-(useBlockingPaginationFragment(
+useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
-): ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>;
 
 // $FlowFixMe[react-rule-hook]
-(useBlockingPaginationFragment(
+useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NullableData>;
 
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-type] can't cast nullable to non-nullable
-(useBlockingPaginationFragment(
+useBlockingPaginationFragment(
   refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>;
 
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[prop-missing]
 // $FlowFixMe[incompatible-type] actual type of returned data is correct
-(useBlockingPaginationFragment(
+useBlockingPaginationFragment(
   refetchableFragmentInput,
   // $FlowExpectedError[incompatible-type]
   keyAnotherNonNullable,
-): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>;
 
 // $FlowExpectedError[incompatible-type] `Example_user$fragmentType` is incompatible with  `FragmentType`
 // $FlowFixMe[react-rule-hook]
-(useBlockingPaginationFragment(
+useBlockingPaginationFragment(
   refetchableFragmentInput,
   // $FlowExpectedError[incompatible-type]
   keyAnotherNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NullableData>;
 
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-type] Key should not be a user provided object

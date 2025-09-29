@@ -92,7 +92,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   +_source: Source<T>;
 
   static create<V>(source: Source<V>): RelayObservable<V> {
-    return new RelayObservable((source: any));
+    return new RelayObservable(source as any);
   }
 
   // Use RelayObservable.create()
@@ -103,7 +103,7 @@ class RelayObservable<+T> implements Subscribable<T> {
         throw new Error('Source must be a Function: ' + String(source));
       }
     }
-    (this: any)._source = source;
+    (this as any)._source = source;
   }
 
   /**
@@ -492,7 +492,7 @@ function subscribe<T>(
   // Relay to be used within will support property getters, and many minifier
   // tools still do not support ES5 syntax. Instead, we can use defineProperty.
   const withClosed: <O>(obj: O) => {...O, +closed: boolean} = (obj =>
-    Object.defineProperty(obj, 'closed', ({get: () => closed}: any)): any);
+    Object.defineProperty(obj, 'closed', {get: () => closed} as any)) as any;
 
   function doCleanup() {
     if (cleanup) {

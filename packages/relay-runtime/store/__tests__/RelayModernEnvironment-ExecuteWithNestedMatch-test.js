@@ -146,25 +146,25 @@ describe('execute() a query with nested @match', () => {
       });
     };
     operationLoader = {
+      get: jest.fn(),
       load: jest.fn(moduleName => {
         return new Promise(resolve => {
           resolveFragment = resolve;
         });
       }),
-      get: jest.fn(),
     };
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
-      store,
-      operationLoader,
       handlerProvider: name => {
         switch (name) {
           case 'markup_handler':
             return MarkupHandler;
         }
       },
+      network: RelayNetwork.create(fetch),
+      operationLoader,
+      store,
     });
     const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn<[Snapshot], void>();
@@ -176,30 +176,30 @@ describe('execute() a query with nested @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           outerRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
             user: {
               id: '2',
               innerRenderer: {
-                __typename: 'PlainUserNameRenderer',
                 __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
                 __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
-                plaintext: 'plaintext payload',
+                __typename: 'PlainUserNameRenderer',
                 data: {
                   text: 'plaintext!',
                 },
+                plaintext: 'plaintext payload',
               },
             },
           },
@@ -218,15 +218,13 @@ describe('execute() a query with nested @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         outerRenderer: {
-          __id: 'client:1:nameRenderer(supported:"2aTHRe")',
+          __fragmentOwner: operation.request,
           __fragmentPropName: 'name',
-
           __fragments: {
             RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
               {},
           },
-
-          __fragmentOwner: operation.request,
+          __id: 'client:1:nameRenderer(supported:"2aTHRe")',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -235,7 +233,7 @@ describe('execute() a query with nested @match', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.outerRenderer,
+        (operationSnapshot.data?.node as any)?.outerRenderer,
       ),
     );
     const matchSnapshot = environment.lookup(matchSelector);
@@ -253,33 +251,33 @@ describe('execute() a query with nested @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           outerRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
             user: {
               id: '2',
               innerRenderer: {
-                __typename: 'PlainUserNameRenderer',
                 __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
                 __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalizationgraphql',
-                plaintext: 'plaintext payload',
+                __typename: 'PlainUserNameRenderer',
                 data: {
                   id: 'data-2',
                   text: 'plaintext!',
                 },
+                plaintext: 'plaintext payload',
               },
             },
           },
@@ -302,7 +300,7 @@ describe('execute() a query with nested @match', () => {
     const outerMatchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.outerRenderer,
+        (operationSnapshot.data?.node as any)?.outerRenderer,
       ),
     );
     // initial outer fragment snapshot is tested above
@@ -346,7 +344,7 @@ describe('execute() a query with nested @match', () => {
     const innerMatchSelector = nullthrows(
       getSingularSelector(
         plaintextRendererFragment,
-        (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
+        (outerMatchSnapshot.data?.user as $FlowFixMe)?.innerRenderer,
       ),
     );
     const initialInnerMatchSnapshot = environment.lookup(innerMatchSelector);
@@ -373,33 +371,33 @@ describe('execute() a query with nested @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           outerRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
             user: {
               id: '2',
               innerRenderer: {
-                __typename: 'PlainUserNameRenderer',
                 __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
                 __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
-                plaintext: 'plaintext payload',
+                __typename: 'PlainUserNameRenderer',
                 data: {
                   id: 'data-2',
                   text: 'plaintext!',
                 },
+                plaintext: 'plaintext payload',
               },
             },
           },
@@ -441,33 +439,33 @@ describe('execute() a query with nested @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           outerRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
             user: {
               id: '2',
               innerRenderer: {
-                __typename: 'PlainUserNameRenderer',
                 __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
                 __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
-                plaintext: 'plaintext payload',
+                __typename: 'PlainUserNameRenderer',
                 data: {
                   id: 'data-2',
                   text: 'plaintext!',
                 },
+                plaintext: 'plaintext payload',
               },
             },
           },
@@ -509,33 +507,33 @@ describe('execute() a query with nested @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           outerRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
             user: {
               id: '2',
               innerRenderer: {
-                __typename: 'PlainUserNameRenderer',
                 __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
                 __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
-                plaintext: 'plaintext payload',
+                __typename: 'PlainUserNameRenderer',
                 data: {
                   id: 'data-2',
                   text: 'plaintext!',
                 },
+                plaintext: 'plaintext payload',
               },
             },
           },
@@ -553,7 +551,7 @@ describe('execute() a query with nested @match', () => {
       // Invalid fragment node, no 'selections' field
       // This is to make sure that users implementing operationLoader
       // incorrectly still get reasonable error handling
-      return Promise.resolve(({}: any));
+      return Promise.resolve({} as any);
     });
     jest.runAllTimers();
 
@@ -568,31 +566,31 @@ describe('execute() a query with nested @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           outerRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
             user: {
               id: '2',
               innerRenderer: {
-                __typename: 'PlainUserNameRenderer',
                 __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
                 __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
-                plaintext: 'plaintext payload',
+                __typename: 'PlainUserNameRenderer',
                 data: {
                   text: 'plaintext!',
                 },
+                plaintext: 'plaintext payload',
               },
             },
           },
@@ -621,7 +619,7 @@ describe('execute() a query with nested @match', () => {
     const outerMatchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.outerRenderer,
+        (operationSnapshot.data?.node as any)?.outerRenderer,
       ),
     );
     // initial outer fragment snapshot is tested above
@@ -640,33 +638,33 @@ describe('execute() a query with nested @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           outerRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery:
               'RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
             user: {
               id: '2',
               innerRenderer: {
-                __typename: 'PlainUserNameRenderer',
                 __module_component_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'PlainUserNameRenderer.react',
                 __module_operation_RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
                   'RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql',
-                plaintext: 'plaintext payload',
+                __typename: 'PlainUserNameRenderer',
                 data: {
                   id: 'data-2',
                   text: 'plaintext!',
                 },
+                plaintext: 'plaintext payload',
               },
             },
           },
@@ -698,7 +696,7 @@ describe('execute() a query with nested @match', () => {
     const outerMatchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.outerRenderer,
+        (operationSnapshot.data?.node as any)?.outerRenderer,
       ),
     );
     // initial outer fragment snapshot is tested above
@@ -706,7 +704,7 @@ describe('execute() a query with nested @match', () => {
     const innerMatchSelector = nullthrows(
       getSingularSelector(
         plaintextRendererFragment,
-        (outerMatchSnapshot.data?.user: $FlowFixMe)?.innerRenderer,
+        (outerMatchSnapshot.data?.user as $FlowFixMe)?.innerRenderer,
       ),
     );
     const innerMatchSnapshot = environment.lookup(innerMatchSelector);

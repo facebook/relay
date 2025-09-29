@@ -51,40 +51,40 @@ type ExpectedReturnType<
 // $FlowFixMe[incompatible-type]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[react-rule-hook]
-(usePaginationFragment(
+usePaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
-): ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>;
 
 // $FlowFixMe[react-rule-hook]
-(usePaginationFragment(
+usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NullableData>;
 
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-type] can't cast nullable to non-nullable
-(usePaginationFragment(
+usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>;
 
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[prop-missing]
 // $FlowFixMe[incompatible-type] actual type of returned data is correct
-(usePaginationFragment(
+usePaginationFragment(
   refetchableFragmentInput,
   // $FlowFixMe[incompatible-type]
   keyAnotherNonNullable,
-): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>;
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-type]
-(usePaginationFragment(
+usePaginationFragment(
   refetchableFragmentInput,
   // $FlowFixMe[incompatible-type]
   keyAnotherNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>;
 
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-type] Key should not be a user provided object

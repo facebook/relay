@@ -16,6 +16,6 @@ const {
   __internal: {createRelayLoggingContext},
 } = require('relay-runtime');
 
-module.exports = (createRelayLoggingContext(React): React.Context<
+module.exports = createRelayLoggingContext(React) as React.Context<
   mixed | null,
->);
+>;

@@ -20,7 +20,9 @@
  * detect its environment.
  */
 function isRelayModernEnvironment(environment: mixed): boolean {
-  return Boolean(environment && (environment: any)['@@RelayModernEnvironment']);
+  return Boolean(
+    environment && (environment as any)['@@RelayModernEnvironment'],
+  );
 }
 
 module.exports = isRelayModernEnvironment;

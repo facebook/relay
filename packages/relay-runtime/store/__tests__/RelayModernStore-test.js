@@ -132,8 +132,8 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },
@@ -212,8 +212,8 @@ function cloneEventWithSets(event: LogEvent) {
           [ROOT_ID]: {
             __id: ROOT_ID,
             __typename: ROOT_TYPE,
-            'node(id:"842472")': {[REF_KEY]: '842472'},
             'node(id:"4")': {[REF_KEY]: '4'},
+            'node(id:"842472")': {[REF_KEY]: '842472'},
           },
         });
         store.publish(nextSource);
@@ -248,8 +248,8 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },
@@ -289,18 +289,18 @@ function cloneEventWithSets(event: LogEvent) {
         );
         const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          selector,
           data: {
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo1.jpg',
             },
           },
-          seenRecords: new Set(Object.keys(data)),
           fieldErrors: null,
-          missingLiveResolverFields: [],
-          missingClientEdges: null,
           isMissingData: false,
+          missingClientEdges: null,
+          missingLiveResolverFields: [],
+          seenRecords: new Set(Object.keys(data)),
+          selector,
         });
       });
 
@@ -337,23 +337,21 @@ function cloneEventWithSets(event: LogEvent) {
         );
         const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          selector,
           data: {
+            __fragmentOwner: owner.request,
+            __fragments: {RelayModernStoreTest4Fragment: {}},
+            __id: '4',
             name: 'Zuck',
-
             profilePicture: {
               uri: 'https://photo1.jpg',
             },
-
-            __id: '4',
-            __fragments: {RelayModernStoreTest4Fragment: {}},
-            __fragmentOwner: owner.request,
           },
-          seenRecords: new Set(Object.keys(data)),
           fieldErrors: null,
-          missingLiveResolverFields: [],
-          missingClientEdges: null,
           isMissingData: false,
+          missingClientEdges: null,
+          missingLiveResolverFields: [],
+          seenRecords: new Set(Object.keys(data)),
+          selector,
         });
         expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
       });
@@ -399,18 +397,18 @@ function cloneEventWithSets(event: LogEvent) {
         );
         const snapshot = store.lookup(selector);
         expect(snapshot).toEqual({
-          selector,
           data: {
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo1.jpg',
             },
           },
-          seenRecords: new Set(['client:2', '4']),
           fieldErrors: null,
-          missingLiveResolverFields: [],
-          missingClientEdges: null,
           isMissingData: false,
+          missingClientEdges: null,
+          missingLiveResolverFields: [],
+          seenRecords: new Set(['client:2', '4']),
+          selector,
         });
       });
     });
@@ -435,11 +433,11 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            emailAddresses: ['a@b.com'],
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
-            emailAddresses: ['a@b.com'],
           },
           'client:1': {
             __id: 'client:1',
@@ -448,20 +446,20 @@ function cloneEventWithSets(event: LogEvent) {
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
-            'node(id:"4")': {__ref: '4'},
             me: {__ref: '4'},
+            'node(id:"4")': {__ref: '4'},
           },
         };
-        logEvents = ([]: Array<
+        logEvents = [] as Array<
           $FlowFixMe | {...} | {data: ?SelectorData, kind: string},
-        >);
+        >;
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
-          shouldRetainWithinTTL_EXPERIMENTAL: true,
+          gcReleaseBufferSize: 0,
           log: event => {
             logEvents.push(cloneEventWithSets(event));
           },
-          gcReleaseBufferSize: 0,
+          shouldRetainWithinTTL_EXPERIMENTAL: true,
         });
         UserFragment = graphql`
           fragment RelayModernStoreTest5Fragment on User {
@@ -508,11 +506,11 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           data: {
+            emailAddresses: ['a@b.com'],
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo2.jpg', // new uri
             },
-            emailAddresses: ['a@b.com'],
           },
           seenRecords: new Set(['client:1', '4']),
         });
@@ -562,11 +560,11 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           data: {
+            emailAddresses: ['a@b.com'],
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo2.jpg', // new uri
             },
-            emailAddresses: ['a@b.com'],
           },
           seenRecords: new Set(['client:1', '4']),
         });
@@ -617,8 +615,8 @@ function cloneEventWithSets(event: LogEvent) {
           '4': {
             __id: '4',
             __typename: 'User',
-            name: 'Mark',
             emailAddresses: ['a@b.com', 'c@d.net'],
+            name: 'Mark',
           },
           'client:1': {
             __id: 'client:1',
@@ -639,11 +637,11 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           data: {
+            emailAddresses: ['a@b.com', 'c@d.net'],
             name: 'Mark',
             profilePicture: {
               uri: 'https://photo3.jpg', // most recent uri
             },
-            emailAddresses: ['a@b.com', 'c@d.net'],
           },
           seenRecords: new Set(['client:1', '4']),
         });
@@ -653,8 +651,8 @@ function cloneEventWithSets(event: LogEvent) {
         const dataObj = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },
@@ -693,16 +691,16 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
-          missingClientEdges: null,
-          isMissingData: false,
-          fieldErrors: null,
           data: {
+            emailAddresses: ['a@b.com'],
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo1.jpg',
             },
-            emailAddresses: ['a@b.com'],
           },
+          fieldErrors: null,
+          isMissingData: false,
+          missingClientEdges: null,
           seenRecords: new Set(['client:1', '4']),
         });
       });
@@ -739,19 +737,19 @@ function cloneEventWithSets(event: LogEvent) {
           },
           fieldErrors: [
             {
-              owner: 'RelayModernStoreTest5Fragment',
-              kind: 'missing_expected_data.log',
               fieldPath: 'profilePicture',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreTest5Fragment',
             },
             {
-              owner: 'RelayModernStoreTest5Fragment',
-              kind: 'missing_expected_data.log',
               fieldPath: 'emailAddresses',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreTest5Fragment',
             },
           ],
-          missingLiveResolverFields: [],
-          missingClientEdges: null,
           isMissingData: true,
+          missingClientEdges: null,
+          missingLiveResolverFields: [],
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
       });
@@ -789,20 +787,20 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingClientEdges: null,
-          isMissingData: true,
           fieldErrors: [
             {
-              owner: 'RelayModernStoreTest5Fragment',
-              kind: 'missing_expected_data.log',
               fieldPath: 'profilePicture',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreTest5Fragment',
             },
             {
-              owner: 'RelayModernStoreTest5Fragment',
-              kind: 'missing_expected_data.log',
               fieldPath: 'emailAddresses',
+              kind: 'missing_expected_data.log',
+              owner: 'RelayModernStoreTest5Fragment',
             },
           ],
+          isMissingData: true,
+          missingClientEdges: null,
           seenRecords: new Set(['842472']),
         });
       });
@@ -1031,8 +1029,8 @@ function cloneEventWithSets(event: LogEvent) {
         logEvents.length = 0;
         const callback = jest.fn((nextSnapshot: Snapshot) => {
           logEvents.push({
-            kind: 'test_only_callback',
             data: nextSnapshot.data,
+            kind: 'test_only_callback',
           });
         });
         store.subscribe(snapshot, callback);
@@ -1045,7 +1043,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
         store.publish(nextSource);
         expect(logEvents).toEqual([
-          {name: 'store.publish', source: nextSource, optimistic: false},
+          {name: 'store.publish', optimistic: false, source: nextSource},
         ]);
         expect(callback).toBeCalledTimes(0);
         logEvents.length = 0;
@@ -1056,21 +1054,21 @@ function cloneEventWithSets(event: LogEvent) {
           },
           // callbacks occur after notify.start...
           {
-            // not a real LogEvent, this is for testing only
-            kind: 'test_only_callback',
             data: {
               emailAddresses: ['a@b.com'],
               name: 'Zuck',
               profilePicture: {uri: 'https://photo2.jpg'},
             },
+            // not a real LogEvent, this is for testing only
+            kind: 'test_only_callback',
           },
           // ...and before notify.complete
           {
-            name: 'store.notify.complete',
-            updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
-            updatedOwners: [owner.request],
+            name: 'store.notify.complete',
             subscriptionsSize: 1,
+            updatedOwners: [owner.request],
+            updatedRecordIDs: new Set(['client:1']),
           },
         ]);
         expect(callback).toBeCalledTimes(1);
@@ -1101,8 +1099,8 @@ function cloneEventWithSets(event: LogEvent) {
           logEvents.length = 0;
           const callback = jest.fn((nextSnapshot: Snapshot) => {
             logEvents.push({
-              kind: 'test_only_callback',
               data: nextSnapshot.data,
+              kind: 'test_only_callback',
             });
           });
           store.subscribe(snapshot, callback);
@@ -1115,7 +1113,7 @@ function cloneEventWithSets(event: LogEvent) {
           });
           store.publish(nextSource);
           expect(logEvents).toEqual([
-            {name: 'store.publish', source: nextSource, optimistic: false},
+            {name: 'store.publish', optimistic: false, source: nextSource},
           ]);
           expect(callback).toBeCalledTimes(0);
           logEvents.length = 0;
@@ -1128,15 +1126,6 @@ function cloneEventWithSets(event: LogEvent) {
             // callbacks occur after notify.start...
             {
               name: 'store.notify.subscription',
-              sourceOperation: owner,
-              snapshot: expect.objectContaining({
-                data: {
-                  emailAddresses: ['a@b.com'],
-                  name: 'Zuck',
-                  profilePicture: {uri: 'https://photo1.jpg'},
-                },
-                selector,
-              }),
               nextSnapshot: expect.objectContaining({
                 data: {
                   emailAddresses: ['a@b.com'],
@@ -1145,24 +1134,33 @@ function cloneEventWithSets(event: LogEvent) {
                 },
                 selector,
               }),
+              snapshot: expect.objectContaining({
+                data: {
+                  emailAddresses: ['a@b.com'],
+                  name: 'Zuck',
+                  profilePicture: {uri: 'https://photo1.jpg'},
+                },
+                selector,
+              }),
+              sourceOperation: owner,
             },
             {
-              // not a real LogEvent, this is for testing only
-              kind: 'test_only_callback',
               data: {
                 emailAddresses: ['a@b.com'],
                 name: 'Zuck',
                 profilePicture: {uri: 'https://photo2.jpg'},
               },
+              // not a real LogEvent, this is for testing only
+              kind: 'test_only_callback',
             },
             // ...and before notify.complete
             {
+              invalidatedRecordIDs: new Set(),
               name: 'store.notify.complete',
               sourceOperation: owner,
-              updatedRecordIDs: new Set(['client:1']),
-              invalidatedRecordIDs: new Set(),
-              updatedOwners: [owner.request],
               subscriptionsSize: 1,
+              updatedOwners: [owner.request],
+              updatedRecordIDs: new Set(['client:1']),
             },
           ]);
           expect(callback).toBeCalledTimes(1);
@@ -1181,8 +1179,8 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },
@@ -1225,8 +1223,8 @@ function cloneEventWithSets(event: LogEvent) {
           size: 32,
         });
         expect(store.check(operation)).toEqual({
-          status: 'available',
           fetchTime: null,
+          status: 'available',
         });
       });
 
@@ -1284,9 +1282,9 @@ function cloneEventWithSets(event: LogEvent) {
           jest.spyOn(global.Date, 'now').mockImplementation(() => currentTime);
 
           store = new RelayModernStore(source, {
-            shouldRetainWithinTTL_EXPERIMENTAL: true,
-            queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
             gcReleaseBufferSize: 0,
+            queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
+            shouldRetainWithinTTL_EXPERIMENTAL: true,
           });
           const operation = createOperationDescriptor(UserQuery, {
             id: '4',
@@ -1300,8 +1298,8 @@ function cloneEventWithSets(event: LogEvent) {
           currentTime += QUERY_CACHE_EXPIRATION_TIME - 1;
 
           expect(store.check(operation)).toEqual({
-            status: 'available',
             fetchTime,
+            status: 'available',
           });
 
           currentTime += 1;
@@ -1317,9 +1315,9 @@ function cloneEventWithSets(event: LogEvent) {
           jest.spyOn(global.Date, 'now').mockImplementation(() => currentTime);
 
           store = new RelayModernStore(source, {
-            shouldRetainWithinTTL_EXPERIMENTAL: true,
-            queryCacheExpirationTime: null,
             gcReleaseBufferSize: 0,
+            queryCacheExpirationTime: null,
+            shouldRetainWithinTTL_EXPERIMENTAL: true,
           });
           const operation = createOperationDescriptor(UserQuery, {
             id: '4',
@@ -1330,16 +1328,16 @@ function cloneEventWithSets(event: LogEvent) {
           store.notify(operation);
 
           expect(store.check(operation)).toEqual({
-            status: 'available',
             fetchTime: currentTime,
+            status: 'available',
           });
 
           const fetchTime = currentTime;
           currentTime += 10000; // arbitrary number
 
           expect(store.check(operation)).toEqual({
-            status: 'available',
             fetchTime,
+            status: 'available',
           });
         });
       });
@@ -1404,8 +1402,8 @@ function cloneEventWithSets(event: LogEvent) {
             store.notify(operation);
 
             expect(store.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
           });
 
@@ -1429,15 +1427,15 @@ function cloneEventWithSets(event: LogEvent) {
             store.notify(operation);
 
             expect(store.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
           });
 
           it('returns available if data is cached and store was invalidated before query was written (query not retained)', () => {
             store = new RelayModernStore(source, {
-              shouldRetainWithinTTL_EXPERIMENTAL: true,
               gcReleaseBufferSize: 1,
+              shouldRetainWithinTTL_EXPERIMENTAL: true,
             });
             environment = createMockEnvironment({store});
             environment.commitUpdate(storeProxy => {
@@ -1455,8 +1453,8 @@ function cloneEventWithSets(event: LogEvent) {
             store.notify(operation);
 
             expect(store.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
           });
 
@@ -1557,8 +1555,8 @@ function cloneEventWithSets(event: LogEvent) {
             store.notify(operation);
 
             expect(store.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
           });
         });
@@ -1667,15 +1665,15 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },
           '5': {
             __id: '5',
-            id: '5',
             __typename: 'User',
+            id: '5',
             name: 'Someone',
             'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
           },
@@ -2097,15 +2095,15 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },
           '5': {
             __id: '5',
-            id: '5',
             __typename: 'User',
+            id: '5',
             name: 'Other',
             'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
           },
@@ -2127,9 +2125,9 @@ function cloneEventWithSets(event: LogEvent) {
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
-          shouldRetainWithinTTL_EXPERIMENTAL: true,
           gcReleaseBufferSize: 1,
           queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
+          shouldRetainWithinTTL_EXPERIMENTAL: true,
         });
         UserQuery = graphql`
           query RelayModernStoreTest7Query($id: ID!, $size: [Int]) {
@@ -2266,8 +2264,8 @@ function cloneEventWithSets(event: LogEvent) {
         expect(source.toJSON()).toEqual({
           '5': {
             __id: '5',
-            id: '5',
             __typename: 'User',
+            id: '5',
             name: 'Other',
             'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
           },
@@ -2333,8 +2331,8 @@ function cloneEventWithSets(event: LogEvent) {
         expect(source.toJSON()).toEqual({
           '5': {
             __id: '5',
-            id: '5',
             __typename: 'User',
+            id: '5',
             name: 'Other',
             'profilePicture(size:32)': {[REF_KEY]: 'client:2'},
           },
@@ -2449,11 +2447,11 @@ function cloneEventWithSets(event: LogEvent) {
       }
 
       beforeEach(() => {
-        schedulerQueue = ([]: Array<$FlowFixMe | (() => void)>);
+        schedulerQueue = [] as Array<$FlowFixMe | (() => void)>;
         source = getRecordSourceImplementation({});
         store = new RelayModernStore(source, {
-          gcScheduler: mockScheduler,
           gcReleaseBufferSize: 0,
+          gcScheduler: mockScheduler,
           queryCacheExpirationTime: 0,
         });
       });
@@ -2573,8 +2571,8 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },

@@ -154,7 +154,7 @@ function reducer(state: RefetchState, action: Action): RefetchState {
       };
     }
     default: {
-      (action.type: empty);
+      action.type as empty;
       throw new Error('useRefetchableFragmentNode: Unexpected action type');
     }
   }
@@ -206,14 +206,14 @@ hook useRefetchableFragmentInternal<
     TQuery['variables'],
     TQuery['response'],
     TQuery['rawResponse'],
-  >((refetchableRequest: $FlowFixMe));
+  >(refetchableRequest as $FlowFixMe);
 
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {
     dispatch({
-      type: 'reset',
       environment,
       fragmentIdentifier,
+      type: 'reset',
     });
     disposeQuery();
   } else if (refetchQuery != null && queryRef != null) {
@@ -268,7 +268,6 @@ hook useRefetchableFragmentInternal<
         fetchPolicy,
         renderPolicy,
         {
-          error: handleQueryCompleted,
           complete: () => {
             // Validate that the type of the object we got back matches the type
             // of the object already in the store
@@ -282,6 +281,7 @@ hook useRefetchableFragmentInternal<
             }
             handleQueryCompleted();
           },
+          error: handleQueryCompleted,
         },
         queryRef.fetchKey,
         profilerContext,
@@ -446,7 +446,7 @@ hook useRefetchFunction<TQuery: OperationType>(
       // We fill in any variables not passed by the call to `refetch()` with the
       // variables from the original parent fragment owner.
       const refetchVariables: VariablesOf<TQuery> = {
-        ...(parentVariables: $FlowFixMe),
+        ...(parentVariables as $FlowFixMe),
         ...fragmentVariables,
         ...providedRefetchVariables,
       };
@@ -471,7 +471,7 @@ hook useRefetchFunction<TQuery: OperationType>(
             identifierValue,
           );
         }
-        (refetchVariables: $FlowFixMe)[
+        (refetchVariables as $FlowFixMe)[
           identifierInfo.identifierQueryVariableName
         ] = identifierValue;
       }
@@ -492,18 +492,18 @@ hook useRefetchFunction<TQuery: OperationType>(
       // so that they have been filtered out to include only the
       // variables actually declared in the query.
       loadQuery(refetchQuery.request.variables, {
-        fetchPolicy,
         __environment: refetchEnvironment,
         __nameForWarning: 'refetch',
+        fetchPolicy,
       });
 
       dispatch({
-        type: 'refetch',
         fetchPolicy,
         onComplete,
         refetchEnvironment,
         refetchQuery,
         renderPolicy,
+        type: 'refetch',
       });
       return {dispose: disposeQuery};
     },
@@ -521,33 +521,32 @@ hook useRefetchFunction<TQuery: OperationType>(
 let debugFunctions;
 if (__DEV__) {
   debugFunctions = {
-    getInitialIDAndType(
-      memoRefetchVariables: ?Variables,
-      fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
-      identifierQueryVariableName: ?string,
-      environment: IEnvironment,
-    ): ?DebugIDandTypename {
-      const {Record} = require('relay-runtime');
-      const id = memoRefetchVariables?.[identifierQueryVariableName ?? 'id'];
-      if (
-        fragmentRefPathInResponse.length !== 1 ||
-        fragmentRefPathInResponse[0] !== 'node' ||
-        id == null
-      ) {
-        return null;
+    checkSameIDAfterRefetch(
+      previousIDAndTypename: ?DebugIDandTypename,
+      refetchedFragmentRef: mixed,
+      fragmentNode: ReaderFragment,
+      componentDisplayName: string,
+    ): void {
+      if (previousIDAndTypename == null || refetchedFragmentRef == null) {
+        return;
       }
-      const recordSource = environment.getStore().getSource();
-      const record = recordSource.get(id);
-      const typename = record == null ? null : Record.getType(record);
-      if (typename == null) {
-        return null;
+      const {ID_KEY} = require('relay-runtime');
+      // $FlowExpectedError[incompatible-use]
+      const resultID = refetchedFragmentRef[ID_KEY];
+      if (resultID != null && resultID !== previousIDAndTypename.id) {
+        warning(
+          false,
+          'Relay: Call to `refetch` returned a different id, expected ' +
+            '`%s`, got `%s`, on `%s` in `%s`. ' +
+            'Please make sure the server correctly implements ' +
+            'unique id requirement.',
+          resultID,
+          previousIDAndTypename.id,
+          fragmentNode.name,
+          componentDisplayName,
+        );
       }
-      return {
-        id,
-        typename,
-      };
     },
-
     checkSameTypeAfterRefetch(
       previousIDAndType: ?DebugIDandTypename,
       environment: IEnvironment,
@@ -575,32 +574,31 @@ if (__DEV__) {
         );
       }
     },
-
-    checkSameIDAfterRefetch(
-      previousIDAndTypename: ?DebugIDandTypename,
-      refetchedFragmentRef: mixed,
-      fragmentNode: ReaderFragment,
-      componentDisplayName: string,
-    ): void {
-      if (previousIDAndTypename == null || refetchedFragmentRef == null) {
-        return;
+    getInitialIDAndType(
+      memoRefetchVariables: ?Variables,
+      fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+      identifierQueryVariableName: ?string,
+      environment: IEnvironment,
+    ): ?DebugIDandTypename {
+      const {Record} = require('relay-runtime');
+      const id = memoRefetchVariables?.[identifierQueryVariableName ?? 'id'];
+      if (
+        fragmentRefPathInResponse.length !== 1 ||
+        fragmentRefPathInResponse[0] !== 'node' ||
+        id == null
+      ) {
+        return null;
       }
-      const {ID_KEY} = require('relay-runtime');
-      // $FlowExpectedError[incompatible-use]
-      const resultID = refetchedFragmentRef[ID_KEY];
-      if (resultID != null && resultID !== previousIDAndTypename.id) {
-        warning(
-          false,
-          'Relay: Call to `refetch` returned a different id, expected ' +
-            '`%s`, got `%s`, on `%s` in `%s`. ' +
-            'Please make sure the server correctly implements ' +
-            'unique id requirement.',
-          resultID,
-          previousIDAndTypename.id,
-          fragmentNode.name,
-          componentDisplayName,
-        );
+      const recordSource = environment.getStore().getSource();
+      const record = recordSource.get(id);
+      const typename = record == null ? null : Record.getType(record);
+      if (typename == null) {
+        return null;
       }
+      return {
+        id,
+        typename,
+      };
     },
   };
 }

@@ -133,25 +133,25 @@ describe('execute() a query with plural @match', () => {
       });
     };
     operationLoader = {
+      get: jest.fn(),
       load: jest.fn(moduleName => {
         return new Promise(resolve => {
           resolveFragment = resolve;
         });
       }),
-      get: jest.fn(),
     };
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
-      store,
-      operationLoader,
       handlerProvider: name => {
         switch (name) {
           case 'markup_handler':
             return MarkupHandler;
         }
       },
+      network: RelayNetwork.create(fetch),
+      operationLoader,
+      store,
     });
 
     const operationSnapshot = environment.lookup(operation.fragment);
@@ -164,19 +164,19 @@ describe('execute() a query with plural @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderers: [
             {
-              __typename: 'MarkdownUserNameRenderer',
               __module_component_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
                 'MarkdownUserNameRenderer.react',
               __module_operation_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
                 'RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-              markdown: 'markdown payload',
+              __typename: 'MarkdownUserNameRenderer',
               data: {
                 markup: '<markup/>',
               },
+              markdown: 'markdown payload',
             },
           ],
         },
@@ -200,16 +200,13 @@ describe('execute() a query with plural @match', () => {
       node: {
         nameRenderers: [
           {
-            __id: 'client:1:nameRenderers(supported:"34hjiS"):0',
-
+            __fragmentOwner: operation.request,
             __fragmentPropName: 'name',
-
             __fragments: {
               RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name:
                 {},
             },
-
-            __fragmentOwner: operation.request,
+            __id: 'client:1:nameRenderers(supported:"34hjiS"):0',
             __module_component: 'MarkdownUserNameRenderer.react',
           },
         ],
@@ -219,7 +216,7 @@ describe('execute() a query with plural @match', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.nameRenderers[0],
+        (operationSnapshot.data?.node as any)?.nameRenderers[0],
       ),
     );
     const matchSnapshot = environment.lookup(matchSelector);
@@ -237,21 +234,21 @@ describe('execute() a query with plural @match', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderers: [
             {
-              __typename: 'MarkdownUserNameRenderer',
               __module_component_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
                 'MarkdownUserNameRenderer.react',
               __module_operation_RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery:
                 'RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-              markdown: 'markdown payload',
+              __typename: 'MarkdownUserNameRenderer',
               data: {
                 id: 'data-1',
                 // NOTE: should be uppercased when normalized (by MarkupHandler)
                 markup: '<markup/>',
               },
+              markdown: 'markdown payload',
             },
           ],
         },
@@ -267,7 +264,7 @@ describe('execute() a query with plural @match', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.nameRenderers[0],
+        (operationSnapshot.data?.node as any)?.nameRenderers[0],
       ),
     );
     // initial results tested above

@@ -61,11 +61,11 @@ test('it should preload entry point with queries', () => {
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
                 id: 'my-persisted-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -75,7 +75,7 @@ test('it should preload entry point with queries', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   prepareEntryPoint_DEPRECATED(
@@ -102,11 +102,11 @@ test('it should preload entry point with nested entry points', () => {
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyNestedQuery',
                 id: 'my-persisted-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyNestedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -116,7 +116,7 @@ test('it should preload entry point with nested entry points', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const entryPoint = {
     getPreloadProps(params: {id: string}) {
@@ -131,7 +131,7 @@ test('it should preload entry point with nested entry points', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   prepareEntryPoint_DEPRECATED(
@@ -160,11 +160,11 @@ test('it should preload entry point with both queries and nested entry points', 
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyNestedQuery',
                 id: 'nested-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyNestedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -174,28 +174,11 @@ test('it should preload entry point with both queries and nested entry points', 
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const entryPoint = {
     getPreloadProps(params: {id: string}) {
       return {
-        queries: {
-          myTestQuery: {
-            parameters: {
-              kind: 'PreloadableConcreteRequest',
-              params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
-                id: 'root-query-id',
-                text: null,
-                metadata: {},
-              },
-            },
-            variables: {
-              id: params.id,
-            },
-          },
-        },
         entryPoints: {
           myNestedEntryPoint: {
             entryPoint: nestedEntryPoint,
@@ -204,9 +187,26 @@ test('it should preload entry point with both queries and nested entry points', 
             },
           },
         },
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                id: 'root-query-id',
+                metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
   prepareEntryPoint_DEPRECATED(
@@ -238,11 +238,11 @@ test('with `getEnvironment` function', () => {
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
                 id: 'root-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -252,7 +252,7 @@ test('with `getEnvironment` function', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const getEnvironment = jest.fn(() => env);
   // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file

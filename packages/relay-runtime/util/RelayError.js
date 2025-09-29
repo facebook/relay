@@ -26,7 +26,7 @@ function createError(
   );
   const err = new Error(message);
   // $FlowFixMe[unsafe-object-assign]
-  const error = Object.assign((err: any), {
+  const error = Object.assign(err as any, {
     name,
     messageFormat,
     messageParams,

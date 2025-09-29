@@ -98,7 +98,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         this._resolverContext,
       );
       const nextData = recycleNodesInto(snapshot.data, backup.data);
-      (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
+      (backup as $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
       subscription.backup = backup;
     });
   }
@@ -115,12 +115,12 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         }
         subscription.snapshot = {
           data: subscription.snapshot.data,
+          fieldErrors: backup.fieldErrors,
           isMissingData: backup.isMissingData,
           missingClientEdges: backup.missingClientEdges,
           missingLiveResolverFields: backup.missingLiveResolverFields,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
-          fieldErrors: backup.fieldErrors,
         };
       } else {
         // This subscription was created during the optimisitic state. We should
@@ -183,15 +183,15 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           )
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
-    nextSnapshot = ({
+    nextSnapshot = {
       data: nextData,
+      fieldErrors: nextSnapshot.fieldErrors,
       isMissingData: nextSnapshot.isMissingData,
       missingClientEdges: nextSnapshot.missingClientEdges,
       missingLiveResolverFields: nextSnapshot.missingLiveResolverFields,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
-      fieldErrors: nextSnapshot.fieldErrors,
-    }: Snapshot);
+    } as Snapshot;
     if (__DEV__) {
       deepFreeze(nextSnapshot);
     }
@@ -201,9 +201,9 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       if (this.__log && RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION) {
         this.__log({
           name: 'store.notify.subscription',
-          sourceOperation,
-          snapshot,
           nextSnapshot,
+          snapshot,
+          sourceOperation,
         });
       }
       callback(nextSnapshot);

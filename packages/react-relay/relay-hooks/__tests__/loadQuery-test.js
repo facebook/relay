@@ -56,8 +56,8 @@ describe('loadQuery', () => {
 
   // Only queries with an ID are preloadable
   const ID = '12345';
-  (query.params: $FlowFixMe).id = ID;
-  (query.params: $FlowFixMe).cacheID = ID;
+  (query.params as $FlowFixMe).id = ID;
+  (query.params as $FlowFixMe).cacheID = ID;
 
   const preloadableConcreteRequest: PreloadableConcreteRequest<loadQueryTestQuery> =
     {
@@ -140,8 +140,8 @@ describe('loadQuery', () => {
     jest.useFakeTimers();
     resolvedModule = query;
     mockAvailability = {
-      status: 'available',
       fetchTime: Date.now(),
+      status: 'available',
     };
 
     jest
@@ -260,9 +260,9 @@ describe('loadQuery', () => {
               expect.objectContaining({
                 operation: expect.objectContaining({
                   request: expect.objectContaining({
-                    identifier: expect.stringContaining(ID),
-                    variables: variables,
                     cacheConfig: {force: true},
+                    identifier: expect.stringContaining(ID),
+                    variables,
                   }),
                 }),
               }),
@@ -313,9 +313,9 @@ describe('loadQuery', () => {
               expect.objectContaining({
                 operation: expect.objectContaining({
                   request: expect.objectContaining({
-                    identifier: expect.stringContaining(ID),
-                    variables: variables,
                     cacheConfig: {force: true},
+                    identifier: expect.stringContaining(ID),
+                    variables,
                   }),
                 }),
               }),
@@ -486,9 +486,9 @@ describe('loadQuery', () => {
           expect.objectContaining({
             operation: expect.objectContaining({
               request: expect.objectContaining({
-                identifier: expect.stringContaining(ID),
-                variables: variables,
                 cacheConfig: {force: true},
+                identifier: expect.stringContaining(ID),
+                variables,
               }),
             }),
           }),
@@ -540,9 +540,9 @@ describe('loadQuery', () => {
           expect.objectContaining({
             operation: expect.objectContaining({
               request: expect.objectContaining({
-                identifier: expect.stringContaining(ID),
-                variables: variables,
                 cacheConfig: {force: true},
+                identifier: expect.stringContaining(ID),
+                variables,
               }),
             }),
           }),
@@ -620,9 +620,9 @@ describe('loadQuery', () => {
           expect.objectContaining({
             operation: expect.objectContaining({
               request: expect.objectContaining({
-                identifier: expect.stringContaining(ID),
-                variables: variables,
                 cacheConfig: {force: true},
+                identifier: expect.stringContaining(ID),
+                variables,
               }),
             }),
           }),
@@ -725,9 +725,9 @@ describe('loadQuery', () => {
             expect.objectContaining({
               operation: expect.objectContaining({
                 request: expect.objectContaining({
-                  identifier: expect.stringContaining(ID),
-                  variables: variables,
                   cacheConfig: {force: true},
+                  identifier: expect.stringContaining(ID),
+                  variables,
                 }),
               }),
             }),
@@ -766,9 +766,9 @@ describe('loadQuery', () => {
             expect.objectContaining({
               operation: expect.objectContaining({
                 request: expect.objectContaining({
-                  identifier: expect.stringContaining(ID),
-                  variables: variables,
                   cacheConfig: {force: true},
+                  identifier: expect.stringContaining(ID),
+                  variables,
                 }),
               }),
             }),
@@ -830,9 +830,9 @@ describe('loadQuery', () => {
           expect.objectContaining({
             operation: expect.objectContaining({
               request: expect.objectContaining({
-                identifier: expect.stringContaining(ID),
-                variables: variables,
                 cacheConfig: {force: true},
+                identifier: expect.stringContaining(ID),
+                variables,
               }),
             }),
           }),

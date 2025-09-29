@@ -42,9 +42,9 @@ type OtherProps = MyComponentProps['props'];
 opaque type __SUBTYPE_CHECK_1__: OtherProps = MyComponentEntryPointProps;
 opaque type __SUBTYPE_CHECK_2__: MyComponentEntryPointProps = OtherProps;
 
-({foo: ''}: OtherProps);
+({foo: ''}) as OtherProps;
 
-({foo: ''}: MyComponentEntryPointProps);
+({foo: ''}) as MyComponentEntryPointProps;
 
 // $FlowExpectedError[incompatible-type]
-({foo: null}: MyComponentEntryPointProps);
+({foo: null}) as MyComponentEntryPointProps;

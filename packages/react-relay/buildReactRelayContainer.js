@@ -86,7 +86,7 @@ function buildReactRelayContainer<TBase: component(...empty)>(
 
   if (__DEV__) {
     // Used by RelayModernTestUtils
-    (ForwardContainer: any).__ComponentClass = ComponentClass;
+    (ForwardContainer as any).__ComponentClass = ComponentClass;
     ForwardContainer.displayName = containerName;
   }
 

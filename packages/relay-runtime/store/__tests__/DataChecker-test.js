@@ -75,23 +75,23 @@ describe('check()', () => {
     sampleData = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
         firstName: 'Alice',
         'friends(first:3)': {__ref: 'client:1'},
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:4'},
       },
       '2': {
         __id: '2',
         __typename: 'User',
-        id: '2',
         firstName: 'Bob',
+        id: '2',
       },
       '3': {
         __id: '3',
         __typename: 'User',
-        id: '3',
         firstName: 'Claire',
+        id: '3',
       },
       'client:1': {
         __id: 'client:1',
@@ -169,8 +169,8 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
@@ -179,17 +179,17 @@ describe('check()', () => {
     const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
         firstName: 'Alice',
         'friends(first:1)': {__ref: 'client:1'},
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:3'},
       },
       '2': {
         __id: '2',
         __typename: 'User',
-        id: '2',
         firstName: 'Bob',
+        id: '2',
       },
       'client:1': {
         __id: 'client:1',
@@ -235,7 +235,7 @@ describe('check()', () => {
       () => source,
       () => target,
       INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-      createNormalizationSelector((BarFragment: $FlowFixMe), '1', {
+      createNormalizationSelector(BarFragment as $FlowFixMe, '1', {
         size: 32,
       }),
       [],
@@ -243,8 +243,8 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
@@ -254,11 +254,11 @@ describe('check()', () => {
     const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
         // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -284,14 +284,14 @@ describe('check()', () => {
       () => source,
       () => target,
       INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
+      createNormalizationSelector(Fragment as $FlowFixMe, '1', {}),
       [],
       null,
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
@@ -300,8 +300,8 @@ describe('check()', () => {
     const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
         // missing [handleKey] field
       },
@@ -329,14 +329,14 @@ describe('check()', () => {
       () => source,
       () => target,
       INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
+      createNormalizationSelector(Fragment as $FlowFixMe, '1', {}),
       [],
       null,
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
@@ -346,11 +346,11 @@ describe('check()', () => {
     const data: RecordSourceJSON = {
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
         // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -376,14 +376,14 @@ describe('check()', () => {
       () => source,
       () => target,
       INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-      createNormalizationSelector((Fragment: $FlowFixMe), '1', {}),
+      createNormalizationSelector(Fragment as $FlowFixMe, '1', {}),
       [],
       null,
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
@@ -391,18 +391,13 @@ describe('check()', () => {
   it('reads handle fields in operation', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data: RecordSourceJSON = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
         // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -413,6 +408,11 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         uri: 'https://...',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -443,23 +443,18 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads handle fields in operation and checks missing', () => {
     const data: RecordSourceJSON = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
         // missing [handleKey] field
       },
@@ -472,6 +467,11 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         uri: 'https://...',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -501,8 +501,8 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
@@ -510,18 +510,13 @@ describe('check()', () => {
   it('reads handle fields in operation and checks missing sub field', () => {
     const handleKey = getRelayHandleKey('test', null, 'profilePicture');
     const data: RecordSourceJSON = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
-        'profilePicture(size:32)': {__ref: 'client:1'},
         // $FlowFixMe[invalid-computed-prop]
         [handleKey]: {__ref: 'client:3'},
+        id: '1',
+        'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
@@ -532,6 +527,11 @@ describe('check()', () => {
         __id: 'client:2',
         __typename: 'Photo',
         // uri field is missing
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -561,8 +561,8 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
@@ -570,23 +570,23 @@ describe('check()', () => {
   it('reads scalar handle fields in operation and checks presence', () => {
     const handleKey = getRelayHandleKey('test', null, 'uri');
     const data: RecordSourceJSON = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
         __id: 'client:2',
         __typename: 'Photo',
-        uri: 'https://...',
         // $FlowFixMe[invalid-computed-prop]
         [handleKey]: 'https://...',
+        uri: 'https://...',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -616,23 +616,18 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'available',
       mostRecentlyInvalidatedAt: null,
+      status: 'available',
     });
     expect(target.size()).toBe(0);
   });
 
   it('reads scalar handle fields in operation and checks missing', () => {
     const data: RecordSourceJSON = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profilePicture(size:32)': {__ref: 'client:1'},
       },
       'client:1': {
@@ -640,6 +635,11 @@ describe('check()', () => {
         __typename: 'Photo',
         uri: 'https://...',
         // [handleKey] field is missing
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -670,8 +670,8 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
@@ -718,8 +718,8 @@ describe('check()', () => {
         }
       `;
       const nodes = {
-        DataCheckerTestPlainUserNameRenderer_nameFragment,
         DataCheckerTestMarkdownUserNameRenderer_nameFragment,
+        DataCheckerTestPlainUserNameRenderer_nameFragment,
       };
 
       loader = {
@@ -739,21 +739,21 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           'nameRenderer(supported:"34hjiS")': {
             __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
         'client:1:nameRenderer(supported:"34hjiS")': {
           __id: 'client:1:nameRenderer(supported:"34hjiS")',
-          __typename: 'PlainUserNameRenderer',
           __module_component_DataCheckerTest4Fragment:
             'PlainUserNameRenderer.react',
           __module_operation_DataCheckerTest4Fragment:
             'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
-          plaintext: 'plain name',
+          __typename: 'PlainUserNameRenderer',
           data: {__ref: 'data'},
+          plaintext: 'plain name',
         },
         'client:root': {
           __id: 'client:root',
@@ -789,8 +789,8 @@ describe('check()', () => {
         'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -800,21 +800,21 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           'nameRenderer(supported:"34hjiS")': {
             __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
         },
         'client:1:nameRenderer(supported:"34hjiS")': {
           __id: 'client:1:nameRenderer(supported:"34hjiS")',
-          __typename: 'MarkdownUserNameRenderer',
           __module_component_DataCheckerTest4Fragment:
             'MarkdownUserNameRenderer.react',
           __module_operation_DataCheckerTest4Fragment:
             'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
-          markdown: 'markdown payload',
+          __typename: 'MarkdownUserNameRenderer',
           data: {__ref: 'data'},
+          markdown: 'markdown payload',
         },
         'client:root': {
           __id: 'client:root',
@@ -846,8 +846,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -859,8 +859,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           'nameRenderer(supported:"34hjiS")': {
             __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
@@ -899,8 +899,8 @@ describe('check()', () => {
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -910,8 +910,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           'nameRenderer(supported:"34hjiS")': {
             __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
@@ -953,8 +953,8 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -964,8 +964,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           'nameRenderer(supported:"34hjiS")': {
             __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
@@ -1001,8 +1001,8 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1011,8 +1011,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           'nameRenderer(supported:"34hjiS")': {
             __ref: 'client:1:nameRenderer(supported:"34hjiS")',
           },
@@ -1046,8 +1046,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1056,8 +1056,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           'nameRenderer(supported:"34hjiS")': null,
         },
         'client:root': {
@@ -1084,8 +1084,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1094,8 +1094,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
         },
         'client:root': {
           __id: 'client:root',
@@ -1121,8 +1121,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1170,8 +1170,8 @@ describe('check()', () => {
         }
       `;
       const nodes = {
-        DataCheckerTest5PlainUserNameRenderer_name,
         DataCheckerTest5MarkdownUserNameRenderer_name,
+        DataCheckerTest5PlainUserNameRenderer_name,
       };
 
       loader = {
@@ -1191,21 +1191,21 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
         },
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
-          __typename: 'PlainUserNameRenderer',
           __module_component_DataCheckerTest5Fragment:
             'PlainUserNameRenderer.react',
           __module_operation_DataCheckerTest5Fragment:
             'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
-          plaintext: 'plain name',
+          __typename: 'PlainUserNameRenderer',
           data: {__ref: 'data'},
+          plaintext: 'plain name',
         },
         'client:root': {
           __id: 'client:root',
@@ -1241,8 +1241,8 @@ describe('check()', () => {
         'DataCheckerTest5PlainUserNameRenderer_name$normalization.graphql',
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1252,21 +1252,21 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
         },
         'client:1:nameRenderer': {
           __id: 'client:1:nameRenderer',
-          __typename: 'MarkdownUserNameRenderer',
           __module_component_DataCheckerTest5Fragment:
             'MarkdownUserNameRenderer.react',
           __module_operation_DataCheckerTest5Fragment:
             'DataCheckerTest5MarkdownUserNameRenderer_name$normalization.graphql',
-          markdown: 'markdown payload',
+          __typename: 'MarkdownUserNameRenderer',
           data: {__ref: 'data'},
+          markdown: 'markdown payload',
         },
         'client:root': {
           __id: 'client:root',
@@ -1298,8 +1298,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1311,8 +1311,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1351,8 +1351,8 @@ describe('check()', () => {
       );
       // The data for the field isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1362,8 +1362,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1405,8 +1405,8 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1416,8 +1416,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1453,8 +1453,8 @@ describe('check()', () => {
       );
       // The data for the field 'data' isn't in the store yet, so we have to return false
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1463,8 +1463,8 @@ describe('check()', () => {
       const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
             __ref: 'client:1:nameRenderer',
           },
@@ -1498,8 +1498,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1555,8 +1555,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1591,8 +1591,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1622,8 +1622,8 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Feedback',
-          id: '1',
           actors: {__refs: ['2']},
+          id: '1',
         },
         '2': {
           __id: '2',
@@ -1653,8 +1653,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1664,8 +1664,8 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Feedback',
-          id: '1',
           actors: {__refs: ['2']},
+          id: '1',
         },
         '2': {
           __id: '2',
@@ -1695,8 +1695,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1719,8 +1719,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -1731,9 +1731,9 @@ describe('check()', () => {
       const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
         // missing profilePicture record
@@ -1754,14 +1754,14 @@ describe('check()', () => {
         () => source,
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1770,9 +1770,9 @@ describe('check()', () => {
       const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
         'client:3': {
@@ -1796,14 +1796,14 @@ describe('check()', () => {
         () => source,
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -1812,9 +1812,9 @@ describe('check()', () => {
       const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
         'client:3': {
@@ -1839,21 +1839,21 @@ describe('check()', () => {
         () => source,
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [
           {
-            kind: 'scalar',
             handle: (field, record, argValues) => {
               return 'thebestimage.uri';
             },
+            kind: 'scalar',
           },
         ],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.toJSON()).toEqual({
         'client:3': {
@@ -1868,46 +1868,46 @@ describe('check()', () => {
       [
         'undefined',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: undefined,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
       [
         'null',
         {
-          handleReturnValue: null,
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: null,
           updatedHometown: null,
         },
       ],
       [
         "'hometown-exists'",
         {
-          handleReturnValue: 'hometown-exists',
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: 'hometown-exists',
           updatedHometown: 'hometown-exists',
         },
       ],
       [
         "'hometown-deleted'",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: 'hometown-deleted',
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
       [
         "'hometown-unknown'",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: 'hometown-unknown',
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedHometown: undefined,
         },
       ],
@@ -1915,19 +1915,19 @@ describe('check()', () => {
       'linked field handler handler that returns %s',
       (_name, {handleReturnValue, expectedStatus, updatedHometown}) => {
         const data: RecordSourceJSON = {
-          user1: {
-            __id: 'user1',
-            id: 'user1',
-            __typename: 'User',
-            firstName: 'Alice',
-            // hometown: missing
-          },
+          'hometown-deleted': null,
           'hometown-exists': {
             __id: 'hometown',
             __typename: 'Page',
             name: 'New York City',
           },
-          'hometown-deleted': null,
+          user1: {
+            __id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            id: 'user1',
+            // hometown: missing
+          },
         };
         const source = RelayRecordSource.create(data);
         const target = RelayRecordSource.create();
@@ -1951,12 +1951,12 @@ describe('check()', () => {
           () => source,
           () => target,
           INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-          createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
+          createNormalizationSelector(UserFragment as $FlowFixMe, 'user1', {}),
           [
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             {
-              kind: 'linked',
               handle,
+              kind: 'linked',
             },
           ],
           null,
@@ -1992,81 +1992,81 @@ describe('check()', () => {
       [
         'undefined',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: undefined,
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         'null',
         {
-          handleReturnValue: null,
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: null,
           updatedScreennames: null,
         },
       ],
       [
         '[]',
         {
-          handleReturnValue: [],
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: [],
           updatedScreennames: [],
         },
       ],
       [
         '[undefined]',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: [undefined],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         '[null]',
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: [null],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         "['screenname-exists']",
         {
-          handleReturnValue: ['screenname-exists'],
           expectedStatus: {
-            status: 'available',
             mostRecentlyInvalidatedAt: null,
+            status: 'available',
           },
+          handleReturnValue: ['screenname-exists'],
           updatedScreennames: ['screenname-exists'],
         },
       ],
       [
         "['screenname-deleted']",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: ['screenname-deleted'],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         "['screenname-unknown']",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: ['screenname-unknown'],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
       [
         "['screenname-exists', 'screenname-unknown']",
         {
+          expectedStatus: {mostRecentlyInvalidatedAt: null, status: 'missing'},
           handleReturnValue: ['screenname-exists', 'screenname-unknown'],
-          expectedStatus: {status: 'missing', mostRecentlyInvalidatedAt: null},
           updatedScreennames: undefined,
         },
       ],
@@ -2074,19 +2074,19 @@ describe('check()', () => {
       'plural linked field handler handler that returns %s',
       (_name, {handleReturnValue, expectedStatus, updatedScreennames}) => {
         const data: RecordSourceJSON = {
-          user1: {
-            __id: 'user1',
-            id: 'user1',
-            __typename: 'User',
-            firstName: 'Alice',
-            // screennames: missing
-          },
+          'screenname-deleted': null,
           'screenname-exists': {
             __id: 'screenname-exists',
             __typename: 'Screenname',
             name: 'Bert',
           },
-          'screenname-deleted': null,
+          user1: {
+            __id: 'user1',
+            __typename: 'User',
+            firstName: 'Alice',
+            id: 'user1',
+            // screennames: missing
+          },
         };
         const source = RelayRecordSource.create(data);
         const target = RelayRecordSource.create();
@@ -2110,13 +2110,13 @@ describe('check()', () => {
           () => source,
           () => target,
           INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-          createNormalizationSelector((UserFragment: $FlowFixMe), 'user1', {}),
+          createNormalizationSelector(UserFragment as $FlowFixMe, 'user1', {}),
           [
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             // $FlowFixMe[incompatible-type]
             {
-              kind: 'pluralLinked',
               handle,
+              kind: 'pluralLinked',
             },
           ],
           null,
@@ -2152,13 +2152,13 @@ describe('check()', () => {
       const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
+          id: '1',
         },
         profile_1_32: {
           __id: 'profile_1_32',
-          id: 'profile_1_32',
           __typename: 'Profile',
+          id: 'profile_1_32',
           uri: 'thebestimage.uri',
         },
       };
@@ -2178,10 +2178,9 @@ describe('check()', () => {
         () => source,
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [
           {
-            kind: 'scalar',
             handle: (field, record, argValues) => {
               if (
                 record &&
@@ -2191,9 +2190,9 @@ describe('check()', () => {
                 return 'Alice';
               }
             },
+            kind: 'scalar',
           },
           {
-            kind: 'linked',
             handle: (field, record, argValues) => {
               const id = record?.getDataID();
               if (
@@ -2204,14 +2203,15 @@ describe('check()', () => {
                 return `profile_${id}_${argValues.size}`;
               }
             },
+            kind: 'linked',
           },
         ],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.toJSON()).toEqual({
         '1': {
@@ -2227,9 +2227,9 @@ describe('check()', () => {
       const data: RecordSourceJSON = {
         '1': {
           __id: '1',
-          id: '1',
           __typename: 'User',
           firstName: 'Alice',
+          id: '1',
           'profilePicture(size:32)': {__ref: 'client:3'},
         },
       };
@@ -2276,14 +2276,14 @@ describe('check()', () => {
         () => source,
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-        createNormalizationSelector((BarFragment: $FlowFixMe), '1', {size: 32}),
+        createNormalizationSelector(BarFragment as $FlowFixMe, '1', {size: 32}),
         [],
         null,
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -2322,8 +2322,8 @@ describe('check()', () => {
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
         expect(status).toEqual({
-          status: 'available',
           mostRecentlyInvalidatedAt: 1,
+          status: 'available',
         });
         expect(target.size()).toBe(0);
       });
@@ -2359,8 +2359,8 @@ describe('check()', () => {
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
         expect(status).toEqual({
-          status: 'available',
           mostRecentlyInvalidatedAt: 1,
+          status: 'available',
         });
         expect(target.size()).toBe(0);
 
@@ -2388,8 +2388,8 @@ describe('check()', () => {
 
         // Assert mostRecentlyInvalidatedAt matches most recent invalidation epoch
         expect(nextStatus).toEqual({
-          status: 'available',
           mostRecentlyInvalidatedAt: 2,
+          status: 'available',
         });
         expect(target.size()).toBe(0);
       });
@@ -2439,8 +2439,8 @@ describe('check()', () => {
 
         // Assert result is missing
         expect(status).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: 1,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
       });
@@ -2476,8 +2476,8 @@ describe('check()', () => {
 
         // Assert that result is missing
         expect(status).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: 1,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
 
@@ -2505,8 +2505,8 @@ describe('check()', () => {
 
         // Assert that result is still missing
         expect(nextStatus).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: 2,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
       });
@@ -2517,10 +2517,10 @@ describe('check()', () => {
           // Root record is missing, so none of the descendants are reachable
           '1': {
             __id: '1',
-            id: '1',
             __typename: 'User',
             firstName: 'Alice',
             'friends(first:3)': {__ref: 'client:1'},
+            id: '1',
             'profilePicture(size:32)': {__ref: 'client:4'},
           },
           'client:1': {
@@ -2567,8 +2567,8 @@ describe('check()', () => {
 
         // Assert that result is missing
         expect(status).toEqual({
-          status: 'missing',
           mostRecentlyInvalidatedAt: null,
+          status: 'missing',
         });
         expect(target.size()).toBe(0);
       });
@@ -2592,16 +2592,16 @@ describe('check()', () => {
     `;
 
     const data: RecordSourceJSON = {
-      'client:root': {
-        __id: 'client:root',
-        __typename: 'Query',
-        maybeNodeInterface: {__ref: '1'},
-      },
       '1': {
         __id: '1',
         __typename: 'User',
         name: 'Alice',
         // no `id` value
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: 'Query',
+        maybeNodeInterface: {__ref: '1'},
       },
     };
     const source = RelayRecordSource.create(data);
@@ -2611,7 +2611,7 @@ describe('check()', () => {
       () => target,
       INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       createNormalizationSelector(
-        (TestFragment: $FlowFixMe),
+        TestFragment as $FlowFixMe,
         'client:root',
         {},
       ),
@@ -2620,8 +2620,8 @@ describe('check()', () => {
       defaultGetDataID,
     );
     expect(status).toEqual({
-      status: 'missing',
       mostRecentlyInvalidatedAt: null,
+      status: 'missing',
     });
     expect(target.size()).toBe(0);
   });
@@ -2644,22 +2644,22 @@ describe('check()', () => {
 
       const typeID = generateTypeID('User');
       const data: RecordSourceJSON = {
-        'client:root': {
-          __id: 'client:root',
-          __typename: 'Query',
-          maybeNodeInterface: {__ref: '1'},
-        },
         '1': {
           __id: '1',
           __typename: 'User',
           name: 'Alice',
           // no `id` value
         },
+        'client:root': {
+          __id: 'client:root',
+          __typename: 'Query',
+          maybeNodeInterface: {__ref: '1'},
+        },
         // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
-          __typename: TYPE_SCHEMA_TYPE,
           __isNode: true,
+          __typename: TYPE_SCHEMA_TYPE,
         },
       };
       const source = RelayRecordSource.create(data);
@@ -2669,7 +2669,7 @@ describe('check()', () => {
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
-          (TestFragment: $FlowFixMe),
+          TestFragment as $FlowFixMe,
           'client:root',
           {},
         ),
@@ -2678,8 +2678,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -2700,16 +2700,16 @@ describe('check()', () => {
 
       const typeID = generateTypeID('User');
       const data: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+        },
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
           maybeNodeInterface: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          __typename: 'User',
-          name: 'Alice',
-          id: '1',
         },
         // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
@@ -2725,7 +2725,7 @@ describe('check()', () => {
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
-          (TestFragment: $FlowFixMe),
+          TestFragment as $FlowFixMe,
           'client:root',
           {},
         ),
@@ -2734,8 +2734,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -2757,22 +2757,22 @@ describe('check()', () => {
 
       const typeID = generateTypeID('NonNodeNoID');
       const data: RecordSourceJSON = {
-        'client:root': {
-          __id: 'client:root',
-          __typename: 'Query',
-          maybeNodeInterface: {__ref: '1'},
-        },
         '1': {
           __id: '1',
           __typename: 'NonNodeNoID',
           // no 'id' bc not a Node
           name: 'Not a Node!',
         },
+        'client:root': {
+          __id: 'client:root',
+          __typename: 'Query',
+          maybeNodeInterface: {__ref: '1'},
+        },
         // $FlowFixMe[invalid-computed-prop]
         [typeID]: {
           __id: typeID,
-          __typename: TYPE_SCHEMA_TYPE,
           __isNode: false,
+          __typename: TYPE_SCHEMA_TYPE,
         },
       };
       const source = RelayRecordSource.create(data);
@@ -2782,7 +2782,7 @@ describe('check()', () => {
         () => target,
         INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         createNormalizationSelector(
-          (TestFragment: $FlowFixMe),
+          TestFragment as $FlowFixMe,
           'client:root',
           {},
         ),
@@ -2791,8 +2791,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
@@ -2825,6 +2825,11 @@ describe('check()', () => {
 
     it('should be able to handle multi-actor stores', () => {
       const data: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'FeedUnit',
+          id: 1,
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2845,12 +2850,7 @@ describe('check()', () => {
         'client:root:viewer:newsFeed:edges:0': {
           __id: 'client:root:viewer:newsFeed:edges:0',
           __typename: 'NewsFeedEdge',
-          node: {__ref: '1', __actorIdentifier: 'actor:1234'},
-        },
-        '1': {
-          __id: '1',
-          __typename: 'FeedUnit',
-          id: 1,
+          node: {__actorIdentifier: 'actor:1234', __ref: '1'},
         },
       };
       const source = RelayRecordSource.create(data);
@@ -2863,8 +2863,8 @@ describe('check()', () => {
               '1': {
                 __id: '1',
                 __typename: 'FeedUnit',
-                id: 1,
                 actor_key: 'actor:1234',
+                id: 1,
                 message: {__ref: '1:message'},
               },
               '1:message': {
@@ -2875,8 +2875,8 @@ describe('check()', () => {
               // $FlowFixMe[invalid-computed-prop]
               [typeID]: {
                 __id: typeID,
-                __typename: TYPE_SCHEMA_TYPE,
                 __isFeedUnit: true,
+                __typename: TYPE_SCHEMA_TYPE,
               },
             });
           }
@@ -2895,14 +2895,19 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'available',
         mostRecentlyInvalidatedAt: null,
+        status: 'available',
       });
       expect(target.size()).toBe(0);
     });
 
     it('should report missing data in multi-actor stores', () => {
       const data: RecordSourceJSON = {
+        '1': {
+          __id: '1',
+          __typename: 'FeedUnit',
+          id: 1,
+        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2923,12 +2928,7 @@ describe('check()', () => {
         'client:root:viewer:newsFeed:edges:0': {
           __id: 'client:root:viewer:newsFeed:edges:0',
           __typename: 'NewsFeedEdge',
-          node: {__ref: '1', __actorIdentifier: 'actor:1234'},
-        },
-        '1': {
-          __id: '1',
-          __typename: 'FeedUnit',
-          id: 1,
+          node: {__actorIdentifier: 'actor:1234', __ref: '1'},
         },
       };
       const source = RelayRecordSource.create(data);
@@ -2940,8 +2940,8 @@ describe('check()', () => {
               '1': {
                 __id: '1',
                 __typename: 'FeedUnit',
-                id: 1,
                 actor_key: 'actor:1234',
+                id: 1,
                 message: {__ref: '1:message'},
               },
               '1:message': {
@@ -2966,8 +2966,8 @@ describe('check()', () => {
         defaultGetDataID,
       );
       expect(status).toEqual({
-        status: 'missing',
         mostRecentlyInvalidatedAt: null,
+        status: 'missing',
       });
       expect(target.size()).toBe(0);
     });
@@ -3004,13 +3004,13 @@ describe('check()', () => {
     expect(target.toJSON()).toEqual({
       'client:__type:ClientTypeImplementingClientInterface': {
         __id: 'client:__type:ClientTypeImplementingClientInterface',
-        __typename: '__TypeSchema',
         __isClientInterface: true,
+        __typename: '__TypeSchema',
       },
       'client:__type:OtherClientTypeImplementingClientInterface': {
         __id: 'client:__type:OtherClientTypeImplementingClientInterface',
-        __typename: '__TypeSchema',
         __isClientInterface: true,
+        __typename: '__TypeSchema',
       },
     });
   });
@@ -3029,20 +3029,20 @@ describe('check()', () => {
       }
     `;
     const source = RelayRecordSource.create({
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __isClientInterface: true,
+        __typename: '__TypeSchema',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         client_interface: {__ref: 'object-1'},
-      },
-      'client:__type:ClientTypeImplementingClientInterface': {
-        __id: 'client:__type:ClientTypeImplementingClientInterface',
-        __typename: '__TypeSchema',
-        __isClientInterface: true,
-      },
-      'client:__type:OtherClientTypeImplementingClientInterface': {
-        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
-        __typename: '__TypeSchema',
-        __isClientInterface: true,
       },
       'object-1': {
         __id: 'object-1',
@@ -3085,24 +3085,24 @@ describe('check()', () => {
 
       it('should return available when all data is available', () => {
         const source = RelayRecordSource.create({
-          'client:root': {
-            __id: 'client:root',
-            __typename: '__Root',
-            RelayReaderExecResolversTest_user_one: {__ref: '1'},
-          },
           '1': {
             __id: '1',
-            name: 'Alice',
             best_friend: {__ref: '2'},
+            name: 'Alice',
           },
           '2': {
             __id: '2',
-            name: 'Bob',
             best_fried: {__ref: '3'},
+            name: 'Bob',
           },
           '3': {
             __id: '3',
             name: 'Zuck',
+          },
+          'client:root': {
+            __id: 'client:root',
+            __typename: '__Root',
+            RelayReaderExecResolversTest_user_one: {__ref: '1'},
           },
         });
         const target = RelayRecordSource.create();
@@ -3120,20 +3120,20 @@ describe('check()', () => {
 
       it('should return available when only client data is missing', () => {
         const source = RelayRecordSource.create({
+          '1': {
+            __id: '1',
+            best_friend: {__ref: '2'},
+            name: 'Alice',
+          },
+          '2': {
+            __id: '2',
+            best_fried: undefined,
+            name: 'Bob',
+          },
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
             RelayReaderExecResolversTest_user_one: {__ref: '1'},
-          },
-          '1': {
-            __id: '1',
-            name: 'Alice',
-            best_friend: {__ref: '2'},
-          },
-          '2': {
-            __id: '2',
-            name: 'Bob',
-            best_fried: undefined,
           },
         });
         const target = RelayRecordSource.create();
@@ -3169,16 +3169,16 @@ describe('check()', () => {
       `;
       it('should return available when server data is available', () => {
         const source = RelayRecordSource.create({
+          '0': {
+            __id: '0',
+            id: '0',
+            name: 'Zuck',
+          },
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
             RelayReaderExecResolversTest_user_one: undefined,
             me: {__ref: '0'},
-          },
-          '0': {
-            __id: '0',
-            id: '0',
-            name: 'Zuck',
           },
         });
         const target = RelayRecordSource.create();
@@ -3196,16 +3196,16 @@ describe('check()', () => {
 
       it('should return missing when server data is missing', () => {
         const source = RelayRecordSource.create({
+          '0': {
+            __id: '0',
+            id: '0',
+            name: undefined,
+          },
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
             RelayReaderExecResolversTest_user_one: undefined,
             me: {__ref: '0'},
-          },
-          '0': {
-            __id: '0',
-            id: '0',
-            name: undefined,
           },
         });
         const target = RelayRecordSource.create();

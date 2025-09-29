@@ -49,7 +49,7 @@ function createUpdatableProxy<TData: {...}>(
   // unless ReaderSelection carries more type information, we will never be able
   // to flowtype mutableUpdatableProxy without a type assertion.
   // $FlowFixMe[unclear-type]
-  return ((mutableUpdatableProxy: any): TData);
+  return mutableUpdatableProxy as any as TData;
 }
 
 function updateProxyFromSelections<TData>(
@@ -108,7 +108,7 @@ function updateProxyFromSelections<TData>(
       case 'ScalarField':
         const scalarFieldName = selection.alias ?? selection.name;
         Object.defineProperty(mutableUpdatableProxy, scalarFieldName, {
-          get: function () {
+          get() {
             const newVariables = getArgumentValues(
               selection.args ?? [],
               variables,
@@ -191,7 +191,7 @@ function updateProxyFromSelections<TData>(
           'Encountered an unexpected ReaderSelection variant in RelayRecordSourceProxy. This indicates a bug in Relay.',
         );
       default:
-        (selection.kind: empty);
+        selection.kind as empty;
         throw new Error(
           'Encountered an unexpected ReaderSelection variant in RelayRecordSourceProxy. This indicates a bug in Relay.',
         );
@@ -296,7 +296,7 @@ function createGetterForPluralLinkedField(
     }
 
     if (linkedRecords != null) {
-      return (linkedRecords.map(linkedRecord => {
+      return linkedRecords.map(linkedRecord => {
         if (linkedRecord != null) {
           const updatableProxy = {};
           updateProxyFromSelections(
@@ -318,7 +318,7 @@ function createGetterForPluralLinkedField(
           return linkedRecord;
         }
         // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-      }): any);
+      }) as any;
     } else {
       return linkedRecords;
     }
@@ -364,7 +364,7 @@ function createGetterForSingularLinkedField(
       // Flow incorrect assumes that the return value for the get method must match
       // the set parameter.
       // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-      return (updatableProxy: any);
+      return updatableProxy as any;
     } else {
       return linkedRecord;
     }

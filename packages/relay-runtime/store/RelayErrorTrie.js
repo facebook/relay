@@ -165,14 +165,14 @@ function getNestedErrorTrieByKey(
   return null;
 }
 
-module.exports = ({
+module.exports = {
   SELF,
   buildErrorTrie,
-  getNestedErrorTrieByKey,
   getErrorsByKey,
-}: {
+  getNestedErrorTrieByKey,
+} as {
   SELF: typeof SELF,
   buildErrorTrie: typeof buildErrorTrie,
   getNestedErrorTrieByKey: typeof getNestedErrorTrieByKey,
   getErrorsByKey: typeof getErrorsByKey,
-});
+};

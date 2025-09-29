@@ -142,6 +142,17 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
       uploadables,
     })
     .subscribe({
+      complete: () => {
+        const {onCompleted} = config;
+        if (onCompleted) {
+          const snapshot = environment.lookup(operation.fragment);
+          onCompleted(
+            snapshot.data as $FlowFixMe,
+            errors.length !== 0 ? errors : null,
+          );
+        }
+      },
+      error: onError,
       next: payload => {
         if (Array.isArray(payload)) {
           payload.forEach(item => {
@@ -156,17 +167,6 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
         }
         config.onNext?.();
       },
-      complete: () => {
-        const {onCompleted} = config;
-        if (onCompleted) {
-          const snapshot = environment.lookup(operation.fragment);
-          onCompleted(
-            (snapshot.data: $FlowFixMe),
-            errors.length !== 0 ? errors : null,
-          );
-        }
-      },
-      error: onError,
       unsubscribe: onUnsubscribe,
     });
   return {dispose: subscription.unsubscribe};

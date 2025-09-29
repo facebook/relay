@@ -64,7 +64,7 @@ beforeEach(() => {
       ),
   );
   environment = new Environment({
-    network: Network.create((fetch: $FlowFixMe)),
+    network: Network.create(fetch as $FlowFixMe),
     store,
   });
 
@@ -92,7 +92,7 @@ beforeEach(() => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  fragmentRef = (snapshot.data?.node: $FlowFixMe);
+  fragmentRef = snapshot.data?.node as $FlowFixMe;
 });
 
 it('returns false when owner is not pending', () => {
@@ -368,7 +368,7 @@ it('updates the component when a pending owner fetch with multiple payloads comp
   `;
   operation = createOperationDescriptor(query, {id: '4'});
   const snapshot = environment.lookup(operation.fragment);
-  fragmentRef = (snapshot.data?.node: $FlowFixMe);
+  fragmentRef = snapshot.data?.node as $FlowFixMe;
 
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
@@ -392,8 +392,8 @@ it('updates the component when a pending owner fetch with multiple payloads comp
     dataSource.next({
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
         },
       },
     });
@@ -402,8 +402,8 @@ it('updates the component when a pending owner fetch with multiple payloads comp
   TestRenderer.act(() => {
     dataSource.next({
       data: {
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: 'Mark',
       },
       label:

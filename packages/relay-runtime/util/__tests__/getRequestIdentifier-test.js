@@ -18,13 +18,13 @@ const getRequestIdentifier = require('../getRequestIdentifier');
 describe('getRequestIdentifier', () => {
   it('passes with `id`', () => {
     const queryIdentifier = getRequestIdentifier(
-      ({
+      {
+        id: '123',
+        metadata: {},
         name: 'FooQuery',
         operationKind: 'query',
-        metadata: {},
-        id: '123',
         text: null,
-      }: RequestParameters),
+      } as RequestParameters,
       {foo: 1},
     );
     expect(queryIdentifier).toEqual('123{"foo":1}');
@@ -32,14 +32,14 @@ describe('getRequestIdentifier', () => {
 
   it('passes with `text`', () => {
     const queryIdentifier = getRequestIdentifier(
-      ({
+      {
+        cacheID: 'test-cache-id',
+        id: null,
+        metadata: {},
         name: 'FooQuery',
         operationKind: 'query',
-        metadata: {},
-        id: null,
         text: 'query Test { __typename }',
-        cacheID: 'test-cache-id',
-      }: RequestParameters),
+      } as RequestParameters,
       {foo: 1},
     );
     expect(queryIdentifier).toEqual('test-cache-id{"foo":1}');

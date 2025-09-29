@@ -38,12 +38,12 @@ type NestedEntryPointType = EntryPoint<
   typeof NestedEntrypointComponent,
 >;
 
-const NestedEntryPoint = ({
+const NestedEntryPoint = {
   getPreloadProps({subEntrypointPreloadParam: _subEntrypointPreloadParam}) {
     return {};
   },
   root: mockJSResource(NestedEntrypointComponent),
-}: NestedEntryPointType);
+} as NestedEntryPointType;
 
 // Define the parent entrypoint's component
 
@@ -79,7 +79,7 @@ type BadParentEntrypointParams = $ReadOnly<{}>;
     };
   },
   root: mockJSResource(ParentEntrypointComponent),
-}: EntryPoint<BadParentEntrypointParams, typeof ParentEntrypointComponent>);
+}) as EntryPoint<BadParentEntrypointParams, typeof ParentEntrypointComponent>;
 
 /**
  * Create a parent entrypoint with the component with
@@ -103,4 +103,4 @@ type GoodParentEntrypointParams = $ReadOnly<{}>;
     };
   },
   root: mockJSResource(ParentEntrypointComponent),
-}: EntryPoint<GoodParentEntrypointParams, typeof ParentEntrypointComponent>);
+}) as EntryPoint<GoodParentEntrypointParams, typeof ParentEntrypointComponent>;

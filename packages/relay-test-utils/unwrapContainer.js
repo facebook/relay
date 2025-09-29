@@ -35,7 +35,7 @@ function unwrapContainer<Props: {...}>(
     'Could not find component for %s, is it a Relay container?',
     ComponentClass.displayName || ComponentClass.name,
   );
-  return (unwrapped: any);
+  return unwrapped as any;
 }
 
 module.exports = unwrapContainer;

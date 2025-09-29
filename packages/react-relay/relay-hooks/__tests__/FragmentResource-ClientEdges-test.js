@@ -67,11 +67,11 @@ describe('FragmentResource Client Edges behavior', () => {
     });
     fragmentNode = getFragment(BASIC_FRAGMENT);
     fragmentRef = {
-      __id: '1',
+      __fragmentOwner: query.request,
       __fragments: {
         FragmentResourceClientEdgesTestFragment1: {},
       },
-      __fragmentOwner: query.request,
+      __id: '1',
     };
 
     release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
@@ -113,8 +113,8 @@ describe('FragmentResource Client Edges behavior', () => {
     environment.mock.resolve(operation, {
       data: {
         node: {
-          id: '1337',
           __typename: 'User',
+          id: '1337',
           name: 'Bob',
         },
       },
@@ -149,7 +149,7 @@ describe('FragmentResource Client Edges behavior', () => {
       'componentDisplayName',
     );
     // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
-    expect((result.data: $FlowFixMe).client_edge.name).toBe('Bob');
+    expect((result.data as $FlowFixMe).client_edge.name).toBe('Bob');
     expect(environment.mock.getAllOperations().length).toBe(0);
   });
 
@@ -171,8 +171,8 @@ describe('FragmentResource Client Edges behavior', () => {
     environment.mock.resolve(operation, {
       data: {
         node: {
-          id: '1337',
           __typename: 'User',
+          id: '1337',
           name: 'Bob',
         },
       },
@@ -269,8 +269,8 @@ describe('FragmentResource Client Edges behavior', () => {
       environment.mock.resolve(operation, {
         data: {
           node: {
-            id: '1337',
             __typename: 'User',
+            id: '1337',
             name: 'Bob',
           },
         },

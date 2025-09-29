@@ -49,7 +49,7 @@ const {
   expectToWarn,
   expectWarningWillFire,
   injectPromisePolyfill__DEPRECATED,
-} = (jest.requireActual('relay-test-utils-internal'): $FlowFixMe);
+} = jest.requireActual('relay-test-utils-internal') as $FlowFixMe;
 
 injectPromisePolyfill__DEPRECATED();
 
@@ -77,11 +77,11 @@ function expectToHaveFetched(
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
-    root: expect.anything(),
     request: {
       node: query.request.node,
       variables: query.request.variables,
     },
+    root: expect.anything(),
   });
   expect(
     environment.mock.isLoading(query.request.node, query.request.variables),
@@ -145,10 +145,10 @@ beforeEach(() => {
   const Renderer = (props: Props) => {
     const _query = createOperationDescriptor(gqlQuery, props.variables);
     const data = useLazyLoadQueryNode<any>({
-      query: _query,
+      componentDisplayName: 'TestDisplayName',
       fetchObservable: __internal.fetchQuery(environment, _query),
       fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
-      componentDisplayName: 'TestDisplayName',
+      query: _query,
     });
     return renderFn(data);
   };
@@ -474,8 +474,8 @@ it('fetches and renders correctly when switching between queries', () => {
 
 it('fetches and renders correctly when re-mounting the same query (even if GC runs synchronously)', () => {
   const store = new Store(new RecordSource(), {
-    gcScheduler: run => run(),
     gcReleaseBufferSize: 0,
+    gcScheduler: run => run(),
   });
   jest.spyOn(store, 'scheduleGC');
   environment = createMockEnvironment({
@@ -577,7 +577,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
 
   ReactTestRenderer.act(() => {
     // Update `extraData` to trigger a re-render
-    setProps({variables, extraData: 1});
+    setProps({extraData: 1, variables});
   });
 
   // Nothing to release here since variables didn't change
@@ -585,7 +585,7 @@ it('disposes the temporary retain when the component is re-rendered and switches
 
   ReactTestRenderer.act(() => {
     // Update `variables` to fetch new data
-    setProps({variables: {id: '2'}, extraData: 1});
+    setProps({extraData: 1, variables: {id: '2'}});
   });
 
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -631,7 +631,7 @@ it('does not cancel ongoing network request when component unmounts while suspen
 
   // Suspend on the first query
   ReactTestRenderer.act(() => {
-    setProps({variables, fetchPolicy: 'store-or-network'});
+    setProps({fetchPolicy: 'store-or-network', variables});
   });
 
   expect(instance?.toJSON()).toEqual('Fallback');
@@ -939,8 +939,8 @@ describe('logging', () => {
 
     expect(logs).toMatchObject([
       {
-        name: 'execute.start',
         executeId: 100001,
+        name: 'execute.start',
       },
       {
         name: 'network.start',
@@ -948,16 +948,16 @@ describe('logging', () => {
       },
       {
         name: 'queryresource.fetch',
-        resourceID: 200000,
         profilerContext: {},
+        resourceID: 200000,
       },
       {
-        name: 'suspense.query',
         fetchPolicy: 'network-only',
         isPromiseCached: false,
+        name: 'suspense.query',
         operation: {
           request: {
-            variables: variables,
+            variables,
           },
         },
         queryAvailability: {status: 'missing'},
@@ -968,8 +968,8 @@ describe('logging', () => {
         networkRequestId: 100000,
       },
       {
-        name: 'execute.next.start',
         executeId: 100001,
+        name: 'execute.next.start',
       },
       {
         name: 'execute.normalize.start',
@@ -978,21 +978,21 @@ describe('logging', () => {
         name: 'execute.normalize.end',
       },
       {
-        name: 'execute.next.end',
         executeId: 100001,
+        name: 'execute.next.end',
       },
       {
         name: 'network.complete',
         networkRequestId: 100000,
       },
       {
-        name: 'execute.complete',
         executeId: 100001,
+        name: 'execute.complete',
       },
       {
         name: 'queryresource.retain',
-        resourceID: 200000,
         profilerContext: {},
+        resourceID: 200000,
       },
     ]);
   });
@@ -1052,25 +1052,25 @@ describe('logging', () => {
       {
         // initial fetch
         name: 'queryresource.fetch',
-        resourceID: 200000,
-        profilerContext: expect.objectContaining({}),
-        shouldFetch: false,
         operation: {
           request: {
             variables: initialVariables,
           },
         },
+        profilerContext: expect.objectContaining({}),
+        resourceID: 200000,
+        shouldFetch: false,
       },
       {
         // initial fetch completes, since it was fulfilled from cache
         name: 'queryresource.retain',
-        resourceID: 200000,
         profilerContext: expect.objectContaining({}),
+        resourceID: 200000,
       },
       {
+        executeId: 100002,
         // execution for variables one starts
         name: 'execute.start',
-        executeId: 100002,
         variables: variablesOne,
       },
       {
@@ -1082,19 +1082,19 @@ describe('logging', () => {
       {
         // fetch event for variables one
         name: 'queryresource.fetch',
-        resourceID: 200001,
-        profilerContext: expect.objectContaining({}),
-        shouldFetch: true,
         operation: {
           request: {
             variables: variablesOne,
           },
         },
+        profilerContext: expect.objectContaining({}),
+        resourceID: 200001,
+        shouldFetch: true,
       },
       {
-        name: 'suspense.query',
         fetchPolicy: 'network-only',
         isPromiseCached: false,
+        name: 'suspense.query',
         operation: {
           request: {
             variables: variablesOne,
@@ -1104,9 +1104,9 @@ describe('logging', () => {
         renderPolicy: 'partial',
       },
       {
+        executeId: 100004,
         // execution for variables two starts
         name: 'execute.start',
-        executeId: 100004,
         variables: variablesTwo,
       },
       {
@@ -1118,19 +1118,19 @@ describe('logging', () => {
       {
         // fetch event for variables two
         name: 'queryresource.fetch',
-        resourceID: 200002,
-        profilerContext: expect.objectContaining({}),
-        shouldFetch: true,
         operation: {
           request: {
             variables: variablesTwo,
           },
         },
+        profilerContext: expect.objectContaining({}),
+        resourceID: 200002,
+        shouldFetch: true,
       },
       {
-        name: 'suspense.query',
         fetchPolicy: 'network-only',
         isPromiseCached: false,
+        name: 'suspense.query',
         operation: {
           request: {
             variables: variablesTwo,
@@ -1140,9 +1140,9 @@ describe('logging', () => {
         renderPolicy: 'partial',
       },
       {
-        name: 'suspense.query',
         fetchPolicy: 'network-only',
         isPromiseCached: true,
+        name: 'suspense.query',
         operation: {
           request: {
             variables: variablesOne,
@@ -1158,8 +1158,8 @@ describe('logging', () => {
         networkRequestId: 100001,
       },
       {
-        name: 'execute.next.start',
         executeId: 100002,
+        name: 'execute.next.start',
       },
       {
         name: 'execute.normalize.start',
@@ -1168,22 +1168,22 @@ describe('logging', () => {
         name: 'execute.normalize.end',
       },
       {
-        name: 'execute.next.end',
         executeId: 100002,
+        name: 'execute.next.end',
       },
       {
         name: 'network.complete',
         networkRequestId: 100001,
       },
       {
-        name: 'execute.complete',
         executeId: 100002,
+        name: 'execute.complete',
       },
       // retain event for variables one
       {
         name: 'queryresource.retain',
-        resourceID: 200001,
         profilerContext: expect.objectContaining({}),
+        resourceID: 200001,
       },
     ]);
   });

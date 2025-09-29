@@ -275,10 +275,10 @@ function createMockEnvironment(
     input: ConcreteRequest | OperationDescriptor,
   ): ConcreteRequest {
     if (input.kind === 'Request') {
-      const request: ConcreteRequest = (input: $FlowFixMe);
+      const request: ConcreteRequest = input as $FlowFixMe;
       return request;
     } else {
-      const operationDescriptor: OperationDescriptor = (input: $FlowFixMe);
+      const operationDescriptor: OperationDescriptor = input as $FlowFixMe;
       invariant(
         pendingOperations.includes(operationDescriptor),
         'RelayModernMockEnvironment: Operation "%s" was not found in the list of pending operations',
@@ -295,9 +295,9 @@ function createMockEnvironment(
     let concreteRequest: ConcreteRequest;
     let operationDescriptor: OperationDescriptor;
     if (input.kind === 'Request') {
-      concreteRequest = (input: $FlowFixMe);
+      concreteRequest = input as $FlowFixMe;
     } else {
-      operationDescriptor = (input: $FlowFixMe);
+      operationDescriptor = input as $FlowFixMe;
       concreteRequest = operationDescriptor.request.node;
     }
     const foundRequests = pendingRequests.filter(pending => {

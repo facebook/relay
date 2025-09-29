@@ -67,7 +67,7 @@ function handleFieldErrors(
           // can't assert this via types.
           break;
         default:
-          (fieldError.kind: empty);
+          fieldError.kind as empty;
           invariant(false, 'Relay: Unexpected event kind: %s', fieldError.kind);
       }
     }
@@ -86,7 +86,7 @@ function eventShouldThrow(event: FieldError): boolean {
     case 'missing_expected_data.log':
       return false;
     default:
-      (event.kind: empty);
+      event.kind as empty;
       throw new Error('Relay: Unexpected event kind');
   }
 }
@@ -106,6 +106,6 @@ function handlePotentialSnapshotErrors(
 }
 
 module.exports = {
-  handlePotentialSnapshotErrors,
   eventShouldThrow,
+  handlePotentialSnapshotErrors,
 };

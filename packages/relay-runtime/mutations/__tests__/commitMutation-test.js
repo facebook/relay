@@ -125,8 +125,8 @@ describe('Configs: NODE_DELETE', () => {
     });
     const configs: Array<DeclarativeMutationConfig> = [
       {
-        type: 'NODE_DELETE',
         deletedIDFieldName: 'deletedCommentId',
+        type: 'NODE_DELETE',
       },
     ];
     const optimisticUpdater = jest.fn<
@@ -214,21 +214,21 @@ describe('Configs: RANGE_DELETE', () => {
       commentDelete: {
         deletedCommentId: commentID,
         feedback: {
-          id: '123',
           comments: {
             count: 0,
           },
+          id: '123',
         },
       },
     };
     const configs: Array<DeclarativeMutationConfig> = [
       {
-        type: 'RANGE_DELETE',
-        parentName: 'feedback',
-        parentID: '123',
         connectionKeys: [{key: 'Feedback_comments'}],
         deletedIDFieldName: 'deletedCommentId',
+        parentID: '123',
+        parentName: 'feedback',
         pathToConnection: ['feedback', 'comments'],
+        type: 'RANGE_DELETE',
       },
     ];
     FeedbackCommentQuery = graphql`
@@ -251,18 +251,17 @@ describe('Configs: RANGE_DELETE', () => {
     const payload = {
       node: {
         __typename: 'Feedback',
-        id: '123',
         comments: {
           count: 1,
           edges: [
             {
               cursor: '<cursor>',
               node: {
-                id: commentID,
                 __typename: 'Comment',
                 body: {
                   text: '...',
                 },
+                id: commentID,
               },
             },
           ],
@@ -273,6 +272,7 @@ describe('Configs: RANGE_DELETE', () => {
             start_cursor: '<cursor>',
           },
         },
+        id: '123',
       },
     };
     const operationDescriptor = createOperationDescriptor(
@@ -314,10 +314,10 @@ describe('Configs: RANGE_DELETE', () => {
         commentDelete: {
           deletedCommentId: commentID,
           feedback: {
-            id: '123',
             comments: {
               count: 1,
             },
+            id: '123',
           },
         },
       },
@@ -348,12 +348,12 @@ describe('Configs: RANGE_DELETE', () => {
     `;
     const configs: Array<DeclarativeMutationConfig> = [
       {
-        type: 'RANGE_DELETE',
-        parentName: 'actor',
-        parentID: '123',
         connectionKeys: [{key: 'Friends_friends'}],
         deletedIDFieldName: ['formerFriend'],
+        parentID: '123',
+        parentName: 'actor',
         pathToConnection: ['actor', 'friends'],
+        type: 'RANGE_DELETE',
       },
     ];
     const variables: commitMutationTest3Mutation$variables = {
@@ -385,18 +385,18 @@ describe('Configs: RANGE_DELETE', () => {
       viewer: {
         actor: {
           __typename: 'User',
-          id: '123',
           friends: {
             edges: [
               {
-                cursor: '<cursor>',
                 __typename: 'User',
+                cursor: '<cursor>',
                 node: {
                   id: '456',
                 },
               },
             ],
           },
+          id: '123',
         },
       },
     };
@@ -405,8 +405,8 @@ describe('Configs: RANGE_DELETE', () => {
     const optimisticResponse = {
       unfriend: {
         actor: {
-          id: '123',
           __typename: 'User',
+          id: '123',
         },
         formerFriend: {
           id: '456',
@@ -426,8 +426,8 @@ describe('Configs: RANGE_DELETE', () => {
     commitMutation(environment, {
       configs,
       mutation,
-      optimisticUpdater,
       optimisticResponse,
+      optimisticUpdater,
       updater,
       variables,
     });
@@ -440,8 +440,8 @@ describe('Configs: RANGE_DELETE', () => {
       data: {
         unfriend: {
           actor: {
-            id: '123',
             __typename: 'User',
+            id: '123',
           },
           formerFriend: {
             id: '456',
@@ -477,8 +477,8 @@ describe('Configs: RANGE_ADD', () => {
     input: {
       feedback: feedbackID,
       message: {
+        ranges: [] as Array<mixed>,
         text: 'Hello!',
-        ranges: ([]: Array<mixed>),
       },
     },
   };
@@ -490,10 +490,10 @@ describe('Configs: RANGE_ADD', () => {
         __typename: 'CommentsEdge',
         cursor: nextCursor,
         node: {
-          id: nextNodeID,
           body: {
             text: variables.input.message.text,
           },
+          id: nextNodeID,
         },
       },
     },
@@ -539,8 +539,8 @@ describe('Configs: RANGE_ADD', () => {
     `;
     payload = {
       node: {
-        id: feedbackID,
         __typename: 'Feedback',
+        id: feedbackID,
         topLevelComments: {
           edges: [
             {
@@ -563,10 +563,10 @@ describe('Configs: RANGE_ADD', () => {
             __typename: 'CommentsEdge',
             cursor: nextCursor,
             node: {
-              id: nextNodeID,
               body: {
                 text: variables.input.message.text,
               },
+              id: nextNodeID,
             },
           },
         },
@@ -577,16 +577,16 @@ describe('Configs: RANGE_ADD', () => {
   it('appends new edge', () => {
     const configs: Array<DeclarativeMutationConfig> = [
       {
-        type: 'RANGE_ADD',
-        connectionName: 'topLevelComments',
         connectionInfo: [
           {
             key: 'Feedback_topLevelComments',
             rangeBehavior: 'append',
           },
         ],
-        parentID: 'feedback123',
+        connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
+        parentID: 'feedback123',
+        type: 'RANGE_ADD',
       },
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
@@ -628,24 +628,24 @@ describe('Configs: RANGE_ADD', () => {
   it('does not overwrite previous edge when appended multiple times', () => {
     const configs: Array<DeclarativeMutationConfig> = [
       {
-        type: 'RANGE_ADD',
-        connectionName: 'topLevelComments',
         connectionInfo: [
           {
             key: 'Feedback_topLevelComments',
             rangeBehavior: 'append',
           },
         ],
-        parentID: 'feedback123',
+        connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
+        parentID: 'feedback123',
+        type: 'RANGE_ADD',
       },
     ];
     // prepare existing data
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, {
       node: {
-        id: feedbackID,
         __typename: 'Feedback',
+        id: feedbackID,
         topLevelComments: {
           count: 1,
           edges: [
@@ -677,12 +677,12 @@ describe('Configs: RANGE_ADD', () => {
             __typename: 'CommentsEdge',
             cursor: 'comment2:cursor',
             node: {
-              id: 'comment2',
               // these are extra fields which should be stripped off before appending
               // to the connection.
               body: {
                 text: variables.input.message.text,
               },
+              id: 'comment2',
             },
           },
         },
@@ -737,12 +737,12 @@ describe('Configs: RANGE_ADD', () => {
             __typename: 'CommentsEdge',
             cursor: 'comment3:cursor',
             node: {
-              id: 'comment3',
               // these are extra fields which should be stripped off before appending
               // to the connection.
               body: {
                 text: variables.input.message.text,
               },
+              id: 'comment3',
             },
           },
         },
@@ -810,16 +810,16 @@ describe('Configs: RANGE_ADD', () => {
   it('prepends new edge', () => {
     const configs: Array<DeclarativeMutationConfig> = [
       {
-        type: 'RANGE_ADD',
-        connectionName: 'topLevelComments',
         connectionInfo: [
           {
             key: 'Feedback_topLevelComments',
             rangeBehavior: 'prepend',
           },
         ],
-        parentID: 'feedback123',
+        connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
+        parentID: 'feedback123',
+        type: 'RANGE_ADD',
       },
     ];
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
@@ -861,17 +861,17 @@ describe('Configs: RANGE_ADD', () => {
   it('filters connections then applies the rangeBehavior', () => {
     const configs: Array<DeclarativeMutationConfig> = [
       {
-        type: 'RANGE_ADD',
-        connectionName: 'topLevelComments',
         connectionInfo: [
           {
-            key: 'Feedback_topLevelComments',
             filters: {orderBy: 'chronological'},
+            key: 'Feedback_topLevelComments',
             rangeBehavior: 'append',
           },
         ],
-        parentID: 'feedback123',
+        connectionName: 'topLevelComments',
         edgeName: 'feedbackCommentEdge',
+        parentID: 'feedback123',
+        type: 'RANGE_ADD',
       },
     ];
     CommentQuery = graphql`
@@ -944,8 +944,8 @@ describe('Configs: RANGE_ADD', () => {
     const operationDescriptor = createOperationDescriptor(CommentQuery, {});
     environment.commitPayload(operationDescriptor, {
       node: {
-        id: feedbackID,
         __typename: 'Feedback',
+        id: feedbackID,
         topLevelComments: {
           count: 1,
           edges: [
@@ -962,8 +962,8 @@ describe('Configs: RANGE_ADD', () => {
 
     // send mutation
     commitMutation(environment, {
-      updater,
       mutation,
+      updater,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
       /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
@@ -978,12 +978,12 @@ describe('Configs: RANGE_ADD', () => {
             __typename: 'CommentsEdge',
             cursor: 'comment2:cursor',
             node: {
-              id: 'comment2',
               // these are extra fields which should be stripped off before appending
               // to the connection.
               body: {
                 text: variables.input.message.text,
               },
+              id: 'comment2',
             },
           },
         },
@@ -1044,12 +1044,12 @@ describe('Configs: RANGE_ADD', () => {
             __typename: 'CommentsEdge',
             cursor: 'comment3:cursor',
             node: {
-              id: 'comment3',
               // these are extra fields which should be stripped off before appending
               // to the connection.
               body: {
                 text: variables.input.message.text,
               },
+              id: 'comment3',
             },
           },
         },
@@ -1057,8 +1057,8 @@ describe('Configs: RANGE_ADD', () => {
     };
     // send the same mutation again
     commitMutation(environment, {
-      updater,
       mutation,
+      updater,
       /* $FlowFixMe[prop-missing] error exposed when improving flow typing of
        * commitMutation */
       /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
@@ -1129,7 +1129,6 @@ describe('Aliased mutation roots', () => {
     `;
     commitMutation(environment, {
       mutation,
-      variables: {},
       optimisticResponse: {
         alias: {
           deletedCommentId: 'oo ahh zippy do wah',
@@ -1141,6 +1140,7 @@ describe('Aliased mutation roots', () => {
           },
         },
       },
+      variables: {},
     });
     expect(require('warning')).not.toHaveBeenCalledWith(
       undefined,
@@ -1183,11 +1183,11 @@ describe('Required mutation roots', () => {
     let idInUpdater;
     commitMutation(environment, {
       mutation,
-      variables: {},
       updater: updaterStore => {
         const payload = updaterStore.getRootField('commentDelete');
         idInUpdater = payload?.getValue('deletedCommentId');
       },
+      variables: {},
     });
     dataSource.next({
       data: {
@@ -1271,18 +1271,18 @@ describe('commitMutation()', () => {
 
     commitMutation(environment, {
       mutation,
-      variables,
       onCompleted,
       onError,
+      variables,
     });
     dataSource.next({
       data: {
         commentCreate: {
           comment: {
-            id: '1',
             body: {
               text: 'Gave Relay',
             },
+            id: '1',
           },
         },
       },
@@ -1291,18 +1291,18 @@ describe('commitMutation()', () => {
     const snapshot = callback.mock.calls[0][0];
     expect(snapshot.isMissingData).toBe(false);
     expect(snapshot.data).toEqual({
-      id: '1',
       body: {text: 'Gave Relay'},
+      id: '1',
     });
 
     dataSource.next({
       data: {
         commentCreate: {
           comment: {
-            id: '1',
             body: {
               text: 'GAVE RELAY!!!!', // updated
             },
+            id: '1',
           },
         },
       },
@@ -1311,8 +1311,8 @@ describe('commitMutation()', () => {
     const nextSnapshot = callback.mock.calls[1][0];
     expect(nextSnapshot.isMissingData).toBe(false);
     expect(nextSnapshot.data).toEqual({
-      id: '1',
       body: {text: 'GAVE RELAY!!!!'}, // updated text
+      id: '1',
     });
 
     expect(onCompleted).toBeCalledTimes(0);
@@ -1322,18 +1322,18 @@ describe('commitMutation()', () => {
   it('calls onCompleted when the mutation completes after one payload', () => {
     commitMutation(environment, {
       mutation,
-      variables,
       onCompleted,
       onError,
+      variables,
     });
     dataSource.next({
       data: {
         commentCreate: {
           comment: {
-            id: '1',
             body: {
               text: 'Gave Relay',
             },
+            id: '1',
           },
         },
       },
@@ -1345,10 +1345,10 @@ describe('commitMutation()', () => {
     expect(onCompleted.mock.calls[0][0]).toEqual({
       commentCreate: {
         comment: {
-          id: '1',
           body: {
             text: 'Gave Relay',
           },
+          id: '1',
         },
       },
     });
@@ -1359,31 +1359,29 @@ describe('commitMutation()', () => {
   it('calls onCompleted when the mutation completes after one payload with errors', () => {
     commitMutation(environment, {
       mutation,
-      variables,
       onCompleted,
       onError,
+      variables,
     });
-    dataSource.next(
-      ({
-        data: {
-          commentCreate: {
-            comment: {
-              id: '1',
-              body: {
-                text: 'Gave Relay',
-              },
+    dataSource.next({
+      data: {
+        commentCreate: {
+          comment: {
+            body: {
+              text: 'Gave Relay',
             },
+            id: '1',
           },
         },
-        errors: [
-          {
-            message: 'wtf',
-            locations: [],
-            severity: 'ERROR',
-          },
-        ],
-      }: GraphQLResponseWithoutData),
-    );
+      },
+      errors: [
+        {
+          locations: [],
+          message: 'wtf',
+          severity: 'ERROR',
+        },
+      ],
+    } as GraphQLResponseWithoutData);
     expect(onCompleted).toBeCalledTimes(0);
     dataSource.complete();
 
@@ -1391,17 +1389,17 @@ describe('commitMutation()', () => {
     expect(onCompleted.mock.calls[0][0]).toEqual({
       commentCreate: {
         comment: {
-          id: '1',
           body: {
             text: 'Gave Relay',
           },
+          id: '1',
         },
       },
     });
     expect(onCompleted.mock.calls[0][1]).toEqual([
       {
-        message: 'wtf',
         locations: [],
+        message: 'wtf',
         severity: 'ERROR',
       },
     ]);
@@ -1411,55 +1409,51 @@ describe('commitMutation()', () => {
   it('calls onCompleted with the latest data when the mutation completes after multiple payloads', () => {
     commitMutation(environment, {
       mutation,
-      variables,
       onCompleted,
       onError,
       onNext,
+      variables,
     });
-    dataSource.next(
-      ({
-        data: {
-          commentCreate: {
-            comment: {
-              id: '1',
-              body: {
-                text: 'Gave Relay', // overridden by later payload
-              },
+    dataSource.next({
+      data: {
+        commentCreate: {
+          comment: {
+            body: {
+              text: 'Gave Relay', // overridden by later payload
             },
+            id: '1',
           },
         },
-        errors: [
-          {
-            message: 'wtf',
-            locations: [],
-            severity: 'ERROR',
-          },
-        ],
-      }: GraphQLResponseWithoutData),
-    );
+      },
+      errors: [
+        {
+          locations: [],
+          message: 'wtf',
+          severity: 'ERROR',
+        },
+      ],
+    } as GraphQLResponseWithoutData);
     expect(onNext).toBeCalledTimes(1);
     expect(onNext.mock.calls[0][0]).toBe(undefined);
-    dataSource.next(
-      ({
-        data: {
-          commentCreate: {
-            comment: {
-              id: '1',
-              body: {
-                text: 'GAVE RELAY',
-              },
+    dataSource.next({
+      data: {
+        commentCreate: {
+          comment: {
+            body: {
+              text: 'GAVE RELAY',
             },
+            id: '1',
           },
         },
-        errors: [
-          {
-            message: 'wtf again!',
-            locations: [],
-            severity: 'ERROR',
-          },
-        ],
-      }: GraphQLResponseWithoutData),
-    );
+      },
+      errors: [
+        {
+          locations: [],
+          message: 'wtf again!',
+          severity: 'ERROR',
+        },
+      ],
+    } as GraphQLResponseWithoutData);
     expect(onCompleted).toBeCalledTimes(0);
     expect(onNext).toBeCalledTimes(2);
     expect(onNext.mock.calls[1][0]).toBe(undefined);
@@ -1469,22 +1463,22 @@ describe('commitMutation()', () => {
     expect(onCompleted.mock.calls[0][0]).toEqual({
       commentCreate: {
         comment: {
-          id: '1',
           body: {
             text: 'GAVE RELAY', // matches value in latest payload
           },
+          id: '1',
         },
       },
     });
     expect(onCompleted.mock.calls[0][1]).toEqual([
       {
-        message: 'wtf',
         locations: [],
+        message: 'wtf',
         severity: 'ERROR',
       },
       {
-        message: 'wtf again!',
         locations: [],
+        message: 'wtf again!',
         severity: 'ERROR',
       },
     ]);
@@ -1495,16 +1489,16 @@ describe('commitMutation()', () => {
   it('calls onError when the payload is mising data', () => {
     commitMutation(environment, {
       mutation,
-      variables,
       onCompleted,
       onError,
+      variables,
     });
     dataSource.next({
       data: null, // error: missing data
       errors: [
         {
-          message: 'wtf',
           locations: [],
+          message: 'wtf',
           severity: 'ERROR',
         },
       ],
@@ -1519,9 +1513,9 @@ describe('commitMutation()', () => {
   it('calls onError when the network errors', () => {
     commitMutation(environment, {
       mutation,
-      variables,
       onCompleted,
       onError,
+      variables,
     });
     const error = new Error('wtf');
     dataSource.error(error);

@@ -166,10 +166,10 @@ class RelayResponseNormalizer {
     return {
       errors,
       fieldPayloads: this._handleFieldPayloads,
-      incrementalPlaceholders: this._incrementalPlaceholders,
       followupPayloads: this._followupPayloads,
-      source: this._recordSource,
+      incrementalPlaceholders: this._incrementalPlaceholders,
       isFinal: false,
+      source: this._recordSource,
     };
   }
 
@@ -204,7 +204,7 @@ class RelayResponseNormalizer {
   }
 
   _getRecordType(data: PayloadData): string {
-    const typeName = (data: any)[TYPENAME_KEY];
+    const typeName = (data as any)[TYPENAME_KEY];
     invariant(
       typeName != null,
       'RelayResponseNormalizer(): Expected a typename for record `%s`.',
@@ -281,10 +281,10 @@ class RelayResponseNormalizer {
             dataID: RelayModernRecord.getDataID(record),
             fieldKey,
             handle: selection.handle,
-            handleKey,
             handleArgs: selection.handleArgs
               ? getArgumentValues(selection.handleArgs, this._variables)
               : {},
+            handleKey,
           });
           break;
         case 'ModuleImport':
@@ -323,7 +323,7 @@ class RelayResponseNormalizer {
           }
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
@@ -407,8 +407,9 @@ class RelayResponseNormalizer {
       // Otherwise data *for this selection* should not be present: enqueue
       // metadata to process the subsequent response chunk.
       this._incrementalPlaceholders.push({
-        kind: 'defer',
+        actorIdentifier: this._actorIdentifier,
         data,
+        kind: 'defer',
         label: defer.label,
         path: [...this._path],
         selector: createNormalizationSelector(
@@ -417,7 +418,6 @@ class RelayResponseNormalizer {
           this._variables,
         ),
         typeName: RelayModernRecord.getType(record),
-        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -444,13 +444,13 @@ class RelayResponseNormalizer {
       // If streaming is enabled, *also* emit metadata to process any
       // response chunks that may be delivered.
       this._incrementalPlaceholders.push({
+        actorIdentifier: this._actorIdentifier,
         kind: 'stream',
         label: stream.label,
-        path: [...this._path],
-        parentID: RelayModernRecord.getDataID(record),
         node: stream,
+        parentID: RelayModernRecord.getDataID(record),
+        path: [...this._path],
         variables: this._variables,
-        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -483,15 +483,15 @@ class RelayResponseNormalizer {
     );
     if (operationReference != null) {
       this._followupPayloads.push({
-        kind: 'ModuleImportPayload',
+        actorIdentifier: this._actorIdentifier,
         args: moduleImport.args,
         data,
         dataID: RelayModernRecord.getDataID(record),
+        kind: 'ModuleImportPayload',
         operationReference,
         path: [...this._path],
         typeName,
         variables: this._variables,
-        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -600,7 +600,7 @@ class RelayResponseNormalizer {
       this._errorTrie = oldErrorTrie;
       this._path.pop();
     } else {
-      (selection: empty);
+      selection as empty;
       invariant(
         false,
         'RelayResponseNormalizer(): Unexpected ast kind `%s` during normalization.',
@@ -690,14 +690,14 @@ class RelayResponseNormalizer {
     );
 
     this._followupPayloads.push({
-      kind: 'ActorPayload',
-      data: (fieldValue: $FlowFixMe),
+      actorIdentifier,
+      data: fieldValue as $FlowFixMe,
       dataID: nextID,
+      kind: 'ActorPayload',
+      node: field,
       path: [...this._path, responseKey],
       typeName,
       variables: this._variables,
-      node: field,
-      actorIdentifier,
     });
   }
 
@@ -840,8 +840,8 @@ class RelayResponseNormalizer {
       if (!expected) {
         const logEvent: IdCollisionTypenameLogEvent = {
           name: 'idCollision.typename',
-          previous_typename: RelayModernRecord.getType(record),
           new_typename: typeName,
+          previous_typename: RelayModernRecord.getType(record),
         };
         if (this._log != null) {
           this._log(logEvent);

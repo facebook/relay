@@ -40,33 +40,33 @@ const usersFragment: useFragmentFlowtest_users$fragment = graphql`
 /* eslint-disable react-hooks/rules-of-hooks */
 
 // Nullability of returned data type is correct
-(useFragment(
+useFragment(
   userFragment,
   (Any: useFragmentFlowtest_user$key),
-): useFragmentFlowtest_user$data);
-(useFragment(
+) as useFragmentFlowtest_user$data;
+useFragment(
   userFragment,
   (Any: ?useFragmentFlowtest_user$key),
-): ?useFragmentFlowtest_user$data);
-(useFragment(
+) as ?useFragmentFlowtest_user$data;
+useFragment(
   usersFragment,
   (Any: useFragmentFlowtest_users$key),
-): useFragmentFlowtest_users$data);
-(useFragment(
+) as useFragmentFlowtest_users$data;
+useFragment(
   usersFragment,
   (Any: ?useFragmentFlowtest_users$key),
-): ?useFragmentFlowtest_users$data);
+) as ?useFragmentFlowtest_users$data;
 
 // $FlowExpectedError[incompatible-type] : can't cast nullable to non-nullable
-(useFragment(
+useFragment(
   userFragment,
   (Any: ?useFragmentFlowtest_user$key),
-): useFragmentFlowtest_user$data);
+) as useFragmentFlowtest_user$data;
 // $FlowExpectedError[incompatible-type] : can't cast nullable plural to non-nullable plural
-(useFragment(
+useFragment(
   usersFragment,
   (Any: ?useFragmentFlowtest_users$key),
-): useFragmentFlowtest_users$data);
+) as useFragmentFlowtest_users$data;
 
 // $FlowExpectedError[incompatible-type] : Key should be one of the generated types
 useFragment(userFragment, 'INVALID_KEY');
@@ -78,6 +78,6 @@ useFragment(userFragment, {a: 123});
 useFragment(userFragment, {});
 
 // $FlowExpectedError[incompatible-type] : Key should be the `<name>$key` type from generated flow
-useFragment(userFragment, (Any: useFragmentFlowtest_user$data));
+useFragment(userFragment, Any as useFragmentFlowtest_user$data);
 
 /* eslint-enable react-hooks/rules-of-hooks */

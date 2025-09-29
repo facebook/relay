@@ -54,16 +54,16 @@ afterEach(() => {
 
 it('returns the result of the resolver function', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
   const store = new RelayStore(source);
@@ -95,16 +95,16 @@ it('returns the result of the resolver function', () => {
 
 it('are passed field arguments', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
   const store = new RelayStore(source);
@@ -154,16 +154,7 @@ it('are passed field arguments', () => {
 describe('Relay resolver - Field Error Handling', () => {
   it('propagates errors from the resolver up to the reader', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        lastName: null,
         __errors: {
           lastName: [
             {
@@ -172,6 +163,15 @@ describe('Relay resolver - Field Error Handling', () => {
             },
           ],
         },
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        lastName: null,
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
 
@@ -188,12 +188,12 @@ describe('Relay resolver - Field Error Handling', () => {
     const {fieldErrors} = store.lookup(operation.fragment);
     expect(fieldErrors).toEqual([
       {
-        fieldPath: 'me.lastName',
-        kind: 'relay_field_payload.error',
         error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: false,
+        kind: 'relay_field_payload.error',
         owner: 'RelayReaderResolverTestFieldErrorQuery',
         shouldThrow: false,
-        handled: false,
       },
     ]);
   });
@@ -201,16 +201,16 @@ describe('Relay resolver - Field Error Handling', () => {
 
 it('propagates @required errors from the resolver up to the reader', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: null, // The missing field
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: null, // The missing field
     },
   });
   const FooQuery = graphql`
@@ -226,17 +226,17 @@ it('propagates @required errors from the resolver up to the reader', () => {
   const {fieldErrors} = store.lookup(operation.fragment);
   expect(fieldErrors).toEqual([
     {
+      fieldPath: 'name',
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
-      fieldPath: 'name',
     },
     {
       error: expect.anything(),
       fieldPath: 'me.required_name',
+      handled: false,
       kind: 'relay_resolver.error',
       owner: 'RelayReaderResolverTestRequiredQuery',
       shouldThrow: false,
-      handled: false,
     },
   ]);
 
@@ -248,33 +248,33 @@ it('propagates @required errors from the resolver up to the reader', () => {
 
   expect(missingRequiredFieldsTakeTwo).toEqual([
     {
+      fieldPath: 'name',
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
-      fieldPath: 'name',
     },
     {
       error: expect.anything(),
       fieldPath: 'me.required_name',
+      handled: false,
       kind: 'relay_resolver.error',
       owner: 'RelayReaderResolverTestRequiredQuery',
       shouldThrow: false,
-      handled: false,
     },
   ]);
 });
 
 it('propagates missing data errors from the resolver up to the reader', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: undefined, // The missing data
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: undefined, // The missing data
     },
   });
   const FooQuery = graphql`
@@ -298,17 +298,17 @@ it('propagates missing data errors from the resolver up to the reader', () => {
 
 it('merges @required logs from resolver field with parent', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      lastName: null, // Another missing field
+      name: null, // The missing field
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: null, // The missing field
-      lastName: null, // Another missing field
     },
   });
   const FooQuery = graphql`
@@ -325,22 +325,22 @@ it('merges @required logs from resolver field with parent', () => {
   const {fieldErrors} = store.lookup(operation.fragment);
   expect(fieldErrors).toEqual([
     {
+      fieldPath: 'name',
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
-      fieldPath: 'name',
     },
     {
       error: expect.anything(),
       fieldPath: 'me.required_name',
+      handled: false,
       kind: 'relay_resolver.error',
       owner: 'RelayReaderResolverTestRequiredWithParentQuery',
       shouldThrow: false,
-      handled: false,
     },
     {
+      fieldPath: 'me.lastName',
       kind: 'missing_required_field.log',
       owner: 'RelayReaderResolverTestRequiredWithParentQuery',
-      fieldPath: 'me.lastName',
     },
   ]);
 
@@ -352,38 +352,38 @@ it('merges @required logs from resolver field with parent', () => {
 
   expect(missingRequiredFieldsTakeTwo).toEqual([
     {
+      fieldPath: 'name',
       kind: 'missing_required_field.log',
       owner: 'UserRequiredNameResolver',
-      fieldPath: 'name',
     },
     {
       error: expect.anything(),
       fieldPath: 'me.required_name',
+      handled: false,
       kind: 'relay_resolver.error',
       owner: 'RelayReaderResolverTestRequiredWithParentQuery',
       shouldThrow: false,
-      handled: false,
     },
     {
+      fieldPath: 'me.lastName',
       kind: 'missing_required_field.log',
       owner: 'RelayReaderResolverTestRequiredWithParentQuery',
-      fieldPath: 'me.lastName',
     },
   ]);
 });
 
 it('propagates @required(action: THROW) errors from the resolver up to the reader and avoid calling resolver code', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: null, // The missing field
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: null, // The missing field
     },
   });
   const FooQuery = graphql`
@@ -403,10 +403,10 @@ it('propagates @required(action: THROW) errors from the resolver up to the reade
   expect(requiredThrowNameCalls.count).toBe(beforeCallCount);
   expect(fieldErrors).toEqual([
     {
-      kind: 'missing_required_field.throw',
-      owner: 'UserRequiredThrowNameResolver',
       fieldPath: 'name',
       handled: true,
+      kind: 'missing_required_field.throw',
+      owner: 'UserRequiredThrowNameResolver',
     },
   ]);
 
@@ -418,26 +418,26 @@ it('propagates @required(action: THROW) errors from the resolver up to the reade
   expect(dataTakeTwo).toEqual({me: {required_throw_name: null}});
   expect(missingRequiredFieldsTakeTwo).toEqual([
     {
-      kind: 'missing_required_field.throw',
-      owner: 'UserRequiredThrowNameResolver',
       fieldPath: 'name',
       handled: true,
+      kind: 'missing_required_field.throw',
+      owner: 'UserRequiredThrowNameResolver',
     },
   ]);
 });
 
 it('works when the field is aliased', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
   const store = new RelayStore(source);
@@ -463,16 +463,16 @@ it('works when the field is aliased', () => {
 
 it('re-computes when an upstream is updated', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
 
@@ -516,16 +516,16 @@ it('re-computes when an upstream is updated', () => {
 
 it('does not recompute if the upstream has the same value as before', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
 
@@ -545,7 +545,7 @@ it('does not recompute if the upstream has the same value as before', () => {
 
   const resolverInternals: {_relayResolverTestCallCount: number} =
     // $FlowFixMe[unclear-type]
-    (UserConstantDependentResolver: any);
+    UserConstantDependentResolver as any;
 
   expect(resolverInternals._relayResolverTestCallCount).toBe(undefined);
   const cb = jest.fn<[Snapshot], void>();
@@ -575,16 +575,16 @@ it.each([true, false])(
     RelayFeatureFlags.MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD =
       markClean;
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
-      },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
       },
     });
 
@@ -639,16 +639,16 @@ it.each([true, false])(
 
 it('handles optimistic updates (applied after subscribing)', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
 
@@ -708,16 +708,16 @@ it('handles optimistic updates (applied after subscribing)', () => {
 
 it('handles optimistic updates (subscribed after applying)', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
 
@@ -777,17 +777,18 @@ it('handles optimistic updates (subscribed after applying)', () => {
 
 it('re-computes when something other than its own record is updated', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
-      id: '1',
       __typename: 'User',
-      name: 'Alice',
       'friends(first:1)': {__ref: 'client:1'},
+      id: '1',
+      name: 'Alice',
+    },
+    '2': {
+      __id: '2',
+      __typename: 'User',
+      id: '2',
+      name: 'Bob',
     },
     'client:1': {
       __id: 'client:1',
@@ -802,11 +803,10 @@ it('re-computes when something other than its own record is updated', () => {
       cursor: 'cursor:2',
       node: {__ref: '2'},
     },
-    '2': {
-      __id: '2',
-      id: '2',
-      __typename: 'User',
-      name: 'Bob',
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
 
@@ -854,16 +854,16 @@ it('re-computes when something other than its own record is updated', () => {
 
 it('re-computes when a resolver uses another resolver', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: 'Alice',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: 'Alice',
     },
   });
 
@@ -907,17 +907,18 @@ it('re-computes when a resolver uses another resolver', () => {
 
 it('re-computes when a resolver uses another resolver of another record', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
-      id: '1',
       __typename: 'User',
-      name: 'Alice',
       'friends(first:1)': {__ref: 'client:1'},
+      id: '1',
+      name: 'Alice',
+    },
+    '2': {
+      __id: '2',
+      __typename: 'User',
+      id: '2',
+      name: 'Bob',
     },
     'client:1': {
       __id: 'client:1',
@@ -932,11 +933,10 @@ it('re-computes when a resolver uses another resolver of another record', () => 
       cursor: 'cursor:2',
       node: {__ref: '2'},
     },
-    '2': {
-      __id: '2',
-      id: '2',
-      __typename: 'User',
-      name: 'Bob',
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
 
@@ -980,16 +980,16 @@ it('re-computes when a resolver uses another resolver of another record', () => 
 
 it('Bubbles null when @required', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+      name: null,
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      name: null,
     },
   });
 
@@ -1015,15 +1015,15 @@ it('Bubbles null when @required', () => {
 
 it('Returns null and includes errors when the resolver throws', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
     },
   });
 
@@ -1082,15 +1082,15 @@ it('Returns null and includes errors when the resolver throws', () => {
 
 it('Returns null and includes errors when a transitive resolver throws', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
     },
   });
 
@@ -1186,13 +1186,13 @@ it('Catches errors thrown before calling readFragment', () => {
 
 it('can return `undefined` without reporting missing data', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
     },
   });
   const store = new RelayStore(source);
@@ -1217,15 +1217,10 @@ it('can return `undefined` without reporting missing data', () => {
 
 it('return value for a field with arguments', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
-      id: '1',
       __typename: 'User',
+      id: '1',
       'profile_picture(scale:1.5)': {
         __ref: '1:profile_picture(scale:1.5)',
       },
@@ -1234,6 +1229,11 @@ it('return value for a field with arguments', () => {
       __id: '1:profile_picture(scale:1.5)',
       __typename: 'Image',
       uri: 'http://my-url-1.5',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const store = new RelayStore(source);
@@ -1262,15 +1262,10 @@ it('return value for a field with arguments', () => {
 
 it('return value for a field with arguments and default value', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
-      id: '1',
       __typename: 'User',
+      id: '1',
       'profile_picture(scale:1.5)': {
         __ref: '1:profile_picture(scale:1.5)',
       },
@@ -1279,6 +1274,11 @@ it('return value for a field with arguments and default value', () => {
       __id: '1:profile_picture(scale:1.5)',
       __typename: 'Image',
       uri: 'http://my-url-1.5',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const store = new RelayStore(source);
@@ -1307,21 +1307,21 @@ it('return value for a field with arguments and default value', () => {
 
 it('return value for a field with literal argument', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
-      id: '1',
       __typename: 'User',
+      id: '1',
       'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
     },
     '1:profile_picture(scale:2)': {
       __id: '1:profile_picture(scale:2)',
       __typename: 'Image',
       uri: 'http://my-url-2',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const store = new RelayStore(source);
@@ -1351,29 +1351,29 @@ it('return value for a field with literal argument', () => {
 
 it('return value for a field with literal argument and variable', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
-      id: '1',
       __typename: 'User',
+      id: '1',
       'profile_picture(scale:1.5)': {
         __ref: '1:profile_picture(scale:1.5)',
       },
       'profile_picture(scale:2)': {__ref: '1:profile_picture(scale:2)'},
+    },
+    '1:profile_picture(scale:1.5)': {
+      __id: '1:profile_picture(scale:1.5)',
+      __typename: 'Image',
+      uri: 'http://my-url-1.5',
     },
     '1:profile_picture(scale:2)': {
       __id: '1:profile_picture(scale:2)',
       __typename: 'Image',
       uri: 'http://my-url-2',
     },
-    '1:profile_picture(scale:1.5)': {
-      __id: '1:profile_picture(scale:1.5)',
-      __typename: 'Image',
-      uri: 'http://my-url-1.5',
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const store = new RelayStore(source);
@@ -1419,15 +1419,10 @@ describe('Test arguments and their changes', () => {
       }
     `;
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profile_picture(scale:1.5)': {
           __ref: '1:profile_picture(scale:1.5)',
         },
@@ -1442,6 +1437,11 @@ describe('Test arguments and their changes', () => {
         __id: '1:profile_picture(scale:2)',
         __typename: 'Image',
         uri: 'http://my-url-2',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const store = new RelayStore(source);
@@ -1475,15 +1475,10 @@ describe('Test arguments and their changes', () => {
       }
     `;
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profile_picture(scale:1.5)': {
           __ref: '1:profile_picture(scale:1.5)',
         },
@@ -1498,6 +1493,11 @@ describe('Test arguments and their changes', () => {
         __id: '1:profile_picture(scale:2)',
         __typename: 'Image',
         // uri: 'http://my-url-2', this field now is missing
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const store = new RelayStore(source);
@@ -1534,15 +1534,10 @@ describe('Test arguments and their changes', () => {
       }
     `;
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         'profile_picture(scale:1.5)': {
           __ref: '1:profile_picture(scale:1.5)',
         },
@@ -1558,14 +1553,19 @@ describe('Test arguments and their changes', () => {
         __typename: 'Image',
         uri: 'http://my-url-2',
       },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
     });
 
     const store = new RelayStore(source);
     const resolverCache = new LiveResolverCache(() => source, store);
 
     let operation = createOperationDescriptor(Query, {
-      scale: 1.5,
       name: 'Alice',
+      scale: 1.5,
     });
     let readResult = read(source, operation.fragment, resolverCache);
     expect(readResult.isMissingData).toBe(false);
@@ -1576,8 +1576,8 @@ describe('Test arguments and their changes', () => {
     });
     // Changing runtime (field) arg
     operation = createOperationDescriptor(Query, {
-      scale: 1.5,
       name: 'Bob',
+      scale: 1.5,
     });
     readResult = read(source, operation.fragment, resolverCache);
     expect(readResult.isMissingData).toBe(false);
@@ -1587,7 +1587,7 @@ describe('Test arguments and their changes', () => {
       },
     });
     // Changing fragment arg
-    operation = createOperationDescriptor(Query, {scale: 2, name: 'Bob'});
+    operation = createOperationDescriptor(Query, {name: 'Bob', scale: 2});
     readResult = read(source, operation.fragment, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
@@ -1598,8 +1598,8 @@ describe('Test arguments and their changes', () => {
 
     // Changing both arguments
     operation = createOperationDescriptor(Query, {
-      scale: 1.5,
       name: 'Clair',
+      scale: 1.5,
     });
     readResult = read(source, operation.fragment, resolverCache);
     expect(readResult.isMissingData).toBe(false);

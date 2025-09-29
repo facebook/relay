@@ -66,7 +66,7 @@ const networkError = new Error('A wild, uncaught error appeared');
 
 // Only queries with an ID are preloadable
 const ID = '12345';
-(query.params: $FlowFixMe).id = ID;
+(query.params as $FlowFixMe).id = ID;
 
 const variables = {id: '4'};
 
@@ -181,9 +181,9 @@ beforeEach(() => {
     complete = jest.fn();
     if (loadedQuery.source) {
       loadedQuery.source.subscribe({
-        next,
-        error,
         complete,
+        error,
+        next,
       });
     }
 
@@ -473,9 +473,9 @@ describe('when passed a PreloadableConcreteRequest', () => {
         // Subscribe to the query reference and assert that
         // we can observe the query results
         queryRef2.source?.subscribe({
-          next,
-          error,
           complete,
+          error,
+          next,
         });
         expect(next).toHaveBeenCalledTimes(1);
         expect(next).toHaveBeenCalledWith(response);

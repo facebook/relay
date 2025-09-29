@@ -118,7 +118,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       ) {
         environment.retain(operation);
         environment.commitPayload(operation, payload);
-        (environment.getStore(): $FlowFixMe).scheduleGC();
+        (environment.getStore() as $FlowFixMe).scheduleGC();
         jest.runAllTimers();
       }
 
@@ -129,8 +129,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         commitPayload(operation, {
           viewer: {
             actor: {
-              id: '0',
               __typename: 'User',
+              id: '0',
               name: 'Alice',
             },
           },
@@ -138,17 +138,17 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // Check that the correct data was written into the store
         const snapshot = environment.lookup(selector);
         expect(snapshot.data).toEqual({
+          me: undefined,
           viewer: {
             actor: {
               name: 'Alice',
             },
           },
-          me: undefined,
         });
         // Check that the correct data was retained
         expect(environment.check(operation)).toEqual({
-          status: 'available',
           fetchTime: expect.anything(),
+          status: 'available',
         });
 
         // Check that reader reads the correct selections
@@ -180,15 +180,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // Check that the correct data was written into the store
         const snapshot = environment.lookup(selector);
         expect(snapshot.data).toEqual({
-          viewer: undefined,
           me: {
             name: 'Bob',
           },
+          viewer: undefined,
         });
         // Check that the correct data was retained
         expect(environment.check(operation)).toEqual({
-          status: 'available',
           fetchTime: expect.anything(),
+          status: 'available',
         });
 
         // Check that reader reads the correct selections
@@ -218,15 +218,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // Check that the correct data was written into the store
         const snapshot = environment.lookup(selector);
         expect(snapshot.data).toEqual({
-          viewer: undefined,
           me: {
             name: 'Bob',
           },
+          viewer: undefined,
         });
         // Check that the correct data was retained
         expect(environment.check(operation)).toEqual({
-          status: 'available',
           fetchTime: expect.anything(),
+          status: 'available',
         });
 
         // Check that reader reads the correct selections
@@ -256,15 +256,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // Check that the correct data was written into the store
         const snapshot = environment.lookup(selector);
         expect(snapshot.data).toEqual({
-          viewer: undefined,
           me: {
             name: 'Bob',
           },
+          viewer: undefined,
         });
         // Check that the correct data was retained
         expect(environment.check(operation)).toEqual({
-          status: 'available',
           fetchTime: expect.anything(),
+          status: 'available',
         });
 
         // Check that reader reads the correct selections

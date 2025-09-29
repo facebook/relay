@@ -167,21 +167,21 @@ function handleMissedUpdates(
     );
     const updatedCurrentSnapshot: Snapshot = {
       data: updatedData,
+      fieldErrors: currentSnapshot.fieldErrors,
       isMissingData: currentSnapshot.isMissingData,
       missingClientEdges: currentSnapshot.missingClientEdges,
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      fieldErrors: currentSnapshot.fieldErrors,
     };
     return [
       updatedData !== state.snapshot.data,
       {
-        kind: 'singular',
-        snapshot: updatedCurrentSnapshot,
-        epoch: currentEpoch,
-        selector: state.selector,
         environment: state.environment,
+        epoch: currentEpoch,
+        kind: 'singular',
+        selector: state.selector,
+        snapshot: updatedCurrentSnapshot,
       },
     ];
   } else {
@@ -193,12 +193,12 @@ function handleMissedUpdates(
       const updatedData = recycleNodesInto(snapshot.data, currentSnapshot.data);
       const updatedCurrentSnapshot: Snapshot = {
         data: updatedData,
+        fieldErrors: currentSnapshot.fieldErrors,
         isMissingData: currentSnapshot.isMissingData,
         missingClientEdges: currentSnapshot.missingClientEdges,
         missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
         seenRecords: currentSnapshot.seenRecords,
         selector: currentSnapshot.selector,
-        fieldErrors: currentSnapshot.fieldErrors,
       };
       if (updatedData !== snapshot.data) {
         didMissUpdates = true;
@@ -212,11 +212,11 @@ function handleMissedUpdates(
     return [
       didMissUpdates,
       {
-        kind: 'plural',
-        snapshots: currentSnapshots,
-        epoch: currentEpoch,
-        selector: state.selector,
         environment: state.environment,
+        epoch: currentEpoch,
+        kind: 'plural',
+        selector: state.selector,
+        snapshots: currentSnapshots,
       },
     ];
   }
@@ -291,8 +291,8 @@ function subscribeToSnapshot(
           if (updates != null) {
             const [dataChanged, updatedState] = updates;
             environment.__log({
-              name: 'useFragment.subscription.missedUpdates',
               hasDataChanges: dataChanged,
+              name: 'useFragment.subscription.missedUpdates',
             });
             nextState = dataChanged ? updatedState : prevState;
           } else {
@@ -300,11 +300,11 @@ function subscribeToSnapshot(
           }
         } else {
           nextState = {
-            kind: 'singular',
-            snapshot: latestSnapshot,
-            epoch: environment.getStore().getEpoch(),
-            selector: state.selector,
             environment: state.environment,
+            epoch: environment.getStore().getEpoch(),
+            kind: 'singular',
+            selector: state.selector,
+            snapshot: latestSnapshot,
           };
         }
         return nextState;
@@ -333,8 +333,8 @@ function subscribeToSnapshot(
             if (updates != null) {
               const [dataChanged, updatedState] = updates;
               environment.__log({
-                name: 'useFragment.subscription.missedUpdates',
                 hasDataChanges: dataChanged,
+                name: 'useFragment.subscription.missedUpdates',
               });
               nextState = dataChanged ? updatedState : prevState;
             } else {
@@ -344,11 +344,11 @@ function subscribeToSnapshot(
             const updated = [...prevState.snapshots];
             updated[index] = latestSnapshot;
             nextState = {
-              kind: 'plural',
-              snapshots: updated,
-              epoch: environment.getStore().getEpoch(),
-              selector: state.selector,
               environment: state.environment,
+              epoch: environment.getStore().getEpoch(),
+              kind: 'plural',
+              selector: state.selector,
+              snapshots: updated,
             };
           }
           return nextState;
@@ -368,24 +368,24 @@ function getFragmentState(
   fragmentSelector: ?ReaderSelector,
 ): FragmentState {
   if (fragmentSelector == null) {
-    return {kind: 'bailout', environment};
+    return {environment, kind: 'bailout'};
   } else if (fragmentSelector.kind === 'PluralReaderSelector') {
     // Note that if fragmentRef is an empty array, fragmentSelector will be null so we'll hit the above case.
     // Null is returned by getSelector if fragmentRef has no non-null items.
     return {
-      kind: 'plural',
-      snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
+      environment,
       epoch: environment.getStore().getEpoch(),
+      kind: 'plural',
       selector: fragmentSelector,
-      environment: environment,
+      snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
     };
   } else {
     return {
-      kind: 'singular',
-      snapshot: environment.lookup(fragmentSelector),
+      environment,
       epoch: environment.getStore().getEpoch(),
+      kind: 'singular',
       selector: fragmentSelector,
-      environment: environment,
+      snapshot: environment.lookup(fragmentSelector),
     };
   }
 }
@@ -501,7 +501,7 @@ hook useFragmentInternal_EXPERIMENTAL(
       let clientEdgeQueries;
       const activeRequestPromises: Array<PromiseWithDisplayName> = [];
       if (missingClientEdges?.length) {
-        clientEdgeQueries = ([]: Array<QueryResult>);
+        clientEdgeQueries = [] as Array<QueryResult>;
         for (const edge of missingClientEdges) {
           const [queryResult, requestPromise] = handleMissingClientEdge(
             environment,
@@ -671,10 +671,10 @@ hook useFragmentInternal_EXPERIMENTAL(
       setState,
     );
     storeSubscriptionRef.current = {
-      kind: 'initialized',
       dispose,
-      selector: state.selector,
       environment: state.environment,
+      kind: 'initialized',
+      selector: state.selector,
     };
   }, [state]);
   // $FlowFixMe[react-rule-hook] - the condition is static
@@ -685,10 +685,10 @@ hook useFragmentInternal_EXPERIMENTAL(
     ) {
       const dispose = subscribeToSnapshot(state.environment, state, setState);
       storeSubscriptionRef.current = {
-        kind: 'initialized',
         dispose,
-        selector: state.selector,
         environment: state.environment,
+        kind: 'initialized',
+        selector: state.selector,
       };
     }
     return () => {
@@ -764,7 +764,7 @@ hook useFragmentInternal_EXPERIMENTAL(
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
     // $FlowFixMe[react-rule-hook-conditional]
-    useDebugValue({fragment: fragmentNode.name, data});
+    useDebugValue({data, fragment: fragmentNode.name});
   }
 
   return data;

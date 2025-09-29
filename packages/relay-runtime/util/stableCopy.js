@@ -28,7 +28,7 @@ function stableCopy<T: mixed>(value: T): T {
   for (let i = 0; i < keys.length; i++) {
     stable[keys[i]] = stableCopy(value[keys[i]]);
   }
-  return (stable: any);
+  return stable as any;
 }
 
 // Detect if a data structure contains cycles. The logic here mirrors
@@ -52,6 +52,6 @@ function hasCycle(value: mixed, parents: Set<mixed> = new Set()): boolean {
 }
 
 module.exports = {
-  stableCopy,
   hasCycle,
+  stableCopy,
 };

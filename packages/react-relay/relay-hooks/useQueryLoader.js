@@ -213,9 +213,9 @@ hook useQueryLoader_CURRENT<
       const mergedOptions: ?UseQueryLoaderLoadQueryOptions =
         options != null && options.hasOwnProperty('__environment')
           ? {
+              __nameForWarning: options.__nameForWarning,
               fetchPolicy: options.fetchPolicy,
               networkCacheConfig: options.networkCacheConfig,
-              __nameForWarning: options.__nameForWarning,
             }
           : options;
       if (isMountedRef.current) {
@@ -223,7 +223,7 @@ hook useQueryLoader_CURRENT<
           options?.__environment ?? environment,
           preloadableRequest,
           variables,
-          (mergedOptions: $FlowFixMe),
+          mergedOptions as $FlowFixMe,
         );
         undisposedQueryReferencesRef.current.add(updatedQueryReference);
         setQueryReference(updatedQueryReference);

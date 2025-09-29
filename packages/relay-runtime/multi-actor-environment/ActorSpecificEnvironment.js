@@ -101,7 +101,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
     if (__DEV__) {
       const {inspect} = require('../store/StoreInspector');
-      (this: $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
+      (this as $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
         inspect(this, dataID);
     }
 

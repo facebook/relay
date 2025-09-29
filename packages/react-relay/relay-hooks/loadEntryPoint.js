@@ -78,9 +78,9 @@ function loadEntryPoint<
         parameters,
         variables,
         {
+          __nameForWarning: 'loadEntryPoint',
           fetchPolicy: options?.fetchPolicy,
           networkCacheConfig: options?.networkCacheConfig,
-          __nameForWarning: 'loadEntryPoint',
         },
         environmentProviderOptions,
       );
@@ -130,7 +130,7 @@ function loadEntryPoint<
       }
       isDisposed = true;
     },
-    entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
+    entryPoints: preloadedEntryPoints as TPreloadedEntryPoints,
     extraProps: extraProps ?? null,
     getComponent: () => {
       const componentModule = entryPoint.root.getModuleIfRequired();
@@ -149,13 +149,13 @@ function loadEntryPoint<
           ? componentModule.default
           : componentModule;
       // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
-      return (component: TEntryPointComponent);
+      return component as TEntryPointComponent;
     },
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed;
     },
-    queries: (preloadedQueries: TPreloadedQueries),
+    queries: preloadedQueries as TPreloadedQueries,
     rootModuleID: entryPoint.root.getModuleId(),
   };
 }

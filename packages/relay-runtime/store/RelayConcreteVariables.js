@@ -71,7 +71,7 @@ function getFragmentVariables(
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
-        (definition: empty);
+        definition as empty;
         invariant(
           false,
           'RelayConcreteVariables: Unexpected node kind `%s` in fragment `%s`.',
@@ -132,7 +132,7 @@ function getLocalVariables(
 }
 
 module.exports = {
-  getLocalVariables,
   getFragmentVariables,
+  getLocalVariables,
   getOperationVariables,
 };

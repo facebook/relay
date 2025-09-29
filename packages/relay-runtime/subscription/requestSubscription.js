@@ -89,6 +89,8 @@ function requestSubscription<TVariables: Variables, TData, TRawResponse>(
       updater,
     })
     .subscribe({
+      complete: onCompleted,
+      error: onError,
       next: responses => {
         if (onNext != null) {
           let selector = operation.fragment;
@@ -108,11 +110,9 @@ function requestSubscription<TVariables: Variables, TData, TRawResponse>(
           }
           const data = environment.lookup(selector).data;
           // $FlowFixMe[incompatible-type]
-          onNext((data: TData));
+          onNext(data as TData);
         }
       },
-      error: onError,
-      complete: onCompleted,
     });
   return {
     dispose: sub.unsubscribe,

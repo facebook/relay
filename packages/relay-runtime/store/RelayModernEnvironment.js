@@ -122,9 +122,9 @@ class RelayModernEnvironment implements IEnvironment {
     const store =
       config.store ??
       new RelayModernStore(new RelayRecordSource(), {
+        getDataID: config.getDataID,
         log: config.log,
         operationLoader: config.operationLoader,
-        getDataID: config.getDataID,
         shouldProcessClientComponents: config.shouldProcessClientComponents,
       });
 
@@ -150,12 +150,12 @@ class RelayModernEnvironment implements IEnvironment {
     this._isServer = config.isServer ?? false;
     this._normalizeResponse = config.normalizeResponse ?? normalizeResponse;
 
-    (this: any).__setNet = newNet =>
+    (this as any).__setNet = newNet =>
       (this._network = wrapNetworkWithLogObserver(this, newNet));
 
     if (__DEV__) {
       const {inspect} = require('./StoreInspector');
-      (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
+      (this as any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
     }
 
     this._operationTracker =
@@ -256,7 +256,7 @@ class RelayModernEnvironment implements IEnvironment {
     this._execute({
       createSource: () => RelayObservable.from({data: payload}),
       isClientPayload: true,
-      operation: operation,
+      operation,
       optimisticConfig: null,
       updater: null,
     }).subscribe({});
@@ -295,7 +295,6 @@ class RelayModernEnvironment implements IEnvironment {
     const target = RelayRecordSource.create();
     const source = this._store.getSource();
     const result = this._store.check(operation, {
-      handlers,
       defaultActorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       getSourceForActor(actorIdentifier: ActorIdentifier) {
         assertInternalActorIdentifier(actorIdentifier);
@@ -305,6 +304,7 @@ class RelayModernEnvironment implements IEnvironment {
         assertInternalActorIdentifier(actorIdentifier);
         return target;
       },
+      handlers,
     });
     if (target.size() > 0) {
       this._scheduleUpdates(() => {
@@ -407,7 +407,7 @@ class RelayModernEnvironment implements IEnvironment {
     let optimisticConfig;
     if (optimisticResponse || optimisticUpdater) {
       optimisticConfig = {
-        operation: operation,
+        operation,
         response: optimisticResponse,
         updater: optimisticUpdater,
       };
@@ -478,30 +478,30 @@ class RelayModernEnvironment implements IEnvironment {
       const executor = OperationExecutor.execute<$FlowFixMe>({
         actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         getDataID: this._getDataID,
+        getPublishQueue(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIdentifier(actorIdentifier);
+          return publishQueue;
+        },
+        getStore(actorIdentifier: ActorIdentifier) {
+          assertInternalActorIdentifier(actorIdentifier);
+          return store;
+        },
         isClientPayload,
         log: this.__log,
+        normalizeResponse: this._normalizeResponse,
         operation,
         operationExecutions: this._operationExecutions,
         operationLoader: this._operationLoader,
         operationTracker: this._operationTracker,
         optimisticConfig,
-        getPublishQueue(actorIdentifier: ActorIdentifier) {
-          assertInternalActorIdentifier(actorIdentifier);
-          return publishQueue;
-        },
         scheduler: this._scheduler,
         shouldProcessClientComponents: this._shouldProcessClientComponents,
         sink,
         // NOTE: Some product tests expect `Network.execute` to be called only
         //       when the Observable is executed.
         source: createSource(),
-        getStore(actorIdentifier: ActorIdentifier) {
-          assertInternalActorIdentifier(actorIdentifier);
-          return store;
-        },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
         updater,
-        normalizeResponse: this._normalizeResponse,
       });
       return () => executor.cancel();
     });
@@ -520,7 +520,7 @@ function operationHasClientAbstractTypes(
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a
 // realm-specific instanceof check, and to aid in module tree-shaking to
 // avoid requiring all of RelayRuntime just to detect its environment.
-(RelayModernEnvironment: any).prototype['@@RelayModernEnvironment'] = true;
+(RelayModernEnvironment as any).prototype['@@RelayModernEnvironment'] = true;
 
 function emptyFunction() {}
 

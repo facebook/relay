@@ -39,7 +39,7 @@ const {
   disallowWarnings,
   expectWarningWillFire,
   injectPromisePolyfill__DEPRECATED,
-} = (jest.requireActual('relay-test-utils-internal'): $FlowFixMe);
+} = jest.requireActual('relay-test-utils-internal') as $FlowFixMe;
 
 const {useMemo, useState} = React;
 
@@ -139,11 +139,11 @@ describe('useBlockingPaginationFragment', () => {
     fragmentName: string = 'useBlockingPaginationFragmentTestNestedUserFragment',
   ) {
     return {
-      [ID_KEY]: id,
+      [FRAGMENT_OWNER_KEY]: owner.request,
       [FRAGMENTS_KEY]: {
         [fragmentName]: {},
       },
-      [FRAGMENT_OWNER_KEY]: owner.request,
+      [ID_KEY]: id,
     };
   }
 
@@ -285,10 +285,10 @@ describe('useBlockingPaginationFragment', () => {
 
     variablesWithoutID = {
       after: null,
-      first: 1,
       before: null,
-      last: null,
+      first: 1,
       isViewerFriend: false,
+      last: null,
       orderby: ['name'],
     };
     variables = {
@@ -319,8 +319,6 @@ describe('useBlockingPaginationFragment', () => {
     environment.commitPayload(query, {
       node: {
         __typename: 'User',
-        id: '1',
-        name: 'Alice',
         friends: {
           edges: [
             {
@@ -340,14 +338,14 @@ describe('useBlockingPaginationFragment', () => {
             startCursor: 'cursor:1',
           },
         },
+        id: '1',
+        name: 'Alice',
       },
     });
     environment.commitPayload(queryWithoutID, {
       viewer: {
         actor: {
           __typename: 'User',
-          id: '1',
-          name: 'Alice',
           friends: {
             edges: [
               {
@@ -367,14 +365,14 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:1',
             },
           },
+          id: '1',
+          name: 'Alice',
         },
       },
     });
     environment.commitPayload(queryWithLiteralArgs, {
       node: {
         __typename: 'User',
-        id: '1',
-        name: 'Alice',
         friends: {
           edges: [
             {
@@ -394,6 +392,8 @@ describe('useBlockingPaginationFragment', () => {
             startCursor: 'cursor:1',
           },
         },
+        id: '1',
+        name: 'Alice',
       },
     });
 
@@ -467,8 +467,6 @@ describe('useBlockingPaginationFragment', () => {
     };
 
     initialUser = {
-      id: '1',
-      name: 'Alice',
       friends: {
         edges: [
           {
@@ -488,6 +486,8 @@ describe('useBlockingPaginationFragment', () => {
           startCursor: 'cursor:1',
         },
       },
+      id: '1',
+      name: 'Alice',
     };
   });
 
@@ -677,7 +677,6 @@ describe('useBlockingPaginationFragment', () => {
         {
           data: {
             ...initialUser,
-            name: 'Alice in Wonderland',
             friends: {
               ...initialUser.friends,
               edges: [
@@ -693,6 +692,7 @@ describe('useBlockingPaginationFragment', () => {
                 },
               ],
             },
+            name: 'Alice in Wonderland',
           },
 
           hasNext: true,
@@ -846,21 +846,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
 
         expect(callback).toBeCalledTimes(0);
@@ -925,21 +925,21 @@ describe('useBlockingPaginationFragment', () => {
           );
 
           const paginationVariables = {
-            id: '1',
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(unsubscribe).toHaveBeenCalledTimes(0);
 
@@ -978,21 +978,21 @@ describe('useBlockingPaginationFragment', () => {
           );
 
           const paginationVariables = {
-            id: '1',
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(unsubscribe).toHaveBeenCalledTimes(0);
 
@@ -1010,12 +1010,10 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       it('attempts to load more even if there are no more items to load', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -1035,6 +1033,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
         const callback = jest.fn<[Error | null], void>();
@@ -1060,21 +1060,21 @@ describe('useBlockingPaginationFragment', () => {
         });
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: false,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1082,17 +1082,17 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [],
                 pageInfo: {
-                  startCursor: null,
                   endCursor: null,
                   hasNextPage: null,
                   hasPreviousPage: null,
+                  startCursor: null,
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1122,21 +1122,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1144,8 +1144,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1159,12 +1157,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1244,12 +1244,12 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: true,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
@@ -1258,10 +1258,10 @@ describe('useBlockingPaginationFragment', () => {
         );
         expectFragmentIsLoadingMore(renderer, direction, {
           data: expectedUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1269,8 +1269,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1284,12 +1282,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1351,21 +1351,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         let paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1373,8 +1373,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1388,12 +1386,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1453,10 +1453,10 @@ describe('useBlockingPaginationFragment', () => {
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: expectedUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1464,8 +1464,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1479,12 +1477,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:3',
                   endCursor: 'cursor:3',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:3',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1559,21 +1559,21 @@ describe('useBlockingPaginationFragment', () => {
         Scheduler.unstable_flushAll();
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1600,8 +1600,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1615,12 +1613,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1689,21 +1689,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
         // $FlowFixMe[prop-missing]
@@ -1743,21 +1743,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1780,8 +1780,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1795,19 +1793,20 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
 
         const expectedUser = {
           ...initialUser,
-          name: 'Alice',
           friends: {
             ...initialUser.friends,
             edges: [
@@ -1837,6 +1836,7 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:1',
             },
           },
+          name: 'Alice',
         };
         expectFragmentResults([
           {
@@ -1864,21 +1864,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -1886,8 +1886,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1901,12 +1899,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1996,7 +1996,6 @@ describe('useBlockingPaginationFragment', () => {
           {
             data: {
               ...expectedUser,
-              name: 'Alice in Wonderland',
               friends: {
                 ...expectedUser.friends,
                 edges: [
@@ -2021,6 +2020,7 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
               },
+              name: 'Alice in Wonderland',
             },
 
             hasNext: true,
@@ -2045,21 +2045,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -2068,8 +2068,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -2083,12 +2081,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -2204,21 +2204,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: expectedUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -2226,8 +2226,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -2241,12 +2239,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -2300,11 +2300,8 @@ describe('useBlockingPaginationFragment', () => {
         environment.commitPayload(queryNestedFragment, {
           node: {
             __typename: 'Feedback',
-            id: '<feedbackid>',
             actor: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -2324,17 +2321,19 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:1',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
+            id: '<feedbackid>',
           },
         });
 
         // Get fragment ref for user using nested fragment
-        const userRef = (environment.lookup(queryNestedFragment.fragment)
-          .data: $FlowFixMe)?.node?.actor;
+        const userRef = (
+          environment.lookup(queryNestedFragment.fragment).data as $FlowFixMe
+        )?.node?.actor;
 
         initialUser = {
-          id: '1',
-          name: 'Alice',
           friends: {
             edges: [
               {
@@ -2354,6 +2353,8 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:1',
             },
           },
+          id: '1',
+          name: 'Alice',
         };
 
         const renderer = renderFragment({owner: queryNestedFragment, userRef});
@@ -2369,23 +2370,23 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
+          after: 'cursor:1',
+          before: null,
+          first: 1,
           // The id here should correspond to the user id, and not the
           // feedback id from the query variables (i.e. `<feedbackid>`)
           id: '1',
-          after: 'cursor:1',
-          first: 1,
-          before: null,
-          last: null,
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -2393,8 +2394,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -2408,12 +2407,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -2476,21 +2477,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -2525,21 +2526,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -2551,10 +2552,10 @@ describe('useBlockingPaginationFragment', () => {
         // with new fragment ref that points to the same data.
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -2562,8 +2563,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -2577,12 +2576,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -2643,28 +2644,28 @@ describe('useBlockingPaginationFragment', () => {
 
           TestRenderer.act(() => {
             loadNext(1, {
-              onComplete: callback,
               // Pass extra variables that are different from original request
               UNSTABLE_extraVariables: {scale: 2.0},
+              onComplete: callback,
             });
           });
           const paginationVariables = {
-            id: '1',
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             // Assert that value from extra variables is used
             scale: 2.0,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
 
@@ -2672,8 +2673,6 @@ describe('useBlockingPaginationFragment', () => {
             data: {
               node: {
                 __typename: 'User',
-                id: '1',
-                name: 'Alice',
                 friends: {
                   edges: [
                     {
@@ -2687,12 +2686,14 @@ describe('useBlockingPaginationFragment', () => {
                     },
                   ],
                   pageInfo: {
-                    startCursor: 'cursor:2',
                     endCursor: 'cursor:2',
                     hasNextPage: true,
                     hasPreviousPage: true,
+                    startCursor: 'cursor:2',
                   },
                 },
+                id: '1',
+                name: 'Alice',
               },
             },
           });
@@ -2759,28 +2760,28 @@ describe('useBlockingPaginationFragment', () => {
 
           TestRenderer.act(() => {
             loadNext(1, {
-              onComplete: callback,
               // Pass pagination vars as extra variables
-              UNSTABLE_extraVariables: {first: 100, after: 'foo'},
+              UNSTABLE_extraVariables: {after: 'foo', first: 100},
+              onComplete: callback,
             });
           });
           const paginationVariables = {
-            id: '1',
             // Assert that pagination vars from extra variables are ignored
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
 
@@ -2788,8 +2789,6 @@ describe('useBlockingPaginationFragment', () => {
             data: {
               node: {
                 __typename: 'User',
-                id: '1',
-                name: 'Alice',
                 friends: {
                   edges: [
                     {
@@ -2803,12 +2802,14 @@ describe('useBlockingPaginationFragment', () => {
                     },
                   ],
                   pageInfo: {
-                    startCursor: 'cursor:2',
                     endCursor: 'cursor:2',
                     hasNextPage: true,
                     hasPreviousPage: true,
+                    startCursor: 'cursor:2',
                   },
                 },
+                id: '1',
+                name: 'Alice',
               },
             },
           });
@@ -2882,21 +2883,21 @@ describe('useBlockingPaginationFragment', () => {
 
           // Assert request is started
           const paginationVariables = {
-            id: '1',
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
 
@@ -2907,8 +2908,6 @@ describe('useBlockingPaginationFragment', () => {
           newEnvironment.commitPayload(query, {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice in a different environment',
               friends: {
                 edges: [
                   {
@@ -2928,6 +2927,8 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:1',
                 },
               },
+              id: '1',
+              name: 'Alice in a different environment',
             },
           });
           TestRenderer.act(() => {
@@ -2937,10 +2938,10 @@ describe('useBlockingPaginationFragment', () => {
           // Assert request was canceled
           expect(unsubscribe).toBeCalledTimes(1);
           expectRequestIsInFlight({
-            inFlight: false,
-            requestCount: 1,
             gqlPaginationQuery,
+            inFlight: false,
             paginationVariables,
+            requestCount: 1,
           });
 
           // Assert newly rendered data
@@ -2989,21 +2990,21 @@ describe('useBlockingPaginationFragment', () => {
 
           // Assert request is started
           const paginationVariables = {
-            id: '1',
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
 
@@ -3013,8 +3014,6 @@ describe('useBlockingPaginationFragment', () => {
           environment.commitPayload(newQuery, {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -3034,6 +3033,8 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:1',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           });
           TestRenderer.act(() => {
@@ -3043,10 +3044,10 @@ describe('useBlockingPaginationFragment', () => {
           // Assert request was canceled
           expect(unsubscribe).toBeCalledTimes(1);
           expectRequestIsInFlight({
-            inFlight: false,
-            requestCount: 1,
             gqlPaginationQuery,
+            inFlight: false,
             paginationVariables,
+            requestCount: 1,
           });
 
           // Assert newly rendered data
@@ -3107,21 +3108,21 @@ describe('useBlockingPaginationFragment', () => {
 
           // Assert request is started
           const paginationVariables = {
-            id: '1',
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
           expect(unsubscribe).toBeCalledTimes(0);
@@ -3132,10 +3133,10 @@ describe('useBlockingPaginationFragment', () => {
           // Assert request was not canceled (for activity compatibility)
           expect(unsubscribe).toBeCalledTimes(0);
           expectRequestIsInFlight({
-            inFlight: true,
-            requestCount: 1,
             gqlPaginationQuery,
+            inFlight: true,
             paginationVariables,
+            requestCount: 1,
           });
         });
 
@@ -3166,21 +3167,21 @@ describe('useBlockingPaginationFragment', () => {
 
           // Assert request is started
           const paginationVariables = {
-            id: '1',
             after: 'cursor:1',
-            first: 1,
             before: null,
-            last: null,
+            first: 1,
+            id: '1',
             isViewerFriendLocal: false,
+            last: null,
             orderby: ['name'],
             scale: null,
           };
           expectFragmentIsLoadingMore(renderer, direction, {
             data: initialUser,
+            gqlPaginationQuery,
             hasNext: true,
             hasPrevious: false,
             paginationVariables,
-            gqlPaginationQuery,
           });
           expect(callback).toBeCalledTimes(0);
 
@@ -3190,10 +3191,10 @@ describe('useBlockingPaginationFragment', () => {
           // Assert request was not canceled (for activity compatibility)
           expect(unsubscribe).toBeCalledTimes(0);
           expectRequestIsInFlight({
-            inFlight: true,
-            requestCount: 1,
             gqlPaginationQuery,
+            inFlight: true,
             paginationVariables,
+            requestCount: 1,
           });
           expect(renderSpy).toHaveBeenCalledTimes(0);
         });
@@ -3204,12 +3205,10 @@ describe('useBlockingPaginationFragment', () => {
       const direction = 'forward';
 
       it('returns true if it has more items', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -3229,6 +3228,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
 
@@ -3250,12 +3251,10 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       it('returns false if edges are null', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: null,
               pageInfo: {
@@ -3265,6 +3264,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
 
@@ -3287,15 +3288,13 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       it('returns false if edges are undefined', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         expectWarningWillFire(
           'RelayResponseNormalizer: Payload did not contain a value for field `edges: edges`. Check that you are parsing with the same query that was used to fetch the payload.',
         );
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: undefined,
               pageInfo: {
@@ -3305,6 +3304,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
 
@@ -3327,12 +3328,10 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       it('returns false if end cursor is null', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -3354,6 +3353,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: null,
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
 
@@ -3378,7 +3379,7 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       it('returns false if end cursor is undefined', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         expectWarningWillFire(
           'RelayResponseNormalizer: Payload did not contain a value for field `endCursor: endCursor`. Check that you are parsing with the same query that was used to fetch the payload.',
         );
@@ -3388,8 +3389,6 @@ describe('useBlockingPaginationFragment', () => {
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -3411,6 +3410,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: undefined,
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
 
@@ -3435,12 +3436,10 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       it('returns false if pageInfo.hasNextPage is false-ish', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -3460,6 +3459,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
 
@@ -3483,12 +3484,10 @@ describe('useBlockingPaginationFragment', () => {
       });
 
       it('returns false if pageInfo.hasNextPage is false', () => {
-        (environment.getStore().getSource(): $FlowFixMe).clear();
+        (environment.getStore().getSource() as $FlowFixMe).clear();
         environment.commitPayload(query, {
           node: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -3508,6 +3507,8 @@ describe('useBlockingPaginationFragment', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         });
 
@@ -3545,21 +3546,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -3567,8 +3568,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -3582,12 +3581,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -3651,21 +3652,21 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1, {onComplete: callback});
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, direction, {
           data: initialUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -3673,8 +3674,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -3688,12 +3687,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: false,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -3812,11 +3813,11 @@ describe('useBlockingPaginationFragment', () => {
         // suspends upon refetch
         const refetchVariables = {
           after: null,
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
           id: '4',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
           scale: null,
         };
@@ -3829,8 +3830,8 @@ describe('useBlockingPaginationFragment', () => {
           data: initialUser,
           hasNext: true,
           hasPrevious: false,
-          refetchVariables,
           refetchQuery: paginationQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -3838,8 +3839,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '4',
-              name: 'Mark',
               friends: {
                 edges: [
                   {
@@ -3859,14 +3858,14 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:100',
                 },
               },
+              id: '4',
+              name: 'Mark',
             },
           },
         });
 
         // Assert fragment is rendered with new data
         const expectedUser = {
-          id: '4',
-          name: 'Mark',
           friends: {
             edges: [
               {
@@ -3886,6 +3885,8 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:100',
             },
           },
+          id: '4',
+          name: 'Mark',
         };
         expectFragmentResults([
           {
@@ -3926,11 +3927,11 @@ describe('useBlockingPaginationFragment', () => {
         // suspends upon refetch
         const refetchVariables = {
           after: null,
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
           id: '1',
           isViewerFriendLocal: true,
+          last: null,
           orderby: ['lastname'],
           scale: null,
         };
@@ -3943,8 +3944,8 @@ describe('useBlockingPaginationFragment', () => {
           data: initialUser,
           hasNext: true,
           hasPrevious: false,
-          refetchVariables,
           refetchQuery: paginationQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -3952,8 +3953,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -3973,14 +3972,14 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:100',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
 
         // Assert fragment is rendered with new data
         const expectedUser = {
-          id: '1',
-          name: 'Alice',
           friends: {
             edges: [
               {
@@ -4000,6 +3999,8 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:100',
             },
           },
+          id: '1',
+          name: 'Alice',
         };
         expectFragmentResults([
           {
@@ -4027,11 +4028,8 @@ describe('useBlockingPaginationFragment', () => {
         environment.commitPayload(queryNestedFragment, {
           node: {
             __typename: 'Feedback',
-            id: '<feedbackid>',
             actor: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -4051,17 +4049,19 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:1',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
+            id: '<feedbackid>',
           },
         });
 
         // Get fragment ref for user using nested fragment
-        const userRef = (environment.lookup(queryNestedFragment.fragment)
-          .data: $FlowFixMe)?.node?.actor;
+        const userRef = (
+          environment.lookup(queryNestedFragment.fragment).data as $FlowFixMe
+        )?.node?.actor;
 
         initialUser = {
-          id: '1',
-          name: 'Alice',
           friends: {
             edges: [
               {
@@ -4081,6 +4081,8 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:1',
             },
           },
+          id: '1',
+          name: 'Alice',
         };
 
         const renderer = renderFragment({owner: queryNestedFragment, userRef});
@@ -4100,13 +4102,13 @@ describe('useBlockingPaginationFragment', () => {
         // suspends upon refetch
         const refetchVariables = {
           after: null,
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
           // The id here should correspond to the user id, and not the
           // feedback id from the query variables (i.e. `<feedbackid>`)
           id: '1',
           isViewerFriendLocal: true,
+          last: null,
           orderby: ['lastname'],
           scale: null,
         };
@@ -4119,8 +4121,8 @@ describe('useBlockingPaginationFragment', () => {
           data: initialUser,
           hasNext: true,
           hasPrevious: false,
-          refetchVariables,
           refetchQuery: paginationQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -4128,8 +4130,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -4149,14 +4149,14 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:100',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
 
         // Assert fragment is rendered with new data
         const expectedUser = {
-          id: '1',
-          name: 'Alice',
           friends: {
             edges: [
               {
@@ -4176,6 +4176,8 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:100',
             },
           },
+          id: '1',
+          name: 'Alice',
         };
         expectFragmentResults([
           {
@@ -4216,11 +4218,11 @@ describe('useBlockingPaginationFragment', () => {
         // suspends upon refetch
         const refetchVariables = {
           after: null,
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
           id: '1',
           isViewerFriendLocal: true,
+          last: null,
           orderby: ['lastname'],
           scale: null,
         };
@@ -4233,8 +4235,8 @@ describe('useBlockingPaginationFragment', () => {
           data: initialUser,
           hasNext: true,
           hasPrevious: false,
-          refetchVariables,
           refetchQuery: paginationQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -4242,8 +4244,6 @@ describe('useBlockingPaginationFragment', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -4263,14 +4263,14 @@ describe('useBlockingPaginationFragment', () => {
                   startCursor: 'cursor:100',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
 
         // Assert fragment is rendered with new data
         const expectedUser = {
-          id: '1',
-          name: 'Alice',
           friends: {
             edges: [
               {
@@ -4290,6 +4290,8 @@ describe('useBlockingPaginationFragment', () => {
               startCursor: 'cursor:100',
             },
           },
+          id: '1',
+          name: 'Alice',
         };
         expectFragmentResults([
           {
@@ -4318,29 +4320,27 @@ describe('useBlockingPaginationFragment', () => {
           loadNext(1);
         });
         const paginationVariables = {
-          id: '1',
           after: 'cursor:100',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: true,
+          last: null,
           orderby: ['lastname'],
           scale: null,
         };
         expectFragmentIsLoadingMore(renderer, 'forward', {
           data: expectedUser,
+          gqlPaginationQuery,
           hasNext: true,
           hasPrevious: false,
           paginationVariables,
-          gqlPaginationQuery,
         });
 
         environment.mock.resolve(gqlPaginationQuery, {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -4354,12 +4354,14 @@ describe('useBlockingPaginationFragment', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:200',
                   endCursor: 'cursor:200',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:200',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });

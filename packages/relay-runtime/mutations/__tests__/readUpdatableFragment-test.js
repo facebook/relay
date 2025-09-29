@@ -87,11 +87,11 @@ describe('readUpdatableFragment', () => {
   it('handles variables correctly', () => {
     environment.commitPayload(operation, {
       me: {
-        id: '4',
         __typename: 'User',
         firstName: 'Mark',
         firstName2: 'Twain',
         firstName3: null,
+        id: '4',
       },
     });
 
@@ -99,7 +99,7 @@ describe('readUpdatableFragment', () => {
     const selector = operation.fragment;
     const readOnlyData: readUpdatableFragmentTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
 
     const me = readOnlyData.me;
     if (me == null) {
@@ -126,7 +126,7 @@ describe('readUpdatableFragment', () => {
 
     const readOnlyData2: readUpdatableFragmentTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
     expect(readOnlyData2?.me?.firstName).toBe('Rita');
     expect(readOnlyData2?.me?.firstName2).toBe('Repulsa');
   });
@@ -134,11 +134,11 @@ describe('readUpdatableFragment', () => {
   it('correctly handles multiple aliased fields that use different variables', () => {
     environment.commitPayload(operation, {
       me: {
-        id: '4',
         __typename: 'User',
         firstName: null,
         firstName2: 'Twain',
         firstName3: 'Wahlburg',
+        id: '4',
       },
     });
 
@@ -146,7 +146,7 @@ describe('readUpdatableFragment', () => {
     const selector = operation.fragment;
     const readOnlyData: readUpdatableFragmentTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
 
     const me = readOnlyData.me;
     if (me == null) {
@@ -173,7 +173,7 @@ describe('readUpdatableFragment', () => {
 
     const readOnlyData2: readUpdatableFragmentTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
     expect(readOnlyData2?.me?.firstName2).toBe('Lord');
     expect(readOnlyData2?.me?.firstName3).toBe('Zedd');
   });

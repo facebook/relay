@@ -117,11 +117,11 @@ function cloneEventWithSets(event: LogEvent) {
         data = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            emailAddresses: ['a@b.com'],
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
-            emailAddresses: ['a@b.com'],
           },
           'client:1': {
             __id: 'client:1',
@@ -130,19 +130,19 @@ function cloneEventWithSets(event: LogEvent) {
           'client:root': {
             __id: 'client:root',
             __typename: '__Root',
-            'node(id:"4")': {__ref: '4'},
             me: {__ref: '4'},
+            'node(id:"4")': {__ref: '4'},
           },
         };
-        logEvents = ([]: Array<
+        logEvents = [] as Array<
           $FlowFixMe | {...} | {data: ?SelectorData, kind: string},
-        >);
+        >;
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
+          gcReleaseBufferSize: 0,
           log: event => {
             logEvents.push(cloneEventWithSets(event));
           },
-          gcReleaseBufferSize: 0,
         });
         UserFragment = graphql`
           fragment RelayModernStoreSubscriptionsTest1Fragment on User {
@@ -188,11 +188,11 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           data: {
+            emailAddresses: ['a@b.com'],
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo2.jpg', // new uri
             },
-            emailAddresses: ['a@b.com'],
           },
           seenRecords: new Set(['client:1', '4']),
         });
@@ -243,11 +243,11 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           data: {
+            emailAddresses: ['a@b.com'],
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo2.jpg', // new uri
             },
-            emailAddresses: ['a@b.com'],
           },
           seenRecords: new Set(['client:1', '4']),
         });
@@ -298,8 +298,8 @@ function cloneEventWithSets(event: LogEvent) {
           '4': {
             __id: '4',
             __typename: 'User',
-            name: 'Mark',
             emailAddresses: ['a@b.com', 'c@d.net'],
+            name: 'Mark',
           },
           'client:1': {
             __id: 'client:1',
@@ -320,11 +320,11 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           data: {
+            emailAddresses: ['a@b.com', 'c@d.net'],
             name: 'Mark',
             profilePicture: {
               uri: 'https://photo3.jpg', // most recent uri
             },
-            emailAddresses: ['a@b.com', 'c@d.net'],
           },
           seenRecords: new Set(['client:1', '4']),
         });
@@ -334,8 +334,8 @@ function cloneEventWithSets(event: LogEvent) {
         const dataObj = {
           '4': {
             __id: '4',
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             'profilePicture(size:32)': {[REF_KEY]: 'client:1'},
           },
@@ -371,16 +371,16 @@ function cloneEventWithSets(event: LogEvent) {
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
-          missingLiveResolverFields: [],
-          isMissingData: false,
-          fieldErrors: null,
           data: {
+            emailAddresses: ['a@b.com'],
             name: 'Zuck',
             profilePicture: {
               uri: 'https://photo1.jpg',
             },
-            emailAddresses: ['a@b.com'],
           },
+          fieldErrors: null,
+          isMissingData: false,
+          missingLiveResolverFields: [],
           seenRecords: new Set(['client:1', '4']),
         });
       });
@@ -415,8 +415,6 @@ function cloneEventWithSets(event: LogEvent) {
             name: 'Joe',
             profilePicture: undefined,
           },
-          missingLiveResolverFields: [],
-          isMissingData: true,
           fieldErrors: [
             {
               fieldPath: 'profilePicture',
@@ -429,6 +427,8 @@ function cloneEventWithSets(event: LogEvent) {
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
           ],
+          isMissingData: true,
+          missingLiveResolverFields: [],
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
       });
@@ -478,8 +478,8 @@ function cloneEventWithSets(event: LogEvent) {
               owner: 'RelayModernStoreSubscriptionsTest1Fragment',
             },
           ],
-          missingLiveResolverFields: [],
           isMissingData: true,
+          missingLiveResolverFields: [],
           seenRecords: new Set(['842472']),
         });
       });
@@ -708,8 +708,8 @@ function cloneEventWithSets(event: LogEvent) {
         logEvents.length = 0;
         const callback = jest.fn((nextSnapshot: Snapshot) => {
           logEvents.push({
-            kind: 'test_only_callback',
             data: nextSnapshot.data,
+            kind: 'test_only_callback',
           });
         });
         store.subscribe(snapshot, callback);
@@ -722,7 +722,7 @@ function cloneEventWithSets(event: LogEvent) {
         });
         store.publish(nextSource);
         expect(logEvents).toEqual([
-          {name: 'store.publish', source: nextSource, optimistic: false},
+          {name: 'store.publish', optimistic: false, source: nextSource},
         ]);
         expect(callback).toBeCalledTimes(0);
         logEvents.length = 0;
@@ -734,21 +734,21 @@ function cloneEventWithSets(event: LogEvent) {
           },
           // callbacks occur after notify.start...
           {
-            // not a real LogEvent, this is for testing only
-            kind: 'test_only_callback',
             data: {
               emailAddresses: ['a@b.com'],
               name: 'Zuck',
               profilePicture: {uri: 'https://photo2.jpg'},
             },
+            // not a real LogEvent, this is for testing only
+            kind: 'test_only_callback',
           },
           // ...and before notify.complete
           {
-            name: 'store.notify.complete',
-            updatedRecordIDs: new Set(['client:1']),
             invalidatedRecordIDs: new Set(),
-            updatedOwners: [owner.request],
+            name: 'store.notify.complete',
             subscriptionsSize: 1,
+            updatedOwners: [owner.request],
+            updatedRecordIDs: new Set(['client:1']),
           },
         ]);
         expect(callback).toBeCalledTimes(1);
@@ -779,8 +779,8 @@ function cloneEventWithSets(event: LogEvent) {
           logEvents.length = 0;
           const callback = jest.fn((nextSnapshot: Snapshot) => {
             logEvents.push({
-              kind: 'test_only_callback',
               data: nextSnapshot.data,
+              kind: 'test_only_callback',
             });
           });
           store.subscribe(snapshot, callback);
@@ -793,7 +793,7 @@ function cloneEventWithSets(event: LogEvent) {
           });
           store.publish(nextSource);
           expect(logEvents).toEqual([
-            {name: 'store.publish', source: nextSource, optimistic: false},
+            {name: 'store.publish', optimistic: false, source: nextSource},
           ]);
           expect(callback).toBeCalledTimes(0);
           logEvents.length = 0;
@@ -806,15 +806,6 @@ function cloneEventWithSets(event: LogEvent) {
             // callbacks occur after notify.start...
             {
               name: 'store.notify.subscription',
-              sourceOperation: owner,
-              snapshot: expect.objectContaining({
-                data: {
-                  emailAddresses: ['a@b.com'],
-                  name: 'Zuck',
-                  profilePicture: {uri: 'https://photo1.jpg'},
-                },
-                selector,
-              }),
               nextSnapshot: expect.objectContaining({
                 data: {
                   emailAddresses: ['a@b.com'],
@@ -823,24 +814,33 @@ function cloneEventWithSets(event: LogEvent) {
                 },
                 selector,
               }),
+              snapshot: expect.objectContaining({
+                data: {
+                  emailAddresses: ['a@b.com'],
+                  name: 'Zuck',
+                  profilePicture: {uri: 'https://photo1.jpg'},
+                },
+                selector,
+              }),
+              sourceOperation: owner,
             },
             {
-              // not a real LogEvent, this is for testing only
-              kind: 'test_only_callback',
               data: {
                 emailAddresses: ['a@b.com'],
                 name: 'Zuck',
                 profilePicture: {uri: 'https://photo2.jpg'},
               },
+              // not a real LogEvent, this is for testing only
+              kind: 'test_only_callback',
             },
             // ...and before notify.complete
             {
+              invalidatedRecordIDs: new Set(),
               name: 'store.notify.complete',
               sourceOperation: owner,
-              updatedRecordIDs: new Set(['client:1']),
-              invalidatedRecordIDs: new Set(),
-              updatedOwners: [owner.request],
               subscriptionsSize: 1,
+              updatedOwners: [owner.request],
+              updatedRecordIDs: new Set(['client:1']),
             },
           ]);
           expect(callback).toBeCalledTimes(1);

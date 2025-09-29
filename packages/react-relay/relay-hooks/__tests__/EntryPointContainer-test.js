@@ -54,7 +54,7 @@ const params = {
 
 // Only queries with an ID are preloadable
 const ID = 'my-id';
-(query.params: any).id = ID;
+(query.params as any).id = ID;
 
 const response = {
   data: {
@@ -140,14 +140,14 @@ beforeEach(() => {
                   },
                 };
               },
-              root: (nestedEntryPointResource: $FlowFixMe),
+              root: nestedEntryPointResource as $FlowFixMe,
             },
-            entryPointParams: entryPointParams,
+            entryPointParams,
           },
         },
       };
     },
-    root: (new FakeJSResource(): $FlowFixMe),
+    root: new FakeJSResource() as $FlowFixMe,
   };
 });
 
@@ -279,7 +279,7 @@ it.skip('suspends then updates when the query and component load', () => {
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
     return data.node?.name;
   }
-  nestedEntryPointResource.resolve((Component: any));
+  nestedEntryPointResource.resolve(Component as any);
   PreloadableQueryRegistry.set(ID, query);
   dataSource.next(response);
   dataSource.complete();
@@ -300,7 +300,7 @@ it('renders synchronously when the component has already loaded and the data arr
     return data.node?.name;
   }
   PreloadableQueryRegistry.set(ID, query);
-  nestedEntryPointResource.resolve((Component: any));
+  nestedEntryPointResource.resolve(Component as any);
   entryPointReference = loadEntryPoint<
     {id: string},
     {},

@@ -798,7 +798,7 @@ class LiveResolverCache implements ResolverCache {
         return source;
       }
       default:
-        (normalizationInfo.kind: empty);
+        normalizationInfo.kind as empty;
         invariant(
           false,
           'LiveResolverCache: Unexpected normalization info kind `%s`.',
@@ -1009,7 +1009,7 @@ function getConcreteTypename(
   const typename =
     normalizationInfo.concreteType ??
     // $FlowFixMe[prop-missing]
-    (currentValue.__typename: string);
+    (currentValue.__typename as string);
   invariant(
     typename != null,
     'normalizationInfo.concreteType should not be null, or the value returned from the resolver should include a __typename field, ' +
@@ -1020,6 +1020,6 @@ function getConcreteTypename(
 
 module.exports = {
   LiveResolverCache,
-  getUpdatedDataIDs,
   RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+  getUpdatedDataIDs,
 };

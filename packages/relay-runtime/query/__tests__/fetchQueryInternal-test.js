@@ -339,19 +339,19 @@ describe('fetchQuery', () => {
       let observer2Payload = null;
       let calledObserver2Complete = false;
       const observer1 = {
-        next: (data: GraphQLResponse) => {
-          observer1Payload = data;
-        },
         complete: () => {
           calledObserver1Complete = true;
         },
+        next: (data: GraphQLResponse) => {
+          observer1Payload = data;
+        },
       };
       const observer2 = {
-        next: (data: GraphQLResponse) => {
-          observer2Payload = data;
-        },
         complete: () => {
           calledObserver2Complete = true;
+        },
+        next: (data: GraphQLResponse) => {
+          observer2Payload = data;
         },
       };
       const subscription1 = fetchQuery(environment, query).subscribe(observer1);
@@ -718,12 +718,12 @@ describe('getPromiseForActiveRequest', () => {
         unsubscribe: jest.fn<[Subscription], mixed>(),
       };
       operationLoader = {
+        get: jest.fn<[mixed], NormalizationSplitOperation>(),
         load: jest.fn((moduleName: mixed) => {
           return new Promise(resolve => {
             resolveModule = resolve;
           });
         }),
-        get: jest.fn<[mixed], NormalizationSplitOperation>(),
       };
       // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
       environment = createMockEnvironment({operationLoader});
@@ -784,18 +784,18 @@ describe('getPromiseForActiveRequest', () => {
       environment.mock.resolve(gqlQuery, {
         data: {
           node: {
-            id: '1',
             __typename: 'User',
+            id: '1',
             nameRenderer: {
-              __typename: 'MarkdownUserNameRenderer',
               __module_component_fetchQueryInternalTest2Query:
                 'MarkdownUserNameRenderer.react',
               __module_operation_fetchQueryInternalTest2Query:
                 'fetchQueryInternalTestMarkdownFragment_name$normalization.graphql',
-              markdown: 'markdown payload',
+              __typename: 'MarkdownUserNameRenderer',
               data: {
                 markup: '<markup/>',
               },
+              markdown: 'markdown payload',
             },
           },
         },
@@ -826,18 +826,18 @@ describe('getPromiseForActiveRequest', () => {
       environment.mock.nextValue(gqlQuery, {
         data: {
           node: {
-            id: '1',
             __typename: 'User',
+            id: '1',
             nameRenderer: {
-              __typename: 'MarkdownUserNameRenderer',
               __module_component_fetchQueryInternalTest2Query:
                 'MarkdownUserNameRenderer.react',
               __module_operation_fetchQueryInternalTest2Query:
                 'fetchQueryInternalTestMarkdownFragment_name$normalization.graphql',
-              markdown: 'markdown payload',
+              __typename: 'MarkdownUserNameRenderer',
               data: {
                 markup: '<markup/>',
               },
+              markdown: 'markdown payload',
             },
           },
         },
@@ -896,7 +896,7 @@ describe('getObservableForActiveRequest', () => {
   let observer: Observer<void>;
   let events;
   beforeEach(() => {
-    events = ([]: Array<$FlowFixMe | Error | string>);
+    events = [] as Array<$FlowFixMe | Error | string>;
     observer = {
       complete: jest.fn(() => events.push('complete')),
       error: jest.fn(error => events.push('error', error)),
@@ -1029,12 +1029,12 @@ describe('getObservableForActiveRequest', () => {
 
     beforeEach(() => {
       operationLoader = {
+        get: jest.fn<[mixed], NormalizationSplitOperation>(),
         load: jest.fn((moduleName: mixed) => {
           return new Promise(resolve => {
             resolveModule = resolve;
           });
         }),
-        get: jest.fn<[mixed], NormalizationSplitOperation>(),
       };
       // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
       environment = createMockEnvironment({operationLoader});
@@ -1100,18 +1100,18 @@ describe('getObservableForActiveRequest', () => {
       environment.mock.resolve(gqlQuery, {
         data: {
           node: {
-            id: '1',
             __typename: 'User',
+            id: '1',
             nameRenderer: {
-              __typename: 'MarkdownUserNameRenderer',
               __module_component_fetchQueryInternalTest3Query:
                 'MarkdownUserNameRenderer.react',
               __module_operation_fetchQueryInternalTest3Query:
                 'fetchQueryInternalTestMarkdown1Fragment_name$normalization.graphql',
-              markdown: 'markdown payload',
+              __typename: 'MarkdownUserNameRenderer',
               data: {
                 markup: '<markup/>',
               },
+              markdown: 'markdown payload',
             },
           },
         },
@@ -1140,18 +1140,18 @@ describe('getObservableForActiveRequest', () => {
       environment.mock.nextValue(gqlQuery, {
         data: {
           node: {
-            id: '1',
             __typename: 'User',
+            id: '1',
             nameRenderer: {
-              __typename: 'MarkdownUserNameRenderer',
               __module_component_fetchQueryInternalTest3Query:
                 'MarkdownUserNameRenderer.react',
               __module_operation_fetchQueryInternalTest3Query:
                 'fetchQueryInternalTestMarkdown1Fragment_name$normalization.graphql',
-              markdown: 'markdown payload',
+              __typename: 'MarkdownUserNameRenderer',
               data: {
                 markup: '<markup/>',
               },
+              markdown: 'markdown payload',
             },
           },
         },

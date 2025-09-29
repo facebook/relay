@@ -35,23 +35,23 @@ disallowWarnings();
 
 test('Can read a deep portion of the schema that is backed by client edges to client objects.', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      birthdate: {__ref: '2'},
+      id: '1',
+    },
+    '2': {
+      __id: '2',
+      __typename: 'Date',
+      day: 11,
+      id: '2',
+      month: 3,
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      birthdate: {__ref: '2'},
-    },
-    '2': {
-      __id: '2',
-      id: '2',
-      __typename: 'Date',
-      day: 11,
-      month: 3,
     },
   });
   const FooQuery = graphql`
@@ -110,15 +110,15 @@ test('Can read a deep portion of the schema that is backed by client edges to cl
 
 test('Can read a plural client edge to list of client defined types', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
     },
   });
   const FooQuery = graphql`
@@ -187,23 +187,23 @@ test('Can read a plural client edge to list of client defined types', () => {
 
 test('Uses an existing client record if it already exists', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      birthdate: {__ref: '2'},
+      id: '1',
+    },
+    '2': {
+      __id: '2',
+      __typename: 'Date',
+      day: 11,
+      id: '2',
+      month: 3,
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      birthdate: {__ref: '2'},
-    },
-    '2': {
-      __id: '2',
-      id: '2',
-      __typename: 'Date',
-      day: 11,
-      month: 3,
     },
   });
 
@@ -229,10 +229,10 @@ test('Uses an existing client record if it already exists', () => {
     store: liveStore,
   });
 
-  const data: ClientEdgeToClientObjectTest3Query$data = (environment.lookup(
+  const data: ClientEdgeToClientObjectTest3Query$data = environment.lookup(
     operation.fragment,
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  ).data: any);
+  ).data as any;
 
   expect(data).toEqual({
     me: {
@@ -351,6 +351,6 @@ test('it can read a rootFragment on a client type defined on client schema', () 
 
 module.exports = {
   account,
-  self,
   account_name,
+  self,
 };

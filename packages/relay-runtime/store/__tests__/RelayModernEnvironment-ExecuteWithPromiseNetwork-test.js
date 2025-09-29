@@ -71,13 +71,13 @@ describe('execute() with Promise network', () => {
     fetch = jest.fn(
       () =>
         new Promise((resolve, reject) => {
-          deferred = {resolve, reject};
+          deferred = {reject, resolve};
         }),
     );
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create((fetch: $FlowFixMe)),
+      network: RelayNetwork.create(fetch as $FlowFixMe),
       store,
     });
   });
@@ -118,8 +118,8 @@ describe('execute() with Promise network', () => {
     deferred.resolve({
       data: {
         me: {
-          id: '842472',
           __typename: 'User',
+          id: '842472',
           name: 'Joe',
         },
       },
@@ -156,8 +156,8 @@ describe('execute() with Promise network', () => {
     const payload = {
       data: {
         me: {
-          id: '842472',
           __typename: 'User',
+          id: '842472',
           name: 'Joe',
         },
       },

@@ -32,12 +32,12 @@ function createMatchPointer({
   variables: any,
 }): MatchPointer {
   const pointer = {
-    $fragmentSpreads: {},
-    [ID_KEY]: id,
-    [FRAGMENTS_KEY]: ({}: {[string]: {...}}),
-    [FRAGMENT_OWNER_KEY]: null,
     __fragmentPropName: propName,
     __module_component: module,
+    $fragmentSpreads: {},
+    [FRAGMENT_OWNER_KEY]: null,
+    [FRAGMENTS_KEY]: {} as {[string]: {...}},
+    [ID_KEY]: id,
   };
   if (fragment != null && variables != null) {
     pointer[FRAGMENTS_KEY][fragment.name] = variables;
@@ -76,7 +76,7 @@ describe('MatchContainer', () => {
     await expect(async () => {
       await TestRenderer.act(() => {
         TestRenderer.create(
-          <MatchContainer loader={loader} match={(42: $FlowFixMe)} />,
+          <MatchContainer loader={loader} match={42 as $FlowFixMe} />,
         );
       });
     }).rejects.toThrow(
@@ -85,13 +85,13 @@ describe('MatchContainer', () => {
   });
 
   it('loads and renders dynamic components', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
-      id: '4',
       fragment: {name: 'UserFragment'},
-      variables: {},
-      propName: 'user',
+      id: '4',
       module: 'UserContainer.react',
+      propName: 'user',
+      variables: {},
     });
     let renderer;
     TestRenderer.act(() => {
@@ -109,13 +109,13 @@ describe('MatchContainer', () => {
   });
 
   it('reloads if new props have a different component', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
-      id: '4',
       fragment: {name: 'UserFragment'},
-      variables: {},
-      propName: 'user',
+      id: '4',
       module: 'UserContainer.react',
+      propName: 'user',
+      variables: {},
     });
     let renderer;
     TestRenderer.act(() => {
@@ -127,13 +127,13 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    loader.mockReturnValue(React.memo((ActorComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(ActorComponent as $FlowFixMe));
     const match2 = createMatchPointer({
-      id: '4',
       fragment: {name: 'ActorFragment'},
-      variables: {},
-      propName: 'actor',
+      id: '4',
       module: 'ActorContainer.react',
+      propName: 'actor',
+      variables: {},
     });
     TestRenderer.act(() => {
       renderer.update(
@@ -151,13 +151,13 @@ describe('MatchContainer', () => {
   });
 
   it('calls load again when re-rendered, even with the same component', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
-      id: '4',
       fragment: {name: 'UserFragment'},
-      variables: {},
-      propName: 'user',
+      id: '4',
       module: 'UserContainer.react',
+      propName: 'user',
+      variables: {},
     });
     let renderer;
     TestRenderer.act(() => {
@@ -187,13 +187,13 @@ describe('MatchContainer', () => {
   });
 
   it('passes the same child props when the match values does not change', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
-      id: '4',
       fragment: {name: 'UserFragment'},
-      variables: {},
-      propName: 'user',
+      id: '4',
       module: 'UserContainer.react',
+      propName: 'user',
+      variables: {},
     });
     const otherProps = {otherProp: 'hello!'};
     let renderer;
@@ -214,7 +214,7 @@ describe('MatchContainer', () => {
   });
 
   it('renders the fallback if the match object is empty', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
@@ -222,9 +222,9 @@ describe('MatchContainer', () => {
       renderer = TestRenderer.create(
         <MatchContainer
           loader={loader}
-          match={({}: $FlowFixMe)} // intentionally empty
+          match={{} as $FlowFixMe} // intentionally empty
           props={otherProps}
-          fallback={(<Fallback />: $FlowFixMe)}
+          fallback={(<Fallback />) as $FlowFixMe}
         />,
       );
     });
@@ -236,7 +236,7 @@ describe('MatchContainer', () => {
   });
 
   it('renders the fallback if the match object is missing expected fields', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
@@ -245,16 +245,16 @@ describe('MatchContainer', () => {
         <MatchContainer
           loader={loader}
           match={
-            ({
-              __id: null,
-              __fragments: null,
-              __fragmentPropName: null,
+            {
               __fragmentOwner: null,
+              __fragmentPropName: null,
+              __fragments: null,
+              __id: null,
               __module_component: null,
-            }: $FlowFixMe)
+            } as $FlowFixMe
           } // intentionally all null
           props={otherProps}
-          fallback={(<Fallback />: $FlowFixMe)}
+          fallback={(<Fallback />) as $FlowFixMe}
         />,
       );
     });
@@ -267,7 +267,7 @@ describe('MatchContainer', () => {
 
   it('throws if the match object is invalid (__id)', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
@@ -276,16 +276,16 @@ describe('MatchContainer', () => {
           <MatchContainer
             loader={loader}
             match={
-              ({
-                __id: 42, // not a string
-                __fragments: null,
-                __fragmentPropName: null,
+              {
                 __fragmentOwner: null,
+                __fragmentPropName: null,
+                __fragments: null,
+                __id: 42, // not a string
                 __module_component: null,
-              }: $FlowFixMe)
+              } as $FlowFixMe
             } // intentionally all null
             props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
+            fallback={(<Fallback />) as $FlowFixMe}
           />,
         );
       });
@@ -296,7 +296,7 @@ describe('MatchContainer', () => {
 
   it('throws if the match object is invalid (__fragments)', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
@@ -305,16 +305,16 @@ describe('MatchContainer', () => {
           <MatchContainer
             loader={loader}
             match={
-              ({
-                __id: null,
-                __fragments: 42, // not an object
-                __fragmentPropName: null,
+              {
                 __fragmentOwner: null,
+                __fragmentPropName: null,
+                __fragments: 42, // not an object
+                __id: null,
                 __module_component: null,
-              }: $FlowFixMe)
+              } as $FlowFixMe
             } // intentionally all null
             props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
+            fallback={(<Fallback />) as $FlowFixMe}
           />,
         );
       });
@@ -325,7 +325,7 @@ describe('MatchContainer', () => {
 
   it('throws if the match object is invalid (__fragmentOwner)', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
@@ -334,16 +334,16 @@ describe('MatchContainer', () => {
           <MatchContainer
             loader={loader}
             match={
-              ({
-                __id: null,
-                __fragments: null,
-                __fragmentPropName: null,
+              {
                 __fragmentOwner: 42, // not an object
+                __fragmentPropName: null,
+                __fragments: null,
+                __id: null,
                 __module_component: null,
-              }: $FlowFixMe)
+              } as $FlowFixMe
             } // intentionally all null
             props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
+            fallback={(<Fallback />) as $FlowFixMe}
           />,
         );
       });
@@ -354,7 +354,7 @@ describe('MatchContainer', () => {
 
   it('throws if the match object is invalid (__fragmentPropName)', async () => {
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
@@ -363,16 +363,16 @@ describe('MatchContainer', () => {
           <MatchContainer
             loader={loader}
             match={
-              ({
-                __id: null,
-                __fragments: null,
-                __fragmentPropName: 42, // not a string
+              {
                 __fragmentOwner: null,
+                __fragmentPropName: 42, // not a string
+                __fragments: null,
+                __id: null,
                 __module_component: null,
-              }: $FlowFixMe)
+              } as $FlowFixMe
             } // intentionally all null
             props={otherProps}
-            fallback={(<Fallback />: $FlowFixMe)}
+            fallback={(<Fallback />) as $FlowFixMe}
           />,
         );
       });
@@ -382,7 +382,7 @@ describe('MatchContainer', () => {
   });
 
   it('renders the fallback if the match value is null', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
@@ -392,7 +392,7 @@ describe('MatchContainer', () => {
           loader={loader}
           match={null}
           props={otherProps}
-          fallback={(<Fallback />: $FlowFixMe)}
+          fallback={(<Fallback />) as $FlowFixMe}
         />,
       );
     });
@@ -404,7 +404,7 @@ describe('MatchContainer', () => {
   });
 
   it('renders null if the match value is null and no fallback is provided', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const renderer = TestRenderer.create(
       <MatchContainer loader={loader} match={null} props={otherProps} />,
@@ -416,7 +416,7 @@ describe('MatchContainer', () => {
   });
 
   it('renders the fallback if the match value is undefined', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
@@ -426,7 +426,7 @@ describe('MatchContainer', () => {
           loader={loader}
           match={undefined}
           props={otherProps}
-          fallback={(<Fallback />: $FlowFixMe)}
+          fallback={(<Fallback />) as $FlowFixMe}
         />,
       );
     });
@@ -438,27 +438,27 @@ describe('MatchContainer', () => {
   });
 
   it('transitions from fallback when new props have a component', () => {
-    loader.mockReturnValue(React.memo((UserComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
     TestRenderer.act(() => {
       renderer = TestRenderer.create(
         <MatchContainer
           loader={loader}
-          match={({}: $FlowFixMe)} // intentionally empty
+          match={{} as $FlowFixMe} // intentionally empty
           props={{otherProp: 'hello!'}}
           fallback={<Fallback />}
         />,
       );
     });
     expect(Fallback).toBeCalledTimes(1);
-    loader.mockReturnValue(React.memo((ActorComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(ActorComponent as $FlowFixMe));
     const match2 = createMatchPointer({
-      id: '4',
       fragment: {name: 'ActorFragment'},
-      variables: {},
-      propName: 'actor',
+      id: '4',
       module: 'ActorContainer.react',
+      propName: 'actor',
+      variables: {},
     });
 
     TestRenderer.act(() => {
@@ -478,13 +478,13 @@ describe('MatchContainer', () => {
   });
 
   it('transitions to fallback when new props have a null component', () => {
-    loader.mockReturnValue(React.memo((ActorComponent: $FlowFixMe)));
+    loader.mockReturnValue(React.memo(ActorComponent as $FlowFixMe));
     const match = createMatchPointer({
-      id: '4',
       fragment: {name: 'ActorFragment'},
-      variables: {},
-      propName: 'actor',
+      id: '4',
       module: 'ActorContainer.react',
+      propName: 'actor',
+      variables: {},
     });
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
@@ -503,7 +503,7 @@ describe('MatchContainer', () => {
       renderer.update(
         <MatchContainer
           loader={loader}
-          match={({}: $FlowFixMe)} // intentionally empty
+          match={{} as $FlowFixMe} // intentionally empty
           props={{otherProp: 'hello!'}}
           fallback={<Fallback />}
         />,

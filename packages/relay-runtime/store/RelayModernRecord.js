@@ -159,7 +159,7 @@ function fromObject<TMaybe: ?empty = empty>(
  * Get the record's `id` if available or the client-generated identifier.
  */
 function getDataID(record: Record): DataID {
-  return (record[ID_KEY]: any);
+  return record[ID_KEY] as any;
 }
 
 /**
@@ -180,7 +180,7 @@ function getFields(record: Record): Array<StorageKey> {
  * Get the concrete type of the record.
  */
 function getType(record: Record): string {
-  return (record[TYPENAME_KEY]: any);
+  return record[TYPENAME_KEY] as any;
 }
 
 /**
@@ -297,7 +297,7 @@ function getLinkedRecordIDs(
       : '',
   );
   // assume items of the array are ids
-  return (links[REFS_KEY]: any);
+  return links[REFS_KEY] as any;
 }
 
 /**
@@ -629,7 +629,7 @@ function getActorLinkedRecordID(
     JSON.stringify(link),
   );
 
-  return [(link[ACTOR_IDENTIFIER_KEY]: any), (link[REF_KEY]: any)];
+  return [link[ACTOR_IDENTIFIER_KEY] as any, link[REF_KEY] as any];
 }
 
 function getResolverLinkedRecordID(record: Record, typeName: string): ?DataID {
@@ -699,26 +699,26 @@ module.exports = {
   create,
   freeze,
   fromObject,
+  getActorLinkedRecordID,
   getDataID,
   getErrors,
   getFields,
   getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
-  getType,
-  getValue,
-  hasValue,
-  hasLinkedRecordID,
-  hasLinkedRecordIDs,
-  merge,
-  setErrors,
-  setValue,
-  setLinkedRecordID,
-  setLinkedRecordIDs,
-  update,
-  getActorLinkedRecordID,
-  setActorLinkedRecordID,
   getResolverLinkedRecordID,
   getResolverLinkedRecordIDs,
+  getType,
+  getValue,
+  hasLinkedRecordID,
+  hasLinkedRecordIDs,
+  hasValue,
+  merge,
+  setActorLinkedRecordID,
+  setErrors,
+  setLinkedRecordID,
+  setLinkedRecordIDs,
+  setValue,
   toJSON,
+  update,
 };

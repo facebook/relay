@@ -193,12 +193,12 @@ class DataChecker {
 
     return this._recordWasMissing === true
       ? {
-          status: 'missing',
           mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+          status: 'missing',
         }
       : {
-          status: 'available',
           mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+          status: 'available',
         };
   }
 
@@ -470,7 +470,7 @@ class DataChecker {
           }
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',

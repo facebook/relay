@@ -99,7 +99,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     release = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
-    (environment: $FlowFixMe).retain = jest.fn(operation => {
+    (environment as $FlowFixMe).retain = jest.fn(operation => {
       const originalDisposable = originalRetain(operation);
       return {
         dispose() {
@@ -112,7 +112,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     cancelNetworkRequest = jest.fn<[], mixed>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
-    (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
+    (environment as $FlowFixMe).executeWithSource = jest.fn((...args) => {
       const originalObservable = originalExecuteWithSource(...args);
 
       return Observable.create(sink => {
@@ -149,7 +149,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     QueryComponent = function TestQueryComponent(props: any) {
       const result = usePreloadedQuery(
         gqlQuery,
-        (props.queries.TestQuery: $FlowFixMe),
+        props.queries.TestQuery as $FlowFixMe,
       );
 
       const name = result?.node?.name ?? 'Empty';
@@ -259,9 +259,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     render = function (
       entryPoint: any,
       initialEntryPointRef: any,
-      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({}: {
+      {suspendWholeTree}: {suspendWholeTree?: boolean} = {} as {
         suspendWholeTree?: boolean,
-      }),
+      },
     ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {

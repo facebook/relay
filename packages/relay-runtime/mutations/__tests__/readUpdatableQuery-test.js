@@ -179,10 +179,10 @@ describe('readUpdatableQuery', () => {
   it('can be used to read scalar values', () => {
     environment.commitPayload(operation, {
       me: {
-        id: '4',
         __typename: 'User',
-        name: 'Zuck',
         author: null,
+        id: '4',
+        name: 'Zuck',
       },
       node: null,
       node2: null,
@@ -206,10 +206,10 @@ describe('readUpdatableQuery', () => {
   it('can be used to update scalar values', () => {
     environment.commitPayload(operation, {
       me: {
-        id: '4',
         __typename: 'User',
-        name: 'Zuck',
         author: null,
+        id: '4',
+        name: 'Zuck',
       },
       node: null,
       node2: null,
@@ -236,17 +236,17 @@ describe('readUpdatableQuery', () => {
     const selector = operation.fragment;
     const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
     expect(readOnlyData?.me?.name).toEqual('MetaZuck');
   });
 
   it('cannot be used to update clientids, ids or typenames', () => {
     environment.commitPayload(operation, {
       me: {
-        id: '4',
         __typename: 'User',
-        name: 'Zuck',
         author: null,
+        id: '4',
+        name: 'Zuck',
       },
       node: null,
       node2: null,
@@ -357,9 +357,9 @@ describe('readUpdatableQuery', () => {
       environment.commitPayload(operation, {
         me: {
           __typename: 'User',
+          author: null,
           id: '42',
           name: 'NotZuck',
-          author: null,
         },
         node: {
           __typename: 'User',
@@ -387,7 +387,7 @@ describe('readUpdatableQuery', () => {
         const selector = operation.fragment;
         const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
           // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          (RelayReader.read(source, selector).data: any);
+          RelayReader.read(source, selector).data as any;
 
         expect(readOnlyData.me?.id).toBe('42');
 
@@ -420,7 +420,7 @@ describe('readUpdatableQuery', () => {
       const selector = operation.fragment;
       const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
         // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        (RelayReader.read(source, selector).data: any);
+        RelayReader.read(source, selector).data as any;
       expect(readOnlyData.me?.id).toBe('4');
     });
 
@@ -457,7 +457,7 @@ describe('readUpdatableQuery', () => {
         const selector = operation.fragment;
         const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
           // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          (RelayReader.read(source, selector).data: any);
+          RelayReader.read(source, selector).data as any;
 
         const validUser = (() => {
           if (readOnlyData.node != null) {
@@ -498,7 +498,7 @@ describe('readUpdatableQuery', () => {
       const selector = operation.fragment;
       const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
         // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        (RelayReader.read(source, selector).data: any);
+        RelayReader.read(source, selector).data as any;
       if (readOnlyData.node2?.parents != null) {
         expect(readOnlyData.node2?.parents[0]?.name).toBe(
           'Gaius Julius Caesar',
@@ -512,20 +512,20 @@ describe('readUpdatableQuery', () => {
       environment.commitPayload(operation, {
         me: {
           __typename: 'User',
-          id: '4',
-          name: 'Mark',
           author: {
-            id: '5',
             client_best_friend: {
               id: '6',
               name: 'Sheryl',
             },
             client_nickname: 'Zucc',
+            id: '5',
           },
+          id: '4',
+          name: 'Mark',
         },
         node: {
-          id: '4',
           __typename: 'User',
+          id: '4',
           name: 'Mark',
         },
         node2: null,
@@ -541,7 +541,7 @@ describe('readUpdatableQuery', () => {
         const selector = operation.fragment;
         const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
           // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          (RelayReader.read(source, selector).data: any);
+          RelayReader.read(source, selector).data as any;
 
         const author = (() => {
           if (updatableData.me?.author != null) {
@@ -569,7 +569,7 @@ describe('readUpdatableQuery', () => {
       const selector = operation.fragment;
       const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
         // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        (RelayReader.read(source, selector).data: any);
+        RelayReader.read(source, selector).data as any;
       expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mark');
     });
 
@@ -588,7 +588,7 @@ describe('readUpdatableQuery', () => {
         const selector = operation.fragment;
         const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
           // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          (RelayReader.read(source, selector).data: any);
+          RelayReader.read(source, selector).data as any;
         if (readOnlyData.node != null) {
           expect(validateUser(readOnlyData.node)).toBe(false);
         } else {
@@ -611,7 +611,7 @@ describe('readUpdatableQuery', () => {
         const selector = operation.fragment;
         const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
           // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          (RelayReader.read(source, selector).data: any);
+          RelayReader.read(source, selector).data as any;
         if (readOnlyData.node != null) {
           expect(validateUser(readOnlyData.node)).toEqual(readOnlyData.node);
         } else {
@@ -626,8 +626,8 @@ describe('readUpdatableQuery', () => {
       environment.commitPayload(operation, {
         me: {
           __typename: 'User',
-          id: '4',
           author: null,
+          id: '4',
           name: null,
         },
         node: null,
@@ -644,7 +644,7 @@ describe('readUpdatableQuery', () => {
         const selector = operation.fragment;
         const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
           // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          (RelayReader.read(source, selector).data: any);
+          RelayReader.read(source, selector).data as any;
 
         const validNode = (() => {
           if (readOnlyData.me != null) {
@@ -666,11 +666,11 @@ describe('readUpdatableQuery', () => {
       it('will return the parameter if the source has a matching __isFragmentName field', () => {
         environment.commitPayload(operation, {
           me: {
+            __isreadUpdatableQueryTest_node: null,
             __typename: 'User',
+            author: null,
             id: '4',
             name: 'Mark',
-            author: null,
-            __isreadUpdatableQueryTest_node: null,
           },
           node: null,
           node2: null,
@@ -680,7 +680,7 @@ describe('readUpdatableQuery', () => {
         const selector = operation.fragment;
         const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
           // $FlowFixMe[unclear-type] Just to cast it to a better type!
-          (RelayReader.read(source, selector).data: any);
+          RelayReader.read(source, selector).data as any;
         expect(readOnlyData.me?.__isreadUpdatableQueryTest_node).toBe('User');
         if (readOnlyData.me != null) {
           expect(validateNode(readOnlyData.me)).toBe(readOnlyData.me);
@@ -695,9 +695,9 @@ describe('readUpdatableQuery', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
+        author: null,
         id: '42',
         name: 'NotZuck',
-        author: null,
       },
       node: {
         __typename: 'User',
@@ -733,7 +733,7 @@ describe('readUpdatableQuery', () => {
     const selector = operation.fragment;
     const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
     expect(readOnlyData.me).toBe(null);
   });
 
@@ -793,7 +793,7 @@ describe('readUpdatableQuery', () => {
     const selector = operation.fragment;
     const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
     expect(readOnlyData.node2?.parents).toEqual([]);
   });
 
@@ -830,7 +830,7 @@ describe('readUpdatableQuery', () => {
       const selector = operation.fragment;
       const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
         // $FlowFixMe[unclear-type] Just to cast it to a better type!
-        (RelayReader.read(source, selector).data: any);
+        RelayReader.read(source, selector).data as any;
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
@@ -904,12 +904,12 @@ describe('readUpdatableQuery', () => {
     environment.commitPayload(operation, {
       me: null,
       node: {
-        id: '4',
         __typename: 'Metahuman',
+        id: '4',
       },
       node2: {
-        id: '5',
         __typename: 'Page',
+        id: '5',
       },
     });
 
@@ -935,8 +935,8 @@ describe('readUpdatableQuery', () => {
     environment.commitPayload(operation, {
       me: null,
       node: {
-        id: '4',
         __typename: 'Metahuman',
+        id: '4',
       },
       node2: null,
     });
@@ -945,7 +945,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery(
         // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         updatableQuery2,
-        {id: '4', foo: 'bar'},
+        {foo: 'bar', id: '4'},
       ).updatableData;
       expect(updatableData.node?.__typename).toBe('Metahuman');
     });
@@ -955,16 +955,16 @@ describe('readUpdatableQuery', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
-        id: '4',
-        name: 'Mark',
         author: {
-          id: '5',
           client_best_friend: {
             id: '6',
             name: 'Sheryl',
           },
           client_nickname: 'Zucc',
+          id: '5',
         },
+        id: '4',
+        name: 'Mark',
       },
       node: null,
       node2: null,
@@ -990,16 +990,16 @@ describe('readUpdatableQuery', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
-        id: '4',
-        name: 'Mark',
         author: {
-          id: '5',
           client_best_friend: {
             id: '6',
             name: 'Sheryl',
           },
           client_nickname: 'Zucc',
+          id: '5',
         },
+        id: '4',
+        name: 'Mark',
       },
       node: null,
       node2: null,
@@ -1022,7 +1022,7 @@ describe('readUpdatableQuery', () => {
     const selector = operation.fragment;
     const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
     expect(readOnlyData.me?.author?.client_nickname).toBe('Mr. Right');
   });
 
@@ -1030,16 +1030,16 @@ describe('readUpdatableQuery', () => {
     environment.commitPayload(operation, {
       me: {
         __typename: 'User',
-        id: '4',
-        name: 'Mark',
         author: {
-          id: '5',
           client_best_friend: {
             id: '6',
             name: 'Sheryl',
           },
           client_nickname: 'Zucc',
+          id: '5',
         },
+        id: '4',
+        name: 'Mark',
       },
       node: null,
       node2: null,
@@ -1065,7 +1065,7 @@ describe('readUpdatableQuery', () => {
     const selector = operation.fragment;
     const readOnlyData: readUpdatableQueryTestRegularQuery['response'] =
       // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      RelayReader.read(source, selector).data as any;
     expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mr. Right');
   });
 
@@ -1110,8 +1110,8 @@ describe('readUpdatableQuery', () => {
       const updatedData = environment.lookup(operationDescriptor.fragment).data;
       expect(updatedData).toEqual({
         updatable_scalar_field: {
-          name: 'Alice',
           callback: expect.any(Function),
+          name: 'Alice',
         },
       });
       expect(() => {
@@ -1123,8 +1123,8 @@ describe('readUpdatableQuery', () => {
       updateCustomScalar(createOpaqueScalarTypeValue('Bob', jest.fn()));
       expect(environment.lookup(operationDescriptor.fragment).data).toEqual({
         updatable_scalar_field: {
-          name: 'Bob',
           callback: expect.any(Function),
+          name: 'Bob',
         },
       });
     });
@@ -1230,33 +1230,33 @@ describe('readUpdatableQuery', () => {
         ObservableFromValue<GraphQLResponse>,
       >();
       environment = new RelayModernEnvironment({
-        network: RelayNetwork.create(fetch),
-        store,
         missingFieldHandlers: [
           // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           {
-            kind: 'linked',
             handle: handleLinkedField,
+            kind: 'linked',
           },
           // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           {
-            kind: 'pluralLinked',
             handle: handlePluralLinkedField,
+            kind: 'pluralLinked',
           },
           // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
           {
-            kind: 'scalar',
             handle: handleScalarField,
+            kind: 'scalar',
           },
         ],
+        network: RelayNetwork.create(fetch),
+        store,
       });
     });
 
     it('should read linked fields using missing field handlers', () => {
       environment.commitPayload(missingFieldsOperation, {
         me: {
-          id: '4',
           __typename: 'User',
+          id: '4',
           name: 'Zuck',
         },
       });
@@ -1286,8 +1286,8 @@ describe('readUpdatableQuery', () => {
     it('should read plural linked fields using missing field handlers', () => {
       environment.commitPayload(missingFieldsOperation, {
         me: {
-          id: '4',
           __typename: 'User',
+          id: '4',
           name: 'Zuck',
         },
       });
@@ -1317,8 +1317,8 @@ describe('readUpdatableQuery', () => {
     it('should read scalar fields using missing field handlers', () => {
       environment.commitPayload(missingFieldsOperation, {
         me: {
-          id: '4',
           __typename: 'User',
+          id: '4',
           name: 'Zuck',
         },
       });

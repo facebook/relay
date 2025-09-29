@@ -136,7 +136,7 @@ function prepareEntryPoint<
     });
   }
   return {
-    entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
+    entryPoints: preloadedEntryPoints as TPreloadedEntryPoints,
     extraProps: extraProps ?? null,
     getComponent: () => {
       const component = entryPoint.root.getModuleIfRequired();
@@ -145,9 +145,9 @@ function prepareEntryPoint<
         throw loadingPromise;
       }
       // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
-      return (component: TEntryPointComponent);
+      return component as TEntryPointComponent;
     },
-    queries: (preloadedQueries: TPreloadedQueries),
+    queries: preloadedQueries as TPreloadedQueries,
     rootModuleID: entryPoint.root.getModuleId(),
   };
 }

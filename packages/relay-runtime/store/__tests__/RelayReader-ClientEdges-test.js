@@ -124,22 +124,22 @@ const NULL_EDGE_QUERY = graphql`
 describe('RelayReader Client Edges behavior', () => {
   it('follows the client edge to an available record', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: 'Alice',
       },
       '1337': {
         __id: '1337',
-        id: '1337',
         __typename: 'User',
+        id: '1337',
         name: 'Bob',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const store = new RelayStore(source);
@@ -165,16 +165,16 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if the destination record is missing', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
-      },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
       },
     });
     const store = new RelayStore(source);
@@ -200,12 +200,10 @@ describe('RelayReader Client Edges behavior', () => {
     const edge = missingClientEdges?.[0] ?? {};
     expect(edge.clientEdgeDestinationID).toBe('1337');
     expect(edge.request).toMatchObject({
-      kind: 'Request',
       fragment: {
-        kind: 'Fragment',
-        type: 'Query',
-        name: 'ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge',
         argumentDefinitions: [{name: 'id'}],
+        kind: 'Fragment',
+        name: 'ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge',
         selections: [
           {
             kind: 'LinkedField',
@@ -218,11 +216,13 @@ describe('RelayReader Client Edges behavior', () => {
             ],
           },
         ],
+        type: 'Query',
       },
+      kind: 'Request',
       operation: {
+        argumentDefinitions: [{name: 'id'}],
         kind: 'Operation',
         name: 'ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge',
-        argumentDefinitions: [{name: 'id'}],
         selections: [
           {
             kind: 'LinkedField',
@@ -238,13 +238,13 @@ describe('RelayReader Client Edges behavior', () => {
               },
               {
                 kind: 'InlineFragment',
-                type: 'User',
                 selections: [
                   {
                     kind: 'ScalarField',
                     name: 'name',
                   },
                 ],
+                type: 'User',
               },
             ],
           },
@@ -258,22 +258,22 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('works when the backing field is aliased', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: 'Alice',
       },
       '1337': {
         __id: '1337',
-        id: '1337',
         __typename: 'User',
+        id: '1337',
         name: 'Bob',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const store = new RelayStore(source);
@@ -300,16 +300,16 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('gives a null client edge field when the backing field is null', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
-      },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
       },
     });
     const store = new RelayStore(source);
@@ -334,23 +334,23 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if a record beyond the destination record via a linked field is missing', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: 'Alice',
       },
       '1337': {
         __id: '1337',
-        id: '1337',
         __typename: 'User',
-        name: 'Bob',
         author: {__ref: '1338'}, // missing
+        id: '1337',
+        name: 'Bob',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const store = new RelayStore(source);
@@ -377,22 +377,22 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if data is missing within a fragment spread in the destination record of a client edge', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: 'Alice',
       },
       '1337': {
         __id: '1337',
-        id: '1337',
         __typename: 'User',
+        id: '1337',
         // name is missing
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const store = new RelayStore(source);
@@ -406,7 +406,7 @@ describe('RelayReader Client Edges behavior', () => {
         getSingularSelector(
           getFragment(FRAGMENT_ON_USER),
           // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-          nullthrows((parentData: any).me.client_edge),
+          nullthrows((parentData as any).me.client_edge),
         ),
       ),
       resolverCache,
@@ -420,22 +420,22 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if data is missing within a client edge within a client edge', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: 'Alice',
       },
       '1337': {
         __id: '1337',
-        id: '1337',
         __typename: 'User',
+        id: '1337',
         // name is missing
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const store = new RelayStore(source);
@@ -471,23 +471,23 @@ describe('RelayReader Client Edges behavior', () => {
     // client data. But for client edges, we can help using the client edge query, no matter
     // how that client edge was reached.
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        client_extension_linked_field: {__ref: '1338'},
+        id: '1',
+        name: 'Alice',
+      },
+      '1338': {
+        __id: '1338',
+        __typename: 'User',
+        id: '1338',
+        name: 'Bob',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
-      },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-        client_extension_linked_field: {__ref: '1338'},
-      },
-      '1338': {
-        __id: '1338',
-        id: '1338',
-        __typename: 'User',
-        name: 'Bob',
       },
       // 1337 (the client edge destination) is missing.
     });
@@ -515,23 +515,23 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('propagates missing client edge data errors from the resolver up to the reader', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: null,
       },
       '1337': {
         // `client_edge` points here
         __id: '1337',
-        id: '1337',
         __typename: 'User',
+        id: '1337',
         name: undefined, // The missing data
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const FooQuery = graphql`

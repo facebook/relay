@@ -38,7 +38,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
     // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
-      (handleField: $FlowFixMe),
+      handleField as $FlowFixMe,
       // $FlowFixMe[incompatible-type]
       selections,
       {},
@@ -57,7 +57,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
 
     expect(() =>
       cloneRelayScalarHandleSourceField(
-        (handleField: $FlowFixMe),
+        handleField as $FlowFixMe,
         // $FlowFixMe[incompatible-type]
         selections,
         {},

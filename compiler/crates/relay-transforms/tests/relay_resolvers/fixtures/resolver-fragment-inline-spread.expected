@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  pop_star_name
+  # it should be fine to use this fragment spread here
+  ...AddressFragment
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  # This should now be allowed since AddressFragment is marked @inline
+  ...AddressFragment
+}
+
+fragment AddressFragment on User @inline {
+  address {
+    street
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+fragment AddressFragment on User @inline {
+  address {
+    street
+  }
+}
+
+fragment Foo_user on User {
+  ...PopStarNameResolverFragment_name @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(526),
+  #     import_path: "PopStarNameResolver",
+  #     import_name: None,
+  #     field_alias: None,
+  #     field_path: "pop_star_name",
+  #     field_arguments: [],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
+  # }
+  
+  ...AddressFragment
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  ...AddressFragment
+}

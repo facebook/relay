@@ -25,10 +25,18 @@ extend type User {
   pop_star_name: String @relay_resolver(fragment_name: "relayResolverWithSpread_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
 }
 ==================================== ERROR ====================================
-✖︎ Using fragment spread `...relayResolverWithSpread_UserFragment` is not supported in the Relay resolvers fragments. The runtime API for reading the data of these fragments is not implemented, yet.
+✖︎ Expected fragment spread into Relay Resolver root fragment to be annotated with `@inline` or `@relay(mask: false)`. Relay Resolvers only support reading `@inline` fragments and unmasked fragments.
 
   relay-resolver-with-spread.invalid.graphql:5:6
     4 │   name
     5 │   ...relayResolverWithSpread_UserFragment
       │      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     6 │ }
+
+  ℹ︎ Fragment is defined
+
+  relay-resolver-with-spread.invalid.graphql:8:10
+    7 │ 
+    8 │ fragment relayResolverWithSpread_UserFragment on User {
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │   id

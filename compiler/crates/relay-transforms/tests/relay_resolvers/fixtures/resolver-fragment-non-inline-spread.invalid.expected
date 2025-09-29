@@ -4,16 +4,16 @@
 fragment Foo_user on User {
   pop_star_name
   # it should be fine to use this fragment spread here
-  ...AddressFragment
+  ...NonInlineFragment
 }
 
 fragment PopStarNameResolverFragment_name on User {
   name
-  # but it is not supported in the resolver field fragment, yet
-  ...AddressFragment
+  # This should fail since NonInlineFragment is not marked @inline
+  ...NonInlineFragment
 }
 
-fragment AddressFragment on User {
+fragment NonInlineFragment on User {
   address {
     street
   }
@@ -27,16 +27,16 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ Expected fragment spread into Relay Resolver root fragment to be annotated with `@inline` or `@relay(mask: false)`. Relay Resolvers only support reading `@inline` fragments and unmasked fragments.
 
-  fragment-spread-usage.invalid.graphql:12:6
-   11 │   # but it is not supported in the resolver field fragment, yet
-   12 │   ...AddressFragment
-      │      ^^^^^^^^^^^^^^^
+  resolver-fragment-non-inline-spread.invalid.graphql:12:6
+   11 │   # This should fail since NonInlineFragment is not marked @inline
+   12 │   ...NonInlineFragment
+      │      ^^^^^^^^^^^^^^^^^
    13 │ }
 
   ℹ︎ Fragment is defined
 
-  fragment-spread-usage.invalid.graphql:15:10
+  resolver-fragment-non-inline-spread.invalid.graphql:15:10
    14 │ 
-   15 │ fragment AddressFragment on User {
-      │          ^^^^^^^^^^^^^^^
+   15 │ fragment NonInlineFragment on User {
+      │          ^^^^^^^^^^^^^^^^^
    16 │   address {

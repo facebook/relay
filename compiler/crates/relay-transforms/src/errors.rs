@@ -62,6 +62,11 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Expected fragment spread into Relay Resolver root fragment to be annotated with `@inline` or `@relay(mask: false)`. Relay Resolvers only support reading `@inline` fragments and unmasked fragments."
+    )]
+    UnsupportedFragmentSpreadInResolverFragment,
+
+    #[error(
         "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
     )]
     ActorChangeInvalidSelection,

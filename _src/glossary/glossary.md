@@ -663,10 +663,6 @@ Projects are defined in a single [config](#config) file, found [here](https://ww
 
 </FbInternalOnly>
 
-## Profiler
-
-TODO
-
 ## Publish
 
 One of the main methods exposed by the `store`. Accepts a [record source](#record-source), from which the records in the store are updated. Also updates the mapping of which records in the store have been updated as a result of publishing.

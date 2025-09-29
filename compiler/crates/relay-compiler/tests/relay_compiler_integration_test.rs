@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a2971e0e5624155ca2839e4911ee608b>>
+ * @generated SignedSource<<b3e4b1964336b8e9e769e4bc8dcae578>>
  */
 
 mod relay_compiler_integration;
 
 use relay_compiler_integration::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn client_extension_interface_backed_by_resolvers_in_throw_on_field_error() {
+    let input = include_str!("relay_compiler_integration/fixtures/client_extension_interface_backed_by_resolvers_in_throw_on_field_error.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/client_extension_interface_backed_by_resolvers_in_throw_on_field_error.expected");
+    test_fixture(transform_fixture, file!(), "client_extension_interface_backed_by_resolvers_in_throw_on_field_error.input", "relay_compiler_integration/fixtures/client_extension_interface_backed_by_resolvers_in_throw_on_field_error.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn client_mutation_extension() {

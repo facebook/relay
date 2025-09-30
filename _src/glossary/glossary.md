@@ -527,7 +527,11 @@ This provides a convenient place to handle cross-cutting concerns, like authenti
 
 ## Node
 
-TODO
+A Node is an object that implements the Node interface in GraphQL, which requires an `id` field of type `ID`. This is part of the [Global Object Identification specification](https://relay.dev/graphql/objectidentification.htm) that provides a standardized way to fetch and identify objects in a GraphQL schema.
+
+In Relay, the Node interface is fundamental to how data normalization and caching work. When Relay encounters an object with an `id` field, it uses that ID as the key for storing the object in its normalized cache. This enables efficient data deduplication, updates, and garbage collection.
+
+Nodes can be refetched using the `node` field on the Query root type by passing their global ID: `query { node(id: "abc123") { ... } }`. This allows Relay to fetch data for any object implementing the Node interface without needing to know the specific field path to that object.
 
 ## Normalization
 

@@ -689,7 +689,13 @@ Used by `environment` in methods such as `execute`, `executeWithSource` and `exe
 
 ## Query Reference
 
-TODO
+A Query Reference is an opaque token that represents a query that we have started fetching, but may not have been returned by the network yet. It's returned by functions like `loadQuery` and serves as an identifier for which query we want to render.
+
+Query references are intentionally opaque to the user - they don't expose the query's internal state or data directly. Instead, they are passed to `usePreloadedQuery` to access the data from a preloaded query.
+
+The query reference pattern enables efficient data loading by allowing queries to be initiated early (such as in response to user interactions like hovering or route changes) and then consumed later when the component actually renders.
+
+Query references are disposable objects - they should be disposed of when no longer needed to prevent memory leaks and allow proper cleanup of network requests and subscriptions.
 
 ## Query Resource
 

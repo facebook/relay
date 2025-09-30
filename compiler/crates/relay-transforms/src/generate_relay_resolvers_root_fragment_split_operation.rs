@@ -32,7 +32,7 @@ use crate::get_normalization_operation_name;
 use crate::get_resolver_fragment_dependency_name;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-struct IsResolverRootFragment();
+pub struct IsResolverRootFragment();
 associated_data_impl!(IsResolverRootFragment);
 
 pub fn generate_relay_resolvers_root_fragment_split_operation(

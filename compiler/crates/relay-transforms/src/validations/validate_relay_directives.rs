@@ -24,6 +24,7 @@ use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
 use schema::Schema;
 
+use crate::generate_relay_resolvers_root_fragment_split_operation::IsResolverRootFragment;
 use crate::relay_directive::MASK_ARG_NAME;
 use crate::relay_directive::PLURAL_ARG_NAME;
 use crate::relay_directive::RELAY_DIRECTIVE_NAME;
@@ -68,7 +69,10 @@ impl<'program> RelayDirectiveValidation<'program> {
         let incompatible_directives = fragment
             .directives
             .iter()
-            .filter(|directive| directive.name.item != *RELAY_DIRECTIVE_NAME)
+            .filter(|directive| {
+                directive.name.item != *RELAY_DIRECTIVE_NAME
+                    && directive.name.item != IsResolverRootFragment::directive_name()
+            })
             .collect::<Vec<_>>();
 
         if !incompatible_directives.is_empty() {

@@ -30,7 +30,7 @@ pub mod rename;
 mod resolved_types_at_location;
 mod search_schema_items;
 pub mod server;
-mod shutdown;
+pub mod shutdown;
 mod status_reporter;
 pub mod status_updater;
 pub mod text_documents;

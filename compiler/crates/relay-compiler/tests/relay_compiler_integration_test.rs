@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b3e4b1964336b8e9e769e4bc8dcae578>>
+ * @generated SignedSource<<d1592d0b5431631371c723c52380d924>>
  */
 
 mod relay_compiler_integration;
@@ -388,6 +388,13 @@ async fn resolver_semantic_non_null_scalar() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected");
     test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_scalar.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolvers_mask_false() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolvers_mask_false.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolvers_mask_false.expected");
+    test_fixture(transform_fixture, file!(), "resolvers_mask_false.input", "relay_compiler_integration/fixtures/resolvers_mask_false.expected", input, expected).await;
 }
 
 #[tokio::test]

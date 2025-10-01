@@ -164,6 +164,16 @@ pub enum ValidationMessage {
     ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
 
     #[error(
+        "Client to server edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using client to server edges."
+    )]
+    ClientEdgeToServerWithExecTimeResolvers,
+
+    #[error(
+        "Server to client edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using server to client edges."
+    )]
+    ServerEdgeToClientWithExecTimeResolvers,
+
+    #[error(
         "Invalid @RelayResolver output type for field `{field_name}`. Got input object `{type_name}`."
     )]
     RelayResolverOutputTypeInvalidInputObjectType {

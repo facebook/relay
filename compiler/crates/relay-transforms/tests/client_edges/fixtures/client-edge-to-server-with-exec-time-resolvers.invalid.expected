@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query TestQuery @exec_time_resolvers {
+  me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== ERROR ====================================
+✖︎ Client to server edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using client to server edges.
+
+  client-edge-to-server-with-exec-time-resolvers.invalid.graphql:4:5
+    3 │   me {
+    4 │     best_friend @waterfall {
+      │     ^^^^^^^^^^^
+    5 │       name

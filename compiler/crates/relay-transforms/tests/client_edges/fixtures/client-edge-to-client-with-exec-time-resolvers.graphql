@@ -1,0 +1,25 @@
+query TestQuery @exec_time_resolvers {
+  client_me {
+    best_friend {
+      id
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on ClientUser {
+  __typename
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+type ClientUser {
+  best_friend: ClientOnlyType @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+
+extend type Query {
+  client_me: ClientUser
+}

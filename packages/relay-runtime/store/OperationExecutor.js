@@ -160,6 +160,7 @@ class Executor<TMutation: MutationParameters> {
   +_seenActors: Set<ActorIdentifier>;
   _normalizeResponse: NormalizeResponseFunction;
   _execTimeResolverResponseComplete: boolean;
+  _isClientQuery: boolean;
 
   constructor({
     actorIdentifier,
@@ -218,6 +219,9 @@ class Executor<TMutation: MutationParameters> {
     this._seenActors = new Set();
     this._completeFns = [];
     this._normalizeResponse = normalizeResponse;
+    this._isClientQuery =
+      this._operation.request.node.params.id == null &&
+      this._operation.request.node.params.text == null;
 
     const id = this._nextSubscriptionId++;
 
@@ -590,6 +594,11 @@ class Executor<TMutation: MutationParameters> {
         if (isFinal) {
           // Need to update the active state to mark the query as inactive,
           // incase server payloads have completed
+          if (this._isClientQuery) {
+            // If it is a client query, there is no server response to set the
+            // final state, so we need to set it here
+            this._state = 'loading_final';
+          }
           this._updateActiveState();
         }
       }

@@ -58,6 +58,7 @@ pub(crate) fn get_type_information(
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[allow(dead_code)]
 pub(crate) struct TypeInformationParams {
     pub uri: Url,
     pub type_name: String,

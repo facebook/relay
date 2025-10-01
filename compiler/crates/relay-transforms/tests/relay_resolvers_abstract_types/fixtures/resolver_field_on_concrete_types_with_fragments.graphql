@@ -1,0 +1,37 @@
+# relay-resolver-enable-interface-output-type
+
+fragment resolverFieldOnConcreteTypesWithFragmentsFragment on Cat {
+    description
+}
+
+fragment TabbyDescriptionFragment on Tabby {
+    description
+}
+
+fragment TabbyDescriptionFragment2 on Tabby {
+    color
+}
+
+fragment PersianDescriptionFragment on Persian {
+    description
+}
+
+fragment PersianDescriptionFragment2 on Persian {
+    color
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyDescriptionResolver", fragment_name: "TabbyDescriptionFragment")
+    color: String @relay_resolver(import_path: "TabbyDescriptionResolver2", fragment_name: "TabbyDescriptionFragment2")
+}
+
+type Persian implements Cat {
+    description: String @relay_resolver(import_path: "PersianDescriptionResolver", fragment_name: "PersianDescriptionFragment")
+    color: String @relay_resolver(import_path: "PersianDescriptionResolver2", fragment_name: "PersianDescriptionFragment2")
+}

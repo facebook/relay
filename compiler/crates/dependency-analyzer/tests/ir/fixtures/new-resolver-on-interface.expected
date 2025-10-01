@@ -43,4 +43,8 @@ type Persian implements Cat @__RelayResolverModel {
 ==================================== OUTPUT ===================================
 Fragment: F1
 
+Fragment: PersianFragment
+
+Fragment: TabbyFragment
+
 Operation: Q1

@@ -119,8 +119,13 @@ function observeFragment<TFragmentType: FragmentType, TData>(
 ): mixed {
   const fragmentNode = getFragment(fragment);
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
+  const usesExecTimeResolver =
+    fragmentSelector?.owner?.node?.operation?.use_exec_time_resolvers ??
+    fragmentSelector?.owner?.node?.operation?.exec_time_resolvers_enabled_provider?.get();
+
   invariant(
-    fragmentNode.metadata?.hasClientEdges == null,
+    usesExecTimeResolver === true ||
+      fragmentNode.metadata?.hasClientEdges == null,
     "Client edges aren't supported yet.",
   );
   invariant(fragmentSelector != null, 'Expected a selector, got null.');

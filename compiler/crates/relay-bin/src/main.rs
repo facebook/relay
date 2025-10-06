@@ -284,11 +284,13 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
 
 async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
     let mut config = get_config(command.config)?;
+    let root_dir = config.root_dir.clone();
     set_project_flag(&mut config, command.projects)?;
-    let (programs, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
-    let programs = programs.values().cloned().collect();
+    let programs = get_programs(config, Arc::new(ConsoleLogger))
+        .await
+        .map(|(programs, _, _)| programs.values().cloned().collect());
 
-    match run_codemod(programs, Arc::clone(&config), command.codemod).await {
+    match run_codemod(programs, root_dir, command.codemod).await {
         Ok(_) => Ok(()),
         Err(e) => Err(Error::CodemodError {
             details: format!("{:?}", e),

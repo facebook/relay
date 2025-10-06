@@ -68,6 +68,7 @@ pub use file_source::FsSourceReader;
 pub use file_source::SourceControlUpdateStatus;
 pub use file_source::SourceReader;
 pub use file_source::source_for_location;
+pub use get_programs::assert_programs;
 pub use get_programs::get_programs;
 pub use graphql_asts::GraphQLAsts;
 pub use operation_persister::LocalPersister;

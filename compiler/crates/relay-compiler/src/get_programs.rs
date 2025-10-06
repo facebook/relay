@@ -17,6 +17,29 @@ use crate::NoopArtifactWriter;
 use crate::compiler::Compiler;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
+use crate::errors::Result;
+
+type RelayPrograms = (
+    HashMap<ProjectName, Arc<Programs>>,
+    CompilerState,
+    Arc<Config>,
+);
+
+type ProgramsResult = Result<RelayPrograms>;
+
+/// Many CLI tools use `get_programs` to compile Relay programs as a prerequisite to other operations.
+/// In those cases it's often not practical to to continue if the programs
+/// cannot be created. In those cases, it makes sense to exit the process with
+/// an error code.
+pub fn assert_programs(programs_result: ProgramsResult) -> RelayPrograms {
+    match programs_result {
+        Ok(programs) => programs,
+        Err(e) => {
+            eprintln!("{e}");
+            std::process::exit(1);
+        }
+    }
+}
 
 /// Asynchronously compiles Relay programs and returns them along with the compiler state and configuration.
 ///
@@ -26,11 +49,7 @@ use crate::config::Config;
 pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
     mut config: Config,
     perf_logger: Arc<TPerfLogger>,
-) -> (
-    HashMap<ProjectName, Arc<Programs>>,
-    CompilerState,
-    Arc<Config>,
-) {
+) -> ProgramsResult {
     let raw_programs: Arc<Mutex<HashMap<ProjectName, Arc<Programs>>>> =
         Arc::new(Mutex::new(HashMap::new()));
     let raw_programs_cloned = raw_programs.clone();
@@ -50,13 +69,7 @@ pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
     let config = Arc::new(config);
 
     let compiler = Compiler::new(Arc::clone(&config), Arc::clone(&perf_logger));
-    let compiler_state = match compiler.compile().await {
-        Ok(compiler_state) => compiler_state,
-        Err(e) => {
-            eprintln!("{e}");
-            std::process::exit(1);
-        }
-    };
+    let compiler_state = compiler.compile().await?;
     let programs = {
         let guard = raw_programs.lock().unwrap();
         if guard.is_empty() {
@@ -65,5 +78,5 @@ pub async fn get_programs<TPerfLogger: PerfLogger + 'static>(
         }
         guard.clone()
     };
-    (programs, compiler_state, Arc::clone(&config))
+    Ok((programs, compiler_state, Arc::clone(&config)))
 }

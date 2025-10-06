@@ -6,10 +6,14 @@
  */
 
 use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
 use std::sync::Arc;
+use std::vec;
 
 use clap::Args;
 use clap::Subcommand;
+use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
 use common::Rollout;
@@ -18,7 +22,9 @@ use log::info;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::TextEdit;
 use lsp_types::Url;
-use relay_compiler::config::Config;
+use relay_compiler::errors::BuildProjectError;
+use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::errors::Result as CompilerResult;
 use relay_transforms::Programs;
 use relay_transforms::disallow_required_on_non_null_field;
 use relay_transforms::fragment_alias_directive;
@@ -30,6 +36,9 @@ pub enum AvailableCodemod {
 
     /// Removes @required directives from non-null fields within @throwOnFieldError fragments and operations.
     RemoveUnnecessaryRequiredDirectives,
+
+    /// Runs all Relay compiler transforms and fixes all fixable diagnostics
+    FixAll,
 }
 
 #[derive(Args, Debug, Clone)]
@@ -42,29 +51,63 @@ pub struct MarkDangerousConditionalFragmentSpreadsArgs {
 }
 
 pub async fn run_codemod(
-    programs: Vec<Arc<Programs>>,
-    config: Arc<Config>,
+    programs: CompilerResult<Vec<Arc<Programs>>>,
+    root_dir: PathBuf,
     codemod: AvailableCodemod,
 ) -> Result<(), std::io::Error> {
-    run_codemod_impl(
-        programs,
-        config,
-        |programs: &Arc<Programs>| match &codemod {
-            AvailableCodemod::MarkDangerousConditionalFragmentSpreads(opts) => {
-                fragment_alias_directive(&programs.source, &opts.rollout_percentage).map(|_| ()) // Codemods don't return anything for OK
+    match &codemod {
+        AvailableCodemod::MarkDangerousConditionalFragmentSpreads(opts) => {
+            run_codemod_impl(
+                programs.expect("Failed to build programs"),
+                root_dir,
+                |programs: &Arc<Programs>| {
+                    fragment_alias_directive(&programs.source, &opts.rollout_percentage).map(|_| ())
+                }, // Codemods don't return anything for OK,
+                format!("{codemod:?}").as_str(),
+            )
+            .await
+        }
+        AvailableCodemod::RemoveUnnecessaryRequiredDirectives => {
+            run_codemod_impl(
+                programs.expect("Failed to build programs"),
+                root_dir,
+                |programs: &Arc<Programs>| disallow_required_on_non_null_field(&programs.reader),
+                format!("{codemod:?}").as_str(),
+            )
+            .await
+        }
+        AvailableCodemod::FixAll => {
+            match programs {
+                Ok(_programs) => {
+                    // Noop
+                    Ok(())
+                }
+                Err(error) => {
+                    let diagnostics = as_diagnostics(error);
+                    fix_diagnostics("FixAll", &root_dir, &diagnostics)
+                }
             }
-            AvailableCodemod::RemoveUnnecessaryRequiredDirectives => {
-                disallow_required_on_non_null_field(&programs.reader)
-            }
-        },
-        format!("{codemod:?}").as_str(),
-    )
-    .await
+        }
+    }
+}
+
+fn as_diagnostics(error: CompilerError) -> Vec<Diagnostic> {
+    match error {
+        CompilerError::DiagnosticsError { errors } => errors,
+        CompilerError::BuildProjectsErrors { errors } => errors
+            .into_iter()
+            .flat_map(|e| match e {
+                BuildProjectError::ValidationErrors { errors, .. } => errors,
+                _ => vec![],
+            })
+            .collect(),
+        _ => vec![],
+    }
 }
 
 pub async fn run_codemod_impl(
     programs: Vec<Arc<Programs>>,
-    config: Arc<Config>,
+    root_dir: PathBuf,
     f: impl Fn(&Arc<Programs>) -> DiagnosticsResult<()>,
     codemod: &str,
 ) -> Result<(), std::io::Error> {
@@ -79,7 +122,15 @@ pub async fn run_codemod_impl(
         })
         .collect::<Vec<_>>();
 
-    let actions = relay_lsp::diagnostics_to_code_actions(&config.root_dir, &diagnostics);
+    fix_diagnostics(codemod, &root_dir, &diagnostics)
+}
+
+pub fn fix_diagnostics(
+    codemod: &str,
+    root_dir: &Path,
+    diagnostics: &[Diagnostic],
+) -> Result<(), std::io::Error> {
+    let actions = relay_lsp::diagnostics_to_code_actions(root_dir, diagnostics);
 
     info!(
         "Codemod {:?} ran and found {} changes to make.",

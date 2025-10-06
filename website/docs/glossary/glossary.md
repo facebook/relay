@@ -369,10 +369,6 @@ Note that Flow is configured to understand that the type of a GraphQL literal is
 
 </FbInternalOnly>
 
-## Handler
-
-TODO
-
 ## ID
 
 Relay treats ids specially. In particular, it does the following two things:

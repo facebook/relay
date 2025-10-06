@@ -720,7 +720,11 @@ See the [guided tour on updating data](../guided-tour/updating-data/graphql-muta
 
 ## Reader
 
-TODO this section
+A core component of the Relay runtime responsible for reading data from the store. The Reader traverses the normalized data in the store using a [reader AST](#reader-ast) and constructs the denormalized data structure that matches the shape expected by components.
+
+The Reader is called by the store's [lookup](#lookup) method and is fundamental to how Relay provides data to React components. It handles data masking by only exposing the fields that were explicitly selected in fragments and queries, ensuring components can only access the data they declared dependencies for.
+
+The Reader also manages missing data detection, determining when insufficient data is available in the store to fulfill a request, which helps Relay decide when network requests are necessary.
 
 ## Reader AST
 

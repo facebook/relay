@@ -369,10 +369,6 @@ Note that Flow is configured to understand that the type of a GraphQL literal is
 
 </FbInternalOnly>
 
-## Handler
-
-TODO
-
 ## ID
 
 Relay treats ids specially. In particular, it does the following two things:
@@ -841,7 +837,11 @@ It can also be a [fragment spec resolver](#fragment-spec-resolver) or a [operati
 
 ## Response
 
-TODO
+The data returned by a GraphQL server in response to a query, mutation, or subscription. A GraphQL response typically contains a `data` field with the requested information, and may also include an `errors` field if any errors occurred during execution.
+
+In Relay, responses are processed by the [Response Normalizer](#response-normalizer), which transforms the nested response data into a flat, normalized format suitable for storage in the Relay store. This normalization process enables efficient data deduplication, caching, and updates.
+
+Responses can also include extensions and other metadata depending on the GraphQL server implementation. Relay handles both successful responses and error responses, providing appropriate error handling and data consistency guarantees.
 
 ## Response Normalizer
 

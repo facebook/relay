@@ -7,6 +7,8 @@
 
 //! Type information LSP request
 
+use std::sync::Arc;
+
 use intern::Lookup;
 use intern::string_key::Intern;
 use itertools::Itertools;
@@ -29,6 +31,7 @@ pub(crate) fn get_type_information(
     lsp_state: &impl GlobalState,
     uri: Url,
     type_name: String,
+    string_filter: Option<String>,
 ) -> Result<String, String> {
     let Ok(project_name) = lsp_state.extract_project_name_from_url(&uri) else {
         return Err(format!(
@@ -53,10 +56,28 @@ pub(crate) fn get_type_information(
         ));
     };
 
-    Ok(print_type(&schema, type_))
+    Ok(print_type(&schema, type_, string_filter))
 }
 
-pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
+type FieldPredicate = Box<dyn Fn(FieldID) -> bool>;
+
+pub fn print_type(schema: &Arc<SDLSchema>, type_: Type, string_filter: Option<String>) -> String {
+    let field_predicate: FieldPredicate = if let Some(string_filter) = string_filter {
+        let schema = Arc::clone(schema);
+        let string_filter = string_filter.to_lowercase();
+        Box::new(move |field: FieldID| {
+            schema
+                .field(field)
+                .name
+                .item
+                .lookup()
+                .to_lowercase()
+                .contains(&string_filter)
+        })
+    } else {
+        Box::new(|_| true)
+    };
+
     let type_directives = print_directives(schema.directives_for_type(type_));
 
     match type_ {
@@ -97,7 +118,7 @@ pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
             let interface = schema.interface(interface);
             let name = interface.name.item;
             let implements_interfaces = print_implements_interfaces(schema, &interface.interfaces);
-            let fields = print_fields(schema, &interface.fields);
+            let fields = print_fields(schema, &interface.fields, &field_predicate);
             format!(
                 r"interface {name}{implements_interfaces}{type_directives} {{
 {fields}}}"
@@ -107,7 +128,7 @@ pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
             let object = schema.object(_object_id);
             let name = object.name.item;
             let implements_interfaces = print_implements_interfaces(schema, &object.interfaces);
-            let fields = print_fields(schema, &object.fields);
+            let fields = print_fields(schema, &object.fields, &field_predicate);
             format!(
                 r"type {name}{implements_interfaces}{type_directives} {{
 {fields}}}"
@@ -167,21 +188,34 @@ fn print_directives(directives: &[DirectiveValue]) -> String {
         .join("")
 }
 
-fn print_fields(schema: &SDLSchema, fields: &[schema::FieldID]) -> String {
+fn print_fields(
+    schema: &SDLSchema,
+    fields: &[schema::FieldID],
+    field_predicate: &FieldPredicate,
+) -> String {
     let mut result = String::new();
-    for (index, field) in fields
+    let filtered_fields = fields
         .iter()
-        .sorted_by_key(|field| schema.field(**field).name.item)
-        .enumerate()
-    {
+        .copied()
+        .filter(|&field| field_predicate(field))
+        .sorted_by_key(|&field| schema.field(field).name.item)
+        .collect_vec();
+
+    for (index, field) in filtered_fields.iter().enumerate() {
         if index >= MAX_FIELDS {
-            let num_more_fields = fields.len() - index;
+            let num_more_fields = filtered_fields.len() - index;
             result.push_str(&format!(
-                "  # ... and {num_more_fields} more fields unable to display\n"
+                "  # ... and {num_more_fields} more fields unable to display, use a filter to narrow down the options\n"
             ));
             break;
         }
         result.push_str(&print_field(schema, *field));
+    }
+    if filtered_fields.len() < fields.len() {
+        result.push_str(&format!(
+            "  # {} fields not matching filter\n",
+            fields.len() - filtered_fields.len()
+        ));
     }
     result
 }

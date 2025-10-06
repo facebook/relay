@@ -275,6 +275,7 @@ async fn handle_daemon_request<
         daemon::DeamonRequestMessage::TypeInformation {
             file_uri,
             type_name,
+            string_filter,
         } => {
             let Ok(project_name) = state.extract_project_name_from_url(&file_uri) else {
                 return Err(format!(
@@ -289,7 +290,7 @@ async fn handle_daemon_request<
                 debug!("LSP state resources are already ready");
             }
 
-            get_type_information(state.as_ref(), file_uri, type_name)
+            get_type_information(state.as_ref(), file_uri, type_name, string_filter)
         }
     }
 }

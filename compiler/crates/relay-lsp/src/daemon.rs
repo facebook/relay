@@ -61,7 +61,11 @@ impl fmt::Debug for DeamonRequest {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum DeamonRequestMessage {
-    TypeInformation { file_uri: Url, type_name: String },
+    TypeInformation {
+        file_uri: Url,
+        type_name: String,
+        string_filter: Option<String>,
+    },
 }
 
 /// The response from the daemon. The current format is just the output

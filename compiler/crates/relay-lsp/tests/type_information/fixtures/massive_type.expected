@@ -204,5 +204,5 @@ type MassiveType {
   field276: String
   field277: String
   field278: String
-  # ... and 800 more fields unable to display
+  # ... and 800 more fields unable to display, use a filter to narrow down the options
 }

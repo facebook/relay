@@ -16,6 +16,7 @@ use serde::Serialize;
 #[derive(Serialize, Deserialize, Debug)]
 struct TestSettings {
     type_name: StringKey,
+    string_filter: Option<String>,
 }
 
 pub async fn transform_fixture(_fixture: &Fixture<'_>) -> Result<String, String> {
@@ -38,5 +39,5 @@ type MassiveType {{
         .find_map(|(&name, type_)| (name == settings.type_name).then_some(type_))
         .unwrap();
 
-    Ok(print_type(&schema, type_))
+    Ok(print_type(&schema, type_, settings.string_filter))
 }

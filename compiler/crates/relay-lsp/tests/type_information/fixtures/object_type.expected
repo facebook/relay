@@ -1,0 +1,45 @@
+==================================== INPUT ====================================
+{
+  "type_name": "PhotoStory"
+}
+==================================== OUTPUT ===================================
+type PhotoStory implements FeedUnit & Node {
+  actor: Actor
+  actorCount: Int
+  actors: [Actor]
+  address: StreetAddress
+  allPhones: [Phone]
+  author: User
+  backgroundImage: Image
+  birthdate: Date
+  body: Text
+  canViewerComment: Boolean
+  canViewerDelete: Boolean
+  canViewerLike: Boolean
+  comments(after: ID, before: ID, first: Int, last: Int, orderby: String): CommentsConnection
+  doesViewerLike: Boolean
+  emailAddresses: [String]
+  feedback: Feedback
+  firstName(if: Boolean, unless: Boolean): String
+  friends(after: ID, before: ID, first: Int, last: Int, orderby: [String], find: String, isViewerFriend: Boolean, if: Boolean, unless: Boolean, traits: [PersonalityTraits]): FriendsConnection
+  hometown: Page
+  id: ID!
+  lastName: String
+  likeSentence: Text
+  likers(first: Int): LikersOfContentConnection
+  message: Text
+  name: String
+  photo: Image
+  profilePicture(size: [Int], preset: PhotoSize): Image
+  screennames: [Screenname]
+  seenState: String
+  segments(first: Int): Segments
+  subscribeStatus: String
+  subscribers(first: Int): SubscribersConnection
+  topLevelComments(first: Int): TopLevelCommentsConnection
+  tracking: String
+  url(relative: Boolean, site: String): String
+  username: String
+  viewerSavedState: String
+  websites: [String]
+}

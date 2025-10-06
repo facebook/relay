@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+{
+  "type_name": "CommentsEdgeInterface"
+}
+==================================== OUTPUT ===================================
+interface CommentsEdgeInterface {
+  cursor: String
+  node: Comment
+  source: Feedback
+}

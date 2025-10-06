@@ -289,11 +289,7 @@ async fn handle_daemon_request<
                 debug!("LSP state resources are already ready");
             }
 
-            match get_type_information(state.as_ref(), file_uri, type_name) {
-                Ok(response) => serde_json::to_string_pretty(&response)
-                    .map_err(|err| format!("JSON deserialization error: {err:?}")),
-                Err(err) => Err(format!("{err:?}")),
-            }
+            get_type_information(state.as_ref(), file_uri, type_name)
         }
     }
 }

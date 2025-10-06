@@ -298,6 +298,7 @@ const RelayStoreUtils = {
   RELAY_RESOLVER_SNAPSHOT_KEY: '__resolverSnapshot',
   RELAY_RESOLVER_ERROR_KEY: '__resolverError',
   RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS: '__resolverOutputTypeRecordIDs',
+  RELAY_RESOLVER_RECORD_TYPENAME: '__RELAY_RESOLVER__',
   RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
 
   formatStorageKey,

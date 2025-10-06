@@ -80,6 +80,10 @@ export type FeatureFlags = {
   //
   // See https://github.com/facebook/relay/issues/4882
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: boolean,
+
+  // When enabled, records created for Relay Resolvers will be filtered out
+  // from the store when serializing to JSON.
+  FILTER_OUT_RELAY_RESOLVER_RECORDS: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -109,6 +113,7 @@ const RelayFeatureFlags: FeatureFlags = {
   ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
   ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: false,
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: false,
+  FILTER_OUT_RELAY_RESOLVER_RECORDS: false,
 };
 
 module.exports = RelayFeatureFlags;

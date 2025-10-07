@@ -9,7 +9,11 @@
  * @oncall relay
  */
 
-import type {PluralReaderSelector, RequestDescriptor} from './RelayStoreTypes';
+import type {
+  PluralReaderSelector,
+  ReaderSelector,
+  RequestDescriptor,
+} from './RelayStoreTypes';
 import type {
   Fragment,
   FragmentType,
@@ -119,16 +123,14 @@ function observeFragment<TFragmentType: FragmentType, TData>(
 ): mixed {
   const fragmentNode = getFragment(fragment);
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
-  const usesExecTimeResolver =
-    fragmentSelector?.owner?.node?.operation?.use_exec_time_resolvers ??
-    fragmentSelector?.owner?.node?.operation?.exec_time_resolvers_enabled_provider?.get();
+
+  invariant(fragmentSelector != null, 'Expected a selector, got null.');
 
   invariant(
-    usesExecTimeResolver === true ||
-      fragmentNode.metadata?.hasClientEdges == null,
+    fragmentNode.metadata?.hasClientEdges == null ||
+      fragmentSelectorUsesExecTimeResolver(fragmentSelector),
     "Client edges aren't supported yet.",
   );
-  invariant(fragmentSelector != null, 'Expected a selector, got null.');
   switch (fragmentSelector.kind) {
     case 'SingularReaderSelector':
       return observeSingularSelector(environment, fragment, fragmentSelector);
@@ -141,6 +143,28 @@ function observeFragment<TFragmentType: FragmentType, TData>(
     }
   }
   invariant(false, 'Unsupported fragment selector kind');
+}
+
+function fragmentSelectorUsesExecTimeResolver(
+  fragmentSelector: ReaderSelector,
+) {
+  switch (fragmentSelector?.kind) {
+    case 'SingularReaderSelector':
+      return (
+        (fragmentSelector.owner.node.operation?.use_exec_time_resolvers ??
+          fragmentSelector.owner.node.operation?.exec_time_resolvers_enabled_provider?.get()) ===
+        true
+      );
+    case 'PluralReaderSelector': {
+      return fragmentSelector.selectors?.every(
+        selector =>
+          (selector.owner.node.operation.use_exec_time_resolvers ??
+            selector.owner.node.operation?.exec_time_resolvers_enabled_provider?.get()) ===
+          true,
+      );
+    }
+  }
+  return false;
 }
 
 function observeSingularSelector<TFragmentType: FragmentType, TData>(

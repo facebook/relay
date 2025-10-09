@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+# relay:feature-flag disallow_required_action_throw_on_semantically_nullable_fields
+
+query TestQuery {
+  opera {
+    # This field has @semanticNonNull, so THROW should work when feature flag is enabled
+    composer @required(action: THROW) {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  opera {
+    composer @required(action: THROW) @__RequiredMetadataDirective
+    # RequiredMetadataDirective {
+    #     action: Throw,
+    #     path: "opera.composer",
+    # }
+     {
+      name
+    }
+  }
+}

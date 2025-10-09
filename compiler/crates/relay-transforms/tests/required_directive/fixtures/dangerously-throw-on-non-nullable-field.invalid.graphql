@@ -1,0 +1,8 @@
+# expected-to-throw
+
+query MyQuery {
+  me {
+    # Error: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD used on non-null field
+    id @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+  }
+}

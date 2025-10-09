@@ -1,0 +1,9 @@
+# expected-to-throw
+# relay:feature-flag disallow_required_action_throw_on_semantically_nullable_fields
+
+query TestQuery {
+  me {
+    # This field does not have @semanticNonNull, so THROW should fail with auto fix
+    name @required(action: THROW)
+  }
+}

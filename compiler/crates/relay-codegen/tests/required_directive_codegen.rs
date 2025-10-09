@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlags;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::Program;
@@ -34,7 +35,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    required_directive(&program)
+    required_directive(&program, &FeatureFlags::default())
         .map(|next_program| {
             next_program
                 .fragments()

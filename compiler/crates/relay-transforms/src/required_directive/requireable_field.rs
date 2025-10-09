@@ -14,6 +14,7 @@ use graphql_ir::Field;
 use graphql_ir::LinkedField;
 use graphql_ir::ScalarField;
 use intern::string_key::StringKey;
+use schema::FieldID;
 use schema::SDLSchema;
 
 use super::ACTION_ARGUMENT;
@@ -43,6 +44,7 @@ pub trait RequireableField {
             Ok(None)
         }
     }
+    fn field_id(&self) -> FieldID;
 }
 
 impl RequireableField for ScalarField {
@@ -52,6 +54,9 @@ impl RequireableField for ScalarField {
     fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
         WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
     }
+    fn field_id(&self) -> FieldID {
+        self.definition.item
+    }
 }
 
 impl RequireableField for LinkedField {
@@ -60,6 +65,10 @@ impl RequireableField for LinkedField {
     }
     fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
         WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
+    }
+
+    fn field_id(&self) -> FieldID {
+        self.definition.item
     }
 }
 

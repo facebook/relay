@@ -277,7 +277,9 @@ fn apply_reader_transforms(
         None,
     )?;
 
-    program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
+    })?;
 
     program = log_event.time("catch_directive", || catch_directive(&program))?;
 
@@ -702,7 +704,9 @@ fn apply_typegen_transforms(
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
     })?;
-    program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
+    })?;
     program = log_event.time("catch_directive", || catch_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
         generate_relay_resolvers_model_fragments(

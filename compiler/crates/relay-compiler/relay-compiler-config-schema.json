@@ -625,6 +625,13 @@
           "type": "boolean",
           "default": false
         },
+        "disallow_required_action_throw_on_semantically_nullable_fields": {
+          "description": "Disallow @required action THROW on semantically nullable fields.\nWhen enabled, this will prevent the use of THROW action on fields\nthat are semantically nullable (e.g., fields that can legitimately\nbe null in normal operation).",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "enable_3d_branch_arg_generation": {
           "type": "boolean",
           "default": false
@@ -901,6 +908,9 @@
             },
             "disable_resolver_reader_ast": false,
             "disable_schema_validation": false,
+            "disallow_required_action_throw_on_semantically_nullable_fields": {
+              "kind": "disabled"
+            },
             "enable_3d_branch_arg_generation": false,
             "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,

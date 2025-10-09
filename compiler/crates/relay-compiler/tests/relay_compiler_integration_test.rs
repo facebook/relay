@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d1592d0b5431631371c723c52380d924>>
+ * @generated SignedSource<<58e190b62dc6455639e5995e15b0447b>>
  */
 
 mod relay_compiler_integration;
@@ -80,6 +80,13 @@ async fn custom_scalar_variable_default_arg_non_strict() {
     let input = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.input");
     let expected = include_str!("relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected");
     test_fixture(transform_fixture, file!(), "custom_scalar_variable_default_arg_non_strict.input", "relay_compiler_integration/fixtures/custom_scalar_variable_default_arg_non_strict.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerously_throw_on_semantically_nullable_field() {
+    let input = include_str!("relay_compiler_integration/fixtures/dangerously_throw_on_semantically_nullable_field.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/dangerously_throw_on_semantically_nullable_field.expected");
+    test_fixture(transform_fixture, file!(), "dangerously_throw_on_semantically_nullable_field.input", "relay_compiler_integration/fixtures/dangerously_throw_on_semantically_nullable_field.expected", input, expected).await;
 }
 
 #[tokio::test]

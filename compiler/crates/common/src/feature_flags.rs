@@ -179,6 +179,13 @@ pub struct FeatureFlags {
     /// across a number of diffs.
     #[serde(default)]
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
+
+    /// Disallow @required action THROW on semantically nullable fields.
+    /// When enabled, this will prevent the use of THROW action on fields
+    /// that are semantically nullable (e.g., fields that can legitimately
+    /// be null in normal operation).
+    #[serde(default)]
+    pub disallow_required_action_throw_on_semantically_nullable_fields: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -210,6 +217,7 @@ impl Default for FeatureFlags {
             omit_resolver_type_assertions_for_confirmed_types: Default::default(),
             disable_deduping_common_structures_in_artifacts: Default::default(),
             legacy_include_path_in_required_reader_nodes: Default::default(),
+            disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

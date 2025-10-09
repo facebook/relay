@@ -31,19 +31,30 @@ If `name` is null, Relay would return `{ viewer: null }`. You can think of `@req
 
 ## Action
 
-The `@required` directive has a required `action` argument which has three possible values:
+The `@required` directive has a required `action` argument which has four possible values:
 
 ### `NONE` (expected)
 
-This field is expected to be null sometimes.
+This field is expected to be null sometimes. The field's nullability will "bubble up" to make the parent field null if this field is missing, allowing the component to check the parent field instead of this specific field.
 
 ### `LOG` (recoverable)
 
-This value is not expected to ever be null, but the component **can still render** if it is. If a field with `action: LOG` is null, the [Relay field logger](../api-reference/relay-runtime/field-logger.md) will receive a `missing_required_field.log` event.
+This value is not expected to ever be null, but the component **can still render** if it is. If a field with `action: LOG` is null, the [Relay field logger](../api-reference/relay-runtime/field-logger.md) will receive a `missing_required_field.log` event. The field's nullability will "bubble up" to make the parent field null.
 
 ### `THROW` (unrecoverable)
 
 This value should not be null, and the component **cannot render without it**. If a field with `action: THROW` is null at runtime, the component which reads that field **will throw during render**. The error message includes both the owner and field path. Only use this option if your component is contained within an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+**Note**: If you have opted into the optional `disallow_required_action_throw_on_semantically_nullable_fields` [compiler feature flag](../../docs/getting-started/compiler-config.md), this can only be used on fields that are non-nullable (`!` in the schema) or are marked with `@semanticNonNull` (an optional [semantic nullability](./semantic-nullability.md) feature that indicates fields should never be null in normal operation).
+
+### `DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD` (unrecoverable, bypass validation)
+
+:::warning
+This option is included mostly as a migration path for existing codebases that used `@required(action: THROW)` on nullable fields. It is strongly discouraged to add new usages of this option.
+:::
+
+This action behaves identically to `THROW` but can be used on nullable fields. This is only needed when the optional [compiler feature flag](https://relay.dev/docs/getting-started/compiler-config/#FeatureFlags) `disallow_required_action_throw_on_semantically_nullable_fields` is enabled, which prevents using THROW on semantically nullable fields.
+
 
 ## Locality
 

@@ -362,6 +362,22 @@ Used for printing a query, need to be used with `debug_transform`
 directive @__debug on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
 
 """
+Internal directive used by the shadow field schema extension to mark fields
+that should be transformed into conditional inline fragments.
+"""
+directive @__shadowField(
+  variableName: String!
+  trueField: String!
+  falseField: String!
+) on FIELD_DEFINITION
+
+"""
+Internal directive used by the shadow field transform to attach metadata
+to inline fragments that represent shadow fields.
+"""
+directive @__ShadowFieldMetadata on INLINE_FRAGMENT
+
+"""
 (Relay Only)
 
 If added to a query, resolvers in that query to run at exec-time, rather than read-time.

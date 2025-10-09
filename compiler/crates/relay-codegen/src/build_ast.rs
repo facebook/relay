@@ -446,13 +446,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 if !operation.variable_definitions.is_empty() {
                     let argument_definitions =
                         self.build_operation_variable_definitions(&operation.variable_definitions);
-                    fields.insert(
-                        0,
-                        ObjectEntry {
-                            key: CODEGEN_CONSTANTS.argument_definitions,
-                            value: Primitive::Key(argument_definitions),
-                        },
-                    );
+                    fields.insert(0, ObjectEntry {
+                        key: CODEGEN_CONSTANTS.argument_definitions,
+                        value: Primitive::Key(argument_definitions),
+                    });
                 }
                 self.object(fields)
             }
@@ -1810,19 +1807,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         linked_field: &LinkedField,
         stream: &Directive,
     ) -> Primitive {
-        let next_selections = self.build_linked_field_and_handles(
-            context,
-            &LinkedField {
-                directives: remove_directive(
-                    &linked_field.directives,
-                    self.project_config
-                        .schema_config
-                        .defer_stream_interface
-                        .stream_name,
-                ),
-                ..linked_field.to_owned()
-            },
-        );
+        let next_selections = self.build_linked_field_and_handles(context, &LinkedField {
+            directives: remove_directive(
+                &linked_field.directives,
+                self.project_config
+                    .schema_config
+                    .defer_stream_interface
+                    .stream_name,
+            ),
+            ..linked_field.to_owned()
+        });
         let next_selections = Primitive::Key(self.array(next_selections));
         Primitive::Key(match self.variant {
             CodegenVariant::Reader => self.object(object! {
@@ -2005,13 +1999,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 .cloned()
                 .collect();
 
-            self.build_linked_field(
-                context,
-                &LinkedField {
-                    directives: next_directives,
-                    ..client_edge_metadata.linked_field.clone()
-                },
-            )
+            self.build_linked_field(context, &LinkedField {
+                directives: next_directives,
+                ..client_edge_metadata.linked_field.clone()
+            })
         };
 
         let field = match &client_edge_metadata.metadata_directive {

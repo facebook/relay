@@ -78,6 +78,7 @@ crates/relay-transforms/tests/relay_resolvers
 crates/relay-transforms/tests/relay_resolvers_abstract_types
 crates/relay-transforms/tests/relay_test_operation
 crates/relay-transforms/tests/required_directive
+crates/relay-transforms/tests/shadow_field_transform
 crates/relay-transforms/tests/skip_client_extensions
 crates/relay-transforms/tests/skip_redundant_nodes
 crates/relay-transforms/tests/skip_unreachable_nodes

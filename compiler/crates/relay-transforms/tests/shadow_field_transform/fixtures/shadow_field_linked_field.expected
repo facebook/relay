@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+# relay:shadow_fields User.contactAddress isInternal internalContactAddress externalContactAddress ContactAddress
+
+query TestQuery {
+  me {
+    contactAddress {
+      street
+      city
+    }
+  }
+}
+
+# %extensions%
+
+type ContactAddress {
+  street: String
+  city: String
+}
+
+extend type User {
+  internalContactAddress: ContactAddress
+  externalContactAddress: ContactAddress
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $isInternal: Boolean!
+) {
+  me {
+    ... {
+      contactAddress: internalContactAddress @include(if: $isInternal) {
+        street
+        city
+      }
+      contactAddress: externalContactAddress @skip(if: $isInternal) {
+        street
+        city
+      }
+    }
+  }
+}

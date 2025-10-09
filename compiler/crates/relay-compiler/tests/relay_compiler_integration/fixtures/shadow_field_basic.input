@@ -1,0 +1,37 @@
+//- user_query.js
+graphql`
+  query userQueryQuery {
+    me {
+      emailAddress
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "schemaConfig": {
+     "shadowFields": [
+       {
+         "parentTypeName": "User",
+         "shadowFieldName": "emailAddress",
+         "trueFieldName": "internalEmail",
+         "falseFieldName": "externalEmail",
+         "variableName": "isInternal",
+         "returnTypeName": "String"
+       }
+     ]
+   }
+}
+
+//- schema.graphql
+type Query { 
+  me: User 
+}
+
+type User { 
+  name: String
+  internalEmail: String
+  externalEmail: String
+}

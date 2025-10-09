@@ -241,6 +241,10 @@ fn apply_common_transforms(
         },
     )?;
 
+    program = log_event.time("shadow_field_transform", || {
+        shadow_field_transform(&program)
+    });
+
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,
@@ -300,6 +304,7 @@ fn apply_reader_transforms(
     )?;
 
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
+    program = log_event.time("unwrap_shadow_fields", || unwrap_shadow_fields(&program));
     program = log_event.time("skip_unreachable_node", || {
         skip_unreachable_node_strict(
             &program,
@@ -616,12 +621,9 @@ fn apply_operation_text_transforms(
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
-        validate_operation_variables(
-            &program,
-            ValidateVariablesOptions {
-                remove_unused_variables: true,
-            },
-        )
+        validate_operation_variables(&program, ValidateVariablesOptions {
+            remove_unused_variables: true,
+        })
     })?;
     program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)

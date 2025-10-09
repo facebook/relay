@@ -233,6 +233,7 @@
             "nodeInterfaceIdField": "id",
             "nodeInterfaceIdVariableName": "id",
             "nonNodeIdFields": null,
+            "shadowFields": [],
             "unselectableDirectiveName": "unselectable"
           }
         },
@@ -1279,6 +1280,14 @@
           ],
           "default": null
         },
+        "shadowFields": {
+          "description": "Shadow field configurations for conditional field switching",
+          "type": "array",
+          "default": [],
+          "items": {
+            "$ref": "#/$defs/ShadowFieldConfig"
+          }
+        },
         "unselectableDirectiveName": {
           "description": "The name of the directive indicating fields that cannot be selected",
           "$ref": "#/$defs/DirectiveName",
@@ -1313,6 +1322,45 @@
           ]
         }
       }
+    },
+    "ShadowFieldConfig": {
+      "description": "Configuration for a shadow field that conditionally switches between two fields\nbased on a variable value.\n\n# Example\n```ignore\nShadowFieldConfig {\n    parent_type_name: \"User\".intern(),\n    shadow_field_name: \"email\".intern(),\n    true_field_name: \"internalEmail\".intern(),\n    false_field_name: \"externalEmail\".intern(),\n    variable_name: \"isInternal\".intern(),\n    return_type_name: \"String\".intern(),\n}\n```\n\nThis would add a shadow field `email` to the `User` type that returns:\n- `internalEmail` when the `$isInternal` variable is true\n- `externalEmail` when the `$isInternal` variable is false",
+      "type": "object",
+      "properties": {
+        "falseFieldName": {
+          "description": "The name of the field to use when the variable is false",
+          "$ref": "#/$defs/StringKey"
+        },
+        "parentTypeName": {
+          "description": "The name of the parent type to which the shadow field will be added",
+          "$ref": "#/$defs/StringKey"
+        },
+        "returnTypeName": {
+          "description": "The return type that the shadow field returns (both conditional fields must implement this type)",
+          "$ref": "#/$defs/StringKey"
+        },
+        "shadowFieldName": {
+          "description": "The name of the shadow field that will be added to the schema",
+          "$ref": "#/$defs/StringKey"
+        },
+        "trueFieldName": {
+          "description": "The name of the field to use when the variable is true",
+          "$ref": "#/$defs/StringKey"
+        },
+        "variableName": {
+          "description": "The name of the variable to use for switching between fields",
+          "$ref": "#/$defs/StringKey"
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "parentTypeName",
+        "shadowFieldName",
+        "trueFieldName",
+        "falseFieldName",
+        "variableName",
+        "returnTypeName"
+      ]
     },
     "SingleProjectConfigFile": {
       "type": "object",
@@ -1525,6 +1573,7 @@
             "nodeInterfaceIdField": "id",
             "nodeInterfaceIdVariableName": "id",
             "nonNodeIdFields": null,
+            "shadowFields": [],
             "unselectableDirectiveName": "unselectable"
           }
         },

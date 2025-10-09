@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# relay:shadow_fields User.emailAddress isInternal internalEmail externalEmail String
+
+query TestQuery {
+  me {
+    emailAddress
+  }
+}
+
+# %extensions%
+
+extend type User {
+  internalEmail: String
+  externalEmail: String
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $isInternal: Boolean!
+) {
+  me {
+    ... {
+      emailAddress: internalEmail @include(if: $isInternal)
+      emailAddress: externalEmail @skip(if: $isInternal)
+    }
+  }
+}

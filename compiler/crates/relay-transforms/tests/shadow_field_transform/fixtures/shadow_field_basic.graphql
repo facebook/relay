@@ -1,0 +1,14 @@
+# relay:shadow_fields User.emailAddress isInternal internalEmail externalEmail String
+
+query TestQuery {
+  me {
+    emailAddress
+  }
+}
+
+# %extensions%
+
+extend type User {
+  internalEmail: String
+  externalEmail: String
+}

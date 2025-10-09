@@ -1,0 +1,22 @@
+# relay:shadow_fields User.contactAddress isInternal internalContactAddress externalContactAddress ContactAddress
+
+query TestQuery {
+  me {
+    contactAddress {
+      street
+      city
+    }
+  }
+}
+
+# %extensions%
+
+type ContactAddress {
+  street: String
+  city: String
+}
+
+extend type User {
+  internalContactAddress: ContactAddress
+  externalContactAddress: ContactAddress
+}

@@ -37,6 +37,7 @@ pub use project_config::ProjectConfig;
 pub use project_config::RemotePersistConfig;
 pub use project_config::SchemaConfig;
 pub use project_config::SchemaLocation;
+pub use project_config::ShadowFieldConfig;
 pub use project_name::ProjectName;
 pub use resolvers_schema_module_config::ResolversSchemaModuleConfig;
 pub use typegen_config::CustomType;

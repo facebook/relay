@@ -28,6 +28,46 @@ use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
 use serde::de::Error;
+
+/// Configuration for a shadow field that conditionally switches between two fields
+/// based on a variable value.
+///
+/// # Example
+/// ```ignore
+/// ShadowFieldConfig {
+///     parent_type_name: "User".intern(),
+///     shadow_field_name: "email".intern(),
+///     true_field_name: "internalEmail".intern(),
+///     false_field_name: "externalEmail".intern(),
+///     variable_name: "isInternal".intern(),
+///     return_type_name: "String".intern(),
+/// }
+/// ```
+///
+/// This would add a shadow field `email` to the `User` type that returns:
+/// - `internalEmail` when the `$isInternal` variable is true
+/// - `externalEmail` when the `$isInternal` variable is false
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ShadowFieldConfig {
+    /// The name of the parent type to which the shadow field will be added
+    pub parent_type_name: StringKey,
+
+    /// The name of the shadow field that will be added to the schema
+    pub shadow_field_name: StringKey,
+
+    /// The name of the field to use when the variable is true
+    pub true_field_name: StringKey,
+
+    /// The name of the field to use when the variable is false
+    pub false_field_name: StringKey,
+
+    /// The name of the variable to use for switching between fields
+    pub variable_name: StringKey,
+
+    /// The return type that the shadow field returns (both conditional fields must implement this type)
+    pub return_type_name: StringKey,
+}
 use serde_json::Value;
 
 use crate::JsModuleFormat;
@@ -223,6 +263,10 @@ pub struct SchemaConfig {
     /// If we should select __token field on fetchable types
     #[serde(default = "default_enable_token_field")]
     pub enable_token_field: bool,
+
+    /// Shadow field configurations for conditional field switching
+    #[serde(default)]
+    pub shadow_fields: Vec<ShadowFieldConfig>,
 }
 
 fn default_node_interface_id_field() -> StringKey {
@@ -251,6 +295,7 @@ impl Default for SchemaConfig {
             non_node_id_fields: None,
             unselectable_directive_name: default_unselectable_directive_name(),
             enable_token_field: default_enable_token_field(),
+            shadow_fields: Vec::new(),
         }
     }
 }

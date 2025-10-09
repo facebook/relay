@@ -95,6 +95,11 @@ fn build_schema_impl(
         )
     })?;
 
+    // Extend the schema with shadow fields based on configuration
+    log_event.time("extend_schema_with_shadow_fields_time", || {
+        relay_transforms::extend_schema_with_shadow_fields(&mut schema, &project_config.schema_config)
+    })?;
+
     // Now that the schema has been fully extended to include all Resolver types
     // and fields we can apply resolver-specific validations.
     log_event.time("validate_resolver_schema_time", || {

@@ -145,6 +145,84 @@ fn add_variables_to_operations(
     Program::from_definitions(program.schema.clone(), definitions)
 }
 
+/// Recursively retype all selections to match the given parent type.
+/// This is needed when we clone selections from a shadow field to its true/false variants,
+/// as the field definitions need to point to the correct type.
+fn retype_selections(
+    schema: &Arc<impl Schema>,
+    parent_type_ref: TypeReference<Type>,
+    selections: Vec<Selection>,
+) -> Vec<Selection> {
+    selections
+        .into_iter()
+        .map(|selection| match selection {
+            Selection::ScalarField(field) => {
+                // Look up the field on the new parent type
+                let parent_type = parent_type_ref.inner();
+                let field_id =
+                    schema.named_field(parent_type, schema.field(field.definition.item).name.item);
+
+                if let Some(field_id) = field_id {
+                    Selection::ScalarField(Arc::new(ScalarField {
+                        definition: WithLocation::new(field.definition.location, field_id),
+                        ..(*field).clone()
+                    }))
+                } else {
+                    // Field not found on new type, keep as is
+                    Selection::ScalarField(field)
+                }
+            }
+            Selection::LinkedField(field) => {
+                // Look up the field on the new parent type
+                let parent_type = parent_type_ref.inner();
+                let field_id =
+                    schema.named_field(parent_type, schema.field(field.definition.item).name.item);
+
+                if let Some(field_id) = field_id {
+                    // Get the type of this field so we can recursively retype its selections
+                    let new_field_type = schema.field(field_id).type_.clone();
+                    let retyped_selections =
+                        retype_selections(schema, new_field_type, field.selections.clone());
+
+                    Selection::LinkedField(Arc::new(LinkedField {
+                        definition: WithLocation::new(field.definition.location, field_id),
+                        selections: retyped_selections,
+                        ..(*field).clone()
+                    }))
+                } else {
+                    // Field not found on new type, keep as is
+                    Selection::LinkedField(field)
+                }
+            }
+            Selection::InlineFragment(fragment) => {
+                // Recursively retype selections within the inline fragment
+                let retyped_selections =
+                    retype_selections(schema, parent_type_ref.clone(), fragment.selections.clone());
+                Selection::InlineFragment(Arc::new(InlineFragment {
+                    selections: retyped_selections,
+                    ..(*fragment).clone()
+                }))
+            }
+            Selection::FragmentSpread(_) => {
+                // Fragment spreads don't need retyping
+                selection
+            }
+            Selection::Condition(condition) => {
+                // Recursively retype selections within the condition
+                let retyped_selections = retype_selections(
+                    schema,
+                    parent_type_ref.clone(),
+                    condition.selections.clone(),
+                );
+                Selection::Condition(Arc::new(Condition {
+                    selections: retyped_selections,
+                    ..(*condition).clone()
+                }))
+            }
+        })
+        .collect()
+}
+
 struct ShadowFieldTransform<'program> {
     program: &'program Program,
     /// Variables that need to be added
@@ -374,22 +452,32 @@ impl<'program> Transformer<'program> for ShadowFieldTransform<'program> {
             // Track this variable so we can add it to operations
             self.variables_to_add.insert(VariableName(variable_name));
 
-            // Create the true field (shown when variable is true) with selections
+            // Get the type of the true and false fields so we can retype the selections
+            let true_field_type = schema.field(true_field_id).type_.clone();
+            let false_field_type = schema.field(false_field_id).type_.clone();
+
+            // Retype selections to match the true/false field types
+            let true_selections =
+                retype_selections(&schema, true_field_type, field.selections.clone());
+            let false_selections =
+                retype_selections(&schema, false_field_type, field.selections.clone());
+
+            // Create the true field (shown when variable is true) with retyped selections
             let true_field_selection = Selection::LinkedField(Arc::new(LinkedField {
                 alias: field.alias,
                 definition: WithLocation::generated(true_field_id),
                 arguments: field.arguments.clone(),
                 directives: vec![], // Remove shadow field directive
-                selections: field.selections.clone(), // Preserve selections
+                selections: true_selections,
             }));
 
-            // Create the false field (shown when variable is false) with selections
+            // Create the false field (shown when variable is false) with retyped selections
             let false_field_selection = Selection::LinkedField(Arc::new(LinkedField {
                 alias: field.alias,
                 definition: WithLocation::generated(false_field_id),
                 arguments: field.arguments.clone(),
                 directives: vec![], // Remove shadow field directive
-                selections: field.selections.clone(), // Preserve selections
+                selections: false_selections,
             }));
 
             // Wrap in conditions

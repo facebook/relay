@@ -326,13 +326,13 @@ impl<'program> Transformer<'program> for ShadowFieldTransform<'program> {
                 .and_then(|arg| arg.get_string_literal());
 
             let Some(variable_name) = variable_name_arg else {
-                return Transformed::Keep;
+                panic!("Missing variable name in shadow field directive");
             };
             let Some(true_field_name) = true_field_arg else {
-                return Transformed::Keep;
+                panic!("Missing true field name in shadow field directive");
             };
             let Some(false_field_name) = false_field_arg else {
-                return Transformed::Keep;
+                panic!("Missing false field name in shadow field directive");
             };
 
             // Get the schema to look up field definitions
@@ -347,10 +347,16 @@ impl<'program> Transformer<'program> for ShadowFieldTransform<'program> {
             let false_field_id = schema.named_field(parent_type, false_field_name);
 
             let Some(true_field_id) = true_field_id else {
-                return Transformed::Keep;
+                panic!(
+                    "True field '{}' not found on type '{:?}'",
+                    true_field_name, parent_type
+                )
             };
             let Some(false_field_id) = false_field_id else {
-                return Transformed::Keep;
+                panic!(
+                    "False field '{}' not found on type '{:?}'",
+                    false_field_name, parent_type
+                )
             };
 
             // Create the variable reference for the condition
@@ -418,7 +424,7 @@ impl<'program> Transformer<'program> for ShadowFieldTransform<'program> {
 
             // Wrap both conditions in an inline fragment with metadata
             let inline_fragment = InlineFragment {
-                type_condition: Some(parent_type),
+                type_condition: None,
                 directives: vec![metadata_directive],
                 selections: vec![true_condition, false_condition],
                 spread_location: field.definition.location,

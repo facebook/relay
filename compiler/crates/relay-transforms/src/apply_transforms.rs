@@ -166,6 +166,10 @@ fn apply_common_transforms(
         None,
     )?;
 
+    program = log_event.time("shadow_field_transform", || {
+        shadow_field_transform(&program)
+    });
+
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
@@ -241,10 +245,6 @@ fn apply_common_transforms(
         },
     )?;
 
-    program = log_event.time("shadow_field_transform", || {
-        shadow_field_transform(&program)
-    });
-
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,
@@ -280,6 +280,7 @@ fn apply_reader_transforms(
         &log_event,
         None,
     )?;
+    program = log_event.time("unwrap_shadow_fields", || unwrap_shadow_fields(&program));
 
     program = log_event.time("required_directive", || required_directive(&program))?;
 
@@ -304,7 +305,6 @@ fn apply_reader_transforms(
     )?;
 
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
-    program = log_event.time("unwrap_shadow_fields", || unwrap_shadow_fields(&program));
     program = log_event.time("skip_unreachable_node", || {
         skip_unreachable_node_strict(
             &program,

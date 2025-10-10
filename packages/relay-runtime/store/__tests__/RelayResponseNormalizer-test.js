@@ -40,6 +40,7 @@ describe('RelayResponseNormalizer', () => {
   const defaultOptions = {
     getDataID: defaultGetDataID,
     treatMissingFieldsAsNull: false,
+    deferDeduplicatedFields: false,
     log: null,
   };
 
@@ -1954,7 +1955,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2027,7 +2033,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload0,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         normalize(
           recordSource,
@@ -2035,7 +2046,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           fooPayload1,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           'client:root': {
@@ -2075,7 +2091,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2147,6 +2168,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2164,6 +2186,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2241,7 +2264,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {
@@ -2315,6 +2343,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2355,6 +2384,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2388,6 +2418,7 @@ describe('RelayResponseNormalizer', () => {
           {
             getDataID: getNullAsDataID,
             treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
             log: null,
           },
         );
@@ -2476,7 +2507,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload0,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         normalize(
           recordSource,
@@ -2484,7 +2520,12 @@ describe('RelayResponseNormalizer', () => {
             id: '1',
           }),
           payload1,
-          {getDataID, treatMissingFieldsAsNull: false, log: null},
+          {
+            getDataID,
+            treatMissingFieldsAsNull: false,
+            deferDeduplicatedFields: false,
+            log: null,
+          },
         );
         expect(recordSource.toJSON()).toEqual({
           '1:Page': {

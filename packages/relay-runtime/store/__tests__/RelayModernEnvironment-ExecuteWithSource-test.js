@@ -250,6 +250,88 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         });
       });
+
+      describe('Client only exec time queries', () => {
+        let resolverOperation;
+        beforeEach(() => {
+          const resolverQuery = graphql`
+            query RelayModernEnvironmentExecuteWithSourceTestResolverQuery
+            @exec_time_resolvers {
+              hello(world: "world")
+            }
+          `;
+          resolverOperation = createOperationDescriptor(resolverQuery, {});
+        });
+
+        it('does not mark the query as complete until a final response is received', () => {
+          environment
+            .executeWithSource({
+              operation: resolverOperation,
+              source: fetchSource,
+            })
+            .subscribe(callbacks);
+          subject.next({
+            data: {
+              hello: '',
+            },
+            extensions: {
+              is_final: false,
+              is_normalized: true,
+            },
+          });
+          expect(complete).not.toBeCalled();
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(true);
+
+          subject.next({
+            data: {
+              hello: 'world',
+            },
+            extensions: {
+              is_final: true,
+              is_normalized: true,
+            },
+          });
+          expect(complete).not.toBeCalled();
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
+
+        it('marks the query as complete until a final response with empty data is received', () => {
+          environment
+            .executeWithSource({
+              operation: resolverOperation,
+              source: fetchSource,
+            })
+            .subscribe(callbacks);
+
+          subject.next({
+            data: null,
+            extensions: {
+              is_final: false,
+              is_normalized: true,
+            },
+          });
+
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(true);
+
+          subject.next({
+            data: null,
+            extensions: {
+              is_final: true,
+              is_normalized: true,
+            },
+          });
+          expect(complete).not.toBeCalled();
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
+      });
     });
   },
 );

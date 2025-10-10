@@ -525,6 +525,68 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environment.isRequestActive(resolverOperation.request.identifier),
           ).toBe(false);
         });
+
+        it('marks the query as complete after the server completes first then the client finishes with `null` payload', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+
+          // Initial server payload but not complete
+          dataSource.next({
+            data: {
+              node: {
+                id: '1',
+                __typename: 'User',
+              },
+            },
+          });
+          jest.runAllTimers();
+          next.mockClear();
+          callback.mockClear();
+
+          // Empty exec time response but complete the exec time query
+          const extensionsPayload = {
+            data: null,
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+            },
+          };
+
+          dataSource.next(extensionsPayload);
+          expect(callback).not.toBeCalled();
+          next.mockClear();
+          callback.mockClear();
+
+          // Mark the server response as finished
+          dataSource.next({
+            data: {
+              id: '1',
+              __typename: 'User',
+              name: 'joe',
+            },
+            label:
+              'RelayModernEnvironmentExecuteWithDeferTestResolverQuery$defer$UserFragment',
+            path: ['node'],
+            extensions: {
+              // The server response needs to contain a marker for the final incremental payload
+              is_final: true,
+            },
+          });
+
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
       });
 
       describe('when using a scheduler', () => {

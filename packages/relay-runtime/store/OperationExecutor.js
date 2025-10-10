@@ -515,12 +515,32 @@ class Executor<TMutation: MutationParameters> {
 
     if (responsesWithData.length === 0) {
       // no results with data, nothing to process
-      // this can occur with extensions-only payloads
+      // this can occur with extensions-only payloads, or exec time resolver
+      // responses
       const isFinal = responses.some(x => x.extensions?.is_final === true);
       if (isFinal) {
-        this._state = 'loading_final';
-        this._updateActiveState();
-        this._incrementalPayloadsPending = false;
+        if (
+          this._useExecTimeResolvers &&
+          this._state !== 'loading_final' &&
+          responses.some(x => x.extensions?.is_normalized === true)
+        ) {
+          // An exec time resolver query can flush an empty response, if the
+          // same response has been included in other queries. Check if we need
+          // to mark the request as final
+          this._execTimeResolverResponseComplete = true;
+          // Need to update the active state to mark the query as inactive,
+          // incase server payloads have completed
+          if (this._isClientQuery) {
+            // If it is a client query, there is no server response to set the
+            // final state, so we need to set it here
+            this._state = 'loading_final';
+          }
+          this._updateActiveState();
+        } else {
+          this._state = 'loading_final';
+          this._updateActiveState();
+          this._incrementalPayloadsPending = false;
+        }
       }
       this._sink.next(response);
       return;

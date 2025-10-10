@@ -38,6 +38,7 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const RelayFeatureFlags = require('relay-runtime/util/RelayFeatureFlags');
 const {
   createMockEnvironment,
   disallowWarnings,
@@ -137,12 +138,15 @@ hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
 }
 
 describe.each([
-  ['Experimental', useFragmentNode_EXPERIMENTAL],
-  ['Current', useFragmentNode_CURRENT],
-  ['Legacy', useFragmentNode_LEGACY],
+  ['Experimental', useFragmentNode_EXPERIMENTAL, true],
+  ['Experimental', useFragmentNode_EXPERIMENTAL, false],
+  ['Current', useFragmentNode_CURRENT, true],
+  ['Current', useFragmentNode_CURRENT, false],
+  ['Legacy', useFragmentNode_LEGACY, true],
+  ['Legacy', useFragmentNode_LEGACY, false],
 ])(
   'useFragmentNode / useFragment (%s)',
-  (_hookName, useFragmentNodeOriginal) => {
+  (_hookName, useFragmentNodeOriginal, optimizeNotify) => {
     const isUsingNewImplementation =
       useFragmentNodeOriginal === useFragmentNode_CURRENT ||
       useFragmentNodeOriginal === useFragmentNode_EXPERIMENTAL;
@@ -239,7 +243,10 @@ describe.each([
       };
     }
 
+    const defaultOptimizeNotify = RelayFeatureFlags.OPTIMIZE_NOTIFY;
+
     beforeEach(() => {
+      RelayFeatureFlags.OPTIMIZE_NOTIFY = optimizeNotify;
       jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
       commitSpy = jest.fn<any | [any], mixed>();
       renderSpy = jest.fn<[any], mixed>();
@@ -478,6 +485,7 @@ describe.each([
     });
 
     afterEach(() => {
+      RelayFeatureFlags.OPTIMIZE_NOTIFY = defaultOptimizeNotify;
       flushScheduler();
       environment.mockClear();
       commitSpy.mockClear();

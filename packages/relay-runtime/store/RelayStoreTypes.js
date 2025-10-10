@@ -423,6 +423,16 @@ export interface StoreSubscriptions {
   ): void;
 
   /**
+   * Same as `updateSubscriptions`, except it only notifies subscriptions with stale snapshots.
+   */
+  updateStaleSubscriptions(
+    source: RecordSource,
+    updatedRecordIDs: DataIDSet,
+    updatedOwners: Array<RequestDescriptor>,
+    sourceOperation?: OperationDescriptor,
+  ): void;
+
+  /**
    * returns the number of subscriptions
    */
   size(): number;

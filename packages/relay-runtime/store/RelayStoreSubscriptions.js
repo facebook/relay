@@ -43,6 +43,9 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   __log: ?LogFunction;
   _resolverCache: ResolverCache;
   _resolverContext: ?ResolverContext;
+  // Stores `subscriptions` with stale snapshots, used for reducing the traversal
+  // that has to happen on `notify`
+  _staleSubscriptions: Set<Subscription>;
 
   constructor(
     log?: ?LogFunction,
@@ -50,6 +53,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     resolverContext?: ResolverContext,
   ) {
     this._subscriptions = new Set();
+    this._staleSubscriptions = new Set();
     this.__log = log;
     this._resolverCache = resolverCache;
     this._resolverContext = resolverContext;
@@ -67,6 +71,9 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     };
     const dispose = () => {
       this._subscriptions.delete(subscription);
+      if (RelayFeatureFlags.OPTIMIZE_NOTIFY && subscription.stale) {
+        this._staleSubscriptions.delete(subscription);
+      }
     };
     this._subscriptions.add(subscription);
     return {dispose};
@@ -112,6 +119,9 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           // This subscription's data changed in the optimistic state. We will
           // need to re-read.
           subscription.stale = true;
+          if (RelayFeatureFlags.OPTIMIZE_NOTIFY) {
+            this._staleSubscriptions.add(subscription);
+          }
         }
         subscription.snapshot = {
           data: subscription.snapshot.data,
@@ -126,6 +136,9 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         // This subscription was created during the optimisitic state. We should
         // re-read.
         subscription.stale = true;
+        if (RelayFeatureFlags.OPTIMIZE_NOTIFY) {
+          this._staleSubscriptions.add(subscription);
+        }
       }
     });
   }
@@ -138,6 +151,27 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   ) {
     const hasUpdatedRecords = updatedRecordIDs.size !== 0;
     this._subscriptions.forEach(subscription => {
+      const owner = this._updateSubscription(
+        source,
+        subscription,
+        updatedRecordIDs,
+        hasUpdatedRecords,
+        sourceOperation,
+      );
+      if (owner != null) {
+        updatedOwners.push(owner);
+      }
+    });
+  }
+
+  updateStaleSubscriptions(
+    source: RecordSource,
+    updatedRecordIDs: DataIDSet,
+    updatedOwners: Array<RequestDescriptor>,
+    sourceOperation?: OperationDescriptor,
+  ) {
+    const hasUpdatedRecords = updatedRecordIDs.size !== 0;
+    this._staleSubscriptions.forEach(subscription => {
       const owner = this._updateSubscription(
         source,
         subscription,
@@ -197,6 +231,9 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     }
     subscription.snapshot = nextSnapshot;
     subscription.stale = false;
+    if (RelayFeatureFlags.OPTIMIZE_NOTIFY && stale) {
+      this._staleSubscriptions.delete(subscription);
+    }
     if (nextSnapshot.data !== snapshot.data) {
       if (this.__log && RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION) {
         this.__log({

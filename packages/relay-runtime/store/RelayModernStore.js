@@ -40,6 +40,7 @@ const {
   assertInternalActorIdentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../util/deepFreeze');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const resolveImmediate = require('../util/resolveImmediate');
 const DataChecker = require('./DataChecker');
 const defaultGetDataID = require('./defaultGetDataID');
@@ -413,34 +414,73 @@ class RelayModernStore implements Store {
       });
     }
 
-    // Increment the current write when notifying after executing
-    // a set of changes to the store.
-    this._currentWriteEpoch++;
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY) {
+      // Increment the current write when notifying after executing
+      // a set of changes to the store.
+      this._currentWriteEpoch++;
 
-    if (invalidateStore === true) {
-      this._globalInvalidationEpoch = this._currentWriteEpoch;
+      if (invalidateStore === true) {
+        this._globalInvalidationEpoch = this._currentWriteEpoch;
+      }
     }
 
     // When a record is updated, we need to also handle records that depend on it,
     // specifically Relay Resolver result records containing results based on the
     // updated records. This both adds to updatedRecordIDs and invalidates any
     // cached data as needed.
-    this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY || this._updatedRecordIDs.size > 0) {
+      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    }
 
     const source = this.getSource();
     const updatedOwners: Array<RequestDescriptor> = [];
-    this._storeSubscriptions.updateSubscriptions(
-      source,
-      this._updatedRecordIDs,
-      updatedOwners,
-      sourceOperation,
-    );
-    this._invalidationSubscriptions.forEach(subscription => {
-      this._updateInvalidationSubscription(
-        subscription,
-        invalidateStore === true,
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY || this._updatedRecordIDs.size > 0) {
+      this._storeSubscriptions.updateSubscriptions(
+        source,
+        this._updatedRecordIDs,
+        updatedOwners,
+        sourceOperation,
       );
-    });
+    } else {
+      // If no record is updated, we still need to traverse stale subscriptions for
+      // subscriptions that were using values from optimistic updates
+      this._storeSubscriptions.updateStaleSubscriptions(
+        source,
+        this._updatedRecordIDs,
+        updatedOwners,
+        sourceOperation,
+      );
+    }
+
+    if (
+      RelayFeatureFlags.OPTIMIZE_NOTIFY &&
+      (this._updatedRecordIDs.size > 0 ||
+        updatedOwners.length > 0 ||
+        this._invalidatedRecordIDs.size > 0 ||
+        invalidateStore === true ||
+        this._globalInvalidationEpoch === this._currentWriteEpoch)
+    ) {
+      // Increment the current write when notifying after executing
+      // a set of changes to the store.
+      this._currentWriteEpoch++;
+
+      if (invalidateStore === true) {
+        this._globalInvalidationEpoch = this._currentWriteEpoch;
+      }
+    }
+
+    if (
+      !RelayFeatureFlags.OPTIMIZE_NOTIFY ||
+      this._invalidatedRecordIDs.size > 0 ||
+      invalidateStore === true
+    ) {
+      this._invalidationSubscriptions.forEach(subscription => {
+        this._updateInvalidationSubscription(
+          subscription,
+          invalidateStore === true,
+        );
+      });
+    }
 
     // If a source operation was provided (indicating the operation
     // that produced this update to the store), record the current epoch

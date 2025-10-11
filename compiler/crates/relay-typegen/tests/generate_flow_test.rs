@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<902ba7d30b889ac8e52b036c2f2bef08>>
+ * @generated SignedSource<<dce7d30eb9f3f87e2cad498bbb3334a1>>
  */
 
 mod generate_flow;
@@ -1067,6 +1067,13 @@ async fn simple() {
     let input = include_str!("generate_flow/fixtures/simple.graphql");
     let expected = include_str!("generate_flow/fixtures/simple.expected");
     test_fixture(transform_fixture, file!(), "simple.graphql", "generate_flow/fixtures/simple.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_interface_fragment_on_concrete_raw_type() {
+    let input = include_str!("generate_flow/fixtures/spread-interface-fragment-on-concrete-raw-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/spread-interface-fragment-on-concrete-raw-type.expected");
+    test_fixture(transform_fixture, file!(), "spread-interface-fragment-on-concrete-raw-type.graphql", "generate_flow/fixtures/spread-interface-fragment-on-concrete-raw-type.expected", input, expected).await;
 }
 
 #[tokio::test]

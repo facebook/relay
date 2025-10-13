@@ -151,14 +151,27 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
       );
     }
     case 'store-or-network': {
-      if (environment.check(operation).status === 'available') {
-        return RelayObservable.from<Snapshot>(
+      const queryAvailability = environment.check(operation);
+      const shouldFetch = queryAvailability.status !== 'available';
+      let observable;
+      if (!shouldFetch) {
+        observable = RelayObservable.from<Snapshot>(
           environment.lookup(operation.fragment),
         ).map(readData);
+      } else {
+        observable = getNetworkObservable<$FlowFixMe>(
+          environment,
+          operation,
+        ).map(readData);
       }
-      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
-        readData,
-      );
+      environment.__log({
+        name: 'fetchquery.fetch',
+        operation,
+        fetchPolicy,
+        queryAvailability,
+        shouldFetch,
+      });
+      return observable;
     }
     default:
       fetchPolicy as empty;

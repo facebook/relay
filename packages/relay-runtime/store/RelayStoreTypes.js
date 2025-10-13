@@ -806,6 +806,15 @@ export type IdCollisionTypenameLogEvent = {
   +new_typename: string,
 };
 
+export type FetchQueryFetchLogEvent = {
+  +name: 'fetchquery.fetch',
+  +operation: OperationDescriptor,
+  // FetchPolicy from Relay Hooks
+  +fetchPolicy: string,
+  +queryAvailability: OperationAvailability,
+  +shouldFetch: boolean,
+};
+
 export type LogEvent =
   | SuspenseFragmentLogEvent
   | SuspenseQueryLogEvent
@@ -845,7 +854,8 @@ export type LogEvent =
   | EntrypointRootConsumeLogEvent
   | LiveResolverBatchStartLogEvent
   | LiveResolverBatchEndLogEvent
-  | UseFragmentSubscriptionMissedUpdates;
+  | UseFragmentSubscriptionMissedUpdates
+  | FetchQueryFetchLogEvent;
 
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;

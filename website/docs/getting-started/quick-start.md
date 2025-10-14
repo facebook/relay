@@ -86,7 +86,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 import { RelayEnvironmentProvider } from "react-relay";
-import { Environment, Network, FetchFunction } from "relay-runtime";
+import { Environment, Network, type FetchFunction } from "relay-runtime";
 
 const HTTP_ENDPOINT = "https://graphql.org/graphql/";
 
@@ -128,7 +128,7 @@ See [Relay Environment](../api-reference/relay-runtime/relay-environment.md) for
 Finally we can start defining the data we want to fetch and build our UI. Our app will fetch a list of films and render each one using a `<Film>` component.
 
 ```tsx title="src/App.tsx"
-import { AppQuery } from "./__generated__/AppQuery.graphql";
+import type { AppQuery } from "./__generated__/AppQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import Film from "./Film";
 

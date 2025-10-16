@@ -157,8 +157,6 @@ hook usePreloadedQuery<
     variables: TVariables,
     response: TData,
     rawResponse?: $NonMaybeType<TRawResponse>,
-    /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
-     * https://fburl.com/gdoc/y8dn025u */
   }>(useLazyLoadQueryNodeParams);
 
   if (__DEV__) {

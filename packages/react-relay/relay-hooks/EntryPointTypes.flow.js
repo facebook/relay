@@ -147,12 +147,7 @@ export type InternalEntryPointRepresentation<
 > = $ReadOnly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
-  ) => PreloadProps<
-    TEntryPointParams,
-    TPreloadedQueries,
-    TPreloadedEntryPoints,
-    TExtraProps,
-  >,
+  ) => PreloadProps<TPreloadedQueries, TPreloadedEntryPoints, TExtraProps>,
   root: JSResourceReference<
     EntryPointComponent<
       TPreloadedQueries,
@@ -195,7 +190,6 @@ export type EntryPointComponent<
 
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
-  +TPreloadParams,
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
   TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},

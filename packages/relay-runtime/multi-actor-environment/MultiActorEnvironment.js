@@ -71,6 +71,7 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
+  deferDeduplicatedFields?: boolean,
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
@@ -91,6 +92,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_scheduler: ?TaskScheduler;
   +_shouldProcessClientComponents: ?boolean;
   +_treatMissingFieldsAsNull: boolean;
+  +_deferDeduplicatedFields: boolean;
 
   constructor(config: MultiActorEnvironmentConfig) {
     this._actorEnvironments = new Map();
@@ -106,6 +108,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
+    this._deferDeduplicatedFields = config.deferDeduplicatedFields ?? false;
     this._isServer = config.isServer ?? false;
     this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._createStoreForActor = config.createStoreForActor;
@@ -471,6 +474,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
           return this.forActor(actorIdentifier).getStore();
         },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        deferDeduplicatedFields: this._deferDeduplicatedFields,
         updater,
         log: this._logFn,
         normalizeResponse: this._normalizeResponse,

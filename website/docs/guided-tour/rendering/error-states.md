@@ -27,9 +27,9 @@ const React = require('React');
 type State = {error: ?Error};
 
 class ErrorBoundary extends React.Component<Props, State> {
-  static getDerivedStateFromError(error): State {
+  static getDerivedStateFromError(error) {
     // Set some state derived from the caught error
-    return {error: error};
+    return {error};
   }
 }
 ```
@@ -78,9 +78,9 @@ const React = require('React');
 // NOTE: This is NOT actual production code;
 // it is only used to illustrate example
 class ErrorBoundaryWithRetry extends React.Component<Props, State> {
-  state = {error: null};
+  state: State = {error: null};
 
-  static getDerivedStateFromError(error): State {
+  static getDerivedStateFromError(error) {
     return {error: error};
   }
 
@@ -178,10 +178,10 @@ const React = require('React');
 // NOTE: This is NOT actual production code;
 // it is only used to illustrate example
 class ErrorBoundaryWithRetry extends React.Component<Props, State> {
-  state = {error: null, fetchKey: 0};
+  state: State = {error: null, fetchKey: 0};
 
-  static getDerivedStateFromError(error): State {
-    return {error: error, fetchKey: 0};
+  static getDerivedStateFromError(error) {
+    return {error};
   }
 
   _retry = () => {

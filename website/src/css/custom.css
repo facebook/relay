@@ -195,9 +195,8 @@ pre {
   background-color: var(--pre-background-color);
 }
 
-pre.outerPre {
-  box-shadow: var(--pre-box-shadow);
-  border: 1px solid var(--pre-border-color);
+.outerPre {
+  margin-left: 3em;
 }
 
 .exampleSection p {
@@ -453,6 +452,10 @@ pre.outerPre {
 
   .exampleSection .wrapperInner > div:nth-child(even) pre {
     margin-left: 0em;
+  }
+
+  .outerPre {
+    margin-left: 0;
   }
 }
 

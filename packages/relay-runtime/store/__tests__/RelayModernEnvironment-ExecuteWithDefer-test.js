@@ -587,6 +587,73 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environment.isRequestActive(resolverOperation.request.identifier),
           ).toBe(false);
         });
+
+        it('marks the query as complete if there is no server request and the client payload is final', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+
+          const extensionsPayload = {
+            data: {
+              '1': {
+                id: '1',
+                __id: '1',
+                __typename: 'User',
+                // __name_name_handler is where the name gets stored in the current test
+                // due to the usage of the field handler
+                __name_name_handler: 'Zuck',
+              },
+            },
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+              is_client_only: true,
+            },
+          };
+
+          dataSource.next(extensionsPayload);
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
+
+        it('marks the query as complete if there is no server request and the client payload is final with `null` payload', () => {
+          const initialSnapshot = environment.lookup(selector);
+          const callback = jest.fn<[Snapshot], void>();
+          environment.subscribe(initialSnapshot, callback);
+
+          environment
+            .execute({operation: resolverOperation})
+            .subscribe(callbacks);
+
+          const extensionsPayload = {
+            data: null,
+            extensions: {
+              is_normalized: true,
+              is_final: true,
+              is_client_only: true,
+            },
+          };
+
+          dataSource.next(extensionsPayload);
+          expect(
+            environment
+              .getOperationTracker()
+              .getPendingOperationsAffectingOwner(resolverOperation.request),
+          ).toBe(null);
+          expect(
+            environment.isRequestActive(resolverOperation.request.identifier),
+          ).toBe(false);
+        });
       });
 
       describe('when using a scheduler', () => {

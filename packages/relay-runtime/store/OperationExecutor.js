@@ -528,6 +528,12 @@ class Executor<TMutation: MutationParameters> {
           // same response has been included in other queries. Check if we need
           // to mark the request as final
           this._execTimeResolverResponseComplete = true;
+          if (
+            !this._isClientQuery &&
+            responses.some(x => x.extensions?.is_client_only === true)
+          ) {
+            this._isClientQuery = true;
+          }
           // Need to update the active state to mark the query as inactive,
           // incase server payloads have completed
           if (this._isClientQuery) {
@@ -596,6 +602,11 @@ class Executor<TMutation: MutationParameters> {
         const response = normalizedResponses[i];
         const source = new RelayRecordSource(response.data as $FlowFixMe);
         const isFinal = response.extensions?.is_final === true;
+        if (response.extensions?.is_client_only === true) {
+          // For a mixed server and client query, if the network request is
+          // skipped, need to treat it as a client query
+          this._isClientQuery = true;
+        }
         const payload: RelayResponsePayload = {
           errors: [],
           fieldPayloads: [],

@@ -188,7 +188,6 @@ html[data-theme="light"] .homePage .container {
 }
 
 .exampleSection .wrapperInner > div:nth-child(even) pre {
-  margin-left: 3em;
   padding-top: 0;
 }
 
@@ -207,6 +206,7 @@ pre.outerPre {
 
 .exampleSection pre {
   margin-top: 15px;
+  border: 1px solid var(--pre-border-color);
 }
 
 /* Text section */

@@ -206,6 +206,7 @@ pre {
 .exampleSection pre {
   margin-top: 15px;
   border: 1px solid var(--pre-border-color);
+  font-size: 80%;
 }
 
 /* Text section */

@@ -21,7 +21,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
 lazy_static = "1.5"
 ouroboros = "0.18.5"
-rayon = "1.9.0"
+rayon = "1.11.0"
 schema-flatbuffer = { path = "../schema-flatbuffer" }
 serde = { version = "1.0.219", features = ["derive", "rc"] }
 strsim = "0.10.0"

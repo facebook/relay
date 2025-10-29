@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -14,8 +15,9 @@
 import type {MatchPointer} from '../MatchContainer';
 
 const MatchContainer = require('../MatchContainer');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const TestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {FRAGMENT_OWNER_KEY, FRAGMENTS_KEY, ID_KEY} = require('relay-runtime');
 
 function createMatchPointer({
@@ -74,8 +76,8 @@ describe('MatchContainer', () => {
     // This prevents console.error output in the test, which is expected
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
     await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
+      await act(() => {
+        ReactTestingLibrary.render(
           <MatchContainer loader={loader} match={42 as $FlowFixMe} />,
         );
       });
@@ -84,7 +86,7 @@ describe('MatchContainer', () => {
     );
   });
 
-  it('loads and renders dynamic components', () => {
+  it('loads and renders dynamic components', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
       fragment: {name: 'UserFragment'},
@@ -94,8 +96,8 @@ describe('MatchContainer', () => {
       variables: {},
     });
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={match}
@@ -103,12 +105,12 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(1);
     expect(UserComponent).toBeCalledTimes(1);
   });
 
-  it('reloads if new props have a different component', () => {
+  it('reloads if new props have a different component', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
       fragment: {name: 'UserFragment'},
@@ -118,8 +120,8 @@ describe('MatchContainer', () => {
       variables: {},
     });
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={match}
@@ -135,8 +137,8 @@ describe('MatchContainer', () => {
       propName: 'actor',
       variables: {},
     });
-    TestRenderer.act(() => {
-      renderer.update(
+    await act(() => {
+      renderer.rerender(
         <MatchContainer
           loader={loader}
           match={match2}
@@ -144,13 +146,13 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(2);
     expect(UserComponent).toBeCalledTimes(1);
     expect(ActorComponent).toBeCalledTimes(1);
   });
 
-  it('calls load again when re-rendered, even with the same component', () => {
+  it('calls load again when re-rendered, even with the same component', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
       fragment: {name: 'UserFragment'},
@@ -160,8 +162,8 @@ describe('MatchContainer', () => {
       variables: {},
     });
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={match}
@@ -170,8 +172,8 @@ describe('MatchContainer', () => {
       );
     });
     const match2 = {...match, __id: '0'};
-    TestRenderer.act(() => {
-      renderer.update(
+    await act(() => {
+      renderer.rerender(
         <MatchContainer
           loader={loader}
           match={match2}
@@ -179,14 +181,14 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     // We expect loader to already be caching module results
     expect(loader).toBeCalledTimes(2);
     expect(UserComponent).toBeCalledTimes(2);
     expect(ActorComponent).toBeCalledTimes(0);
   });
 
-  it('passes the same child props when the match values does not change', () => {
+  it('passes the same child props when the match values does not change', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const match = createMatchPointer({
       fragment: {name: 'UserFragment'},
@@ -197,29 +199,29 @@ describe('MatchContainer', () => {
     });
     const otherProps = {otherProp: 'hello!'};
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer loader={loader} match={match} props={otherProps} />,
       );
     });
     const match2 = {...match};
-    TestRenderer.act(() => {
-      renderer.update(
+    await act(() => {
+      renderer.rerender(
         <MatchContainer loader={loader} match={match2} props={otherProps} />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(2);
     expect(UserComponent).toBeCalledTimes(1);
   });
 
-  it('renders the fallback if the match object is empty', () => {
+  it('renders the fallback if the match object is empty', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={{} as $FlowFixMe} // intentionally empty
@@ -228,20 +230,20 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
     expect(Fallback).toBeCalledTimes(1);
   });
 
-  it('renders the fallback if the match object is missing expected fields', () => {
+  it('renders the fallback if the match object is missing expected fields', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={
@@ -258,7 +260,7 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
@@ -271,8 +273,8 @@ describe('MatchContainer', () => {
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
+      await act(() => {
+        ReactTestingLibrary.render(
           <MatchContainer
             loader={loader}
             match={
@@ -300,8 +302,8 @@ describe('MatchContainer', () => {
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
+      await act(() => {
+        ReactTestingLibrary.render(
           <MatchContainer
             loader={loader}
             match={
@@ -329,8 +331,8 @@ describe('MatchContainer', () => {
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
+      await act(() => {
+        ReactTestingLibrary.render(
           <MatchContainer
             loader={loader}
             match={
@@ -358,8 +360,8 @@ describe('MatchContainer', () => {
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     await expect(async () => {
-      await TestRenderer.act(() => {
-        TestRenderer.create(
+      await act(() => {
+        ReactTestingLibrary.render(
           <MatchContainer
             loader={loader}
             match={
@@ -381,13 +383,13 @@ describe('MatchContainer', () => {
     );
   });
 
-  it('renders the fallback if the match value is null', () => {
+  it('renders the fallback if the match value is null', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={null}
@@ -396,7 +398,7 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
@@ -406,22 +408,22 @@ describe('MatchContainer', () => {
   it('renders null if the match value is null and no fallback is provided', () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
-    const renderer = TestRenderer.create(
+    const renderer = ReactTestingLibrary.render(
       <MatchContainer loader={loader} match={null} props={otherProps} />,
     );
-    expect(renderer.toJSON()).toMatchSnapshot();
+    expect(renderer.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
   });
 
-  it('renders the fallback if the match value is undefined', () => {
+  it('renders the fallback if the match value is undefined', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const otherProps = {otherProp: 'hello!'};
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={undefined}
@@ -430,19 +432,19 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(0);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(0);
     expect(Fallback).toBeCalledTimes(1);
   });
 
-  it('transitions from fallback when new props have a component', () => {
+  it('transitions from fallback when new props have a component', async () => {
     loader.mockReturnValue(React.memo(UserComponent as $FlowFixMe));
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={{} as $FlowFixMe} // intentionally empty
@@ -461,8 +463,8 @@ describe('MatchContainer', () => {
       variables: {},
     });
 
-    TestRenderer.act(() => {
-      renderer.update(
+    await act(() => {
+      renderer.rerender(
         <MatchContainer
           loader={loader}
           match={match2}
@@ -471,13 +473,13 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(1);
     expect(UserComponent).toBeCalledTimes(0);
     expect(ActorComponent).toBeCalledTimes(1);
   });
 
-  it('transitions to fallback when new props have a null component', () => {
+  it('transitions to fallback when new props have a null component', async () => {
     loader.mockReturnValue(React.memo(ActorComponent as $FlowFixMe));
     const match = createMatchPointer({
       fragment: {name: 'ActorFragment'},
@@ -488,8 +490,8 @@ describe('MatchContainer', () => {
     });
     const Fallback: $FlowFixMe = jest.fn(() => <div>fallback</div>);
     let renderer;
-    TestRenderer.act(() => {
-      renderer = TestRenderer.create(
+    await act(() => {
+      renderer = ReactTestingLibrary.render(
         <MatchContainer
           loader={loader}
           match={match}
@@ -499,8 +501,8 @@ describe('MatchContainer', () => {
       );
     });
     expect(ActorComponent).toBeCalledTimes(1);
-    TestRenderer.act(() => {
-      renderer.update(
+    await act(() => {
+      renderer.rerender(
         <MatchContainer
           loader={loader}
           match={{} as $FlowFixMe} // intentionally empty
@@ -509,7 +511,7 @@ describe('MatchContainer', () => {
         />,
       );
     });
-    expect(renderer?.toJSON()).toMatchSnapshot();
+    expect(renderer?.container).toMatchSnapshot();
     expect(loader).toBeCalledTimes(1);
     expect(Fallback).toBeCalledTimes(1);
     expect(UserComponent).toBeCalledTimes(0);

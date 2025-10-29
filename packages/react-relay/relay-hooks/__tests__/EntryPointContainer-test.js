@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -17,8 +18,9 @@ const EntryPointContainer = require('../EntryPointContainer.react');
 const loadEntryPoint = require('../loadEntryPoint');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const TestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {
   Environment,
   Network,
@@ -31,10 +33,8 @@ const {
 const {
   disallowWarnings,
   expectWarningWillFire,
-  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
-injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const query = graphql`
@@ -155,7 +155,7 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-it('suspends while the query and component are pending', () => {
+it('suspends while the query and component are pending', async () => {
   entryPointReference = loadEntryPoint<
     {id: string},
     {},
@@ -197,8 +197,8 @@ it('suspends while the query and component are pending', () => {
   expect(fetch).toBeCalledTimes(1);
   expect(nestedEntryPointResource.load).toBeCalledTimes(1);
   let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
+  await act(() => {
+    renderer = ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
           {/* $FlowFixMe[incompatible-type] */}
@@ -210,11 +210,11 @@ it('suspends while the query and component are pending', () => {
       </RelayEnvironmentProvider>,
     );
   });
-  TestRenderer.act(() => jest.runAllImmediates());
-  expect(renderer?.toJSON()).toEqual('Fallback');
+  await act(() => jest.runAllImmediates());
+  expect(renderer?.container.textContent).toEqual('Fallback');
 });
 
-it.skip('suspends then updates when the query and component load', () => {
+it.skip('suspends then updates when the query and component load', async () => {
   entryPointReference = loadEntryPoint<
     {id: string},
     {},
@@ -257,8 +257,8 @@ it.skip('suspends then updates when the query and component load', () => {
   expect(nestedEntryPointResource.load).toBeCalledTimes(1);
   expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(1);
   let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
+  await act(() => {
+    renderer = ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
           {/* $FlowFixMe[incompatible-type] */}
@@ -270,8 +270,8 @@ it.skip('suspends then updates when the query and component load', () => {
       </RelayEnvironmentProvider>,
     );
   });
-  TestRenderer.act(() => jest.runAllImmediates());
-  expect(renderer?.toJSON()).toEqual('Fallback');
+  await act(() => jest.runAllImmediates());
+  expect(renderer?.container.textContent).toEqual('Fallback');
   let preloadedQuery = null;
   function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
@@ -283,15 +283,15 @@ it.skip('suspends then updates when the query and component load', () => {
   PreloadableQueryRegistry.set(ID, query);
   dataSource.next(response);
   dataSource.complete();
-  TestRenderer.act(() => jest.runAllImmediates());
+  await act(() => jest.runAllImmediates());
   // One for preloading, 2 more for render
   expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(3);
   expect(nestedEntryPointResource.load).toBeCalledTimes(1);
   expect(preloadedQuery).not.toBe(null);
-  expect(renderer?.toJSON()).toEqual('Alice');
+  expect(renderer?.container.textContent).toEqual('Alice');
 });
 
-it('renders synchronously when the component has already loaded and the data arrives before render', () => {
+it('renders synchronously when the component has already loaded and the data arrives before render', async () => {
   let preloadedQuery = null;
   function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
@@ -342,8 +342,8 @@ it('renders synchronously when the component has already loaded and the data arr
   dataSource.complete();
 
   let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
+  await act(() => {
+    renderer = ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Fallback">
           {/* $FlowFixMe[incompatible-type] */}
@@ -355,13 +355,13 @@ it('renders synchronously when the component has already loaded and the data arr
       </RelayEnvironmentProvider>,
     );
   });
-  expect(renderer?.toJSON()).toEqual('Alice');
+  expect(renderer?.container.textContent).toEqual('Alice');
   expect(nestedEntryPointResource.getModuleIfRequired).toBeCalledTimes(2);
   expect(nestedEntryPointResource.load).toBeCalledTimes(0);
   expect(preloadedQuery).not.toBe(null);
 });
 
-it.skip('warns if the entryPointReference has already been disposed', () => {
+it.skip('warns if the entryPointReference has already been disposed', async () => {
   // $FlowFixMe[incompatible-type]
   entryPointReference = loadEntryPoint(
     {
@@ -370,9 +370,9 @@ it.skip('warns if the entryPointReference has already been disposed', () => {
     entrypoint,
     {},
   );
-  const render = () => {
-    TestRenderer.act(() => {
-      TestRenderer.create(
+  const render = async () => {
+    await act(() => {
+      ReactTestingLibrary.render(
         <RelayEnvironmentProvider environment={environment}>
           <React.Suspense fallback="Fallback">
             {/* $FlowFixMe[incompatible-type] */}
@@ -384,14 +384,14 @@ it.skip('warns if the entryPointReference has already been disposed', () => {
         </RelayEnvironmentProvider>,
       );
     });
-    TestRenderer.act(() => jest.runAllImmediates());
+    await act(() => jest.runAllImmediates());
   };
 
-  render();
+  await render();
   entryPointReference.dispose();
 
   expectWarningWillFire(
     '<EntryPointContainer>: Expected entryPointReference to not be disposed yet. This is because disposing the entrypoint marks it for future garbage collection, and as such may no longer be present in the Relay store. In the future, this will become a hard error.',
   );
-  render();
+  await render();
 });

@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -17,8 +18,9 @@ import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const TestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {graphql} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
@@ -32,7 +34,7 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-test('@required(action: LOG) gets logged even if no data is "missing"', () => {
+test('@required(action: LOG) gets logged even if no data is "missing"', async () => {
   function InnerTestComponent({id}: {id: string}) {
     const data = useLazyLoadQuery(
       graphql`
@@ -101,8 +103,8 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
   const environment = createEnvironment(source);
 
   let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
+  await act(() => {
+    renderer = ReactTestingLibrary.render(
       <TestComponent environment={environment} id="1" />,
     );
   });
@@ -117,5 +119,5 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
       },
     ],
   ]);
-  expect(renderer?.toJSON()).toEqual('Unknown name');
+  expect(renderer?.container.textContent).toEqual('Unknown name');
 });

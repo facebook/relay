@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -15,8 +16,9 @@ import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 const ReactRelayContext = require('../../ReactRelayContext');
 const useFragment = require('../useFragment');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {
   createOperationDescriptor,
   createReaderSelector,
@@ -176,10 +178,10 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
         : userData.name;
     };
 
-    render = function (props: $FlowFixMe) {
+    render = async function (props: $FlowFixMe) {
       let instance;
-      ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
+      await act(() => {
+        instance = ReactTestingLibrary.render(
           <React.Suspense fallback="Singular Fallback">
             <ContextProvider>
               <Container {...props} />
@@ -196,7 +198,7 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
     RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE = false;
   });
 
-  it('should throw promise for pending operation affecting fragment owner', () => {
+  it('should throw promise for pending operation affecting fragment owner', async () => {
     environment.commitPayload(viewerOperation, {
       viewer: {
         actor: {
@@ -232,10 +234,10 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       __fragmentOwner: nodeOperation.request,
     };
 
-    const renderer = render({userRef: fragmentRef});
-    expect(renderer?.toJSON()).toBe('Alice'); // should show the name
+    const renderer = await render({userRef: fragmentRef});
+    expect(renderer?.container.textContent).toBe('Alice'); // should show the name
 
-    ReactTestRenderer.act(() => {
+    await act(() => {
       environment
         .executeMutation({
           operation: nodeOperation,
@@ -248,8 +250,8 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       jest.runAllImmediates();
     });
 
-    expect(renderer?.toJSON()).toBe('Singular Fallback'); // Component is suspended now for optimistic update
-    ReactTestRenderer.act(() => {
+    expect(renderer?.container.textContent).toBe('Singular Fallback'); // Component is suspended now for optimistic update
+    await act(() => {
       environment.mock.nextValue(nodeOperation, {
         data: {
           node: {
@@ -262,10 +264,10 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       environment.mock.complete(nodeOperation.request.node);
     });
 
-    expect(renderer?.toJSON()).toBe('Alice222');
+    expect(renderer?.container.textContent).toBe('Alice222');
   });
 
-  it('should throw promise for plural fragment', () => {
+  it('should throw promise for plural fragment', async () => {
     environment.commitPayload(viewerOperation, {
       viewer: {
         actor: {
@@ -318,10 +320,10 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       },
     ];
 
-    const rendererPlural = render({userRef: fragmentPluralRef});
-    expect(rendererPlural?.toJSON()).toEqual(['Alice', 'Bob']);
+    const rendererPlural = await render({userRef: fragmentPluralRef});
+    expect(rendererPlural?.container.textContent).toEqual('AliceBob');
 
-    ReactTestRenderer.act(() => {
+    await act(() => {
       // Execute the nodeOperation query with executeMutation and set the record as undefined in optimistic updater
       environment
         .executeMutation({
@@ -335,9 +337,9 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       jest.runAllImmediates();
     });
 
-    expect(rendererPlural?.toJSON()).toEqual(['Singular Fallback']);
+    expect(rendererPlural?.container.textContent).toEqual('Singular Fallback');
 
-    ReactTestRenderer.act(() => {
+    await act(() => {
       environment.mock.nextValue(nodeOperation, {
         data: {
           node: {
@@ -350,6 +352,6 @@ describe('useFragment with Operation Tracker and Suspense behavior', () => {
       environment.mock.complete(nodeOperation.request.node);
     });
 
-    expect(rendererPlural?.toJSON()).toEqual(['Alice222', 'Bob']);
+    expect(rendererPlural?.container.textContent).toEqual('Alice222Bob');
   });
 });

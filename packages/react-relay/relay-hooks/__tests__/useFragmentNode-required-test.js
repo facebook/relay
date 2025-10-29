@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -14,9 +15,10 @@ import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
 import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const useFragmentNodeOriginal = require('../legacy/useFragmentNode');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
+const {act} = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
@@ -114,7 +116,7 @@ beforeEach(() => {
   };
 
   renderSingularFragment = () => {
-    return TestRenderer.create(
+    return ReactTestingLibrary.render(
       <ContextProvider>
         <SingularContainer />
       </ContextProvider>,
@@ -129,10 +131,10 @@ afterEach(() => {
   warning.mockClear();
 });
 
-it('should render singular fragment without error when data is available', () => {
+it('should render singular fragment without error when data is available', async () => {
   // $FlowFixMe[prop-missing]
   warning.mockClear();
-  TestRenderer.act(() => {
+  await act(() => {
     renderSingularFragment();
   });
   expect(renderSpy).toHaveBeenCalledWith(
@@ -146,7 +148,7 @@ it('should render singular fragment without error when data is available', () =>
   expect(warning).not.toHaveBeenCalled();
 });
 
-it('should not warn on missing record when null bubbles to fragment root', () => {
+it('should not warn on missing record when null bubbles to fragment root', async () => {
   environment.commitPayload(singularQuery, {
     node: {
       __typename: 'User',
@@ -159,7 +161,7 @@ it('should not warn on missing record when null bubbles to fragment root', () =>
   // $FlowFixMe[prop-missing]
   warning.mockClear();
 
-  TestRenderer.act(() => {
+  await act(() => {
     renderSingularFragment();
   });
   expect(renderSpy).toHaveBeenCalledWith(

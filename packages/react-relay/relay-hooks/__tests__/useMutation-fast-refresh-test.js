@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -15,8 +16,9 @@ import type {useMutationFastRefreshTestCommentCreateMutation$variables} from './
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useMutation = require('../useMutation');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
@@ -78,7 +80,7 @@ describe('useLazyLoadQueryNode', () => {
     jest.clearAllTimers();
   });
 
-  it('force a refetch in fast refresh', () => {
+  it('force a refetch in fast refresh', async () => {
     // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
@@ -90,8 +92,8 @@ describe('useLazyLoadQueryNode', () => {
     };
     ReactRefreshRuntime.register(V1, 'Renderer');
 
-    ReactTestRenderer.act(() => {
-      ReactTestRenderer.create(
+    await act(() => {
+      ReactTestingLibrary.render(
         <RelayEnvironmentProvider environment={environment}>
           <React.Suspense fallback="Fallback">
             <V1 />
@@ -103,7 +105,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(isInFlightFn).toBeCalledWith(false);
 
     isInFlightFn.mockClear();
-    ReactTestRenderer.act(() => {
+    await act(() => {
       commit({variables});
     });
     expect(isInFlightFn).toBeCalledTimes(1);
@@ -112,7 +114,7 @@ describe('useLazyLoadQueryNode', () => {
     isInFlightFn.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
-    ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
+    await act(() => environment.mock.resolve(operation, data));
     expect(isInFlightFn).toBeCalledTimes(1);
     expect(isInFlightFn).toBeCalledWith(false);
 
@@ -125,7 +127,7 @@ describe('useLazyLoadQueryNode', () => {
       return isInFlightFn(isMutationInFlight);
     }
     ReactRefreshRuntime.register(V2, 'Renderer');
-    ReactTestRenderer.act(() => {
+    await act(() => {
       ReactRefreshRuntime.performReactRefresh();
     });
 
@@ -133,7 +135,7 @@ describe('useLazyLoadQueryNode', () => {
     expect(isInFlightFn).toBeCalledWith(false);
 
     isInFlightFn.mockClear();
-    ReactTestRenderer.act(() => {
+    await act(() => {
       commit({variables});
     });
     expect(isInFlightFn).toBeCalledTimes(1);

@@ -7,9 +7,11 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
@@ -17,9 +19,9 @@ const {loadQuery} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useQueryLoader = require('../useQueryLoader');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
 const {useEffect} = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
@@ -176,19 +178,20 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       );
     };
 
-    render = function (
+    render = async function (
       initialQueryRef: any,
       {suspendWholeTree}: {suspendWholeTree?: boolean} = {} as {
         suspendWholeTree?: boolean,
       },
     ): $FlowFixMe {
       let instance;
-      ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
+      await ReactTestingLibrary.act(async () => {
+        instance = ReactTestingLibrary.render(
           // Using StrictMode will trigger double invoke effect behavior
           <React.StrictMode>
             <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Outer Fallback">
+              <React.Suspense
+                fallback={suspendWholeTree ? 'Outer Fallback' : 'Fallback'}>
                 <LoaderComponent
                   initialQueryRef={initialQueryRef}
                   suspendWholeTree={suspendWholeTree}
@@ -196,8 +199,6 @@ describe.skip('useQueryLoader-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe[incompatible-type]
-          {unstable_isConcurrent: true},
         );
       });
       return instance;
@@ -210,13 +211,13 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   });
 
   describe('when there is no committed query reference', () => {
-    it('does nothing when effects are double invoked (i.e. component is hidden/re-shown)', () => {
+    it('does nothing when effects are double invoked (i.e. component is hidden/re-shown)', async () => {
       // When the component mounts, React double invoke effects
       // will be triggered, simulating what would happen if the
       // component was hidden and then re-shown, in this case
       // without an actively committed query reference.
-      const instance = render();
-      expect(instance.toJSON()).toEqual('No query loaded');
+      const instance = await render();
+      expect(instance.container.textContent).toEqual('No query loaded');
 
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(0);
@@ -243,7 +244,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   // when double invoke effects are triggered on mount.
   describe('when there is a committed query reference when effects are double invoked (i.e. component is hidden/re-shown)', () => {
     describe('when network request is in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
-      it('forces a re-render and refetches when policy is network-only', () => {
+      it('forces a re-render and refetches when policy is network-only', async () => {
         const initialQueryRef = loadQuery<any, _>(
           environment,
           gqlQuery,
@@ -265,7 +266,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        const instance = await render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
         // that the current query ref is released, meaning that
@@ -283,7 +284,9 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         expect(environment.executeWithSource).toBeCalledTimes(0);
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Loading preloaded query...');
+        expect(instance.container.textContent).toEqual(
+          'Loading preloaded query...',
+        );
 
         // Assert that the query is re-retained.
         // Retain is called 3 times here because the component consuming
@@ -317,7 +320,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // Resolve network response
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -332,7 +335,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
         // Assert that the component consuming the query is no longer
         // suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the Suspense cache temporary retain is released
         // and re-established permanently.
@@ -355,7 +358,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
         // Assert that the temporary retain that never commits
         // gets released
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(3);
@@ -363,7 +366,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(4);
       });
 
-      it('forces a re-render and refetches when policy is store-or-network', () => {
+      it('forces a re-render and refetches when policy is store-or-network', async () => {
         const initialQueryRef = loadQuery<any, _>(
           environment,
           gqlQuery,
@@ -385,7 +388,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        const instance = await render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
         // that the current query ref is released, meaning that
@@ -403,7 +406,9 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         expect(environment.executeWithSource).toBeCalledTimes(0);
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Loading preloaded query...');
+        expect(instance.container.textContent).toEqual(
+          'Loading preloaded query...',
+        );
 
         // Assert that the query is re-retained.
         // Retain is called 3 times here because the component consuming
@@ -437,7 +442,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // Resolve network response
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -452,7 +457,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
         // Assert that the component consuming the query is no longer
         // suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the Suspense cache temporary retain is released
         // and re-established permanently.
@@ -475,7 +480,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
         // Assert that the temporary retain that never commits
         // gets released
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(3);
@@ -485,7 +490,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     });
 
     describe('when network request is NOT in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
-      it('forces a re-render and refetches when policy is network-only', () => {
+      it('forces a re-render and refetches when policy is network-only', async () => {
         // Initialize and complete the query ref
         const initialQueryRef = loadQuery<any, _>(
           environment,
@@ -495,7 +500,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
             fetchPolicy: 'network-only',
           },
         );
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -518,7 +523,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        const instance = await render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
         // that the current query ref is released. In this case
@@ -535,7 +540,9 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         expectToHaveFetched(environment, query, {force: true});
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Loading preloaded query...');
+        expect(instance.container.textContent).toEqual(
+          'Loading preloaded query...',
+        );
 
         // Assert that the query is re-retained.
         // Retain is called 3 times here because the component consuming
@@ -571,7 +578,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // Resolve network response
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -586,7 +593,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
         // Assert that the component consuming the query is no longer
         // suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the Suspense cache temporary retain is released
         // and re-established permanently.
@@ -606,7 +613,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
         // Assert that the query was correctly permanently retained,
         // and not released after the timeout resolves.
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(2);
@@ -614,7 +621,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(3);
       });
 
-      it('forces a re-render and does not refetch when policy is store-or-network', () => {
+      it('forces a re-render and does not refetch when policy is store-or-network', async () => {
         // Initialize and complete the query ref
         const initialQueryRef = loadQuery<any, _>(
           environment,
@@ -624,7 +631,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
             fetchPolicy: 'store-or-network',
           },
         );
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -647,7 +654,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(initialQueryRef);
+        const instance = await render(initialQueryRef);
 
         // The effect cleanup will execute, so we assert
         // that the current query ref is released. In this case
@@ -665,7 +672,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the query is re-retained.
         // Retain is called 2 times here because the component consuming
@@ -701,7 +708,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
         // Assert that the query was correctly permanently retained,
         // and not released after the timeout resolves.
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(2);
@@ -712,7 +719,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   });
 
   describe('when whole tree suspends on query reference', () => {
-    it('forces a re-render and refetches when policy is network-only', () => {
+    it('forces a re-render and refetches when policy is network-only', async () => {
       const initialQueryRef = loadQuery<any, _>(
         environment,
         gqlQuery,
@@ -728,12 +735,12 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
 
-      const instance = render(initialQueryRef, {suspendWholeTree: true});
+      const instance = await render(initialQueryRef, {suspendWholeTree: true});
 
       // Assert that whole tree is suspended:
       expect(loaderRenderLogs).toEqual(['render: TestQuery']);
       expect(queryRenderLogs).toEqual([]);
-      expect(instance.toJSON()).toEqual('Outer Fallback');
+      expect(instance.container.textContent).toEqual('Outer Fallback');
       // Query is retained a second time by component using query (with a temporary retain)
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
@@ -743,7 +750,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       environment.executeWithSource.mockClear();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         environment.mock.resolve(gqlQuery, {
           data: {
             node: {
@@ -772,7 +779,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       // Assert that query was refetched once by useQueryLoader
       // and the tree re-suspends
       expectToHaveFetched(environment, query, {force: true});
-      expect(instance.toJSON()).toEqual('Outer Fallback');
+      expect(instance.container.textContent).toEqual('Outer Fallback');
 
       // Assert that the query is re-retained by the query reference
       // and the temporary component retain
@@ -811,7 +818,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       loaderRenderLogs = [];
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         environment.mock.resolve(gqlQuery, {
           data: {
             node: {
@@ -835,7 +842,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
       // Assert that the component consuming the query is no longer
       // suspended
-      expect(instance.toJSON()).toEqual('Alice 2');
+      expect(instance.container.textContent).toEqual('Alice 2');
       expect(queryRenderLogs).toEqual([
         'render: Alice 2',
         'cleanup: Alice 1',
@@ -844,7 +851,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
       // Assert that the query is still permanently retained after
       // any timeouts
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         jest.runAllTimers();
       });
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -852,7 +859,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       expect(release).toHaveBeenCalledTimes(0);
     });
 
-    it('forces a re-render and does not refetch when policy is store-or-network', () => {
+    it('forces a re-render and does not refetch when policy is store-or-network', async () => {
       const initialQueryRef = loadQuery<any, _>(
         environment,
         gqlQuery,
@@ -868,12 +875,12 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
 
-      const instance = render(initialQueryRef, {suspendWholeTree: true});
+      const instance = await render(initialQueryRef, {suspendWholeTree: true});
 
       // Assert that whole tree is suspended:
       expect(loaderRenderLogs).toEqual(['render: TestQuery']);
       expect(queryRenderLogs).toEqual([]);
-      expect(instance.toJSON()).toEqual('Outer Fallback');
+      expect(instance.container.textContent).toEqual('Outer Fallback');
       // Query is retained a second time by component using query (with a temporary retain)
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
@@ -883,7 +890,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       environment.executeWithSource.mockClear();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         environment.mock.resolve(gqlQuery, {
           data: {
             node: {
@@ -912,7 +919,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       // Assert that the query is not refetched again
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
-      expect(instance.toJSON()).toEqual('Alice 1');
+      expect(instance.container.textContent).toEqual('Alice 1');
 
       // Assert that the query is re-retained by the query reference
       // and the temporary component retain
@@ -952,7 +959,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
       // Assert that the query is still permanently retained after
       // any timeouts
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         jest.runAllTimers();
       });
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters

@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -22,9 +23,9 @@ import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
 const {useEffect} = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
@@ -141,7 +142,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     jest.clearAllTimers();
   });
 
-  it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
+  it('forces a re-render when effects are double invoked and refetches when policy is network-only', async () => {
     let renderLogs = [];
     const QueryComponent = function () {
       const result = useLazyLoadQuery(gqlQuery, variables, {
@@ -161,8 +162,8 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     };
 
     let instance;
-    ReactTestRenderer.act(() => {
-      instance = ReactTestRenderer.create(
+    await ReactTestingLibrary.act(() => {
+      instance = ReactTestingLibrary.render(
         // Using StrictMode will trigger double invoke effect behavior
         <React.StrictMode>
           <RelayEnvironmentProvider environment={environment}>
@@ -171,8 +172,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe[incompatible-type]
-        {unstable_isConcurrent: true},
       );
     });
     if (!instance) {
@@ -184,12 +183,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance.container.textContent).toEqual('Fallback');
 
     // Resolve network response
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
-    ReactTestRenderer.act(() => {
+    await ReactTestingLibrary.act(() => {
       environment.mock.resolve(gqlQuery, {
         data: {
           node: {
@@ -219,7 +218,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     expectToHaveFetched(environment, query);
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(2);
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance.container.textContent).toEqual('Fallback');
 
     // Assert render state of component using the query up until
     // the point of re-suspending:
@@ -238,7 +237,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     renderLogs = [];
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
-    ReactTestRenderer.act(() => {
+    await ReactTestingLibrary.act(() => {
       environment.mock.resolve(gqlQuery, {
         data: {
           node: {
@@ -264,11 +263,11 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       'cleanup: Alice 1',
       'commit: Alice 2',
     ]);
-    expect(instance.toJSON()).toEqual('Alice 2');
+    expect(instance.container.textContent).toEqual('Alice 2');
 
     // Assert that query was correctly permanently retained,
     // and not released after a timeout
-    ReactTestRenderer.act(() => {
+    await ReactTestingLibrary.act(() => {
       jest.runAllTimers();
     });
     expect(release).toHaveBeenCalledTimes(1);
@@ -276,7 +275,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     expect(environment.retain).toHaveBeenCalledTimes(2);
   });
 
-  it('forces a re-render when effects are double invoked and does not refetch when policy is store-or-network', () => {
+  it('forces a re-render when effects are double invoked and does not refetch when policy is store-or-network', async () => {
     const renderLogs = [];
     const QueryComponent = function () {
       const result = useLazyLoadQuery(gqlQuery, variables, {
@@ -296,8 +295,8 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     };
 
     let instance;
-    ReactTestRenderer.act(() => {
-      instance = ReactTestRenderer.create(
+    await ReactTestingLibrary.act(() => {
+      instance = ReactTestingLibrary.render(
         // Using StrictMode will trigger double invoke effect behavior
         <React.StrictMode>
           <RelayEnvironmentProvider environment={environment}>
@@ -306,8 +305,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
             </React.Suspense>
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe[incompatible-type]
-        {unstable_isConcurrent: true},
       );
     });
     if (!instance) {
@@ -319,12 +316,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
     expect(renderLogs).toEqual([]);
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance.container.textContent).toEqual('Fallback');
 
     // Resolve network response
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
-    ReactTestRenderer.act(() => {
+    await ReactTestingLibrary.act(() => {
       environment.mock.resolve(gqlQuery, {
         data: {
           node: {
@@ -372,11 +369,11 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // since the name didn't change.
       'render: Alice 1',
     ]);
-    expect(instance.toJSON()).toEqual('Alice 1');
+    expect(instance.container.textContent).toEqual('Alice 1');
 
     // Assert that query was correctly permanently retained,
     // and not released after a timeout
-    ReactTestRenderer.act(() => {
+    await ReactTestingLibrary.act(() => {
       jest.runAllTimers();
     });
     expect(release).toHaveBeenCalledTimes(1);
@@ -385,7 +382,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
   });
 
   describe('with incremental delivery', () => {
-    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
+    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is network-only', async () => {
       let renderLogs = [];
       const FragmentComponent = function ({
         user,
@@ -421,8 +418,8 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       };
 
       let instance;
-      ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
+      await ReactTestingLibrary.act(() => {
+        instance = ReactTestingLibrary.render(
           // Using StrictMode will trigger double invoke effect behavior
           <React.StrictMode>
             <RelayEnvironmentProvider environment={environment}>
@@ -431,8 +428,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe[incompatible-type]
-          {unstable_isConcurrent: true},
         );
       });
       if (!instance) {
@@ -444,12 +439,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
-      expect(instance.toJSON()).toEqual('Fallback');
+      expect(instance.container.textContent).toEqual('Fallback');
 
       // Resolve network response
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
           data: {
             node: {
@@ -484,7 +479,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // it's still underway when the component is shown again; therefore
       // the component sees the initial part even though it's network-only,
       // and doesn't re-suspend.
-      expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
+      expect(instance.container.textContent).toEqual('Alice 1Loading fragment');
 
       // Assert render state of component using the query up until now:
       expect(renderLogs).toEqual([
@@ -506,7 +501,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       renderLogs = [];
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
           data: {
             node: {
@@ -531,10 +526,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
+      expect(instance.container.textContent).toEqual('Alice 2Loading fragment');
 
       // Resolve incremental payload for second network request
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         environment.mock.resolve(gqlQueryWithDefer, {
           data: {
             __typename: 'User',
@@ -559,11 +554,11 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      expect(instance.toJSON()).toEqual('Alice 2');
+      expect(instance.container.textContent).toEqual('Alice 2');
 
       // Assert that query was correctly permanently retained,
       // and not released after a timeout
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         jest.runAllTimers();
       });
       expect(release).toHaveBeenCalledTimes(1);
@@ -571,7 +566,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       expect(environment.retain).toHaveBeenCalledTimes(2);
     });
 
-    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
+    it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', async () => {
       let renderLogs = [];
       const FragmentComponent = function (props: {
         user: ?useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,
@@ -605,8 +600,8 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       };
 
       let instance;
-      ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
+      await ReactTestingLibrary.act(() => {
+        instance = ReactTestingLibrary.render(
           // Using StrictMode will trigger double invoke effect behavior
           <React.StrictMode>
             <RelayEnvironmentProvider environment={environment}>
@@ -615,8 +610,6 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe[incompatible-type]
-          {unstable_isConcurrent: true},
         );
       });
       if (!instance) {
@@ -628,12 +621,12 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(1);
       expect(renderLogs).toEqual([]);
-      expect(instance.toJSON()).toEqual('Fallback');
+      expect(instance.container.textContent).toEqual('Fallback');
 
       // Resolve network response
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
           data: {
             node: {
@@ -664,7 +657,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       expect(environment.execute).toBeCalledTimes(0);
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
-      expect(instance.toJSON()).toEqual(['Alice 1', 'Loading fragment']);
+      expect(instance.container.textContent).toEqual('Alice 1Loading fragment');
 
       // Assert render state of component using the query up until
       // the point of re-suspending:
@@ -687,7 +680,7 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       renderLogs = [];
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.execute.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         environment.mock.nextValue(gqlQueryWithDefer, {
           data: {
             node: {
@@ -712,10 +705,10 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      expect(instance.toJSON()).toEqual(['Alice 2', 'Loading fragment']);
+      expect(instance.container.textContent).toEqual('Alice 2Loading fragment');
 
       // Resolve incremental payload for second network request
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         environment.mock.resolve(gqlQueryWithDefer, {
           data: {
             __typename: 'User',
@@ -740,11 +733,11 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
         'cleanup: Alice 1',
         'commit: Alice 2',
       ]);
-      expect(instance.toJSON()).toEqual('Alice 2');
+      expect(instance.container.textContent).toEqual('Alice 2');
 
       // Assert that query was correctly permanently retained,
       // and not released after a timeout
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(() => {
         jest.runAllTimers();
       });
       expect(release).toHaveBeenCalledTimes(1);

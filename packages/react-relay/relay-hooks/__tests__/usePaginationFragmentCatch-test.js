@@ -4,21 +4,24 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
-import React from 'react';
-import {Suspense} from 'react';
-import {
+'use strict';
+
+const ReactTestingLibrary = require('@testing-library/react');
+const React = require('react');
+const {Suspense, act} = require('react');
+const {
   RelayEnvironmentProvider,
   graphql,
   useLazyLoadQuery,
   usePaginationFragment,
-} from 'react-relay';
-import TestRenderer from 'react-test-renderer';
-import {createMockEnvironment} from 'relay-test-utils';
+} = require('react-relay');
+const {createMockEnvironment} = require('relay-test-utils');
 
 test('@catch does not interfere with the hasNext value returned by usePaginationFragment', async () => {
   const QUERY = graphql`
@@ -69,13 +72,13 @@ test('@catch does not interfere with the hasNext value returned by usePagination
   }
 
   let container = null;
-  TestRenderer.act(() => {
-    container = TestRenderer.create(<App />);
+  await act(async () => {
+    container = ReactTestingLibrary.render(<App />);
   });
 
-  expect(container?.toJSON()).toEqual('Loading...');
+  expect(container?.container.textContent).toEqual('Loading...');
 
-  await TestRenderer.act(async () => {
+  await act(async () => {
     environment.mock.resolveMostRecentOperation({
       data: {
         me: {
@@ -103,5 +106,5 @@ test('@catch does not interfere with the hasNext value returned by usePagination
     });
   });
 
-  expect(container?.toJSON()).toBe('Connection has more items');
+  expect(container?.container.textContent).toBe('Connection has more items');
 });

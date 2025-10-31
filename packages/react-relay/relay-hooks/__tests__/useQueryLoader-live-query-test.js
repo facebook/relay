@@ -641,8 +641,7 @@ it('should release and cancel queries on unmount if the callback is called, the 
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());
   return; // @oss-only
-  // $FlowFixMe[unreachable-code] // @oss-only
-  expect(dispose).toHaveBeenCalledTimes(1);
+  // @fb-only expect(dispose).toHaveBeenCalledTimes(1);
 });
 
 it.skip('releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {

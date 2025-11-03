@@ -33,3 +33,5 @@ jobs:
         with:
           title: "Update Cargo.lock"
           delete-branch: true
+          # Use a PAT with permissions to act as relay-bot and bypass branch protection
+          token: ${{ secrets.RELAY_BOT_GITHUB_PAT }}

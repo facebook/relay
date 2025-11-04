@@ -166,7 +166,9 @@ impl<'program> RequiredDirective<'program> {
         if let Some(previous) = self.path_required_map.get(&path) {
             if let Some(previous_metadata) = &previous.required {
                 if let Some(current_metadata) = current.required {
-                    if previous_metadata.action != current_metadata.action {
+                    if previous_metadata.action.to_metadata_action()
+                        != current_metadata.action.to_metadata_action()
+                    {
                         self.errors.push(
                             Diagnostic::error(
                                 RequiredDirectiveValidationMessage::ActionMismatch {
@@ -255,7 +257,9 @@ impl<'program> RequiredDirective<'program> {
     ) {
         let parent_action = required_metadata.action;
         for required_child in self.current_node_required_children.values() {
-            if required_child.required.action < parent_action {
+            if required_child.required.action.to_metadata_action()
+                < parent_action.to_metadata_action()
+            {
                 self.errors.push(
                     Diagnostic::error(
                         RequiredDirectiveValidationMessage::FieldInvalidNesting {

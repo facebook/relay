@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<85c9a061f8201793750ec3bb779b3bc7>>
+ * @generated SignedSource<<9451681e094b93c699f497dc592cf35f>>
  */
 
 mod required_directive;
@@ -24,6 +24,13 @@ async fn conflicting_required_status_across_aliased_inline_fragments() {
     let input = include_str!("required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.graphql");
     let expected = include_str!("required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.expected");
     test_fixture(transform_fixture, file!(), "conflicting-required-status-across-aliased-inline-fragments.graphql", "required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerous_throw_can_nest_in_throw() {
+    let input = include_str!("required_directive/fixtures/dangerous-throw-can-nest-in-throw.graphql");
+    let expected = include_str!("required_directive/fixtures/dangerous-throw-can-nest-in-throw.expected");
+    test_fixture(transform_fixture, file!(), "dangerous-throw-can-nest-in-throw.graphql", "required_directive/fixtures/dangerous-throw-can-nest-in-throw.expected", input, expected).await;
 }
 
 #[tokio::test]

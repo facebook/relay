@@ -625,10 +625,17 @@ fn write_fragment_imports(
                 } else {
                     let fragment_location = typegen_context
                         .fragment_locations
-                        .location(&current_referenced_fragment)
-                        .unwrap_or_else(|| {
-                            panic!("Expected location for fragment {current_referenced_fragment}.")
-                        });
+                        .location(&current_referenced_fragment);
+
+                    if fragment_location.is_none() {
+                        println!(
+                            "[WARN]Could not find location for fragment: {} in {:?}",
+                            current_referenced_fragment, typegen_context.definition_source_location
+                        );
+                        continue;
+                    }
+
+                    let fragment_location = fragment_location.unwrap();
 
                     let fragment_import_path =
                         typegen_context.project_config.js_module_import_identifier(

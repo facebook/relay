@@ -138,7 +138,7 @@ TExtraProps - a bag of extra props that you may define in `entrypoint` file
 and they will be passed to the EntryPointComponent as `extraProps`
 */
 export type InternalEntryPointRepresentation<
-  TEntryPointParams,
+  -TEntryPointParams,
   TPreloadedQueries,
   TPreloadedEntryPoints = {...},
   TRuntimeProps = {...},
@@ -284,7 +284,7 @@ type Renders<+C: component(...any)> =
   // $FlowFixMe[unclear-type]: we don't care about the props
   C extends component(...any) renders infer R extends React.Node ? R : empty;
 
-export type EntryPoint<TEntryPointParams, +TEntryPointComponent> =
+export type EntryPoint<-TEntryPointParams, +TEntryPointComponent> =
   InternalEntryPointRepresentation<
     TEntryPointParams,
     ElementConfig<TEntryPointComponent>['queries'],

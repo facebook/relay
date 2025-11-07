@@ -429,6 +429,7 @@ hook usePrefetchableForwardPaginationFragment<
     // Only reflect `isLoadingMore` if the product depends on it, do not refelect
     // `isLoaindgMore` state if it is for fufilling the buffer
     isLoadingNext: isLoadingMore && numInUse > sourceSize,
+    // $FlowFixMe[incompatible-type]
     refetch: refetchPagination,
   };
 }

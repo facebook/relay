@@ -163,6 +163,7 @@ hook usePaginationFragment<
     hasPrevious,
     isLoadingNext,
     isLoadingPrevious,
+    // $FlowFixMe[incompatible-type]
     refetch: refetchPagination,
   };
 }

@@ -130,6 +130,7 @@ function loadEntryPoint<
       }
       isDisposed = true;
     },
+    // $FlowFixMe[incompatible-type]
     entryPoints: preloadedEntryPoints as TPreloadedEntryPoints,
     extraProps: extraProps ?? null,
     getComponent: () => {
@@ -155,6 +156,7 @@ function loadEntryPoint<
     get isDisposed() {
       return isDisposed;
     },
+    // $FlowFixMe[incompatible-type]
     queries: preloadedQueries as TPreloadedQueries,
     rootModuleID: entryPoint.root.getModuleId(),
   };

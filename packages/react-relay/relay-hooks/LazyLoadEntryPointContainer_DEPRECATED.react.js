@@ -136,6 +136,7 @@ function prepareEntryPoint<
     });
   }
   return {
+    // $FlowFixMe[incompatible-type]
     entryPoints: preloadedEntryPoints as TPreloadedEntryPoints,
     extraProps: extraProps ?? null,
     getComponent: () => {
@@ -147,6 +148,7 @@ function prepareEntryPoint<
       // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
       return component as TEntryPointComponent;
     },
+    // $FlowFixMe[incompatible-type]
     queries: preloadedQueries as TPreloadedQueries,
     rootModuleID: entryPoint.root.getModuleId(),
   };

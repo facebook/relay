@@ -68,6 +68,7 @@ hook useLoadMoreFunction<TVariables: Variables>(
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
     // $FlowFixMe[react-rule-hook] - the condition is static
     // $FlowFixMe[react-rule-hook-conditional]
+    // $FlowFixMe[incompatible-type]
     return useLoadMoreFunction_EXPERIMENTAL(args);
   }
   // $FlowFixMe[react-rule-hook] - the condition is static

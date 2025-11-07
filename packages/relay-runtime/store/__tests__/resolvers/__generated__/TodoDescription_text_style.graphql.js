@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d09424e7c8fc4045a7828cac752ef6f2>>
+ * @generated SignedSource<<ac5ea91a3359b022795b77f30dedc9de>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 ) => ?mixed);
 declare export opaque type TodoDescription_text_style$fragmentType: FragmentType;
 export type TodoDescription_text_style$data = {|
-  +color: $NonMaybeType<ReturnType<typeof todoDescriptionColorResolverType>>,
+  +color: NonNullable<ReturnType<typeof todoDescriptionColorResolverType>>,
   +$fragmentType: TodoDescription_text_style$fragmentType,
 |};
 export type TodoDescription_text_style$key = {

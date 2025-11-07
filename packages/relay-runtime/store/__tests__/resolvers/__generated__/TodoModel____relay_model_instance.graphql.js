@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2cb83012c5cb177ed4233336f7dc2528>>
+ * @generated SignedSource<<e3a93f7e7eb494b1ec95b4721bb9f845>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 ) => LiveState<mixed>);
 declare export opaque type TodoModel____relay_model_instance$fragmentType: FragmentType;
 export type TodoModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<ReturnType<typeof todoModelRelayModelInstanceResolverType>["read"]>>,
+  +__relay_model_instance: NonNullable<ReturnType<ReturnType<typeof todoModelRelayModelInstanceResolverType>["read"]>>,
   +$fragmentType: TodoModel____relay_model_instance$fragmentType,
 |};
 export type TodoModel____relay_model_instance$key = {

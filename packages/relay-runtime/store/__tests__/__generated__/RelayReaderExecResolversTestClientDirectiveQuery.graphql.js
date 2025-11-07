@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b3f5922a11621fe971e7e5be63ccbe0f>>
+ * @generated SignedSource<<315f298a2169772e6f31d8365502c14f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,7 +67,7 @@ export type RelayReaderExecResolversTestClientDirectiveQuery$data = {|
     +friends: ?$ReadOnlyArray<?{|
       +name: ?string,
     |}>,
-    +name: $NonMaybeType<?string>,
+    +name: NonNullable<?string>,
   |},
 |};
 export type RelayReaderExecResolversTestClientDirectiveQuery = {|

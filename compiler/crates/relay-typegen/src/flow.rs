@@ -204,7 +204,7 @@ impl FlowPrinter {
     }
 
     fn write_non_nullable(&mut self, of_type: &AST) -> FmtResult {
-        write!(&mut self.result, "$NonMaybeType<")?;
+        write!(&mut self.result, "NonNullable<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }

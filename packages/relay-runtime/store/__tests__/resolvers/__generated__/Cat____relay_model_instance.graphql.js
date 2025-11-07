@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<98df57edbbcd1fc2e7c6e6e10f01867b>>
+ * @generated SignedSource<<dc5c6fb73f76b6ee9ccf53f8c675a6e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 ) => mixed);
 declare export opaque type Cat____relay_model_instance$fragmentType: FragmentType;
 export type Cat____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof catRelayModelInstanceResolverType>>,
+  +__relay_model_instance: NonNullable<ReturnType<typeof catRelayModelInstanceResolverType>>,
   +$fragmentType: Cat____relay_model_instance$fragmentType,
 |};
 export type Cat____relay_model_instance$key = {

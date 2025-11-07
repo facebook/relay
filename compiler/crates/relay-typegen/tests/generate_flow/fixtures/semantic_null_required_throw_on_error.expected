@@ -19,7 +19,7 @@ import clientUserResolverNameResolverType from "CatResolver";
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = ?{|
   +nullable_name: string,
-  +resolver_name: $NonMaybeType<ReturnType<typeof clientUserResolverNameResolverType>>,
+  +resolver_name: NonNullable<ReturnType<typeof clientUserResolverNameResolverType>>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

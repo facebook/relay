@@ -628,10 +628,8 @@ fn write_fragment_imports(
                         .location(&current_referenced_fragment);
 
                     if fragment_location.is_none() {
-                        println!(
-                            "[WARN]Could not find location for fragment: {} in {:?}",
-                            current_referenced_fragment, typegen_context.definition_source_location
-                        );
+                        // When the fragment is from "base" project, the file won't be located in typegen_context at this stage
+                        // This is due to a limitation in the process. Also this block has no effect for typescript so it can be safely ignored.
                         continue;
                     }
 

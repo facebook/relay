@@ -126,37 +126,21 @@ Every .entrypoint file it's an object that must have two required fields:
 TEntryPointParams - object that contains all necessary information to execute
 the preloaders (routeParams, query variables)
 
-TPreloadedQueries -  queries, defined in the root components
-
-TPreloadedEntryPoints - nested entry points, defined in the root components
-
-TRuntimeProps - the type of additional props that you may pass to the
-component (like `onClick` handler, etc) during runtime. Values for them
-defined during component runtime
-
-TExtraProps - a bag of extra props that you may define in `entrypoint` file
-and they will be passed to the EntryPointComponent as `extraProps`
+TEntryPointComponent -  the root components
 */
-export type InternalEntryPointRepresentation<
+export type EntryPoint<
   -TEntryPointParams,
-  TPreloadedQueries,
-  TPreloadedEntryPoints = {...},
-  TRuntimeProps = {...},
-  TExtraProps = null,
-  +TRenders: React.Node = React.Node,
+  // $FlowExpectedError[unclear-type] accepts any root component
+  +TEntryPointComponent: EntryPointComponent<any, any, any, any, any>,
 > = $ReadOnly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
-  ) => PreloadProps<TPreloadedQueries, TPreloadedEntryPoints, TExtraProps>,
-  root: JSResourceReference<
-    EntryPointComponent<
-      TPreloadedQueries,
-      TPreloadedEntryPoints,
-      TRuntimeProps,
-      TExtraProps,
-      TRenders,
-    >,
+  ) => PreloadProps<
+    ElementConfig<TEntryPointComponent>['queries'],
+    ElementConfig<TEntryPointComponent>['entryPoints'],
+    ElementConfig<TEntryPointComponent>['extraProps'],
   >,
+  root: JSResourceReference<TEntryPointComponent>,
 }>;
 
 // The shape of the props of the entry point `root` component
@@ -172,7 +156,23 @@ export type EntryPointProps<
   queries: TPreloadedQueries,
 }>;
 
-// Type of the entry point `root` component
+/**
+Type of the entry point `root` component
+
+TEntryPointParams - object that contains all necessary information to execute
+the preloaders (routeParams, query variables)
+
+TPreloadedQueries -  queries, defined in the root components
+
+TPreloadedEntryPoints - nested entry points, defined in the root components
+
+TRuntimeProps - the type of additional props that you may pass to the
+component (like `onClick` handler, etc) during runtime. Values for them
+defined during component runtime
+
+TExtraProps - a bag of extra props that you may define in `entrypoint` file
+and they will be passed to the EntryPointComponent as `extraProps`
+*/
 export type EntryPointComponent<
   TPreloadedQueries,
   TPreloadedEntryPoints = {},
@@ -215,21 +215,18 @@ export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
 }>;
 
 export type EntryPointElementConfig<
-  // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
-  +TEntryPoint: InternalEntryPointRepresentation<any, any, any, any, any>,
+  +TEntryPoint: EntryPoint<
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
+    any,
+  >,
 > =
-  TEntryPoint extends InternalEntryPointRepresentation<
-    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
-    any,
-    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
-    any,
-    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
-    any,
-    infer Props,
-    // $FlowExpectedError[unclear-type] Need any to make it supertype of all InternalEntryPointRepresentation
-    any,
+  TEntryPoint extends EntryPoint<
+    infer _EntryPointParams,
+    infer EntryPointComponent,
   >
-    ? Props
+    ? ElementConfig<EntryPointComponent>['props']
     : empty;
 
 export type ThinQueryParams<
@@ -280,19 +277,9 @@ export type ExtractQueryTypes<
 };
 
 // $FlowFixMe[unclear-type]: we don't care about the props
-type Renders<+C: component(...any)> =
+export type RootComponentRenders<+C: component(...any)> =
   // $FlowFixMe[unclear-type]: we don't care about the props
   C extends component(...any) renders infer R extends React.Node ? R : empty;
-
-export type EntryPoint<-TEntryPointParams, +TEntryPointComponent> =
-  InternalEntryPointRepresentation<
-    TEntryPointParams,
-    ElementConfig<TEntryPointComponent>['queries'],
-    ElementConfig<TEntryPointComponent>['entryPoints'],
-    ElementConfig<TEntryPointComponent>['props'],
-    ElementConfig<TEntryPointComponent>['extraProps'],
-    Renders<TEntryPointComponent>,
-  >;
 
 export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];
 

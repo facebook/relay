@@ -474,6 +474,31 @@ class LiveResolverCache implements ResolverCache {
     }
   }
 
+  // Returns true if source is published
+  batchLiveStateUpdatesWithoutNotify(callback: () => void): boolean {
+    invariant(
+      !this._handlingBatch,
+      'Unexpected nested call to batchLiveStateUpdates.',
+    );
+    this._handlingBatch = true;
+    try {
+      callback();
+    } finally {
+      const shouldPublish = this._liveResolverBatchRecordSource != null;
+      // We lazily create the record source. If one has not been created, there
+      // is nothing to publish.
+      if (shouldPublish) {
+        // $FlowFixMe[incompatible-type]  Null checked
+        this._store.publish(this._liveResolverBatchRecordSource);
+      }
+
+      // Reset batched state.
+      this._liveResolverBatchRecordSource = null;
+      this._handlingBatch = false;
+      return shouldPublish;
+    }
+  }
+
   _setLiveResolverValue(
     resolverRecord: Record,
     liveValue: LiveState<mixed>,

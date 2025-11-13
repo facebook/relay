@@ -20,6 +20,7 @@ use crate::writer::Writer;
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
+    use_readonly_array_rollout: bool,
 }
 
 impl Write for FlowPrinter {
@@ -152,10 +153,11 @@ impl Writer for FlowPrinter {
 }
 
 impl FlowPrinter {
-    pub fn new() -> Self {
+    pub fn new(use_readonly_array: impl Into<Option<bool>>) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
+            use_readonly_array_rollout: use_readonly_array.into().unwrap_or(false),
         }
     }
 
@@ -198,7 +200,11 @@ impl FlowPrinter {
     }
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
-        write!(&mut self.result, "$ReadOnlyArray<")?;
+        if self.use_readonly_array_rollout {
+            write!(&mut self.result, "ReadonlyArray<")?;
+        } else {
+            write!(&mut self.result, "$ReadOnlyArray<")?;
+        }
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
@@ -392,7 +398,7 @@ mod tests {
     use crate::writer::SortedASTList;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -595,7 +601,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -605,7 +611,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

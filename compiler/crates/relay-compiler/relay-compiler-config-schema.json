@@ -694,6 +694,13 @@
           "type": "boolean",
           "default": false
         },
+        "readonly_array_for_flow": {
+          "description": "Use ReadonlyArray<T> instead of $ReadOnlyArray<T> for Flow typegen.\nThis enables gradual rollout of the new array type across files.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "relay_resolver_enable_interface_output_type": {
           "description": "Enable returning interfaces from Relay Resolvers without @outputType",
           "$ref": "#/$defs/FeatureFlag",
@@ -930,6 +937,9 @@
               "kind": "disabled"
             },
             "prefer_fetchable_in_refetch_queries": false,
+            "readonly_array_for_flow": {
+              "kind": "disabled"
+            },
             "relay_resolver_enable_interface_output_type": {
               "kind": "disabled"
             },

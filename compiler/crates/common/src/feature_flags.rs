@@ -186,6 +186,11 @@ pub struct FeatureFlags {
     /// be null in normal operation).
     #[serde(default)]
     pub disallow_required_action_throw_on_semantically_nullable_fields: FeatureFlag,
+
+    /// Use ReadonlyArray<T> instead of $ReadOnlyArray<T> for Flow typegen.
+    /// This enables gradual rollout of the new array type across files.
+    #[serde(default)]
+    pub readonly_array_for_flow: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -218,6 +223,7 @@ impl Default for FeatureFlags {
             disable_deduping_common_structures_in_artifacts: Default::default(),
             legacy_include_path_in_required_reader_nodes: Default::default(),
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
+            readonly_array_for_flow: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

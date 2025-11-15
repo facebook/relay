@@ -126,6 +126,17 @@ impl OperationDefinition {
     pub fn is_subscription(&self) -> bool {
         self.kind == OperationKind::Subscription
     }
+
+    // Get the alias of this operation definition from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?
+                .or_else(|| Some(WithLocation::new(directive.name.location, self.name.item.0))))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 /// A newtype wrapper around StringKey to represent a FragmentDefinition's name
@@ -165,6 +176,19 @@ pub struct FragmentDefinition {
     pub type_condition: Type,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+}
+
+impl FragmentDefinition {
+    // Get the alias of this fragment definition from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?
+                .or_else(|| Some(WithLocation::new(directive.name.location, self.name.item.0))))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 /// An enum that can contain an operation definition name (e.g. names of queries,
@@ -750,7 +774,9 @@ pub enum ConditionValue {
 }
 
 /// Extract the `as` argument from the `@alias` directive
-fn alias_arg_as(alias_directive: &Directive) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+pub fn alias_arg_as(
+    alias_directive: &Directive,
+) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
     match alias_directive.arguments.named(ArgumentName(intern!("as"))) {
         Some(arg) => match arg.value.item {
             Value::Constant(ConstantValue::String(alias)) => {

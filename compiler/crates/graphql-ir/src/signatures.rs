@@ -8,18 +8,20 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use ::intern::Lookup;
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
+use common::NamedItem;
 use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
 use errors::try3;
-use intern::Lookup;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
@@ -44,6 +46,7 @@ use crate::ir::FragmentDefinition;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
+use crate::ir::alias_arg_as;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
@@ -99,6 +102,19 @@ pub struct FragmentSignature {
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
     pub directives: Vec<crate::Directive>,
+}
+
+impl FragmentSignature {
+    // Get the alias of this fragment signature from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?
+                .or_else(|| Some(WithLocation::new(directive.name.location, self.name.item.0))))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 impl From<&FragmentDefinition> for FragmentSignature {

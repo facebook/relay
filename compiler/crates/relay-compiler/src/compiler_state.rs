@@ -722,16 +722,28 @@ impl CompilerState {
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
-        let reader = FsFile::open(path)
-            .and_then(ZstdDecoder::new)
-            .map_err(|err| Error::ReadFileError {
+        let is_already_decompressed = path
+            .to_str()
+            .map(|s| s.ends_with(".decompressed"))
+            .unwrap_or(false);
+
+        let file = FsFile::open(path).map_err(|err| Error::ReadFileError {
+            file: path.clone(),
+            source: err,
+        })?;
+
+        let reader: Box<dyn std::io::Read> = if is_already_decompressed {
+            Box::new(BufReader::new(file))
+        } else {
+            let zstd_decoder = ZstdDecoder::new(file).map_err(|err| Error::ReadFileError {
                 file: path.clone(),
                 source: err,
             })?;
-        let reader = BufReader::with_capacity(
-            ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
-            reader,
-        );
+            Box::new(BufReader::with_capacity(
+                ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
+                zstd_decoder,
+            ))
+        };
 
         let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT").map_or_else(
             |_| 10_u64.pow(10), /* 10GB */

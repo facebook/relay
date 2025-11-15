@@ -30,6 +30,7 @@ const {getRequest} = require('relay-runtime/query/GraphQLTag');
 const defaultOptions = {
   getDataID: defaultGetDataID,
   treatMissingFieldsAsNull: false,
+  deferDeduplicatedFields: false,
   log: null,
 };
 

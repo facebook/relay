@@ -76,6 +76,7 @@ export type GetDataID = (
 export type NormalizationOptions = {
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
+  +deferDeduplicatedFields: boolean,
   +log: ?LogFunction,
   +path?: $ReadOnlyArray<string>,
   +shouldProcessClientComponents?: ?boolean,
@@ -114,6 +115,7 @@ class RelayResponseNormalizer {
   _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _treatMissingFieldsAsNull: boolean;
+  _deferDeduplicatedFields: boolean;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
   _isClientExtension: boolean;
   _isUnmatchedAbstractType: boolean;
@@ -136,6 +138,7 @@ class RelayResponseNormalizer {
     this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
     this._treatMissingFieldsAsNull = options.treatMissingFieldsAsNull;
+    this._deferDeduplicatedFields = options.deferDeduplicatedFields;
     this._incrementalPlaceholders = [];
     this._isClientExtension = false;
     this._isUnmatchedAbstractType = false;
@@ -525,7 +528,9 @@ class RelayResponseNormalizer {
         // client is assumed to be correctly configured with
         // treatMissingFieldsAsNull=true.
         const isOptionalField =
-          this._isClientExtension || this._isUnmatchedAbstractType;
+          this._isClientExtension ||
+          this._isUnmatchedAbstractType ||
+          this._deferDeduplicatedFields;
 
         if (isOptionalField) {
           // Field not expected to exist regardless of whether the server is pruning null

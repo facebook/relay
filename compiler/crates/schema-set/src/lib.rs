@@ -32,6 +32,7 @@ pub use crate::from_schema::SetEmptyClone;
 pub use crate::ir_collector::UsedSchemaCollectionOptions;
 pub use crate::ir_collector::UsedSchemaIRCollector;
 pub use crate::partition_base_extensions::partition_schema_set_base_and_extensions;
+pub use crate::schema_set::CanHaveDirectives;
 pub use crate::schema_set::FieldName;
 pub use crate::schema_set::SchemaDefinitionItem;
 pub use crate::schema_set::SchemaSet;

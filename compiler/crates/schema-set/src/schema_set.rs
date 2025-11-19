@@ -40,7 +40,6 @@ use schema::TypeReference;
 
 use crate::OutputTypeReference;
 use crate::SchemaDefault;
-use crate::SchemaInsertDirectiveValue;
 use crate::SchemaInsertField;
 use crate::UsedSchemaCollectionOptions;
 use crate::impl_can_be_client_definition;
@@ -488,15 +487,37 @@ impl SetType {
     }
 }
 
-impl SchemaInsertDirectiveValue for SetType {
-    fn directive_or_inserted(&mut self, directive: &DirectiveValue) -> &mut DirectiveValue {
+impl CanHaveDirectives for SetType {
+    fn directives(&self) -> &Vec<DirectiveValue> {
         match self {
-            SetType::Scalar(t) => t.directive_or_inserted(directive),
-            SetType::Enum(t) => t.directive_or_inserted(directive),
-            SetType::Object(t) => t.directive_or_inserted(directive),
-            SetType::Interface(t) => t.directive_or_inserted(directive),
-            SetType::Union(t) => t.directive_or_inserted(directive),
-            SetType::InputObject(t) => t.directive_or_inserted(directive),
+            SetType::Scalar(t) => t.directives(),
+            SetType::Enum(t) => t.directives(),
+            SetType::Object(t) => t.directives(),
+            SetType::Interface(t) => t.directives(),
+            SetType::Union(t) => t.directives(),
+            SetType::InputObject(t) => t.directives(),
+        }
+    }
+
+    fn directives_mut(&mut self) -> &mut Vec<DirectiveValue> {
+        match self {
+            SetType::Scalar(t) => t.directives_mut(),
+            SetType::Enum(t) => t.directives_mut(),
+            SetType::Object(t) => t.directives_mut(),
+            SetType::Interface(t) => t.directives_mut(),
+            SetType::Union(t) => t.directives_mut(),
+            SetType::InputObject(t) => t.directives_mut(),
+        }
+    }
+
+    fn set_directives(&mut self, directives: Vec<DirectiveValue>) {
+        match self {
+            SetType::Scalar(t) => t.set_directives(directives),
+            SetType::Enum(t) => t.set_directives(directives),
+            SetType::Object(t) => t.set_directives(directives),
+            SetType::Interface(t) => t.set_directives(directives),
+            SetType::Union(t) => t.set_directives(directives),
+            SetType::InputObject(t) => t.set_directives(directives),
         }
     }
 }

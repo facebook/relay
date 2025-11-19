@@ -97,6 +97,7 @@ pub trait SchemaInsertInterface {
         &'a mut self,
         interface: &SetMemberType,
     ) -> &'a mut SetMemberType;
+}
 
 impl<T: HasInterfaces> SchemaInsertInterface for T {
     fn interface_or_inserted(

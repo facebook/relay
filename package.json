@@ -81,7 +81,8 @@
     "react-test-renderer": "0.0.0-experimental-7670501b-20241124"
   },
   "resolutions": {
-    "glob-watcher": "^6.0.0"
+    "glob-watcher": "^6.0.0",
+    "@babel/traverse": "^7.23.2"
   },
   "private": true,
   "devEngines": {

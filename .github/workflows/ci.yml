@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'yarn'
+          cache: "yarn"
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: ESLint
@@ -40,7 +40,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+          cache: "yarn"
       - name: Install dependencies
         run: yarn install --frozen-lockfile
       - name: Run tests
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'yarn'
+          cache: "yarn"
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Test dependencies
@@ -72,7 +72,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'yarn'
+          cache: "yarn"
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Flow
@@ -98,7 +98,7 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
-          toolchain: nightly-2025-06-20
+          toolchain: nightly-2025-08-01
           override: true
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
@@ -122,9 +122,9 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
-         # And other similar references in this file and
+          # And other similar references in this file and
           # docusaurus.yml
-          toolchain: nightly-2025-06-20
+          toolchain: nightly-2025-08-01
           override: true
       - name: "Update fixture tests"
         run: ./scripts/update-fixtures.sh
@@ -133,7 +133,7 @@ jobs:
       - name: "Build Relay unit-test artifacts"
         run: cargo run --manifest-path=compiler/Cargo.toml --bin relay --release ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }} ./scripts/config.tests.json
       - name: "Check working directory status"
-        run: './scripts/check-git-status.sh'
+        run: "./scripts/check-git-status.sh"
 
   rust-lint:
     name: Rust Lint
@@ -187,14 +187,14 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
-          toolchain: nightly-2025-06-20
+          toolchain: nightly-2025-08-01
           override: true
           target: ${{ matrix.target.target }}
       - uses: actions/setup-node@v4
         if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
         with:
           node-version: 20.x
-          cache: 'yarn'
+          cache: "yarn"
       - name: Install dependencies
         if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
         run: yarn install --frozen-lockfile --ignore-scripts
@@ -235,7 +235,7 @@ jobs:
         with:
           node-version: 18.x
           registry-url: https://registry.npmjs.org/
-          cache: 'yarn'
+          cache: "yarn"
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Download artifact relay-bin-linux-x64

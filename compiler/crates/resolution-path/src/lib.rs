@@ -69,8 +69,7 @@ mod selection_parent_type;
 mod variable_definition_path;
 
 #[cfg(test)]
-#[macro_use]
-extern crate assert_matches;
+use std::assert_matches;
 
 /// This module resolves a position (`Span`) to a `ResolvePosition` which
 /// enumerates the types of AST nodes which have a "surface area", meaning a

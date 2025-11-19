@@ -58,18 +58,18 @@ pub trait SetEmptyClone {
 }
 
 pub trait SchemaInsertField {
-    fn field_definition_or_inserted<'a>(
-        &'a mut self,
+    fn field_definition_or_inserted(
+        &mut self,
         field_id: FieldID,
         schema: &SDLSchema,
     ) -> &mut SetField;
 
-    fn field_definition_or_empty_inserted<'a>(&'a mut self, field: &SetField) -> &mut SetField;
+    fn field_definition_or_empty_inserted<'a>(&'a mut self, field: &SetField) -> &'a mut SetField;
 }
 
 impl<T: HasFields> SchemaInsertField for T {
-    fn field_definition_or_inserted<'a>(
-        &'a mut self,
+    fn field_definition_or_inserted(
+        &mut self,
         field_id: FieldID,
         schema: &SDLSchema,
     ) -> &mut SetField {
@@ -79,7 +79,7 @@ impl<T: HasFields> SchemaInsertField for T {
             .or_insert_with(|| SetField::schema_default(field_id, schema))
     }
 
-    fn field_definition_or_empty_inserted<'a>(&'a mut self, field: &SetField) -> &mut SetField {
+    fn field_definition_or_empty_inserted<'a>(&'a mut self, field: &SetField) -> &'a mut SetField {
         self.fields_mut()
             .entry(field.name.0)
             .or_insert_with(|| field.empty_clone())
@@ -87,8 +87,8 @@ impl<T: HasFields> SchemaInsertField for T {
 }
 
 pub trait SchemaInsertInterface {
-    fn interface_or_inserted<'a>(
-        &'a mut self,
+    fn interface_or_inserted(
+        &mut self,
         interface_id: InterfaceID,
         schema: &SDLSchema,
     ) -> &mut SetMemberType;
@@ -96,12 +96,12 @@ pub trait SchemaInsertInterface {
     fn interface_or_empty_inserted<'a>(
         &'a mut self,
         interface: &SetMemberType,
-    ) -> &mut SetMemberType;
+    ) -> &'a mut SetMemberType;
 }
 
 impl<T: HasInterfaces> SchemaInsertInterface for T {
-    fn interface_or_inserted<'a>(
-        &'a mut self,
+    fn interface_or_inserted(
+        &mut self,
         interface_id: InterfaceID,
         schema: &SDLSchema,
     ) -> &mut SetMemberType {
@@ -115,10 +115,7 @@ impl<T: HasInterfaces> SchemaInsertInterface for T {
             })
     }
 
-    fn interface_or_empty_inserted<'a>(
-        &'a mut self,
-        interface: &SetMemberType,
-    ) -> &mut SetMemberType {
+    fn interface_or_empty_inserted(&mut self, interface: &SetMemberType) -> &mut SetMemberType {
         self.interfaces_mut()
             .entry(interface.name)
             .or_insert_with(|| interface.clone())
@@ -126,18 +123,18 @@ impl<T: HasInterfaces> SchemaInsertInterface for T {
 }
 
 pub trait SchemaInsertArgument {
-    fn argument_or_inserted<'a>(
-        &'a mut self,
+    fn argument_or_inserted(
+        &mut self,
         argument: &schema::Argument,
         schema: &SDLSchema,
     ) -> &mut SetArgument;
 
-    fn argument_or_empty_inserted<'a>(&'a mut self, argument: &SetArgument) -> &mut SetArgument;
+    fn argument_or_empty_inserted<'a>(&'a mut self, argument: &SetArgument) -> &'a mut SetArgument;
 }
 
 impl<T: HasArguments> SchemaInsertArgument for T {
-    fn argument_or_inserted<'a>(
-        &'a mut self,
+    fn argument_or_inserted(
+        &mut self,
         argument: &schema::Argument,
         schema: &SDLSchema,
     ) -> &mut SetArgument {
@@ -158,7 +155,7 @@ impl<T: HasArguments> SchemaInsertArgument for T {
             })
     }
 
-    fn argument_or_empty_inserted<'a>(&'a mut self, argument: &SetArgument) -> &mut SetArgument {
+    fn argument_or_empty_inserted<'a>(&'a mut self, argument: &SetArgument) -> &'a mut SetArgument {
         self.arguments_mut()
             .entry(argument.name)
             .or_insert_with(|| argument.empty_clone())

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4a846836a0164c2584cea5b24ad65537>>
+ * @generated SignedSource<<f8ebdf82495a3596d695bd582491a44b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ declare export opaque type RelayMockPayloadGeneratorTest5Fragment$fragmentType: 
 export type RelayMockPayloadGeneratorTest5Fragment$data = {|
   +actor: ?({|
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +id: string,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f0624a3df6276162f20072fa2f8344d1>>
+ * @generated SignedSource<<2980c486d501a9de3a33327859f038bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToPluralLiveObjectsSomeExistResolverType: (
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?{|
+) => ?ReadonlyArray<?{|
   +id: DataID,
 |}>);
 import {description as todoModelDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
@@ -40,7 +40,7 @@ import {description as todoModelDescriptionResolverType} from "../../../relay-ru
 ) => ?string);
 export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_PluralLiveModel_Query$data = {|
-  +edge_to_plural_live_objects_some_exist: ?$ReadOnlyArray<?{|
+  +edge_to_plural_live_objects_some_exist: ?ReadonlyArray<?{|
     +description: ?string,
     +id: string,
   |}>,

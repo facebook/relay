@@ -8,7 +8,7 @@ fragment SomeFragment on User {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type SomeFragment$fragmentType: FragmentType;
 export type SomeFragment$data = {|
-  +neighbors: ?$ReadOnlyArray<{|
+  +neighbors: ?ReadonlyArray<{|
     +name: string,
   |}>,
   +$fragmentType: SomeFragment$fragmentType,

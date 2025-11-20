@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fd3c437bcd5fb2319f3a9d167ace25fd>>
+ * @generated SignedSource<<2eccacaa0ae6711439895db7e6f721ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ export type RelayModernEnvironmentWithOperationTrackerTest1Query$data = {|
       +text: ?string,
     |},
     +comments?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +id: string,
           +message: ?{|

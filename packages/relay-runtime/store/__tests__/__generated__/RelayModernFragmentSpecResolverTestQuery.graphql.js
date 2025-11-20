@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<95f7085fa90bf1186a200e4bb7a0bd75>>
+ * @generated SignedSource<<e8517856d878604a57e0ce7d123db283>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import type { RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType
 export type RelayModernFragmentSpecResolverTestQuery$variables = {|
   fetchSize: boolean,
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayModernFragmentSpecResolverTestQuery$data = {|
   +node: ?{|

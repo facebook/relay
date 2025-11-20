@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4eea6b4fad6e2e207d671572badf8320>>
+ * @generated SignedSource<<1a9fe20bee41ec1fd5b4cc2d7991f55e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -33,7 +33,7 @@ export type readUpdatableQueryTestMissingFieldsUpdatableQuery$data = {|
     +__typename: "%other",
   |}),
   set node(value: null | void): void,
-  get nodes(): ?$ReadOnlyArray<?({|
+  get nodes(): ?ReadonlyArray<?({|
     +__typename: "User",
     name: ?string,
   |} | {|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4337e2999734809a390206fb499f653e>>
+ * @generated SignedSource<<f13ccd2b340343c11041d676a51c7fef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestListUpdateFragment$fragmentType } from "./observeFragmentTestListUpdateFragment.graphql";
 export type observeFragmentTestListUpdateQuery$variables = {||};
 export type observeFragmentTestListUpdateQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +$fragmentSpreads: observeFragmentTestListUpdateFragment$fragmentType,
   |}>,
 |};

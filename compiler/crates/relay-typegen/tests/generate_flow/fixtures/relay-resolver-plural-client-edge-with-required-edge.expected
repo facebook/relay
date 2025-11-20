@@ -32,13 +32,13 @@ import userBestFriendsResolverType from "BestFriendResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendsResolverType: (
   rootKey: relayResolver_BestFriendResolverFragment_name$key,
-) => ?$ReadOnlyArray<{|
+) => ?ReadonlyArray<{|
   +id: DataID,
 |}>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +best_friends: ?$ReadOnlyArray<{|
+    +best_friends: ?ReadonlyArray<{|
       +name: ?string,
     |}>,
   |},

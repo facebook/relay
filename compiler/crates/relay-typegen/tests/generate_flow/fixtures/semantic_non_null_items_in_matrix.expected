@@ -12,7 +12,7 @@ type Screen {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
-  +pixels: ?$ReadOnlyArray<?$ReadOnlyArray<number>>,
+  +pixels: ?ReadonlyArray<?ReadonlyArray<number>>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

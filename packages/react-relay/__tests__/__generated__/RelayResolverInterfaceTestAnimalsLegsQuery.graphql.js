@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<612fe59fa71f3f27797f79399a765e7f>>
+ * @generated SignedSource<<cf4a77aa8f94f0c6b59d6b25107090fe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,10 +26,10 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAnimalsResolverType: (
   args: {|
-    requests: $ReadOnlyArray<AnimalRequest>,
+    requests: ReadonlyArray<AnimalRequest>,
   |},
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?{|
+) => ?ReadonlyArray<?{|
   +__typename: "Cat" | "Chicken" | "Fish",
   +id: DataID,
 |}>);
@@ -38,10 +38,10 @@ export type AnimalRequest = {|
   returnValidID: boolean,
 |};
 export type RelayResolverInterfaceTestAnimalsLegsQuery$variables = {|
-  requests: $ReadOnlyArray<AnimalRequest>,
+  requests: ReadonlyArray<AnimalRequest>,
 |};
 export type RelayResolverInterfaceTestAnimalsLegsQuery$data = {|
-  +animals: ?$ReadOnlyArray<?{|
+  +animals: ?ReadonlyArray<?{|
     +id: string,
     +$fragmentSpreads: RelayResolverInterfaceTestAnimalLegsFragment$fragmentType,
   |}>,

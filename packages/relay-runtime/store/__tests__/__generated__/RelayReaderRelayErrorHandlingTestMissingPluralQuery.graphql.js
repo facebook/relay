@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0952e46c01e925f5f9d6d46a37b10f66>>
+ * @generated SignedSource<<5738e29cc4379ccf1e3a9c9ad7ce7e73>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,10 +19,10 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayReaderRelayErrorHandlingTestMissingPluralQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +lastName: ?string,
     +profilePicture: ?{|
       +uri: ?string,

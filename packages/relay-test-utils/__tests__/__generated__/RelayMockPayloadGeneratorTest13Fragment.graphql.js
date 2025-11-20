@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4ef5d99248bed451fb59a3a2349e908f>>
+ * @generated SignedSource<<cba56fb83de48a811d09665962645e2f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,8 +29,8 @@ export type RelayMockPayloadGeneratorTest13Fragment$data = {|
       +height: ?number,
       +uri: ?string,
     |},
-    +traits?: ?$ReadOnlyArray<?PersonalityTraits>,
-    +websites?: ?$ReadOnlyArray<?string>,
+    +traits?: ?ReadonlyArray<?PersonalityTraits>,
+    +websites?: ?ReadonlyArray<?string>,
   |},
   +$fragmentType: RelayMockPayloadGeneratorTest13Fragment$fragmentType,
 |};

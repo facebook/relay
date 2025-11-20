@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f73e976b15ef3452ff85a254fe65c299>>
+ * @generated SignedSource<<f869babc5a3bcaf21e2061fef76240e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestStreamConnectionUserProfile$fragmentType: FragmentType;
 export type RelayReaderTestStreamConnectionUserProfile$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +name: ?string,
       |},

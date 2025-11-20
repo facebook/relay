@@ -20,7 +20,6 @@ use crate::writer::Writer;
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
-    use_readonly_array_rollout: bool,
 }
 
 impl Write for FlowPrinter {
@@ -154,10 +153,10 @@ impl Writer for FlowPrinter {
 
 impl FlowPrinter {
     pub fn new(use_readonly_array: impl Into<Option<bool>>) -> Self {
+        let _ = use_readonly_array.into();
         Self {
             result: String::new(),
             indentation: 0,
-            use_readonly_array_rollout: use_readonly_array.into().unwrap_or(false),
         }
     }
 
@@ -200,11 +199,7 @@ impl FlowPrinter {
     }
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
-        if self.use_readonly_array_rollout {
-            write!(&mut self.result, "ReadonlyArray<")?;
-        } else {
-            write!(&mut self.result, "$ReadOnlyArray<")?;
-        }
+        write!(&mut self.result, "ReadonlyArray<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
@@ -425,7 +420,7 @@ mod tests {
     fn read_only_array_type() {
         assert_eq!(
             print_type(&AST::ReadOnlyArray(Box::new(AST::String))),
-            "$ReadOnlyArray<string>".to_string()
+            "ReadonlyArray<string>".to_string()
         );
     }
 

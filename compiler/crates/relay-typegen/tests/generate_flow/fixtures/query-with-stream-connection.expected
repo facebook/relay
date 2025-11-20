@@ -21,7 +21,7 @@ export type TestDefer$variables = {||};
 export type TestDefer$data = {|
   +node: ?{|
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +actor: ?{|
             +name: ?string,
@@ -36,7 +36,7 @@ export type TestDefer$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +__typename: "User",

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e36e7241b11766c365da13b649d4eb94>>
+ * @generated SignedSource<<1965ae135ea08c9b18046f9643ed0f06>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayResponseNormalizerTest41Query$variables = {|
 export type RelayResponseNormalizerTest41Query$data = {|
   +node: ?{|
     +__typename: string,
-    +emailAddresses?: ?$ReadOnlyArray<?string>,
+    +emailAddresses?: ?ReadonlyArray<?string>,
     +id: string,
   |},
 |};

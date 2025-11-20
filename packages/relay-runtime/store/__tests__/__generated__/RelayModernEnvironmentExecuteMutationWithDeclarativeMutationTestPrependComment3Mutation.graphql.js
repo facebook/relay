@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1cc3fa6f90b6a8b9de01731d500f9bc3>>
+ * @generated SignedSource<<02f84b963f67f5bf0a8589e863b30b92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -29,7 +29,7 @@ export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$variables = {|
-  connections: $ReadOnlyArray<string>,
+  connections: ReadonlyArray<string>,
   edgeTypeName: string,
   input?: ?CommentCreateInput,
 |};

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b777252dd866c8f5755630ce84e4d2b6>>
+ * @generated SignedSource<<498ec81ccc8cf51aa234802ccdde2673>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,12 +26,12 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryEdgeToPluralModelsThatThrowResolverType: (
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?{|
+) => ?ReadonlyArray<?{|
   +id: DataID,
 |}>);
 export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$data = {|
-  +edge_to_plural_models_that_throw: ?$ReadOnlyArray<?{|
+  +edge_to_plural_models_that_throw: ?ReadonlyArray<?{|
     +__typename: "ErrorModel",
   |}>,
 |};

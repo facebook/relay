@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1d5ff18113dbd4491b803b7572aa4da6>>
+ * @generated SignedSource<<25bd670c61eb47e0a33ee66a89877b05>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type requestSubscriptionTestConfigsQuery$variables = {||};
 export type requestSubscriptionTestConfigsQuery$data = {|
   +viewer: ?{|
     +configs: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +name: ?string,
         |},

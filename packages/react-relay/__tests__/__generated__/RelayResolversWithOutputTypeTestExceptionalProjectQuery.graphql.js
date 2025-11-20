@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<94fa59b9b1969957f89b6e6161d76e6d>>
+ * @generated SignedSource<<b84552aa7b56781b87c2e54664766888>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,7 @@ import type { Query__todos$normalization } from "./../../../relay-runtime/store/
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {||};
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$data = {|
   +todos: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
       |},

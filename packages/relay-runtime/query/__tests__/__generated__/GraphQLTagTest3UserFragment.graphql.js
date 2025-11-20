@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8daad82cbca6de3764f2bf2ed141b351>>
+ * @generated SignedSource<<3a7089e56d5fa1d3b8ec95dee43cccf8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type GraphQLTagTest3UserFragment$fragmentType: FragmentTyp
 type GraphQLTagTestUserFragment2RefetchQuery$variables = any;
 export type GraphQLTagTest3UserFragment$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +id: string,
       |},

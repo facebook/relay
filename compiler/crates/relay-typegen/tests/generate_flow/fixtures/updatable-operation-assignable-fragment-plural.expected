@@ -19,8 +19,8 @@ export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get node(): ?({|
     +__typename: "User",
-    get parents(): $ReadOnlyArray<{||}>,
-    set parents(value: $ReadOnlyArray<{
+    get parents(): ReadonlyArray<{||}>,
+    set parents(value: ReadonlyArray<{
       +__typename: "User",
       +__id: string,
       +$fragmentSpreads: Assignable_user$fragmentType,

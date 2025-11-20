@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8caa8681021706578a3370563abefe1>>
+ * @generated SignedSource<<617f842411395095bf307ceb5e8f7bf6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType } from "./observeFragmentTestPluralThrowOnFieldErrorFragment.graphql";
 export type observeFragmentTestPluralThrowOnFieldErrorQuery$variables = {||};
 export type observeFragmentTestPluralThrowOnFieldErrorQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +$fragmentSpreads: observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType,
   |}>,
 |};

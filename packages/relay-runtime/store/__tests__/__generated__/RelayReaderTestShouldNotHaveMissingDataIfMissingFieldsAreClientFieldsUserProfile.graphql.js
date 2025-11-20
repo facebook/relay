@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f72341242f00b4bf7f0668c5df89661>>
+ * @generated SignedSource<<b7f38e00ae2ce1121e4f2c8dd4cf36af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType: FragmentType;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = {|
   +best_friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|
@@ -45,7 +45,7 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
   |},
   +friends: ?{|
     +client_friends_connection_field: ?string,
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +cursor: ?string,
       +node: ?{|
         +client_foo: ?{|

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65894b1dc2322f07d26df3bf2cfa0c5d>>
+ * @generated SignedSource<<fae808090531f8aeca1b1f98e07e62d8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type DataCheckerTest10Query$variables = {||};
 export type DataCheckerTest10Query$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
           +$fragmentSpreads: DataCheckerTest20Fragment$fragmentType,

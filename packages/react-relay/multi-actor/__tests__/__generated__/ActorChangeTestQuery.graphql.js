@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb4f73e8ecbbf5d81975c889b5988428>>
+ * @generated SignedSource<<947746e382c356f7192879667d5c3c19>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type ActorChangeTestQuery$variables = {||};
 export type ActorChangeTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +actor_node: ?ActorChangePoint<{|
           +actor_key: string,
           +$fragmentSpreads: ActorChangeTestFeedUnitFragment$fragmentType,

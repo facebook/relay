@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9487d91272822e0ec7f136ede026f232>>
+ * @generated SignedSource<<062d94bcb5fc70a4d50953ed3bbff8e6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type requestSubscriptionTestFeedbackCommentQuery$variables = {|
 export type requestSubscriptionTestFeedbackCommentQuery$data = {|
   +node: ?{|
     +comments?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +body: ?{|
             +text: ?string,

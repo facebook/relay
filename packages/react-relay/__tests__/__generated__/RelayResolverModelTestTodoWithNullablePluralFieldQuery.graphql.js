@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f334c1f71245ad142c64d77144ed3b84>>
+ * @generated SignedSource<<6e490c8ee9517c5ac85ca1457ee0c07f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -48,14 +48,14 @@ import {many_fancy_descriptions_but_some_are_null as todoModelManyFancyDescripti
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?TodoDescription>);
+) => ?ReadonlyArray<?TodoDescription>);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$variables = {|
   id: string,
 |};
 export type RelayResolverModelTestTodoWithNullablePluralFieldQuery$data = {|
   +todo_model: ?{|
-    +many_fancy_descriptions_but_some_are_null: ?$ReadOnlyArray<?{|
+    +many_fancy_descriptions_but_some_are_null: ?ReadonlyArray<?{|
       +text: ?string,
     |}>,
   |},

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aa0e7ad4493ed152e2f063385e84e906>>
+ * @generated SignedSource<<ea1739d1e98b2d496d86bc260071d6f0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ export type RelayPublishQueueTest2Query$data = {|
     +name: ?string,
     +$fragmentSpreads: RelayPublishQueueTest1Fragment$fragmentType,
   |},
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +name: ?string,
   |}>,
 |};

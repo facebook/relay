@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d47c0a3d7689af8f1d9e7f8d437af74d>>
+ * @generated SignedSource<<7d296136f6edc45b94df829a3084e8b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type usePaginationFragmentCatchTestFragment$fragmentType: 
 type usePaginationFragmentCatchTestRefetchableFragmentQuery$variables = any;
 export type usePaginationFragmentCatchTestFragment$data = {|
   +friends: Result<?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +__typename: "User",
       |},

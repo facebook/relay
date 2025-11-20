@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dab6b298953a9fa6f3d72fd6bad37bdc>>
+ * @generated SignedSource<<9655e96f00f5e500c4b0c867db7d544f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type RelayModernEnvironmentViewerTestQuery$variables = {||};
 export type RelayModernEnvironmentViewerTestQuery$data = {|
   +viewer: ?{|
     +marketplace_settings: ?{|
-      +categories: ?$ReadOnlyArray<?string>,
+      +categories: ?ReadonlyArray<?string>,
     |},
   |},
 |};

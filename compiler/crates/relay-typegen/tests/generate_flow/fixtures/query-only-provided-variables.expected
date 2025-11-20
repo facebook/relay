@@ -89,7 +89,7 @@ declare export opaque type FragmentMultiProvidedVar$fragmentType: FragmentType;
 export type FragmentMultiProvidedVar$data = {|
   +friends: ?{|
     +count: ?number,
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +name?: ?string,
       |},

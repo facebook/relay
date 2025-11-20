@@ -12,7 +12,7 @@ fragment Updatable_user on User @assignable {
 import type { Updatable_user$fragmentType } from "Updatable_user.graphql";
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
-  get nodes(): ?$ReadOnlyArray<?{|
+  get nodes(): ?ReadonlyArray<?{|
     get Updatable_user(): ?{||},
     set Updatable_user(value: ?{
       +__typename: "User",

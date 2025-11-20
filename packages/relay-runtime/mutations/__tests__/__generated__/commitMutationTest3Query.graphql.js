@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fa4cff92de45932fff1c1ea7b8133fac>>
+ * @generated SignedSource<<0a91e17a4ed84b98fd7bc53d86b68e4d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type commitMutationTest3Query$data = {|
   +viewer: ?{|
     +actor: ?{|
       +friends?: ?{|
-        +edges: ?$ReadOnlyArray<?{|
+        +edges: ?ReadonlyArray<?{|
           +node: ?{|
             +id: string,
           |},

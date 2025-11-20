@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3db9200938eb28ef424bbb51ff8712d8>>
+ * @generated SignedSource<<c0be25cc9856719b9c7b3d39ec5042af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeed
   +node: ?{|
     +comments: ?{|
       +__id: string,
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +__typename: "CommentsEdge",
         +node: ?{|
           +__typename: "Comment",

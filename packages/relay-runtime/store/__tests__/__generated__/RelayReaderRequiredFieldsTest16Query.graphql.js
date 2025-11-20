@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b06a17ffd3cb436d93499d956a373ecc>>
+ * @generated SignedSource<<3d40c26f36f0fcb6e9df14e85266cc87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type RelayReaderRequiredFieldsTest16Query$variables = {|
 |};
 export type RelayReaderRequiredFieldsTest16Query$data = {|
   +me: ?{|
-    +emailAddresses?: $ReadOnlyArray<?string>,
+    +emailAddresses?: ReadonlyArray<?string>,
     +name: ?string,
   |},
 |};

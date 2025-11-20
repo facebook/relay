@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb8bab4f880b0c1324e7ea646621a2fb>>
+ * @generated SignedSource<<1da63bb719faadf5cbd86befc37052a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentsCreateInput = {|
-  feedback?: ?$ReadOnlyArray<?CommentfeedbackFeedback>,
+  feedback?: ?ReadonlyArray<?CommentfeedbackFeedback>,
   feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
@@ -29,12 +29,12 @@ export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$variables = {|
-  connections: $ReadOnlyArray<string>,
+  connections: ReadonlyArray<string>,
   input?: ?CommentsCreateInput,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendComments3Mutation$data = {|
   +commentsCreate: ?{|
-    +feedbackCommentEdges: ?$ReadOnlyArray<?{|
+    +feedbackCommentEdges: ?ReadonlyArray<?{|
       +cursor: ?string,
       +node: ?{|
         +id: string,

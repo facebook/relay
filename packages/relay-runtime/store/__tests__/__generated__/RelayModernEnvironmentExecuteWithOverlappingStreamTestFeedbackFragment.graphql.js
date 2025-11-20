@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9f3d88adc49b815fd50009e9b952b278>>
+ * @generated SignedSource<<1b9760311ec24b5f0c4f198e098f49e3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragmen
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data = {|
-  +actors: ?$ReadOnlyArray<?{|
+  +actors: ?ReadonlyArray<?{|
     +name: ?string,
   |}>,
   +id: string,

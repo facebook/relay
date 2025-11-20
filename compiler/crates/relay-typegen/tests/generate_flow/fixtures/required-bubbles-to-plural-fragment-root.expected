@@ -9,11 +9,11 @@ fragment SomeOtherFragment on User @relay(plural: true) {
 ==================================== OUTPUT ===================================
 import type { FragmentType } from "relay-runtime";
 declare export opaque type SomeFragment$fragmentType: FragmentType;
-export type SomeFragment$data = $ReadOnlyArray<?{|
+export type SomeFragment$data = ReadonlyArray<?{|
   +name: string,
   +$fragmentType: SomeFragment$fragmentType,
 |}>;
-export type SomeFragment$key = $ReadOnlyArray<{
+export type SomeFragment$key = ReadonlyArray<{
   +$data?: SomeFragment$data,
   +$fragmentSpreads: SomeFragment$fragmentType,
   ...
@@ -21,11 +21,11 @@ export type SomeFragment$key = $ReadOnlyArray<{
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type SomeOtherFragment$fragmentType: FragmentType;
-export type SomeOtherFragment$data = $ReadOnlyArray<{|
+export type SomeOtherFragment$data = ReadonlyArray<{|
   +name: ?string,
   +$fragmentType: SomeOtherFragment$fragmentType,
 |}>;
-export type SomeOtherFragment$key = $ReadOnlyArray<{
+export type SomeOtherFragment$key = ReadonlyArray<{
   +$data?: SomeOtherFragment$data,
   +$fragmentSpreads: SomeOtherFragment$fragmentType,
   ...

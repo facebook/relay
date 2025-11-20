@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<552ce2a58a396829addc370dfef97587>>
+ * @generated SignedSource<<f7d205e38a04a72f7a8cc1534d13a3bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type RelayReferenceMarkerTest2Fragment$fragmentType: Fragm
 export type RelayReferenceMarkerTest2Fragment$data = {|
   +best_friends: ?{|
     +client_friends_connection_field: ?string,
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|

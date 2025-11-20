@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ac62b955afdbd47a32c1c8e6bb5ba5d9>>
+ * @generated SignedSource<<f058af0bb693d259e91abada0a8f9b52>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRequiredFieldsTest8Query$variables = {||};
 export type RelayReaderRequiredFieldsTest8Query$data = {|
   +me: ?{|
-    +screennames: ?$ReadOnlyArray<?{|
+    +screennames: ?ReadonlyArray<?{|
       +name: ?string,
       +service: string,
     |}>,

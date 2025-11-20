@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<701a48a755da5a935358ed06500c9b86>>
+ * @generated SignedSource<<218261eef4f20675a92eb21278f0bbd5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type RelayMockPayloadGeneratorTest64Query$variables = {||};
 export type RelayMockPayloadGeneratorTest64Query$data = {|
   +me: ?{|
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +$fragmentSpreads: RelayMockPayloadGeneratorTest64Fragment$fragmentType,
         |},

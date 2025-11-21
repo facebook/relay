@@ -19,7 +19,7 @@ export type TodoItem = {
   todoID: TodoID,
   description: string,
   isCompleted: boolean,
-  blockedBy: $ReadOnlySet<TodoID>,
+  blockedBy: ReadonlySet<TodoID>,
 };
 
 const COLLECTION_SUBSCRIBERS = {};

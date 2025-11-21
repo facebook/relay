@@ -1653,7 +1653,7 @@ class Executor<TMutation: MutationParameters> {
     return this._getPublishQueue(this._actorIdentifier);
   }
 
-  _getActorsToVisit(): $ReadOnlySet<ActorIdentifier> {
+  _getActorsToVisit(): ReadonlySet<ActorIdentifier> {
     if (this._seenActors.size === 0) {
       return new Set([this._actorIdentifier]);
     } else {

@@ -881,7 +881,7 @@ class LiveResolverCache implements ResolverCache {
 function updateCurrentSource(
   currentSource: MutableRecordSource,
   nextSource: RecordSource,
-  prevOutputTypeRecordIDs: ?$ReadOnlySet<DataID>,
+  prevOutputTypeRecordIDs: ?ReadonlySet<DataID>,
 ): DataIDSet {
   const updatedDataIDs = new Set<DataID>();
 
@@ -979,7 +979,7 @@ function markInvalidatedLinkedResolverRecords(
 
 function unsubscribeFromLiveResolverRecordsImpl(
   recordSource: RecordSource,
-  invalidatedDataIDs: $ReadOnlySet<DataID>,
+  invalidatedDataIDs: ReadonlySet<DataID>,
 ): void {
   if (invalidatedDataIDs.size === 0) {
     return;

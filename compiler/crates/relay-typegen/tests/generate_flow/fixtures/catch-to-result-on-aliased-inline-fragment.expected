@@ -12,7 +12,7 @@ export type MyFragment$data = {|
   +id: string,
   +myAlias: Result<{|
     +name: ?string,
-  |}, mixed>,
+  |}, unknown>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

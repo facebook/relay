@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<98c6563426ccf43f8cae68b86f433d24>>
+ * @generated SignedSource<<4b7a83f2bc1c4732a4d75e26ef8aac7a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: UndefinedFieldResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 export type RelayReaderResolverTest15Query$variables = {||};
 export type RelayReaderResolverTest15Query$data = {|
   +undefined_field: ?ReturnType<typeof queryUndefinedFieldResolverType>,

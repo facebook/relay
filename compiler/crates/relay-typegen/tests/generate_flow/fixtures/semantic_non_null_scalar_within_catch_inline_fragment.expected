@@ -17,7 +17,7 @@ declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
   +hello: Result<{|
     +name: string,
-  |}, mixed>,
+  |}, unknown>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

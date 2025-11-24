@@ -19,7 +19,7 @@ import type { LiveState } from "relay-runtime";
 import userPopStarNameResolverType from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(userPopStarNameResolverType: () => LiveState<?mixed>);
+(userPopStarNameResolverType: () => LiveState<?unknown>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|

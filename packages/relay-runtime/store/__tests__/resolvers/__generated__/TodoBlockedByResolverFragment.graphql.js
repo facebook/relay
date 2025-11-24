@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4fcb3d1cccf346f111ef051dc63904d5>>
+ * @generated SignedSource<<a9b3bd4b6d3e996717ddad3b0e7ddc25>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: TodoSelfResolverFragment$key,
   args: void,
   context: TestResolverContextType,
-) => LiveState<?mixed>);
+) => LiveState<?unknown>);
 declare export opaque type TodoBlockedByResolverFragment$fragmentType: FragmentType;
 export type TodoBlockedByResolverFragment$data = {|
   +self: ?ReturnType<ReturnType<typeof todoSelfResolverType>["read"]>,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d296136f6edc45b94df829a3084e8b7>>
+ * @generated SignedSource<<7851e90d0a341de0a38cf41b25d4832f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ export type usePaginationFragmentCatchTestFragment$data = {|
         +__typename: "User",
       |},
     |}>,
-  |}, mixed>,
+  |}, unknown>,
   +id: string,
   +$fragmentType: usePaginationFragmentCatchTestFragment$fragmentType,
 |};

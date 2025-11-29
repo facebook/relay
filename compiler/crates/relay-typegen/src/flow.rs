@@ -37,6 +37,7 @@ impl Writer for FlowPrinter {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
             AST::Mixed => write!(&mut self.result, "mixed"),
+            AST::Empty => write!(&mut self.result, "empty"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
@@ -571,6 +572,49 @@ mod tests {
   ...
 }"
             .to_string()
+        );
+    }
+
+    #[test]
+    fn one_of_input_object() {
+        assert_eq!(
+            print_type(&AST::Union(SortedASTList::new(vec![
+                AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        value: AST::String,
+                        read_only: false,
+                        optional: false
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        value: AST::Empty,
+                        read_only: false,
+                        optional: true
+                    })
+                ])),
+                AST::ExactObject(ExactObject::new(vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("foo"),
+                        value: AST::Empty,
+                        read_only: false,
+                        optional: true
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: intern!("bar"),
+                        value: AST::String,
+                        read_only: false,
+                        optional: false
+                    })
+                ]))
+            ]))),
+            r"{|
+  bar?: empty,
+  foo: string,
+|} | {|
+  bar: string,
+  foo?: empty,
+|}"
         );
     }
 

@@ -862,7 +862,7 @@ fn generate_provided_variables_type(
 }
 
 fn write_input_object_types(
-    input_object_types: impl Iterator<Item = (InputObjectName, ExactObject)>,
+    input_object_types: impl Iterator<Item = (InputObjectName, AST)>,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     for (type_identifier, input_object_type) in input_object_types {

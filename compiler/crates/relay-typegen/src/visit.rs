@@ -63,14 +63,17 @@ use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::TypeConditionInfo;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::relay_resolvers::ResolverSchemaGenType;
+use schema::DirectiveValue;
 use schema::EnumID;
 use schema::Field;
+use schema::InputObject;
 use schema::ObjectID;
 use schema::SDLSchema;
 use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::definitions::TypeWithDirectives;
 
 use crate::FRAGMENT_PROP_NAME;
 use crate::KEY_DATA_ID;
@@ -131,6 +134,10 @@ lazy_static! {
         DirectiveName("throwOnFieldError".intern());
     static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
         DirectiveName("semanticNonNull".intern());
+    static ref ONE_OF_DIRECTIVE: DirectiveValue = DirectiveValue {
+        name: DirectiveName("oneOf".intern()),
+        arguments: vec![]
+    };
 }
 
 pub fn is_result_type_directive(directives: &[Directive]) -> bool {
@@ -2420,36 +2427,31 @@ fn transform_non_nullable_input_type(
                     input_object_types
                         .insert(input_object.name.item, GeneratedInputObject::Pending);
 
-                    let props = ExactObject::new(
-                        input_object
-                            .fields
-                            .iter()
-                            .map(|field| {
-                                Prop::KeyValuePair(KeyValuePairProp {
-                                    key: field.name.item.0,
-                                    read_only: false,
-                                    optional: !field.type_.is_non_null()
-                                        || typegen_context
-                                            .project_config
-                                            .typegen_config
-                                            .optional_input_fields
-                                            .contains(&field.name.item.0)
-                                        || field.default_value.is_some(),
-                                    value: transform_input_type(
-                                        typegen_context,
-                                        &field.type_,
-                                        input_object_types,
-                                        encountered_enums,
-                                        custom_scalars,
-                                    ),
-                                })
-                            })
+                    let node = if input_object.directives().contains(&ONE_OF_DIRECTIVE) {
+                        AST::Union(SortedASTList::new(
+                            build_one_of_cases(
+                                typegen_context,
+                                input_object,
+                                input_object_types,
+                                encountered_enums,
+                                custom_scalars,
+                            )
+                            .map(AST::from)
                             .collect(),
-                    );
-                    input_object_types.insert(
-                        input_object.name.item,
-                        GeneratedInputObject::Resolved(props),
-                    );
+                        ))
+                    } else {
+                        build_input_object(
+                            typegen_context,
+                            input_object,
+                            input_object_types,
+                            encountered_enums,
+                            custom_scalars,
+                        )
+                        .into()
+                    };
+
+                    input_object_types
+                        .insert(input_object.name.item, GeneratedInputObject::Resolved(node));
                 }
                 AST::Identifier(input_object.name.item.0)
             }
@@ -2459,6 +2461,88 @@ fn transform_non_nullable_input_type(
         },
         TypeReference::NonNull(_) => panic!("Unexpected NonNull"),
     }
+}
+
+fn build_input_object(
+    typegen_context: &TypegenContext<'_>,
+    input_object: &InputObject,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+) -> ExactObject {
+    ExactObject::new(
+        input_object
+            .fields
+            .iter()
+            .map(|field| {
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: field.name.item.0,
+                    read_only: false,
+                    optional: !field.type_.is_non_null()
+                        || typegen_context
+                            .project_config
+                            .typegen_config
+                            .optional_input_fields
+                            .contains(&field.name.item.0)
+                        || field.default_value.is_some(),
+                    value: transform_input_type(
+                        typegen_context,
+                        &field.type_,
+                        input_object_types,
+                        encountered_enums,
+                        custom_scalars,
+                    ),
+                })
+            })
+            .collect(),
+    )
+}
+
+fn build_one_of_cases(
+    typegen_context: &TypegenContext<'_>,
+    input_object: &InputObject,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+) -> impl Iterator<Item = ExactObject> {
+    (0..input_object.fields.len())
+        .map(|present_field_idx| {
+            input_object
+                .fields
+                .iter()
+                .enumerate()
+                .map(|(idx, field)| {
+                    if idx == present_field_idx {
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: field.name.item.0,
+                            read_only: false,
+                            optional: !field.type_.is_non_null()
+                                || typegen_context
+                                    .project_config
+                                    .typegen_config
+                                    .optional_input_fields
+                                    .contains(&field.name.item.0)
+                                || field.default_value.is_some(),
+                            value: transform_input_type(
+                                typegen_context,
+                                &field.type_,
+                                input_object_types,
+                                encountered_enums,
+                                custom_scalars,
+                            ),
+                        })
+                    } else {
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: field.name.item.0,
+                            read_only: false,
+                            optional: true,
+                            value: AST::Empty,
+                        })
+                    }
+                })
+                .collect()
+        })
+        .map(ExactObject::new)
 }
 
 pub(crate) fn transform_input_type(

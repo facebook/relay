@@ -157,6 +157,11 @@ input ApplicationRequestDeleteAllInput {
   deletedRequestIds: [ID]
 }
 
+input CommentCreateBody @oneOf {
+  plain: String
+  markdown: String
+}
+
 input CommentCreateInput {
   client_mutation_id: String!
   feedbackId: ID
@@ -170,6 +175,7 @@ input CommentsCreateInput {
 
 input CommentfeedbackFeedback {
   comment: FeedbackcommentComment
+  body: CommentCreateBody
 }
 
 input FeedbackcommentComment {

@@ -39,6 +39,7 @@ use itertools::Itertools;
 use lazy_static::lazy_static;
 use relay_config::CustomType;
 use relay_config::CustomTypeImport;
+use relay_config::OneOfGeneration;
 use relay_config::ResolverContextTypeInput;
 use relay_config::TypegenLanguage;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
@@ -2427,7 +2428,10 @@ fn transform_non_nullable_input_type(
                     input_object_types
                         .insert(input_object.name.item, GeneratedInputObject::Pending);
 
-                    let node = if input_object.directives().contains(&ONE_OF_DIRECTIVE) {
+                    let node = if typegen_context.project_config.typegen_config.one_of_type
+                        == OneOfGeneration::Strict
+                        && input_object.directives().contains(&ONE_OF_DIRECTIVE)
+                    {
                         AST::Union(SortedASTList::new(
                             build_one_of_cases(
                                 typegen_context,

@@ -44,7 +44,7 @@ query TestQuery @exec_time_resolvers {
      {
       ...BestFriendResolverFragment_name @__RelayResolverMetadata
       # RelayResolverMetadata {
-      #     field_id: FieldID(527),
+      #     field_id: FieldID(528),
       #     import_path: "BestFriendResolver",
       #     import_name: None,
       #     field_alias: None,

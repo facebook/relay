@@ -44,3 +44,4 @@ pub use typegen_config::CustomTypeImport;
 pub use typegen_config::ResolverContextTypeInput;
 pub use typegen_config::TypegenConfig;
 pub use typegen_config::TypegenLanguage;
+pub use typegen_config::OneOfGeneration;

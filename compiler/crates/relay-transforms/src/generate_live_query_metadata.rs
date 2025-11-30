@@ -175,7 +175,7 @@ fn has_live_directive(selections: &[Selection]) -> bool {
                 is_live_selection(selection) || has_live_directive(&linked_field.selections)
             }
             Selection::ScalarField(_) => false,
-            Selection::Condition(_) => false,
+            Selection::Condition(condition) => has_live_directive(&condition.selections),
         }
     })
 }

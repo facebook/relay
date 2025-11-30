@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0794561cff1453f31703ce695e38c6b2>>
+ * @generated SignedSource<<44228f7ea236c3c31d4c1edb876b1d17>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
   rootKey: ClientEdgeToClientObjectTestClientRootFragment$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type ClientEdgeToClientObjectTestClientRootNameFragment$fragmentType: FragmentType;
 export type ClientEdgeToClientObjectTestClientRootNameFragment$data = {|
   +self: ?ReturnType<typeof clientAccountSelfResolverType>,

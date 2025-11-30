@@ -36,7 +36,7 @@ impl Writer for FlowPrinter {
     fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
-            AST::Mixed => write!(&mut self.result, "mixed"),
+            AST::Mixed => write!(&mut self.result, "unknown"),
             AST::Empty => write!(&mut self.result, "empty"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),

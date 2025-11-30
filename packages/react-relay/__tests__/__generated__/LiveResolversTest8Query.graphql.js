@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d6c14f61090bb9548bed957397de1ca>>
+ * @generated SignedSource<<5192dbe0183e27e868a93f398ae4631b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   rootKey: ResolverThatThrows$key,
   args: void,
   context: TestResolverContextType,
-) => LiveState<?mixed>);
+) => LiveState<?unknown>);
 export type LiveResolversTest8Query$variables = {|
   id: string,
 |};

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4bcb30a7af2240162fed8d60f1519a96>>
+ * @generated SignedSource<<bd1b9d3f7e8fa03407042331198d1a35>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 (queryLiveResolverThrowsResolverType: (
   args: void,
   context: TestResolverContextType,
-) => LiveState<?mixed>);
+) => LiveState<?unknown>);
 export type LiveResolversTest18Query$variables = {||};
 export type LiveResolversTest18Query$data = {|
   +live_resolver_throws: ?ReturnType<ReturnType<typeof queryLiveResolverThrowsResolverType>["read"]>,

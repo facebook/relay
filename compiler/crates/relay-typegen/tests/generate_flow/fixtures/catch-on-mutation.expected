@@ -15,7 +15,7 @@ export type MutationFoo$data = Result<{|
       +name: ?string,
     |},
   |},
-|}, mixed>;
+|}, unknown>;
 export type MutationFoo = {|
   response: MutationFoo$data,
   variables: MutationFoo$variables,

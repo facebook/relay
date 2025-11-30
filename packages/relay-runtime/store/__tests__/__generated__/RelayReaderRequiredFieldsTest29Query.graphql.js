@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9c56d5cc14302b306bbb11420772888b>>
+ * @generated SignedSource<<9dcb393db8a3a7adfa8202c9ed3e6614>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,7 +36,7 @@ export type RelayReaderRequiredFieldsTest29Query$data = {|
     +client_object: {|
       +description: ?string,
     |},
-  |}, mixed>,
+  |}, unknown>,
 |};
 export type RelayReaderRequiredFieldsTest29Query = {|
   response: RelayReaderRequiredFieldsTest29Query$data,

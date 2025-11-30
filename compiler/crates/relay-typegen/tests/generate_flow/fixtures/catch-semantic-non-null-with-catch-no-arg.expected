@@ -12,7 +12,7 @@ type ClientUser {
 import type { FragmentType, Result } from "relay-runtime";
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
-  +name: Result<string, mixed>,
+  +name: Result<string, unknown>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

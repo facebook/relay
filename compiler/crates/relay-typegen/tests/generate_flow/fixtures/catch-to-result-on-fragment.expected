@@ -10,7 +10,7 @@ export type MyFragment$data = Result<{|
   +id: string,
   +name: ?string,
   +$fragmentType: MyFragment$fragmentType,
-|}, mixed>;
+|}, unknown>;
 export type MyFragment$key = {
   +$data?: MyFragment$data,
   +$fragmentSpreads: MyFragment$fragmentType,

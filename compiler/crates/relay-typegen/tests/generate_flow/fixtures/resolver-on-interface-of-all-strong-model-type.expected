@@ -30,7 +30,7 @@ import catDescriptionResolverType from "CatResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (catDescriptionResolverType: (
   model: Persian____relay_model_instance$data['__relay_model_instance'] | Tabby____relay_model_instance$data['__relay_model_instance'],
-) => ?mixed);
+) => ?unknown);
 declare export opaque type resolverOnInterfaceOfAllStrongModelTypeFragment$fragmentType: FragmentType;
 export type resolverOnInterfaceOfAllStrongModelTypeFragment$data = {|
   +description: ?ReturnType<typeof catDescriptionResolverType>,

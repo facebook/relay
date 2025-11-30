@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<97fc88cd2d126da773e4c2bd76e0727a>>
+ * @generated SignedSource<<8210e320f3b8235f4c53c47b99d77303>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQ
   +me: ?{|
     +myAlias: Result<{|
       +firstName: ?string,
-    |}, mixed>,
+    |}, unknown>,
   |},
 |};
 export type RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery = {|

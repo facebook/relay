@@ -139,7 +139,7 @@ intern = { path = "../intern" }
 itertools = "0.14.0"
 lazy_static = "1.5"
 parking_lot = { version = "0.12.1", features = ["send_guard"] }
-regex = "1.11.1"
+regex = "1.12.2"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 rustc-hash = "2.1.1"

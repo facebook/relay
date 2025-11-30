@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e2ef33ef8694a0681978a18481821aa6>>
+ * @generated SignedSource<<4bc234d8b502f436f97c5668aaef6281>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ export type RelayReaderRelayErrorHandlingTest3Query$data = {|
     +profilePicture: ?{|
       +uri: ?string,
     |},
-  |}, mixed>,
+  |}, unknown>,
 |};
 export type RelayReaderRelayErrorHandlingTest3Query = {|
   response: RelayReaderRelayErrorHandlingTest3Query$data,

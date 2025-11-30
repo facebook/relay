@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7db213731e62264ffcc4fb94d3948078>>
+ * @generated SignedSource<<c95f68cf864ac2e828cc3a1588a43726>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   id: SpecialUser__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type SpecialUser____relay_model_instance$fragmentType: FragmentType;
 export type SpecialUser____relay_model_instance$data = {|
   +__relay_model_instance: NonNullable<ReturnType<typeof specialUserRelayModelInstanceResolverType>>,

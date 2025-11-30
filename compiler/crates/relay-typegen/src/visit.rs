@@ -2516,14 +2516,8 @@ fn build_one_of_cases(
                         Prop::KeyValuePair(KeyValuePairProp {
                             key: field.name.item.0,
                             read_only: false,
-                            optional: !field.type_.is_non_null()
-                                || typegen_context
-                                    .project_config
-                                    .typegen_config
-                                    .optional_input_fields
-                                    .contains(&field.name.item.0)
-                                || field.default_value.is_some(),
-                            value: transform_input_type(
+                            optional: false,
+                            value: transform_non_nullable_input_type(
                                 typegen_context,
                                 &field.type_,
                                 input_object_types,

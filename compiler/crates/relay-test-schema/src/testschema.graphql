@@ -136,6 +136,7 @@ type Mutation {
   ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
   setName(name: String!): User
+  setCommentBody(commentID: ID!, body: CommentBodyInput): Comment
 }
 
 type Subscription {
@@ -157,7 +158,7 @@ input ApplicationRequestDeleteAllInput {
   deletedRequestIds: [ID]
 }
 
-input CommentCreateBody @oneOf {
+input CommentBodyInput @oneOf {
   plain: String
   markdown: String
 }
@@ -175,7 +176,6 @@ input CommentsCreateInput {
 
 input CommentfeedbackFeedback {
   comment: FeedbackcommentComment
-  body: CommentCreateBody
 }
 
 input FeedbackcommentComment {

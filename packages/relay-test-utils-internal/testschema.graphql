@@ -155,11 +155,6 @@ input ApplicationRequestDeleteAllInput {
   deletedRequestIds: [ID]
 }
 
-input CommentCreateBody @oneOf {
-  plain: String
-  markdown: String
-}
-
 input CommentCreateInput {
   feedbackId: ID
   feedback: CommentfeedbackFeedback
@@ -172,7 +167,6 @@ input CommentsCreateInput {
 
 input CommentfeedbackFeedback {
   comment: FeedbackcommentComment
-  body: CommentCreateBody
 }
 
 input FeedbackcommentComment {

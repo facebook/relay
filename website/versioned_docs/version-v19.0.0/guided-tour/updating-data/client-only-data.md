@@ -9,7 +9,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbClientOnlyDataDir from './fb/FbClientOnlyDataDir.md';
 
 ## Client-Only Data (Client Schema Extensions)
 
@@ -17,14 +16,7 @@ Relay provides the ability to extend the GraphQL schema *on the client* (i.e. in
 
 Client schema extensions allows you to modify existing types on the schema (e.g. by adding new fields to a type), or to create entirely new types that only exist in the client.
 
-
 ### Extending Existing Types
-
-<FbInternalOnly>
-
-In order to extend an existing type, add a `.graphql` file to the appropriate schema extension directory (depending on the repo):
-
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -32,18 +24,11 @@ In order to extend an existing type, add a `.graphql` file to your appropriate s
 
 </OssOnly>
 
-
 ```graphql
 extend type Comment {
   is_new_comment: Boolean
 }
 ```
-
-<FbInternalOnly>
-
-  <FbClientOnlyDataDir />
-
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -55,7 +40,6 @@ extend type Comment {
 
 You can define types using the same regular GraphQL syntax, by defining it inside a `.graphql` file in  `html/js/relay/schema/`:
 
-
 ```graphql
 # You can define more than one type in a single file
 enum FetchStatus {
@@ -63,7 +47,6 @@ enum FetchStatus {
   PENDING
   ERRORED
 }
-
 
 type FetchState {
   # You can reuse client types to define other types
@@ -81,8 +64,6 @@ extend type Item {
 
 * In this contrived example, we're defining 2 new client-only types, and `enum` and a regular `type`. Note that they can reference themselves as normal, and reference regular server defined types. Also note that we can extend server types and add fields that are of our client-only types.
 * As mentioned previously, we will be able to [read](#reading-client-only-data) and [update](#updating-client-only-data) this data normally via Relay APIs.
-
-
 
 ### Reading Client-Only Data
 
@@ -105,11 +86,8 @@ const data = *useFragment*(
 );
 ```
 
-
-
 ### Updating Client-Only Data
 
 In order to update client-only data, you can do so regularly inside [mutation](../graphql-mutations/) or [subscription](../graphql-subscriptions/) updaters, or by using our primitives for doing [local updates](../local-data-updates/) to the store.
-
 
 <DocsRating />

@@ -11,9 +11,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbErrorBoundary from './fb/FbErrorBoundary.md';
-
-<FbErrorBoundary />
 
 As you may have noticed, we mentioned that using `usePreloadedQuery` will render data from a query that was (or is) being fetched from the server, but we didn't elaborate on how to render UI to show an error if an error occurred during fetch. We will cover that in this section.
 

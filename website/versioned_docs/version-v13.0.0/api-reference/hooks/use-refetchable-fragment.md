@@ -10,16 +10,10 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbUseRefetchableFragmentApiReferenceCodeExample from './fb/FbUseRefetchableFragmentApiReferenceCodeExample.md';
-import FbUseRefetchableFragmentReturnValue from './fb/FbUseRefetchableFragmentReturnValue.md';
 
 ## `useRefetchableFragment`
 
 You can use `useRefetchableFragment` when you want to fetch and re-render a fragment with different data:
-
-<FbInternalOnly>
-  <FbUseRefetchableFragmentApiReferenceCodeExample />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -81,10 +75,6 @@ module.exports = CommentBody;
 * `TFragmentRef`: Type parameter corresponds to the type of the fragment reference argument (i.e. `<fragment_name>$key`). This type usually does not need to be explicitly specified, and can be passed as `_` to let Flow infer the concrete type.
 
 ### Return Value
-
-<FbInternalOnly>
-  <FbUseRefetchableFragmentReturnValue />
-</FbInternalOnly>
 
 <OssOnly>
 

@@ -10,16 +10,10 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbUseRefetchableFragmentApiReferenceCodeExample from './fb/FbUseRefetchableFragmentApiReferenceCodeExample.md';
-import FbUseRefetchableFragmentReturnValue from './fb/FbUseRefetchableFragmentReturnValue.md';
 
 ## `useRefetchableFragment`
 
 You can use `useRefetchableFragment` when you want to fetch and re-render a fragment with different data:
-
-<FbInternalOnly>
-  <FbUseRefetchableFragmentApiReferenceCodeExample />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -75,10 +69,6 @@ module.exports = CommentBody;
     * The type of the fragment reference can be imported from the generated Flow types, from the file `<fragment_name>.graphql.js`, and can be used to declare the type of your `Props`. The name of the fragment reference type will be: `<fragment_name>$key`. We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared.
 
 ### Return Value
-
-<FbInternalOnly>
-  <FbUseRefetchableFragmentReturnValue />
-</FbInternalOnly>
 
 <OssOnly>
 

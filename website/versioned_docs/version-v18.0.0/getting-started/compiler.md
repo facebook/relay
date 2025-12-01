@@ -9,9 +9,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRunningCompiler from '../guides/fb/FbRunningCompiler.md';
-import FbGraphQLSchema from '../guides/fb/FbGraphQLSchema.md';
-import FbImportingGeneratedDefinitions from '../guides/fb/FbImportingGeneratedDefinitions.md';
 
 ## `graphql`
 
@@ -32,7 +29,6 @@ graphql`
 The result of using the `graphql` template tag is a `GraphQLTaggedNode`; a runtime representation of the GraphQL document.
 
 Note that `graphql` template tags are **never executed at runtime**. Instead, they are compiled ahead of time by the Relay compiler into generated artifacts that live alongside your source code, and which Relay requires to operate at runtime.
-
 
 ## Compiler
 
@@ -55,10 +51,6 @@ and [Flow types](https://flow.org/) to help you write type-safe code.
 The Relay Compiler is responsible for generating code as part of a build step which can then be referenced at runtime. By building the query ahead of time, the Relay's runtime is not responsible for generating a query string, and various optimizations can be performed on the query that could be too expensive at runtime (for example, fields that are duplicated in the query can be merged during the build step, to improve efficiency of processing the GraphQL response).
 
 ### GraphQL Schema
-
-<FbInternalOnly>
-  <FbGraphQLSchema />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -87,10 +79,6 @@ type WordDefinition {
 </OssOnly>
 
 ### Running the Compiler
-
-<FbInternalOnly>
-  <FbRunningCompiler />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -142,13 +130,7 @@ This would produce three generated files, and two `__generated__` directories:
 
 </OssOnly>
 
-
 ### Importing generated definitions
-
-<FbInternalOnly>
-  <FbImportingGeneratedDefinitions />
-
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -167,6 +149,5 @@ import DictionaryComponent_word from './__generated__/DictionaryComponent_word.g
 ```
 
 </OssOnly>
-
 
 <DocsRating />

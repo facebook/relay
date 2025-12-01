@@ -10,8 +10,6 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import FbSuspenseListAlternative from './fb/FbSuspenseListAlternative.md';
-import FbRenderingConnectionsUsingSuspenseList from './fb/FbRenderingConnectionsUsingSuspenseList.md';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In Relay, in order to display a list of data that is backed by a GraphQL connection, first you need to declare a fragment that queries for a connection:
@@ -40,10 +38,6 @@ const userFragment = graphql`
 
 
 In order to render this fragment which queries for a connection, we can use the `usePaginationFragment` Hook:
-
-<FbInternalOnly>
-  <FbRenderingConnectionsUsingSuspenseList />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -101,7 +95,6 @@ function FriendsListComponent(props: Props) {
 
 module.exports = FriendsListComponent;
 ```
-<FbSuspenseListAlternative />
 
 * `usePaginationFragment` behaves the same way as a `useFragment` (see the [Fragments](../../rendering/fragments/) section), so our list of friends is available under `data.friends.edges.node`, as declared by the fragment. However, it also has a few additions:
     * It expects a fragment that is a connection field annotated with the `@connection` directive

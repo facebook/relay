@@ -12,7 +12,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRefetchingConnectionsUsingUseTransition from './fb/FbRefetchingConnectionsUsingUseTransition.md';
 
 Often times when querying for a list of data, you can provide different values in the query which serve as filters that change the result set, or sort it differently.
 
@@ -21,7 +20,6 @@ Some examples of this are:
 * Building a search typeahead, where the list of results is a list filtered by the search term entered by the user.
 * Changing the ordering mode of the list comments currently displayed for a post, which could produce a completely different set of comments from the server.
 * Changing the way News Feed is ranked and sorted.
-
 
 Specifically, in GraphQL, connection fields can accept arguments to sort or filter the set of queried results:
 
@@ -38,7 +36,6 @@ fragment UserFragment on User {
   }
 }
 ```
-
 
 In Relay, we can pass those arguments as usual using GraphQL [variables](../../rendering/variables/)
 
@@ -75,7 +72,6 @@ function FriendsListComponent(props: Props) {
   return (...);
 }
 ```
-
 
 When paginating, the original values for those filters will be preserved:
 
@@ -123,10 +119,6 @@ function FriendsListComponent(props: Props) {
 
 If we want to refetch the connection with *different* variables, we can use the `refetch` function provided by `usePaginationFragment`, similarly to how we do so when [Refetching Fragments with Different Data](../../refetching/refetching-fragments-with-different-data/):
 
-<FbInternalOnly>
-  <FbRefetchingConnectionsUsingUseTransition />
-</FbInternalOnly>
-
 <OssOnly>
 
 ```js
@@ -139,7 +131,6 @@ const React = require('React');
 const {useState, useEffect} = require('React');
 
 const {graphql, usePaginationFragment} = require('react-relay');
-
 
 type Props = {
   searchTerm?: string,
@@ -203,8 +194,5 @@ Let's distill what's going on here:
 * Conceptually, when we call refetch, we're fetching the connection *from scratch*. It other words, we're fetching it again from the *beginning* and *"resetting"* our pagination state. For example, if we fetch the connection with a different `search_term`, our pagination information for the previous `search_term` no longer makes sense, since we're essentially paginating over a new list of items.
 
 </OssOnly>
-
-
-
 
 <DocsRating />

@@ -10,9 +10,7 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRefetchingQueriesUsingUseQueryLoader from './fb/FbRefetchingQueriesUsingUseQueryLoader.md';
-import FbRefetchingQueriesUsingUseLazyLoadQuery from './fb/FbRefetchingQueriesUsingUseLazyLoadQuery.md';
-import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
+
 import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
 When referring to **"refetching a query"**, we mean fetching the query again for *different* data than was originally rendered by the query. For example, this might be to change a currently selected item, to render a different list of items than the one being shown, or more generally to transition the currently rendered content to show new or different content.
@@ -20,10 +18,6 @@ When referring to **"refetching a query"**, we mean fetching the query again for
 ## When using `useQueryLoader` / `loadQuery`
 
 Similarly to [Refreshing Queries with `useQueryLoader`](../refreshing-queries/#when-using-usequeryloader--loadquery), we can also use the `useQueryLoader` Hook described in our [Fetching Queries for Render](../../rendering/queries/#fetching-queries-for-render) section, but this time passing *different query variables*:
-
-<FbInternalOnly>
-  <FbRefetchingQueriesUsingUseQueryLoader />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -101,14 +95,9 @@ Let's distill what's going on here:
 
 </OssOnly>
 
-
 ### If you need to avoid Suspense
 
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
-
-<FbInternalOnly>
-  <FbAvoidSuspenseCaution />
-</FbInternalOnly>
 
 <OssOnly>
   <OssAvoidSuspenseNote />
@@ -178,10 +167,6 @@ Let's distill what's going on here:
 ## When using `useLazyLoadQuery`
 
 Similarly to [Refreshing Queries with `useLazyLoadQuery`](../refreshing-queries/#when-using-uselazyloadquery), we can also use the [`useLazyLoadQuery`](../../../api-reference/use-lazy-load-query/) Hook described in our [Lazily Fetching Queries during Render](../../rendering/queries/#lazily-fetching-queries-during-render) section, but this time passing *different query variables*:
-
-<FbInternalOnly>
-  <FbRefetchingQueriesUsingUseLazyLoadQuery />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -267,16 +252,11 @@ Let's distill what's going on here:
 * We are not passing a new `fetchPolicy` to `useLazyLoadQuery`, meaning that it will use the default value of `'store-or-network'`. We could provide a different policy in order to specify whether to use locally cached data (as we covered in [Reusing Cached Data For Render](../../reusing-cached-data/)).
 * The state update in `refetch` will re-render the component and may cause the component to suspend (as explained in [Loading States with Suspense](../../rendering/loading-states/)). This means that we'll need to make sure that there's a `Suspense` boundary wrapping the `MainContent` component, in order to show a fallback loading state.
 
-
 </OssOnly>
 
 ### If you need to avoid Suspense
 
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
-
-<FbInternalOnly>
-  <FbAvoidSuspenseCaution />
-</FbInternalOnly>
 
 <OssOnly>
   <OssAvoidSuspenseNote />
@@ -348,6 +328,5 @@ Let's distill what's going on here:
 * When refetching, we now keep track of our own `isRefetching` loading state, since we are avoiding suspending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
 * In the event handler, we first call `fetchQuery`, which will fetch the query and write the data to the local Relay store. When the `fetchQuery` network request completes, we update our state so that we re-render an updated `fetchKey` and `fetchPolicy` that we then pass to `useLazyLoadQuery` in order render the updated data, similar to the previous example.
 * At this point, when we update the state, the data for the query should already be cached in the local Relay store, so we use `fetchPolicy` of `'store-only'` to avoid suspending and only read the already cached data.
-
 
 <DocsRating />

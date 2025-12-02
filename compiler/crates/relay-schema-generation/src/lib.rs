@@ -1077,7 +1077,7 @@ fn return_type_to_type_annotation(
                 Some(type_parameters) if type_parameters.params.len() == 1 => {
                     let identifier_name = identifier.item.lookup();
                     match identifier_name {
-                        "Array" | "$ReadOnlyArray" => {
+                        "Array" | "$ReadOnlyArray" | "ReadonlyArray" => {
                             let param = &type_parameters.params[0];
                             let (type_annotation, inner_semantic_non_null_levels) =
                                 return_type_to_type_annotation(

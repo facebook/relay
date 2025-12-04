@@ -402,6 +402,7 @@ class RelayModernStore implements Store {
     const snapshot = RelayReader.read(
       source,
       selector,
+      log,
       this._resolverCache,
       this._resolverContext,
     );

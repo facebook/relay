@@ -149,6 +149,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -184,6 +185,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -283,6 +285,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -319,6 +322,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -360,6 +364,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -399,7 +404,12 @@ describe('RelayReader Client Edges behavior', () => {
     const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = FRAGMENT_SPREAD_WITHIN_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data: parentData} = read(source, operation.fragment, resolverCache);
+    const {data: parentData} = read(
+      source,
+      operation.fragment,
+      null,
+      resolverCache,
+    );
     const {data, seenRecords, missingClientEdges} = read(
       source,
       nullthrows(
@@ -409,6 +419,7 @@ describe('RelayReader Client Edges behavior', () => {
           nullthrows((parentData as any).me.client_edge),
         ),
       ),
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -445,6 +456,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -498,6 +510,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -548,6 +561,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     expect(missingClientEdges).toEqual([
@@ -565,6 +579,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {missingClientEdges: stillMissingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     expect(stillMissingClientEdges).toEqual([

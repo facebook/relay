@@ -101,6 +101,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       const backup = RelayReader.read(
         source,
         snapshot.selector,
+        this.__log,
         this._resolverCache,
         this._resolverContext,
       );
@@ -212,6 +213,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         ? RelayReader.read(
             source,
             snapshot.selector,
+            this.__log,
             this._resolverCache,
             this._resolverContext,
           )

@@ -115,7 +115,7 @@ describe('RelayReader', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1', size: 32});
-    const {data, seenRecords} = read(source, operation.fragment);
+    const {data, seenRecords} = read(source, operation.fragment, null);
     expect(data).toEqual({
       node: {
         id: '1',

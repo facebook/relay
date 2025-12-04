@@ -59,7 +59,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       me: {
@@ -103,7 +103,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       me: {
@@ -153,7 +153,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -201,7 +201,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -255,7 +255,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       me: {
@@ -295,7 +295,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       me: {
@@ -358,7 +358,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -523,7 +523,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       RelayReaderAliasedFragmentsTest_query: {
@@ -563,7 +563,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -610,7 +610,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -655,7 +655,7 @@ describe('Fragment Spreads', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(true);
     expect(data).toEqual({
       node: {
@@ -696,7 +696,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       me: {
@@ -737,7 +737,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       aliased_fragment: {
@@ -778,7 +778,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       me: {
@@ -818,7 +818,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -860,7 +860,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -905,7 +905,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const snapshot = read(source, operation.fragment);
+    const snapshot = read(source, operation.fragment, null);
     const {data, isMissingData, fieldErrors} = snapshot;
     expect(fieldErrors).toBe(null);
     expect(isMissingData).toBe(false);
@@ -953,7 +953,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(true);
     expect(data).toEqual({
       node: {
@@ -993,7 +993,7 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {
@@ -1035,7 +1035,11 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, fieldErrors} = read(source, operation.fragment);
+    const {data, isMissingData, fieldErrors} = read(
+      source,
+      operation.fragment,
+      null,
+    );
     expect(fieldErrors).toEqual([
       {
         fieldPath: 'node.aliased_fragment.name',
@@ -1092,7 +1096,11 @@ describe('Inline Fragments', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, isMissingData, fieldErrors} = read(source, operation.fragment);
+    const {data, isMissingData, fieldErrors} = read(
+      source,
+      operation.fragment,
+      null,
+    );
     expect(fieldErrors).toEqual([
       {
         fieldPath: 'node.aliased_fragment.<abstract-type-hint>',
@@ -1379,7 +1387,7 @@ describe('Inline Fragments', () => {
       const operation = createOperationDescriptor(FooQuery, {
         id: '1',
       });
-      const data = read(source, operation.fragment).data;
+      const data = read(source, operation.fragment, null).data;
       expect(data).toEqual({
         node: {
           a_common_alias: aliasA(operation),
@@ -1440,7 +1448,7 @@ describe('Inline Fragments', () => {
       shouldSkip: false,
       shouldDefer: true,
     });
-    const {data, isMissingData} = read(source, operation.fragment);
+    const {data, isMissingData} = read(source, operation.fragment, null);
     expect(isMissingData).toBe(false);
     expect(data).toEqual({
       node: {

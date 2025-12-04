@@ -777,6 +777,17 @@ export type StoreNotifySubscriptionLogEvent = {
   +nextSnapshot: Snapshot,
 };
 
+export type ReaderReadFragmentSpread = {
+  +name: 'reader.fragmentSpread',
+  fragmentName: string,
+  data: SelectorData,
+};
+
+export type ReaderRead = {
+  name: 'reader.read',
+  selector: SingularReaderSelector,
+};
+
 export type EntrypointRootConsumeLogEvent = {
   +name: 'entrypoint.root.consume',
   +profilerContext: mixed,
@@ -855,7 +866,9 @@ export type LogEvent =
   | LiveResolverBatchStartLogEvent
   | LiveResolverBatchEndLogEvent
   | UseFragmentSubscriptionMissedUpdates
-  | FetchQueryFetchLogEvent;
+  | FetchQueryFetchLogEvent
+  | ReaderRead
+  | ReaderReadFragmentSpread;
 
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;

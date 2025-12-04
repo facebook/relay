@@ -50,7 +50,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: null});
   });
 
@@ -85,7 +85,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: {requiredFields: null}});
   });
 
@@ -120,7 +120,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: {requiredFields: null}});
   });
 
@@ -146,7 +146,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual(null);
     expect(fieldErrors[0].fieldPath).toBe('me.lastName');
   });
@@ -175,7 +175,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: null});
   });
 
@@ -208,7 +208,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: {backgroundImage: null}});
     expect(data).toMatchInlineSnapshot(`
       Object {
@@ -248,7 +248,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: null});
   });
 
@@ -274,7 +274,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toBeNull();
   });
 
@@ -318,7 +318,7 @@ describe('RelayReader @required', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         screennames: [{name: 'neo', service: 'IRC'}, null],
@@ -349,7 +349,7 @@ describe('RelayReader @required', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: null});
   });
 
@@ -392,7 +392,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         screennames: [{name: 'neo', service: 'IRC'}, null],
@@ -424,7 +424,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({viewer: null});
   });
 
@@ -453,7 +453,7 @@ describe('RelayReader @required', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({maybeNodeInterface: null});
   });
 
@@ -484,7 +484,7 @@ describe('RelayReader @required', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({maybeNodeInterface: {name: 'I am not a node'}});
   });
 
@@ -514,7 +514,7 @@ describe('RelayReader @required', () => {
       id: '1',
       skip: false,
     });
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: null});
   });
 
@@ -544,7 +544,7 @@ describe('RelayReader @required', () => {
       id: '1',
       include: true,
     });
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: null});
   });
 
@@ -576,7 +576,7 @@ describe('RelayReader @required', () => {
       id: '1',
       include: false,
     });
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: {name: 'Zucc'}});
   });
 
@@ -608,7 +608,7 @@ describe('RelayReader @required', () => {
       id: '1',
       skip: true,
     });
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: {name: 'Zucc'}});
   });
 
@@ -637,7 +637,7 @@ describe('RelayReader @required', () => {
     const operation = createOperationDescriptor(FooQuery, {
       id: '1',
     });
-    const {data} = read(source, operation.fragment);
+    const {data} = read(source, operation.fragment, null);
     expect(data).toEqual({me: null});
   });
 
@@ -781,7 +781,7 @@ describe('RelayReader @required', () => {
       }
     `;
     const operation = createOperationDescriptor(UserQuery, {});
-    const {data: queryData} = read(source, operation.fragment);
+    const {data: queryData} = read(source, operation.fragment, null);
 
     expect(queryData).toMatchObject({me: {firstName: 'Alice'}});
 
@@ -899,6 +899,7 @@ describe('RelayReader @required', () => {
         const {data, fieldErrors} = read(
           source,
           operation.fragment,
+          null,
           resolverCache,
         );
         expect(data).toEqual({
@@ -949,7 +950,12 @@ describe('RelayReader @required', () => {
       const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const {fieldErrors} = read(source, operation.fragment, resolverCache);
+      const {fieldErrors} = read(
+        source,
+        operation.fragment,
+        null,
+        resolverCache,
+      );
       expect(fieldErrors).toEqual([
         {
           fieldPath: 'me.client_object',
@@ -994,6 +1000,7 @@ describe('RelayReader @required', () => {
       const {data, fieldErrors} = read(
         source,
         operation.fragment,
+        null,
         resolverCache,
       );
       expect(data).toEqual({me: {astrological_sign: {name: 'Pisces'}}});
@@ -1027,6 +1034,7 @@ describe('RelayReader @required', () => {
       const {data, fieldErrors} = read(
         source,
         operation.fragment,
+        null,
         resolverCache,
       );
       expect(data.all_astrological_signs.length).toBe(12);
@@ -1052,7 +1060,7 @@ describe('RelayReader @required', () => {
       const store = new RelayModernStore(source);
       const operation = createOperationDescriptor(FooQuery, {});
       const resolverCache = new LiveResolverCache(() => source, store);
-      const snapshot = read(source, operation.fragment, resolverCache);
+      const snapshot = read(source, operation.fragment, null, resolverCache);
       expect(snapshot.fieldErrors).toEqual(null);
       expect(snapshot.missingLiveResolverFields).toEqual([
         `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}live_user_resolver_always_suspend`,

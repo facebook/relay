@@ -79,7 +79,12 @@ it('returns the result of the resolver function', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
 
-  const {data, seenRecords} = read(source, operation.fragment, resolverCache);
+  const {data, seenRecords} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
 
   // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
   const {me}: any = data;
@@ -126,7 +131,7 @@ it('are passed field arguments', () => {
     salutation: 'Dynamic Greeting',
   });
 
-  const {data} = read(source, operation.fragment, resolverCache);
+  const {data} = read(source, operation.fragment, null, resolverCache);
 
   // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
   const {me}: any = data;
@@ -141,6 +146,7 @@ it('are passed field arguments', () => {
   const {data: dataWithNewVariables} = read(
     source,
     operationWithNewVariables.fragment,
+    null,
     resolverCache,
   );
 
@@ -453,7 +459,7 @@ it('works when the field is aliased', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
 
-  const {data} = read(source, operation.fragment, resolverCache);
+  const {data} = read(source, operation.fragment, null, resolverCache);
 
   // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
   const {me}: any = data;
@@ -1006,7 +1012,7 @@ it('Bubbles null when @required', () => {
 
   const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-  const {data} = read(source, operation.fragment, resolverCache);
+  const {data} = read(source, operation.fragment, null, resolverCache);
 
   // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
   const {me}: any = data;
@@ -1040,7 +1046,12 @@ it('Returns null and includes errors when the resolver throws', () => {
 
   const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-  const {data, fieldErrors} = read(source, operation.fragment, resolverCache);
+  const {data, fieldErrors} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
 
   expect(data).toEqual({me: {always_throws: null}}); // Resolver result
   expect(fieldErrors).toMatchInlineSnapshot(`
@@ -1061,6 +1072,7 @@ it('Returns null and includes errors when the resolver throws', () => {
   const {data: data2, fieldErrors: relayResolverErrors2} = read(
     source,
     operation.fragment,
+    null,
     resolverCache,
   );
 
@@ -1106,7 +1118,12 @@ it('Returns null and includes errors when a transitive resolver throws', () => {
 
   const operation = createOperationDescriptor(FooQuery, {id: '1'});
 
-  const {data, fieldErrors} = read(source, operation.fragment, resolverCache);
+  const {data, fieldErrors} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
 
   expect(data).toEqual({me: {always_throws_transitively: null}}); // Resolver result
   expect(fieldErrors).toMatchInlineSnapshot(`
@@ -1127,6 +1144,7 @@ it('Returns null and includes errors when a transitive resolver throws', () => {
   const {data: data2, fieldErrors: relayResolverErrors2} = read(
     source,
     operation.fragment,
+    null,
     resolverCache,
   );
 
@@ -1166,7 +1184,12 @@ it('Catches errors thrown before calling readFragment', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
 
-  const {data, fieldErrors} = read(source, operation.fragment, resolverCache);
+  const {data, fieldErrors} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
 
   expect(data).toEqual({throw_before_read: null}); // Resolver result
   expect(fieldErrors).toMatchInlineSnapshot(`
@@ -1206,7 +1229,12 @@ it('can return `undefined` without reporting missing data', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
 
-  const {data, isMissingData} = read(source, operation.fragment, resolverCache);
+  const {data, isMissingData} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
 
   expect(isMissingData).toBe(false);
 
@@ -1251,7 +1279,12 @@ it('return value for a field with arguments', () => {
     scale: 1.5,
   });
 
-  const {data, isMissingData} = read(source, operation.fragment, resolverCache);
+  const {data, isMissingData} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
   expect(isMissingData).toBe(false);
 
   const {
@@ -1294,7 +1327,12 @@ it('return value for a field with arguments and default value', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
 
-  const {data, isMissingData} = read(source, operation.fragment, resolverCache);
+  const {data, isMissingData} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
   expect(isMissingData).toBe(false);
 
   const {
@@ -1339,7 +1377,12 @@ it('return value for a field with literal argument', () => {
 
   const operation = createOperationDescriptor(FooQuery, {});
 
-  const {data, isMissingData} = read(source, operation.fragment, resolverCache);
+  const {data, isMissingData} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
 
   expect(isMissingData).toBe(false);
 
@@ -1396,7 +1439,12 @@ it('return value for a field with literal argument and variable', () => {
     scale: 1.5,
   });
 
-  const {data, isMissingData} = read(source, operation.fragment, resolverCache);
+  const {data, isMissingData} = read(
+    source,
+    operation.fragment,
+    null,
+    resolverCache,
+  );
 
   expect(isMissingData).toBe(false);
 
@@ -1448,7 +1496,7 @@ describe('Test arguments and their changes', () => {
     const resolverCache = new LiveResolverCache(() => source, store);
 
     let operation = createOperationDescriptor(Query, {scale: 1.5});
-    let readResult = read(source, operation.fragment, resolverCache);
+    let readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
       me: {
@@ -1457,7 +1505,7 @@ describe('Test arguments and their changes', () => {
     });
 
     operation = createOperationDescriptor(Query, {scale: 2});
-    readResult = read(source, operation.fragment, resolverCache);
+    readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
       me: {
@@ -1504,7 +1552,7 @@ describe('Test arguments and their changes', () => {
     const resolverCache = new LiveResolverCache(() => source, store);
 
     let operation = createOperationDescriptor(Query, {scale: 1.5});
-    let readResult = read(source, operation.fragment, resolverCache);
+    let readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
       me: {
@@ -1513,7 +1561,7 @@ describe('Test arguments and their changes', () => {
     });
 
     operation = createOperationDescriptor(Query, {scale: 2});
-    readResult = read(source, operation.fragment, resolverCache);
+    readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(true);
     expect(readResult.data).toEqual({
       me: {
@@ -1567,7 +1615,7 @@ describe('Test arguments and their changes', () => {
       name: 'Alice',
       scale: 1.5,
     });
-    let readResult = read(source, operation.fragment, resolverCache);
+    let readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
       me: {
@@ -1579,7 +1627,7 @@ describe('Test arguments and their changes', () => {
       name: 'Bob',
       scale: 1.5,
     });
-    readResult = read(source, operation.fragment, resolverCache);
+    readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
       me: {
@@ -1588,7 +1636,7 @@ describe('Test arguments and their changes', () => {
     });
     // Changing fragment arg
     operation = createOperationDescriptor(Query, {name: 'Bob', scale: 2});
-    readResult = read(source, operation.fragment, resolverCache);
+    readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
       me: {
@@ -1601,7 +1649,7 @@ describe('Test arguments and their changes', () => {
       name: 'Clair',
       scale: 1.5,
     });
-    readResult = read(source, operation.fragment, resolverCache);
+    readResult = read(source, operation.fragment, null, resolverCache);
     expect(readResult.isMissingData).toBe(false);
     expect(readResult.data).toEqual({
       me: {

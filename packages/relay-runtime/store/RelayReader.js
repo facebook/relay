@@ -37,6 +37,7 @@ import type {
   DataIDSet,
   FieldError,
   FieldErrors,
+  LogFunction,
   MissingClientEdgeRequestInfo,
   Record,
   RecordSource,
@@ -78,12 +79,14 @@ const invariant = require('invariant');
 function read(
   recordSource: RecordSource,
   selector: SingularReaderSelector,
+  log: ?LogFunction,
   resolverCache?: ResolverCache,
   resolverContext?: ResolverContext,
 ): Snapshot {
   const reader = new RelayReader(
     recordSource,
     selector,
+    log,
     resolverCache ?? new NoopResolverCache(),
     resolverContext,
   );
@@ -115,10 +118,15 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _fragmentName: string;
   _resolverContext: ?ResolverContext;
+  // The log function currently is only used to log fragment spread accesses for unused
+  // fragments detection, so it is not passed in from all callsites. If we decide to
+  // extend the logging, this needs to be updated.
+  _log: ?LogFunction;
 
   constructor(
     recordSource: RecordSource,
     selector: SingularReaderSelector,
+    log: ?LogFunction,
     resolverCache: ResolverCache,
     resolverContext: ?ResolverContext,
   ) {
@@ -144,6 +152,7 @@ class RelayReader {
     this._fragmentName = selector.node.name;
     this._updatedDataIDs = new Set();
     this._resolverContext = resolverContext;
+    this._log = log;
   }
 
   read(): Snapshot {
@@ -200,6 +209,14 @@ class RelayReader {
       this._resolverCache.notifyUpdatedSubscribers(this._updatedDataIDs);
       this._updatedDataIDs.clear();
     }
+
+    if (RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING) {
+      this._log?.({
+        name: 'reader.read',
+        selector: this._selector,
+      });
+    }
+
     return {
       data,
       fieldErrors: this._fieldErrors,
@@ -770,7 +787,12 @@ class RelayReader {
       snapshot = read(
         this._recordSource,
         singularReaderSelector,
+        // This reads data for a rootFragment in read time resolvers. There is no fragment
+        // spread created for it so the existing fragment spread logger can't be used to log
+        // unused rootFragments. Thus we skip passing the logger here for now.
+        null,
         this._resolverCache,
+        undefined,
       );
 
       return {
@@ -1583,12 +1605,13 @@ class RelayReader {
     if (data[ID_KEY] == null) {
       data[ID_KEY] = RelayModernRecord.getDataID(record);
     }
-    // $FlowFixMe[cannot-write] - writing into read-only field
-    fragmentPointers[fragmentSpread.name] = getArgumentValues(
+    const args = getArgumentValues(
       fragmentSpread.args,
       this._variables,
       this._isWithinUnmatchedTypeRefinement,
     );
+    // $FlowFixMe[cannot-write] - writing into read-only field
+    fragmentPointers[fragmentSpread.name] = args;
     data[FRAGMENT_OWNER_KEY] = this._owner;
 
     if (
@@ -1598,6 +1621,14 @@ class RelayReader {
       ] !== null
     ) {
       data[CLIENT_EDGE_TRAVERSAL_PATH] = [...this._clientEdgeTraversalPath];
+    }
+
+    if (RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING) {
+      this._log?.({
+        name: 'reader.fragmentSpread',
+        fragmentName: fragmentSpread.name,
+        data,
+      });
     }
   }
 

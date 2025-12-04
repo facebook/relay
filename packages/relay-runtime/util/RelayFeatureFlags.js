@@ -87,6 +87,9 @@ export type FeatureFlags = {
 
   // Reduce the work on store.notify
   OPTIMIZE_NOTIFY: boolean,
+
+  // Enable logging for reader reading fragment spreads and fragments. Useful for logging unused fragments.
+  ENABLE_READER_FRAGMENTS_LOGGING: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -118,6 +121,7 @@ const RelayFeatureFlags: FeatureFlags = {
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: false,
   FILTER_OUT_RELAY_RESOLVER_RECORDS: false,
   OPTIMIZE_NOTIFY: false,
+  ENABLE_READER_FRAGMENTS_LOGGING: false,
 };
 
 module.exports = RelayFeatureFlags;

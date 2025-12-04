@@ -100,10 +100,12 @@ function cloneEventWithSets(event: LogEvent) {
     const defaultOptimizeNotify = RelayFeatureFlags.OPTIMIZE_NOTIFY;
     beforeEach(() => {
       RelayFeatureFlags.OPTIMIZE_NOTIFY = optimizeNotify;
+      RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING = true;
     });
 
     afterEach(() => {
       RelayFeatureFlags.OPTIMIZE_NOTIFY = defaultOptimizeNotify;
+      RelayFeatureFlags.ENABLE_READER_FRAGMENTS_LOGGING = false;
     });
     describe(`Relay Store with ${ImplementationName} Record Source`, () => {
       describe('notify/publish/subscribe', () => {
@@ -720,6 +722,7 @@ function cloneEventWithSets(event: LogEvent) {
           const snapshot = store.lookup(selector);
           expect(logEvents).toMatchObject([
             {name: 'store.lookup.start'},
+            {name: 'reader.read'},
             {name: 'store.lookup.end'},
           ]);
           logEvents.length = 0;
@@ -751,6 +754,10 @@ function cloneEventWithSets(event: LogEvent) {
             },
             // callbacks occur after notify.start...
             {
+              name: 'reader.read',
+              selector,
+            },
+            {
               data: {
                 emailAddresses: ['a@b.com'],
                 name: 'Zuck',
@@ -763,6 +770,7 @@ function cloneEventWithSets(event: LogEvent) {
             {
               invalidatedRecordIDs: new Set(),
               name: 'store.notify.complete',
+              sourceOperation: undefined,
               subscriptionsSize: 1,
               updatedOwners: [owner.request],
               updatedRecordIDs: new Set(['client:1']),
@@ -791,6 +799,7 @@ function cloneEventWithSets(event: LogEvent) {
             const snapshot = store.lookup(selector);
             expect(logEvents).toMatchObject([
               {name: 'store.lookup.start'},
+              {name: 'reader.read'},
               {name: 'store.lookup.end'},
             ]);
             logEvents.length = 0;
@@ -821,6 +830,10 @@ function cloneEventWithSets(event: LogEvent) {
                 sourceOperation: owner,
               },
               // callbacks occur after notify.start...
+              {
+                name: 'reader.read',
+                selector,
+              },
               {
                 name: 'store.notify.subscription',
                 nextSnapshot: expect.objectContaining({

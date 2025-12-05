@@ -1,5 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Aliased linked fields without arguments don't overwrite each other generate mock for query with aliased linked fields 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest69Query {
+  a: me {
+    id
+    name
+  }
+  b: me {
+    id
+    emailAddresses
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "a": {
+      "id": "<User-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    },
+    "b": {
+      "id": "<User-mock-id-2>",
+      "emailAddresses": "<mock-value-for-field-\\"emailAddresses\\">"
+    }
+  }
+}
+`;
+
 exports[`Query with @no_inline fragment spread with literal argument 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest58Query {

@@ -29,6 +29,7 @@ pub use crate::from_schema::SchemaInsertDirectiveValue;
 pub use crate::from_schema::SchemaInsertField;
 pub use crate::from_schema::SchemaInsertInterface;
 pub use crate::from_schema::SetEmptyClone;
+pub use crate::from_schema::convert_schema_output_type_reference;
 pub use crate::ir_collector::UsedSchemaCollectionOptions;
 pub use crate::ir_collector::UsedSchemaIRCollector;
 pub use crate::partition_base_extensions::partition_schema_set_base_and_extensions;

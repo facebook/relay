@@ -485,6 +485,17 @@ impl SetType {
             _ => None,
         }
     }
+
+    pub fn definition_item(&self) -> Option<&SchemaDefinitionItem> {
+        match self {
+            SetType::Scalar(t) => t.definition.as_ref(),
+            SetType::Enum(t) => t.definition.as_ref(),
+            SetType::Object(t) => t.definition.as_ref(),
+            SetType::Interface(t) => t.definition.as_ref(),
+            SetType::Union(t) => t.definition.as_ref(),
+            SetType::InputObject(t) => t.definition.as_ref(),
+        }
+    }
 }
 
 impl CanHaveDirectives for SetType {

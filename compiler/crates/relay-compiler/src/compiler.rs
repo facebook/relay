@@ -374,6 +374,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         let perf_logger = Arc::clone(&perf_logger);
         let artifact_map = compiler_state
             .artifacts
+            .0
             .get(&project_name)
             .cloned()
             .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
@@ -434,6 +435,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
                 compiler_state
                     .artifacts
+                    .0
                     .insert(project_name, next_artifact_map);
                 compiler_state.schema_cache.insert(project_name, schema);
 

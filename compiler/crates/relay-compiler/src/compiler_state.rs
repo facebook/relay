@@ -299,6 +299,9 @@ pub enum ArtifactMapKind {
     Mapping(ArtifactMap),
 }
 
+#[derive(Serialize, Deserialize, Default)]
+pub struct ProjectArtifactMap(pub FnvHashMap<ProjectName, Arc<ArtifactMapKind>>);
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct CompilerState {
     pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
@@ -306,7 +309,7 @@ pub struct CompilerState {
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
     pub full_sources: FnvHashMap<ProjectName, FullSources>,
-    pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
+    pub artifacts: ProjectArtifactMap,
     #[serde(with = "clock_json_string")]
     pub clock: Option<Clock>,
     pub saved_state_version: String,
@@ -318,6 +321,62 @@ pub struct CompilerState {
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
+}
+
+impl fmt::Debug for ProjectArtifactMap {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut output = String::new();
+
+        // Sort projects by name for stable ordering
+        let mut sorted_projects: Vec<_> = self.0.iter().collect();
+        sorted_projects.sort_by_key(|(project_name, _)| project_name.to_string());
+
+        for (project_name, artifact_map_kind) in sorted_projects {
+            output.push_str(&format!("Project: {}\n", project_name));
+
+            match artifact_map_kind.as_ref() {
+                ArtifactMapKind::Unconnected(_) => {
+                    panic!("Expected artifact map to be connected once compilation is complete")
+                }
+                ArtifactMapKind::Mapping(artifact_map) => {
+                    output.push_str("  Type: Mapping\n");
+
+                    // Collect and sort all entries by source key
+                    let mut entries: Vec<_> = artifact_map.0.iter().collect();
+                    entries.sort_by(|a, b| a.key().cmp(b.key()));
+
+                    for entry in entries {
+                        let (source_key, records) = entry.pair();
+                        let source_label = match source_key {
+                            ArtifactSourceKey::ExecutableDefinition(name) => {
+                                format!("ExecutableDefinition: {}", name)
+                            }
+                            ArtifactSourceKey::ResolverHash(hash) => {
+                                format!("ResolverHash: {:?}", hash)
+                            }
+                            ArtifactSourceKey::Schema() => "Schema".to_string(),
+                        };
+
+                        output.push_str(&format!("  - Source: {}\n", source_label));
+
+                        // Sort artifacts by path
+                        let mut sorted_records: Vec<_> = records.iter().collect();
+                        sorted_records.sort_by_key(|record| &record.path);
+
+                        for record in sorted_records {
+                            output.push_str(&format!("    Path: {}\n", record.path.display()));
+                            if let Some(persisted_id) = &record.persisted_operation_id {
+                                output.push_str(&format!("    Persisted ID: {}\n", persisted_id));
+                            }
+                        }
+                    }
+                }
+            }
+            output.push('\n');
+        }
+
+        write!(f, "{}", output)
+    }
 }
 /// Used to store the intermediate results of processing a file source in parallel.
 /// Because the compiler state does not support concurrency, we process in parallel,
@@ -395,6 +454,7 @@ impl CompilerState {
                 FileSourceIntermediateResult::Generated(project_name, files) => {
                     result
                         .artifacts
+                        .0
                         .insert(project_name, Arc::new(ArtifactMapKind::Unconnected(files)));
                 }
                 FileSourceIntermediateResult::Ignore => {}
@@ -655,6 +715,7 @@ impl CompilerState {
                 let paths = paths.clone();
                 let artifacts = self
                     .artifacts
+                    .0
                     .get(project_name)
                     .expect("Expected the artifacts map to exist.");
                 if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {

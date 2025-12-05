@@ -8,7 +8,6 @@
  * @oncall relay
  */
 
-import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
 import Link from '@docusaurus/Link';
@@ -16,6 +15,7 @@ import {useThemeConfig} from '@docusaurus/theme-common';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
+import CodeBlock from '@theme/CodeBlock';
 import * as React from 'react';
 
 function LoadQueryLink() {
@@ -202,10 +202,9 @@ const Index = () => {
             </div>
 
             <div className="radiusLeft">
-              <pre className="outerPre">
-                <Code>
-                  {`
-import React from "react";
+              <div className="outerPre">
+                <CodeBlock>
+                  {`import React from "react";
 import { graphql, usePreloadedQuery, /* ... */ } from "react-relay";
 
 const artistsQuery = graphql\`
@@ -240,10 +239,9 @@ function ArtistView() {
       {data?.artist && <ArtistCard artist={data?.artist} />}
     </>
   );
-}
-`}
-                </Code>
-              </pre>
+}`}
+                </CodeBlock>
+              </div>
             </div>
           </div>
         </Container>
@@ -274,11 +272,11 @@ function ArtistView() {
                 fragments are fetched as part of that parent query.
               </p>
             </div>
+
             <div>
-              <pre className="outerPre">
-                <Code>
-                  {`
-import React from "react";
+              <div className="outerPre">
+                <CodeBlock>
+                  {`import React from "react";
 import { graphql, useFragment} from "react-relay";
 
 export default function ArtistCard(props) {
@@ -304,10 +302,9 @@ export default function ArtistCard(props) {
       </Link>
     </Card>
   );
-}
-                    `}
-                </Code>
-              </pre>
+}`}
+                </CodeBlock>
+              </div>
             </div>
           </div>
         </Container>

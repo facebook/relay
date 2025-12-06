@@ -187,9 +187,9 @@ pub struct TypegenConfig {
     #[serde(default)]
     pub resolver_context_type: Option<ResolverContextTypeInput>,
 
-    /// How to generate a type for an input object marked as @oneOf. 
+    /// How to generate a type for an input object marked as @oneOf.
     /// Defaults to "strict", which is to generate a union type which
-    /// permits only a single property being set at a time. "relaxed" 
+    /// permits only a single property being set at a time. "relaxed"
     /// generates the type as if the @oneOf annotation does not exist.
     #[serde(default)]
     pub one_of_type: OneOfGeneration,

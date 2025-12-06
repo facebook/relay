@@ -2502,6 +2502,36 @@ fn build_input_object(
     )
 }
 
+/// This builds a union of objects of shape
+/// ```ts
+/// type OneOfInput =
+///   | { foo: string; bar?: never; baz?: never }
+///   | { foo?: never; bar: string; baz?: never }
+///   | { foo?: never; bar?: never; baz?: number }
+/// ```
+/// for the @oneOf inputs
+/// ```gql
+/// type OneOfInput @oneOf {
+///   foo: String
+///   bar: String
+///   baz: Int
+/// }
+/// ```
+///
+/// NOTE: This type scheme might be unintuitive when compared to
+/// `{ foo: string } | { bar: string } | { baz: number }`.
+/// This is a completely fine type to use in flow, but in typescript
+/// this simpler type exhibits unfortunate usability limitations
+/// ```ts
+/// type SimplerOneOfInput = { foo: string } | { bar: string } | { baz: number }
+///
+/// declare var simpleInput: SimplerOneOfInput
+/// if (simpleInput.foo) processFoo(input.foo)
+/// //              ^^^ Error: OneOfInput has no property 'foo'
+///
+/// declare var input: OneOfInput
+/// if (simpleInput.foo) processFoo(input.foo) // ✅ works fine
+/// ```
 fn build_one_of_cases(
     typegen_context: &TypegenContext<'_>,
     input_object: &InputObject,

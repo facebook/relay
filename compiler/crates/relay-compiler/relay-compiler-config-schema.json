@@ -135,7 +135,7 @@
           "default": false
         },
         "oneOfType": {
-          "description": "How to generate a type for an input object marked as @oneOf. \nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"relaxed\" \ngenerates the type as if the @oneOf annotation does not exist.",
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
           "$ref": "#/$defs/OneOfGeneration",
           "default": "strict"
         },
@@ -1061,7 +1061,7 @@
         {
           "description": "Will exhibit previous behaviour, where @oneOf types would generate a\npermissive object type that may include all, none, or some of the\nproperties set",
           "type": "string",
-          "const": "relaxed"
+          "const": "ignore"
         }
       ]
     },
@@ -1480,7 +1480,7 @@
           "default": null
         },
         "oneOfType": {
-          "description": "How to generate a type for an input object marked as @oneOf. \nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"relaxed\" \ngenerates the type as if the @oneOf annotation does not exist.",
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
           "$ref": "#/$defs/OneOfGeneration",
           "default": "strict"
         },

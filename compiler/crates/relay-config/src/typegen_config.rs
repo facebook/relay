@@ -66,7 +66,7 @@ pub enum OneOfGeneration {
     /// Will exhibit previous behaviour, where @oneOf types would generate a
     /// permissive object type that may include all, none, or some of the
     /// properties set
-    Relaxed,
+    Ignore,
 }
 
 impl Default for OneOfGeneration {
@@ -189,7 +189,7 @@ pub struct TypegenConfig {
 
     /// How to generate a type for an input object marked as @oneOf.
     /// Defaults to "strict", which is to generate a union type which
-    /// permits only a single property being set at a time. "relaxed"
+    /// permits only a single property being set at a time. "ignore"
     /// generates the type as if the @oneOf annotation does not exist.
     #[serde(default)]
     pub one_of_type: OneOfGeneration,

@@ -993,6 +993,13 @@ async fn simple() {
 }
 
 #[tokio::test]
+async fn spread_interface_fragment_on_concrete_raw_type() {
+    let input = include_str!("generate_flow/fixtures/spread-interface-fragment-on-concrete-raw-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/spread-interface-fragment-on-concrete-raw-type.expected");
+    test_fixture(transform_fixture, file!(), "spread-interface-fragment-on-concrete-raw-type.graphql", "generate_flow/fixtures/spread-interface-fragment-on-concrete-raw-type.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn typename_in_union_with_other_fields() {
     let input = include_str!("generate_flow/fixtures/typename-in-union-with-other-fields.graphql");
     let expected = include_str!("generate_flow/fixtures/typename-in-union-with-other-fields.expected");

@@ -52,11 +52,7 @@ use crate::schema_set::SetUnion;
  * Methods that allow us to "touch" used types from the parent schema.
  */
 impl SchemaSet {
-    pub(crate) fn touch_operation_kind(
-        &mut self,
-        schema: &SDLSchema,
-        operation_kind: OperationKind,
-    ) {
+    pub fn touch_operation_kind(&mut self, schema: &SDLSchema, operation_kind: OperationKind) {
         match operation_kind {
             OperationKind::Query => {
                 self.root_schema.query_type =
@@ -76,7 +72,7 @@ impl SchemaSet {
     }
 
     // Add the output type to the correct type map, if it is not already there.
-    pub(crate) fn touch_output_type(
+    pub fn touch_output_type(
         &mut self,
         schema: &SDLSchema,
         type_: &Type,
@@ -103,7 +99,7 @@ impl SchemaSet {
 
     // Add the type plus all of its fields/values to the used types map, recursively.
     // This should only be used for types that can be used as variable values.
-    pub(crate) fn touch_variable_type(
+    pub fn touch_variable_type(
         &mut self,
         schema: &SDLSchema,
         type_: &Type,
@@ -146,7 +142,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_input_type(
+    pub fn touch_input_type(
         &mut self,
         schema: &SDLSchema,
         type_: &Type,
@@ -173,7 +169,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_object_type(
+    pub fn touch_object_type(
         &mut self,
         schema: &SDLSchema,
         id: &ObjectID,
@@ -217,7 +213,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_interface_type(
+    pub fn touch_interface_type(
         &mut self,
         schema: &SDLSchema,
         id: &InterfaceID,
@@ -261,7 +257,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_union_type(
+    pub fn touch_union_type(
         &mut self,
         schema: &SDLSchema,
         id: &UnionID,
@@ -304,7 +300,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_input_object(
+    pub fn touch_input_object(
         &mut self,
         schema: &SDLSchema,
         id: &InputObjectID,
@@ -420,7 +416,7 @@ impl SchemaSet {
         // Plus any other non-meta fields that are inserted via transform.
     }
 
-    pub(crate) fn touch_fragment_spread(
+    pub fn touch_fragment_spread(
         &mut self,
         schema: &SDLSchema,
         parent_type: Type,
@@ -440,7 +436,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_directive(
+    pub fn touch_directive(
         &mut self,
         schema: &SDLSchema,
         directive_name: StringKey,
@@ -472,7 +468,7 @@ impl SchemaSet {
             });
     }
 
-    pub(crate) fn touch_directive_values(
+    pub fn touch_directive_values(
         &mut self,
         schema: &SDLSchema,
         directive_values: &[DirectiveValue],
@@ -483,7 +479,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_field_argument(
+    pub fn touch_field_argument(
         &mut self,
         schema: &SDLSchema,
         field_id: &FieldID,
@@ -544,7 +540,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_input_object_field(
+    pub fn touch_input_object_field(
         &mut self,
         schema: &SDLSchema,
         input_object_id: &InputObjectID,
@@ -578,7 +574,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_directive_argument(
+    pub fn touch_directive_argument(
         &mut self,
         schema: &SDLSchema,
         schema_directive: &schema::Directive,
@@ -615,7 +611,7 @@ impl SchemaSet {
         }
     }
 
-    pub(crate) fn touch_scalar(
+    pub fn touch_scalar(
         &mut self,
         schema: &SDLSchema,
         scalar_id: &ScalarID,
@@ -638,7 +634,7 @@ impl SchemaSet {
             }));
     }
 
-    pub(crate) fn touch_enum(
+    pub fn touch_enum(
         &mut self,
         schema: &SDLSchema,
         enum_id: &EnumID,
@@ -662,7 +658,7 @@ impl SchemaSet {
             }));
     }
 
-    pub(crate) fn touch_enum_value(
+    pub fn touch_enum_value(
         &mut self,
         schema: &SDLSchema,
         enum_id: &EnumID,

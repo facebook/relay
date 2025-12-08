@@ -13,6 +13,7 @@ mod merge_sdl_document;
 mod partition_base_extensions;
 pub mod print_schema_set;
 mod schema_set;
+mod schema_set_collector;
 mod set_exclude;
 mod set_merges;
 mod set_type_reference;

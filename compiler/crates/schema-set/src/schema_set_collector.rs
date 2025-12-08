@@ -32,7 +32,6 @@ use crate::OutputNonNull;
 use crate::OutputTypeReference;
 use crate::SEMANTIC_NON_NULL;
 use crate::SEMANTIC_NON_NULL_LEVELS_ARG;
-use crate::ir_collector::UsedSchemaCollectionOptions;
 use crate::schema_set::FieldName;
 use crate::schema_set::SchemaDefinitionItem;
 use crate::schema_set::SchemaSet;
@@ -47,6 +46,7 @@ use crate::schema_set::SetObject;
 use crate::schema_set::SetScalar;
 use crate::schema_set::SetType;
 use crate::schema_set::SetUnion;
+use crate::schema_set_collection_options::UsedSchemaCollectionOptions;
 
 /**
  * Methods that allow us to "touch" used types from the parent schema.

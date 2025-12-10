@@ -17,6 +17,7 @@ use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use schema::DirectiveValue;
 use schema::EnumID;
+use schema::EnumValue;
 use schema::FieldID;
 use schema::InputObjectID;
 use schema::InterfaceID;
@@ -669,10 +670,14 @@ impl SchemaSet {
         if let Some(schema_value) = schema_enum.values.iter().find(|v| v.value == enum_value) {
             self.touch_directive_values(schema, &schema_value.directives, options);
             if let Some(SetType::Enum(used_enum)) = self.types.get_mut(&schema_enum.name.item.0) {
-                used_enum
-                    .values
-                    .entry(enum_value)
-                    .or_insert_with(|| schema_value.clone());
+                used_enum.values.entry(enum_value).or_insert_with(|| {
+                    // Don't copy description - used schemas should be minimal
+                    EnumValue {
+                        value: schema_value.value,
+                        directives: schema_value.directives.clone(),
+                        description: None,
+                    }
+                });
             }
         }
     }
@@ -681,7 +686,14 @@ impl SchemaSet {
         let schema_enum = schema.enum_(*enum_id);
         if let Some(SetType::Enum(used_enum)) = self.types.get_mut(&schema_enum.name.item.0) {
             for value in schema_enum.values.iter() {
-                used_enum.values.entry(value.value).or_insert(value.clone());
+                used_enum.values.entry(value.value).or_insert_with(|| {
+                    // Don't copy description - used schemas should be minimal
+                    EnumValue {
+                        value: value.value,
+                        directives: value.directives.clone(),
+                        description: None,
+                    }
+                });
             }
         }
     }

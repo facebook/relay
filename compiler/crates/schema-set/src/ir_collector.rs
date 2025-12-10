@@ -362,6 +362,11 @@ impl<'a> Visitor for UsedSchemaIRCollector<'a> {
     fn visit_variable_definition(&mut self, var_def: &VariableDefinition) {
         self.used_schema
             .touch_variable_type(self.schema, &var_def.type_.inner(), &self.options);
+
+        if let Some(default_value) = &var_def.default_value {
+            self.visit_constant_value(&default_value.item, &var_def.type_.inner());
+        }
+
         self.default_visit_variable_definition(var_def)
     }
 

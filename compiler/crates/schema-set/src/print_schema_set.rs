@@ -21,6 +21,7 @@ use crate::partition_base_extensions::PartitionsBaseExtension;
 use crate::partition_schema_set_base_and_extensions;
 use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::CanHaveDirectives;
+use crate::schema_set::HasDescription;
 use crate::schema_set::HasFields;
 use crate::schema_set::HasInterfaces;
 use crate::schema_set::SchemaSet;
@@ -223,10 +224,13 @@ impl PrintableDefinition for SetRootSchema {
             operation_types.push(format!("subscription: {}", subscription_typename));
         }
 
+        let description = print_description(self);
+
         formatdoc!(
-            r#"schema{directives} {{
+            r#"{description}schema{directives} {{
                   {operation_types}
                 }}"#,
+            description = description,
             directives = print_directive_values(self),
             operation_types = operation_types.join("\n  "),
         )
@@ -236,7 +240,8 @@ impl PrintableDefinition for SetRootSchema {
 impl PrintableDefinition for SetScalar {
     fn print_definition(&self) -> String {
         format!(
-            "scalar {}{}",
+            "{}scalar {}{}",
+            print_description(self),
             self.string_key_name(),
             print_directive_values(self)
         )
@@ -276,6 +281,7 @@ impl PrintableDefinition for SetEnum {
         let printed_values = if self.values.is_empty() {
             String::new()
         } else {
+            let field_separator = format!("\n{}", FIELD_INDENT);
             formatdoc!(
                 r#" {{
                   {values}
@@ -283,14 +289,15 @@ impl PrintableDefinition for SetEnum {
                 values = self
                     .values
                     .values()
-                    .map(|v| v.value.lookup())
+                    .map(print_enum_value)
                     .collect::<Vec<_>>()
-                    .join("\n  "),
+                    .join(&field_separator),
             )
         };
 
         format!(
-            "enum {name}{directives}{values}",
+            "{description}enum {name}{directives}{values}",
+            description = print_description(self),
             name = self.string_key_name(),
             directives = print_directive_values(self),
             values = printed_values,
@@ -299,6 +306,14 @@ impl PrintableDefinition for SetEnum {
 }
 impl PrintableExtendDefinition for SetEnum {}
 
+fn print_enum_value(value: &schema::EnumValue) -> String {
+    format!(
+        "{}{}",
+        format_description_string(value.description, FIELD_INDENT),
+        value.value.lookup()
+    )
+}
+
 impl PrintableDefinition for SetInputObject {
     fn print_definition(&self) -> String {
         let sorted_fields = sorted_from_index_map(&self.fields);
@@ -306,19 +321,21 @@ impl PrintableDefinition for SetInputObject {
         let printed_fields = if sorted_fields.is_empty() {
             String::new()
         } else {
+            let field_separator = format!("\n{}", FIELD_INDENT);
             formatdoc!(
                 r#" {{
                   {fields}
                 }}"#,
                 fields = sorted_fields
                     .into_iter()
-                    .map(|arg| arg.print_definition())
+                    .map(print_input_field_with_description)
                     .collect::<Vec<_>>()
-                    .join("\n  ")
+                    .join(&field_separator)
             )
         };
         format!(
-            "input {name}{directives}{fields}",
+            "{description}input {name}{directives}{fields}",
+            description = print_description(self),
             name = self.string_key_name(),
             directives = print_directive_values(self),
             fields = printed_fields
@@ -326,6 +343,14 @@ impl PrintableDefinition for SetInputObject {
     }
 }
 impl PrintableExtendDefinition for SetInputObject {}
+
+fn print_input_field_with_description(field: &SetArgument) -> String {
+    format!(
+        "{}{}",
+        format_description_string(field.description(), FIELD_INDENT),
+        field.print_definition()
+    )
+}
 
 impl PrintableDefinition for SetDirective {
     fn print_definition(&self) -> String {
@@ -338,7 +363,8 @@ impl PrintableDefinition for SetDirective {
         sorted_locations.sort();
         let printed_locations = sorted_locations.join(" | ");
         format!(
-            "directive @{name}{arguments} on {locations}",
+            "{}directive @{name}{arguments} on {locations}",
+            print_description(self),
             name = self.string_key_name(),
             arguments = print_arguments(&self.arguments),
             locations = printed_locations
@@ -349,14 +375,22 @@ impl PrintableExtendDefinition for SetDirective {}
 
 impl PrintableDefinition for SetObject {
     fn print_definition(&self) -> String {
-        format!("type {}", print_composite_typedef(self))
+        format!(
+            "{}type {}",
+            print_description(self),
+            print_composite_typedef(self)
+        )
     }
 }
 impl PrintableExtendDefinition for SetObject {}
 
 impl PrintableDefinition for SetInterface {
     fn print_definition(&self) -> String {
-        format!("interface {}", print_composite_typedef(self))
+        format!(
+            "{}interface {}",
+            print_description(self),
+            print_composite_typedef(self)
+        )
     }
 }
 impl PrintableExtendDefinition for SetInterface {}
@@ -375,13 +409,40 @@ impl PrintableDefinition for SetUnion {
         };
 
         format!(
-            "union {name}{directives_list}{members}",
+            "{description}union {name}{directives_list}{members}",
+            description = print_description(self),
             name = self.string_key_name(),
             directives_list = print_directive_values(self),
             members = printed_members
         )
     }
 }
+
+const FIELD_INDENT: &str = "  ";
+const BLOCK_STRING_DELIMITER: &str = r#"""""#;
+
+/// Formats a description string in GraphQL block string format.
+/// Returns the formatted description followed by a newline (+ indent), or empty string if None.
+fn format_description_string(desc: Option<StringKey>, indent: &str) -> String {
+    let Some(d) = desc else {
+        return String::new();
+    };
+
+    let content = d.lookup().trim();
+    let sep = format!("\n{}", indent);
+
+    if content.contains('\n') {
+        let indented = content.replace('\n', &sep);
+        format!("{BLOCK_STRING_DELIMITER}{sep}{indented}{sep}{BLOCK_STRING_DELIMITER}{sep}")
+    } else {
+        format!("{BLOCK_STRING_DELIMITER}{content}{BLOCK_STRING_DELIMITER}{sep}")
+    }
+}
+
+fn print_description(item: &dyn HasDescription) -> String {
+    format_description_string(item.description(), "")
+}
+
 impl PrintableExtendDefinition for SetUnion {}
 
 impl PrintableDefinition for SetField {
@@ -389,7 +450,7 @@ impl PrintableDefinition for SetField {
         format!(
             "{name}{args}: {type_}{directives}",
             name = self.string_key_name(),
-            args = print_arguments(&self.arguments),
+            args = print_arguments_with_indent(&self.arguments, FIELD_INDENT),
             type_ = print_output_type_reference(&self.type_),
             directives = print_directive_values(self)
         )
@@ -472,11 +533,12 @@ fn print_composite_typedef<
     if sorted_fields.is_empty() {
         decl
     } else {
+        let field_separator = format!("\n{}", FIELD_INDENT);
         let printed_fields = sorted_fields
             .iter()
-            .map(|set_field| set_field.print_definition())
+            .map(|set_field| print_field_with_description(set_field))
             .collect::<Vec<_>>()
-            .join("\n  ");
+            .join(&field_separator);
         formatdoc!(
             r#"{decl} {{
               {fields_list}
@@ -487,21 +549,67 @@ fn print_composite_typedef<
     }
 }
 
+fn print_field_with_description(field: &SetField) -> String {
+    format!(
+        "{}{}",
+        format_description_string(field.description(), FIELD_INDENT),
+        field.print_definition()
+    )
+}
+
 fn print_arguments(set_arguments: &StringKeyIndexMap<SetArgument>) -> String {
+    print_arguments_with_indent(set_arguments, "")
+}
+
+fn print_arguments_with_indent(
+    set_arguments: &StringKeyIndexMap<SetArgument>,
+    current_indent: &str,
+) -> String {
     if set_arguments.is_empty() {
         String::new()
     } else {
         // Arguments are stored in insertion-order, but used-schema has historically had arguments printed in alphabetical order.
         let sorted_arguments = sorted_from_index_map(set_arguments);
-        format!(
-            "({})",
-            sorted_arguments
-                .iter()
-                .map(|set_argument| set_argument.print_definition())
-                .collect::<Vec<_>>()
-                .join(", ")
-        )
+
+        // Check if any argument has a description
+        let has_descriptions = sorted_arguments
+            .iter()
+            .any(|arg| arg.description().is_some());
+
+        if has_descriptions {
+            // Multi-line format with descriptions
+            let arg_indent = format!("{}{}", current_indent, FIELD_INDENT);
+            let arg_separator = format!("\n{}", arg_indent);
+            format!(
+                "(\n{}{}\n{})",
+                arg_indent,
+                sorted_arguments
+                    .iter()
+                    .map(|arg| print_argument_with_description(arg, &arg_indent))
+                    .collect::<Vec<_>>()
+                    .join(&arg_separator),
+                current_indent
+            )
+        } else {
+            // Single-line format without descriptions
+            format!(
+                "({})",
+                sorted_arguments
+                    .iter()
+                    .map(|set_argument| set_argument.print_definition())
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            )
+        }
     }
+}
+
+fn print_argument_with_description(arg: &SetArgument, indent: &str) -> String {
+    format!(
+        "{}{}",
+        format_description_string(arg.description(), indent),
+        arg.print_definition()
+    )
 }
 
 fn print_directive_values(item: &dyn CanHaveDirectives) -> String {

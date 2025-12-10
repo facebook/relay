@@ -123,6 +123,17 @@ macro_rules! impl_has_arguments {
 }
 
 #[macro_export]
+macro_rules! impl_has_description {
+    ($named:ident) => {
+        impl HasDescription for $named {
+            fn description(&self) -> Option<StringKey> {
+                self.definition.as_ref().and_then(|d| d.description)
+            }
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! one_partition {
     ($field:ident) => {
         let (base_$field, extension_$field) = self.partition_extension_$field(used_schema)

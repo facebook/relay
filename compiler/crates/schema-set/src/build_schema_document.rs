@@ -142,6 +142,7 @@ impl ToSDLDefinition<Option<SchemaDefinition>> for SetRootSchema {
                 items: root_schema_types,
                 end: build_token(TokenKind::CloseBrace),
             },
+            description: build_description(&self.definition),
             span: Span::empty(),
         })
     }
@@ -193,6 +194,7 @@ impl ToSDLDefinition<ScalarTypeDefinition> for SetScalar {
         ScalarTypeDefinition {
             name: build_name(self.name.0),
             directives: build_directives(&self.directives),
+            description: build_description(&self.definition),
             span: Span::empty(),
         }
     }
@@ -206,6 +208,7 @@ impl ToSDLDefinition<EnumTypeDefinition> for SetEnum {
             .map(|value| EnumValueDefinition {
                 name: build_name(value.value),
                 directives: build_directives(&value.directives),
+                description: value.description.map(build_string_node),
                 span: Span::empty(),
             })
             .collect::<Vec<_>>();
@@ -225,6 +228,7 @@ impl ToSDLDefinition<EnumTypeDefinition> for SetEnum {
             name: build_name(self.name.0),
             directives: build_directives(&self.directives),
             values,
+            description: build_description(&self.definition),
             span: Span::empty(),
         }
     }
@@ -237,6 +241,7 @@ impl ToSDLDefinition<ObjectTypeDefinition> for SetObject {
             interfaces: build_members(&self.interfaces),
             directives: build_directives(&self.directives),
             fields: build_fields(&self.fields),
+            description: build_description(&self.definition),
             span: Span::empty(),
         }
     }
@@ -249,6 +254,7 @@ impl ToSDLDefinition<InterfaceTypeDefinition> for SetInterface {
             interfaces: build_members(&self.interfaces),
             directives: build_directives(&self.directives),
             fields: build_fields(&self.fields),
+            description: build_description(&self.definition),
             span: Span::empty(),
         }
     }
@@ -260,6 +266,7 @@ impl ToSDLDefinition<UnionTypeDefinition> for SetUnion {
             name: build_name(self.name.0),
             directives: build_directives(&self.directives),
             members: build_members(&self.members),
+            description: build_description(&self.definition),
             span: Span::empty(),
         }
     }
@@ -287,6 +294,7 @@ impl ToSDLDefinition<InputObjectTypeDefinition> for SetInputObject {
             name: build_name(self.name.0),
             directives: build_directives(&self.directives),
             fields,
+            description: build_description(&self.definition),
             span: Span::empty(),
         }
     }
@@ -318,6 +326,7 @@ impl ToSDLDefinition<InputValueDefinition> for SetArgument {
                     value: constant_value.clone(),
                 }),
             directives: build_directives(&self.directives),
+            description: build_description(&self.definition),
         }
     }
 }
@@ -588,5 +597,12 @@ fn build_token(kind: TokenKind) -> Token {
     Token {
         span: Span::empty(),
         kind,
+    }
+}
+
+fn build_string_node(value: StringKey) -> StringNode {
+    StringNode {
+        token: build_token(TokenKind::BlockStringLiteral),
+        value,
     }
 }

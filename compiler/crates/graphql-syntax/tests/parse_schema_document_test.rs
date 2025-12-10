@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b3789f517662a8055142e2a2a79219c2>>
+ * @generated SignedSource<<02b7f7131ec62d25e69401e9a653146a>>
  */
 
 mod parse_schema_document;
@@ -45,4 +45,11 @@ async fn type_definition() {
     let input = include_str!("parse_schema_document/fixtures/type_definition.graphql");
     let expected = include_str!("parse_schema_document/fixtures/type_definition.expected");
     test_fixture(transform_fixture, file!(), "type_definition.graphql", "parse_schema_document/fixtures/type_definition.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn type_description() {
+    let input = include_str!("parse_schema_document/fixtures/type_description.graphql");
+    let expected = include_str!("parse_schema_document/fixtures/type_description.expected");
+    test_fixture(transform_fixture, file!(), "type_description.graphql", "parse_schema_document/fixtures/type_description.expected", input, expected).await;
 }

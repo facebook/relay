@@ -1273,6 +1273,7 @@ fn flow_type_to_field_arguments(
                 type_: type_annotation,
                 default_value: None,
                 directives: vec![],
+                description: None,
                 span: prop_span,
             };
             items.push(arg);

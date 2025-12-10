@@ -535,6 +535,7 @@ impl CanHaveDirectives for SetType {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SetRootSchema {
+    pub definition: Option<SchemaDefinitionItem>,
     pub directives: Vec<DirectiveValue>,
     pub query_type: Option<StringKey>,
     pub mutation_type: Option<StringKey>,

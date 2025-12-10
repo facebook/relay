@@ -137,6 +137,7 @@ impl CanBeEmpty for SetRootSchema {
 impl SetExclude for SetRootSchema {
     fn exclude(&self, other: &Self, options: &SafeExclusionOptions) -> Self {
         Self {
+            definition: self.definition.clone(),
             directives: exclude_directives(
                 &self.directives,
                 &other.directives,

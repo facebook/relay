@@ -1419,6 +1419,7 @@ impl InMemorySchema {
                         .map(|enum_def| EnumValue {
                             value: enum_def.name.value,
                             directives: self.build_directive_values(&enum_def.directives),
+                            description: enum_def.description.as_ref().map(|d| d.value),
                         })
                         .collect()
                 } else {
@@ -1583,6 +1584,7 @@ impl InMemorySchema {
                                 .map(|enum_def| EnumValue {
                                     value: enum_def.name.value,
                                     directives: self.build_directive_values(&enum_def.directives),
+                                    description: enum_def.description.as_ref().map(|d| d.value),
                                 })
                                 .collect::<Vec<_>>();
                             extend_without_duplicates(
@@ -1970,6 +1972,7 @@ mod tests {
                     interfaces: vec![identifier_from_value("ITunes".intern())],
                     directives: vec![],
                     fields: None,
+                    description: None,
                     span: Span::empty(),
                 },
                 SourceLocationKey::Generated,

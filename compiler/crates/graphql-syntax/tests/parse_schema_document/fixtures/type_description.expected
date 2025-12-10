@@ -1,0 +1,1493 @@
+==================================== INPUT ====================================
+# Tests for all description locations in GraphQL schema documents per spec
+
+# SchemaDefinition with description
+"Schema description"
+schema {
+  query: Query
+}
+
+# ScalarTypeDefinition with description
+"Single line scalar description"
+scalar SingleLineScalar
+
+"""
+Block scalar description
+"""
+scalar BlockScalar
+
+# ObjectTypeDefinition with description
+"Single line type description"
+type SingleLineType {
+  field: String
+}
+
+"""
+Block type description
+"""
+type BlockType {
+  field: String
+}
+
+"""
+Multiline block type description which is so long
+that it spans onto a second line.
+"""
+type MultilineBlockType {
+  field: String
+}
+
+# FieldDefinition with description (inside type)
+type TypeWithFieldDescriptions {
+  "Single line field description"
+  singleLineField: String
+
+  """
+  Block field description
+  """
+  blockField: String
+}
+
+# InputValueDefinition with description (arguments)
+type TypeWithArgumentDescriptions {
+  fieldWithArgs(
+    "Single line argument description"
+    singleLineArg: String
+
+    """
+    Block argument description
+    """
+    blockArg: String
+  ): String
+}
+
+# InterfaceTypeDefinition with description
+"Single line interface description"
+interface SingleLineInterface {
+  field: String
+}
+
+"""
+Block interface description
+"""
+interface BlockInterface {
+  field: String
+}
+
+# UnionTypeDefinition with description
+"Single line union description"
+union SingleLineUnion = TypeA | TypeB
+
+"""
+Block union description
+"""
+union BlockUnion = TypeA | TypeB
+
+# EnumTypeDefinition with description
+"Single line enum description"
+enum SingleLineEnum {
+  VALUE
+}
+
+"""
+Block enum description
+"""
+enum BlockEnum {
+  VALUE
+}
+
+# EnumValueDefinition with description
+enum EnumWithValueDescriptions {
+  "Single line enum value description"
+  SINGLE_LINE_VALUE
+
+  """
+  Block enum value description
+  """
+  BLOCK_VALUE
+
+  """
+  Multiline block enum value description
+  that spans multiple lines.
+  """
+  MULTILINE_BLOCK_VALUE
+}
+
+# InputObjectTypeDefinition with description
+"Single line input description"
+input SingleLineInput {
+  field: String
+}
+
+"""
+Block input description
+"""
+input BlockInput {
+  field: String
+}
+
+# InputValueDefinition with description (input fields)
+input InputWithFieldDescriptions {
+  "Single line input field description"
+  singleLineField: String
+
+  """
+  Block input field description
+  """
+  blockField: String
+}
+
+# DirectiveDefinition with description
+"Single line directive description"
+directive @singleLineDirective on FIELD
+
+"""
+Block directive description
+"""
+directive @blockDirective on FIELD
+
+# DirectiveDefinition with argument descriptions
+"""
+Directive with argument descriptions
+"""
+directive @directiveWithArgs(
+  "Single line directive argument description"
+  singleLineArg: String
+
+  """
+  Block directive argument description
+  """
+  blockArg: String
+) on FIELD
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: type_description.graphql:112:2814,
+    definitions: [
+        SchemaDefinition(
+            SchemaDefinition {
+                directives: [],
+                operation_types: List {
+                    span: 140:158,
+                    start: Token {
+                        span: 140:141,
+                        kind: OpenBrace,
+                    },
+                    items: [
+                        OperationTypeDefinition {
+                            operation: Query,
+                            type_: Identifier {
+                                span: 151:156,
+                                token: Token {
+                                    span: 151:156,
+                                    kind: Identifier,
+                                },
+                                value: "Query",
+                            },
+                            span: 144:157,
+                        },
+                    ],
+                    end: Token {
+                        span: 157:158,
+                        kind: CloseBrace,
+                    },
+                },
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 112:132,
+                            kind: StringLiteral,
+                        },
+                        value: "Schema description",
+                    },
+                ),
+                span: 133:200,
+            },
+        ),
+        ScalarTypeDefinition(
+            ScalarTypeDefinition {
+                name: Identifier {
+                    span: 240:256,
+                    token: Token {
+                        span: 240:256,
+                        kind: Identifier,
+                    },
+                    value: "SingleLineScalar",
+                },
+                directives: [],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 200:232,
+                            kind: StringLiteral,
+                        },
+                        value: "Single line scalar description",
+                    },
+                ),
+                span: 233:258,
+            },
+        ),
+        ScalarTypeDefinition(
+            ScalarTypeDefinition {
+                name: Identifier {
+                    span: 298:309,
+                    token: Token {
+                        span: 298:309,
+                        kind: Identifier,
+                    },
+                    value: "BlockScalar",
+                },
+                directives: [],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 258:290,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Block scalar description",
+                    },
+                ),
+                span: 291:351,
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 387:401,
+                    token: Token {
+                        span: 387:401,
+                        kind: Identifier,
+                    },
+                    value: "SingleLineType",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 402:421,
+                        start: Token {
+                            span: 402:403,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 406:411,
+                                    token: Token {
+                                        span: 406:411,
+                                        kind: Identifier,
+                                    },
+                                    value: "field",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 413:419,
+                                            token: Token {
+                                                span: 413:419,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                                hack_source: None,
+                                span: 406:420,
+                            },
+                        ],
+                        end: Token {
+                            span: 420:421,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 351:381,
+                            kind: StringLiteral,
+                        },
+                        value: "Single line type description",
+                    },
+                ),
+                span: 382:423,
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 459:468,
+                    token: Token {
+                        span: 459:468,
+                        kind: Identifier,
+                    },
+                    value: "BlockType",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 469:488,
+                        start: Token {
+                            span: 469:470,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 473:478,
+                                    token: Token {
+                                        span: 473:478,
+                                        kind: Identifier,
+                                    },
+                                    value: "field",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 480:486,
+                                            token: Token {
+                                                span: 480:486,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                                hack_source: None,
+                                span: 473:487,
+                            },
+                        ],
+                        end: Token {
+                            span: 487:488,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 423:453,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Block type description",
+                    },
+                ),
+                span: 454:490,
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 587:605,
+                    token: Token {
+                        span: 587:605,
+                        kind: Identifier,
+                    },
+                    value: "MultilineBlockType",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 606:625,
+                        start: Token {
+                            span: 606:607,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 610:615,
+                                    token: Token {
+                                        span: 610:615,
+                                        kind: Identifier,
+                                    },
+                                    value: "field",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 617:623,
+                                            token: Token {
+                                                span: 617:623,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                                hack_source: None,
+                                span: 610:624,
+                            },
+                        ],
+                        end: Token {
+                            span: 624:625,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 490:581,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Multiline block type description which is so long\nthat it spans onto a second line.",
+                    },
+                ),
+                span: 582:676,
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 681:706,
+                    token: Token {
+                        span: 681:706,
+                        kind: Identifier,
+                    },
+                    value: "TypeWithFieldDescriptions",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 707:830,
+                        start: Token {
+                            span: 707:708,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 745:760,
+                                    token: Token {
+                                        span: 745:760,
+                                        kind: Identifier,
+                                    },
+                                    value: "singleLineField",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 762:768,
+                                            token: Token {
+                                                span: 762:768,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 711:742,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Single line field description",
+                                    },
+                                ),
+                                hack_source: None,
+                                span: 711:772,
+                            },
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 810:820,
+                                    token: Token {
+                                        span: 810:820,
+                                        kind: Identifier,
+                                    },
+                                    value: "blockField",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 822:828,
+                                            token: Token {
+                                                span: 822:828,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 772:807,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Block field description",
+                                    },
+                                ),
+                                hack_source: None,
+                                span: 772:829,
+                            },
+                        ],
+                        end: Token {
+                            span: 829:830,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: None,
+                span: 676:884,
+            },
+        ),
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 889:917,
+                    token: Token {
+                        span: 889:917,
+                        kind: Identifier,
+                    },
+                    value: "TypeWithArgumentDescriptions",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 918:1084,
+                        start: Token {
+                            span: 918:919,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 922:935,
+                                    token: Token {
+                                        span: 922:935,
+                                        kind: Identifier,
+                                    },
+                                    value: "fieldWithArgs",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1076:1082,
+                                            token: Token {
+                                                span: 1076:1082,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: Some(
+                                    List {
+                                        span: 935:1074,
+                                        start: Token {
+                                            span: 935:936,
+                                            kind: OpenParen,
+                                        },
+                                        items: [
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 980:993,
+                                                    token: Token {
+                                                        span: 980:993,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "singleLineArg",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 995:1001,
+                                                            token: Token {
+                                                                span: 995:1001,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "String",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                                description: Some(
+                                                    StringNode {
+                                                        token: Token {
+                                                            span: 941:975,
+                                                            kind: StringLiteral,
+                                                        },
+                                                        value: "Single line argument description",
+                                                    },
+                                                ),
+                                                span: 941:1007,
+                                            },
+                                            InputValueDefinition {
+                                                name: Identifier {
+                                                    span: 1054:1062,
+                                                    token: Token {
+                                                        span: 1054:1062,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "blockArg",
+                                                },
+                                                type_: Named(
+                                                    NamedTypeAnnotation {
+                                                        name: Identifier {
+                                                            span: 1064:1070,
+                                                            token: Token {
+                                                                span: 1064:1070,
+                                                                kind: Identifier,
+                                                            },
+                                                            value: "String",
+                                                        },
+                                                    },
+                                                ),
+                                                default_value: None,
+                                                directives: [],
+                                                description: Some(
+                                                    StringNode {
+                                                        token: Token {
+                                                            span: 1007:1049,
+                                                            kind: BlockStringLiteral,
+                                                        },
+                                                        value: "Block argument description",
+                                                    },
+                                                ),
+                                                span: 1007:1073,
+                                            },
+                                        ],
+                                        end: Token {
+                                            span: 1073:1074,
+                                            kind: CloseParen,
+                                        },
+                                    },
+                                ),
+                                directives: [],
+                                description: None,
+                                hack_source: None,
+                                span: 922:1083,
+                            },
+                        ],
+                        end: Token {
+                            span: 1083:1084,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: None,
+                span: 884:1129,
+            },
+        ),
+        InterfaceTypeDefinition(
+            InterfaceTypeDefinition {
+                name: Identifier {
+                    span: 1175:1194,
+                    token: Token {
+                        span: 1175:1194,
+                        kind: Identifier,
+                    },
+                    value: "SingleLineInterface",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 1195:1214,
+                        start: Token {
+                            span: 1195:1196,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1199:1204,
+                                    token: Token {
+                                        span: 1199:1204,
+                                        kind: Identifier,
+                                    },
+                                    value: "field",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1206:1212,
+                                            token: Token {
+                                                span: 1206:1212,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                                hack_source: None,
+                                span: 1199:1213,
+                            },
+                        ],
+                        end: Token {
+                            span: 1213:1214,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 1129:1164,
+                            kind: StringLiteral,
+                        },
+                        value: "Single line interface description",
+                    },
+                ),
+                span: 1165:1216,
+            },
+        ),
+        InterfaceTypeDefinition(
+            InterfaceTypeDefinition {
+                name: Identifier {
+                    span: 1262:1276,
+                    token: Token {
+                        span: 1262:1276,
+                        kind: Identifier,
+                    },
+                    value: "BlockInterface",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 1277:1296,
+                        start: Token {
+                            span: 1277:1278,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 1281:1286,
+                                    token: Token {
+                                        span: 1281:1286,
+                                        kind: Identifier,
+                                    },
+                                    value: "field",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 1288:1294,
+                                            token: Token {
+                                                span: 1288:1294,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                                hack_source: None,
+                                span: 1281:1295,
+                            },
+                        ],
+                        end: Token {
+                            span: 1295:1296,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 1216:1251,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Block interface description",
+                    },
+                ),
+                span: 1252:1337,
+            },
+        ),
+        UnionTypeDefinition(
+            UnionTypeDefinition {
+                name: Identifier {
+                    span: 1375:1390,
+                    token: Token {
+                        span: 1375:1390,
+                        kind: Identifier,
+                    },
+                    value: "SingleLineUnion",
+                },
+                directives: [],
+                members: [
+                    Identifier {
+                        span: 1393:1398,
+                        token: Token {
+                            span: 1393:1398,
+                            kind: Identifier,
+                        },
+                        value: "TypeA",
+                    },
+                    Identifier {
+                        span: 1401:1406,
+                        token: Token {
+                            span: 1401:1406,
+                            kind: Identifier,
+                        },
+                        value: "TypeB",
+                    },
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 1337:1368,
+                            kind: StringLiteral,
+                        },
+                        value: "Single line union description",
+                    },
+                ),
+                span: 1369:1408,
+            },
+        ),
+        UnionTypeDefinition(
+            UnionTypeDefinition {
+                name: Identifier {
+                    span: 1446:1456,
+                    token: Token {
+                        span: 1446:1456,
+                        kind: Identifier,
+                    },
+                    value: "BlockUnion",
+                },
+                directives: [],
+                members: [
+                    Identifier {
+                        span: 1459:1464,
+                        token: Token {
+                            span: 1459:1464,
+                            kind: Identifier,
+                        },
+                        value: "TypeA",
+                    },
+                    Identifier {
+                        span: 1467:1472,
+                        token: Token {
+                            span: 1467:1472,
+                            kind: Identifier,
+                        },
+                        value: "TypeB",
+                    },
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 1408:1439,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Block union description",
+                    },
+                ),
+                span: 1440:1512,
+            },
+        ),
+        EnumTypeDefinition(
+            EnumTypeDefinition {
+                name: Identifier {
+                    span: 1548:1562,
+                    token: Token {
+                        span: 1548:1562,
+                        kind: Identifier,
+                    },
+                    value: "SingleLineEnum",
+                },
+                directives: [],
+                values: Some(
+                    List {
+                        span: 1563:1574,
+                        start: Token {
+                            span: 1563:1564,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 1567:1572,
+                                    token: Token {
+                                        span: 1567:1572,
+                                        kind: Identifier,
+                                    },
+                                    value: "VALUE",
+                                },
+                                directives: [],
+                                description: None,
+                                span: 1567:1573,
+                            },
+                        ],
+                        end: Token {
+                            span: 1573:1574,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 1512:1542,
+                            kind: StringLiteral,
+                        },
+                        value: "Single line enum description",
+                    },
+                ),
+                span: 1543:1576,
+            },
+        ),
+        EnumTypeDefinition(
+            EnumTypeDefinition {
+                name: Identifier {
+                    span: 1612:1621,
+                    token: Token {
+                        span: 1612:1621,
+                        kind: Identifier,
+                    },
+                    value: "BlockEnum",
+                },
+                directives: [],
+                values: Some(
+                    List {
+                        span: 1622:1633,
+                        start: Token {
+                            span: 1622:1623,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 1626:1631,
+                                    token: Token {
+                                        span: 1626:1631,
+                                        kind: Identifier,
+                                    },
+                                    value: "VALUE",
+                                },
+                                directives: [],
+                                description: None,
+                                span: 1626:1632,
+                            },
+                        ],
+                        end: Token {
+                            span: 1632:1633,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 1576:1606,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Block enum description",
+                    },
+                ),
+                span: 1607:1674,
+            },
+        ),
+        EnumTypeDefinition(
+            EnumTypeDefinition {
+                name: Identifier {
+                    span: 1679:1704,
+                    token: Token {
+                        span: 1679:1704,
+                        kind: Identifier,
+                    },
+                    value: "EnumWithValueDescriptions",
+                },
+                directives: [],
+                values: Some(
+                    List {
+                        span: 1705:1932,
+                        start: Token {
+                            span: 1705:1706,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 1748:1765,
+                                    token: Token {
+                                        span: 1748:1765,
+                                        kind: Identifier,
+                                    },
+                                    value: "SINGLE_LINE_VALUE",
+                                },
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 1709:1745,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Single line enum value description",
+                                    },
+                                ),
+                                span: 1709:1769,
+                            },
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 1812:1823,
+                                    token: Token {
+                                        span: 1812:1823,
+                                        kind: Identifier,
+                                    },
+                                    value: "BLOCK_VALUE",
+                                },
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 1769:1809,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Block enum value description",
+                                    },
+                                ),
+                                span: 1769:1827,
+                            },
+                            EnumValueDefinition {
+                                name: Identifier {
+                                    span: 1909:1930,
+                                    token: Token {
+                                        span: 1909:1930,
+                                        kind: Identifier,
+                                    },
+                                    value: "MULTILINE_BLOCK_VALUE",
+                                },
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 1827:1906,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Multiline block enum value description\nthat spans multiple lines.",
+                                    },
+                                ),
+                                span: 1827:1931,
+                            },
+                        ],
+                        end: Token {
+                            span: 1931:1932,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: None,
+                span: 1674:1979,
+            },
+        ),
+        InputObjectTypeDefinition(
+            InputObjectTypeDefinition {
+                name: Identifier {
+                    span: 2017:2032,
+                    token: Token {
+                        span: 2017:2032,
+                        kind: Identifier,
+                    },
+                    value: "SingleLineInput",
+                },
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 2033:2052,
+                        start: Token {
+                            span: 2033:2034,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2037:2042,
+                                    token: Token {
+                                        span: 2037:2042,
+                                        kind: Identifier,
+                                    },
+                                    value: "field",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2044:2050,
+                                            token: Token {
+                                                span: 2044:2050,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: None,
+                                span: 2037:2051,
+                            },
+                        ],
+                        end: Token {
+                            span: 2051:2052,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 1979:2010,
+                            kind: StringLiteral,
+                        },
+                        value: "Single line input description",
+                    },
+                ),
+                span: 2011:2054,
+            },
+        ),
+        InputObjectTypeDefinition(
+            InputObjectTypeDefinition {
+                name: Identifier {
+                    span: 2092:2102,
+                    token: Token {
+                        span: 2092:2102,
+                        kind: Identifier,
+                    },
+                    value: "BlockInput",
+                },
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 2103:2122,
+                        start: Token {
+                            span: 2103:2104,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2107:2112,
+                                    token: Token {
+                                        span: 2107:2112,
+                                        kind: Identifier,
+                                    },
+                                    value: "field",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2114:2120,
+                                            token: Token {
+                                                span: 2114:2120,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: None,
+                                span: 2107:2121,
+                            },
+                        ],
+                        end: Token {
+                            span: 2121:2122,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 2054:2085,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Block input description",
+                    },
+                ),
+                span: 2086:2179,
+            },
+        ),
+        InputObjectTypeDefinition(
+            InputObjectTypeDefinition {
+                name: Identifier {
+                    span: 2185:2211,
+                    token: Token {
+                        span: 2185:2211,
+                        kind: Identifier,
+                    },
+                    value: "InputWithFieldDescriptions",
+                },
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 2212:2347,
+                        start: Token {
+                            span: 2212:2213,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2256:2271,
+                                    token: Token {
+                                        span: 2256:2271,
+                                        kind: Identifier,
+                                    },
+                                    value: "singleLineField",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2273:2279,
+                                            token: Token {
+                                                span: 2273:2279,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 2216:2253,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Single line input field description",
+                                    },
+                                ),
+                                span: 2216:2283,
+                            },
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2327:2337,
+                                    token: Token {
+                                        span: 2327:2337,
+                                        kind: Identifier,
+                                    },
+                                    value: "blockField",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2339:2345,
+                                            token: Token {
+                                                span: 2339:2345,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 2283:2324,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Block input field description",
+                                    },
+                                ),
+                                span: 2283:2346,
+                            },
+                        ],
+                        end: Token {
+                            span: 2346:2347,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+                description: None,
+                span: 2179:2388,
+            },
+        ),
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 2435:2454,
+                    token: Token {
+                        span: 2435:2454,
+                        kind: Identifier,
+                    },
+                    value: "singleLineDirective",
+                },
+                arguments: None,
+                repeatable: false,
+                locations: [
+                    Field,
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 2388:2423,
+                            kind: StringLiteral,
+                        },
+                        value: "Single line directive description",
+                    },
+                ),
+                hack_source: None,
+                span: 2424:2465,
+            },
+        ),
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 2512:2526,
+                    token: Token {
+                        span: 2512:2526,
+                        kind: Identifier,
+                    },
+                    value: "blockDirective",
+                },
+                arguments: None,
+                repeatable: false,
+                locations: [
+                    Field,
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 2465:2500,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Block directive description",
+                    },
+                ),
+                hack_source: None,
+                span: 2501:2586,
+            },
+        ),
+        DirectiveDefinition(
+            DirectiveDefinition {
+                name: Identifier {
+                    span: 2642:2659,
+                    token: Token {
+                        span: 2642:2659,
+                        kind: Identifier,
+                    },
+                    value: "directiveWithArgs",
+                },
+                arguments: Some(
+                    List {
+                        span: 2659:2804,
+                        start: Token {
+                            span: 2659:2660,
+                            kind: OpenParen,
+                        },
+                        items: [
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2710:2723,
+                                    token: Token {
+                                        span: 2710:2723,
+                                        kind: Identifier,
+                                    },
+                                    value: "singleLineArg",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2725:2731,
+                                            token: Token {
+                                                span: 2725:2731,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 2663:2707,
+                                            kind: StringLiteral,
+                                        },
+                                        value: "Single line directive argument description",
+                                    },
+                                ),
+                                span: 2663:2735,
+                            },
+                            InputValueDefinition {
+                                name: Identifier {
+                                    span: 2786:2794,
+                                    token: Token {
+                                        span: 2786:2794,
+                                        kind: Identifier,
+                                    },
+                                    value: "blockArg",
+                                },
+                                type_: Named(
+                                    NamedTypeAnnotation {
+                                        name: Identifier {
+                                            span: 2796:2802,
+                                            token: Token {
+                                                span: 2796:2802,
+                                                kind: Identifier,
+                                            },
+                                            value: "String",
+                                        },
+                                    },
+                                ),
+                                default_value: None,
+                                directives: [],
+                                description: Some(
+                                    StringNode {
+                                        token: Token {
+                                            span: 2735:2783,
+                                            kind: BlockStringLiteral,
+                                        },
+                                        value: "Block directive argument description",
+                                    },
+                                ),
+                                span: 2735:2803,
+                            },
+                        ],
+                        end: Token {
+                            span: 2803:2804,
+                            kind: CloseParen,
+                        },
+                    },
+                ),
+                repeatable: false,
+                locations: [
+                    Field,
+                ],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 2586:2630,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Directive with argument descriptions",
+                    },
+                ),
+                hack_source: None,
+                span: 2631:2814,
+            },
+        ),
+    ],
+}

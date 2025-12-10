@@ -85,6 +85,7 @@ pub struct OperationDefinition {
     pub variable_definitions: Option<List<VariableDefinition>>,
     pub directives: Vec<Directive>,
     pub selections: List<Selection>,
+    pub description: Option<StringNode>,
 }
 
 impl OperationDefinition {
@@ -133,6 +134,7 @@ pub struct FragmentDefinition {
     pub type_condition: TypeCondition,
     pub directives: Vec<Directive>,
     pub selections: List<Selection>,
+    pub description: Option<StringNode>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -143,6 +145,7 @@ pub struct VariableDefinition {
     pub type_: TypeAnnotation,
     pub default_value: Option<DefaultValue>,
     pub directives: Vec<Directive>,
+    pub description: Option<StringNode>,
 }
 
 // Primitive Types

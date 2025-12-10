@@ -212,6 +212,7 @@ pub trait ExtensionIntoDefinition: Sized {
 pub struct SchemaDefinition {
     pub directives: Vec<ConstantDirective>,
     pub operation_types: List<OperationTypeDefinition>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -237,6 +238,8 @@ impl From<SchemaExtension> for SchemaDefinition {
                     kind: TokenKind::CloseBrace,
                 },
             }),
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -281,6 +284,7 @@ pub struct ObjectTypeDefinition {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -299,6 +303,8 @@ impl From<ObjectTypeExtension> for ObjectTypeDefinition {
             interfaces: ext.interfaces,
             directives: ext.directives,
             fields: ext.fields,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -313,6 +319,7 @@ pub struct InterfaceTypeDefinition {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -331,6 +338,8 @@ impl From<InterfaceTypeExtension> for InterfaceTypeDefinition {
             interfaces: ext.interfaces,
             directives: ext.directives,
             fields: ext.fields,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -344,6 +353,7 @@ pub struct UnionTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub members: Vec<Identifier>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -360,6 +370,8 @@ impl From<UnionTypeExtension> for UnionTypeDefinition {
             name: ext.name,
             directives: ext.directives,
             members: ext.members,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -372,6 +384,7 @@ impl ExtensionIntoDefinition for UnionTypeExtension {
 pub struct ScalarTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -386,6 +399,8 @@ impl From<ScalarTypeExtension> for ScalarTypeDefinition {
         Self {
             name: ext.name,
             directives: ext.directives,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -399,6 +414,7 @@ pub struct EnumTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub values: Option<List<EnumValueDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -415,6 +431,8 @@ impl From<EnumTypeExtension> for EnumTypeDefinition {
             name: ext.name,
             directives: ext.directives,
             values: ext.values,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -428,6 +446,7 @@ pub struct InputObjectTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<InputValueDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -444,6 +463,8 @@ impl From<InputObjectTypeExtension> for InputObjectTypeDefinition {
             name: ext.name,
             directives: ext.directives,
             fields: ext.fields,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -456,6 +477,7 @@ impl ExtensionIntoDefinition for InputObjectTypeExtension {
 pub struct EnumValueDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -542,6 +564,7 @@ pub struct InputValueDefinition {
     pub type_: TypeAnnotation,
     pub default_value: Option<DefaultValue>,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 

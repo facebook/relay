@@ -36,6 +36,7 @@ use graphql_syntax::ScalarTypeDefinition;
 use graphql_syntax::SchemaDefinition;
 use graphql_syntax::TypeAnnotation;
 use graphql_syntax::UnionTypeDefinition;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
@@ -120,6 +121,12 @@ impl ToSetDefinition<SetRootSchema> for SchemaDefinition {
         _is_client_definition: bool,
     ) -> SetRootSchema {
         let mut set_root_schema = SetRootSchema {
+            definition: Some(SchemaDefinitionItem {
+                name: WithLocation::generated("schema".intern()),
+                is_client_definition: false,
+                description: self.description.as_ref().map(|d| d.value),
+                hack_source: None,
+            }),
             directives: build_directive_values(&self.directives),
             ..Default::default()
         };
@@ -153,6 +160,7 @@ impl ToSetDefinition<SetType> for EnumTypeDefinition {
                         EnumValue {
                             value: value.name.value,
                             directives: build_directive_values(&value.directives),
+                            description: value.description.as_ref().map(|d| d.value),
                         },
                     )
                 })
@@ -162,7 +170,7 @@ impl ToSetDefinition<SetType> for EnumTypeDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
+                description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             name: EnumName(self.name.value),
@@ -178,7 +186,7 @@ impl ToSetDefinition<SetType> for InterfaceTypeDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
+                description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             name: InterfaceName(self.name.value),
@@ -195,7 +203,7 @@ impl ToSetDefinition<SetType> for ObjectTypeDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
+                description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             name: ObjectName(self.name.value),
@@ -212,7 +220,7 @@ impl ToSetDefinition<SetType> for UnionTypeDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
+                description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             members: build_members(&self.members, is_client_definition),
@@ -228,7 +236,7 @@ impl ToSetDefinition<SetType> for InputObjectTypeDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
+                description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             fields: build_argument_values(self.fields.as_ref(), source),
@@ -245,7 +253,7 @@ impl ToSetDefinition<SetType> for ScalarTypeDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
+                description: self.description.as_ref().map(|d| d.value),
                 hack_source: None,
             }),
             name: ScalarName(self.name.value),
@@ -264,8 +272,8 @@ impl ToSetDefinition<SetDirective> for DirectiveDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
-                hack_source: None,
+                description: self.description.as_ref().map(|d| d.value),
+                hack_source: self.hack_source.as_ref().map(|h| h.value),
             }),
             name: DirectiveName(self.name.value),
             arguments: build_argument_values(self.arguments.as_ref(), source),
@@ -281,8 +289,8 @@ impl ToSetDefinition<SetField> for FieldDefinition {
             definition: Some(SchemaDefinitionItem {
                 name: WithLocation::from_span(source, self.name.span, self.name.value),
                 is_client_definition,
-                description: None,
-                hack_source: None,
+                description: self.description.as_ref().map(|d| d.value),
+                hack_source: self.hack_source.as_ref().map(|h| h.value),
             }),
             name: FieldName(self.name.value),
             arguments: build_argument_values(self.arguments.as_ref(), source),
@@ -386,7 +394,7 @@ fn build_argument_values(
                         definition: Some(SchemaDefinitionItem {
                             name: WithLocation::from_span(source, arg.name.span, arg.name.value),
                             is_client_definition: false,
-                            description: None,
+                            description: arg.description.as_ref().map(|d| d.value),
                             hack_source: None,
                         }),
                         name: arg.name.value,

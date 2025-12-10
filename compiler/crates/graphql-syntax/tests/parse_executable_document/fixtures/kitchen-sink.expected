@@ -124,6 +124,7 @@ ExecutableDocument {
                             ),
                             default_value: None,
                             directives: [],
+                            description: None,
                         },
                         VariableDefinition {
                             span: 35:55,
@@ -170,6 +171,7 @@ ExecutableDocument {
                                 },
                             ),
                             directives: [],
+                            description: None,
                         },
                     ],
                     end: Token {
@@ -766,6 +768,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
         OperationDefinition {
             location: kitchen-sink.graphql:393:497,
@@ -962,6 +965,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
         OperationDefinition {
             location: kitchen-sink.graphql:499:727,
@@ -1020,6 +1024,7 @@ ExecutableDocument {
                             ),
                             default_value: None,
                             directives: [],
+                            description: None,
                         },
                     ],
                     end: Token {
@@ -1234,6 +1239,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
         FragmentDefinition {
             location: kitchen-sink.graphql:887:1033,
@@ -1482,6 +1488,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
         OperationDefinition {
             location: kitchen-sink.graphql:1035:1099,
@@ -1619,6 +1626,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
         OperationDefinition {
             location: kitchen-sink.graphql:1101:1123,
@@ -1661,6 +1669,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
     ],
 }

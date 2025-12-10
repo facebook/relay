@@ -61,7 +61,6 @@
     "eslint-plugin-relay-internal": "link:./packages/eslint-plugin-relay-internal",
     "fbjs": "^3.0.2",
     "flow-bin": "^0.293.0",
-    "glob": "^7.1.1",
     "graphql": "15.3.0",
     "gulp": "4.0.2",
     "gulp-babel": "8.0.0",

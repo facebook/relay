@@ -13,4 +13,4 @@ fragment UserFragment on User
   }
 }
 ==================================== ERROR ====================================
-Diagnostic(DiagnosticData { message: ExpectedEnumValueGotString("Environment"), location: string-enum-fragment-arg-with-complex-input.graphql:187:195, related_information: [], tags: [], severity: Error, data: [], machine_readable: {} })
+Diagnostic(DiagnosticData { message: ExpectedEnumValueGotString("Environment"), message_type_name: "graphql_ir::errors::ValidationMessage", location: string-enum-fragment-arg-with-complex-input.graphql:187:195, related_information: [], tags: [], severity: Error, data: [], machine_readable: {} })

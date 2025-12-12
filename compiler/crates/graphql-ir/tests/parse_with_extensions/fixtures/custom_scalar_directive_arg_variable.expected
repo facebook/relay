@@ -57,7 +57,7 @@ extend type Query {
                     alias: None,
                     definition: WithLocation {
                         location: custom_scalar_directive_arg_variable.graphql:100:115,
-                        item: FieldID(527),
+                        item: FieldID(528),
                     },
                     arguments: [],
                     directives: [
@@ -105,7 +105,7 @@ extend type Query {
                             alias: None,
                             definition: WithLocation {
                                 location: custom_scalar_directive_arg_variable.graphql:160:170,
-                                item: FieldID(529),
+                                item: FieldID(530),
                             },
                             arguments: [],
                             directives: [],
@@ -116,7 +116,7 @@ extend type Query {
                     alias: None,
                     definition: WithLocation {
                         location: custom_scalar_directive_arg_variable.graphql:181:203,
-                        item: FieldID(528),
+                        item: FieldID(529),
                     },
                     arguments: [],
                     directives: [

@@ -116,6 +116,7 @@ class RelayModernStore implements Store {
   _resolverContext: ?ResolverContext;
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
+  _deferDeduplicatedFields: boolean;
 
   constructor(
     source: MutableRecordSource,
@@ -135,6 +136,7 @@ class RelayModernStore implements Store {
       // These additional config options are only used if the experimental
       // @outputType resolver feature is used
       treatMissingFieldsAsNull?: ?boolean,
+      deferDeduplicatedFields?: ?boolean,
       actorIdentifier?: ?ActorIdentifier,
     },
   ) {
@@ -183,6 +185,7 @@ class RelayModernStore implements Store {
       options?.shouldProcessClientComponents ?? false;
 
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
+    this._deferDeduplicatedFields = options?.deferDeduplicatedFields ?? false;
     this._actorIdentifier = options?.actorIdentifier;
 
     initializeRecordSource(this._recordSource);
@@ -884,6 +887,7 @@ class RelayModernStore implements Store {
       getDataID: this._getDataID,
       log: this.__log,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      deferDeduplicatedFields: this._deferDeduplicatedFields,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,
     };

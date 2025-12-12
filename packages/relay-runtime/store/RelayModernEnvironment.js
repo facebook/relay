@@ -67,6 +67,7 @@ export type EnvironmentConfig = {
   +configName?: string,
   +handlerProvider?: ?HandlerProvider,
   +treatMissingFieldsAsNull?: boolean,
+  +deferDeduplicatedFields?: boolean,
   +log?: ?LogFunction,
   +operationLoader?: ?OperationLoader,
   +network: INetwork,
@@ -97,6 +98,7 @@ class RelayModernEnvironment implements IEnvironment {
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
+  _deferDeduplicatedFields: boolean;
   _operationExecutions: Map<string, ActiveState>;
   +options: mixed;
   +_isServer: boolean;
@@ -106,6 +108,7 @@ class RelayModernEnvironment implements IEnvironment {
   constructor(config: EnvironmentConfig) {
     this.configName = config.configName;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull === true;
+    this._deferDeduplicatedFields = config.deferDeduplicatedFields === true;
     const operationLoader = config.operationLoader;
     if (__DEV__) {
       if (operationLoader != null) {
@@ -501,6 +504,7 @@ class RelayModernEnvironment implements IEnvironment {
         //       when the Observable is executed.
         source: createSource(),
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        deferDeduplicatedFields: this._deferDeduplicatedFields,
         updater,
       });
       return () => executor.cancel();

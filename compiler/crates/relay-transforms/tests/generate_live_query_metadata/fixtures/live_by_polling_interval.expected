@@ -11,7 +11,35 @@ query NodeQuery($id: ID!) @live_query(polling_interval: 1000) {
     }
   }
 }
+
+query ClientPollingQuery($id: ID!) @client_polling(interval: 1000) {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}
 ==================================== OUTPUT ===================================
+query ClientPollingQuery(
+  $id: ID!
+) @client_polling(interval: 1000) @__metadata(live: {polling_interval: 1000}) {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+  }
+}
+
 query NodeQuery(
   $id: ID!
 ) @live_query(polling_interval: 1000) @__metadata(live: {polling_interval: 1000}) {

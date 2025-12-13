@@ -10,7 +10,10 @@
 mod visitor;
 
 use visitor::transform_fixture;
+use visitor::transform_schema_fixture;
 use fixture_tests::test_fixture;
+
+// Executable document tests
 
 #[tokio::test]
 async fn kitchen_sink() {
@@ -31,4 +34,27 @@ async fn variable_definitions() {
     let input = include_str!("visitor/fixtures/variable_definitions.graphql");
     let expected = include_str!("visitor/fixtures/variable_definitions.expected");
     test_fixture(transform_fixture, file!(), "variable_definitions.graphql", "visitor/fixtures/variable_definitions.expected", input, expected).await;
+}
+
+// Schema document tests
+
+#[tokio::test]
+async fn schema_kitchen_sink() {
+    let input = include_str!("visitor/fixtures/schema_kitchen_sink.graphql");
+    let expected = include_str!("visitor/fixtures/schema_kitchen_sink.expected");
+    test_fixture(transform_schema_fixture, file!(), "schema_kitchen_sink.graphql", "visitor/fixtures/schema_kitchen_sink.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_with_directives() {
+    let input = include_str!("visitor/fixtures/schema_with_directives.graphql");
+    let expected = include_str!("visitor/fixtures/schema_with_directives.expected");
+    test_fixture(transform_schema_fixture, file!(), "schema_with_directives.graphql", "visitor/fixtures/schema_with_directives.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_extensions() {
+    let input = include_str!("visitor/fixtures/schema_extensions.graphql");
+    let expected = include_str!("visitor/fixtures/schema_extensions.expected");
+    test_fixture(transform_schema_fixture, file!(), "schema_extensions.graphql", "visitor/fixtures/schema_extensions.expected", input, expected).await;
 }

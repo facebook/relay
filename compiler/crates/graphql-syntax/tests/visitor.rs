@@ -118,6 +118,101 @@ impl SchemaSetSyntaxVisitor for TestVisitor {
         ));
         self.default_visit_variable_definition(variable_definition);
     }
+
+    // TypeSystemDefinition visitors
+
+    fn visit_type_system_definition(&mut self, definition: &graphql_syntax::TypeSystemDefinition) {
+        match definition {
+            graphql_syntax::TypeSystemDefinition::SchemaDefinition(_) => {
+                self.log("visit_type_system_definition: SchemaDefinition".to_string())
+            }
+            graphql_syntax::TypeSystemDefinition::SchemaExtension(_) => {
+                self.log("visit_type_system_definition: SchemaExtension".to_string())
+            }
+            graphql_syntax::TypeSystemDefinition::ObjectTypeDefinition(def) => self.log(format!(
+                "visit_type_system_definition: type {}",
+                def.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::ObjectTypeExtension(ext) => self.log(format!(
+                "visit_type_system_definition: extend type {}",
+                ext.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::InterfaceTypeDefinition(def) => self.log(
+                format!("visit_type_system_definition: interface {}", def.name.value),
+            ),
+            graphql_syntax::TypeSystemDefinition::InterfaceTypeExtension(ext) => self.log(format!(
+                "visit_type_system_definition: extend interface {}",
+                ext.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::UnionTypeDefinition(def) => self.log(format!(
+                "visit_type_system_definition: union {}",
+                def.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::UnionTypeExtension(ext) => self.log(format!(
+                "visit_type_system_definition: extend union {}",
+                ext.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::ScalarTypeDefinition(def) => self.log(format!(
+                "visit_type_system_definition: scalar {}",
+                def.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::ScalarTypeExtension(ext) => self.log(format!(
+                "visit_type_system_definition: extend scalar {}",
+                ext.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::EnumTypeDefinition(def) => self.log(format!(
+                "visit_type_system_definition: enum {}",
+                def.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::EnumTypeExtension(ext) => self.log(format!(
+                "visit_type_system_definition: extend enum {}",
+                ext.name.value
+            )),
+            graphql_syntax::TypeSystemDefinition::InputObjectTypeDefinition(def) => self.log(
+                format!("visit_type_system_definition: input {}", def.name.value),
+            ),
+            graphql_syntax::TypeSystemDefinition::InputObjectTypeExtension(ext) => {
+                self.log(format!(
+                    "visit_type_system_definition: extend input {}",
+                    ext.name.value
+                ))
+            }
+            graphql_syntax::TypeSystemDefinition::DirectiveDefinition(def) => self.log(format!(
+                "visit_type_system_definition: directive @{}",
+                def.name.value
+            )),
+        }
+        self.default_visit_type_system_definition(definition);
+    }
+
+    fn visit_constant_directive(&mut self, directive: &graphql_syntax::ConstantDirective) {
+        self.log(format!(
+            "visit_constant_directive: @{}",
+            directive.name.value
+        ));
+        self.default_visit_constant_directive(directive);
+    }
+
+    fn visit_field_definition(&mut self, field: &graphql_syntax::FieldDefinition) {
+        self.log(format!("visit_field_definition: {}", field.name.value));
+        self.default_visit_field_definition(field);
+    }
+
+    fn visit_input_value_definition(&mut self, input_value: &graphql_syntax::InputValueDefinition) {
+        self.log(format!(
+            "visit_input_value_definition: {}",
+            input_value.name.value
+        ));
+        self.default_visit_input_value_definition(input_value);
+    }
+
+    fn visit_enum_value_definition(&mut self, enum_value: &graphql_syntax::EnumValueDefinition) {
+        self.log(format!(
+            "visit_enum_value_definition: {}",
+            enum_value.name.value
+        ));
+        self.default_visit_enum_value_definition(enum_value);
+    }
 }
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -131,6 +226,22 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     for definition in &document.definitions {
         visitor.visit_executable_definition(definition);
+    }
+
+    Ok(visitor.log.join("\n"))
+}
+
+pub async fn transform_schema_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
+    let document = graphql_syntax::parse_schema_document(
+        fixture.content,
+        SourceLocationKey::standalone(fixture.file_name),
+    )
+    .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
+    let mut visitor = TestVisitor::new();
+
+    for definition in &document.definitions {
+        visitor.visit_type_system_definition(definition);
     }
 
     Ok(visitor.log.join("\n"))

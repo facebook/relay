@@ -1,0 +1,30 @@
+query TestQuery($id: ID!, $condition: Boolean = true) @queryDirective {
+  node(id: $id) {
+    id
+    ... on User @onInlineFragment {
+      name
+      profile @include(if: $condition) {
+        bio
+        avatar(size: 100)
+      }
+    }
+    ...UserFragment @skip(unless: $condition)
+  }
+}
+
+mutation UpdateUser($input: UpdateUserInput!) @mutationDirective {
+  updateUser(input: $input) {
+    user {
+      id
+      name
+    }
+  }
+}
+
+fragment UserFragment on User @fragmentDirective {
+  id
+  email
+  friends {
+    count
+  }
+}

@@ -16,6 +16,7 @@ mod parser;
 mod source;
 mod syntax_error;
 mod utils;
+mod visitor;
 
 use common::DiagnosticsResult;
 use common::SourceLocationKey;
@@ -26,6 +27,7 @@ pub use parser::FragmentArgumentSyntaxKind;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;
+pub use visitor::SchemaSetSyntaxVisitor;
 
 use crate::parser::Parser;
 

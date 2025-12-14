@@ -2087,51 +2087,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         arguments: &Option<graphql_syntax::List<graphql_syntax::Argument>>,
         directives: &[graphql_syntax::Directive],
     ) -> Option<FieldID> {
-        if let Some(field_id) = self.schema.named_field(parent_type, field_name) {
-            return Some(field_id);
-        }
-
-        #[allow(clippy::question_mark)]
-        if directives.named(FIXME_FAT_INTERFACE.0).is_none() {
-            return None;
-        }
-
-        // Handle @fixme_fat_interface: if present and the parent type is abstract, see
-        // if one of the implementors has this field and if so use that definition.
-        let possible_types = match parent_type {
-            Type::Interface(id) => {
-                let interface = self.schema.interface(id);
-                Some(&interface.implementing_objects)
-            }
-            Type::Union(id) => {
-                let union = self.schema.union(id);
-                Some(&union.members)
-            }
-            Type::Object(_) => None,
-            _ => unreachable!("Parent type of a field must be an interface, union, or object"),
-        };
-        if let Some(possible_types) = possible_types {
-            for possible_type in possible_types {
-                let field = self
-                    .schema
-                    .named_field(Type::Object(*possible_type), field_name);
-                if let Some(field_id) = field {
-                    let field = self.schema.field(field_id);
-                    if let Some(arguments) = arguments {
-                        if arguments
-                            .items
-                            .iter()
-                            .all(|x| field.arguments.contains(x.name.value))
-                        {
-                            return Some(field_id);
-                        }
-                    } else {
-                        return Some(field_id);
-                    }
-                }
-            }
-        }
-        None
+        schema::field_lookup::lookup_field(
+            self.schema,
+            parent_type,
+            field_name,
+            arguments,
+            directives,
+        )
     }
 
     fn find_conflicting_parent_type<'a>(

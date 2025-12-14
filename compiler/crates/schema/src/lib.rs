@@ -14,6 +14,7 @@
 pub mod definitions;
 mod errors;
 mod field_descriptions;
+pub mod field_lookup;
 mod flatbuffer;
 mod graphql_schema;
 mod in_memory;

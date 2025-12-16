@@ -18,7 +18,7 @@ jobs:
     name: Build Compiler Explorer
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
@@ -31,7 +31,7 @@ jobs:
       - name: "Build Compiler Playground Wasm NPM package"
         run: wasm-pack build --target web
         working-directory: ./compiler/crates/relay-compiler-playground
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: compiler-playground-package
           path: compiler/crates/relay-compiler-playground/pkg/
@@ -41,12 +41,12 @@ jobs:
     needs: [build-compiler-explorer]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "yarn"
@@ -54,7 +54,7 @@ jobs:
 
       - name: Set up Docusaurus Build Cache
         id: cache-docusaurus
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             website/node_modules/.cache
@@ -62,7 +62,7 @@ jobs:
           key: "docusaurus-build-${{ hashFiles('website/yarn.lock') }}"
 
       - name: Download Compiler Explorer
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: compiler-playground-package
           path: tmp/compiler-playground-package

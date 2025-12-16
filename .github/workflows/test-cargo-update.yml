@@ -43,6 +43,7 @@ jobs:
 
             **This PR should be closed immediately after validation.**
           branch: test-update-cargo-lock-workflow
+          base: main
           delete-branch: true
           draft: true
           token: ${{ secrets.RELAY_BOT_GITHUB_PAT }}

@@ -26,5 +26,32 @@ jobs:
           toolchain: nightly-2025-08-01
       - name: cargo check (test run)
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
-      - name: Test workflow completes
-        run: echo "✅ Cargo update workflow test successful"
+      - name: Create test change for PR
+        run: |
+          echo "# Test change for PR validation - $(date)" >> compiler/Cargo.lock
+          git config user.name "relay-bot"
+          git config user.email "relay-bot@users.noreply.github.com"
+      - name: Test PR creation with debugging
+        uses: peter-evans/create-pull-request@v7
+        with:
+          title: "[TEST] Validate UpdateCargo.lock workflow"
+          body: |
+            This is a test PR to validate the UpdateCargo.lock workflow fixes.
+
+            **Changes:**
+            - Test change to Cargo.lock to validate PR creation
+
+            **This PR should be closed immediately after validation.**
+          branch: test-update-cargo-lock-workflow
+          delete-branch: true
+          draft: true
+          token: ${{ secrets.RELAY_BOT_GITHUB_PAT }}
+          # Enable debugging
+          add-paths: |
+            compiler/Cargo.lock
+          commit-message: |
+            Test UpdateCargo.lock workflow validation
+
+            🤖 Generated with [Claude Code](https://claude.ai/code)
+
+            Co-Authored-By: Claude <noreply@anthropic.com>

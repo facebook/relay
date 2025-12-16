@@ -1,0 +1,30 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+name: Test Cargo Update Workflow
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/update-cargo-lock.yml'
+      - '.github/workflows/test-cargo-update.yml'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test-cargo-update:
+    name: Test Cargo.lock update process
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          # Should stay in sync with update-cargo-lock.yml
+          toolchain: nightly-2025-08-01
+      - name: cargo check (test run)
+        run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
+      - name: Test workflow completes
+        run: echo "✅ Cargo update workflow test successful"

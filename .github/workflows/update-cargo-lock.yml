@@ -17,18 +17,17 @@ jobs:
     name: Update Cargo.lock file
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # ci.yml
           toolchain: nightly-2025-08-01
-          override: true
       - name: cargo check
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
       - name: pull-request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v7
         with:
           title: "Update Cargo.lock"
           delete-branch: true

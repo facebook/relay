@@ -85,7 +85,7 @@
   },
   "private": true,
   "devEngines": {
-    "node": ">=18.x",
+    "node": ">=20.x",
     "npm": ">=8.x"
   },
   "jest": {

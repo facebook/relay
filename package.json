@@ -84,10 +84,6 @@
     "@babel/traverse": "^7.23.2"
   },
   "private": true,
-  "devEngines": {
-    "node": ">=20.x",
-    "npm": ">=8.x"
-  },
   "jest": {
     "testMatch": [
       "<rootDir>/packages/**/__tests__/**/*-test.js"

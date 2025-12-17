@@ -815,7 +815,9 @@ Text Schema:Schema {
         },
         is_extension: true,
         implementing_interfaces: [],
-        implementing_objects: [],
+        implementing_objects: [
+            ObjectID(1),
+        ],
         fields: [
             FieldID(10),
         ],
@@ -1674,7 +1676,9 @@ interfaces: [
         },
         is_extension: true,
         implementing_interfaces: [],
-        implementing_objects: [],
+        implementing_objects: [
+            ObjectID(0),
+        ],
         fields: [
             FieldID(7),
         ],

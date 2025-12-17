@@ -1490,6 +1490,14 @@ impl InMemorySchema {
                         .iter()
                         .map(|name| self.build_interface_id(name, location_key))
                         .collect::<DiagnosticsResult<Vec<_>>>()?;
+
+                    for interface_id in &built_interfaces {
+                        extend_without_duplicates(
+                            &mut self.interfaces[interface_id.as_usize()].implementing_objects,
+                            vec![id],
+                        );
+                    }
+
                     extend_without_duplicates(
                         &mut self.objects[index].interfaces,
                         built_interfaces,
@@ -1981,6 +1989,67 @@ mod tests {
 
         let interface = schema.interface(InterfaceID(0));
 
+        assert!(
+            interface.implementing_objects.len() == 1,
+            "ITunes should have an implementing object"
+        );
+    }
+
+    #[test]
+    fn test_adding_object_extension() {
+        let mut schema = InMemorySchema::create_uninitialized();
+
+        schema
+            .add_interface(Interface {
+                name: WithLocation::generated(InterfaceName("ITunes".intern())),
+                is_extension: false,
+                implementing_interfaces: vec![],
+                implementing_objects: vec![],
+                fields: vec![],
+                directives: vec![],
+                interfaces: vec![],
+                description: None,
+                hack_source: None,
+            })
+            .unwrap();
+
+        schema
+            .add_extension_object(
+                ObjectTypeDefinition {
+                    name: identifier_from_value("EarlyModel".intern()),
+                    interfaces: vec![],
+                    directives: vec![],
+                    fields: None,
+                    description: None,
+                    span: Span::empty(),
+                },
+                SourceLocationKey::Generated,
+            )
+            .unwrap();
+
+        {
+            let interface = schema.interface(InterfaceID(0));
+
+            assert!(
+                &interface.implementing_objects.is_empty(),
+                "ITunes should not yet have an implementing object"
+            );
+        }
+
+        schema
+            .add_object_type_extension(
+                ObjectTypeExtension {
+                    name: identifier_from_value("EarlyModel".intern()),
+                    interfaces: vec![identifier_from_value("ITunes".intern())],
+                    directives: vec![],
+                    fields: None,
+                    span: Span::empty(),
+                },
+                SourceLocationKey::Generated,
+            )
+            .unwrap();
+
+        let interface = schema.interface(InterfaceID(0));
         assert!(
             interface.implementing_objects.len() == 1,
             "ITunes should have an implementing object"

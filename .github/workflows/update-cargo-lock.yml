@@ -16,6 +16,9 @@ jobs:
   update-cargo-lock:
     name: Update Cargo.lock file
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -30,7 +33,6 @@ jobs:
       - name: pull-request
         uses: peter-evans/create-pull-request@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           title: "Update Cargo.lock"
           delete-branch: true
-          # Use a PAT with permissions to act as relay-bot and bypass branch protection
-          token: ${{ secrets.RELAY_BOT_GITHUB_PAT }}

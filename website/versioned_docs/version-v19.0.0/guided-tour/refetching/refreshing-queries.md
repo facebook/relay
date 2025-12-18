@@ -259,10 +259,6 @@ Let's distill what's going on here:
 
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
 
-<OssOnly>
-  <OssAvoidSuspenseNote />
-</OssOnly>
-
 ```js
 /**
  * App.react.js

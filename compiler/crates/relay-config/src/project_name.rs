@@ -17,10 +17,13 @@ use serde::Serialize;
 use serde::Serializer;
 
 /// Represents the name of a project in the Relay configuration.
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, JsonSchema, Ord, PartialOrd)]
+#[derive(
+    Debug, Clone, Copy, Hash, PartialEq, Eq, JsonSchema, Ord, PartialOrd, Default
+)]
 #[schemars(untagged)]
 pub enum ProjectName {
     /// No project name is specified.
+    #[default]
     Default,
     /// A project name.
     ///
@@ -35,12 +38,6 @@ impl ProjectName {
         field_name: StringKey,
     ) -> String {
         format!("{object_name}__{field_name}")
-    }
-}
-
-impl Default for ProjectName {
-    fn default() -> Self {
-        Self::Default
     }
 }
 

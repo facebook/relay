@@ -86,19 +86,13 @@ where
     Ok(Some(permits))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[derive(JsonSchema)]
 pub enum LocalPersistAlgorithm {
+    #[default]
     MD5,
     SHA1,
     SHA256,
-}
-
-impl Default for LocalPersistAlgorithm {
-    // For backwards compatibility
-    fn default() -> Self {
-        Self::MD5
-    }
 }
 
 /// Configuration for local persistence of GraphQL documents.

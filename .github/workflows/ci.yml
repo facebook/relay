@@ -229,6 +229,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository == 'facebook/relay'
     needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
+    environment: npm-publish
+    permissions:
+      contents: read   # Required for actions/checkout
+      id-token: write  # Required for trusted publishing to NPM
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

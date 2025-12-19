@@ -14,7 +14,7 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.mdx';
+// @fb-only
 
 <FbInternalOnly>
 
@@ -493,7 +493,7 @@ function CommentRenderer(props) {
 module.exports = CommentRenderer;
 ```
 
-<FbSuspensePlaceholder />
+// @fb-only
 
 The component that is dynamically loaded via 3D can also be a component that uses `useFragment`:
 

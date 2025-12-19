@@ -13,14 +13,20 @@
 //! * `BuildProjectError`: An error type that represents an error that occurred while building a project.
 //! * `PersistError`: An error type that represents an error that occurred while persisting data.
 use std::io;
+use std::path::Path;
 use std::path::PathBuf;
 
 use common::Diagnostic;
 use glob::PatternError;
+use graphql_cli::DiagnosticPrinter;
 use persist_query::PersistError;
 use relay_config::ProjectName;
 use serde::Serialize;
 use thiserror::Error;
+
+use crate::FsSourceReader;
+use crate::SourceReader;
+use crate::source_for_location;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -285,4 +291,79 @@ pub enum BuildProjectError {
         #[serde(skip_serializing)]
         source: io::Error,
     },
+}
+
+/// Utility for printing compiler errors with source context.
+///
+/// This is primarily intended for use in tests to format error output
+/// in a human-readable way with source code context.
+pub fn print_compiler_error(root_dir: &Path, error: Error) -> String {
+    let mut error_printer = CompilerErrorPrinter::new(root_dir);
+    error_printer.print_error(error);
+    error_printer.into_string()
+}
+
+/// Struct for printing compiler errors with source context.
+///
+/// This is primarily intended for use in tests to format error output
+/// in a human-readable way with source code context.
+pub struct CompilerErrorPrinter<'a> {
+    chunks: Vec<String>,
+    root_dir: &'a Path,
+    source_reader: Box<dyn SourceReader + Send + Sync>,
+}
+
+impl<'a> CompilerErrorPrinter<'a> {
+    /// Create a new error printer for the given root directory.
+    pub fn new(root_dir: &'a Path) -> Self {
+        Self {
+            chunks: vec![],
+            root_dir,
+            source_reader: Box::new(FsSourceReader {}),
+        }
+    }
+
+    /// Print the error and return the formatted string.
+    pub fn print_error(&mut self, compiler_error: Error) {
+        match compiler_error {
+            Error::DiagnosticsError { errors } => {
+                for diagnostic in errors {
+                    self.append_diagnostic(diagnostic)
+                }
+            }
+            Error::BuildProjectsErrors { errors } => {
+                for err in errors {
+                    self.print_build_error(err);
+                }
+            }
+            err => self.chunks.push(format!("{}", err)),
+        }
+    }
+
+    fn print_build_error(&mut self, build_error: BuildProjectError) {
+        match build_error {
+            BuildProjectError::ValidationErrors {
+                errors,
+                project_name: _,
+            } => {
+                for diagnostic in errors {
+                    self.append_diagnostic(diagnostic)
+                }
+            }
+            e => self.chunks.push(format!("{}", e)),
+        }
+    }
+
+    fn append_diagnostic(&mut self, diagnostic: Diagnostic) {
+        let printer = DiagnosticPrinter::new(|source_location| {
+            source_for_location(self.root_dir, source_location, self.source_reader.as_ref())
+                .map(|source| source.to_text_source())
+        });
+        self.chunks.push(printer.diagnostic_to_string(&diagnostic))
+    }
+
+    /// Get the formatted error output as a string.
+    pub fn into_string(self) -> String {
+        self.chunks.join("\n")
+    }
 }

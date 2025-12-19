@@ -56,7 +56,7 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $NonMaybeType<TKey['$data']>;
+): NonNullable<TKey['$data']>;
 
 declare function readFragment<
   TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
@@ -74,7 +74,7 @@ declare function readFragment<
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
-): $NonMaybeType<TKey[number]['$data']>;
+): NonNullable<TKey[number]['$data']>;
 
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
@@ -130,7 +130,7 @@ function readFragment(
 const RESOLVER_FRAGMENT_ERRORED_SENTINEL: mixed = {};
 
 module.exports = {
+  RESOLVER_FRAGMENT_ERRORED_SENTINEL,
   readFragment,
   withResolverContext,
-  RESOLVER_FRAGMENT_ERRORED_SENTINEL,
 };

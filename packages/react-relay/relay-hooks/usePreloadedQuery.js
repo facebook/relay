@@ -59,11 +59,7 @@ hook usePreloadedQuery<
   gqlQuery:
     | Query<TVariables, TData, TRawResponse>
     | ClientQuery<TVariables, TData, TRawResponse>,
-  preloadedQuery: PreloadedQuery<
-    TVariables,
-    TData,
-    $NonMaybeType<TRawResponse>,
-  >,
+  preloadedQuery: PreloadedQuery<TVariables, TData, NonNullable<TRawResponse>>,
   options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
   },
@@ -145,8 +141,8 @@ hook usePreloadedQuery<
 
     useLazyLoadQueryNodeParams = {
       componentDisplayName: 'usePreloadedQuery()',
-      fetchObservable,
       fetchKey,
+      fetchObservable,
       fetchPolicy,
       query: operation,
       renderPolicy: options?.UNSTABLE_renderPolicy,
@@ -156,7 +152,7 @@ hook usePreloadedQuery<
   const data = useLazyLoadQueryNode<{
     variables: TVariables,
     response: TData,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>(useLazyLoadQueryNodeParams);
 
   if (__DEV__) {
@@ -164,12 +160,12 @@ hook usePreloadedQuery<
     // $FlowFixMe[react-rule-hook]
     // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({
-      query: preloadedQuery.name,
-      variables: preloadedQuery.variables,
       data,
       fetchKey,
       fetchPolicy,
+      query: preloadedQuery.name,
       renderPolicy: options?.UNSTABLE_renderPolicy,
+      variables: preloadedQuery.variables,
     });
   }
   return data;

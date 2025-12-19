@@ -121,7 +121,7 @@ type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
     : [+t: T] extends [+t: {+$fragmentType: FragmentType, ...}]
       ? $FragmentRef<T>
       : [+t: T] extends [+t: ?{+$fragmentType: FragmentType, ...}]
-        ? ?$FragmentRef<$NonMaybeType<T>>
+        ? ?$FragmentRef<NonNullable<T>>
         : [+t: T] extends [
               +t: $ReadOnlyArray<
                 infer V extends {+$fragmentType: FragmentType, ...},
@@ -140,14 +140,14 @@ type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
                     ...
                   }>,
                 ]
-              ? $ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+              ? $ReadOnlyArray<?$FragmentRef<NonNullable<V>>>
               : [+t: T] extends [
                     +t: ?$ReadOnlyArray<?infer V extends {
                       +$fragmentType: FragmentType,
                       ...
                     }>,
                   ]
-                ? ?$ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+                ? ?$ReadOnlyArray<?$FragmentRef<NonNullable<V>>>
                 : T;
 
 export type RelayFragmentContainer<TComponent: component(...empty)> = component(

@@ -48,7 +48,7 @@ export type QueryType<T> =
     ? {
         variables: V,
         response: D,
-        rawResponse?: $NonMaybeType<RR>,
+        rawResponse?: NonNullable<RR>,
       }
     : [+t: T] extends [+t: PreloadableConcreteRequest<infer V>]
       ? V

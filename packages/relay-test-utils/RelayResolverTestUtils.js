@@ -38,7 +38,7 @@ function testResolver<D: ?{+$fragmentType?: mixed, ...}, Ret>(
   resolver: ({$data?: D, $fragmentRefs: any, $fragmentSpreads: any}) => Ret,
   // indexed_access is not yet enabled for this code base. Once it is, this can
   // become: `Key['$data']`
-  fragmentData: NoInfer<Omit<$NonMaybeType<D>, '$fragmentType'>>,
+  fragmentData: NoInfer<Omit<NonNullable<D>, '$fragmentType'>>,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
   // $FlowFixMe[incompatible-type]: a test utility, so... YOLO!!

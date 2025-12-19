@@ -299,3 +299,14 @@ export default ((node/*: any*/)/*: ClientQuery<
   fooQuery$variables,
   fooQuery$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooQuery
+    Path: __generated__/fooQuery.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("30ed0978ed1639d9a7c5e81ed79e7320")
+    Path: __generated__/ClientUser____relay_model_instance.graphql.js
+    Path: __generated__/ClientUser__id.graphql.js

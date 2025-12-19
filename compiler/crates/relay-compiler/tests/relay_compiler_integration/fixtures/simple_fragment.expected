@@ -58,3 +58,11 @@ const node: ReaderFragment = {
 (node as any).hash = "01d5e51e4b7ff55557834f125c21745d";
 
 export default node;
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: foo
+    Path: __generated__/foo.graphql.ts

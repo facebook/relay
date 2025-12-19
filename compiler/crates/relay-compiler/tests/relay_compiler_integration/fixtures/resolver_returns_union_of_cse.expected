@@ -274,3 +274,11 @@ export default ((node/*: any*/)/*: ClientQuery<
   PersonComponentQuery$variables,
   PersonComponentQuery$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: PersonComponentQuery
+    Path: __generated__/PersonComponentQuery.graphql.js

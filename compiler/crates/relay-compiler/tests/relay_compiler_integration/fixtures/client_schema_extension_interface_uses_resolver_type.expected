@@ -407,3 +407,14 @@ export default ((node/*: any*/)/*: ClientQuery<
   PersonComponentQuery$variables,
   PersonComponentQuery$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: PersonComponentQuery
+    Path: __generated__/PersonComponentQuery.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("7f73cd5d979639fd8ce1982f17b159d7")
+    Path: __generated__/Admin____relay_model_instance.graphql.js
+    Path: __generated__/Admin__id.graphql.js

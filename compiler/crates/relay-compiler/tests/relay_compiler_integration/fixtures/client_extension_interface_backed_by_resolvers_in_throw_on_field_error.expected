@@ -225,3 +225,14 @@ export default ((node/*: any*/)/*: Fragment<
   fooFragment$fragmentType,
   fooFragment$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooFragment
+    Path: __generated__/fooFragment.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("42dad5aeb9fb8a9a2369b309f041410f")
+    Path: __generated__/ClientUser____relay_model_instance.graphql.js
+    Path: __generated__/ClientUser__id.graphql.js

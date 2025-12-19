@@ -719,3 +719,16 @@ export default ((node/*: any*/)/*: Fragment<
   foo__edges$fragmentType,
   foo__edges$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooQuery
+    Path: __generated__/fooQuery.graphql.js
+  - Source: ExecutableDefinition: foo
+    Path: __generated__/RefetchableFragmentQuery.graphql.js
+    Path: __generated__/foo.graphql.js
+  - Source: ExecutableDefinition: foo__edges
+    Path: __generated__/foo__edges.graphql.js

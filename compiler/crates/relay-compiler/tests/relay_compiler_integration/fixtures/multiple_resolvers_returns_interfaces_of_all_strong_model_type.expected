@@ -614,3 +614,17 @@ export default ((node/*: any*/)/*: Fragment<
   User__id$fragmentType,
   User__id$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: PersonComponentQuery
+    Path: __generated__/PersonComponentQuery.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("9dd9e9fdd793726f021efa8f2602c3a0")
+    Path: __generated__/User____relay_model_instance.graphql.js
+    Path: __generated__/User__id.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("bb1ffe3e10eda807d79c3d58e800ca86")
+    Path: __generated__/Admin____relay_model_instance.graphql.js
+    Path: __generated__/Admin__id.graphql.js

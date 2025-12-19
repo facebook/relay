@@ -197,3 +197,13 @@ export default ((node/*: any*/)/*: Mutation<
   barMutation$variables,
   barMutation$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: barMutation
+    Path: __generated__/barMutation.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("894d9965ea1f21554c6e5a2a8ce4a542")
+    Path: __generated__/Mutation__foo_mutation$normalization.graphql.js

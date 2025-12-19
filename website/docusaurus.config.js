@@ -15,6 +15,7 @@ const {
   fbContent,
   isInternal,
 } = require('docusaurus-plugin-internaldocs-fb/internal');
+const {themes: prismThemes} = require('prism-react-renderer');
 
 module.exports = {
   title: 'Relay',
@@ -464,7 +465,7 @@ module.exports = {
     },
     prism: {
       theme: require('./prismTheme'),
-      darkTheme: require('prism-react-renderer/themes/dracula'),
+      darkTheme: prismThemes.dracula,
       defaultLanguage: 'javascript',
       magicComments: [
         {

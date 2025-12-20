@@ -162,6 +162,7 @@ SchemaDocument {
                         },
                     },
                 ),
+                description: None,
                 span: 0:244,
             },
         ),

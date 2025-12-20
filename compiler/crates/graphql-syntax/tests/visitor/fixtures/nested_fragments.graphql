@@ -1,0 +1,45 @@
+query NestedQuery {
+  viewer {
+    id
+    ... on User {
+      name
+      posts {
+        edges {
+          node {
+            id
+            title
+            ...PostDetails
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment PostDetails on Post {
+  content
+  author {
+    ...AuthorInfo
+  }
+  comments {
+    ...CommentList
+  }
+}
+
+fragment AuthorInfo on User {
+  id
+  name
+  avatar
+}
+
+fragment CommentList on CommentConnection {
+  edges {
+    node {
+      id
+      text
+      author {
+        ...AuthorInfo
+      }
+    }
+  }
+}

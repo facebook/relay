@@ -9,8 +9,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbGarbageCollection from './fb/FbGarbageCollection.md';
-
 
 An important thing to keep in mind when attempting to reuse data that is cached in the Relay store is to understand the lifetime of that data; that is, if it is present in the store, and for how long it will be.
 
@@ -24,14 +22,9 @@ Specifically, Relay runs garbage collection on the local in-memory store by dele
 
 However, this can be at odds with reusing cached data; if the data is deleted too soon, before we try to reuse it again later, that will prevent us from reusing that data to render a screen without having to wait on a network request. To address this, this section will cover what you need to do in order to ensure that the data you want to reuse is kept cached for as long as you need it.
 
-
 :::note
 Usually, you shouldn't need to worry about configuring garbage collection and data retention, as this should be configured by the app infrastructure at the RelayEnvironment level; however, we will cover it here for reference.
 :::
-
-<FbGarbageCollection />
-
-
 
 ## Query Retention
 
@@ -54,7 +47,6 @@ disposable.dispose();
 
 * As mentioned, this will allow you to retain the query even after a query component has unmounted, allowing other components, or future instances of the same component, to reuse the retained data.
 
-
 ## Controlling Relay's Garbage Collection Policy
 
 There are currently 2 options you can provide to your Relay Store in to control the behavior of garbage collection:
@@ -75,7 +67,6 @@ const store = new Store(source, {gcScheduler});
 
 * By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
 * You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/main/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
-
 
 ### GC Release Buffer Size
 

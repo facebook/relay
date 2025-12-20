@@ -12,7 +12,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRefetchingConnectionsUsingUseTransition from './fb/FbRefetchingConnectionsUsingUseTransition.md';
 
 Often times when querying for a list of data, you can provide different values in the query which serve as filters that change the result set, or sort it differently.
 
@@ -122,10 +121,6 @@ function FriendsListComponent(props: Props) {
 * Note that calling `loadNext` will use the original `order_by` and `search_term` values used for the initial query. During pagination, these value won't (*and shouldn't*) change.
 
 If we want to refetch the connection with *different* variables, we can use the `refetch` function provided by `usePaginationFragment`, similarly to how we do so when [Refetching Fragments with Different Data](../../refetching/refetching-fragments-with-different-data/):
-
-<FbInternalOnly>
-  <FbRefetchingConnectionsUsingUseTransition />
-</FbInternalOnly>
 
 <OssOnly>
 

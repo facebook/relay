@@ -60,8 +60,7 @@
     "eslint-plugin-relay": "1.8.3",
     "eslint-plugin-relay-internal": "link:./packages/eslint-plugin-relay-internal",
     "fbjs": "^3.0.2",
-    "flow-bin": "^0.291.0",
-    "glob": "^7.1.1",
+    "flow-bin": "^0.295.0",
     "graphql": "15.3.0",
     "gulp": "4.0.2",
     "gulp-babel": "8.0.0",
@@ -85,10 +84,6 @@
     "@babel/traverse": "^7.23.2"
   },
   "private": true,
-  "devEngines": {
-    "node": ">=18.x",
-    "npm": ">=8.x"
-  },
   "jest": {
     "testMatch": [
       "<rootDir>/packages/**/__tests__/**/*-test.js"

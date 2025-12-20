@@ -85,6 +85,7 @@ Field(
                                 ),
                                 default_value: None,
                                 directives: [],
+                                description: None,
                                 span: 39:46,
                             },
                         ],

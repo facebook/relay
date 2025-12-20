@@ -367,7 +367,7 @@ impl SchemaDefault<FieldID> for SetField {
             }),
             name: FieldName(field_name),
             arguments: StringKeyIndexMap::default(),
-            type_: convert_output_type_reference(
+            type_: convert_schema_output_type_reference(
                 schema,
                 &schema_field.type_,
                 &schema_field.directives,
@@ -408,7 +408,7 @@ impl SetEmptyClone for SetDirective {
 
 /// Helper function to convert a schema TypeReference<Type> to OutputTypeReference<StringKey>
 /// with support for @semanticNonNull directives
-fn convert_output_type_reference(
+pub fn convert_schema_output_type_reference(
     schema: &SDLSchema,
     type_ref: &TypeReference<Type>,
     directives: &[DirectiveValue],

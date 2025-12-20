@@ -149,6 +149,7 @@ describe('RelayReaderExecResolvers', () => {
     const {data} = read(
       source,
       operation.fragment,
+      null,
       new LiveResolverCache(() => source, resolverStore),
     );
 
@@ -210,6 +211,7 @@ describe('RelayReaderExecResolvers', () => {
     const {data} = read(
       source,
       operation.fragment,
+      null,
       new LiveResolverCache(() => source, resolverStore),
     );
 
@@ -284,6 +286,7 @@ describe('RelayReaderExecResolvers', () => {
     const {data} = read(
       source,
       operation.fragment,
+      null,
       new LiveResolverCache(() => source, resolverStore),
     );
 

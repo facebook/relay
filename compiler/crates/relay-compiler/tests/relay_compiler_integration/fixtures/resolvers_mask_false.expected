@@ -219,3 +219,17 @@ const node: ReaderFragment = {
 (node as any).hash = "5adc58968744f5863661d6083f1e8227";
 
 export default node;
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: UserBarFragment
+    Path: __generated__/UserBarFragment$normalization.graphql.ts
+    Path: __generated__/UserBarFragment.graphql.ts
+  - Source: ExecutableDefinition: UserFooFragment
+    Path: __generated__/UserFooFragment$normalization.graphql.ts
+    Path: __generated__/UserFooFragment.graphql.ts
+  - Source: Schema
+    Path: __generated__/ResolversSchemaModule.js

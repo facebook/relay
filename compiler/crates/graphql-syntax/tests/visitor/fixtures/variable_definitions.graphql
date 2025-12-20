@@ -1,0 +1,18 @@
+query WithVariables(
+  $id: ID!
+  $size: Int = 100
+  $filter: FilterInput
+  $items: [String!]!
+  $enabled: Boolean = false
+) @queryDirective {
+  node(id: $id) {
+    ... on Image {
+      url(size: $size)
+    }
+  }
+  search(filter: $filter, items: $items) {
+    results @include(if: $enabled) {
+      id
+    }
+  }
+}

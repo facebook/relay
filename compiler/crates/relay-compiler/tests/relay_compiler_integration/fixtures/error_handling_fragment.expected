@@ -68,3 +68,11 @@ export default ((node/*: any*/)/*: Fragment<
   foo$fragmentType,
   foo$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: foo
+    Path: __generated__/foo.graphql.js

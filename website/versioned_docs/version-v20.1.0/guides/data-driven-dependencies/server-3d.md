@@ -14,15 +14,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';
-
-<FbInternalOnly>
-
-:::note
-Throughout this guide, we use `MatchContainer`. If you are in www, but not in Comet, you should use RelayFBMatchContainer.
-:::
-
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -43,27 +34,6 @@ The basic case for 3D are the first two cases described in [Use Cases](../introd
 Let's walk through how to handle a comment that may contain an image attachment, where we only want to download the image rendering code when an image is actually present.
 
 #### Server Changes
-
-<FbInternalOnly>
-
-* For each concrete (GraphQLObject) type that you want to use `@module` with, update the schema to use the `HasJSDependency` trait. In this case we'd add the trait to the type of the `Comment.image` field - lets say that's `CommentImage`:
-
-```php
-<<
-  GraphQLObject('CommentImage', 'An image attached to a comment'),
-  Oncalls('<todo>')
->>
-final class CommentImage ... {
-  // Note: Each type used with @module must use the `HasJSDependency` trait
-  // to allow dynamically loading a client-specified React component
-  use HasJSDependency;
-
-  ...
-}
-```
-* Rebuild the GraphQL schema with `phps graphql`.
-
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -150,133 +120,12 @@ Let's walk through the steps to implementing the above example of adding a new d
 
 #### Server Changes
 
-<FbInternalOnly>
-
-* Define a new `GraphQLUnion` type with a variant for each rendering strategy:
-
-```php
-<<
-  GraphQLUnion('CommentRenderer', 'Data-driven dependency for comments...'),
-  Oncalls('<todo>')
->>
-interface ICommentRenderer extends IGraphQLUnion {}
-
-<<
-  GraphQLObject('CommentMarkdownRenderer', 'Comment with markdown rendering'),
-  Oncalls('<todo>')
->>
-final class CommentMarkdownRenderer implements ICommentRenderer {
-  // Note: Each class in the union must use the `HasJSDependency` trait to allow
-  // dynamically loading a client-specified React compon
-  use HasJSDependency;
-
-  <<GraphQLField('markdown', 'Markdown text')>>
-  public function markdown(): string {
-    return 'markdown'; // todo: load markdown content from the comment
-  }
-}
-
-<<
-  GraphQLObject('CommentPlaintextRenderer', 'Comment with plaintext rendering'),
-  Oncalls('<todo>')
->>
-final class CommentPlaintextRenderer implements ICommentRenderer {
-  // Note: Each class in the union must use the `HasJSDependency` trait to allow
-  // dynamically loading a client-specified React compon
-  use HasJSDependency;
-
-  <<GraphQLField('plaintext', 'Plaintext')>>
-  public function plaintext(): string {
-    return 'plaintext'; // todo: load text content from the comment
-  }
-}
-```
-* Add a new field on the `Comment` type that accepts a `Traversable<string> supported` argument listing the client's supported strategies, and returns one of the union values to indicate the selected strategy:
-
-```php
-<<
-  GraphQLObject('Comment', 'Comment on a post'),
-  Oncalls('<todo>')
->>
-final class Comment {
-  <<GraphQLField(
-    'comment_content_renderer',
-    'Field that returns a rendering strategy for the main content of the comment',
-  )>>
-  public function commentContentRenderer(Traversable<string> $supported): ICommentRenderer {
-    if (C\contains($supported, 'CommentMarkdownRenderer') && userIsEligibleForMarkdownContent()) {
-      return new CommentMarkdownRenderer();
-    }
-    return new CommentPlaintextRenderer();
-  }
-}
-```
-* Rebuild the GraphQL schema with `arc rebuild`.
-
-#### Choose Render Strategy API
-
-In some cases, your use case might require multiple and more complex checks in order to choose a proper render strategy. For those cases, you can extend your strategies with `IRenderStrategy`.  So, the example above could be extended aggregating `CommentMarkupRenderer` simply writing the following code:
-
-```php
-<<
-  GraphQLObject('CommentMarkupRenderer', 'Comment with markup rendering'),
-  Oncalls('<todo>')
->>
-final class CommentMarkupRenderer implements ICommentRenderer, IRenderStrategy {
-
-  use HasJSDependency;
-
-  <<GraphQLField('markup', 'Markdown text')>>
-  public function markdown(): string {
-    return 'markup'; // todo: load markup content from the comment
-  }
-
-  <<__Override>>
-  public async function genShouldShow(): Awaitable<bool> {
-    return userIsEligibleForMarkupContent();
-  }
-}
-final class CommentMarkdownRenderer implements ICommentRenderer, IRenderStrategy {
-  // ...
-  <<__Override>>
-  public async function genShouldShow(): Awaitable<bool> {
-    return userIsEligibleForMarkdownContent();
-  }
-}
-
-final class CommentPlaintextRenderer implements ICommentRenderer, IRenderStrategy {
-  // ...
-  <<__Override>>
-  public async function genShouldShow(): Awaitable<bool> {
-    // By default we want to use this strategy as a fallback
-    return true;
-  }
-}
-```
-having all RendererStrategies implementing IRenderStrategy, we can choose the strategy using `RenderStrategySelector::genChooseStrategy`. Making sure to place strategies in the proper order, since the first strategy that `genShouldShow` returns true will be picked as:
-
-```php
-public function commentContentRenderer(Traversable<string> $supported): Awaitable<ICommentRenderer> {
-  return await RenderStrategySelector::genChooseStrategy(
-    vec[
-      CommentMarkdownRenderer(),
-      CommentMarkupRenderer(),
-      CommentPlaintextRenderer(),
-    ],
-    $supported,
-  )
-}
-```
-
-</FbInternalOnly>
-
 <OssOnly>
 
 * Define a new `GraphQLUnion` type with a variant for each rendering strategy.
 * Add a new field on the `Comment` type that accepts an `Array<string> supported` argument listing the client's supported strategies, and returns one of the union values to indicate the selected strategy.
 
 </OssOnly>
-
 
 #### Client Changes
 
@@ -443,9 +292,6 @@ function CommentRenderer(props) {
 module.exports = CommentRenderer;
 ```
 
-<FbSuspensePlaceholder />
-
-
 The component that is dynamically loaded via 3D can also be a component that uses `useFragment`:
 
 ```js
@@ -477,16 +323,6 @@ module.exports = CommentImageRenderer;
 ## Using non-React modules
 
 The typical usage of data-driven dependencies is to dynamically load modules that export a React component with data-dependencies expressed via Relay. However, Relay also supports dynamically loading *arbitrary* JS modules. This works the same `@match` / `@module` syntax, but (as you may expect) `MatchContainer` won't work for this case. Instead, use `ModuleResource.read()`. The above example using `MatchContainer` can be rewritten to manually read and use the `@module` result:
-
-<FbInternalOnly>
-
-:::tip
-In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
-:::
-
-</FbInternalOnly>
-
-
 
 ```js
 const React = require('React');
@@ -537,14 +373,6 @@ module.exports = CommentRenderer;
 ```
 
 You can also use `@module` directly to load a non-React module for a field if it isn't null (without using `@match`), and similarly consume the module using `ModuleResource.read()`:
-
-<FbInternalOnly>
-
-:::tip
-In www, outside of Comet, you should use `RelayFBModuleResource.read()` instead of `ModuleResource.read()`.
-:::
-
-</FbInternalOnly>
 
 ```js
 function CommentRenderer(props) {
@@ -605,18 +433,8 @@ function CommentRenderer(props) {
 }
 ```
 
-
 ## Important Notes / Troubleshooting
 
-
 * Note that `MatchContainer` will suspend until the selected component finishes loading, so be sure to wrap it in a `Suspense` placeholder.
-
-<FbInternalOnly>
-
-## ServerCallableModule Is No Longer Required
-
-Usage of 3D **previously** required adding an `@ServerCallableModule` annotation to components loaded with `@module`. **This annotation is no longer required**. You may see diffs titled "[Codemod][DeadServerCallable" that remove these now-unnecessary annotations, these diffs are expected and safe to land so long as they are only removing these annotations and not accidentally making other changes (i.e., please sanity-check the bot!).
-
-</FbInternalOnly>
 
 <DocsRating />

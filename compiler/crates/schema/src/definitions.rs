@@ -584,6 +584,7 @@ pub struct DirectiveValue {
 pub struct EnumValue {
     pub value: StringKey,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -422,25 +422,25 @@ impl<'a> Parser<'a> {
         }
         match self.source(token) {
             "schema" => Ok(TypeSystemDefinition::SchemaDefinition(
-                self.parse_schema_definition()?,
+                self.parse_schema_definition(description)?,
             )),
             "scalar" => Ok(TypeSystemDefinition::ScalarTypeDefinition(
-                self.parse_scalar_type_definition()?,
+                self.parse_scalar_type_definition(description)?,
             )),
             "type" => Ok(TypeSystemDefinition::ObjectTypeDefinition(
-                self.parse_object_type_definition()?,
+                self.parse_object_type_definition(description)?,
             )),
             "interface" => Ok(TypeSystemDefinition::InterfaceTypeDefinition(
-                self.parse_interface_type_definition()?,
+                self.parse_interface_type_definition(description)?,
             )),
             "union" => Ok(TypeSystemDefinition::UnionTypeDefinition(
-                self.parse_union_type_definition()?,
+                self.parse_union_type_definition(description)?,
             )),
             "enum" => Ok(TypeSystemDefinition::EnumTypeDefinition(
-                self.parse_enum_type_definition()?,
+                self.parse_enum_type_definition(description)?,
             )),
             "input" => Ok(TypeSystemDefinition::InputObjectTypeDefinition(
-                self.parse_input_object_type_definition()?,
+                self.parse_input_object_type_definition(description)?,
             )),
             "directive" => Ok(TypeSystemDefinition::DirectiveDefinition(
                 self.parse_directive_definition(description, hack_source)?,
@@ -574,9 +574,12 @@ impl<'a> Parser<'a> {
     }
 
     /**
-     * SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
+     * SchemaDefinition : Description? schema Directives? { OperationTypeDefinition+ }
      */
-    fn parse_schema_definition(&mut self) -> ParseResult<SchemaDefinition> {
+    fn parse_schema_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<SchemaDefinition> {
         let start = self.index();
         self.parse_keyword("schema")?;
         let directives = self.parse_constant_directives()?;
@@ -590,6 +593,7 @@ impl<'a> Parser<'a> {
         Ok(SchemaDefinition {
             directives,
             operation_types,
+            description,
             span,
         })
     }
@@ -720,7 +724,14 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_object_type_definition(&mut self) -> ParseResult<ObjectTypeDefinition> {
+    /**
+     * ObjectTypeDefinition :
+     *   - Description? type Name ImplementsInterfaces? Directives? FieldsDefinition?
+     */
+    fn parse_object_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<ObjectTypeDefinition> {
         let start = self.index();
         self.parse_keyword("type")?;
         let name = self.parse_identifier()?;
@@ -734,6 +745,7 @@ impl<'a> Parser<'a> {
             interfaces,
             directives,
             fields,
+            description,
             span,
         })
     }
@@ -747,7 +759,14 @@ impl<'a> Parser<'a> {
         Ok(self.current)
     }
 
-    fn parse_interface_type_definition(&mut self) -> ParseResult<InterfaceTypeDefinition> {
+    /**
+     * InterfaceTypeDefinition :
+     *   - Description? interface Name ImplementsInterfaces? Directives? FieldsDefinition?
+     */
+    fn parse_interface_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<InterfaceTypeDefinition> {
         let start = self.index();
         self.parse_keyword("interface")?;
         let name = self.parse_identifier()?;
@@ -761,6 +780,7 @@ impl<'a> Parser<'a> {
             interfaces,
             directives,
             fields,
+            description,
             span,
         })
     }
@@ -778,7 +798,10 @@ impl<'a> Parser<'a> {
      * UnionTypeDefinition :
      *   - Description? union Name Directives? UnionMemberTypes?
      */
-    fn parse_union_type_definition(&mut self) -> ParseResult<UnionTypeDefinition> {
+    fn parse_union_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<UnionTypeDefinition> {
         let start = self.index();
         self.parse_keyword("union")?;
         let name = self.parse_identifier()?;
@@ -790,6 +813,7 @@ impl<'a> Parser<'a> {
             name,
             directives,
             members,
+            description,
             span,
         })
     }
@@ -877,7 +901,10 @@ impl<'a> Parser<'a> {
      * EnumTypeDefinition :
      *   - Description? enum Name Directives? EnumValuesDefinition?
      */
-    fn parse_enum_type_definition(&mut self) -> ParseResult<EnumTypeDefinition> {
+    fn parse_enum_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<EnumTypeDefinition> {
         let start = self.index();
         self.parse_keyword("enum")?;
         let name = self.parse_identifier()?;
@@ -889,6 +916,7 @@ impl<'a> Parser<'a> {
             name,
             directives,
             values,
+            description,
             span,
         })
     }
@@ -968,7 +996,7 @@ impl<'a> Parser<'a> {
      */
     fn parse_enum_value_definition(&mut self) -> ParseResult<EnumValueDefinition> {
         let start = self.index();
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let end = self.index();
@@ -976,6 +1004,7 @@ impl<'a> Parser<'a> {
         Ok(EnumValueDefinition {
             name,
             directives,
+            description,
             span,
         })
     }
@@ -1085,9 +1114,13 @@ impl<'a> Parser<'a> {
     }
 
     /**
-     * ScalarTypeDefinition : Description? scalar Name Directives?
+     * ScalarTypeDefinition :
+     *   - Description? scalar Name Directives?
      */
-    fn parse_scalar_type_definition(&mut self) -> ParseResult<ScalarTypeDefinition> {
+    fn parse_scalar_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<ScalarTypeDefinition> {
         let start = self.index();
         self.parse_keyword("scalar")?;
         let name = self.parse_identifier()?;
@@ -1097,6 +1130,7 @@ impl<'a> Parser<'a> {
         Ok(ScalarTypeDefinition {
             name,
             directives,
+            description,
             span,
         })
     }
@@ -1144,7 +1178,10 @@ impl<'a> Parser<'a> {
      * InputObjectTypeDefinition :
      *   - Description? input Name Directives? InputFieldsDefinition?
      */
-    fn parse_input_object_type_definition(&mut self) -> ParseResult<InputObjectTypeDefinition> {
+    fn parse_input_object_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<InputObjectTypeDefinition> {
         let start = self.index();
         self.parse_keyword("input")?;
         let name = self.parse_identifier()?;
@@ -1156,6 +1193,7 @@ impl<'a> Parser<'a> {
             name,
             directives,
             fields,
+            description,
             span,
         })
     }
@@ -1535,7 +1573,7 @@ impl<'a> Parser<'a> {
      */
     fn parse_input_value_def(&mut self) -> ParseResult<InputValueDefinition> {
         let start = self.index();
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_type_annotation()?;
@@ -1552,6 +1590,7 @@ impl<'a> Parser<'a> {
             type_,
             default_value,
             directives,
+            description,
             span,
         })
     }
@@ -1607,9 +1646,10 @@ impl<'a> Parser<'a> {
         Ok(self.current)
     }
 
-    /// FragmentDefinition : fragment FragmentName TypeCondition Directives? SelectionSet
+    /// FragmentDefinition : Description? fragment FragmentName TypeCondition Directives? SelectionSet
     fn parse_fragment_definition(&mut self) -> ParseResult<FragmentDefinition> {
         let start = self.index();
+        let description = self.parse_optional_description();
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
         let variable_definitions = if self.features.supports_variable_definition_syntax() {
@@ -1634,11 +1674,12 @@ impl<'a> Parser<'a> {
             type_condition,
             directives,
             selections,
+            description,
         })
     }
 
     /// OperationDefinition :
-    ///     OperationType Name? VariableDefinitions? Directives? SelectionSet
+    ///     Description? OperationType Name? VariableDefinitions? Directives? SelectionSet
     ///     SelectionSet
     fn parse_operation_definition(&mut self) -> ParseResult<OperationDefinition> {
         let start = self.index();
@@ -1653,8 +1694,11 @@ impl<'a> Parser<'a> {
                 variable_definitions: None,
                 directives: Vec::new(),
                 selections,
+                description: None,
             });
         }
+        // Check for description before operation type
+        let description = self.parse_optional_description();
         // Otherwise requires operation type and name
         let maybe_operation_token = self.peek();
         let operation = match (
@@ -1695,12 +1739,14 @@ impl<'a> Parser<'a> {
             variable_definitions,
             directives,
             selections,
+            description,
         })
     }
 
-    /// VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+    /// VariableDefinition : Description? Variable : Type DefaultValue? Directives[Const]?
     fn parse_variable_definition(&mut self) -> ParseResult<VariableDefinition> {
         let start = self.index();
+        let description = self.parse_optional_description();
         let name = self.parse_variable_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_type_annotation()?;
@@ -1718,6 +1764,7 @@ impl<'a> Parser<'a> {
             type_,
             default_value,
             directives,
+            description,
         })
     }
 

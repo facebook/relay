@@ -1,0 +1,63 @@
+type User {
+  id: ID!
+  name: String!
+}
+
+extend type User {
+  email: String
+  posts: [Post]
+}
+
+extend type User {
+  friends: [User]
+}
+
+type Post {
+  id: ID!
+  title: String!
+}
+
+extend type Post {
+  content: String
+  author: User
+}
+
+interface Node {
+  id: ID!
+}
+
+extend interface Node {
+  createdAt: DateTime
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+extend enum Status {
+  PENDING
+  ARCHIVED
+}
+
+scalar DateTime
+
+extend scalar DateTime @specifiedBy(url: "https://scalars.graphql.org/andimarek/date-time.html")
+
+union SearchResult = User | Post
+
+extend union SearchResult = Comment
+
+type Comment {
+  id: ID!
+  text: String!
+}
+
+input Filter {
+  query: String
+}
+
+extend input Filter {
+  limit: Int
+  offset: Int
+}

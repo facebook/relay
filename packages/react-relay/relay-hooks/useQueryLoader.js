@@ -57,7 +57,7 @@ function requestIsLiveQuery<
   TQuery: OperationType = {
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   },
 >(
   preloadableRequest:
@@ -79,7 +79,7 @@ export type UseQueryLoaderHookReturnType<
   ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
   (variables: TVariables, options?: UseQueryLoaderLoadQueryOptions) => void,
   () => void,
@@ -102,7 +102,7 @@ declare function useQueryLoader<
   initialQueryReference: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData>;
 
@@ -116,7 +116,7 @@ hook useQueryLoader<TVariables: Variables, TData, TRawResponse: ?{...} = void>(
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData> {
   if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
@@ -141,13 +141,13 @@ hook useQueryLoader_CURRENT<
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData> {
   type QueryType = {
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   };
 
   /**

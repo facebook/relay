@@ -219,3 +219,13 @@ const node: ConcreteRequest = {
 (node as any).hash = "3508818a33211bc36644b79de3011e83";
 
 export default node;
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooQuery
+    Path: __generated__/fooQuery.graphql.ts
+  - Source: ExecutableDefinition: foo
+    Path: __generated__/foo.graphql.ts

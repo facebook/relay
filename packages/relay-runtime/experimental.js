@@ -41,7 +41,7 @@ export type IdOf<A: string, Typename: void | string = void> = [
  * can return null or not. If the field is nullable, you can type it as
  * returning `?RelayResolverValue<T>`.
  */
-export type RelayResolverValue<A> = $NonMaybeType<A>;
+export type RelayResolverValue<A> = NonNullable<A>;
 
 type ErrorResult<Error> = {
   +ok: false,
@@ -68,10 +68,10 @@ function isErrorResult<T = mixed>(
 }
 
 module.exports = {
-  resolverDataInjector,
-  isValueResult,
   isErrorResult,
-  observeQuery,
+  isValueResult,
   observeFragment,
+  observeQuery,
+  resolverDataInjector,
   waitForFragmentData,
 };

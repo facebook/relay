@@ -342,6 +342,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         Some(EnumValue {
             value: value.value()?.intern(),
             directives,
+            description: None,
         })
     }
 

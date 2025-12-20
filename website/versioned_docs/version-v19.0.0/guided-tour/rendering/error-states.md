@@ -11,9 +11,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbErrorBoundary from './fb/FbErrorBoundary.md';
-
-<FbErrorBoundary />
 
 As you may have noticed, we mentioned that using `usePreloadedQuery` will render data from a query that was (or is) being fetched from the server, but we didn't elaborate on how to render UI to show an error if an error occurred during fetch. We will cover that in this section.
 
@@ -59,8 +56,6 @@ function App() {
 
 * We can use the Error Boundary to wrap subtrees and show a different UI when an error occurs within that subtree. When an error occurs, the specified `fallback` will be rendered instead of the content inside the boundary.
 * Note that we can also control the granularity at which we render error UIs, by wrapping components at different levels with error boundaries. In this example, if any error occurs within `MainContent` or `SecondaryContent`, we will render an `ErrorSection` in place of the entire app content.
-
-
 
 ## Retrying after an Error
 
@@ -163,7 +158,6 @@ function MainContent(props) {
 ```
 * The sample Error Boundary in this example code will provide a `retry` function to the `fallback` which we can use to clear the error, re-load the query, and re-render with a new query ref that we can pass to the component that uses `usePreloadedQuery`. That component will consume the new query ref and suspend if necessary on the new network request.
 
-
 ### When using `useLazyLoadQuery`
 
 When using `useLazyLoadQuery` to fetch a query, in order to retry after an error has occurred, you can attempt to re-mount *and* re-evaluate the query component by passing it a new `fetchKey`:
@@ -258,25 +252,11 @@ function MainContent(props) {
 ```
 * The sample Error Boundary in this example code will provide a `retry` function to the `fallback` which we can use to clear the error and re-render `useLazyLoadQuery` with a new `fetchKey`. This will cause the query to be re-evaluated and refetched, and `useLazyLoadQuery` start a new network request and suspend.
 
-
-
 ## Accessing errors in GraphQL Responses
-
-
-<FbInternalOnly>
-
-By default, internally at fb, Relay will *only* surface errors to React that are returned in the top-level [`errors` field](https://graphql.org/learn/validation/) if they are ether:
-
-* of `CRITICAL` severity,
-*  *or* if the top-level `data` field wasn't returned in the response.
-
-</FbInternalOnly>
-
 
 If you wish to access error information in your application to display user friendly messages, the recommended approach is to model and expose the error information as part of your GraphQL schema.
 
 For example, you could expose a field in your schema that returns either the expected result, or an Error object if an error occurred while resolving that field (instead of returning null):
-
 
 ```js
 type Error {
@@ -288,8 +268,5 @@ type Foo {
   bar: Result | Error
 }
 ```
-
-
-
 
 <DocsRating />

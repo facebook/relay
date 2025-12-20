@@ -55,7 +55,7 @@ function buildErrorTrie(
     return null;
   }
 
-  const trie: $NonMaybeType<RelayErrorTrie> = new Map();
+  const trie: NonNullable<RelayErrorTrie> = new Map();
   // eslint-disable-next-line no-unused-vars
   ERRORS: for (const {path, locations: _, ...error} of errors) {
     if (path == null) {

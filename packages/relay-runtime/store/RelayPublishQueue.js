@@ -464,7 +464,16 @@ function lookupSelector(
   source: RecordSource,
   selector: SingularReaderSelector,
 ): ?SelectorData {
-  const selectorData = RelayReader.read(source, selector).data;
+  const selectorData = RelayReader.read(
+    source,
+    selector,
+    // The reader here is used to read the selector data for the updater.
+    // It is normal to not use all data in the update, so we don't pass
+    // the logger to skip tracking usages.
+    null,
+    undefined,
+    undefined,
+  ).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {

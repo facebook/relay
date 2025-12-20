@@ -312,6 +312,100 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
+      it('processes deferred payloads with deduplicated fields', () => {
+        // This functionality prevents Relay from throwing an error when missing
+        // fields are received in a deferred response. This is required for the
+        // latest `@defer` spec proposal, which does not send duplicate fields
+        // in deferred responses. While Relay does not yet attempt to support the latest
+        // spec proposal (https://github.com/graphql/defer-stream-wg/discussions/69),
+        // this option allows users to transform responses into a format that Relay
+        // can accept.
+        environment = new RelayModernEnvironment({
+          network: RelayNetwork.create(fetch),
+          store,
+          handlerProvider,
+          deferDeduplicatedFields: true,
+        });
+
+        const overlappingFieldsQuery = graphql`
+          query RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ... on User {
+                id
+                name
+                ...RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment
+                  @dangerously_unaliased_fixme
+                  @defer(label: "UserFragment")
+              }
+            }
+          }
+        `;
+        const overlappingFieldsFragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsFragment on User {
+            name
+            alternate_name
+          }
+        `;
+
+        const overlappingFieldsVariables = {id: '1'};
+        const overlappingFieldsOperation = createOperationDescriptor(
+          overlappingFieldsQuery,
+          overlappingFieldsVariables,
+        );
+        const overlappingFieldsSelector = createReaderSelector(
+          overlappingFieldsFragment,
+          '1',
+          {},
+          overlappingFieldsOperation.request,
+        );
+
+        const initialSnapshot = environment.lookup(overlappingFieldsSelector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment
+          .execute({operation: overlappingFieldsOperation})
+          .subscribe(callbacks);
+        dataSource.next({
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'joe',
+            },
+          },
+        });
+
+        jest.runAllTimers();
+        next.mockClear();
+        callback.mockClear();
+
+        dataSource.next({
+          data: {
+            alternate_name: 'joe2',
+          },
+          label:
+            'RelayModernEnvironmentExecuteWithDeferTestUserOverlappingFieldsQuery$defer$UserFragment',
+          path: ['node'],
+          extensions: {
+            is_final: true,
+          },
+        });
+
+        expect(complete).toBeCalledTimes(0);
+        expect(error).toBeCalledTimes(0);
+        expect(next).toBeCalledTimes(1);
+        expect(callback).toBeCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          name: 'joe',
+          alternate_name: 'joe2',
+        });
+      });
+
       describe('Query with exec time resolvers', () => {
         let resolverOperation;
         beforeEach(() => {

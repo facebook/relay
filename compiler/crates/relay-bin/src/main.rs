@@ -262,9 +262,28 @@ fn get_config(config_path: Option<PathBuf>) -> Result<Config, Error> {
     }
 }
 
-fn normalize_relative_path(root_dir: &Path, path: &PathBuf) -> PathBuf {
+fn normalize_relative_path(root_dir: &Path, path: &PathBuf) -> Result<PathBuf, Error> {
     let absolute = root_dir.join(path);
-    absolute.strip_prefix(root_dir).unwrap().to_path_buf()
+    absolute
+        .canonicalize()
+        .map_err(|e| {
+            Error::ConfigError(CompilerError::ConfigError {
+                details: format!("Failed to canonicalize path: {}", e),
+            })
+        })
+        .and_then(|p| {
+            p.strip_prefix(root_dir)
+                .map(|stripped| stripped.to_path_buf())
+                .map_err(|_e| {
+                    Error::ConfigError(CompilerError::ConfigError {
+                        details: format!(
+                            "Error while normalizing paths. Path {} needs to be a subfolder of {}",
+                            p.display(),
+                            root_dir.display()
+                        ),
+                    })
+                })
+        })
 }
 
 fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
@@ -359,7 +378,7 @@ async fn handle_regenerate_subschema_command(command: UpdateSchemaCommand) -> Re
         }
     };
 
-    let relative_full_schema = normalize_relative_path(&config.root_dir, &command.full_schema);
+    let relative_full_schema = normalize_relative_path(&config.root_dir, &command.full_schema)?;
 
     let schema_location = match fs::metadata(&command.full_schema) {
         Ok(metadata) => {

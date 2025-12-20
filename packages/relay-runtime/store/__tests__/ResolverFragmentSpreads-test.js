@@ -148,7 +148,7 @@ describe('Resolver Fragment Spreads', () => {
 
     const operation = createOperationDescriptor(InlineQuery, {});
 
-    const {data} = read(source, operation.fragment, resolverCache);
+    const {data} = read(source, operation.fragment, null, resolverCache);
 
     expect(data?.field_that_spreads_inline_fragment).toEqual(
       'Hello, Alice! You live on 1 Hacker Way in Menlo Park',
@@ -188,7 +188,7 @@ describe('Resolver Fragment Spreads', () => {
 
     const operation = createOperationDescriptor(UnmaskedQuery, {});
 
-    const {data} = read(source, operation.fragment, resolverCache);
+    const {data} = read(source, operation.fragment, null, resolverCache);
 
     expect(data?.field_that_spreads_unmasked_fragment).toEqual(
       'Hello, Bob! Your profile picture is https://example.com/bob.jpg (200x200)',

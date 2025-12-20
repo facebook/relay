@@ -46,7 +46,7 @@ function requestIsLiveQuery<
   TQuery: OperationType = {
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   },
 >(
   preloadableRequest:
@@ -71,13 +71,13 @@ hook useQueryLoader_EXPERIMENTAL<
   initialQueryReference?: ?PreloadedQuery<{
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>,
 ): UseQueryLoaderHookReturnType<TVariables, TData> {
   type QueryType = {
     response: TData,
     variables: TVariables,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   };
 
   /**

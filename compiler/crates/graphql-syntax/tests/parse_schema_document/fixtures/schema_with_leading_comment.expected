@@ -48,6 +48,15 @@ SchemaDocument {
                         kind: CloseBrace,
                     },
                 },
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 0:87,
+                            kind: BlockStringLiteral,
+                        },
+                        value: "Description of the schema as per https://github.com/graphql/graphql-spec/pull/466",
+                    },
+                ),
                 span: 88:151,
             },
         ),

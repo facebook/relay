@@ -96,6 +96,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
     ],
 }

@@ -259,3 +259,15 @@ export default ((node/*: any*/)/*: Fragment<
   User____relay_model_instance$fragmentType,
   User____relay_model_instance$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: PersonComponentFragment
+    Path: __generated__/PersonComponentFragment.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("a59990a6e8d643e811d768017461d0d4")
+    Path: __generated__/User____relay_model_instance.graphql.js
+  - Source: ResolverHash: ResolverSourceHash("d3bedc8995a2aa12298e6158602aa3fa")
+    Path: __generated__/Admin____relay_model_instance.graphql.js

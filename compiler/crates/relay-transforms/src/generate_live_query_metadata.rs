@@ -31,10 +31,14 @@ use thiserror::Error;
 use crate::create_metadata_directive;
 
 lazy_static! {
+    // Deprecating @live_query in favor of @client_polling and @live for server pushed updates
     static ref LIVE_QUERY_DIRECTIVE_NAME: DirectiveName = DirectiveName("live_query".intern());
+    static ref CLIENT_POLLING_DIRECTIVE_NAME: DirectiveName = DirectiveName("client_polling".intern());
     static ref LIVE_DIRECTIVE_NAME: DirectiveName = DirectiveName("live".intern());
     static ref LIVE_METADATA_KEY: ArgumentName = ArgumentName("live".intern());
     static ref POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("polling_interval".intern());
+
+    static ref CLIENT_POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("interval".intern());
     static ref CONFIG_ID_ARG: ArgumentName = ArgumentName("config_id".intern());
 }
 
@@ -139,6 +143,32 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
                             }]),
                         ));
                     }
+                } else if let Some(client_polling_directive) =
+                    operation.directives.named(*CLIENT_POLLING_DIRECTIVE_NAME)
+                {
+                    let polling_interval = client_polling_directive
+                        .arguments
+                        .named(*CLIENT_POLLING_INTERVAL_ARG)
+                        .unwrap();
+                    let poll_interval_value = match polling_interval.value.item {
+                        Value::Constant(ConstantValue::Int(value)) => value,
+                        _ => {
+                            self.errors.push(Diagnostic::error(
+                                LiveQueryTransformValidationMessage::InvalidPollingInterval {
+                                    query_name: operation.name.item,
+                                },
+                                polling_interval.value.location,
+                            ));
+                            return Transformed::Keep;
+                        }
+                    };
+                    next_directives.push(create_metadata_directive(
+                        *LIVE_METADATA_KEY,
+                        ConstantValue::Object(vec![ConstantArgument {
+                            name: WithLocation::generated(*POLLING_INTERVAL_ARG),
+                            value: WithLocation::generated(ConstantValue::Int(poll_interval_value)),
+                        }]),
+                    ));
                 } else {
                     if !has_live_directive(&operation.selections) {
                         return Transformed::Keep;

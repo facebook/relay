@@ -382,6 +382,7 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
     let base_fragment_names = Arc::new(base_fragment_names);
+    let validate_and_transform_all_timer = log_event.start("validate_and_transform_all_time");
     let validation_results = programs
         .into_par_iter()
         .map(
@@ -412,6 +413,7 @@ pub fn build_programs(
             },
         )
         .collect::<Vec<_>>();
+    log_event.stop(validate_and_transform_all_timer);
 
     let results: Vec<(Programs, Vec<Diagnostic>)> =
         try_all(validation_results).map_err(|diagnostics| {

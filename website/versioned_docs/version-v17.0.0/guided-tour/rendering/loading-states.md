@@ -12,20 +12,10 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';
-import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbSuspenseDefinition from './fb/FbSuspenseDefinition.md';
-import FbSuspenseMoreInfo from './fb/FbSuspenseMoreInfo.md';
-import FbSuspenseTransitionsAndUpdatesThatSuspend from './fb/FbSuspenseTransitionsAndUpdatesThatSuspend.md';
-import FbSuspenseInRelayTransitions from './fb/FbSuspenseInRelayTransitions.md';
-import FbSuspenseInRelayFragments from './fb/FbSuspenseInRelayFragments.md';
 
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 As you may have noticed, we mentioned that using `usePreloadedQuery` and `useLazyLoadQuery` will render data from a query that was being fetched from the server, but we didn't elaborate on how to render a loading UI (such as a glimmer) while that data is still being fetched. We will cover that in this section.
-
-<FbInternalOnly>
-  <FbSuspenseDefinition />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -34,11 +24,6 @@ To render loading states while a query is being fetched, we rely on [React Suspe
 </OssOnly>
 
 This capability is useful for components to express asynchronous dependencies like data, code, or images that they require in order to render, and lets React coordinate rendering the loading states across a component tree as these asynchronous resources become available. More generally, the use of Suspense give us better control to implement more deliberately designed loading states when our app is loading for the first time or when it's transitioning to different states, and helps prevent accidental flickering of loading elements (such as spinners), which can commonly occur when loading sequences aren't explicitly designed and coordinated.
-
-
-<FbInternalOnly>
-  <FbSuspenseMoreInfo />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -70,7 +55,6 @@ function App() {
 }
 ```
 
-
 `Suspense` components can be used to wrap any component; if the target component suspends, `Suspense` will render the provided fallback until all its descendants become *"ready"* (i.e. until *all* of the suspended components within the subtree resolve). Usually, the fallback is used to render fallback loading states such as a glimmers and placeholders.
 
 Usually, different pieces of content in our  app might suspend, so we can show loading state until they are resolved by using `Suspense` :
@@ -93,14 +77,9 @@ function App() {
 }
 ```
 
-<FbInternalOnly>
-  <FbSuspensePlaceholder />
-</FbInternalOnly>
-
 Let's distill what's going on here:
 
 * If `MainContent` suspends because it's waiting on some asynchronous resource (like data), the `Suspense` component that wraps `MainContent` will detect that it suspended, and will render the `fallback` element (i.e. the `LoadingGlimmer` in this case) up until `MainContent` is ready to be rendered. Note that this also transitively includes descendants of `MainContent`, which might also suspend.
-
 
 What's nice about Suspense is that you have granular control about how to accumulate loading states for different parts of your component tree:
 
@@ -123,11 +102,8 @@ function App() {
 }
 ```
 
-<FbSuspensePlaceholder />
-
 * In this case, both `MainContent` and `SecondaryContent` may suspend while they load their asynchronous resources; by wrapping both in a `Suspense`, we can show a single loading state up until they are *all* ready, and then render the entire content in a single paint, after everything has successfully loaded.
 * In fact, `MainContent` and `SecondaryContent` may suspend for different reasons other than fetching data, but the same `Suspense` component can be used to render a fallback up until *all* components in the subtree are ready to be rendered. Note that this also transitively includes descendants of `MainContent` or `SecondaryContent`, which might also suspend.
-
 
 Conversely, you can also decide to be more granular about your loading UI and wrap Suspense components around smaller or individual parts of your component tree:
 
@@ -157,19 +133,12 @@ function App() {
 }
 ```
 
-<FbSuspensePlaceholder />
-
 * In this case, we're showing 2 separate loading UIs:
     * One to be shown until the `LeftColumn` becomes ready
     * And one to be shown until both the `MainContent` and `SecondaryContent` become ready.
 * What is powerful about this is that by more granularly wrapping our components in Suspense, *we allow other components to be rendered earlier as they become ready*. In our example, by separately wrapping `MainContent` and `SecondaryContent` under `Suspense`, we're allowing `LeftColumn` to render as soon as it becomes ready, which might be earlier than when the content sections become ready.
 
-
 ## Transitions and Updates that Suspend
-
-<FbInternalOnly>
-  <FbSuspenseTransitionsAndUpdatesThatSuspend />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -226,19 +195,12 @@ function App() {
 }
 ```
 
-<FbSuspensePlaceholder />
-
 Let's distill what's going on here:
 
 * We have a `MainContent` component, which is a query renderer that fetches and renders a query. `MainContent` will *suspend* rendering when it attempts to fetch the query, indicating that it isn't ready to be rendered yet, and it will resolve when the query is fetched.
 * The `Suspense `component that wraps `MainContent` will detect that `MainContent` suspended, and will render the `fallback` element (i.e. the `LoadingGlimmer` in this case) up until `MainContent` is ready to be rendered; that is, up until the query is fetched.
 
-
 ### Fragments
-
-<FbInternalOnly>
-  <FbSuspenseInRelayFragments />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -247,10 +209,6 @@ Fragments are also integrated with Suspense in order to support rendering of dat
 </OssOnly>
 
 ### Transitions
-
-<FbInternalOnly>
-  <FbSuspenseInRelayTransitions />
-</FbInternalOnly>
 
 Additionally, our APIs for refetching ([Refreshing and Refetching](../../refetching/)) and for [rendering connections](../../list-data/connections/) are also integrated with Suspense; for these use cases, these APIs will also suspend.
 

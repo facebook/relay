@@ -12,7 +12,6 @@ import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
 import Link from '@docusaurus/Link';
-import {useThemeConfig} from '@docusaurus/theme-common';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
@@ -341,7 +340,10 @@ export default function ArtistCard(props) {
                       components, and compose data requirements together.
                     </p>
                     <p>
-                      See the <Link to="/docs/guided-tour/">guided tour</Link>
+                      See the{' '}
+                      <Link to="/docs/tutorial/fragments-1">
+                        fragments tutorial
+                      </Link>
                     </p>
                   </div>
                 ),

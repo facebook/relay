@@ -1,0 +1,82 @@
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Query {
+  user(id: ID!): User
+  users(first: Int = 10, after: String): UserConnection
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): CreateUserPayload
+}
+
+type User implements Node {
+  id: ID!
+  name: String!
+  email: String
+  posts(first: Int): PostConnection
+}
+
+interface Node {
+  id: ID!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String
+  author: User!
+}
+
+type UserConnection {
+  edges: [UserEdge]
+  pageInfo: PageInfo!
+}
+
+type UserEdge {
+  node: User
+  cursor: String!
+}
+
+type PostConnection {
+  edges: [PostEdge]
+  pageInfo: PageInfo!
+}
+
+type PostEdge {
+  node: Post
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+input CreateUserInput {
+  name: String!
+  email: String
+}
+
+type CreateUserPayload {
+  user: User
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+
+union SearchResult = User | Post
+
+scalar DateTime
+
+directive @auth(role: Role!) on FIELD_DEFINITION
+
+type Subscription {
+  userUpdated(id: ID!): User
+}

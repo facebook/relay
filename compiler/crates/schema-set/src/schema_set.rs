@@ -45,6 +45,7 @@ use crate::UsedSchemaCollectionOptions;
 use crate::impl_can_be_client_definition;
 use crate::impl_can_have_directives;
 use crate::impl_has_arguments;
+use crate::impl_has_description;
 use crate::impl_has_fields;
 use crate::impl_has_interfaces;
 use crate::impl_partitions_only_directives;
@@ -485,6 +486,17 @@ impl SetType {
             _ => None,
         }
     }
+
+    pub fn definition_item(&self) -> Option<&SchemaDefinitionItem> {
+        match self {
+            SetType::Scalar(t) => t.definition.as_ref(),
+            SetType::Enum(t) => t.definition.as_ref(),
+            SetType::Object(t) => t.definition.as_ref(),
+            SetType::Interface(t) => t.definition.as_ref(),
+            SetType::Union(t) => t.definition.as_ref(),
+            SetType::InputObject(t) => t.definition.as_ref(),
+        }
+    }
 }
 
 impl CanHaveDirectives for SetType {
@@ -524,6 +536,7 @@ impl CanHaveDirectives for SetType {
 
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct SetRootSchema {
+    pub definition: Option<SchemaDefinitionItem>,
     pub directives: Vec<DirectiveValue>,
     pub query_type: Option<StringKey>,
     pub mutation_type: Option<StringKey>,
@@ -538,7 +551,11 @@ impl SetRootSchema {
             && self.subscription_type.is_none_or(|t| t == *SUBSCRIPTION)
     }
 }
-impl_traits!(SetRootSchema, impl_can_have_directives);
+impl_traits!(
+    SetRootSchema,
+    impl_can_have_directives,
+    impl_has_description
+);
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SetScalar {
@@ -551,7 +568,8 @@ impl_traits!(
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
     impl_can_have_directives,
-    impl_partitions_only_directives
+    impl_partitions_only_directives,
+    impl_has_description
 );
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -568,7 +586,8 @@ impl_traits!(
     impl_has_interfaces,
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
-    impl_can_have_directives
+    impl_can_have_directives,
+    impl_has_description
 );
 impl SetObject {
     pub fn default(name: StringKey) -> Self {
@@ -597,7 +616,8 @@ impl_traits!(
     impl_has_interfaces,
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
-    impl_can_have_directives
+    impl_can_have_directives,
+    impl_has_description
 );
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -617,7 +637,8 @@ impl_traits!(
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
     impl_can_have_directives,
-    impl_partitions_only_directives
+    impl_partitions_only_directives,
+    impl_has_description
 );
 impl HasArguments for SetInputObject {
     fn arguments(&self) -> &StringKeyIndexMap<SetArgument> {
@@ -644,7 +665,8 @@ impl_traits!(
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
     impl_can_have_directives,
-    impl_partitions_only_directives
+    impl_partitions_only_directives,
+    impl_has_description
 );
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -659,7 +681,8 @@ impl_traits!(
     SetUnion,
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
-    impl_can_have_directives
+    impl_can_have_directives,
+    impl_has_description
 );
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -686,7 +709,8 @@ impl_traits!(
     impl_has_arguments,
     impl_string_key_named_with_location,
     impl_can_be_client_definition,
-    impl_can_have_directives
+    impl_can_have_directives,
+    impl_has_description
 );
 
 // For implements references on objects and interfaces,
@@ -715,7 +739,8 @@ impl_traits!(
     SetDirective,
     impl_has_arguments,
     impl_can_be_client_definition,
-    impl_string_key_named_with_location
+    impl_string_key_named_with_location,
+    impl_has_description
 );
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -729,7 +754,8 @@ pub struct SetArgument {
 impl_traits!(
     SetArgument,
     impl_string_key_named_raw,
-    impl_can_have_directives
+    impl_can_have_directives,
+    impl_has_description
 );
 
 pub trait StringKeyNamed {
@@ -804,4 +830,8 @@ pub trait HasInterfaces {
             .map(|(name, value)| (*name, value.clone()))
             .partition(|(_, member)| !member.is_extension)
     }
+}
+
+pub trait HasDescription {
+    fn description(&self) -> Option<StringKey>;
 }

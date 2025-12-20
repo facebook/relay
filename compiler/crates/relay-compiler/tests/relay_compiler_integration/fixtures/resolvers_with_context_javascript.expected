@@ -70,3 +70,11 @@ var node = {
 node.hash = "285ee53d00b8def775c9e1ed756743bf";
 
 export default node;
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: UserFooFragment
+    Path: __generated__/UserFooFragment.graphql.js

@@ -117,3 +117,13 @@ import { PreloadableQueryRegistry } from 'relay-runtime';
 PreloadableQueryRegistry.set(node.params.id, node);
 
 export default node;
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooQuery
+    Path: __generated__/fooQuery$parameters.ts
+    Path: __generated__/fooQuery.graphql.ts
+    Persisted ID: ae6874c86ce5db2df8d6b253a6a0ec13

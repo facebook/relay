@@ -122,9 +122,9 @@ export type NormalizationModuleImport = {
   +fragmentPropName: string,
   +fragmentName: string,
   +componentModuleProvider?: () =>
-    | mixed
-    | Promise<mixed>
-    | JSResourceReference<mixed>,
+    | unknown
+    | Promise<unknown>
+    | JSResourceReference<unknown>,
   +operationModuleProvider?: () =>
     | NormalizationRootNode
     | Promise<NormalizationRootNode>
@@ -141,13 +141,13 @@ export type NormalizationLiteralArgument = {
   +kind: 'Literal',
   +name: string,
   +type?: ?string,
-  +value: mixed,
+  +value: unknown,
 };
 
 export type NormalizationLocalArgumentDefinition = {
   +kind: 'LocalArgument',
   +name: string,
-  +defaultValue: mixed,
+  +defaultValue: unknown,
 };
 
 export type NormalizationNode =
@@ -246,7 +246,7 @@ export type NormalizationSplitOperation = {
   +argumentDefinitions?: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +kind: 'SplitOperation',
   +name: string,
-  +metadata?: ?{+[key: string]: mixed, ...},
+  +metadata?: ?{+[key: string]: unknown, ...},
   +selections: $ReadOnlyArray<NormalizationSelection>,
 };
 

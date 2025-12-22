@@ -175,9 +175,9 @@ export type ReaderModuleImport = {
   +fragmentPropName: string,
   +fragmentName: string,
   +componentModuleProvider?: () =>
-    | mixed
-    | Promise<mixed>
-    | JSResourceReference<mixed>,
+    | unknown
+    | Promise<unknown>
+    | JSResourceReference<unknown>,
 };
 
 export type ReaderListValueArgument = {
@@ -190,13 +190,13 @@ export type ReaderLiteralArgument = {
   +kind: 'Literal',
   +name: string,
   +type?: ?string,
-  +value: mixed,
+  +value: unknown,
 };
 
 export type ReaderLocalArgument = {
   +kind: 'LocalArgument',
   +name: string,
-  +defaultValue: mixed,
+  +defaultValue: unknown,
 };
 
 export type ReaderObjectValueArgument = {
@@ -236,7 +236,7 @@ export type ReaderRequiredField = {
   +field: ReaderField | ReaderClientEdge,
   +action: RequiredFieldAction,
   // TODO: This field is not used any more, we should be able to remove it.
-  +path?: mixed,
+  +path?: unknown,
 };
 
 export type CatchFieldTo = 'RESULT' | 'NULL';
@@ -246,10 +246,10 @@ export type ReaderCatchField = {
   +field: ReaderField | ReaderClientEdge | ReaderAliasedInlineFragmentSpread,
   +to: CatchFieldTo,
   // TODO: This field is not used any more, we should be able to remove it.
-  +path?: mixed,
+  +path?: unknown,
 };
 
-export type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
+export type ResolverFunction = (...args: Array<any>) => unknown; // flowlint-line unclear-type:off
 // With ES6 imports, a resolver function might be exported under the `default` key.
 export type ResolverModule = ResolverFunction | {default: ResolverFunction};
 

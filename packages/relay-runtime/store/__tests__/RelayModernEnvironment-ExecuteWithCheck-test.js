@@ -54,9 +54,9 @@ describe('execute() provides a `check` function for the network layer to determi
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, variables);
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
 
     network = {

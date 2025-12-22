@@ -13,7 +13,7 @@
 
 import type {IEnvironment, RecordSource} from '../store/RelayStoreTypes';
 
-type InspectFn = (environment: IEnvironment, dataID?: ?string) => mixed;
+type InspectFn = (environment: IEnvironment, dataID?: ?string) => unknown;
 
 let inspect: InspectFn = () => {};
 
@@ -81,8 +81,8 @@ if (__DEV__) {
 
     class RecordEntry {
       +key: string;
-      +value: mixed;
-      constructor(key: string, value: mixed) {
+      +value: unknown;
+      constructor(key: string, value: unknown) {
         this.key = key;
         this.value = value;
       }
@@ -138,7 +138,7 @@ if (__DEV__) {
   const getWrappedRecord = (
     source: RecordSource,
     dataID: string,
-  ): ?{[string]: mixed} => {
+  ): ?{[string]: unknown} => {
     const record = source.get(dataID);
     if (record == null) {
       // $FlowFixMe[incompatible-type]

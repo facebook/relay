@@ -13,9 +13,9 @@
 
 import type {LiveState} from '../RelayStoreTypes';
 
-declare function isLiveStateValue<T, U = LiveState<T>>(v: mixed): v is U;
+declare function isLiveStateValue<T, U = LiveState<T>>(v: unknown): v is U;
 
-function isLiveStateValue(v: mixed) {
+function isLiveStateValue(v: unknown) {
   return (
     v != null &&
     typeof v === 'object' &&

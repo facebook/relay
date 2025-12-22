@@ -59,8 +59,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let next;
     let operation;
     let operationLoader: {
-      get: (reference: mixed) => ?NormalizationRootNode,
-      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+      get: (reference: unknown) => ?NormalizationRootNode,
+      load: JestMockFn<
+        $ReadOnlyArray<unknown>,
+        Promise<?NormalizationRootNode>,
+      >,
     };
     let operationCallback;
     let query;
@@ -103,9 +106,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           operation.request,
         );
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,

@@ -44,11 +44,11 @@ disallowWarnings();
 
 describe('execute() a query with @match with additional arguments', () => {
   let callbacks: {
-    +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
-    +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+    +complete: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+    +error: JestMockFn<$ReadOnlyArray<Error>, unknown>,
+    +next: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+    +start?: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+    +unsubscribe?: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
   };
   let complete;
   let dataSource;
@@ -62,8 +62,8 @@ describe('execute() a query with @match with additional arguments', () => {
   let operation;
   let operationCallback;
   let operationLoader: {
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    get: (reference: unknown) => ?NormalizationRootNode,
+    load: JestMockFn<$ReadOnlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let query;
   let resolveFragment;
@@ -123,9 +123,9 @@ describe('execute() a query with @match with additional arguments', () => {
       },
     };
 
-    complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-    error = jest.fn<$ReadOnlyArray<Error>, mixed>();
-    next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    complete = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+    error = jest.fn<$ReadOnlyArray<Error>, unknown>();
+    next = jest.fn<$ReadOnlyArray<unknown>, unknown>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,

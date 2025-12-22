@@ -75,7 +75,7 @@ export type FragmentMap = {[key: string]: ReaderFragment, ...};
 /**
  * The results of a selector given a store/RecordSource.
  */
-export type SelectorData = {[key: string]: mixed, ...};
+export type SelectorData = {[key: string]: unknown, ...};
 
 export type SingularReaderSelector = {
   +kind: 'SingularReaderSelector',
@@ -170,7 +170,7 @@ export type OperationDescriptor = {
 /**
  * Arbitrary data e.g. received by a container as props.
  */
-export type Props = {[key: string]: mixed, ...};
+export type Props = {[key: string]: unknown, ...};
 
 /**
  * The type of the `relay` property set on React context by the React/Relay
@@ -187,7 +187,7 @@ export type RelayContext = {
  * The results of reading the results of a FragmentMap given some input
  * `Props`.
  */
-export type FragmentSpecResults = {[key: string]: mixed, ...};
+export type FragmentSpecResults = {[key: string]: unknown, ...};
 
 /**
  * A utility for resolving and subscribing to the results of a fragment spec
@@ -471,7 +471,7 @@ export interface RecordProxy {
     args?: ?Variables,
   ): RecordProxy;
   getType(): string;
-  getValue(name: string, args?: ?Variables): mixed;
+  getValue(name: string, args?: ?Variables): unknown;
   getErrors(name: string, args?: ?Variables): ?$ReadOnlyArray<TRelayFieldError>;
   setLinkedRecord(
     record: RecordProxy,
@@ -484,7 +484,7 @@ export interface RecordProxy {
     args?: ?Variables,
   ): RecordProxy;
   setValue(
-    value: mixed,
+    value: unknown,
     name: string,
     args?: ?Variables,
     errors?: ?$ReadOnlyArray<TRelayFieldError>,
@@ -497,7 +497,7 @@ export interface ReadOnlyRecordProxy {
   getLinkedRecord(name: string, args?: ?Variables): ?RecordProxy;
   getLinkedRecords(name: string, args?: ?Variables): ?Array<?RecordProxy>;
   getType(): string;
-  getValue(name: string, args?: ?Variables): mixed;
+  getValue(name: string, args?: ?Variables): unknown;
 }
 
 /**
@@ -557,7 +557,7 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
 
 export type SuspenseFragmentLogEvent = {
   +name: 'suspense.fragment',
-  +data: mixed,
+  +data: unknown,
   +fragment: ReaderFragment,
   +isRelayHooks: boolean,
   +isMissingData: boolean,
@@ -581,7 +581,7 @@ export type QueryResourceFetchLogEvent = {
   +resourceID: number,
   +operation: OperationDescriptor,
   // value from ProfilerContext
-  +profilerContext: mixed,
+  +profilerContext: unknown,
   // FetchPolicy from Relay Hooks
   +fetchPolicy: string,
   // RenderPolicy from Relay Hooks
@@ -594,14 +594,14 @@ export type QueryResourceRetainLogEvent = {
   +name: 'queryresource.retain',
   +resourceID: number,
   // value from ProfilerContext
-  +profilerContext: mixed,
+  +profilerContext: unknown,
 };
 
 export type FragmentResourceMissingDataLogEvent = {
   // Indicates FragmentResource is going to return a result that is missing
   // data.
   +name: 'fragmentresource.missing_data',
-  +data: mixed,
+  +data: unknown,
   +fragment: ReaderFragment,
   +isRelayHooks: boolean,
   // Are we reading this result from the fragment resource cache?
@@ -621,7 +621,7 @@ export type PendingOperationFoundLogEvent = {
 export type NetworkInfoLogEvent = {
   +name: 'network.info',
   +networkRequestId: number,
-  +info: mixed,
+  +info: unknown,
 };
 
 export type NetworkStartLogEvent = {
@@ -790,7 +790,7 @@ export type ReaderRead = {
 
 export type EntrypointRootConsumeLogEvent = {
   +name: 'entrypoint.root.consume',
-  +profilerContext: mixed,
+  +profilerContext: unknown,
   +rootModuleID: string,
 };
 
@@ -871,7 +871,7 @@ export type LogEvent =
   | ReaderReadFragmentSpread;
 
 export type LogFunction = LogEvent => void;
-export type LogRequestInfoFunction = mixed => void;
+export type LogRequestInfoFunction = unknown => void;
 
 /**
  * The public API of Relay core. Represents an encapsulated environment with its
@@ -881,7 +881,7 @@ export interface IEnvironment {
   /**
    * Extra information attached to the environment instance
    */
-  +options: mixed;
+  +options: unknown;
 
   /**
    * **UNSTABLE** Event based logging API thats scoped to the environment.
@@ -1074,8 +1074,8 @@ export interface IEnvironment {
  */
 export type ModuleImportPointer = {
   +__fragmentPropName: ?string,
-  +__module_component: mixed,
-  +$fragmentSpreads: mixed,
+  +__module_component: unknown,
+  +$fragmentSpreads: unknown,
   ...
 };
 
@@ -1137,7 +1137,7 @@ export type ModuleImportPayload = {
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +data: PayloadData,
   +dataID: DataID,
-  +operationReference: mixed,
+  +operationReference: unknown,
   +path: $ReadOnlyArray<string>,
   +typeName: string,
   +variables: Variables,
@@ -1219,12 +1219,12 @@ export type OperationLoader = {
    * Synchronously load an operation, returning either the node or null if it
    * cannot be resolved synchronously.
    */
-  get(reference: mixed): ?NormalizationRootNode,
+  get(reference: unknown): ?NormalizationRootNode,
 
   /**
    * Asynchronously load an operation.
    */
-  load(reference: mixed): Promise<?NormalizationRootNode>,
+  load(reference: unknown): Promise<?NormalizationRootNode>,
 };
 
 /**
@@ -1279,7 +1279,7 @@ export type MissingFieldHandler =
         parentRecord: ?ReadOnlyRecordProxy,
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
-      ) => mixed,
+      ) => unknown,
     }
   | {
       kind: 'linked',
@@ -1322,7 +1322,7 @@ export type MissingExpectedDataLogEvent = {
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   // To populate this, you should pass the value to a ReactRelayLoggingContext
-  +uiContext: mixed | void,
+  +uiContext: unknown | void,
 };
 
 /**
@@ -1351,7 +1351,7 @@ export type MissingExpectedDataThrowEvent = {
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
   // To populate this, you should pass the value to a ReactRelayLoggingContext
-  +uiContext: mixed | void,
+  +uiContext: unknown | void,
 };
 
 /**
@@ -1363,7 +1363,7 @@ export type MissingRequiredFieldLogEvent = {
   +owner: string,
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   // To populate this, you should pass the value to a ReactRelayLoggingContext
-  +uiContext: mixed | void,
+  +uiContext: unknown | void,
 };
 
 /**
@@ -1383,7 +1383,7 @@ export type MissingRequiredFieldThrowEvent = {
   fieldPath: string, // Purposefully mutable to allow lazy construction in RelayReader
   +handled: boolean,
   // To populate this, you should pass the value to a ReactRelayLoggingContext
-  +uiContext: mixed | void,
+  +uiContext: unknown | void,
 };
 
 /**
@@ -1406,7 +1406,7 @@ export type RelayResolverErrorEvent = {
   +shouldThrow: boolean,
   +handled: boolean,
   // To populate this, you should pass the value to a ReactRelayLoggingContext
-  +uiContext: mixed | void,
+  +uiContext: unknown | void,
 };
 
 /**
@@ -1434,7 +1434,7 @@ export type RelayFieldPayloadErrorEvent = {
   +shouldThrow: boolean,
   +handled: boolean,
   // To populate this, you should pass the value to a ReactRelayLoggingContext
-  +uiContext: mixed | void,
+  +uiContext: unknown | void,
 };
 
 /**
@@ -1565,4 +1565,4 @@ export type LiveState<+T> = {
  * `resolverContext` is set on the Relay Store.
  * This context will be passed as the third argument to the live resolver
  */
-export type ResolverContext = mixed;
+export type ResolverContext = unknown;

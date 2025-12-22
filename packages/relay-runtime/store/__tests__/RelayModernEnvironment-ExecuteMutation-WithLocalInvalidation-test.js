@@ -131,8 +131,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 network: RelayNetwork.create(fetch),
                 store,
               });
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
         callbacks = {complete, error};
       });
 

@@ -60,7 +60,7 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
     });
     subscription?.unsubscribe();
     return data;
-  } catch (e: mixed) {
+  } catch (e: unknown) {
     subscription?.unsubscribe();
     throw e;
   }

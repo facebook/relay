@@ -16,7 +16,7 @@
  * keys sorted such that equivalent values would have identical JSON.stringify
  * results.
  */
-function stableCopy<T: mixed>(value: T): T {
+function stableCopy<T: unknown>(value: T): T {
   if (!value || typeof value !== 'object') {
     return value;
   }
@@ -24,7 +24,7 @@ function stableCopy<T: mixed>(value: T): T {
     return value.map(stableCopy);
   }
   const keys = Object.keys(value).sort();
-  const stable: {[string]: mixed} = {};
+  const stable: {[string]: unknown} = {};
   for (let i = 0; i < keys.length; i++) {
     stable[keys[i]] = stableCopy(value[keys[i]]);
   }
@@ -34,7 +34,7 @@ function stableCopy<T: mixed>(value: T): T {
 // Detect if a data structure contains cycles. The logic here mirrors
 // `stableCopy` above and is intended to detect cycles early before they get
 // passed to `stableCopy` which would result in a stack overflow.
-function hasCycle(value: mixed, parents: Set<mixed> = new Set()): boolean {
+function hasCycle(value: unknown, parents: Set<unknown> = new Set()): boolean {
   // $FlowFixMe[sketchy-null-mixed]
   if (!value || typeof value !== 'object') {
     return false;

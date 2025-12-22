@@ -21,11 +21,11 @@
  *     prop: value,
  *   }
  */
-function printAST(ast: mixed): string {
+function printAST(ast: unknown): string {
   return printASTImpl(ast, '');
 }
 
-function printASTImpl(ast: mixed, indent: string): string {
+function printASTImpl(ast: unknown, indent: string): string {
   switch (typeof ast) {
     case 'undefined':
       return 'undefined';

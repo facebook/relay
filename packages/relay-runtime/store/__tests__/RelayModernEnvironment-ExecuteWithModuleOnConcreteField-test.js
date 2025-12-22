@@ -51,8 +51,8 @@ describe('execute() a query with @module on a field with a nullable concrete typ
   let operation;
   let operationCallback;
   let operationLoader: {
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    get: (reference: unknown) => ?NormalizationRootNode,
+    load: JestMockFn<$ReadOnlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let query;
   let resolveFragment;
@@ -85,9 +85,9 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<any | [Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<any | [Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,

@@ -17,7 +17,7 @@ import type {FragmentType, ResolverContext} from '../RelayStoreTypes';
 const {readFragment} = require('../ResolverFragments');
 const invariant = require('invariant');
 
-type ResolverFn = ($FlowFixMe, ?$FlowFixMe, ResolverContext) => mixed;
+type ResolverFn = ($FlowFixMe, ?$FlowFixMe, ResolverContext) => unknown;
 
 /**
  *
@@ -38,13 +38,13 @@ function resolverDataInjector<TFragmentType: FragmentType, TData: ?{...}>(
   _resolverFn: $FlowFixMe,
   fieldName?: string,
   isRequiredField?: boolean,
-): (fragmentKey: TFragmentType, args: mixed) => mixed {
+): (fragmentKey: TFragmentType, args: unknown) => unknown {
   const resolverFn: ResolverFn = _resolverFn;
   return (
     fragmentKey: TFragmentType,
-    args: mixed,
+    args: unknown,
     resolverContext: ResolverContext,
-  ): mixed => {
+  ): unknown => {
     const data = readFragment(fragment, fragmentKey);
     if (fieldName != null) {
       if (data == null) {

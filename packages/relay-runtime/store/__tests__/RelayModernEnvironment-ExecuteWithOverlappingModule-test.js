@@ -143,7 +143,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
       load: jest.fn(moduleName => {
         return Promise.resolve();
       }),
-      get: jest.fn<[mixed], ?NormalizationRootNode>(),
+      get: jest.fn<[unknown], ?NormalizationRootNode>(),
     };
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);

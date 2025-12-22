@@ -34,7 +34,7 @@ const {
  * expect(actual).toEqual(expectedValue)
  * ```
  **/
-function testResolver<D: ?{+$fragmentType?: mixed, ...}, Ret>(
+function testResolver<D: ?{+$fragmentType?: unknown, ...}, Ret>(
   resolver: ({$data?: D, $fragmentRefs: any, $fragmentSpreads: any}) => Ret,
   // indexed_access is not yet enabled for this code base. Once it is, this can
   // become: `Key['$data']`

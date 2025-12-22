@@ -90,7 +90,7 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
     });
     subscription?.unsubscribe();
     return data;
-  } catch (e: mixed) {
+  } catch (e: unknown) {
     subscription?.unsubscribe();
     throw e;
   }
@@ -119,8 +119,8 @@ declare function observeFragment<TFragmentType: FragmentType, TData>(
 function observeFragment<TFragmentType: FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
-  fragmentRef: mixed,
-): mixed {
+  fragmentRef: unknown,
+): unknown {
   const fragmentNode = getFragment(fragment);
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
 
@@ -201,7 +201,7 @@ function observeSingularSelector<TFragmentType: FragmentType, TData>(
 
 function observePluralSelector<
   TFragmentType: FragmentType,
-  TData: Array<mixed>,
+  TData: Array<unknown>,
 >(
   environment: IEnvironment,
   fragmentNode: Fragment<TFragmentType, TData>,

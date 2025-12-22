@@ -136,9 +136,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }),
         );
         callbacks = {
-          complete: jest.fn<[], mixed>(),
-          error: jest.fn<[Error], mixed>(),
-          next: jest.fn<[GraphQLResponse], mixed>(),
+          complete: jest.fn<[], unknown>(),
+          error: jest.fn<[Error], unknown>(),
+          next: jest.fn<[GraphQLResponse], unknown>(),
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
@@ -1121,7 +1121,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           fragmentToReturn = null;
           operationLoader = {
             get: jest.fn(() => fragmentToReturn),
-            load: jest.fn((moduleName: mixed) => {
+            load: jest.fn((moduleName: unknown) => {
               return new Promise(resolve => {
                 resolveFragment = resolve;
               });

@@ -99,9 +99,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,

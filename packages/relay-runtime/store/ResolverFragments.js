@@ -52,14 +52,14 @@ function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
 //   - array of nullable if the provided ref type is an array of nullable refs
 
 declare function readFragment<
-  TKey: {+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+  TKey: {+$data?: unknown, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
 ): NonNullable<TKey['$data']>;
 
 declare function readFragment<
-  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+  TKey: ?{+$data?: unknown, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
@@ -67,7 +67,7 @@ declare function readFragment<
 
 declare function readFragment<
   TKey: $ReadOnlyArray<{
-    +$data?: mixed,
+    +$data?: unknown,
     +$fragmentSpreads: FragmentType,
     ...
   }>,
@@ -78,7 +78,7 @@ declare function readFragment<
 
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
-    +$data?: mixed,
+    +$data?: unknown,
     +$fragmentSpreads: FragmentType,
     ...
   }>,
@@ -95,7 +95,7 @@ declare function readFragment<TKey: FragmentType, TData>(
 function readFragment(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: FragmentType,
-): mixed {
+): unknown {
   if (!contextStack.length) {
     throw new Error(
       'readFragment should be called only from within a Relay Resolver function.',
@@ -127,7 +127,7 @@ function readFragment(
   return data;
 }
 
-const RESOLVER_FRAGMENT_ERRORED_SENTINEL: mixed = {};
+const RESOLVER_FRAGMENT_ERRORED_SENTINEL: unknown = {};
 
 module.exports = {
   RESOLVER_FRAGMENT_ERRORED_SENTINEL,

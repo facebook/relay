@@ -181,7 +181,7 @@ class LiveResolverCache implements ResolverCache {
             evaluationResult.error == null,
             'Did not expect resolver to have both a value and an error.',
           );
-          const liveState: LiveState<mixed> =
+          const liveState: LiveState<unknown> =
             // $FlowFixMe[incompatible-type] - casting mixed
             evaluationResult.resolverResult;
           updatedDataIDs = this._setLiveStateValue(
@@ -261,7 +261,7 @@ class LiveResolverCache implements ResolverCache {
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
       linkedRecord = RelayModernRecord.clone(linkedRecord);
       // $FlowFixMe[incompatible-type] - casting mixed
-      const liveState: LiveState<mixed> = RelayModernRecord.getValue(
+      const liveState: LiveState<unknown> = RelayModernRecord.getValue(
         linkedRecord,
         RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
@@ -327,7 +327,7 @@ class LiveResolverCache implements ResolverCache {
     );
 
     // $FlowFixMe[incompatible-type] - casting mixed
-    const liveState: LiveState<mixed> = RelayModernRecord.getValue(
+    const liveState: LiveState<unknown> = RelayModernRecord.getValue(
       liveStateRecord,
       RELAY_RESOLVER_LIVE_STATE_VALUE,
     );
@@ -345,7 +345,7 @@ class LiveResolverCache implements ResolverCache {
   _setLiveStateValue(
     linkedRecord: Record,
     linkedID: DataID,
-    liveState: LiveState<mixed>,
+    liveState: LiveState<unknown>,
     field: ReaderRelayLiveResolver,
     variables: Variables,
   ): DataIDSet | null {
@@ -501,12 +501,12 @@ class LiveResolverCache implements ResolverCache {
 
   _setLiveResolverValue(
     resolverRecord: Record,
-    liveValue: LiveState<mixed>,
+    liveValue: LiveState<unknown>,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
   ): DataIDSet | null {
-    let value: null | mixed = null;
-    let resolverError: null | mixed = null;
+    let value: null | unknown = null;
+    let resolverError: null | unknown = null;
     try {
       value = liveValue.read();
     } catch (e) {
@@ -523,7 +523,7 @@ class LiveResolverCache implements ResolverCache {
 
   _setResolverValue(
     resolverRecord: Record,
-    value: mixed,
+    value: unknown,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
   ): DataIDSet | null {
@@ -674,7 +674,7 @@ class LiveResolverCache implements ResolverCache {
     this._store.__notifyUpdatedSubscribers(updatedDataIDs);
   }
 
-  _getResolverValue(resolverRecord: Record): mixed {
+  _getResolverValue(resolverRecord: Record): unknown {
     return RelayModernRecord.getValue(resolverRecord, RELAY_RESOLVER_VALUE_KEY);
   }
 
@@ -772,7 +772,7 @@ class LiveResolverCache implements ResolverCache {
   // containing only "weak" records.
   _normalizeOutputTypeValue(
     outputTypeDataID: DataID,
-    value: {+[key: string]: mixed},
+    value: {+[key: string]: unknown},
     variables: Variables,
     normalizationInfo: ResolverNormalizationInfo,
     fieldPath: Array<string>,

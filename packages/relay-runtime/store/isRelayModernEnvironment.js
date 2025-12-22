@@ -19,7 +19,7 @@
  * aid in module tree-shaking to avoid requiring all of RelayRuntime just to
  * detect its environment.
  */
-function isRelayModernEnvironment(environment: mixed): boolean {
+function isRelayModernEnvironment(environment: unknown): boolean {
   return Boolean(
     environment && (environment as any)['@@RelayModernEnvironment'],
   );

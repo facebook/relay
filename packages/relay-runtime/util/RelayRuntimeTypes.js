@@ -40,7 +40,7 @@ export type Variables = {+[string]: $FlowFixMe};
 export type OperationType = {
   // TODO(T33395812) Make this an open object type
   +variables: Variables,
-  +response: mixed,
+  +response: unknown,
   +rawResponse?: {...},
 };
 
@@ -68,7 +68,7 @@ export type CacheConfig = {
   +onSubscribe?: () => void,
   +onResume?: (pauseTimeMs: number) => void,
   +onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
-  +metadata?: {+[key: string]: mixed, ...},
+  +metadata?: {+[key: string]: unknown, ...},
   +transactionId?: ?string,
 };
 

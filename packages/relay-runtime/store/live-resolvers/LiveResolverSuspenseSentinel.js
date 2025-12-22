@@ -11,7 +11,7 @@
 
 'use strict';
 
-const LIVE_RESOLVER_SUSPENSE_SENTINEL: mixed = Object.freeze({
+const LIVE_RESOLVER_SUSPENSE_SENTINEL: unknown = Object.freeze({
   __LIVE_RESOLVER_SUSPENSE_SENTINEL: true,
 });
 
@@ -20,7 +20,7 @@ function suspenseSentinel(): empty {
   return LIVE_RESOLVER_SUSPENSE_SENTINEL;
 }
 
-function isSuspenseSentinel(value: mixed): boolean {
+function isSuspenseSentinel(value: unknown): boolean {
   return value === LIVE_RESOLVER_SUSPENSE_SENTINEL;
 }
 

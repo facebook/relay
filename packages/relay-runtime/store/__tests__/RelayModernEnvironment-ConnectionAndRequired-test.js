@@ -80,9 +80,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
         operation = createOperationDescriptor(query, variables);
 
-        const complete = jest.fn<[], mixed>();
-        const error = jest.fn<[Error], mixed>();
-        const next = jest.fn<[GraphQLResponse], mixed>();
+        const complete = jest.fn<[], unknown>();
+        const error = jest.fn<[Error], unknown>();
+        const next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         const fetch = jest.fn((_query, _variables, _cacheConfig) => {

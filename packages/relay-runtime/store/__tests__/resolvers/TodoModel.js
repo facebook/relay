@@ -56,7 +56,7 @@ function description(model: TodoModelType): ?string {
  */
 function another_value_from_context(
   model: TodoModelType,
-  _: mixed,
+  _: unknown,
   context: TestResolverContextType,
 ): ?string {
   return context?.greeting.myHello;

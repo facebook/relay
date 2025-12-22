@@ -47,7 +47,7 @@ disallowWarnings();
 
 function createOperationLoader() {
   const cache = new Map<
-    mixed,
+    unknown,
     | {kind: 'value', operation: NormalizationSplitOperation}
     | {
         kind: 'promise',
@@ -109,8 +109,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let next;
     let operation;
     let operationLoader: {
-      get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
-      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+      get: JestMockFn<$ReadOnlyArray<unknown>, ?NormalizationRootNode>,
+      load: JestMockFn<
+        $ReadOnlyArray<unknown>,
+        Promise<?NormalizationRootNode>,
+      >,
     };
     let query;
     let resolveFragment;
@@ -172,9 +175,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,

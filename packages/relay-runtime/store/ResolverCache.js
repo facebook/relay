@@ -33,7 +33,7 @@ export type EvaluationResult<T> = {
 };
 
 export type ResolverFragmentResult = $ReadOnly<{
-  data: mixed,
+  data: unknown,
   isMissingData: boolean,
   fieldErrors: ?FieldErrors,
 }>;

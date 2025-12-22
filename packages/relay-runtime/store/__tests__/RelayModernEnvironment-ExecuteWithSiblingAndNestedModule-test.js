@@ -49,11 +49,11 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
     environmentType => {
       describe(environmentType, () => {
         let callbacks: {
-          +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-          +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
-          +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-          +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-          +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+          +complete: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+          +error: JestMockFn<$ReadOnlyArray<Error>, unknown>,
+          +next: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+          +start?: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+          +unsubscribe?: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
         };
         let complete;
         let dataSource;
@@ -66,9 +66,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let operation;
         let operationCallback;
         let operationLoader: {
-          get: (reference: mixed) => ?NormalizationRootNode,
+          get: (reference: unknown) => ?NormalizationRootNode,
           load: JestMockFn<
-            $ReadOnlyArray<mixed>,
+            $ReadOnlyArray<unknown>,
             Promise<?NormalizationRootNode>,
           >,
         };
@@ -146,9 +146,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           variables = {id: '1'};
           operation = createOperationDescriptor(query, variables);
 
-          complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-          error = jest.fn<$ReadOnlyArray<Error>, mixed>();
-          next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+          complete = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+          error = jest.fn<$ReadOnlyArray<Error>, unknown>();
+          next = jest.fn<$ReadOnlyArray<unknown>, unknown>();
           callbacks = {complete, error, next};
           fetch = (
             _query: RequestParameters,

@@ -22,7 +22,7 @@ const invariant = require('invariant');
 function handleFieldErrors(
   environment: IEnvironment,
   fieldErrors: FieldErrors,
-  loggingContext: mixed | void,
+  loggingContext: unknown | void,
 ) {
   for (const fieldError of fieldErrors) {
     // First we log all events. Note that the logger may opt to throw its own
@@ -94,7 +94,7 @@ function eventShouldThrow(event: FieldError): boolean {
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   fieldErrors: ?FieldErrors,
-  loggingContext: mixed | void,
+  loggingContext: unknown | void,
 ) {
   /**
    * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default

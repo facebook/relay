@@ -78,7 +78,7 @@ export type EnvironmentConfig = {
   +operationTracker?: ?OperationTracker,
   +getDataID?: ?GetDataID,
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
-  +options?: mixed,
+  +options?: unknown,
   +isServer?: boolean,
   +relayFieldLogger?: ?RelayFieldLogger,
   +shouldProcessClientComponents?: ?boolean,
@@ -100,7 +100,7 @@ class RelayModernEnvironment implements IEnvironment {
   _treatMissingFieldsAsNull: boolean;
   _deferDeduplicatedFields: boolean;
   _operationExecutions: Map<string, ActiveState>;
-  +options: mixed;
+  +options: unknown;
   +_isServer: boolean;
   relayFieldLogger: RelayFieldLogger;
   _normalizeResponse: NormalizeResponseFunction;
@@ -458,7 +458,7 @@ class RelayModernEnvironment implements IEnvironment {
     });
   }
 
-  toJSON(): mixed {
+  toJSON(): unknown {
     return `RelayModernEnvironment(${this.configName ?? ''})`;
   }
 

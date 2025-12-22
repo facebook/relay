@@ -102,7 +102,7 @@ let _setProps;
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = true;
 
-  errorBoundaryDidCatchFn = jest.fn<[Error], mixed>();
+  errorBoundaryDidCatchFn = jest.fn<[Error], unknown>();
 
   class ErrorBoundary extends React.Component<any, any> {
     state: any | {error: null} = {error: null};
@@ -170,7 +170,7 @@ beforeEach(() => {
     },
     store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
   });
-  release = jest.fn<[mixed], mixed>();
+  release = jest.fn<[unknown], unknown>();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const originalRetain = environment.retain.bind(environment);
   // $FlowFixMe[cannot-write]

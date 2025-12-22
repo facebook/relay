@@ -22,7 +22,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 class FakeJSResource<T> {
-  _resolve: (T => mixed) | null;
+  _resolve: (T => unknown) | null;
   _resource: T | null;
   getModuleId: () => string;
   getModuleIfRequired: () => T | null;
@@ -84,7 +84,7 @@ test('it should preload entry point with queries', () => {
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -123,7 +123,7 @@ test('it should ignore handle null/undefined queries', () => {
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -176,7 +176,7 @@ test('it should unwrap an entry point wrapping a module with default exports', (
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -223,7 +223,7 @@ test('it should return the module from an entry point that just returns the modu
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -241,14 +241,14 @@ describe('with respect to loadQuery', () => {
   const loadQuery = jest
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    .fn<_, {dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>}>()
+    .fn<_, {dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>}>()
     .mockImplementation(() => {
       return mockLoadedQuery;
     });
   beforeEach(() => {
     jest.mock('../loadQuery', () => ({loadQuery}));
     mockLoadedQuery = {
-      dispose: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
+      dispose: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
     };
   });
   afterEach(() => {
@@ -294,7 +294,7 @@ describe('with respect to loadQuery', () => {
       root: new FakeJSResource(null) as $FlowFixMe,
     };
 
-    loadEntryPoint<_, {}, {...}, {...}, mixed, $FlowFixMe, _>(
+    loadEntryPoint<_, {}, {...}, {...}, unknown, $FlowFixMe, _>(
       {
         getEnvironment: () => env,
       },
@@ -341,7 +341,7 @@ describe('with respect to loadQuery', () => {
       {},
       {...},
       {...},
-      mixed,
+      unknown,
       $FlowFixMe,
       _,
     >(
@@ -408,7 +408,7 @@ test('it should preload entry point with nested entry points', () => {
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -500,7 +500,7 @@ test('it should preload entry point with both queries and nested entry points', 
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -594,7 +594,7 @@ test('it should dispose nested entry points', () => {
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -653,7 +653,7 @@ test('with `getEnvironment` function', () => {
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(

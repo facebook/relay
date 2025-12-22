@@ -40,7 +40,7 @@ let isLoadingNextSpy;
 component Container(
   userRef: ?usePrefetchableForwardPaginationFragmentTest_user$key,
   minimalEdgesToFetch: number = 1,
-  UNSTABLE_extraVariables?: mixed,
+  UNSTABLE_extraVariables?: unknown,
 ) {
   const {
     edges,

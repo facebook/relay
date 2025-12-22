@@ -93,7 +93,7 @@ let environment;
 let fetch;
 
 class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
-  state: {error: mixed} = {error: null};
+  state: {error: unknown} = {error: null};
 
   componentDidCatch(error: Error) {
     this.setState({error});

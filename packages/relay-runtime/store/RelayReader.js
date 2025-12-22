@@ -329,7 +329,7 @@ class RelayReader {
     return hadRequiredData ? data : null;
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayReader(): Undefined variable `%s`.',
@@ -385,7 +385,7 @@ class RelayReader {
 
   _handleRequiredFieldValue(
     selection: ReaderRequiredField,
-    value: mixed,
+    value: unknown,
   ): boolean /*should continue to siblings*/ {
     if (value == null) {
       this._maybeReportUnexpectedNull(selection);
@@ -419,8 +419,8 @@ class RelayReader {
     _value: T,
     to: CatchFieldTo,
     previousResponseFields: ?FieldErrors,
-  ): ?T | Result<T, mixed> {
-    let value: T | null | Result<T, mixed> = _value;
+  ): ?T | Result<T, unknown> {
+    let value: T | null | Result<T, unknown> = _value;
     switch (to) {
       case 'RESULT':
         value = this._asResult(_value);
@@ -463,7 +463,7 @@ class RelayReader {
    * **Note**: This method does _not_ mark errors as handled. It is the caller's
    * responsibility to ensure that errors are marked as handled.
    */
-  _asResult<T>(value: T): Result<T, mixed> {
+  _asResult<T>(value: T): Result<T, unknown> {
     if (this._fieldErrors == null || this._fieldErrors.length === 0) {
       return {ok: true, value};
     }
@@ -688,7 +688,7 @@ class RelayReader {
     selection: ReaderRequiredField | ReaderCatchField,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     switch (selection.field.kind) {
       case 'ScalarField':
         return this._readScalar(selection.field, record, data);
@@ -739,7 +739,7 @@ class RelayReader {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     record: Record,
     data: SelectorData,
-  ): mixed {
+  ): unknown {
     const parentRecordID = RelayModernRecord.getDataID(record);
     const prevErrors = this._fieldErrors;
     this._fieldErrors = null;
@@ -754,7 +754,7 @@ class RelayReader {
   _readResolverFieldImpl(
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     parentRecordID: DataID,
-  ): mixed {
+  ): unknown {
     const {fragment} = field;
 
     // Found when reading the resolver fragment, which can happen either when
@@ -808,7 +808,7 @@ class RelayReader {
     // * `snapshot` The snapshot returned when reading the resolver's root fragment (if it has one)
     // * `error` If the resolver throws, its error is caught (inside
     //   `getResolverValue`) and converted into an error object.
-    const evaluate = (): EvaluationResult<mixed> => {
+    const evaluate = (): EvaluationResult<unknown> => {
       if (fragment != null) {
         const key: SelectorData = {
           __fragmentOwner: this._owner,
@@ -987,7 +987,7 @@ class RelayReader {
     field: ReaderClientEdge,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const backingField = field.backingField;
 
     // Because ReaderClientExtension doesn't have `alias` or `name` and so I don't know
@@ -1168,7 +1168,7 @@ class RelayReader {
     field: ReaderScalarField | ReaderRelayResolver | ReaderRelayLiveResolver,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const value = RelayModernRecord.getValue(record, storageKey);
@@ -1190,7 +1190,7 @@ class RelayReader {
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
@@ -1288,7 +1288,7 @@ class RelayReader {
     field: ReaderActorChange,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const externalRef = RelayModernRecord.getActorLinkedRecordID(
@@ -1326,7 +1326,7 @@ class RelayReader {
     field: ReaderLinkedField,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
     if (
@@ -1345,7 +1345,7 @@ class RelayReader {
     linkedIDs: ?$ReadOnlyArray<?DataID>,
     record: Record,
     data: SelectorData,
-  ): ?mixed {
+  ): ?unknown {
     const fieldName = field.alias ?? field.name;
 
     if (linkedIDs == null) {
@@ -1728,9 +1728,9 @@ function markFieldErrorHasHandled(event: FieldError): FieldError {
 function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,
-  fragmentKey: mixed,
+  fragmentKey: unknown,
   resolverContext: ?ResolverContext,
-): [mixed, ?Error] {
+): [unknown, ?Error] {
   // Support for languages that work (best) with ES6 modules, such as TypeScript.
   const resolverFunction =
     typeof field.resolverModule === 'function'
@@ -1766,7 +1766,7 @@ function getResolverValue(
 }
 
 function extractIdFromResponse(
-  individualResponse: mixed,
+  individualResponse: unknown,
   path: string,
   owner: string,
 ): string {

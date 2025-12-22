@@ -31,7 +31,7 @@ type RefetchVariables<TVariables, TKey> =
   // NOTE: This type ensures that the type of the variables is either:
   //   - nullable if the provided ref type is non-nullable
   //   - non-nullable if the provided ref type is nullable, and the caller need to provide the full set of variables
-  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? Partial<TVariables>
     : TVariables;
 
@@ -49,7 +49,7 @@ type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This rtpw ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -99,7 +99,7 @@ hook useBlockingPaginationFragment<
       variables: TVariables,
     },
     {
-      +$data: mixed,
+      +$data: unknown,
       ...
     },
   >(fragmentNode, parentFragmentRef, componentDisplayName);
@@ -167,10 +167,10 @@ hook useLoadMore<TVariables: Variables>(args: {
   ...$Exact<Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>>,
 }): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
-  const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
+  const [requestPromise, setRequestPromise] = useState<null | Promise<unknown>>(
     null,
   );
-  const requestPromiseRef = useRef<null | Promise<mixed>>(null);
+  const requestPromiseRef = useRef<null | Promise<unknown>>(null);
   const promiseResolveRef = useRef<null | (() => void)>(null);
 
   const promiseResolve = () => {

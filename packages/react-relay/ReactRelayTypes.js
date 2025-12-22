@@ -22,7 +22,7 @@ import type {
 
 export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode, ...};
 
-export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
+export type ObserverOrCallback = Observer<void> | ((error: ?Error) => unknown);
 
 // NOTE: This is an inexact type in order to allow a RelayPaginationProp or
 // RelayRefetchProp to flow into a RelayProp.
@@ -57,7 +57,7 @@ export type RelayRefetchProp = {
 export type RefetchOptions = {
   +force?: boolean,
   +fetchPolicy?: 'store-or-network' | 'network-only',
-  +metadata?: {[key: string]: mixed, ...},
+  +metadata?: {[key: string]: unknown, ...},
 };
 
 /**

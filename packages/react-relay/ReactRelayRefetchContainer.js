@@ -52,7 +52,7 @@ const warning = require('warning');
 type ContainerProps = $FlowFixMe;
 
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   prevProps: ContainerProps,
   localVariables: ?Variables,
   prevPropsContext: RelayContext,

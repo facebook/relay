@@ -194,7 +194,7 @@ function expectFragmentLastResult(expectedCall: {
   renderSpy.mockClear();
 }
 
-function resolveQuery(payload: mixed) {
+function resolveQuery(payload: unknown) {
   TestRenderer.act(() => {
     dataSource.next(payload);
   });
@@ -227,16 +227,16 @@ function createMockEnvironment() {
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
-      return Observable.create((sink: Sink<mixed>) => {
+      return Observable.create((sink: Sink<unknown>) => {
         dataSource = sink;
-        unsubscribe = jest.fn<[], mixed>();
+        unsubscribe = jest.fn<[], unknown>();
         // $FlowFixMe[incompatible-type]
         return unsubscribe;
       });
     },
   );
   const environment = new Environment({
-    getDataID: (data: {+[string]: mixed}, typename: string) => {
+    getDataID: (data: {+[string]: unknown}, typename: string) => {
       // This is the default, but making it explicit in case we need to override
       return data.id;
     },
@@ -263,7 +263,7 @@ beforeEach(() => {
   jest.mock('warning');
   /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
    * enabling Flow LTI mode */
-  renderSpy = jest.fn<_, mixed>();
+  renderSpy = jest.fn<_, unknown>();
   // Set up environment and base data
   [environment, fetch] = createMockEnvironment();
 
@@ -877,7 +877,7 @@ describe.each([
     let release;
 
     beforeEach(() => {
-      release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+      release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
@@ -904,7 +904,7 @@ describe.each([
       renderer: any,
       direction: Direction,
       expected: {
-        data: mixed,
+        data: unknown,
         hasNext: boolean,
         hasPrevious: boolean,
         paginationVariables: Variables,
@@ -3632,7 +3632,7 @@ describe.each([
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
       function expectRefetchRequestIsInFlight(expected: {
-        data: mixed,
+        data: unknown,
         gqlRefetchQuery?: any,
         hasNext: boolean,
         hasPrevious: boolean,
@@ -3657,7 +3657,7 @@ describe.each([
       function expectFragmentIsRefetching(
         renderer: any,
         expected: {
-          data: mixed,
+          data: unknown,
           hasNext: boolean,
           hasPrevious: boolean,
           refetchVariables: Variables,

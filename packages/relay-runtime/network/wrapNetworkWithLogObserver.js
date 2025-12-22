@@ -90,7 +90,7 @@ function wrapNetworkWithLogObserver(
           });
         },
       };
-      const logRequestInfo = (info: mixed) => {
+      const logRequestInfo = (info: unknown) => {
         env.__log({
           name: 'network.info',
           networkRequestId,

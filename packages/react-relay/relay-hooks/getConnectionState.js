@@ -19,7 +19,7 @@ const {ConnectionInterface, getValueAtPath} = require('relay-runtime');
 function getConnectionState(
   direction: Direction,
   fragmentNode: ReaderFragment,
-  fragmentData: mixed,
+  fragmentData: unknown,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
 ): {
   cursor: ?string,

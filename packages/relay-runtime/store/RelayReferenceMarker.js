@@ -106,7 +106,7 @@ class RelayReferenceMarker {
     this._traverseSelections(node.selections, record);
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayReferenceMarker(): Undefined variable `%s`.',

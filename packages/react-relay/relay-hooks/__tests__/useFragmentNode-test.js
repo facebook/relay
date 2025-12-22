@@ -89,12 +89,12 @@ function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
 // The current tests are against useFragmentNode which as a different Flow signature
 // than the external API useFragment. I want to keep the more accurate types
 // for useFragmentInternal, though, so this wrapper adapts it.
-type ReturnType<TFragmentData: mixed> = {
+type ReturnType<TFragmentData: unknown> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-hook useFragmentNode_CURRENT<TFragmentData: mixed>(
+hook useFragmentNode_CURRENT<TFragmentData: unknown>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -115,7 +115,7 @@ hook useFragmentNode_CURRENT<TFragmentData: mixed>(
     enableStoreUpdates: () => {},
   };
 }
-hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
+hook useFragmentNode_EXPERIMENTAL<TFragmentData: unknown>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -248,8 +248,8 @@ describe.each([
     beforeEach(() => {
       RelayFeatureFlags.OPTIMIZE_NOTIFY = optimizeNotify;
       jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
-      commitSpy = jest.fn<any | [any], mixed>();
-      renderSpy = jest.fn<[any], mixed>();
+      commitSpy = jest.fn<any | [any], unknown>();
+      renderSpy = jest.fn<[any], unknown>();
 
       // Set up environment and base data
       ReactTestRenderer.act(() => {

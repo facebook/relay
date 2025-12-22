@@ -69,9 +69,9 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 export type GetDataID = (
-  fieldValue: {+[string]: mixed},
+  fieldValue: {+[string]: unknown},
   typeName: string,
-) => mixed;
+) => unknown;
 
 export type NormalizationOptions = {
   +getDataID: GetDataID,
@@ -197,7 +197,7 @@ class RelayResponseNormalizer {
     }
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayResponseNormalizer(): Undefined variable `%s`.',
@@ -710,7 +710,7 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     record: Record,
     storageKey: string,
-    fieldValue: mixed,
+    fieldValue: unknown,
   ): void {
     invariant(
       typeof fieldValue === 'object' && fieldValue,
@@ -755,7 +755,7 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     record: Record,
     storageKey: string,
-    fieldValue: mixed,
+    fieldValue: unknown,
   ): void {
     invariant(
       Array.isArray(fieldValue),
@@ -880,7 +880,7 @@ class RelayResponseNormalizer {
   _validateConflictingFieldsWithIdenticalId(
     record: Record,
     storageKey: string,
-    fieldValue: mixed,
+    fieldValue: unknown,
   ): void {
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {

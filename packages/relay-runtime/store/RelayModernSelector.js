@@ -66,7 +66,7 @@ const warning = require('warning');
  */
 function getSingularSelector(
   fragment: ReaderFragment,
-  item: mixed,
+  item: unknown,
 ): ?SingularReaderSelector {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
@@ -146,7 +146,7 @@ function getSingularSelector(
  */
 function getPluralSelector(
   fragment: ReaderFragment,
-  items: $ReadOnlyArray<mixed>,
+  items: $ReadOnlyArray<unknown>,
 ): ?PluralReaderSelector {
   let selectors: null | Array<SingularReaderSelector> = null;
   items.forEach((item, ii) => {
@@ -168,7 +168,7 @@ function getPluralSelector(
 
 function getSelector(
   fragment: ReaderFragment,
-  item: mixed | Array<mixed>,
+  item: unknown | Array<unknown>,
 ): ?ReaderSelector {
   if (item == null) {
     return item;
@@ -207,7 +207,7 @@ function getSelector(
  */
 function getSelectorsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
-  object: {[key: string]: mixed, ...},
+  object: {[key: string]: unknown, ...},
 ): {[key: string]: ?ReaderSelector, ...} {
   const selectors: {[string]: ?ReaderSelector} = {};
   for (const key in fragments) {
@@ -231,7 +231,7 @@ function getSelectorsFromObject(
  */
 function getDataIDsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
-  object: {[key: string]: mixed, ...},
+  object: {[key: string]: unknown, ...},
 ): {[key: string]: ?(DataID | Array<DataID>), ...} {
   const ids: {[string]: ?(DataID | Array<DataID>)} = {};
   for (const key in fragments) {
@@ -246,7 +246,7 @@ function getDataIDsFromObject(
 
 function getDataIDsFromFragment(
   fragment: ReaderFragment,
-  item: mixed | Array<mixed>,
+  item: unknown | Array<unknown>,
 ): ?DataID | ?Array<DataID> {
   if (item == null) {
     return item;
@@ -278,7 +278,7 @@ function getDataIDsFromFragment(
  */
 function getDataIDs(
   fragment: ReaderFragment,
-  items: $ReadOnlyArray<mixed>,
+  items: $ReadOnlyArray<unknown>,
 ): ?Array<DataID> {
   let ids: null | Array<DataID> = null;
   items.forEach(item => {
@@ -294,7 +294,7 @@ function getDataIDs(
 /**
  * @internal
  */
-function getDataID(fragment: ReaderFragment, item: mixed): ?DataID {
+function getDataID(fragment: ReaderFragment, item: unknown): ?DataID {
   invariant(
     typeof item === 'object' && item !== null && !Array.isArray(item),
     'RelayModernSelector: Expected value for fragment `%s` to be an object, got ' +
@@ -332,7 +332,7 @@ function getDataID(fragment: ReaderFragment, item: mixed): ?DataID {
  */
 function getVariablesFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
-  object: {[key: string]: mixed, ...},
+  object: {[key: string]: unknown, ...},
 ): Variables {
   const variables = {};
   for (const key in fragments) {
@@ -349,7 +349,7 @@ function getVariablesFromObject(
 
 function getVariablesFromFragment(
   fragment: ReaderFragment,
-  item: mixed | $ReadOnlyArray<mixed>,
+  item: unknown | $ReadOnlyArray<unknown>,
 ): Variables {
   if (item == null) {
     return {};
@@ -380,7 +380,7 @@ function getVariablesFromFragment(
 
 function getVariablesFromSingularFragment(
   fragment: ReaderFragment,
-  item: mixed,
+  item: unknown,
 ): ?Variables {
   const selector = getSingularSelector(fragment, item);
   if (!selector) {
@@ -391,7 +391,7 @@ function getVariablesFromSingularFragment(
 
 function getVariablesFromPluralFragment(
   fragment: ReaderFragment,
-  items: $ReadOnlyArray<mixed>,
+  items: $ReadOnlyArray<unknown>,
 ): Variables {
   const variables = {};
   items.forEach((value, ii) => {

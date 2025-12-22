@@ -27,7 +27,7 @@ injectPromisePolyfill__DEPRECATED();
 let loadedEntryPoint;
 let instance;
 let entryPointLoaderCallback: (params: {...}) => void;
-let dispose: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+let dispose: ?JestMockFn<$ReadOnlyArray<unknown>, unknown>;
 let loadEntryPointLastReturnValue;
 let disposeEntryPoint;
 
@@ -43,7 +43,7 @@ let defaultEntryPoint: any;
 const loadEntryPoint = jest
   /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
    * enabling Flow LTI mode */
-  .fn<_, {dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>}>()
+  .fn<_, {dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>}>()
   .mockImplementation(() => {
     dispose = jest.fn();
     return (loadEntryPointLastReturnValue = {
@@ -195,8 +195,8 @@ it('does not dispose the entry point before the new component tree unsuspends in
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       return null;
@@ -306,8 +306,8 @@ it('disposes entry point references associated with previous suspensions when mu
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       if (
@@ -410,8 +410,8 @@ it('disposes entry point references associated with subsequent suspensions when 
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(defaultEnvironmentProvider, defaultEntryPoint);
       if (

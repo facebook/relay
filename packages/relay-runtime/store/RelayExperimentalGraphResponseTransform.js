@@ -198,7 +198,7 @@ export class GraphModeNormalizer {
     return getStorageKey(selection, this._variables);
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'Unexpected undefined variable `%s`.',

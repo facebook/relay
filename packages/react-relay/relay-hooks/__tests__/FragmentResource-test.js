@@ -746,7 +746,7 @@ describe('FragmentResource', () => {
       const fragmentNodes = {
         user: getFragment(UserFragmentMissing),
       };
-      const fragmentRefs: {[string]: mixed} = {
+      const fragmentRefs: {[string]: unknown} = {
         user: {
           __id: '4',
           __fragments: {
@@ -1554,9 +1554,9 @@ describe('FragmentResource', () => {
 
   describe('subscribeSpec', () => {
     let unsubscribe;
-    let callback: JestMockFn<$ReadOnlyArray<mixed>, void>;
+    let callback: JestMockFn<$ReadOnlyArray<unknown>, void>;
     beforeEach(() => {
-      unsubscribe = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+      unsubscribe = jest.fn<$ReadOnlyArray<unknown>, unknown>();
       callback = jest.fn();
       jest.spyOn(environment, 'subscribe').mockImplementation(() => ({
         dispose: unsubscribe,

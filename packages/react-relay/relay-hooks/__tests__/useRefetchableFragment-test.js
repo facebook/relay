@@ -83,7 +83,7 @@ describe('useRefetchableFragment', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn<[any, RefetchFn<any, any>], mixed>();
+    renderSpy = jest.fn<[any, RefetchFn<any, any>], unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -127,7 +127,7 @@ describe('useRefetchableFragment', () => {
     });
 
     // Set up renderers
-    Renderer = (props: {user: mixed}) => null;
+    Renderer = (props: {user: unknown}) => null;
 
     const Container = (props: {
       userRef?: {...},

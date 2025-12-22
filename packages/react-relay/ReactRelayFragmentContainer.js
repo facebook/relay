@@ -31,7 +31,7 @@ const {
 
 type ContainerProps = $FlowFixMe;
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   prevProps: ContainerProps,
   prevPropsContext: RelayContext,
   relayProp: RelayProp,

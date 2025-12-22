@@ -214,7 +214,7 @@ it('returns false when owner fetch completed', async () => {
 });
 
 it('returns false when owner fetch errored', async () => {
-  const onError = jest.fn<[Error], mixed>();
+  const onError = jest.fn<[Error], unknown>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
   });
@@ -329,7 +329,7 @@ it('updates the component when a pending owner fetch completes', async () => {
 });
 
 it('updates the component when a pending owner fetch errors', async () => {
-  const onError = jest.fn<[Error], mixed>();
+  const onError = jest.fn<[Error], unknown>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
   });

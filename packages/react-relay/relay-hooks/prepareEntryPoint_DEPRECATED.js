@@ -62,7 +62,7 @@ function prepareEntryPoint<
       );
 
       // $FlowFixMe[incompatible-type]
-      preloadedQueries[queryPropName] = preloadQuery<OperationType, mixed>(
+      preloadedQueries[queryPropName] = preloadQuery<OperationType, unknown>(
         environment,
         parameters,
         variables,

@@ -166,7 +166,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
         //         end cursor from the server matches the end cursor from the
         //         client then we're just filling out the rest of this page.
         if (isAddingEdgesAfterCurrentPage || isFillingOutCurrentPage) {
-          const nodeIDs = new Set<mixed>();
+          const nodeIDs = new Set<unknown>();
           mergeEdges(prevEdges, nextEdges, nodeIDs);
           mergeEdges(serverEdges, nextEdges, nodeIDs);
         } else {
@@ -185,7 +185,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           clientPageInfo &&
           args.before === clientPageInfo.getValue(START_CURSOR)
         ) {
-          const nodeIDs = new Set<mixed>();
+          const nodeIDs = new Set<unknown>();
           mergeEdges(serverEdges, nextEdges, nodeIDs);
           mergeEdges(prevEdges, nextEdges, nodeIDs);
         } else {
@@ -584,7 +584,7 @@ function buildConnectionEdge(
 function mergeEdges(
   sourceEdges: Array<?RecordProxy>,
   targetEdges: Array<?RecordProxy>,
-  nodeIDs: Set<mixed>,
+  nodeIDs: Set<unknown>,
 ): void {
   const {NODE} = ConnectionInterface.get();
 

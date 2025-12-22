@@ -33,7 +33,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    renderSpy = jest.fn<$ReadOnlyArray<unknown>, unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -75,7 +75,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     warning.mockClear();
 
     let renderLogs = [];
-    const FragmentComponent = ({user}: $ReadOnly<{user: mixed}>) => {
+    const FragmentComponent = ({user}: $ReadOnly<{user: unknown}>) => {
       const {data} = useFragmentNode<any>(gqlFragment, user, 'TestComponent');
       useEffect(() => {
         renderLogs.push(`commit: ${data.name}`);

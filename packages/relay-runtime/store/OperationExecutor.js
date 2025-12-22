@@ -109,7 +109,7 @@ type IncrementalResults =
 
 type IncrementalGraphQLResponse = {
   label: string,
-  path: $ReadOnlyArray<mixed>,
+  path: $ReadOnlyArray<unknown>,
   response: GraphQLResponseWithData,
 };
 
@@ -1356,7 +1356,7 @@ class Executor<TMutation: MutationParameters> {
 
   _processDeferResponse(
     label: string,
-    path: $ReadOnlyArray<mixed>,
+    path: $ReadOnlyArray<unknown>,
     placeholder: DeferPlaceholder,
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
@@ -1418,7 +1418,7 @@ class Executor<TMutation: MutationParameters> {
    */
   _processStreamResponse(
     label: string,
-    path: $ReadOnlyArray<mixed>,
+    path: $ReadOnlyArray<unknown>,
     placeholder: StreamPlaceholder,
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
@@ -1508,7 +1508,7 @@ class Executor<TMutation: MutationParameters> {
     parentID: DataID,
     field: NormalizationLinkedField,
     variables: Variables,
-    path: $ReadOnlyArray<mixed>,
+    path: $ReadOnlyArray<unknown>,
     normalizationPath: $ReadOnlyArray<string>,
   ): {
     fieldPayloads: Array<HandleFieldPayload>,
@@ -1746,7 +1746,7 @@ function partitionGraphQLResponses(
   return [nonIncrementalResponses, incrementalResponses, normalizedResponses];
 }
 
-function stableStringify(value: mixed): string {
+function stableStringify(value: unknown): string {
   return JSON.stringify(stableCopy(value)) ?? ''; // null-check for flow
 }
 

@@ -106,7 +106,10 @@ beforeEach(() => {
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
-          const executeUnsubscribeFn = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+          const executeUnsubscribeFn = jest.fn<
+            $ReadOnlyArray<unknown>,
+            unknown,
+          >();
           return {unsubscribe: executeUnsubscribeFn};
         });
       return executeObservable;

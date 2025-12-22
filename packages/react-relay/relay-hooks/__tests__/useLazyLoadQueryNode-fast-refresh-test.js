@@ -31,7 +31,7 @@ const {
 const {createMockEnvironment} = require('relay-test-utils');
 
 async function expectToBeRendered(
-  renderFn: JestMockFn<Array<mixed>, any & React.Node>,
+  renderFn: JestMockFn<Array<unknown>, any & React.Node>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers
@@ -49,7 +49,7 @@ function expectToHaveFetched(
   cacheConfig: {
     force?: ?boolean,
     liveConfigId?: ?string,
-    metadata?: {[key: string]: mixed},
+    metadata?: {[key: string]: unknown},
     onSubscribe?: () => void,
     onResume?: (pauseTimeMs: number) => void,
     onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
@@ -108,7 +108,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     // $FlowFixMe[incompatible-use]
-    renderFn = jest.fn((result: mixed) => result?.node?.name ?? 'Empty');
+    renderFn = jest.fn((result: unknown) => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {

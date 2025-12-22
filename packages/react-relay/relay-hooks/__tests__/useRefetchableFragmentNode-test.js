@@ -192,7 +192,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    commitSpy = jest.fn<_, mixed>();
+    commitSpy = jest.fn<_, unknown>();
 
     fetchPolicy = 'store-or-network';
     renderPolicy = 'partial' as RenderPolicy;
@@ -319,7 +319,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     });
 
     // Set up renderers
-    Renderer = (props: {user: mixed}) => null;
+    Renderer = (props: {user: unknown}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -1654,7 +1654,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     describe('multiple refetches', () => {
       const internalRuntime = require('relay-runtime').__internal;
       const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
-      const fetchSpy = jest.fn<Array<any>, mixed>();
+      const fetchSpy = jest.fn<Array<any>, unknown>();
       jest
         .spyOn(internalRuntime, 'fetchQueryDeduped')
         .mockImplementation((...args) => {
@@ -3159,7 +3159,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     });
 
     describe('disposing', () => {
-      const unsubscribe = jest.fn<[], mixed>();
+      const unsubscribe = jest.fn<[], unknown>();
       jest.doMock('relay-runtime', () => {
         const originalRuntime = jest.requireActual<any>('relay-runtime');
         const originalInternal = originalRuntime.__internal;

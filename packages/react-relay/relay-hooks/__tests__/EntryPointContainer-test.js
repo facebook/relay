@@ -77,7 +77,7 @@ let entryPointReference;
 let nestedEntryPointResource;
 
 class FakeJSResource<T> {
-  _resolve: (T => mixed) | null;
+  _resolve: (T => unknown) | null;
   _resource: T | null;
   getModuleId: () => string;
   getModuleIfRequired: () => T | null;
@@ -161,7 +161,7 @@ it('suspends while the query and component are pending', async () => {
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     any,
     {
       getPreloadProps(entryPointParams: any): {
@@ -220,7 +220,7 @@ it.skip('suspends then updates when the query and component load', async () => {
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     any,
     {
       getPreloadProps(entryPointParams: any): {
@@ -306,7 +306,7 @@ it('renders synchronously when the component has already loaded and the data arr
     {},
     {...},
     {...},
-    mixed,
+    unknown,
     any,
     {
       getPreloadProps(entryPointParams: any): {

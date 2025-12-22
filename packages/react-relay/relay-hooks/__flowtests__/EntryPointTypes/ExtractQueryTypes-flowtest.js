@@ -19,7 +19,7 @@ import type {
 
 type Query = {
   +variables: {foo: string, bar: number},
-  +response: mixed,
+  +response: unknown,
   +rawResponse?: {...},
 };
 

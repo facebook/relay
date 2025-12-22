@@ -49,9 +49,9 @@ export type LoadMoreFn<TVariables: Variables> = (
 export type UseLoadMoreFunctionArgs = {
   direction: Direction,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   fragmentIdentifier: string,
-  fragmentData: mixed,
+  fragmentData: unknown,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,

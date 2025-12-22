@@ -169,7 +169,7 @@ describe('ActorChange', () => {
   let environment;
   let multiActorEnvironment;
   let fetchFnForActor: JestMockFn<
-    Array<mixed>,
+    Array<unknown>,
     ObservableFromValue<GraphQLResponse>,
   >;
 

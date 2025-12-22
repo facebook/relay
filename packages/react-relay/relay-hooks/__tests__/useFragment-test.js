@@ -108,7 +108,7 @@ describe.each([
 
     renderSpy = jest.fn<
       [useFragmentTestUserFragment$data | useFragmentTestUsersFragment$data],
-      mixed,
+      unknown,
     >();
 
     // Set up environment and base data

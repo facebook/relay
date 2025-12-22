@@ -425,7 +425,7 @@ function getScalarUsingMissingFieldHandlers(
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
   missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
-): mixed {
+): unknown {
   for (const handler of missingFieldHandlers) {
     if (handler.kind === 'scalar') {
       const value = handler.handle(

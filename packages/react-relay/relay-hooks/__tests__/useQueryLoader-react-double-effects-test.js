@@ -35,7 +35,7 @@ function expectToHaveFetched(
   cacheConfig: {
     force?: ?boolean,
     liveConfigId?: ?string,
-    metadata?: {[key: string]: mixed},
+    metadata?: {[key: string]: unknown},
     onSubscribe?: () => void,
     onResume?: (pauseTimeMs: number) => void,
     onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
@@ -84,7 +84,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     environment = createMockEnvironment();
 
-    release = jest.fn<[], mixed>();
+    release = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment as $FlowFixMe).retain = jest.fn(operation => {
@@ -97,7 +97,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn<[], mixed>();
+    cancelNetworkRequest = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
     (environment as $FlowFixMe).executeWithSource = jest.fn((...args) => {

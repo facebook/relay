@@ -60,7 +60,7 @@ beforeEach(() => {
   jest.mock('warning');
   /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
    * enabling Flow LTI mode */
-  renderSpy = jest.fn<_, mixed>();
+  renderSpy = jest.fn<_, unknown>();
 
   // Set up environment and base data
   environment = createMockEnvironment();

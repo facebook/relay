@@ -47,7 +47,7 @@ declare hook useFragment<TFragmentType: FragmentType, TData>(
   key: ?$ReadOnlyArray<HasSpread<TFragmentType>>,
 ): ?TData;
 
-hook useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
+hook useFragment(fragment: GraphQLTaggedNode, key: unknown): unknown {
   const fragmentNode = getFragment(fragment);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
   const data = useFragmentInternal(fragmentNode, key, 'useFragment()');

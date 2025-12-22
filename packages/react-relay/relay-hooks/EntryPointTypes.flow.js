@@ -59,7 +59,7 @@ export type PreloadableConcreteRequest<+TQuery: OperationType> = {
   +__phantom__?: ?TQuery,
 };
 
-export type EnvironmentProviderOptions = {+[string]: mixed, ...};
+export type EnvironmentProviderOptions = {+[string]: unknown, ...};
 
 export type PreloadedQuery<
   +TQuery: OperationType,

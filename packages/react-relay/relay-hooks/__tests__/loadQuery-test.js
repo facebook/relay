@@ -83,12 +83,12 @@ describe('loadQuery', () => {
   let fetch;
   let environment;
 
-  let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+  let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<unknown>, unknown>;
   let executeObservable;
 
   let networkUnsubscribe;
 
-  let disposeEnvironmentRetain: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+  let disposeEnvironmentRetain: ?JestMockFn<$ReadOnlyArray<unknown>, unknown>;
 
   let resolvedModule: ?Query<
     loadQueryTestQuery$variables,
@@ -152,7 +152,7 @@ describe('loadQuery', () => {
       .spyOn(PreloadableQueryRegistry, 'onLoad')
       .mockImplementation((key, cb) => {
         executeOnloadCallback = cb;
-        disposeOnloadCallback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+        disposeOnloadCallback = jest.fn<$ReadOnlyArray<unknown>, unknown>();
         return {dispose: disposeOnloadCallback};
       });
 

@@ -45,7 +45,7 @@ export type RecordJSON = {
    * not support types with multiple indexers.
    */
   __errors?: RelayFieldErrors,
-  [StorageKey]: mixed,
+  [StorageKey]: unknown,
   ...
 };
 
@@ -200,7 +200,7 @@ function getErrors(
  *
  * Get a scalar (non-link) field value.
  */
-function getValue(record: Record, storageKey: StorageKey): mixed {
+function getValue(record: Record, storageKey: StorageKey): unknown {
   const value = record[storageKey];
   if (value && typeof value === 'object') {
     invariant(
@@ -523,7 +523,11 @@ function setErrors(
  *
  * Set the value of a storageKey to a scalar.
  */
-function setValue(record: Record, storageKey: StorageKey, value: mixed): void {
+function setValue(
+  record: Record,
+  storageKey: StorageKey,
+  value: unknown,
+): void {
   if (__DEV__) {
     const prevID = getDataID(record);
     if (storageKey === ID_KEY) {

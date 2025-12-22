@@ -16,7 +16,7 @@ import type {Record} from '../../store/RelayStoreTypes';
 type Call = {name: string, ...};
 
 export type EdgeRecord = Record & {
-  cursor: mixed,
+  cursor: unknown,
   node: Record,
   ...
 };

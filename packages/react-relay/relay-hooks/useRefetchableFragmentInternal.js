@@ -57,19 +57,19 @@ export type RefetchFn<
 //    /non-null/.
 export type RefetchFnDynamic<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, ...},
+  TKey: ?{+$data?: unknown, ...},
   TOptions = Options,
-> = [TKey] extends [{+$data?: mixed, ...}]
+> = [TKey] extends [{+$data?: unknown, ...}]
   ? RefetchFnInexact<TQuery, TOptions>
   : RefetchFnExact<TQuery, TOptions>;
 
 export type ReturnType<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, ...},
+  TKey: ?{+$data?: unknown, ...},
   TOptions = Options,
 > = {
-  fragmentData: mixed,
-  fragmentRef: mixed,
+  fragmentData: unknown,
+  fragmentRef: unknown,
   refetch: RefetchFnDynamic<TQuery, TKey, TOptions>,
 };
 
@@ -162,10 +162,10 @@ function reducer(state: RefetchState, action: Action): RefetchState {
 
 hook useRefetchableFragmentInternal<
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, ...},
+  TKey: ?{+$data?: unknown, ...},
 >(
   fragmentNode: ReaderFragment,
-  parentFragmentRef: mixed,
+  parentFragmentRef: unknown,
   componentDisplayName: string,
 ): ReturnType<TQuery, TKey, InternalOptions> {
   const parentEnvironment = useRelayEnvironment();
@@ -373,13 +373,13 @@ hook useRefetchFunction<TQuery: OperationType>(
       },
   ) => void,
   disposeQuery: () => void,
-  fragmentData: mixed,
+  fragmentData: unknown,
   fragmentIdentifier: string,
   fragmentNode: ReaderFragment,
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
   identifierInfo: ?RefetchableIdentifierInfo,
   loadQuery: LoaderFn<TQuery>,
-  parentFragmentRef: mixed,
+  parentFragmentRef: unknown,
   refetchableRequest: ConcreteRequest,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
@@ -523,7 +523,7 @@ if (__DEV__) {
   debugFunctions = {
     checkSameIDAfterRefetch(
       previousIDAndTypename: ?DebugIDandTypename,
-      refetchedFragmentRef: mixed,
+      refetchedFragmentRef: unknown,
       fragmentNode: ReaderFragment,
       componentDisplayName: string,
     ): void {

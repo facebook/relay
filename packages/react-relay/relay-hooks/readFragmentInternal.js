@@ -94,7 +94,7 @@ function handlePotentialSnapshotErrorsForState(
 function handleMissingClientEdge(
   environment: IEnvironment,
   parentFragmentNode: ReaderFragment,
-  parentFragmentRef: mixed,
+  parentFragmentRef: unknown,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
 ): QueryResult {
@@ -152,7 +152,7 @@ function getFragmentState(
 function readFragmentInternal(
   environment: IEnvironment,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
   fragmentKey?: string,

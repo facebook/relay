@@ -17,7 +17,7 @@ import type {ActorIdentifier} from './ActorIdentifier';
 
 const {getActorIdentifier} = require('./ActorIdentifier');
 
-function getActorIdentifierFromPayload(payload: mixed): ?ActorIdentifier {
+function getActorIdentifierFromPayload(payload: unknown): ?ActorIdentifier {
   if (
     payload != null &&
     typeof payload === 'object' &&

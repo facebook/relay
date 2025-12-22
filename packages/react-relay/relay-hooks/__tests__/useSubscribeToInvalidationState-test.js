@@ -69,13 +69,13 @@ beforeEach(() => {
   const store = new Store(source);
 
   environment = createMockEnvironment({store});
-  callback = jest.fn<$ReadOnlyArray<mixed>, void>();
+  callback = jest.fn<$ReadOnlyArray<unknown>, void>();
 
   function Renderer({
     initialDataIDs,
     initialCallback,
   }: {
-    initialCallback: JestMockFn<$ReadOnlyArray<mixed>, void>,
+    initialCallback: JestMockFn<$ReadOnlyArray<unknown>, void>,
     initialDataIDs: $ReadOnlyArray<string>,
   }) {
     const [dataIDs, _setDataIDs] = useState(initialDataIDs);
@@ -83,7 +83,7 @@ beforeEach(() => {
     const cb = cbState.callback;
 
     setDataIDs = _setDataIDs;
-    setCallback = (_cb: JestMockFn<Array<mixed>, void>) =>
+    setCallback = (_cb: JestMockFn<Array<unknown>, void>) =>
       // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
       _setCallback({callback: _cb});
 
@@ -96,7 +96,7 @@ beforeEach(() => {
   }
 
   function Container(props: {
-    callback: JestMockFn<$ReadOnlyArray<mixed>, void>,
+    callback: JestMockFn<$ReadOnlyArray<unknown>, void>,
     dataIDs: $ReadOnlyArray<string>,
     environment: RelayMockEnvironment,
   }) {
@@ -115,7 +115,7 @@ beforeEach(() => {
   render = async (
     env: RelayMockEnvironment,
     dataIDs: $ReadOnlyArray<string>,
-    cb: JestMockFn<$ReadOnlyArray<mixed>, void>,
+    cb: JestMockFn<$ReadOnlyArray<unknown>, void>,
   ) => {
     await act(() => {
       renderedInstance = ReactTestingLibrary.render(
@@ -371,7 +371,7 @@ it('re-establishes subscription when callback changes', async () => {
 
   expect(callback).toHaveBeenCalledTimes(1);
 
-  const newCallback = jest.fn<Array<mixed>, void>();
+  const newCallback = jest.fn<Array<unknown>, void>();
   await act(() => {
     setCallback(newCallback);
   });

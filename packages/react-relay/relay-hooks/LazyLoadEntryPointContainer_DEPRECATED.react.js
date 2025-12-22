@@ -57,7 +57,7 @@ type EntryPointContainerProps<
   }>,
 >;
 
-function stableStringify(value: mixed): string {
+function stableStringify(value: unknown): string {
   return JSON.stringify(stableCopy(value)) ?? 'null';
 }
 
@@ -104,7 +104,7 @@ function prepareEntryPoint<
       // $FlowFixMe[incompatible-type]
       preloadedQueries[queryPropName] = preloadQuery_DEPRECATED<
         OperationType,
-        mixed,
+        unknown,
       >(
         environment,
         parameters,
@@ -129,8 +129,8 @@ function prepareEntryPoint<
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(environmentProvider, nestedEntryPoint, nestedParams);
     });

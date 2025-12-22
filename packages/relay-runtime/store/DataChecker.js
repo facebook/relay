@@ -202,7 +202,7 @@ class DataChecker {
         };
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayAsyncLoader(): Undefined variable `%s`.',
@@ -218,7 +218,7 @@ class DataChecker {
   _handleMissingScalarField(
     field: NormalizationScalarField,
     dataID: DataID,
-  ): mixed {
+  ): unknown {
     if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
       return undefined;
     }

@@ -89,7 +89,7 @@ describe('useBlockingPaginationFragment', () => {
 
   function useBlockingPaginationFragment(
     fragmentNode: any,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
   ) {
     // $FlowFixMe[incompatible-type]
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
@@ -149,7 +149,7 @@ describe('useBlockingPaginationFragment', () => {
     // Set up mocks
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    renderSpy = jest.fn<_, mixed>();
+    renderSpy = jest.fn<_, unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment({
@@ -734,7 +734,7 @@ describe('useBlockingPaginationFragment', () => {
     let release;
 
     beforeEach(() => {
-      release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+      release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
@@ -759,7 +759,7 @@ describe('useBlockingPaginationFragment', () => {
       renderer: any,
       direction: Direction,
       expected: {
-        data: mixed,
+        data: unknown,
         hasNext: boolean,
         hasPrevious: boolean,
         paginationVariables: Variables,
@@ -3767,7 +3767,7 @@ describe('useBlockingPaginationFragment', () => {
       function expectFragmentIsRefetching(
         renderer: any,
         expected: {
-          data: mixed,
+          data: unknown,
           hasNext: boolean,
           hasPrevious: boolean,
           refetchVariables: Variables,

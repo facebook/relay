@@ -46,7 +46,7 @@ type FragmentResourceCache = Cache<
   | {
       kind: 'pending',
       pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-      promise: Promise<mixed>,
+      promise: Promise<unknown>,
       result: FragmentResult,
     }
   | {kind: 'done', result: FragmentResult}
@@ -65,9 +65,9 @@ interface IMap<K, V> {
 
 type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
 
-opaque type FragmentResult: {data: mixed, ...} = {
+opaque type FragmentResult: {data: unknown, ...} = {
   cacheKey: string,
-  data: mixed,
+  data: unknown,
   isMissingData: boolean,
   snapshot: SingularOrPluralSnapshot | null,
   storeEpoch: number,
@@ -217,7 +217,7 @@ class FragmentResourceImpl {
    */
   read(
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     componentDisplayName: string,
     fragmentKey?: string,
   ): FragmentResult {
@@ -237,7 +237,7 @@ class FragmentResourceImpl {
    */
   readWithIdentifier(
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     fragmentIdentifier: string,
     componentDisplayName: string,
     fragmentKey?: ?string,
@@ -527,7 +527,7 @@ class FragmentResourceImpl {
   _performClientEdgeQuery(
     queryResource: QueryResource,
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     request: ConcreteRequest,
     clientEdgeDestinationID: DataID,
   ): {queryResult: QueryResult, requestDescriptor: RequestDescriptor} {
@@ -568,7 +568,7 @@ class FragmentResourceImpl {
 
   readSpec(
     fragmentNodes: {[string]: ReaderFragment, ...},
-    fragmentRefs: {[string]: mixed, ...},
+    fragmentRefs: {[string]: unknown, ...},
     componentDisplayName: string,
   ): {[string]: FragmentResult, ...} {
     const result: {[string]: FragmentResult} = {};

@@ -143,7 +143,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     function expectFragmentIsPendingOnRefetch(
       renderer: any,
       expected: {
-        data: mixed,
+        data: unknown,
         refetchQuery?: OperationDescriptor,
         refetchVariables: Variables,
       },
@@ -248,7 +248,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = (props: {user: mixed}) => null;
+      Renderer = (props: {user: unknown}) => null;
 
       const Container = (props: {
         userRef?: {...},
@@ -396,7 +396,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       describe('multiple refetches', () => {
         let fetchSpy;
         beforeEach(() => {
-          fetchSpy = jest.fn<Array<any>, mixed>();
+          fetchSpy = jest.fn<Array<any>, unknown>();
           const internalRuntime = require('relay-runtime').__internal;
           const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
           jest

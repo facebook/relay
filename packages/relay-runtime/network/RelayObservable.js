@@ -23,7 +23,7 @@ export type Subscription = {
 };
 
 type SubscriptionFn = {
-  (): mixed,
+  (): unknown,
   +unsubscribe?: void,
   +closed?: void,
   ...
@@ -34,11 +34,11 @@ type SubscriptionFn = {
  * .subscribe(). Each callback function is invoked when that event occurs.
  */
 export type Observer<-T> = {
-  +start?: ?(Subscription) => mixed,
-  +next?: ?(T) => mixed,
-  +error?: ?(Error) => mixed,
-  +complete?: ?() => mixed,
-  +unsubscribe?: ?(Subscription) => mixed,
+  +start?: ?(Subscription) => unknown,
+  +next?: ?(T) => unknown,
+  +error?: ?(Error) => unknown,
+  +complete?: ?() => unknown,
+  +unsubscribe?: ?(Subscription) => unknown,
 };
 
 /**
@@ -74,7 +74,7 @@ export interface Subscribable<+T> {
 export type ObservableFromValue<+T> = Subscribable<T> | Promise<T> | T;
 
 let hostReportError:
-  | ((Error, isUncaughtThrownError: boolean) => mixed)
+  | ((Error, isUncaughtThrownError: boolean) => unknown)
   | ((_error: Error, _isUncaughtThrownError: boolean) => void) = swallowError;
 
 /**
@@ -132,7 +132,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    *    stack traces.
    */
   static onUnhandledError(
-    callback: (Error, isUncaughtThrownError: boolean) => mixed,
+    callback: (Error, isUncaughtThrownError: boolean) => unknown,
   ): void {
     hostReportError = callback;
   }
@@ -247,7 +247,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    *
    * This is useful for cleanup such as resource finalization.
    */
-  finally(fn: () => mixed): RelayObservable<T> {
+  finally(fn: () => unknown): RelayObservable<T> {
     return RelayObservable.create(sink => {
       const subscription = this.subscribe(sink);
       return () => {
@@ -447,9 +447,9 @@ class RelayObservable<+T> implements Subscribable<T> {
 }
 
 // Use declarations to teach Flow how to check isObservable.
-declare function isObservable<T>(obj: mixed): obj is Subscribable<T>;
+declare function isObservable<T>(obj: unknown): obj is Subscribable<T>;
 
-function isObservable(obj: mixed) {
+function isObservable(obj: unknown) {
   return (
     typeof obj === 'object' &&
     obj !== null &&

@@ -61,13 +61,13 @@ class RelayRecordProxy implements RecordProxy {
     return type;
   }
 
-  getValue(name: string, args?: ?Arguments): mixed {
+  getValue(name: string, args?: ?Arguments): unknown {
     const storageKey = getStableStorageKey(name, args);
     return this._mutator.getValue(this._dataID, storageKey);
   }
 
   setValue(
-    value: mixed,
+    value: unknown,
     name: string,
     args?: ?Arguments,
     errors?: ?$ReadOnlyArray<TRelayFieldError>,
@@ -94,7 +94,7 @@ class RelayRecordProxy implements RecordProxy {
   // We already validated that the value has the correct type
   // so it should be safe to store complex structures as scalar values (custom scalars)
   setValue__UNSAFE(
-    value: mixed,
+    value: unknown,
     name: string,
     args?: ?Arguments,
     errors?: ?$ReadOnlyArray<TRelayFieldError>,
@@ -186,7 +186,7 @@ class RelayRecordProxy implements RecordProxy {
   }
 }
 
-function isValidLeafValue(value: mixed): boolean {
+function isValidLeafValue(value: unknown): boolean {
   return (
     value == null ||
     typeof value !== 'object' ||

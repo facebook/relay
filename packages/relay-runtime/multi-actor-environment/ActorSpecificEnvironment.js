@@ -69,7 +69,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   +actorIdentifier: ActorIdentifier;
   +configName: ?string;
   +multiActorEnvironment: IMultiActorEnvironment;
-  +options: mixed;
+  +options: unknown;
   relayFieldLogger: RelayFieldLogger;
 
   constructor(config: ActorSpecificEnvironmentConfig) {

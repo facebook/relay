@@ -66,7 +66,7 @@ const variables = {
 
 beforeEach(() => {
   environment = createMockEnvironment();
-  isInFlightFn = jest.fn<[boolean], mixed>();
+  isInFlightFn = jest.fn<[boolean], unknown>();
 
   CommentCreateMutation = graphql`
     mutation useMutationTest1Mutation($input: CommentCreateInput) {
@@ -337,8 +337,8 @@ it('returns in-flight state that tracks all current mutations when disposed or e
 });
 
 it('calls onCompleted when mutation responses contains server errors', async () => {
-  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onError = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+  const onCompleted = jest.fn<$ReadOnlyArray<unknown>, unknown>();
   await render(environment, CommentCreateMutation);
   await commit({onCompleted, onError, variables});
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -381,8 +381,8 @@ it('calls onCompleted when mutation responses contains server errors', async () 
   expect(isInFlightFn).toBeCalledWith(false);
 });
 it('calls onError when mutation errors in commitMutation', async () => {
-  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onError = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+  const onCompleted = jest.fn<$ReadOnlyArray<unknown>, unknown>();
   const throwingUpdater = () => {
     throw new Error('<error0>');
   };
@@ -402,8 +402,8 @@ it('calls onError when mutation errors in commitMutation', async () => {
 });
 
 it('calls onComplete when mutation successfully resolved', async () => {
-  const onError = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-  const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const onError = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+  const onCompleted = jest.fn<$ReadOnlyArray<unknown>, unknown>();
   await render(environment, CommentCreateMutation);
   await commit({onCompleted, onError, variables});
 
@@ -575,7 +575,7 @@ describe('unmount', () => {
   });
 
   it('does not dispose previous in-flight mutaiton ', async () => {
-    const onCompleted = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    const onCompleted = jest.fn<$ReadOnlyArray<unknown>, unknown>();
     await render(environment, CommentCreateMutation);
     await commit({onCompleted, variables});
     await ReactTestingLibrary.act(() => {

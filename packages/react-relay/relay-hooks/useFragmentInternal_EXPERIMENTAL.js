@@ -122,7 +122,7 @@ function getSuspendingLiveResolver(
 function handlePotentialSnapshotErrorsForState(
   environment: IEnvironment,
   state: FragmentState,
-  loggingContext: mixed | void,
+  loggingContext: unknown | void,
 ): void {
   if (state.kind === 'singular') {
     handlePotentialSnapshotErrors(
@@ -222,12 +222,12 @@ function handleMissedUpdates(
   }
 }
 
-type PromiseWithDisplayName = Promise<mixed> & {displayName?: string};
+type PromiseWithDisplayName = Promise<unknown> & {displayName?: string};
 
 function handleMissingClientEdge(
   environment: IEnvironment,
   parentFragmentNode: ReaderFragment,
-  parentFragmentRef: mixed,
+  parentFragmentRef: unknown,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
 ): [QueryResult, ?PromiseWithDisplayName] {
@@ -393,7 +393,7 @@ function getFragmentState(
 // fragmentNode cannot change during the lifetime of the component, though fragmentRef may change.
 hook useFragmentInternal_EXPERIMENTAL(
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
 ): ?SelectorData | Array<?SelectorData> {

@@ -101,8 +101,8 @@ function loadEntryPoint<
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(environmentProvider, nestedEntryPoint, nestedParams);
     });

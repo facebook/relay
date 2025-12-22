@@ -37,7 +37,7 @@ let renderCount: ?number;
 let loadedQuery;
 let instance;
 let queryLoaderCallback;
-let releaseQuery: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+let releaseQuery: ?JestMockFn<$ReadOnlyArray<unknown>, unknown>;
 let lastLoadQueryReturnValue;
 let disposeQuery;
 
@@ -71,7 +71,7 @@ describe.each([
     environment = createMockEnvironment();
     render = function (
       initialPreloadedQuery: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
       },
     ) {
       renderCount = 0;
@@ -84,7 +84,7 @@ describe.each([
 
     update = function (
       initialPreloadedQuery: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
       },
     ) {
       ReactTestRenderer.act(() => {
@@ -98,7 +98,7 @@ describe.each([
       initialPreloadedQuery,
     }: {
       initialPreloadedQuery: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
       },
     }) {
       renderCount = (renderCount || 0) + 1;
@@ -114,7 +114,7 @@ describe.each([
       initialPreloadedQuery,
     }: {
       initialPreloadedQuery?: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
       },
     }) {
       return (

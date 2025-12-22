@@ -60,7 +60,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
 
     environment = createMockEnvironment();
-    release = jest.fn<[], mixed>();
+    release = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
     (environment as $FlowFixMe).retain = jest.fn(operation => {
@@ -73,7 +73,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn<[], mixed>();
+    cancelNetworkRequest = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecute = environment.execute;
     (environment as $FlowFixMe).execute = jest.fn((...args) => {

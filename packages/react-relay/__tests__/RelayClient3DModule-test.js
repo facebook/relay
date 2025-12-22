@@ -47,7 +47,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
-  state: {error: mixed} = {error: null};
+  state: {error: unknown} = {error: null};
 
   componentDidCatch(error: Error) {
     this.setState({error});
@@ -99,7 +99,7 @@ const SPECIAL_USER_FRAGMENT = graphql`
 function BasicUserRenderer() {
   const queryData = useClientQuery(CLIENT_3D_TEST_QUERY, {});
   const fragmentData = useFragment(CLIENT_3D_TEST_FRAGMENT, queryData.persona);
-  const loader = (moduleProvider: mixed) => {
+  const loader = (moduleProvider: unknown) => {
     // $FlowFixMe[not-a-function]
     return moduleProvider().default;
   };
@@ -124,8 +124,8 @@ describe('ClientUser', () => {
 
   beforeEach(() => {
     operationLoader = {
-      load: jest.fn<[mixed], Promise<NormalizationSplitOperation>>(),
-      get: jest.fn<[mixed], ?NormalizationRootNode>(),
+      load: jest.fn<[unknown], Promise<NormalizationSplitOperation>>(),
+      get: jest.fn<[unknown], ?NormalizationRootNode>(),
     };
     store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
@@ -198,8 +198,8 @@ describe('SpecialUser', () => {
   let operationLoader;
   beforeEach(() => {
     operationLoader = {
-      load: jest.fn<[mixed], Promise<NormalizationSplitOperation>>(),
-      get: jest.fn<[mixed], ?NormalizationRootNode>(),
+      load: jest.fn<[unknown], Promise<NormalizationSplitOperation>>(),
+      get: jest.fn<[unknown], ?NormalizationRootNode>(),
     };
     store = new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,

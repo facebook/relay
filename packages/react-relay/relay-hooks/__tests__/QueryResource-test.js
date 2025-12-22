@@ -114,7 +114,7 @@ describe('QueryResource', () => {
       liveQueryMissingData,
     );
 
-    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {
@@ -285,7 +285,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -330,7 +330,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -374,7 +374,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -701,7 +701,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -752,7 +752,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -796,7 +796,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -1263,7 +1263,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1307,7 +1307,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -1351,7 +1351,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -1501,7 +1501,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1550,7 +1550,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -1594,7 +1594,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -1726,7 +1726,7 @@ describe('QueryResource', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1773,7 +1773,7 @@ describe('QueryResource', () => {
         });
 
         it('should return result if network observable returns synchronously', () => {
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
@@ -1811,7 +1811,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
@@ -1908,7 +1908,7 @@ describe('QueryResource', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1955,7 +1955,7 @@ describe('QueryResource', () => {
         });
 
         it('should return result if network observable returns synchronously', () => {
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
@@ -1993,7 +1993,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
@@ -2924,7 +2924,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
 
     fetchObservable = fetchQuery(environment, query);
 
-    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {

@@ -603,7 +603,7 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  toJSON(): mixed {
+  toJSON(): unknown {
     return 'RelayModernStore()';
   }
 

@@ -6709,7 +6709,7 @@ declare module '@babel/types' {
   declare export function validate(
     n: BabelNode,
     key: string,
-    value: mixed,
+    value: unknown,
   ): void;
   declare export type Node = BabelNode;
   declare export type CommentBlock = BabelNodeCommentBlock;

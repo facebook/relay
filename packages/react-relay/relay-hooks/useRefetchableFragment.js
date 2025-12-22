@@ -24,11 +24,11 @@ const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
 const {getFragment} = require('relay-runtime');
 
-type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: mixed, ...}> =
+type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: unknown, ...}> =
   // NOTE: This type ensures that the type of the returned variables is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? Partial<TVariables>
     : TVariables;
 
@@ -45,12 +45,14 @@ export type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
 export type ReturnType<
   TVariables,
   TData,
-  TKey: ?{+$fragmentSpreads: mixed, ...},
+  TKey: ?{+$fragmentSpreads: unknown, ...},
 > = [
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}] ? TData : ?TData,
+  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
+    ? TData
+    : ?TData,
   RefetchFn<TVariables, TKey>,
 ];
 

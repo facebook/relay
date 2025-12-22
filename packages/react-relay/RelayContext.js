@@ -20,7 +20,7 @@ const invariant = require('invariant');
  * Asserts that the input is a matches the `RelayContext` type defined in
  * `RelayEnvironmentTypes` and returns it as that type.
  */
-function assertRelayContext(relay: mixed): RelayContext {
+function assertRelayContext(relay: unknown): RelayContext {
   invariant(
     isRelayContext(relay),
     'RelayContext: Expected `context.relay` to be an object conforming to ' +
@@ -34,7 +34,7 @@ function assertRelayContext(relay: mixed): RelayContext {
  * Determine if the input is a plain object that matches the `RelayContext`
  * type defined in `RelayEnvironmentTypes`.
  */
-function isRelayContext(context: mixed): boolean {
+function isRelayContext(context: unknown): boolean {
   return (
     typeof context === 'object' &&
     context !== null &&

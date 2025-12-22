@@ -43,7 +43,7 @@ const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
 
-type Props = {[key: string]: mixed, ...};
+type Props = {[key: string]: unknown, ...};
 type Resolvers = {
   [key: string]: ?(SelectorListResolver | SelectorResolver),
   ...

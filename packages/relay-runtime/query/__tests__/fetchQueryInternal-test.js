@@ -388,10 +388,10 @@ describe('isRequestActive', () => {
 
   it('returns false if request is not active', () => {
     const observer = {
-      complete: jest.fn<[], mixed>(),
-      error: jest.fn<[Error], mixed>(),
-      next: jest.fn<[GraphQLResponse], mixed>(),
-      unsubscribe: jest.fn<[Subscription], mixed>(),
+      complete: jest.fn<[], unknown>(),
+      error: jest.fn<[Error], unknown>(),
+      next: jest.fn<[GraphQLResponse], unknown>(),
+      unsubscribe: jest.fn<[Subscription], unknown>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.nextValue(gqlQuery, response);
@@ -416,10 +416,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null if request is not active', () => {
     const observer = {
-      complete: jest.fn<[], mixed>(),
-      error: jest.fn<[Error], mixed>(),
-      next: jest.fn<[GraphQLResponse], mixed>(),
-      unsubscribe: jest.fn<[Subscription], mixed>(),
+      complete: jest.fn<[], unknown>(),
+      error: jest.fn<[Error], unknown>(),
+      next: jest.fn<[GraphQLResponse], unknown>(),
+      unsubscribe: jest.fn<[Subscription], unknown>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.nextValue(gqlQuery, response);
@@ -430,10 +430,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null after request has completed', () => {
     const observer = {
-      complete: jest.fn<[], mixed>(),
-      error: jest.fn<[Error], mixed>(),
-      next: jest.fn<[GraphQLResponse], mixed>(),
-      unsubscribe: jest.fn<[Subscription], mixed>(),
+      complete: jest.fn<[], unknown>(),
+      error: jest.fn<[Error], unknown>(),
+      next: jest.fn<[GraphQLResponse], unknown>(),
+      unsubscribe: jest.fn<[Subscription], unknown>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.resolve(gqlQuery, response);
@@ -444,10 +444,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null after request has errored', () => {
     const observer = {
-      complete: jest.fn<[], mixed>(),
-      error: jest.fn<[Error], mixed>(),
-      next: jest.fn<[GraphQLResponse], mixed>(),
-      unsubscribe: jest.fn<[Subscription], mixed>(),
+      complete: jest.fn<[], unknown>(),
+      error: jest.fn<[Error], unknown>(),
+      next: jest.fn<[GraphQLResponse], unknown>(),
+      unsubscribe: jest.fn<[Subscription], unknown>(),
     };
     fetchQuery(environment, query).subscribe(observer);
     environment.mock.reject(gqlQuery, new Error('Oops'));
@@ -458,10 +458,10 @@ describe('getPromiseForActiveRequest', () => {
 
   it('returns null after request has unsubscribed (canceled)', () => {
     const observer = {
-      complete: jest.fn<[], mixed>(),
-      error: jest.fn<[Error], mixed>(),
-      next: jest.fn<[GraphQLResponse], mixed>(),
-      unsubscribe: jest.fn<[Subscription], mixed>(),
+      complete: jest.fn<[], unknown>(),
+      error: jest.fn<[Error], unknown>(),
+      next: jest.fn<[GraphQLResponse], unknown>(),
+      unsubscribe: jest.fn<[Subscription], unknown>(),
     };
     const subscription = fetchQuery(environment, query).subscribe(observer);
     subscription.unsubscribe();
@@ -475,10 +475,10 @@ describe('getPromiseForActiveRequest', () => {
     let subscription;
     beforeEach(() => {
       observer = {
-        complete: jest.fn<[], mixed>(),
-        error: jest.fn<[Error], mixed>(),
-        next: jest.fn<[GraphQLResponse], mixed>(),
-        unsubscribe: jest.fn<[Subscription], mixed>(),
+        complete: jest.fn<[], unknown>(),
+        error: jest.fn<[Error], unknown>(),
+        next: jest.fn<[GraphQLResponse], unknown>(),
+        unsubscribe: jest.fn<[Subscription], unknown>(),
       };
       subscription = fetchQuery(environment, query).subscribe(observer);
     });
@@ -491,7 +491,7 @@ describe('getPromiseForActiveRequest', () => {
       }
 
       // Assert that promise hasn't resolved
-      const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+      const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
       promise.then(spy).catch(spy);
       jest.runAllTimers();
       expect(spy).toHaveBeenCalledTimes(0);
@@ -516,7 +516,7 @@ describe('getPromiseForActiveRequest', () => {
       }
 
       // Assert that promise hasn't resolved
-      const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+      const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
       promise.then(spy).catch(spy);
       jest.runAllTimers();
       expect(spy).toHaveBeenCalledTimes(0);
@@ -540,7 +540,7 @@ describe('getPromiseForActiveRequest', () => {
       }
 
       // Assert that promise hasn't resolved
-      const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+      const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
       promise.then(spy).catch(spy);
       jest.runAllTimers();
       expect(spy).toHaveBeenCalledTimes(0);
@@ -572,7 +572,7 @@ describe('getPromiseForActiveRequest', () => {
         }
 
         // Assert that promise hasn't resolved
-        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+        const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -596,7 +596,7 @@ describe('getPromiseForActiveRequest', () => {
         }
 
         // Assert that promise hasn't resolved
-        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+        const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -632,7 +632,7 @@ describe('getPromiseForActiveRequest', () => {
 
         // Assert that promise hasn't resolved even if first call to
         // `next` has already occurred
-        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+        const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -662,7 +662,7 @@ describe('getPromiseForActiveRequest', () => {
 
         // Assert that promise hasn't resolved even if first call to
         // `next` has already occurred
-        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+        const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -687,7 +687,7 @@ describe('getPromiseForActiveRequest', () => {
 
         // Assert that promise hasn't resolved even if first call to
         // `next` has already occurred
-        const spy = jest.fn<[void] | [$FlowFixMe], mixed>();
+        const spy = jest.fn<[void] | [$FlowFixMe], unknown>();
         promise.then(spy).catch(spy);
         jest.runAllTimers();
         expect(spy).toHaveBeenCalledTimes(0);
@@ -712,14 +712,14 @@ describe('getPromiseForActiveRequest', () => {
 
     beforeEach(() => {
       observer = {
-        complete: jest.fn<[], mixed>(),
-        error: jest.fn<[Error], mixed>(),
-        next: jest.fn<[GraphQLResponse], mixed>(),
-        unsubscribe: jest.fn<[Subscription], mixed>(),
+        complete: jest.fn<[], unknown>(),
+        error: jest.fn<[Error], unknown>(),
+        next: jest.fn<[GraphQLResponse], unknown>(),
+        unsubscribe: jest.fn<[Subscription], unknown>(),
       };
       operationLoader = {
-        get: jest.fn<[mixed], NormalizationSplitOperation>(),
-        load: jest.fn((moduleName: mixed) => {
+        get: jest.fn<[unknown], NormalizationSplitOperation>(),
+        load: jest.fn((moduleName: unknown) => {
           return new Promise(resolve => {
             resolveModule = resolve;
           });
@@ -1029,8 +1029,8 @@ describe('getObservableForActiveRequest', () => {
 
     beforeEach(() => {
       operationLoader = {
-        get: jest.fn<[mixed], NormalizationSplitOperation>(),
-        load: jest.fn((moduleName: mixed) => {
+        get: jest.fn<[unknown], NormalizationSplitOperation>(),
+        load: jest.fn((moduleName: unknown) => {
           return new Promise(resolve => {
             resolveModule = resolve;
           });

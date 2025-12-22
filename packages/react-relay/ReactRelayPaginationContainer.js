@@ -59,7 +59,7 @@ const {
 const warning = require('warning');
 
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   relayProp: RelayPaginationProp,
   prevContext: RelayContext,
   contextForChildren: RelayContext,
@@ -829,7 +829,7 @@ function createContainerWithFragments<
       }
       this._hasFetched = true;
 
-      const onNext = (payload: mixed, complete: () => void) => {
+      const onNext = (payload: unknown, complete: () => void) => {
         const prevData = this._resolver.resolve();
         this._resolver.setVariables(
           getFragmentVariables(

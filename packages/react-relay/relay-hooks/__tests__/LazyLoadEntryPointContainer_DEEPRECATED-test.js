@@ -86,7 +86,7 @@ let entryPoint: React.ElementConfig<
 let params;
 
 class FakeJSResource<T> {
-  _resolve: (T => mixed) | null;
+  _resolve: (T => unknown) | null;
   _resource: T | null;
   getModuleId: () => string;
   getModuleIfRequired: () => T | null;

@@ -27,6 +27,12 @@ module.exports = {
   projectName: 'relay',
   scripts: [],
   favicon: 'img/favicon.png',
+  future: {
+    experimental_faster: true,
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+    },
+  },
   customFields: {
     users: [
       {

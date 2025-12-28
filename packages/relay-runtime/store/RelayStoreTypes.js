@@ -719,6 +719,14 @@ export type StoreDataCheckerEndEvent = {
   +selector: NormalizationSelector,
 };
 
+export type StoreDataCheckerMissingEvent = {
+  +name: 'store.datachecker.missing',
+  +kind: 'scalar' | 'linked' | 'pluralLinked' | 'unknown_record',
+  +dataID: DataID,
+  +fieldName?: string,
+  +storageKey?: string,
+};
+
 export type StorePublishLogEvent = {
   +name: 'store.publish',
   +source: RecordSource,
@@ -851,6 +859,7 @@ export type LogEvent =
   | ExecuteNormalizeEnd
   | StoreDataCheckerStartEvent
   | StoreDataCheckerEndEvent
+  | StoreDataCheckerMissingEvent
   | StorePublishLogEvent
   | StoreSnapshotLogEvent
   | StoreLookupStartEvent

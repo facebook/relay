@@ -239,6 +239,15 @@ class DataChecker {
         }
       }
     }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'scalar',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
+    }
     this._handleMissing();
   }
 
@@ -265,6 +274,15 @@ class DataChecker {
           return newValue;
         }
       }
+    }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'linked',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
     }
     this._handleMissing();
   }
@@ -299,12 +317,28 @@ class DataChecker {
         }
       }
     }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'pluralLinked',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
+    }
     this._handleMissing();
   }
 
   _traverse(node: NormalizationNode, dataID: DataID): void {
     const status = this._mutator.getStatus(dataID);
     if (status === UNKNOWN) {
+      if (this._log != null) {
+        this._log({
+          name: 'store.datachecker.missing',
+          kind: 'unknown_record',
+          dataID,
+        });
+      }
       this._handleMissing();
     }
 

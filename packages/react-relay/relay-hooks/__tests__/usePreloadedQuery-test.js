@@ -1310,5 +1310,94 @@ describe('usePreloadedQuery', () => {
         });
       });
     });
+
+    describe('handles null', () => {
+      it('returns null when the preloaded query is null', () => {
+        let data: ?usePreloadedQueryTestQuery['response'];
+        component Component(prefetched: any) {
+          data = usePreloadedQuery(query, prefetched);
+          return data?.node?.name ?? 'MISSING NAME';
+        }
+        const renderer = TestRenderer.create(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={null} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(data).toEqual(null);
+
+        // preloaded query from null to nonnull.
+        data = undefined;
+        dataSource = undefined;
+        const preloadedQuery = loadQuery(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '5',
+          },
+          {
+            fetchPolicy: 'network-only',
+          },
+        );
+        renderer.update(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={preloadedQuery} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        PreloadableQueryRegistry.set(ID, query);
+        expect(renderer.toJSON()).toEqual('Fallback');
+        expect(data).toBe(undefined);
+
+        expect(dataSource).toBeDefined();
+        if (dataSource) {
+          dataSource.next({
+            data: {
+              node: {
+                __typename: 'User',
+                id: '5',
+                name: 'User 5',
+              },
+            },
+            extensions: {
+              is_final: true,
+            },
+          });
+          dataSource?.complete();
+        }
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('User 5');
+        expect(data).toEqual({
+          node: {
+            id: '5',
+            name: 'User 5',
+          },
+        });
+
+        // preloaded query becomes null again
+
+        data = undefined;
+        dataSource = undefined;
+        renderer.update(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={null} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+        TestRenderer.act(() => jest.runAllImmediates());
+        expect(renderer.toJSON()).toEqual('MISSING NAME');
+        expect(data).toBe(null);
+      });
+    });
   });
 });

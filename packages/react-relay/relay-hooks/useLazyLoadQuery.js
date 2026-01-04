@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {LazyLoadQueryNodeParamsWithQuery} from './useLazyLoadQueryNode';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -108,7 +109,10 @@ hook useLazyLoadQuery<TVariables: Variables, TData>(
       ? options.networkCacheConfig
       : {force: true},
   );
-  const data = useLazyLoadQueryNode<$FlowFixMe>({
+  const data = useLazyLoadQueryNode<
+    $FlowFixMe,
+    LazyLoadQueryNodeParamsWithQuery,
+  >({
     componentDisplayName: 'useLazyLoadQuery()',
     fetchKey: options?.fetchKey,
     fetchObservable: fetchQuery(environment, query),

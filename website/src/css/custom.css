@@ -188,7 +188,6 @@ html[data-theme="light"] .homePage .container {
 }
 
 .exampleSection .wrapperInner > div:nth-child(even) pre {
-  margin-left: 3em;
   padding-top: 0;
 }
 
@@ -196,9 +195,8 @@ pre {
   background-color: var(--pre-background-color);
 }
 
-pre.outerPre {
-  box-shadow: var(--pre-box-shadow);
-  border: 1px solid var(--pre-border-color);
+.outerPre {
+  margin-left: 3em;
 }
 
 .exampleSection p {
@@ -207,6 +205,8 @@ pre.outerPre {
 
 .exampleSection pre {
   margin-top: 15px;
+  border: 1px solid var(--pre-border-color);
+  font-size: 80%;
 }
 
 /* Text section */
@@ -453,6 +453,10 @@ pre.outerPre {
 
   .exampleSection .wrapperInner > div:nth-child(even) pre {
     margin-left: 0em;
+  }
+
+  .outerPre {
+    margin-left: 0;
   }
 }
 

@@ -15,8 +15,8 @@ jobs:
       run:
         working-directory: ./vscode-extension
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 20.x
           cache: "yarn"
@@ -36,8 +36,8 @@ jobs:
       matrix:
         node-version: [18.x, 20.x]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
@@ -50,8 +50,8 @@ jobs:
     name: JS Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 20.x
           cache: "yarn"
@@ -68,8 +68,8 @@ jobs:
     name: Flow Typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 20.x
           cache: "yarn"
@@ -92,7 +92,7 @@ jobs:
             os: windows-latest
     runs-on: ${{ matrix.target.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
@@ -118,7 +118,7 @@ jobs:
           #   os: windows-latest
     runs-on: ${{ matrix.target.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
@@ -139,7 +139,7 @@ jobs:
     name: Rust Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with tools/third-party/rustfmt/.rustfmt-version
@@ -181,7 +181,7 @@ jobs:
             artifact-name: relay-bin-win-x64
     runs-on: ${{ matrix.target.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
@@ -190,7 +190,7 @@ jobs:
           toolchain: nightly-2025-08-01
           override: true
           target: ${{ matrix.target.target }}
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
         with:
           node-version: 20.x
@@ -219,7 +219,7 @@ jobs:
       - name: Build project
         working-directory: compiler
         run: ${{ matrix.target.cross && 'cross' || 'cargo' }} build --release --target ${{ matrix.target.target }} ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: ${{ matrix.target.artifact-name }}
           path: compiler/target/${{ matrix.target.target }}/release/${{ matrix.target.build-name }}
@@ -234,8 +234,8 @@ jobs:
       contents: read   # Required for actions/checkout
       id-token: write  # Required for trusted publishing to NPM
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 20.x
           registry-url: https://registry.npmjs.org/
@@ -243,27 +243,27 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
       - name: Download artifact relay-bin-linux-x64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: relay-bin-linux-x64
           path: artifacts/linux-x64
       - name: Download artifact relay-bin-linux-arm64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: relay-bin-linux-arm64
           path: artifacts/linux-arm64
       - name: Download artifact relay-bin-macos-x64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: relay-bin-macos-x64
           path: artifacts/macos-x64
       - name: Download artifact relay-bin-macos-arm64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: relay-bin-macos-arm64
           path: artifacts/macos-arm64
       - name: Download artifact relay-bin-win-x64
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: relay-bin-win-x64
           path: artifacts/win-x64

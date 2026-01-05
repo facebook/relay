@@ -20,7 +20,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain

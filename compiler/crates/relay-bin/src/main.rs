@@ -438,8 +438,8 @@ async fn handle_regenerate_subschema_command(command: UpdateSchemaCommand) -> Re
         UsedSchemaCollectionOptions {
             include_implementations_when_typename_requested: None,
             include_all_overlapping_concrete_types: false,
-            include_directives_on_schema_definitions: false,
-            include_directive_definitions: false,
+            include_directives_on_schema_definitions: true,
+            include_directive_definitions: true,
             include_implicit_output_enum_values: true,
             include_implicit_input_fields_and_enum_values: true,
         },

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
 use std::path::PathBuf;
 
 use dashmap::DashMap;
@@ -20,10 +21,21 @@ use crate::build_project::Artifact;
 use crate::build_project::ArtifactContent;
 
 /// Record that contains path to the artifact, persisted_operation_id (when available)
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ArtifactRecord {
     pub path: PathBuf,
     pub persisted_operation_id: Option<String>,
+}
+
+impl fmt::Debug for ArtifactRecord {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Normalize path separators to forward slashes for cross-platform consistency
+        let normalized_path = self.path.to_string_lossy().replace('\\', "/");
+        f.debug_struct("ArtifactRecord")
+            .field("path", &normalized_path)
+            .field("persisted_operation_id", &self.persisted_operation_id)
+            .finish()
+    }
 }
 /// A map from DefinitionName to output artifacts records
 #[derive(Default, Serialize, Deserialize, Debug, Clone)]

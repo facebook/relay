@@ -364,7 +364,9 @@ impl fmt::Debug for ProjectArtifactMap {
                         sorted_records.sort_by_key(|record| &record.path);
 
                         for record in sorted_records {
-                            output.push_str(&format!("    Path: {}\n", record.path.display()));
+                            // Normalize path separators to forward slashes for cross-platform consistency
+                            let normalized_path = record.path.to_string_lossy().replace('\\', "/");
+                            output.push_str(&format!("    Path: {}\n", normalized_path));
                             if let Some(persisted_id) = &record.persisted_operation_id {
                                 output.push_str(&format!("    Persisted ID: {}\n", persisted_id));
                             }

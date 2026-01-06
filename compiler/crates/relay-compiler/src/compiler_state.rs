@@ -18,6 +18,8 @@ use std::fs::File as FsFile;
 use std::hash::Hash;
 use std::io::BufReader;
 use std::io::BufWriter;
+use std::path::MAIN_SEPARATOR;
+use std::path::Path;
 use std::path::PathBuf;
 use std::slice;
 use std::sync::Arc;
@@ -323,6 +325,14 @@ pub struct CompilerState {
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
 }
 
+/// Stringify a path such that it's stable across operating systems.
+/// This normalizes path separators to forward slashes for consistent output.
+fn format_normalized_path(path: &Path) -> String {
+    path.to_string_lossy()
+        .to_string()
+        .replace(MAIN_SEPARATOR, "/")
+}
+
 impl fmt::Debug for ProjectArtifactMap {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut output = String::new();
@@ -364,7 +374,10 @@ impl fmt::Debug for ProjectArtifactMap {
                         sorted_records.sort_by_key(|record| &record.path);
 
                         for record in sorted_records {
-                            output.push_str(&format!("    Path: {}\n", record.path.display()));
+                            output.push_str(&format!(
+                                "    Path: {}\n",
+                                format_normalized_path(&record.path)
+                            ));
                             if let Some(persisted_id) = &record.persisted_operation_id {
                                 output.push_str(&format!("    Persisted ID: {}\n", persisted_id));
                             }

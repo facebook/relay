@@ -60,28 +60,28 @@ type ValueResolver = (
   typeName: ?string,
   context: MockResolverContext,
   plural: ?boolean,
-  defaultValue?: mixed,
-) => mixed;
+  defaultValue?: unknown,
+) => unknown;
 type Traversable = {
   +selections: $ReadOnlyArray<NormalizationSelection>,
   +typeName: ?string,
   +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
-  +args: ?{[string]: mixed, ...},
+  +args: ?{[string]: unknown, ...},
 };
-type MockData = {[string]: mixed, ...};
+type MockData = {[string]: unknown, ...};
 export type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
   +path: ?$ReadOnlyArray<string>,
-  +args: ?{[string]: mixed, ...},
+  +args: ?{[string]: unknown, ...},
 };
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
-) => mixed;
+) => unknown;
 export type MockResolvers = {+[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
@@ -131,9 +131,9 @@ function valueResolver(
   typeName: ?string,
   context: MockResolverContext,
   plural: ?boolean = false,
-  defaultValue?: mixed,
-): mixed {
-  const generateValue = (possibleDefaultValue: mixed) => {
+  defaultValue?: unknown,
+): unknown {
+  const generateValue = (possibleDefaultValue: unknown) => {
     let mockValue;
     const mockResolver =
       typeName != null && mockResolvers != null
@@ -170,8 +170,8 @@ function createValueResolver(mockResolvers: ?MockResolvers): ValueResolver {
 }
 
 function generateMockList<T>(
-  placeholderArray: $ReadOnlyArray<mixed>,
-  generateListItem: (defaultValue: mixed, index?: number) => T,
+  placeholderArray: $ReadOnlyArray<unknown>,
+  generateListItem: (defaultValue: unknown, index?: number) => T,
 ): $ReadOnlyArray<T> {
   return placeholderArray.map((possibleDefaultValue, index) =>
     generateListItem(possibleDefaultValue, index),
@@ -607,7 +607,7 @@ class RelayMockPayloadGenerator {
    */
   _getCorrectDefaultEnum(
     enumValues: $ReadOnlyArray<string>,
-    value: mixed | Array<mixed>,
+    value: unknown | Array<unknown>,
     path: $ReadOnlyArray<string>,
     applicationName: string,
   ): ?(string | Array<string>) {
@@ -668,13 +668,13 @@ class RelayMockPayloadGenerator {
     mockData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    const data = mockData ?? ({} as {[string]: mixed});
+    const data = mockData ?? ({} as {[string]: unknown});
     const applicationName = field.alias ?? field.name;
     if (data.hasOwnProperty(applicationName) && field.name !== TYPENAME_KEY) {
       return data;
     }
 
-    let value: mixed;
+    let value: unknown;
 
     // For __typename fields we are going to return typeName
     if (field.name === TYPENAME_KEY) {
@@ -789,7 +789,7 @@ class RelayMockPayloadGenerator {
       field.concreteType == null && typeName === typeFromSelection.type;
 
     const generateDataForField = (
-      possibleDefaultValue: mixed,
+      possibleDefaultValue: unknown,
       index?: number,
     ) => {
       const fieldPath = field.plural
@@ -839,7 +839,7 @@ class RelayMockPayloadGenerator {
   /**
    * Get the value for a variable by name
    */
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
@@ -858,7 +858,7 @@ class RelayMockPayloadGenerator {
     fieldName: ?string,
     fieldAlias: ?string,
     path: $ReadOnlyArray<string>,
-    args: ?{[string]: mixed, ...},
+    args: ?{[string]: unknown, ...},
   ): ?MockData {
     let data;
     if (typeName != null && this._mockResolvers[typeName] != null) {
@@ -883,8 +883,8 @@ class RelayMockPayloadGenerator {
   /**
    * Get object with variables for field
    */
-  _getFieldArgs(field: NormalizationField): {[string]: mixed, ...} {
-    const args: {[string]: mixed} = {};
+  _getFieldArgs(field: NormalizationField): {[string]: unknown, ...} {
+    const args: {[string]: unknown} = {};
     if (field.args != null) {
       field.args.forEach(arg => {
         args[arg.name] = this._getArgValue(arg);
@@ -893,14 +893,14 @@ class RelayMockPayloadGenerator {
     return args;
   }
 
-  _getArgValue(arg: NormalizationArgument): mixed {
+  _getArgValue(arg: NormalizationArgument): unknown {
     switch (arg.kind) {
       case 'Literal':
         return arg.value;
       case 'Variable':
         return this._getVariableValue(arg.variableName);
       case 'ObjectValue': {
-        const value: {[string]: mixed} = {};
+        const value: {[string]: unknown} = {};
         arg.fields.forEach(field => {
           value[field.name] = this._getArgValue(field);
         });

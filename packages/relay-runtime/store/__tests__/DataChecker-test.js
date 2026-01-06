@@ -724,10 +724,11 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
-          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn((moduleName: mixed) =>
+        load: jest.fn((moduleName: unknown) =>
           // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
@@ -1176,10 +1177,11 @@ describe('check()', () => {
 
       loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
-          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn((moduleName: mixed) =>
+        load: jest.fn((moduleName: unknown) =>
           // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),

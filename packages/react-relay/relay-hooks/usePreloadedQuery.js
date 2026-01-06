@@ -73,11 +73,7 @@ declare hook usePreloadedQuery<
   gqlQuery:
     | Query<TVariables, TData, TRawResponse>
     | ClientQuery<TVariables, TData, TRawResponse>,
-  preloadedQuery: ?PreloadedQuery<
-    TVariables,
-    TData,
-    $NonMaybeType<TRawResponse>,
-  >,
+  preloadedQuery: ?PreloadedQuery<TVariables, TData, NonNullable<TRawResponse>>,
   options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
   },
@@ -90,8 +86,8 @@ hook usePreloadedQuery<
   TPreloadedQuery: ?PreloadedQuery<
     TVariables,
     TData,
-    $NonMaybeType<TRawResponse>,
-  > = PreloadedQuery<TVariables, TData, $NonMaybeType<TRawResponse>>,
+    NonNullable<TRawResponse>,
+  > = PreloadedQuery<TVariables, TData, NonNullable<TRawResponse>>,
 >(
   gqlQuery:
     | Query<TVariables, TData, TRawResponse>

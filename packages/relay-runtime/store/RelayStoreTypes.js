@@ -1075,6 +1075,12 @@ export interface IEnvironment {
    * with `@required(action: LOG)`.
    */
   relayFieldLogger: RelayFieldLogger;
+
+  /**
+   * Optional. A human-readable identifier of the environment.
+   * This value should be visible in the dev tools.
+   */
+  +configName: ?string;
 }
 
 /**

@@ -45,6 +45,7 @@ export type ReaderFragment = {
     +mask?: boolean,
     +plural?: boolean,
     +refetch?: ReaderRefetchMetadata,
+    +vultureHash?: string,
   },
   +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
   +selections: $ReadOnlyArray<ReaderSelection>,

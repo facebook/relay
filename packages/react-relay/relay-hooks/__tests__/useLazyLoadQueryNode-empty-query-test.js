@@ -13,6 +13,7 @@
 
 import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
 
+const {loadQuery} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
 const usePreloadedQuery = require('../usePreloadedQuery');
@@ -25,7 +26,6 @@ const {
   Store,
   graphql,
 } = require('relay-runtime');
-const {loadQuery} = require('../loadQuery');
 const RelayFeatureFlags = require('relay-runtime/util/RelayFeatureFlags');
 
 const {disallowConsoleErrors, disallowWarnings} = jest.requireActual(
@@ -38,7 +38,6 @@ disallowConsoleErrors();
 describe('useLazyLoadQuery with empty query', () => {
   let environment;
   let logs: Array<LogEvent>;
-  let renderFn;
   let originalFlagValue;
 
   beforeEach(() => {
@@ -118,6 +117,9 @@ describe('useLazyLoadQuery with empty query', () => {
       {fetchPolicy: 'network-only'},
     );
 
+    // Load query skips the request, so no logs here.
+    expect(logs.length).toBe(0);
+
     function Renderer() {
       const data = usePreloadedQuery(query, preloadedQuery);
       return `Data: ${JSON.stringify(data)}`;
@@ -135,7 +137,8 @@ describe('useLazyLoadQuery with empty query', () => {
     // Should not suspend - render should complete immediately
     expect(instance?.toJSON()).toEqual('Data: {}');
 
-    // Should have logged the empty query skip
+    // On render we find there was no request, so we try to fetch lazily and
+    // find/report that it was empty.
     expect(logs).toContainEqual(
       expect.objectContaining({
         name: 'execute.skipped',

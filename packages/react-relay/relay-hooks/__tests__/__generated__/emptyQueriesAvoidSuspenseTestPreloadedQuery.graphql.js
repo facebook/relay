@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ffccac78d38a2ef88240f3c6361f9eef>>
+ * @generated SignedSource<<66b1c2e7e64d21366d6768bbf1b6b833>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,18 +18,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery$variables = {|
+export type emptyQueriesAvoidSuspenseTestPreloadedQuery$variables = {|
   skip: boolean,
 |};
-export type useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery$data = {|
+export type emptyQueriesAvoidSuspenseTestPreloadedQuery$data = {|
   +me?: ?{|
     +id: string,
     +name: ?string,
   |},
 |};
-export type useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery = {|
-  response: useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery$data,
-  variables: useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery$variables,
+export type emptyQueriesAvoidSuspenseTestPreloadedQuery = {|
+  response: emptyQueriesAvoidSuspenseTestPreloadedQuery$data,
+  variables: emptyQueriesAvoidSuspenseTestPreloadedQuery$variables,
 |};
 */
 
@@ -80,7 +80,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery",
+    "name": "emptyQueriesAvoidSuspenseTestPreloadedQuery",
     "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
@@ -89,25 +89,25 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery",
+    "name": "emptyQueriesAvoidSuspenseTestPreloadedQuery",
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "62b5fedb6c4a3228ce7eb5712cad0aa0",
+    "cacheID": "fbc2331c5c25450afbdebbd65d490448",
     "id": null,
     "metadata": {},
-    "name": "useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery",
+    "name": "emptyQueriesAvoidSuspenseTestPreloadedQuery",
     "operationKind": "query",
-    "text": "query useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery(\n  $skip: Boolean!\n) {\n  me @skip(if: $skip) {\n    id\n    name\n  }\n}\n"
+    "text": "query emptyQueriesAvoidSuspenseTestPreloadedQuery(\n  $skip: Boolean!\n) {\n  me @skip(if: $skip) {\n    id\n    name\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "67d07152285442ccebdeb3694d0c1510";
+  (node/*: any*/).hash = "e036c43354d94f752618fda2a5d85981";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery$variables,
-  useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery$data,
+  emptyQueriesAvoidSuspenseTestPreloadedQuery$variables,
+  emptyQueriesAvoidSuspenseTestPreloadedQuery$data,
 >*/);

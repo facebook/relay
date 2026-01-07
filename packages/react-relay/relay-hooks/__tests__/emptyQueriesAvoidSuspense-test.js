@@ -62,7 +62,7 @@ describe('useLazyLoadQuery with empty query', () => {
 
   it('does not suspend when query is empty due to @skip', () => {
     const query = graphql`
-      query useLazyLoadQueryNodeEmptyQueryTestSkipQuery($skip: Boolean!) {
+      query emptyQueriesAvoidSuspenseTestSkipQuery($skip: Boolean!) {
         me @skip(if: $skip) {
           id
           name
@@ -102,7 +102,7 @@ describe('useLazyLoadQuery with empty query', () => {
 
   it('does not make network request when using usePreloadedQuery with empty query', () => {
     const query = graphql`
-      query useLazyLoadQueryNodeEmptyQueryTestPreloadedQuery($skip: Boolean!) {
+      query emptyQueriesAvoidSuspenseTestPreloadedQuery($skip: Boolean!) {
         me @skip(if: $skip) {
           id
           name

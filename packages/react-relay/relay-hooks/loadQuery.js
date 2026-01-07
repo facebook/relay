@@ -321,7 +321,6 @@ function loadQuery<
           retainReference = environment.retain(operation);
           if (networkObservable != null) {
             executeDeduped(operation, () => {
-              throw new Error('Execute with Network Source');
               return executeWithNetworkSource(operation, networkObservable);
             });
           }

@@ -49,7 +49,7 @@ const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
   : new Map<IEnvironment, Map<string, PendingQueryEntry>>();
 
 type PendingQueryEntry =
-  | $ReadOnly<{
+  | Readonly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -60,7 +60,7 @@ type PendingQueryEntry =
       subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
     }>
-  | $ReadOnly<{
+  | Readonly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,

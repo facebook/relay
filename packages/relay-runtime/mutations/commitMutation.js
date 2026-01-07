@@ -37,7 +37,7 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type MutationConfig<TMutation: MutationParameters> = $ReadOnly<{
+export type MutationConfig<TMutation: MutationParameters> = Readonly<{
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
@@ -59,7 +59,7 @@ export type MutationConfig<TMutation: MutationParameters> = $ReadOnly<{
   variables: TMutation['variables'],
 }>;
 
-export type CommitMutationConfig<TVariables, TData, TRawResponse> = $ReadOnly<{
+export type CommitMutationConfig<TVariables, TData, TRawResponse> = Readonly<{
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: Mutation<TVariables, TData, TRawResponse>,

@@ -752,7 +752,7 @@ function createContainerWithFragments<
     }
 
     _fetchPage(
-      paginatingVariables: $ReadOnly<{
+      paginatingVariables: Readonly<{
         count: number,
         cursor: ?string,
         totalCount: number,

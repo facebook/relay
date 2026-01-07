@@ -47,7 +47,7 @@ type FragmentQueryOptions = {
   networkCacheConfig?: ?CacheConfig,
 };
 
-type FragmentState = $ReadOnly<
+type FragmentState = Readonly<
   | {kind: 'bailout'}
   | {kind: 'singular', snapshot: Snapshot, epoch: number}
   | {kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number},

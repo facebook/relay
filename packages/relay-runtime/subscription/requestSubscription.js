@@ -42,7 +42,7 @@ export type SubscriptionParameters = {
  * type information.
  */
 export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> =
-  $ReadOnly<{
+  Readonly<{
     configs?: Array<DeclarativeMutationConfig>,
     cacheConfig?: CacheConfig,
     subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,

@@ -22,7 +22,7 @@ const React = require('react');
 
 const {useMemo} = React;
 
-type Props<TChildren> = $ReadOnly<{
+type Props<TChildren> = Readonly<{
   children: TChildren,
   environment: IEnvironment,
   getEnvironmentForActor?: ?(

@@ -29,7 +29,7 @@ type NestedEntrypointComponentProps = EntryPointProps<{}>;
 const NestedEntrypointComponent = (_props: NestedEntrypointComponentProps) =>
   null;
 
-type NestedEntrypointPreloadParams = $ReadOnly<{
+type NestedEntrypointPreloadParams = Readonly<{
   subEntrypointPreloadParam: string,
 }>;
 
@@ -47,7 +47,7 @@ const NestedEntryPoint = {
 
 // Define the parent entrypoint's component
 
-type PreloadedEntrypoints = $ReadOnly<{
+type PreloadedEntrypoints = Readonly<{
   nestedComponent: PreloadedEntryPoint<typeof NestedEntrypointComponent>,
 }>;
 
@@ -61,7 +61,7 @@ const ParentEntrypointComponent = (_props: ParentEntrypointComponentProps) =>
  * INCORRECT params passed into the nested entrypoints.
  */
 
-type BadParentEntrypointParams = $ReadOnly<{}>;
+type BadParentEntrypointParams = Readonly<{}>;
 
 ({
   getPreloadProps(_params: BadParentEntrypointParams) {
@@ -86,7 +86,7 @@ type BadParentEntrypointParams = $ReadOnly<{}>;
  * CORRECT params passed into the nested entrypoints.
  */
 
-type GoodParentEntrypointParams = $ReadOnly<{}>;
+type GoodParentEntrypointParams = Readonly<{}>;
 
 ({
   getPreloadProps(_params: GoodParentEntrypointParams) {

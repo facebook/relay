@@ -19,7 +19,7 @@ import type {
   EntryPointProps,
 } from '../../EntryPointTypes.flow';
 
-type MyComponentOtherProps = $ReadOnly<{
+type MyComponentOtherProps = Readonly<{
   foo: string,
 }>;
 
@@ -27,7 +27,7 @@ type MyComponentProps = EntryPointProps<{}, {}, MyComponentOtherProps, {}>;
 
 const MyComponent = (_props: MyComponentProps) => null;
 
-type PreloadParams = $ReadOnly<{}>;
+type PreloadParams = Readonly<{}>;
 
 type MyComponentEntryPointType = EntryPoint<PreloadParams, typeof MyComponent>;
 

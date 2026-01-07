@@ -35,7 +35,7 @@ export type LoaderFn<TQuery: OperationType> = (
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
 
-export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
+export type UseQueryLoaderLoadQueryOptions = Readonly<{
   ...LoadQueryOptions,
   +__environment?: ?IEnvironment,
 }>;

@@ -75,7 +75,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     warning.mockClear();
 
     let renderLogs = [];
-    const FragmentComponent = ({user}: $ReadOnly<{user: unknown}>) => {
+    const FragmentComponent = ({user}: Readonly<{user: unknown}>) => {
       const {data} = useFragmentNode<any>(gqlFragment, user, 'TestComponent');
       useEffect(() => {
         renderLogs.push(`commit: ${data.name}`);

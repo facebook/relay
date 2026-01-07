@@ -33,7 +33,7 @@ let disposeEntryPoint;
 
 let renderCount: ?number;
 let environment: IEnvironment;
-let defaultEnvironmentProvider: $ReadOnly<{
+let defaultEnvironmentProvider: Readonly<{
   getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
 }>;
 let render;
@@ -77,9 +77,9 @@ beforeEach(() => {
   Container = function ({
     entryPoint,
     environmentProvider,
-  }: $ReadOnly<{
+  }: Readonly<{
     entryPoint: any,
-    environmentProvider: $ReadOnly<{
+    environmentProvider: Readonly<{
       getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
     }>,
   }>) {

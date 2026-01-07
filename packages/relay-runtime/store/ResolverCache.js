@@ -32,7 +32,7 @@ export type EvaluationResult<T> = {
   error: ?Error,
 };
 
-export type ResolverFragmentResult = $ReadOnly<{
+export type ResolverFragmentResult = Readonly<{
   data: unknown,
   isMissingData: boolean,
   fieldErrors: ?FieldErrors,

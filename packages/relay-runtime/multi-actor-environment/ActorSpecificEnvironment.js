@@ -46,7 +46,7 @@ const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('../store/RelayPublishQueue');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 
-export type ActorSpecificEnvironmentConfig = $ReadOnly<{
+export type ActorSpecificEnvironmentConfig = Readonly<{
   actorIdentifier: ActorIdentifier,
   configName: ?string,
   defaultRenderPolicy: RenderPolicy,

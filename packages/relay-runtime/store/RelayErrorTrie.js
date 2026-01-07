@@ -18,13 +18,13 @@ const SELF: Self = Symbol('$SELF');
 
 export opaque type Self = typeof SELF;
 
-export type TRelayFieldErrorForDisplay = $ReadOnly<{
+export type TRelayFieldErrorForDisplay = Readonly<{
   path?: $ReadOnlyArray<string | number>,
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
 }>;
 
 // We display a subset of the TRelayFieldError to the user. Removing the message by default.
-export type TRelayFieldError = $ReadOnly<{
+export type TRelayFieldError = Readonly<{
   ...TRelayFieldErrorForDisplay,
   message: string,
 }>;
@@ -109,7 +109,7 @@ function getErrorsByKey(
     return value;
   }
   const errors: Array<
-    $ReadOnly<{
+    Readonly<{
       message: string,
       path?: Array<string | number>,
       severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
@@ -122,7 +122,7 @@ function getErrorsByKey(
 function recursivelyCopyErrorsIntoArray(
   trieOrSet: RelayErrorTrie,
   errors: Array<
-    $ReadOnly<{
+    Readonly<{
       message: string,
       path?: Array<string | number>,
       severity?: 'CRITICAL' | 'ERROR' | 'WARNING',

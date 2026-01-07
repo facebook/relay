@@ -42,7 +42,7 @@ const {
 injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
-  props: $ReadOnly<{
+  props: Readonly<{
     children: React.Node,
     environment: IActorEnvironment,
     multiActorEnvironment: IMultiActorEnvironment,
@@ -130,7 +130,7 @@ function MainComponent() {
   );
 }
 
-type Props = $ReadOnly<{
+type Props = Readonly<{
   myFragment: ActorChangeTestFeedUnitFragment$key,
   actorIdentifier: ActorIdentifier,
 }>;

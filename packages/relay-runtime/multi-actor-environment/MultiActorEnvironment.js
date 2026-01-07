@@ -55,7 +55,7 @@ const RelayModernStore = require('../store/RelayModernStore');
 const RelayRecordSource = require('../store/RelayRecordSource');
 const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
 
-export type MultiActorEnvironmentConfig = $ReadOnly<{
+export type MultiActorEnvironmentConfig = Readonly<{
   createConfigNameForActor?: ?(actorIdentifier: ActorIdentifier) => string,
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
   createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,

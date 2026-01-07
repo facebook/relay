@@ -116,7 +116,7 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
   query: Query<TVariables, TData, TRawResponse>,
   variables: NoInfer<TVariables>,
-  options?: $ReadOnly<{
+  options?: Readonly<{
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
   }>,

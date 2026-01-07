@@ -45,7 +45,7 @@ const {
 injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
-  props: $ReadOnly<{
+  props: Readonly<{
     children: React.Node,
     environment: IActorEnvironment,
     multiActorEnvironment: IMultiActorEnvironment,
@@ -99,7 +99,7 @@ function MainComponent() {
 }
 
 function ActorChangeComponent(
-  props: $ReadOnly<{
+  props: Readonly<{
     fragmentRef: ActorChangeWithStreamTestFragment$key,
   }>,
 ) {

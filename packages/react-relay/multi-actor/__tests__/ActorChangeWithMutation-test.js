@@ -47,7 +47,7 @@ const {
 injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
-  props: $ReadOnly<{
+  props: Readonly<{
     children: React.Node,
     environment: IActorEnvironment,
     multiActorEnvironment: IMultiActorEnvironment,
@@ -141,7 +141,7 @@ type ActorTestRenderFn = ({
   changeNameFn: (actorID: string, newName: string) => void,
 }) => void;
 
-type Props = $ReadOnly<{
+type Props = Readonly<{
   fragmentKey: ActorChangeWithMutationTestFragment$key,
   render: ActorTestRenderFn,
 }>;

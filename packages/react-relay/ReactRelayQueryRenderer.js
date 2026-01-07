@@ -61,7 +61,7 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-export type Props = $ReadOnly<{
+export type Props = Readonly<{
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,

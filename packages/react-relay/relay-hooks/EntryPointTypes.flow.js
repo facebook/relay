@@ -132,7 +132,7 @@ export type EntryPoint<
   -TEntryPointParams,
   // $FlowExpectedError[unclear-type] accepts any root component
   +TEntryPointComponent: EntryPointComponent<any, any, any, any, any>,
-> = $ReadOnly<{
+> = Readonly<{
   getPreloadProps: (
     entryPointParams: TEntryPointParams,
   ) => PreloadProps<
@@ -149,7 +149,7 @@ export type EntryPointProps<
   TPreloadedEntryPoints = {},
   TRuntimeProps = {},
   TExtraProps = null,
-> = $ReadOnly<{
+> = Readonly<{
   entryPoints: TPreloadedEntryPoints,
   extraProps: TExtraProps | null,
   props: TRuntimeProps,
@@ -195,7 +195,7 @@ export type PreloadProps<
   TPreloadedEntryPoints: {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
-> = $ReadOnly<{
+> = Readonly<{
   entryPoints?: {
     +[K in keyof TPreloadedEntryPoints]?: ?ThinNestedEntryPointParams,
   },
@@ -204,7 +204,7 @@ export type PreloadProps<
 }>;
 
 // Return type of `loadEntryPoint(...)`
-export type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
+export type PreloadedEntryPoint<TEntryPointComponent> = Readonly<{
   dispose: () => void,
   entryPoints: ElementConfig<TEntryPointComponent>['entryPoints'],
   extraProps: ElementConfig<TEntryPointComponent>['extraProps'],
@@ -232,7 +232,7 @@ export type EntryPointElementConfig<
 export type ThinQueryParams<
   +TQuery: OperationType,
   TEnvironmentProviderOptions,
-> = $ReadOnly<{
+> = Readonly<{
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
   options?: ?PreloadOptions,
   parameters: PreloadableConcreteRequest<TQuery>,
@@ -283,6 +283,6 @@ export type RootComponentRenders<+C: component(...any)> =
 
 export type PreloadParamsOf<T> = Parameters<T['getPreloadProps']>[0];
 
-export type IEnvironmentProvider<TOptions> = $ReadOnly<{
+export type IEnvironmentProvider<TOptions> = Readonly<{
   getEnvironment: (options: ?TOptions) => IEnvironment,
 }>;

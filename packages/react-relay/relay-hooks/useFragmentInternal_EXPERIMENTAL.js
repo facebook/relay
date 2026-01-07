@@ -47,7 +47,7 @@ export type FragmentQueryOptions = {
   networkCacheConfig?: ?CacheConfig,
 };
 
-type FragmentState = $ReadOnly<
+type FragmentState = Readonly<
   | {kind: 'bailout', environment: IEnvironment}
   | {
       kind: 'singular',

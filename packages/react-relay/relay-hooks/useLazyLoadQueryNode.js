@@ -33,7 +33,7 @@ const React = require('react');
 
 const {useContext, useEffect, useState, useRef} = React;
 
-export type LazyLoadQueryNodeParamsWithQuery = $ReadOnly<{
+export type LazyLoadQueryNodeParamsWithQuery = Readonly<{
   query: OperationDescriptor,
   componentDisplayName: string,
   fetchObservable: Observable<GraphQLResponse>,
@@ -46,7 +46,7 @@ export type LazyLoadQueryNodeParamsWithQuery = $ReadOnly<{
  * This param will be used when the query key is not provided
  * (e.g. in usePreloadedQuery)
  */
-export type LazyLoadQueryNodeParamsWithoutQuery = $ReadOnly<{
+export type LazyLoadQueryNodeParamsWithoutQuery = Readonly<{
   componentDisplayName: string,
   fragmentNode: ReaderFragment,
 }>;

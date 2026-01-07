@@ -147,6 +147,10 @@ class ActorSpecificEnvironment implements IActorEnvironment {
     return this.multiActorEnvironment.check(this, operation);
   }
 
+  isEmpty(operation: OperationDescriptor): boolean {
+    return this.multiActorEnvironment.isEmpty(this, operation);
+  }
+
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,

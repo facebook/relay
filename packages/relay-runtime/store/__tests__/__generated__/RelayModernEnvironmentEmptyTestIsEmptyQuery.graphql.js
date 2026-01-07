@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7fac2e70e2e418291bfd4a42fa8a2243>>
+ * @generated SignedSource<<817bb72607ae2255e17fd8ba14fb0e9a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,17 +18,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type EmptyCheckerTestEmptyQuery$variables = {|
+export type RelayModernEnvironmentEmptyTestIsEmptyQuery$variables = {|
   cond: boolean,
 |};
-export type EmptyCheckerTestEmptyQuery$data = {|
+export type RelayModernEnvironmentEmptyTestIsEmptyQuery$data = {|
   +me?: ?{|
     +id: string,
   |},
 |};
-export type EmptyCheckerTestEmptyQuery = {|
-  response: EmptyCheckerTestEmptyQuery$data,
-  variables: EmptyCheckerTestEmptyQuery$variables,
+export type RelayModernEnvironmentEmptyTestIsEmptyQuery = {|
+  response: RelayModernEnvironmentEmptyTestIsEmptyQuery$data,
+  variables: RelayModernEnvironmentEmptyTestIsEmptyQuery$variables,
 |};
 */
 
@@ -72,7 +72,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "EmptyCheckerTestEmptyQuery",
+    "name": "RelayModernEnvironmentEmptyTestIsEmptyQuery",
     "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
@@ -81,25 +81,25 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "EmptyCheckerTestEmptyQuery",
+    "name": "RelayModernEnvironmentEmptyTestIsEmptyQuery",
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "177bee18f5e85868923d9d69915ec723",
+    "cacheID": "5a4e6dfd0dfa440405515ff0eeffc44c",
     "id": null,
     "metadata": {},
-    "name": "EmptyCheckerTestEmptyQuery",
+    "name": "RelayModernEnvironmentEmptyTestIsEmptyQuery",
     "operationKind": "query",
-    "text": "query EmptyCheckerTestEmptyQuery(\n  $cond: Boolean!\n) {\n  me @include(if: $cond) {\n    id\n  }\n}\n"
+    "text": "query RelayModernEnvironmentEmptyTestIsEmptyQuery(\n  $cond: Boolean!\n) {\n  me @include(if: $cond) {\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "30757927ae91bbe5bb85fd55a4a49836";
+  (node/*: any*/).hash = "6f12a40e04f0b027d13b109faaa30894";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  EmptyCheckerTestEmptyQuery$variables,
-  EmptyCheckerTestEmptyQuery$data,
+  RelayModernEnvironmentEmptyTestIsEmptyQuery$variables,
+  RelayModernEnvironmentEmptyTestIsEmptyQuery$data,
 >*/);

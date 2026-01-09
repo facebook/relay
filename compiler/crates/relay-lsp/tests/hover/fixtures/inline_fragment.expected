@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+query MyQuery {
+  node(id: "123") {
+    ... on U|ser {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+An inline fragment refining **[Node](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22Node%22],%22schemaName%22:%22Some%20Schema%20Name%22})** to **[User](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22Node%22,%22User%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    friends(first: 10) {
+      ed|ges {
+        node {
+          name
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+Field: **edges**
+--
+Type: **[[FriendsEdge]](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22FriendsConnection%22,%22FriendsEdge%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

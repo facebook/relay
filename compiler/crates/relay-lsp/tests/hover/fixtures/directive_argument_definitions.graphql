@@ -1,0 +1,11 @@
+query MyQuery {
+  me {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on User @argumentDe|finitions(size: {type: "Int", defaultValue: 32}) {
+  profilePicture(size: [$size]) {
+    uri
+  }
+}

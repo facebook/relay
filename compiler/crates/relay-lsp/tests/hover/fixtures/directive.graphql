@@ -1,0 +1,9 @@
+query MyQuery {
+  node(id: "123") {
+    ...MyFragment @de|fer(label: "test")
+  }
+}
+
+fragment MyFragment on Node {
+  id
+}

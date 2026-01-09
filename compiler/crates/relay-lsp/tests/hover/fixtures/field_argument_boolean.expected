@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    firstName(if: true|)
+  }
+}
+==================================== OUTPUT ===================================
+Argument `if: true`
+--
+Field: **firstName**
+--
+Type: **[String](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22String%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
+--
+This field accepts these arguments
+--
+if: **[Boolean](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22String%22,%22Boolean%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
+
+
+--
+unless: **[Boolean](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22String%22,%22Boolean%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

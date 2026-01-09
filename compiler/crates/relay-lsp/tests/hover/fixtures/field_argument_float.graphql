@@ -1,0 +1,7 @@
+query MyQuery {
+  me {
+    profile_picture(scale: 1.5|)  {
+      uri
+    }
+  }
+}

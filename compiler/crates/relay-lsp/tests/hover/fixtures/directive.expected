@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+query MyQuery {
+  node(id: "123") {
+    ...MyFragment @de|fer(label: "test")
+  }
+}
+
+fragment MyFragment on Node {
+  id
+}
+==================================== OUTPUT ===================================
+```graphql
+directive @defer(label: String, if: Boolean = true) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+
+```

@@ -25,7 +25,7 @@ import type {
  * to construct a `ThinNestedEntryPointParams` is by calling this function.
  */
 declare function NestedRelayEntryPoint<TEntryPointParams>(
-  Readonly<{
+  params: Readonly<{
     entryPoint: EntryPoint<TEntryPointParams, $FlowFixMe>,
     entryPointParams: TEntryPointParams,
   }>,

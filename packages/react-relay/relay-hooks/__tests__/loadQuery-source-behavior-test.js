@@ -95,7 +95,7 @@ beforeEach(() => {
   // Re-enable the default, test-failing behavior here; it is turned off
   // in tests where unhandled errors are expected.
   Observable.onUnhandledError(uncaughtError => {
-    declare function fail(string): void;
+    declare function fail(message: string): void;
     if (typeof fail === 'function') {
       // In test environments (Jest), fail() immediately fails the current test.
       fail(String(uncaughtError));

@@ -306,7 +306,7 @@
       ]
     },
     "ConnectionInterface": {
-      "description": "Configuration where Relay should expect some fields in the schema.",
+      "description": "Configuration where Relay should expect some fields in the schema.\n\n**Important**: When you configure this option in the compiler, you must also configure\nthe Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.\nSee: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>",
       "type": "object",
       "properties": {
         "cursor": {
@@ -1250,6 +1250,7 @@
       "type": "object",
       "properties": {
         "connectionInterface": {
+          "description": "Configuration for connection field names in the schema.\n\n**Important**: When you configure this option in the compiler, you must also configure\nthe Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.\nSee: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>",
           "$ref": "#/$defs/ConnectionInterface",
           "default": {
             "cursor": "cursor",

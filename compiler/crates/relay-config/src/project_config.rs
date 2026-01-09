@@ -193,6 +193,11 @@ impl Debug for ExtraArtifactsConfig {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
+    /// Configuration for connection field names in the schema.
+    ///
+    /// **Important**: When you configure this option in the compiler, you must also configure
+    /// the Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.
+    /// See: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>
     #[serde(default)]
     pub connection_interface: ConnectionInterface,
 

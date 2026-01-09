@@ -230,7 +230,7 @@ function TodoRootWithBlockedComponent(props: {todoID: string}) {
   });
 }
 
-function ManyTodosComponent(props: {todos: $ReadOnlyArray<?string>}) {
+function ManyTodosComponent(props: {todos: ReadonlyArray<?string>}) {
   const data = useClientQuery(
     graphql`
       query RelayResolversWithOutputTypeTestManyTodosQuery($todos: [ID]!) {

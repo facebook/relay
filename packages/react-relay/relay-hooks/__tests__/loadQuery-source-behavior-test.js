@@ -79,7 +79,7 @@ let next: JestMockFn<Array<GraphQLResponse>, empty>;
 let error: JestMockFn<Array<Error>, empty>;
 let complete: JestMockFn<Array<empty>, empty>;
 let executeObservable;
-let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<unknown>, unknown>;
+let executeUnsubscribe: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 let networkUnsubscribe;
 
 beforeEach(() => {

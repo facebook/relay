@@ -21,7 +21,7 @@ const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 let debugCache:
   | Map<unknown, unknown>
   | Map<() => unknown, unknown>
-  | WeakMap<interface {} | $ReadOnlyArray<unknown>, unknown>
+  | WeakMap<interface {} | ReadonlyArray<unknown>, unknown>
   | WeakMap<() => unknown, unknown> = WEAKMAP_SUPPORTED
   ? new WeakMap()
   : new Map();

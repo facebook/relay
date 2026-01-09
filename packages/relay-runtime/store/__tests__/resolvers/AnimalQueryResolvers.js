@@ -58,7 +58,7 @@ function animal(args: {request: {ofType: string, returnValidID: boolean}}): {
  * @RelayResolver Query.animals(requests: [AnimalRequest!]!): [IAnimal]
  */
 function animals(args: {
-  requests: $ReadOnlyArray<{ofType: string, returnValidID: boolean}>,
+  requests: ReadonlyArray<{ofType: string, returnValidID: boolean}>,
 }): Array<{
   __typename: IAnimalTypeNames,
   id: DataID,

@@ -50,7 +50,7 @@ type FragmentQueryOptions = {
 type FragmentState = Readonly<
   | {kind: 'bailout'}
   | {kind: 'singular', snapshot: Snapshot, epoch: number}
-  | {kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number},
+  | {kind: 'plural', snapshots: ReadonlyArray<Snapshot>, epoch: number},
 >;
 
 type StateUpdaterFunction<T> = ((T) => T) => void;
@@ -67,7 +67,7 @@ function isMissingData(state: FragmentState): boolean {
 
 function getMissingClientEdges(
   state: FragmentState,
-): $ReadOnlyArray<MissingClientEdgeRequestInfo> | null {
+): ReadonlyArray<MissingClientEdgeRequestInfo> | null {
   if (state.kind === 'bailout') {
     return null;
   } else if (state.kind === 'singular') {
@@ -88,7 +88,7 @@ function getMissingClientEdges(
 
 function getSuspendingLiveResolver(
   state: FragmentState,
-): $ReadOnlyArray<DataID> | null {
+): ReadonlyArray<DataID> | null {
   if (state.kind === 'bailout') {
     return null;
   } else if (state.kind === 'singular') {

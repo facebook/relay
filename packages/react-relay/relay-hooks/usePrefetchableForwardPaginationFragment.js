@@ -375,7 +375,7 @@ hook usePrefetchableForwardPaginationFragment<
 
   const realNumInUse = Math.min(numInUse, sourceSize);
 
-  const derivedEdgeKeys: $ReadOnlyArray<unknown> = useMemo(
+  const derivedEdgeKeys: ReadonlyArray<unknown> = useMemo(
     () => edgeKeys?.slice(0, realNumInUse) ?? [],
     [edgeKeys, realNumInUse],
   );

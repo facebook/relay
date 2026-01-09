@@ -56,7 +56,7 @@ describe('execute() a query with plural @match', () => {
   let operationCallback;
   let operationLoader: {
     get: (reference: unknown) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<unknown>, Promise<?NormalizationRootNode>>,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let query;
   let resolveFragment;

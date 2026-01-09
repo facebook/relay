@@ -33,7 +33,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    renderSpy = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+    renderSpy = jest.fn<ReadonlyArray<unknown>, unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();

@@ -37,7 +37,7 @@ declare function beforeEach(
 declare var describe: {
   (name: JestTestName, fn: () => void): void,
   each(
-    ...table: $ReadOnlyArray<Array<unknown> | unknown> | [Array<string>, string]
+    ...table: ReadonlyArray<Array<unknown> | unknown> | [Array<string>, string]
   ): (
     name: JestTestName,
     fn?: (...args: Array<any>) => ?Promise<unknown>,

@@ -202,7 +202,7 @@ describe.each([
     }
 
     function assertFragmentResults(
-      expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
+      expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
     ) {
       expect(commitSpy).toBeCalledTimes(expectedCalls.length);
       expectedCalls.forEach((expected, idx) => {
@@ -217,7 +217,7 @@ describe.each([
     /// * items 0..length-1 (for length > 1) are calls expected to be rendered, but not committed
     /// * item length-1 is expected to be rendered and committed
     function assertRenderBatch(
-      expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
+      expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
     ) {
       expect(expectedCalls.length >= 1).toBeTruthy(); // must expect at least one value
       expect(renderSpy).toBeCalledTimes(expectedCalls.length);

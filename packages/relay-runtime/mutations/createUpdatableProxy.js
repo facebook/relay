@@ -30,9 +30,9 @@ const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 function createUpdatableProxy<TData: {...}>(
   updatableProxyRootRecord: RecordProxy,
   variables: Variables,
-  selections: $ReadOnlyArray<ReaderSelection>,
+  selections: ReadonlyArray<ReaderSelection>,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): TData {
   const mutableUpdatableProxy = {};
   updateProxyFromSelections(
@@ -56,9 +56,9 @@ function updateProxyFromSelections<TData>(
   mutableUpdatableProxy: TData,
   updatableProxyRootRecord: RecordProxy,
   variables: Variables,
-  selections: $ReadOnlyArray<ReaderSelection>,
+  selections: ReadonlyArray<ReaderSelection>,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): void {
   for (const selection of selections) {
     switch (selection.kind) {
@@ -205,7 +205,7 @@ function createSetterForPluralLinkedField(
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
 ) {
-  return function set(newValue: $ReadOnlyArray<{__id: string, ...}>) {
+  return function set(newValue: ReadonlyArray<{__id: string, ...}>) {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
     if (newValue == null) {
       throw new Error(
@@ -276,7 +276,7 @@ function createGetterForPluralLinkedField(
   variables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): () => $FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
@@ -330,7 +330,7 @@ function createGetterForSingularLinkedField(
   variables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): () => ?$FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
@@ -376,7 +376,7 @@ function getLinkedRecordUsingMissingFieldHandlers(
   newVariables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): ?RecordProxy {
   for (const handler of missingFieldHandlers) {
     if (handler.kind === 'linked') {
@@ -398,7 +398,7 @@ function getPluralLinkedRecordUsingMissingFieldHandlers(
   newVariables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): ?Array<?RecordProxy> {
   for (const handler of missingFieldHandlers) {
     if (handler.kind === 'pluralLinked') {
@@ -424,7 +424,7 @@ function getScalarUsingMissingFieldHandlers(
   newVariables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): unknown {
   for (const handler of missingFieldHandlers) {
     if (handler.kind === 'scalar') {

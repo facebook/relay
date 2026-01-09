@@ -53,14 +53,14 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   _getDataID: GetDataID;
   _invalidatedStore: boolean;
   _idsMarkedForInvalidation: DataIDSet;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   _log: LogFunction;
 
   constructor(
     mutator: RelayRecordSourceMutator,
     getDataID: GetDataID,
     handlerProvider?: ?HandlerProvider,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
     log: ?LogFunction,
   ) {
     this.__mutator = mutator;

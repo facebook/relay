@@ -66,7 +66,7 @@ declare function readFragment<
 ): ?TKey?.['$data'];
 
 declare function readFragment<
-  TKey: $ReadOnlyArray<{
+  TKey: ReadonlyArray<{
     +$data?: unknown,
     +$fragmentSpreads: FragmentType,
     ...
@@ -77,7 +77,7 @@ declare function readFragment<
 ): NonNullable<TKey[number]['$data']>;
 
 declare function readFragment<
-  TKey: ?$ReadOnlyArray<{
+  TKey: ?ReadonlyArray<{
     +$data?: unknown,
     +$fragmentSpreads: FragmentType,
     ...

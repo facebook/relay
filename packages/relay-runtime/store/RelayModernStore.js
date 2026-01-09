@@ -59,7 +59,7 @@ const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 
 export opaque type InvalidationState = {
-  dataIDs: $ReadOnlyArray<DataID>,
+  dataIDs: ReadonlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
 };
 
@@ -425,7 +425,7 @@ class RelayModernStore implements Store {
   notify(
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
-  ): $ReadOnlyArray<RequestDescriptor> {
+  ): ReadonlyArray<RequestDescriptor> {
     const log = this.__log;
     if (log != null) {
       log({
@@ -616,7 +616,7 @@ class RelayModernStore implements Store {
     return this._updatedRecordIDs;
   }
 
-  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
+  lookupInvalidationState(dataIDs: ReadonlyArray<DataID>): InvalidationState {
     const invalidations = new Map<DataID, ?number>();
     dataIDs.forEach(dataID => {
       const record = this.getSource().get(dataID);
@@ -879,9 +879,7 @@ class RelayModernStore implements Store {
   }
 
   // Internal API for normalizing @outputType payloads in LiveResolverCache.
-  __getNormalizationOptions(
-    path: $ReadOnlyArray<string>,
-  ): NormalizationOptions {
+  __getNormalizationOptions(path: ReadonlyArray<string>): NormalizationOptions {
     return {
       path,
       getDataID: this._getDataID,

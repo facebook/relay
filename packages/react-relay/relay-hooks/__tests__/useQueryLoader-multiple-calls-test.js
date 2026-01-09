@@ -107,7 +107,7 @@ beforeEach(() => {
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
           const executeUnsubscribeFn = jest.fn<
-            $ReadOnlyArray<unknown>,
+            ReadonlyArray<unknown>,
             unknown,
           >();
           return {unsubscribe: executeUnsubscribeFn};

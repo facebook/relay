@@ -63,7 +63,7 @@ type ValueResolver = (
   defaultValue?: unknown,
 ) => unknown;
 type Traversable = {
-  +selections: $ReadOnlyArray<NormalizationSelection>,
+  +selections: ReadonlyArray<NormalizationSelection>,
   +typeName: ?string,
   +isAbstractType: ?boolean,
   +name: ?string,
@@ -75,7 +75,7 @@ export type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
-  +path: ?$ReadOnlyArray<string>,
+  +path: ?ReadonlyArray<string>,
   +args: ?{[string]: unknown, ...},
 };
 type MockResolver = (
@@ -89,7 +89,7 @@ type SelectionMetadata = {
     +type: string,
     +plural: boolean,
     +nullable: boolean,
-    +enumValues: $ReadOnlyArray<string> | null,
+    +enumValues: ReadonlyArray<string> | null,
   },
   ...
 };
@@ -170,9 +170,9 @@ function createValueResolver(mockResolvers: ?MockResolvers): ValueResolver {
 }
 
 function generateMockList<T>(
-  placeholderArray: $ReadOnlyArray<unknown>,
+  placeholderArray: ReadonlyArray<unknown>,
   generateListItem: (defaultValue: unknown, index?: number) => T,
-): $ReadOnlyArray<T> {
+): ReadonlyArray<T> {
   return placeholderArray.map((possibleDefaultValue, index) =>
     generateListItem(possibleDefaultValue, index),
   );
@@ -207,7 +207,7 @@ class RelayMockPayloadGenerator {
   }
 
   generate(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     operationType: string,
   ): Array<GraphQLSingularResponse> {
     const defaultValues = this._getDefaultValuesForObject(
@@ -236,7 +236,7 @@ class RelayMockPayloadGenerator {
 
   _traverse(
     traversable: Traversable,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
@@ -256,10 +256,10 @@ class RelayMockPayloadGenerator {
    * Generate mock values for selection of fields
    */
   _traverseSelections(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     typeName: ?string,
     isAbstractType: ?boolean,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
@@ -606,9 +606,9 @@ class RelayMockPayloadGenerator {
    * @private
    */
   _getCorrectDefaultEnum(
-    enumValues: $ReadOnlyArray<string>,
+    enumValues: ReadonlyArray<string>,
     value: unknown | Array<unknown>,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     applicationName: string,
   ): ?(string | Array<string>) {
     if (value === undefined) {
@@ -664,7 +664,7 @@ class RelayMockPayloadGenerator {
   _mockScalar(
     field: NormalizationScalarField,
     typeName: ?string,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     mockData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
@@ -742,7 +742,7 @@ class RelayMockPayloadGenerator {
    */
   _mockLink(
     field: NormalizationLinkedField,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData | null {
@@ -857,7 +857,7 @@ class RelayMockPayloadGenerator {
     typeName: ?string,
     fieldName: ?string,
     fieldAlias: ?string,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     args: ?{[string]: unknown, ...},
   ): ?MockData {
     let data;
@@ -922,11 +922,11 @@ class RelayMockPayloadGenerator {
   _getScalarFieldTypeDetails(
     field: NormalizationScalarField,
     typeName: ?string,
-    selectionPath: $ReadOnlyArray<string>,
+    selectionPath: ReadonlyArray<string>,
   ): {
     +type: string,
     +plural: boolean,
-    +enumValues: $ReadOnlyArray<string> | null,
+    +enumValues: ReadonlyArray<string> | null,
     +nullable: boolean,
   } {
     return (
@@ -945,7 +945,7 @@ class RelayMockPayloadGenerator {
    * @private
    */
   _getTypeDetailsForPath(
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
   ): $Values<SelectionMetadata> {
     return this._selectionMetadata[
       // When selecting metadata, skip the number on plural fields so that every field in the array

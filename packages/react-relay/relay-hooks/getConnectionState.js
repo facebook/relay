@@ -20,7 +20,7 @@ function getConnectionState(
   direction: Direction,
   fragmentNode: ReaderFragment,
   fragmentData: unknown,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
 ): {
   cursor: ?string,
   hasMore: boolean,

@@ -137,7 +137,7 @@ function fancy_description_suspends(
  */
 function many_fancy_descriptions(
   model: TodoModelType,
-): $ReadOnlyArray<TodoDescription> {
+): ReadonlyArray<TodoDescription> {
   if (model == null) {
     return [];
   }
@@ -150,7 +150,7 @@ function many_fancy_descriptions(
  */
 function many_fancy_descriptions_but_some_are_null(
   model: TodoModelType,
-): $ReadOnlyArray<TodoDescription | null> {
+): ReadonlyArray<TodoDescription | null> {
   if (model == null) {
     return [];
   }

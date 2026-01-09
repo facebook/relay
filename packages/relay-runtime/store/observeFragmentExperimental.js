@@ -68,7 +68,7 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
     | HasSpread<TFragmentType>
-    | $ReadOnlyArray<HasSpread<TFragmentType>>,
+    | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Promise<TData> {
   let subscription: ?Subscription;
 
@@ -101,7 +101,7 @@ declare function observeFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
     | HasSpread<TFragmentType>
-    | $ReadOnlyArray<HasSpread<TFragmentType>>,
+    | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Observable<FragmentState<TData>>;
 
 /**
@@ -299,7 +299,7 @@ function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
 }
 
 function mergeFragmentStates<T>(
-  states: $ReadOnlyArray<FragmentState<T>>,
+  states: ReadonlyArray<FragmentState<T>>,
 ): FragmentState<Array<T>> {
   const value = [];
   for (const state of states) {

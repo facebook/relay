@@ -166,7 +166,7 @@ function assertCall(
 }
 
 function expectFragmentResults(
-  expectedCalls: $ReadOnlyArray<{
+  expectedCalls: ReadonlyArray<{
     data: $FlowFixMe,
     isLoadingNext: boolean,
     isLoadingPrevious: boolean,
@@ -877,7 +877,7 @@ describe.each([
     let release;
 
     beforeEach(() => {
-      release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+      release = jest.fn<ReadonlyArray<unknown>, unknown>();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {

@@ -43,10 +43,7 @@ describe.each([true, false])(
     let MutationOperation;
     let operationLoader: {
       get: (reference: unknown) => ?NormalizationRootNode,
-      load: JestMockFn<
-        $ReadOnlyArray<unknown>,
-        Promise<?NormalizationRootNode>,
-      >,
+      load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
     };
 
     beforeEach(() => {

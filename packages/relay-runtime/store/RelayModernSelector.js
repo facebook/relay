@@ -146,7 +146,7 @@ function getSingularSelector(
  */
 function getPluralSelector(
   fragment: ReaderFragment,
-  items: $ReadOnlyArray<unknown>,
+  items: ReadonlyArray<unknown>,
 ): ?PluralReaderSelector {
   let selectors: null | Array<SingularReaderSelector> = null;
   items.forEach((item, ii) => {
@@ -278,7 +278,7 @@ function getDataIDsFromFragment(
  */
 function getDataIDs(
   fragment: ReaderFragment,
-  items: $ReadOnlyArray<unknown>,
+  items: ReadonlyArray<unknown>,
 ): ?Array<DataID> {
   let ids: null | Array<DataID> = null;
   items.forEach(item => {
@@ -349,7 +349,7 @@ function getVariablesFromObject(
 
 function getVariablesFromFragment(
   fragment: ReaderFragment,
-  item: unknown | $ReadOnlyArray<unknown>,
+  item: unknown | ReadonlyArray<unknown>,
 ): Variables {
   if (item == null) {
     return {};
@@ -391,7 +391,7 @@ function getVariablesFromSingularFragment(
 
 function getVariablesFromPluralFragment(
   fragment: ReaderFragment,
-  items: $ReadOnlyArray<unknown>,
+  items: ReadonlyArray<unknown>,
 ): Variables {
   const variables = {};
   items.forEach((value, ii) => {

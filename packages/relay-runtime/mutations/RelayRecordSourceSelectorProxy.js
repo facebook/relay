@@ -47,13 +47,13 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __mutator: RelayRecordSourceMutator;
   __recordSource: RecordSourceProxy;
   _readSelector: SingularReaderSelector;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
 
   constructor(
     mutator: RelayRecordSourceMutator,
     recordSource: RecordSourceProxy,
     readSelector: SingularReaderSelector,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
   ) {
     this.__mutator = mutator;
     this.__recordSource = recordSource;

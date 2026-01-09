@@ -376,7 +376,7 @@ hook useRefetchFunction<TQuery: OperationType>(
   fragmentData: unknown,
   fragmentIdentifier: string,
   fragmentNode: ReaderFragment,
-  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  fragmentRefPathInResponse: ReadonlyArray<string | number>,
   identifierInfo: ?RefetchableIdentifierInfo,
   loadQuery: LoaderFn<TQuery>,
   parentFragmentRef: unknown,
@@ -576,7 +576,7 @@ if (__DEV__) {
     },
     getInitialIDAndType(
       memoRefetchVariables: ?Variables,
-      fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+      fragmentRefPathInResponse: ReadonlyArray<string | number>,
       identifierQueryVariableName: ?string,
       environment: IEnvironment,
     ): ?DebugIDandTypename {

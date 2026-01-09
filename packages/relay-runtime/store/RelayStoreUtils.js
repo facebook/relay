@@ -77,7 +77,7 @@ function getArgumentValue(
  * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
-  args?: ?$ReadOnlyArray<NormalizationArgument | ReaderArgument>,
+  args?: ?ReadonlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
   isWithinUnmatchedTypeRefinement?: boolean,
 ): Arguments {
@@ -204,7 +204,7 @@ function getArguments(
     | NormalizationHandle
     | ReaderField
     | ReaderActorChange,
-): ?$ReadOnlyArray<NormalizationArgument | ReaderArgument> {
+): ?ReadonlyArray<NormalizationArgument | ReaderArgument> {
   if (field.kind === 'RelayResolver' || field.kind === 'RelayLiveResolver') {
     if (field.args == null) {
       return field.fragment?.args;

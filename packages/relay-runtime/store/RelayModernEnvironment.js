@@ -74,7 +74,7 @@ export type EnvironmentConfig = {
   +normalizeResponse?: ?NormalizeResponseFunction,
   +scheduler?: ?TaskScheduler,
   +store?: Store,
-  +missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  +missingFieldHandlers?: ?ReadonlyArray<MissingFieldHandler>,
   +operationTracker?: ?OperationTracker,
   +getDataID?: ?GetDataID,
   +UNSTABLE_defaultRenderPolicy?: ?RenderPolicy,
@@ -94,7 +94,7 @@ class RelayModernEnvironment implements IEnvironment {
   _scheduler: ?TaskScheduler;
   _store: Store;
   configName: ?string;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
@@ -293,7 +293,7 @@ class RelayModernEnvironment implements IEnvironment {
 
   _checkSelectorAndHandleMissingFields(
     operation: OperationDescriptor,
-    handlers: $ReadOnlyArray<MissingFieldHandler>,
+    handlers: ReadonlyArray<MissingFieldHandler>,
   ): OperationAvailability {
     const target = RelayRecordSource.create();
     const source = this._store.getSource();

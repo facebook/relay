@@ -15,7 +15,7 @@ const invariant = require('invariant');
 
 function getValueAtPath(
   data: unknown,
-  path: $ReadOnlyArray<string | number>,
+  path: ReadonlyArray<string | number>,
 ): unknown {
   let result = data;
   for (const key of path) {

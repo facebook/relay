@@ -27,7 +27,7 @@ injectPromisePolyfill__DEPRECATED();
 let loadedEntryPoint;
 let instance;
 let entryPointLoaderCallback: (params: {...}) => void;
-let dispose: ?JestMockFn<$ReadOnlyArray<unknown>, unknown>;
+let dispose: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 let loadEntryPointLastReturnValue;
 let disposeEntryPoint;
 
@@ -43,7 +43,7 @@ let defaultEntryPoint: any;
 const loadEntryPoint = jest
   /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
    * enabling Flow LTI mode */
-  .fn<_, {dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>}>()
+  .fn<_, {dispose: JestMockFn<ReadonlyArray<unknown>, unknown>}>()
   .mockImplementation(() => {
     dispose = jest.fn();
     return (loadEntryPointLastReturnValue = {

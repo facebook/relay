@@ -44,11 +44,11 @@ disallowWarnings();
 
 describe('execute() a query with @module', () => {
   let callbacks: {
-    +complete: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
-    +error: JestMockFn<$ReadOnlyArray<Error>, unknown>,
-    +next: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
-    +start?: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
-    +unsubscribe?: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+    +complete: JestMockFn<ReadonlyArray<unknown>, unknown>,
+    +error: JestMockFn<ReadonlyArray<Error>, unknown>,
+    +next: JestMockFn<ReadonlyArray<unknown>, unknown>,
+    +start?: JestMockFn<ReadonlyArray<unknown>, unknown>,
+    +unsubscribe?: JestMockFn<ReadonlyArray<unknown>, unknown>,
   };
   let complete;
   let dataSource;
@@ -63,7 +63,7 @@ describe('execute() a query with @module', () => {
   let operationCallback;
   let operationLoader: {
     get: (reference: unknown) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<unknown>, Promise<?NormalizationRootNode>>,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let query;
   let resolveFragment;
@@ -123,9 +123,9 @@ describe('execute() a query with @module', () => {
       },
     };
 
-    complete = jest.fn<$ReadOnlyArray<unknown>, unknown>();
-    error = jest.fn<$ReadOnlyArray<Error>, unknown>();
-    next = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+    complete = jest.fn<ReadonlyArray<unknown>, unknown>();
+    error = jest.fn<ReadonlyArray<Error>, unknown>();
+    next = jest.fn<ReadonlyArray<unknown>, unknown>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,

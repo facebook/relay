@@ -118,7 +118,7 @@ describe('useBlockingPaginationFragment', () => {
   }
 
   async function expectFragmentResults(
-    expectedCalls: $ReadOnlyArray<{
+    expectedCalls: ReadonlyArray<{
       data: $FlowFixMe,
       hasNext: boolean,
       hasPrevious: boolean,
@@ -734,7 +734,7 @@ describe('useBlockingPaginationFragment', () => {
     let release;
 
     beforeEach(() => {
-      release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+      release = jest.fn<ReadonlyArray<unknown>, unknown>();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {

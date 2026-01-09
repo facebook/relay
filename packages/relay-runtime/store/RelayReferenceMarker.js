@@ -116,7 +116,7 @@ class RelayReferenceMarker {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     record: Record,
   ): void {
     selections.forEach(selection => {

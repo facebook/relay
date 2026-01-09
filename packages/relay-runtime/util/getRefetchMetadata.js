@@ -24,7 +24,7 @@ function getRefetchMetadata(
   fragmentNode: ReaderFragment,
   componentDisplayName: string,
 ): {
-  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  fragmentRefPathInResponse: ReadonlyArray<string | number>,
   identifierInfo: ?RefetchableIdentifierInfo,
   refetchableRequest: ConcreteRequest,
   refetchMetadata: ReaderRefetchMetadata,

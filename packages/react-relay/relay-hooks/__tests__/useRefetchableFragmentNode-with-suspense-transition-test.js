@@ -102,7 +102,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectFragmentResults(
-      expectedYields: $ReadOnlyArray<{
+      expectedYields: ReadonlyArray<{
         data: $FlowFixMe,
         isPending: boolean,
       }>,

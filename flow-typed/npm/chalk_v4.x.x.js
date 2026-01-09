@@ -12,7 +12,7 @@
 // From: https://github.com/chalk/chalk/blob/main/source/index.d.ts
 
 declare module 'chalk' {
-  declare type TemplateStringsArray = $ReadOnlyArray<string>;
+  declare type TemplateStringsArray = ReadonlyArray<string>;
 
   declare type Level = $Values<{
     None: 0,

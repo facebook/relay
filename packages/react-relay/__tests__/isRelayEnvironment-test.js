@@ -25,14 +25,14 @@ describe('isRelayEnvironment()', () => {
 
   it('returns true for objects that conform to the interface', () => {
     const environment = {
-      applyMutation: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
-      check: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
-      execute: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
-      lookup: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
-      retain: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
-      sendMutation: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
-      sendQuery: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
-      subscribe: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
+      applyMutation: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      check: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      execute: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      lookup: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      retain: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      sendMutation: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      sendQuery: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      subscribe: jest.fn<ReadonlyArray<unknown>, unknown>(),
     };
     expect(isRelayEnvironment(environment)).toBe(true);
   });

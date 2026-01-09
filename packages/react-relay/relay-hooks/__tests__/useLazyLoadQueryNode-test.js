@@ -56,7 +56,7 @@ injectPromisePolyfill__DEPRECATED();
 const defaultFetchPolicy = 'network-only';
 
 function expectToBeRendered(
-  renderFn: JestMockFn<$ReadOnlyArray<any>, any>,
+  renderFn: JestMockFn<ReadonlyArray<any>, any>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers

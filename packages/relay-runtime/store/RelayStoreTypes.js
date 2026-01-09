@@ -91,7 +91,7 @@ export type ReaderSelector = SingularReaderSelector | PluralReaderSelector;
 
 export type PluralReaderSelector = {
   +kind: 'PluralReaderSelector',
-  +selectors: $ReadOnlyArray<SingularReaderSelector>,
+  +selectors: ReadonlyArray<SingularReaderSelector>,
 };
 
 export type FieldErrorType =
@@ -132,7 +132,7 @@ export type ClientEdgeTraversalInfo = {
 };
 
 export type ClientEdgeTraversalPath =
-  $ReadOnlyArray<ClientEdgeTraversalInfo | null>;
+  ReadonlyArray<ClientEdgeTraversalInfo | null>;
 
 export type MissingClientEdgeRequestInfo = {
   +request: ConcreteRequest,
@@ -145,8 +145,8 @@ export type MissingClientEdgeRequestInfo = {
 export type Snapshot = {
   +data: ?SelectorData,
   +isMissingData: boolean,
-  +missingLiveResolverFields?: $ReadOnlyArray<DataID>,
-  +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
+  +missingLiveResolverFields?: ReadonlyArray<DataID>,
+  +missingClientEdges: null | ReadonlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +fieldErrors: ?FieldErrors,
@@ -258,7 +258,7 @@ export interface MutableRecordSource extends RecordSource {
 }
 
 export type CheckOptions = {
-  +handlers: $ReadOnlyArray<MissingFieldHandler>,
+  +handlers: ReadonlyArray<MissingFieldHandler>,
   +defaultActorIdentifier: ActorIdentifier,
   +getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
   +getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
@@ -306,7 +306,7 @@ export interface Store {
   notify(
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
-  ): $ReadOnlyArray<RequestDescriptor>;
+  ): ReadonlyArray<RequestDescriptor>;
 
   /**
    * Publish new information (e.g. from the network) to the store, updating its
@@ -354,7 +354,7 @@ export interface Store {
    * Will return an opaque snapshot of the current invalidation state of
    * the data ids that were provided.
    */
-  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState;
+  lookupInvalidationState(dataIDs: ReadonlyArray<DataID>): InvalidationState;
 
   /**
    * Given the previous invalidation state for those
@@ -472,14 +472,14 @@ export interface RecordProxy {
   ): RecordProxy;
   getType(): string;
   getValue(name: string, args?: ?Variables): unknown;
-  getErrors(name: string, args?: ?Variables): ?$ReadOnlyArray<TRelayFieldError>;
+  getErrors(name: string, args?: ?Variables): ?ReadonlyArray<TRelayFieldError>;
   setLinkedRecord(
     record: RecordProxy,
     name: string,
     args?: ?Variables,
   ): RecordProxy;
   setLinkedRecords(
-    records: $ReadOnlyArray<?RecordProxy>,
+    records: ReadonlyArray<?RecordProxy>,
     name: string,
     args?: ?Variables,
   ): RecordProxy;
@@ -487,7 +487,7 @@ export interface RecordProxy {
     value: unknown,
     name: string,
     args?: ?Variables,
-    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+    errors?: ?ReadonlyArray<TRelayFieldError>,
   ): RecordProxy;
   invalidateRecord(): void;
 }
@@ -562,7 +562,7 @@ export type SuspenseFragmentLogEvent = {
   +isRelayHooks: boolean,
   +isMissingData: boolean,
   +isPromiseCached: boolean,
-  +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+  +pendingOperations: ReadonlyArray<RequestDescriptor>,
 };
 
 export type SuspenseQueryLogEvent = {
@@ -615,7 +615,7 @@ export type PendingOperationFoundLogEvent = {
   +name: 'pendingoperation.found',
   +fragment: ReaderFragment,
   +fragmentOwner: RequestDescriptor,
-  +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+  +pendingOperations: ReadonlyArray<RequestDescriptor>,
 };
 
 export type NetworkInfoLogEvent = {
@@ -1143,11 +1143,11 @@ export type HandleFieldPayload = {
  */
 export type ModuleImportPayload = {
   +kind: 'ModuleImportPayload',
-  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +args: ?ReadonlyArray<NormalizationArgument>,
   +data: PayloadData,
   +dataID: DataID,
   +operationReference: unknown,
-  +path: $ReadOnlyArray<string>,
+  +path: ReadonlyArray<string>,
   +typeName: string,
   +variables: Variables,
   +actorIdentifier: ?ActorIdentifier,
@@ -1173,7 +1173,7 @@ export type ActorPayload = {
   +data: PayloadData,
   +dataID: DataID,
   +node: NormalizationLinkedField,
-  +path: $ReadOnlyArray<string>,
+  +path: ReadonlyArray<string>,
   +typeName: string,
   +variables: Variables,
   +actorIdentifier: ActorIdentifier,
@@ -1193,7 +1193,7 @@ export type DeferPlaceholder = {
   +kind: 'defer',
   +data: PayloadData,
   +label: string,
-  +path: $ReadOnlyArray<string>,
+  +path: ReadonlyArray<string>,
   +selector: NormalizationSelector,
   +typeName: string,
   +actorIdentifier: ?ActorIdentifier,
@@ -1201,7 +1201,7 @@ export type DeferPlaceholder = {
 export type StreamPlaceholder = {
   +kind: 'stream',
   +label: string,
-  +path: $ReadOnlyArray<string>,
+  +path: ReadonlyArray<string>,
   +parentID: DataID,
   +node: NormalizationSelectableNode,
   +variables: Variables,
@@ -1535,7 +1535,7 @@ export interface PublishQueue {
    * Optionally provide an OperationDescriptor indicating the source operation
    * that was being processed to produce this run.
    */
-  run(sourceOperation?: OperationDescriptor): $ReadOnlyArray<RequestDescriptor>;
+  run(sourceOperation?: OperationDescriptor): ReadonlyArray<RequestDescriptor>;
 }
 
 /**

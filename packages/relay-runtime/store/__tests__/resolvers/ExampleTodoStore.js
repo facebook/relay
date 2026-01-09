@@ -24,7 +24,7 @@ export type TodoItem = {
 
 const COLLECTION_SUBSCRIBERS = {};
 
-type State = $ReadOnlyArray<TodoItem>;
+type State = ReadonlyArray<TodoItem>;
 
 type ACTION =
   | {
@@ -180,7 +180,7 @@ class TodoStore {
     this._logFn = logger;
   }
 
-  _notify(subscribers: $ReadOnlyArray<TodoID | typeof COLLECTION_SUBSCRIBERS>) {
+  _notify(subscribers: ReadonlyArray<TodoID | typeof COLLECTION_SUBSCRIBERS>) {
     subscribers.forEach(subscriber => {
       const subscriptions = this._subscriptions.get(subscriber);
       if (subscriptions != null) {
@@ -196,7 +196,7 @@ const Selectors = {
   getTodo(state: State, maybeTodoID: string): ?TodoItem {
     return state.find(item => item.todoID === maybeTodoID);
   },
-  getTodoIDs(state: State): $ReadOnlyArray<TodoID> {
+  getTodoIDs(state: State): ReadonlyArray<TodoID> {
     return state.map(item => item.todoID);
   },
 };

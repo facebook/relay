@@ -115,8 +115,8 @@ function getOperationVariables(
 
 function getLocalVariables(
   currentVariables: Variables,
-  argumentDefinitions: ?$ReadOnlyArray<NormalizationLocalArgumentDefinition>,
-  args: ?$ReadOnlyArray<NormalizationArgument>,
+  argumentDefinitions: ?ReadonlyArray<NormalizationLocalArgumentDefinition>,
+  args: ?ReadonlyArray<NormalizationArgument>,
 ): Variables {
   if (argumentDefinitions == null) {
     return currentVariables;

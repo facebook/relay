@@ -21,7 +21,7 @@ function getPaginationMetadata(
   fragmentNode: ReaderFragment,
   componentDisplayName: string,
 ): {
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
   identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,

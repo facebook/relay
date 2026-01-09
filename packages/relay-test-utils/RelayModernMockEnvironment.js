@@ -113,9 +113,9 @@ type MockFunctions = {
   +complete: (request: ConcreteRequest | OperationDescriptor) => void,
   +resolve: (
     request: ConcreteRequest | OperationDescriptor,
-    payload: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
+    payload: ReadonlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
   ) => void,
-  +getAllOperations: () => $ReadOnlyArray<OperationDescriptor>,
+  +getAllOperations: () => ReadonlyArray<OperationDescriptor>,
   +findOperation: (
     findFn: (operation: OperationDescriptor) => boolean,
   ) => OperationDescriptor,
@@ -187,8 +187,8 @@ function createMockEnvironment(
     ttl: MAX_TTL,
   });
 
-  let pendingRequests: $ReadOnlyArray<PendingRequest> = [];
-  let pendingOperations: $ReadOnlyArray<OperationDescriptor> = [];
+  let pendingRequests: ReadonlyArray<PendingRequest> = [];
+  let pendingOperations: ReadonlyArray<OperationDescriptor> = [];
   const queuePendingOperation = (
     query: GraphQLTaggedNode,
     variables: Variables,
@@ -199,7 +199,7 @@ function createMockEnvironment(
     );
     pendingOperations = pendingOperations.concat([operationDescriptor]);
   };
-  let resolversQueue: $ReadOnlyArray<OperationMockResolver> = [];
+  let resolversQueue: ReadonlyArray<OperationMockResolver> = [];
 
   const queueOperationResolver = (resolver: OperationMockResolver): void => {
     resolversQueue = resolversQueue.concat([resolver]);
@@ -291,7 +291,7 @@ function createMockEnvironment(
   // The same request may be made by multiple query renderers
   function getRequests(
     input: ConcreteRequest | OperationDescriptor,
-  ): $ReadOnlyArray<PendingRequest> {
+  ): ReadonlyArray<PendingRequest> {
     let concreteRequest: ConcreteRequest;
     let operationDescriptor: OperationDescriptor;
     if (input.kind === 'Request') {
@@ -413,7 +413,7 @@ function createMockEnvironment(
 
   const resolve = (
     request: ConcreteRequest | OperationDescriptor,
-    response: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
+    response: ReadonlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
   ): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;

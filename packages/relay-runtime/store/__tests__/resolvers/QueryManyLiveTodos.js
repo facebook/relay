@@ -21,7 +21,7 @@ const {
  * @RelayResolver Query.many_live_todos: [Todo]
  * @live
  */
-function many_live_todos(): LiveState<$ReadOnlyArray<{todo_id: string}>> {
+function many_live_todos(): LiveState<ReadonlyArray<{todo_id: string}>> {
   return {
     read() {
       return Selectors.getTodoIDs(TODO_STORE.getState()).map(id => ({

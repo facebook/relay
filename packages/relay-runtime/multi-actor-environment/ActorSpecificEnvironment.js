@@ -56,7 +56,7 @@ export type ActorSpecificEnvironmentConfig = Readonly<{
   network: INetwork,
   relayFieldLogger: RelayFieldLogger,
   store: Store,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {

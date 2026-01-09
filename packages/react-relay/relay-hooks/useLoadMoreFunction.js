@@ -54,7 +54,7 @@ export type UseLoadMoreFunctionArgs = {
   fragmentRef: unknown,
   fragmentIdentifier: string,
   fragmentData: unknown,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,

@@ -78,7 +78,7 @@ export type NormalizationOptions = {
   +treatMissingFieldsAsNull: boolean,
   +deferDeduplicatedFields: boolean,
   +log: ?LogFunction,
-  +path?: $ReadOnlyArray<string>,
+  +path?: ReadonlyArray<string>,
   +shouldProcessClientComponents?: ?boolean,
   +actorIdentifier?: ?ActorIdentifier,
 };

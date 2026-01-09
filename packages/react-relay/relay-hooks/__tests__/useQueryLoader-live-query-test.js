@@ -38,7 +38,7 @@ let renderCount: ?number;
 let loadedQuery;
 let instance;
 let queryLoaderCallback;
-let dispose: ?JestMockFn<$ReadOnlyArray<unknown>, unknown>;
+let dispose: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 let disposeQuery;
 
 let render;
@@ -65,7 +65,7 @@ beforeEach(() => {
   environment = createMockEnvironment();
   render = function (
     initialPreloadedQuery: ?{
-      dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   ) {
     renderCount = 0;
@@ -78,7 +78,7 @@ beforeEach(() => {
 
   update = function (
     initialPreloadedQuery: ?{
-      dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   ) {
     ReactTestRenderer.act(() => {
@@ -92,7 +92,7 @@ beforeEach(() => {
     initialPreloadedQuery,
   }: {
     initialPreloadedQuery: ?{
-      dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   }) {
     renderCount = (renderCount || 0) + 1;
@@ -108,7 +108,7 @@ beforeEach(() => {
     initialPreloadedQuery,
   }: {
     initialPreloadedQuery?: ?{
-      dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   }) {
     return (

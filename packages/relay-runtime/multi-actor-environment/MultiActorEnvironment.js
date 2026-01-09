@@ -64,7 +64,7 @@ export type MultiActorEnvironmentConfig = Readonly<{
   handlerProvider?: HandlerProvider,
   isServer?: ?boolean,
   logFn?: ?LogFunction,
-  missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers?: ?ReadonlyArray<MissingFieldHandler>,
   normalizeResponse?: NormalizeResponseFunction,
   operationLoader?: ?OperationLoader,
   relayFieldLogger?: ?RelayFieldLogger,
@@ -84,7 +84,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_handlerProvider: HandlerProvider;
   +_isServer: boolean;
   +_logFn: LogFunction;
-  +_missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  +_missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   +_normalizeResponse: NormalizeResponseFunction;
   +_operationExecutions: Map<string, ActiveState>;
   +_operationLoader: ?OperationLoader;
@@ -178,7 +178,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   _checkSelectorAndHandleMissingFields(
     actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,
-    handlers: $ReadOnlyArray<MissingFieldHandler>,
+    handlers: ReadonlyArray<MissingFieldHandler>,
   ): OperationAvailability {
     const targets: Map<ActorIdentifier, MutableRecordSource> = new Map([
       [actorEnvironment.actorIdentifier, RelayRecordSource.create()],

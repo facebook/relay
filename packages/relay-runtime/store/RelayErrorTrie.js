@@ -19,7 +19,7 @@ const SELF: Self = Symbol('$SELF');
 export opaque type Self = typeof SELF;
 
 export type TRelayFieldErrorForDisplay = Readonly<{
-  path?: $ReadOnlyArray<string | number>,
+  path?: ReadonlyArray<string | number>,
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
 }>;
 
@@ -49,7 +49,7 @@ export opaque type RelayErrorTrie = Map<
 >;
 
 function buildErrorTrie(
-  errors: ?$ReadOnlyArray<PayloadError>,
+  errors: ?ReadonlyArray<PayloadError>,
 ): RelayErrorTrie | null {
   if (errors == null) {
     return null;
@@ -100,7 +100,7 @@ function buildErrorTrie(
 function getErrorsByKey(
   trie: RelayErrorTrie,
   key: string | number,
-): $ReadOnlyArray<TRelayFieldError> | null {
+): ReadonlyArray<TRelayFieldError> | null {
   const value = trie.get(key);
   if (value == null) {
     return null;

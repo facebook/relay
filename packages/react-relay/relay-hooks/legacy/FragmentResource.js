@@ -45,7 +45,7 @@ export type FragmentResource = FragmentResourceImpl;
 type FragmentResourceCache = Cache<
   | {
       kind: 'pending',
-      pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+      pendingOperations: ReadonlyArray<RequestDescriptor>,
       promise: Promise<unknown>,
       result: FragmentResult,
     }
@@ -63,7 +63,7 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
-type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+type SingularOrPluralSnapshot = Snapshot | ReadonlyArray<Snapshot>;
 
 opaque type FragmentResult: {data: unknown, ...} = {
   cacheKey: string,
@@ -97,7 +97,7 @@ function hasMissingClientEdges(snapshot: SingularOrPluralSnapshot): boolean {
 
 function missingLiveResolverFields(
   snapshot: SingularOrPluralSnapshot,
-): ?$ReadOnlyArray<DataID> {
+): ?ReadonlyArray<DataID> {
   if (Array.isArray(snapshot)) {
     return snapshot
       .map(s => s.missingLiveResolverFields)
@@ -804,7 +804,7 @@ class FragmentResourceImpl {
     fragmentResult: FragmentResult,
   ): {
     promise: Promise<void>,
-    pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+    pendingOperations: ReadonlyArray<RequestDescriptor>,
   } | null {
     const pendingOperationsResult = getPendingOperationsForFragment(
       this._environment,
@@ -840,7 +840,7 @@ class FragmentResourceImpl {
 
   _updatePluralSnapshot(
     cacheKey: string,
-    baseSnapshots: $ReadOnlyArray<Snapshot>,
+    baseSnapshots: ReadonlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
     storeEpoch: number,

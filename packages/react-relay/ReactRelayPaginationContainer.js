@@ -91,7 +91,7 @@ export type ConnectionConfig = {
   ...
 };
 export type ConnectionData = {
-  +edges?: ?$ReadOnlyArray<any>,
+  +edges?: ?ReadonlyArray<any>,
   +pageInfo?: ?PageInfo,
   ...
 };

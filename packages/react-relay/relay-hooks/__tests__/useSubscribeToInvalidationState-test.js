@@ -69,14 +69,14 @@ beforeEach(() => {
   const store = new Store(source);
 
   environment = createMockEnvironment({store});
-  callback = jest.fn<$ReadOnlyArray<unknown>, void>();
+  callback = jest.fn<ReadonlyArray<unknown>, void>();
 
   function Renderer({
     initialDataIDs,
     initialCallback,
   }: {
-    initialCallback: JestMockFn<$ReadOnlyArray<unknown>, void>,
-    initialDataIDs: $ReadOnlyArray<string>,
+    initialCallback: JestMockFn<ReadonlyArray<unknown>, void>,
+    initialDataIDs: ReadonlyArray<string>,
   }) {
     const [dataIDs, _setDataIDs] = useState(initialDataIDs);
     const [cbState, _setCallback] = useState({callback: initialCallback});
@@ -96,8 +96,8 @@ beforeEach(() => {
   }
 
   function Container(props: {
-    callback: JestMockFn<$ReadOnlyArray<unknown>, void>,
-    dataIDs: $ReadOnlyArray<string>,
+    callback: JestMockFn<ReadonlyArray<unknown>, void>,
+    dataIDs: ReadonlyArray<string>,
     environment: RelayMockEnvironment,
   }) {
     const [env, setEnv] = useState(props.environment);
@@ -114,8 +114,8 @@ beforeEach(() => {
 
   render = async (
     env: RelayMockEnvironment,
-    dataIDs: $ReadOnlyArray<string>,
-    cb: JestMockFn<$ReadOnlyArray<unknown>, void>,
+    dataIDs: ReadonlyArray<string>,
+    cb: JestMockFn<ReadonlyArray<unknown>, void>,
   ) => {
     await act(() => {
       renderedInstance = ReactTestingLibrary.render(

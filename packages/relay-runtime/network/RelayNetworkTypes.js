@@ -82,7 +82,7 @@ export type GraphQLSingularResponse =
 
 export type GraphQLResponse =
   | GraphQLSingularResponse
-  | $ReadOnlyArray<GraphQLSingularResponse>;
+  | ReadonlyArray<GraphQLSingularResponse>;
 
 /**
  * A function that pre-process the response at the network layer. This

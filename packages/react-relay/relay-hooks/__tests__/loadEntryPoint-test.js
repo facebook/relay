@@ -241,14 +241,14 @@ describe('with respect to loadQuery', () => {
   const loadQuery = jest
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    .fn<_, {dispose: JestMockFn<$ReadOnlyArray<unknown>, unknown>}>()
+    .fn<_, {dispose: JestMockFn<ReadonlyArray<unknown>, unknown>}>()
     .mockImplementation(() => {
       return mockLoadedQuery;
     });
   beforeEach(() => {
     jest.mock('../loadQuery', () => ({loadQuery}));
     mockLoadedQuery = {
-      dispose: jest.fn<$ReadOnlyArray<unknown>, unknown>(),
+      dispose: jest.fn<ReadonlyArray<unknown>, unknown>(),
     };
   });
   afterEach(() => {

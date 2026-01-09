@@ -508,7 +508,7 @@ class RelayReader {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<ReaderSelection>,
+    selections: ReadonlyArray<ReaderSelection>,
     record: Record,
     data: SelectorData,
   ): boolean /* had all expected data */ {
@@ -1020,7 +1020,7 @@ class RelayReader {
         backingField.path,
         this._owner.identifier,
       );
-      let storeIDs: $ReadOnlyArray<DataID>;
+      let storeIDs: ReadonlyArray<DataID>;
       invariant(
         field.kind === 'ClientEdgeToClientObject',
         'Unexpected Client Edge to plural server type `%s`. This should be prevented by the compiler.',
@@ -1342,7 +1342,7 @@ class RelayReader {
 
   _readLinkedIds(
     field: ReaderLinkedField,
-    linkedIDs: ?$ReadOnlyArray<?DataID>,
+    linkedIDs: ?ReadonlyArray<?DataID>,
     record: Record,
     data: SelectorData,
   ): ?unknown {

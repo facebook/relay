@@ -44,7 +44,7 @@ describe('useSubscription', () => {
     variables: {} as useSubscriptionTestCommentCreateSubscription$variables,
     subscription: CommentCreateSubscription,
   };
-  const dispose = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+  const dispose = jest.fn<ReadonlyArray<unknown>, unknown>();
   const requestSubscription = jest.fn(
     (_passedEnv: any, _passedConfig: any) => ({
       dispose,

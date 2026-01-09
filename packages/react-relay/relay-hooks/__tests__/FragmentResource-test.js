@@ -1554,9 +1554,9 @@ describe('FragmentResource', () => {
 
   describe('subscribeSpec', () => {
     let unsubscribe;
-    let callback: JestMockFn<$ReadOnlyArray<unknown>, void>;
+    let callback: JestMockFn<ReadonlyArray<unknown>, void>;
     beforeEach(() => {
-      unsubscribe = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+      unsubscribe = jest.fn<ReadonlyArray<unknown>, unknown>();
       callback = jest.fn();
       jest.spyOn(environment, 'subscribe').mockImplementation(() => ({
         dispose: unsubscribe,

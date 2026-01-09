@@ -109,7 +109,7 @@ type IncrementalResults =
 
 type IncrementalGraphQLResponse = {
   label: string,
-  path: $ReadOnlyArray<unknown>,
+  path: ReadonlyArray<unknown>,
   response: GraphQLResponseWithData,
 };
 
@@ -421,8 +421,8 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _handleErrorResponse(
-    responses: $ReadOnlyArray<GraphQLSingularResponse>,
-  ): $ReadOnlyArray<GraphQLResponseWithData> {
+    responses: ReadonlyArray<GraphQLSingularResponse>,
+  ): ReadonlyArray<GraphQLResponseWithData> {
     const results = [];
     responses.forEach(response => {
       if (
@@ -473,7 +473,7 @@ class Executor<TMutation: MutationParameters> {
    * response has been handled
    */
   _handleOptimisticResponses(
-    responses: $ReadOnlyArray<GraphQLResponseWithData>,
+    responses: ReadonlyArray<GraphQLResponseWithData>,
   ): boolean {
     if (responses.length > 1) {
       if (
@@ -832,7 +832,7 @@ class Executor<TMutation: MutationParameters> {
   _processOptimisticModuleImport(
     normalizationRootNode: NormalizationRootNode,
     moduleImportPayload: ModuleImportPayload,
-  ): $ReadOnlyArray<OptimisticUpdate<TMutation>> {
+  ): ReadonlyArray<OptimisticUpdate<TMutation>> {
     const operation = getOperation(normalizationRootNode);
     const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     const modulePayload = this._normalizeFollowupPayload(
@@ -880,8 +880,8 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _processResponses(
-    responses: $ReadOnlyArray<GraphQLResponseWithData>,
-  ): $ReadOnlyArray<RelayResponsePayload> {
+    responses: ReadonlyArray<GraphQLResponseWithData>,
+  ): ReadonlyArray<RelayResponsePayload> {
     this._log({
       name: 'execute.normalize.start',
       operation: this._operation,
@@ -930,7 +930,7 @@ class Executor<TMutation: MutationParameters> {
    * and @stream directives.
    */
   _processPayloadFollowups(
-    payloads: $ReadOnlyArray<RelayResponsePayload>,
+    payloads: ReadonlyArray<RelayResponsePayload>,
   ): void {
     if (this._state === 'completed') {
       return;
@@ -1288,8 +1288,8 @@ class Executor<TMutation: MutationParameters> {
    * metadata.
    */
   _processIncrementalResponses(
-    incrementalResponses: $ReadOnlyArray<IncrementalGraphQLResponse>,
-  ): $ReadOnlyArray<RelayResponsePayload> {
+    incrementalResponses: ReadonlyArray<IncrementalGraphQLResponse>,
+  ): ReadonlyArray<RelayResponsePayload> {
     const relayPayloads = [];
     incrementalResponses.forEach(incrementalResponse => {
       const {label, path, response} = incrementalResponse;
@@ -1356,7 +1356,7 @@ class Executor<TMutation: MutationParameters> {
 
   _processDeferResponse(
     label: string,
-    path: $ReadOnlyArray<unknown>,
+    path: ReadonlyArray<unknown>,
     placeholder: DeferPlaceholder,
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
@@ -1418,7 +1418,7 @@ class Executor<TMutation: MutationParameters> {
    */
   _processStreamResponse(
     label: string,
-    path: $ReadOnlyArray<unknown>,
+    path: ReadonlyArray<unknown>,
     placeholder: StreamPlaceholder,
     response: GraphQLResponseWithData,
   ): RelayResponsePayload {
@@ -1508,8 +1508,8 @@ class Executor<TMutation: MutationParameters> {
     parentID: DataID,
     field: NormalizationLinkedField,
     variables: Variables,
-    path: $ReadOnlyArray<unknown>,
-    normalizationPath: $ReadOnlyArray<string>,
+    path: ReadonlyArray<unknown>,
+    normalizationPath: ReadonlyArray<string>,
   ): {
     fieldPayloads: Array<HandleFieldPayload>,
     itemID: DataID,
@@ -1643,7 +1643,7 @@ class Executor<TMutation: MutationParameters> {
   }
 
   _updateOperationTracker(
-    updatedOwners: ?$ReadOnlyArray<RequestDescriptor>,
+    updatedOwners: ?ReadonlyArray<RequestDescriptor>,
   ): void {
     if (updatedOwners != null && updatedOwners.length > 0) {
       this._operationTracker.update(
@@ -1672,7 +1672,7 @@ class Executor<TMutation: MutationParameters> {
 
   _runPublishQueue(
     operation?: OperationDescriptor,
-  ): $ReadOnlyArray<RequestDescriptor> {
+  ): ReadonlyArray<RequestDescriptor> {
     const updatedOwners = new Set<RequestDescriptor>();
     for (const actorIdentifier of this._getActorsToVisit()) {
       const owners = this._getPublishQueue(actorIdentifier).run(operation);
@@ -1711,11 +1711,11 @@ class Executor<TMutation: MutationParameters> {
 }
 
 function partitionGraphQLResponses(
-  responses: $ReadOnlyArray<GraphQLResponseWithData>,
+  responses: ReadonlyArray<GraphQLResponseWithData>,
 ): [
-  $ReadOnlyArray<GraphQLResponseWithData>,
-  $ReadOnlyArray<IncrementalGraphQLResponse>,
-  $ReadOnlyArray<GraphQLResponseWithData>,
+  ReadonlyArray<GraphQLResponseWithData>,
+  ReadonlyArray<IncrementalGraphQLResponse>,
+  ReadonlyArray<GraphQLResponseWithData>,
 ] {
   const nonIncrementalResponses: Array<GraphQLResponseWithData> = [];
   const incrementalResponses: Array<IncrementalGraphQLResponse> = [];

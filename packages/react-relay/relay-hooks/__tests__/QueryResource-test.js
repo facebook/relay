@@ -114,7 +114,7 @@ describe('QueryResource', () => {
       liveQueryMissingData,
     );
 
-    release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+    release = jest.fn<ReadonlyArray<unknown>, unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {
@@ -2924,7 +2924,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
 
     fetchObservable = fetchQuery(environment, query);
 
-    release = jest.fn<$ReadOnlyArray<unknown>, unknown>();
+    release = jest.fn<ReadonlyArray<unknown>, unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {

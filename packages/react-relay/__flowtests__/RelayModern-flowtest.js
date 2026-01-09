@@ -135,7 +135,7 @@ declare var oneOfUsersRef: {
   ...
 };
 
-declare var usersRef: $ReadOnlyArray<{
+declare var usersRef: ReadonlyArray<{
   +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 }>;

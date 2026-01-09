@@ -56,7 +56,7 @@ const {
 
 injectPromisePolyfill__DEPRECATED();
 
-function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
+function assertIsDeeplyFrozen(value: ?{...} | ?ReadonlyArray<{...}>): void {
   if (!value) {
     throw new Error(
       'Expected value to be a non-null object or array of objects',
@@ -2492,7 +2492,7 @@ function cloneEventWithSets(event: LogEvent) {
           schedulerQueue.push(job);
         }
 
-        function getStoreRecordIDs(): $ReadOnlyArray<string> {
+        function getStoreRecordIDs(): ReadonlyArray<string> {
           const ids = Object.keys(source.toJSON());
           ids.sort();
           return ids;

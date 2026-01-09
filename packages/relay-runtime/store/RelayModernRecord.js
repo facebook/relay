@@ -37,7 +37,7 @@ const warning = require('warning');
 
 export type StorageKey = Exclude<string, typeof ERRORS_KEY>;
 
-type RelayFieldErrors = {[StorageKey]: $ReadOnlyArray<TRelayFieldError>};
+type RelayFieldErrors = {[StorageKey]: ReadonlyArray<TRelayFieldError>};
 
 export type RecordJSON = {
   /**
@@ -191,7 +191,7 @@ function getType(record: Record): string {
 function getErrors(
   record: Record,
   storageKey: StorageKey,
-): $ReadOnlyArray<TRelayFieldError> | void {
+): ReadonlyArray<TRelayFieldError> | void {
   return record[ERRORS_KEY]?.[storageKey];
 }
 
@@ -488,7 +488,7 @@ function freeze(record: Record): void {
 function setErrors(
   record: Record,
   storageKey: StorageKey,
-  errors?: $ReadOnlyArray<TRelayFieldError>,
+  errors?: ReadonlyArray<TRelayFieldError>,
 ): void {
   if (__DEV__) {
     warning(

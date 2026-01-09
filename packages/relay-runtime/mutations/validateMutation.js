@@ -91,7 +91,7 @@ if (__DEV__) {
 
   const validateSelections = (
     optimisticResponse: Object,
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     context: ValidationContext,
   ) => {
     selections.forEach(selection =>

@@ -55,7 +55,7 @@ describe('useRefetchableFragment', () => {
   }
 
   function assertFragmentResults(
-    expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
+    expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
   ) {
     // This ensures that useEffect runs
     TestRenderer.act(() => jest.runAllImmediates());

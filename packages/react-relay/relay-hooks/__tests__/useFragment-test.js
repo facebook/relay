@@ -214,7 +214,7 @@ describe.each([
     };
 
     const PluralContainer = (props: {
-      usersRef?: $ReadOnlyArray<{$data?: {...}, ...}>,
+      usersRef?: ReadonlyArray<{$data?: {...}, ...}>,
       owner: $FlowFixMe,
       ...
     }) => {

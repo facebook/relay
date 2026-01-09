@@ -86,7 +86,7 @@ const applyWithGuard =
 class RelayPublishQueue implements PublishQueue {
   _store: Store;
   _handlerProvider: ?HandlerProvider;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   _getDataID: GetDataID;
   _log: ?LogFunction;
 
@@ -116,7 +116,7 @@ class RelayPublishQueue implements PublishQueue {
     store: Store,
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
     log: LogFunction,
   ) {
     this._hasStoreSnapshot = false;
@@ -213,9 +213,7 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(
-    sourceOperation?: OperationDescriptor,
-  ): $ReadOnlyArray<RequestDescriptor> {
+  run(sourceOperation?: OperationDescriptor): ReadonlyArray<RequestDescriptor> {
     const runWillClearGcHold =
       // $FlowFixMe[incompatible-type]
       /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition

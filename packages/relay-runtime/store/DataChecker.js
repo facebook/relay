@@ -68,7 +68,7 @@ function check(
   getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
   defaultActorIdentifier: ActorIdentifier,
   selector: NormalizationSelector,
-  handlers: $ReadOnlyArray<MissingFieldHandler>,
+  handlers: ReadonlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
   shouldProcessClientComponents: ?boolean,
@@ -108,7 +108,7 @@ function check(
  * @private
  */
 class DataChecker {
-  _handlers: $ReadOnlyArray<MissingFieldHandler>;
+  _handlers: ReadonlyArray<MissingFieldHandler>;
   _mostRecentlyInvalidatedAt: number | null;
   _mutator: RelayRecordSourceMutator;
   _operationLoader: OperationLoader | null;
@@ -136,7 +136,7 @@ class DataChecker {
     ) => MutableRecordSource,
     defaultActorIdentifier: ActorIdentifier,
     variables: Variables,
-    handlers: $ReadOnlyArray<MissingFieldHandler>,
+    handlers: ReadonlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
@@ -357,7 +357,7 @@ class DataChecker {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     dataID: DataID,
   ): void {
     selections.forEach(selection => {

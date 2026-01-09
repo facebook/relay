@@ -55,7 +55,7 @@ describe('execute() a query with @module if the module fragment is available syn
   let dataSource;
   let operationLoader: {
     get: (reference: unknown) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<unknown>, Promise<?NormalizationRootNode>>,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let store;
   let source;
@@ -174,7 +174,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
   let dataSource;
   let operationLoader: {
     get: (reference: unknown) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<unknown>, Promise<?NormalizationRootNode>>,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let store;
   let source;
@@ -312,7 +312,7 @@ describe('execute() a query with nested @module fragments, where the inner @modu
   let dataSource;
   let operationLoader: {
     get: (reference: unknown) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<unknown>, Promise<?NormalizationRootNode>>,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let store;
   let source;

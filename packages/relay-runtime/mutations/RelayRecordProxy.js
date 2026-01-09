@@ -70,7 +70,7 @@ class RelayRecordProxy implements RecordProxy {
     value: unknown,
     name: string,
     args?: ?Arguments,
-    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+    errors?: ?ReadonlyArray<TRelayFieldError>,
   ): RecordProxy {
     invariant(
       isValidLeafValue(value),
@@ -82,10 +82,7 @@ class RelayRecordProxy implements RecordProxy {
     return this.setValue__UNSAFE(value, name, args, errors);
   }
 
-  getErrors(
-    name: string,
-    args?: ?Arguments,
-  ): ?$ReadOnlyArray<TRelayFieldError> {
+  getErrors(name: string, args?: ?Arguments): ?ReadonlyArray<TRelayFieldError> {
     const storageKey = getStableStorageKey(name, args);
     return this._mutator.getErrors(this._dataID, storageKey);
   }
@@ -97,7 +94,7 @@ class RelayRecordProxy implements RecordProxy {
     value: unknown,
     name: string,
     args?: ?Arguments,
-    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+    errors?: ?ReadonlyArray<TRelayFieldError>,
   ): RecordProxy {
     const storageKey = getStableStorageKey(name, args);
     this._mutator.setValue(this._dataID, storageKey, value);
@@ -166,7 +163,7 @@ class RelayRecordProxy implements RecordProxy {
   }
 
   setLinkedRecords(
-    records: $ReadOnlyArray<?RecordProxy>,
+    records: ReadonlyArray<?RecordProxy>,
     name: string,
     args?: ?Arguments,
   ): RecordProxy {

@@ -68,9 +68,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       let queryOperation;
       let operationCallback;
       let operationLoader: {
-        get: JestMockFn<$ReadOnlyArray<unknown>, ?NormalizationRootNode>,
+        get: JestMockFn<ReadonlyArray<unknown>, ?NormalizationRootNode>,
         load: JestMockFn<
-          $ReadOnlyArray<unknown>,
+          ReadonlyArray<unknown>,
           Promise<?NormalizationRootNode>,
         >,
       };

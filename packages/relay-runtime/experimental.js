@@ -45,7 +45,7 @@ export type RelayResolverValue<A> = NonNullable<A>;
 
 type ErrorResult<Error> = {
   +ok: false,
-  +errors: $ReadOnlyArray<Error>,
+  +errors: ReadonlyArray<Error>,
 };
 
 type OkayResult<T> = {

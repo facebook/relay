@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+mutation SetCommentBodyMutation(
+  $body: CommentBodyInput
+) {
+  setCommentBody(commentID: "foo", body: $body) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+export type CommentBodyInput = {
+  markdown?: never;
+  plain: string;
+} | {
+  markdown: string;
+  plain?: never;
+};
+export type SetCommentBodyMutation$variables = {
+  body?: CommentBodyInput | null | undefined;
+};
+export type SetCommentBodyMutation$data = {
+  readonly setCommentBody: {
+    readonly id: string;
+  } | null | undefined;
+};
+export type SetCommentBodyMutation = {
+  response: SetCommentBodyMutation$data;
+  variables: SetCommentBodyMutation$variables;
+};

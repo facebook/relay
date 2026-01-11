@@ -38,7 +38,7 @@ fragment Foo_user on User {
   #     unique_id: 0,
   #     model_resolvers: [
   #         ClientEdgeModelResolver {
-  #             model_field_id: FieldID(528),
+  #             model_field_id: FieldID(529),
   #             type_name: WithLocation {
   #                 location: <generated>:144:154,
   #                 item: ObjectName(
@@ -72,7 +72,7 @@ fragment Foo_user on User {
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
     # RelayResolverMetadata {
-    #     field_id: FieldID(529),
+    #     field_id: FieldID(530),
     #     import_path: "BestFriendResolver",
     #     import_name: None,
     #     field_alias: None,

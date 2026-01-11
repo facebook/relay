@@ -27,7 +27,6 @@ use crate::LOCAL_3D_PAYLOAD;
 use crate::RELAY_RUNTIME;
 use crate::RESULT_TYPE_NAME;
 use crate::writer::AST;
-use crate::writer::ExactObject;
 use crate::writer::Writer;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
@@ -70,11 +69,11 @@ impl RuntimeImports {
 /// An enum used to prevent redundantly processing input objects.
 pub(crate) enum GeneratedInputObject {
     Pending,
-    Resolved(ExactObject),
+    Resolved(AST),
 }
 
 impl GeneratedInputObject {
-    pub(crate) fn unwrap_resolved_type(self) -> ExactObject {
+    pub(crate) fn unwrap_resolved_type(self) -> AST {
         match self {
             GeneratedInputObject::Pending => panic!("Unexpected pending type"),
             GeneratedInputObject::Resolved(exact_object) => exact_object,

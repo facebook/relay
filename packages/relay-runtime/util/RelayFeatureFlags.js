@@ -90,6 +90,11 @@ export type FeatureFlags = {
 
   // Enable logging for reader reading fragment spreads and fragments. Useful for logging unused fragments.
   ENABLE_READER_FRAGMENTS_LOGGING: boolean,
+
+  // Check if a query is empty (has no server-fetchable fields due to
+  // conditional directives), and skip fetching empty queries. When disabled,
+  // all queries are considered non-empty (previous behavior).
+  ENABLE_EMPTY_QUERY_CHECK: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -122,6 +127,7 @@ const RelayFeatureFlags: FeatureFlags = {
   FILTER_OUT_RELAY_RESOLVER_RECORDS: false,
   OPTIMIZE_NOTIFY: false,
   ENABLE_READER_FRAGMENTS_LOGGING: false,
+  ENABLE_EMPTY_QUERY_CHECK: false,
 };
 
 module.exports = RelayFeatureFlags;

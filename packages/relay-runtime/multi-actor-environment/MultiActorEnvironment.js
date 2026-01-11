@@ -175,6 +175,13 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     );
   }
 
+  isEmpty(
+    actorEnvironment: IActorEnvironment,
+    operation: OperationDescriptor,
+  ): boolean {
+    return actorEnvironment.isEmpty(operation);
+  }
+
   _checkSelectorAndHandleMissingFields(
     actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,

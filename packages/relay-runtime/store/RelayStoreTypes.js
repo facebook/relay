@@ -654,6 +654,14 @@ export type NetworkUnsubscribeLogEvent = {
   +networkRequestId: number,
 };
 
+export type ExecuteSkippedLogEvent = {
+  +name: 'execute.skipped',
+  +params: RequestParameters,
+  +variables: Variables,
+  +cacheConfig: CacheConfig,
+  +reason: 'empty',
+};
+
 export type ExecuteStartLogEvent = {
   +name: 'execute.start',
   +executeId: number,
@@ -848,6 +856,7 @@ export type LogEvent =
   | NetworkErrorLogEvent
   | NetworkCompleteLogEvent
   | NetworkUnsubscribeLogEvent
+  | ExecuteSkippedLogEvent
   | ExecuteStartLogEvent
   | ExecuteNextStartLogEvent
   | ExecuteNextEndLogEvent
@@ -906,6 +915,16 @@ export interface IEnvironment {
    * selector.
    */
   check(operation: OperationDescriptor): OperationAvailability;
+
+  /**
+   * Determine if a query is empty (has no server-fetchable fields). An empty
+   * query is one where all fields are either conditionally excluded via
+   * @skip/@include directives, or are client-only fields.
+   *
+   * This is a lightweight check that only traverses the query the top level
+   * section selection of the AST and does not access the store.
+   */
+  isEmpty(operation: OperationDescriptor): boolean;
 
   /**
    * Subscribe to changes to the results of a selector. The callback is called

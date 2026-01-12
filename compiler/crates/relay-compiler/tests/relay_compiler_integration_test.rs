@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4375a90bca34ae9e63f7a8895716608e>>
+ * @generated SignedSource<<181b19cc73434affebf67bcbce7114a7>>
  */
 
 mod relay_compiler_integration;
@@ -486,6 +486,13 @@ async fn schema_in_generated_dir() {
     let input = include_str!("relay_compiler_integration/fixtures/schema_in_generated_dir.input");
     let expected = include_str!("relay_compiler_integration/fixtures/schema_in_generated_dir.expected");
     test_fixture(transform_fixture, file!(), "schema_in_generated_dir.input", "relay_compiler_integration/fixtures/schema_in_generated_dir.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_not_in_project_sources() {
+    let input = include_str!("relay_compiler_integration/fixtures/schema_not_in_project_sources.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/schema_not_in_project_sources.expected");
+    test_fixture(transform_fixture, file!(), "schema_not_in_project_sources.input", "relay_compiler_integration/fixtures/schema_not_in_project_sources.expected", input, expected).await;
 }
 
 #[tokio::test]

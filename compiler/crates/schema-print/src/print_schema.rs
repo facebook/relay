@@ -19,6 +19,7 @@ use schema::*;
 use crate::DEAULT_SHARD_COUNT;
 use crate::Printer;
 use crate::ShardPrinter;
+use crate::TruncatedPrinter;
 use crate::TypedShardPrinter;
 use crate::generate_shard_map;
 use crate::generate_typed_shard_map;
@@ -187,6 +188,20 @@ pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_type(schema, &mut result, type_).unwrap();
     result.into_iter().next().unwrap()
+}
+
+/// Prints a type definition with truncation, showing only the first `max_items` fields/members.
+/// Useful for hover tooltips and other contexts where full type definitions would be too verbose.
+pub fn print_type_truncated(schema: &SDLSchema, type_: Type, max_items: usize) -> String {
+    let printer = TruncatedPrinter::new(schema, max_items);
+    printer.print_type(type_)
+}
+
+/// Prints a single field definition in SDL format.
+/// Example output: `name(arg: String!): ID!`
+pub fn print_field(schema: &SDLSchema, field: &Field) -> String {
+    let printer = TruncatedPrinter::new(schema, 0);
+    printer.print_field(field)
 }
 
 fn write_schema_definition(schema: &SDLSchema, result: &mut Vec<String>) -> FmtResult {

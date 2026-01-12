@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query MyQuery {
+  node(id: "123") {
+    ... on User @ali|as(as: "myUser") {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+(Relay Only)
+
+Exposes a fragment's data as a new field which can be null checked to ensure it
+matches the parent selection.
+
+[Read More](https://relay.dev/docs/guides/alias-directive/)
+--
+```graphql
+directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+```

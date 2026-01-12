@@ -42,7 +42,7 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
     "path": "__generated__/ResolversSchemaModule.js"
   },
   "schemaExtensions": [
-    "./extensions.graphql"
+    "./extensions"
   ],
   "customScalarTypes": {
     "CustomScalarType": {
@@ -52,7 +52,7 @@ graphql`fragment UserFooFragment on User @throwOnFieldError {
   }
 }
 
-//- extensions.graphql
+//- extensions/extensions.graphql
 
 scalar CustomScalarType
 

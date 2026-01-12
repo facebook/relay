@@ -35,7 +35,7 @@ graphql`mutation barMutation {
       }
    },
    "schemaExtensions": [
-      "./extensions.graphql"
+      "./extensions"
    ]
 }
 
@@ -43,7 +43,7 @@ graphql`mutation barMutation {
 
 type Mutation
 
-//- extensions.graphql
+//- extensions/extensions.graphql
 
 type Person {
    name: String!

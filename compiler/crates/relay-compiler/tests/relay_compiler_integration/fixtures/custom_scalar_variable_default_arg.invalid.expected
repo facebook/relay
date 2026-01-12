@@ -43,16 +43,5 @@ extend type Query {
     extension_server_scalar(custom_server_scalar_arg: CustomServerScalarType!): Int
 }
 ==================================== OUTPUT ===================================
-✖︎ Unexpected scalar literal `"foobar"` provided in a position expecting custom scalar type `CustomScalarType`. This value should come from a variable.
-
-  foo.js:2:72
-    2 │ query fooCustomScalarLiteralArgQuery($arg: CustomScalarType! = "foobar", $arg_server: CustomServerScalarType! = "bazquux") {
-      │                                                                ^^^^^^^^
-    3 │     extension_field(custom_scalar_arg: "a_string") {
-
-✖︎ Unexpected scalar literal `"bazquux"` provided in a position expecting custom scalar type `CustomServerScalarType`. This value should come from a variable.
-
-  foo.js:2:121
-    2 │ query fooCustomScalarLiteralArgQuery($arg: CustomScalarType! = "foobar", $arg_server: CustomServerScalarType! = "bazquux") {
-      │                                                                                                                 ^^^^^^^^^
-    3 │     extension_field(custom_scalar_arg: "a_string") {
+Config `<TEST_DIR>/relay.config.json` is invalid:
+ - The `schema extension directory` at `<TEST_DIR>/extensions.graphql` is not a directory.

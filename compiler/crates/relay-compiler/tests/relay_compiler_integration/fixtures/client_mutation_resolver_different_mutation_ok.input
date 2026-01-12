@@ -23,7 +23,7 @@ graphql`mutation barMutation {
       }
    },
    "schemaExtensions": [
-      "./extensions.graphql"
+      "./extensions"
    ]
 }
 
@@ -46,7 +46,7 @@ schema {
    mutation: NotCalledMutation,
 }
 
-//- extensions.graphql
+//- extensions/extensions.graphql
 
 type Person {
    name: String!

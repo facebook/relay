@@ -116,18 +116,16 @@ fn categorize_non_watchman_files(
         .par_iter()
         .filter(|file| file_filter.is_file_relevant(&file.name))
         .filter_map(|file| {
-            let file_group = categorizer
-                .categorize(&file.name, config)
-                .map_err(|err| {
-                    warn!(
-                        "Unexpected error in file categorizer for file `{}`: {}.",
-                        file.name.to_string_lossy(),
-                        err
-                    );
+            let file_group = categorizer.categorize(&file.name, config).map_err(|err| {
+                warn!(
+                    "Unexpected error in file categorizer for file `{}`: {}.",
+                    file.name.to_string_lossy(),
                     err
-                })
-                .ok()?;
-            Some((file_group, file.clone()))
+                );
+                err
+            });
+
+            Some((file_group.ok()?, file.clone()))
         })
         .collect::<Vec<_>>()
 }
@@ -245,6 +243,7 @@ impl FileCategorizer {
     /// `FileCategorizer`.
     pub fn categorize(&self, path: &Path, config: &Config) -> Result<FileGroup, Cow<'static, str>> {
         let extension = path.extension();
+        // TODO: Here
 
         let in_generated_sources = self
             .generated_sources

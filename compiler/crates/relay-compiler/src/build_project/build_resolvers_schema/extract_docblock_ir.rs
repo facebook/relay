@@ -180,6 +180,7 @@ fn extract_schema_documents_for_resolvers<'a>(
     let mut errors = vec![];
     let mut type_asts = vec![];
     let mut field_asts_and_definitions = FxHashMap::default();
+    println!("docblock_ast_sources: {:?}", docblock_ast_sources);
 
     if let (Some(docblocks), Some(graphql_asts)) = docblock_ast_sources {
         for (file_path, docblock_sources) in docblocks.get_all() {

@@ -76,6 +76,7 @@ use crate::compiler_state::ProjectSet;
 use crate::errors::ConfigValidationError;
 use crate::errors::Error;
 use crate::errors::Result;
+use crate::path_validator::PathValidator;
 use crate::source_control_for_root;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
@@ -344,6 +345,14 @@ impl Config {
             }
         };
 
+        let config_file_dir = config_path.parent().unwrap();
+
+        let root_dir = if let Some(config_root) = config_file.root {
+            canonicalize(config_file_dir.join(config_root)).unwrap()
+        } else {
+            config_file_dir.to_owned()
+        };
+
         let MultiProjectConfigFile {
             feature_flags: config_file_feature_flags,
             projects,
@@ -354,8 +363,12 @@ impl Config {
             .map(|(project_name, config_file_project)| {
                 let schema_location =
                     match (config_file_project.schema, config_file_project.schema_dir) {
-                        (Some(schema_file), None) => Ok(SchemaLocation::File(schema_file)),
-                        (None, Some(schema_dir)) => Ok(SchemaLocation::Directory(schema_dir)),
+                        (Some(schema_file), None) => Ok(SchemaLocation::File(
+                            normalize_relative_path(&root_dir, &schema_file),
+                        )),
+                        (None, Some(schema_dir)) => Ok(SchemaLocation::Directory(
+                            normalize_relative_path(&root_dir, &schema_dir),
+                        )),
                         _ => Err(Error::ConfigFileValidation {
                             config_path: config_path.clone(),
                             validation_errors: vec![
@@ -407,7 +420,11 @@ impl Config {
                     name: project_name,
                     base: config_file_project.base,
                     enabled: true,
-                    schema_extensions: config_file_project.schema_extensions,
+                    schema_extensions: config_file_project
+                        .schema_extensions
+                        .into_iter()
+                        .map(|extension_dir| normalize_relative_path(&root_dir, &extension_dir))
+                        .collect(),
                     extra_artifacts_config: None,
                     extra: config_file_project.extra,
                     excludes_extensions: excludes_extensions_set,
@@ -439,14 +456,6 @@ impl Config {
                 Ok((project_name, project_config))
             })
             .collect::<Result<FnvIndexMap<_, _>>>()?;
-
-        let config_file_dir = config_path.parent().unwrap();
-
-        let root_dir = if let Some(config_root) = config_file.root {
-            canonicalize(config_file_dir.join(config_root)).unwrap()
-        } else {
-            config_file_dir.to_owned()
-        };
 
         let config = Self {
             name: config_file.name,
@@ -558,7 +567,7 @@ impl Config {
     }
 
     /// Validates that all paths actually exist on disk.
-    fn validate_paths(&self, errors: &mut Vec<ConfigValidationError>) {
+    pub fn validate_paths(&self, errors: &mut Vec<ConfigValidationError>) {
         if !self.root_dir.is_dir() {
             errors.push(ConfigValidationError::RootNotDirectory {
                 root_dir: self.root_dir.clone(),
@@ -567,52 +576,31 @@ impl Config {
             return;
         }
 
+        let mut validator = PathValidator::new(self.root_dir.clone(), &self.excludes);
+
         // each source should point to an existing directory
         for source_dir in self.sources.keys() {
-            let abs_source_dir = self.root_dir.join(source_dir);
-            if !abs_source_dir.exists() {
-                errors.push(ConfigValidationError::SourceNotExistent {
-                    source_dir: abs_source_dir.clone(),
-                });
-            } else if !abs_source_dir.is_dir() {
-                errors.push(ConfigValidationError::SourceNotDirectory {
-                    source_dir: abs_source_dir.clone(),
-                });
+            validator.assert_is_included_source_dir(source_dir, "source");
+        }
+
+        for (_, project) in &self.projects {
+            match &project.schema_location {
+                SchemaLocation::File(schema_file) => {
+                    validator.assert_is_included_schema_file(schema_file, "schema file");
+                }
+                SchemaLocation::Directory(schema_dir) => {
+                    validator.assert_is_included_schema_dir(schema_dir, "schema directory");
+                }
+            }
+
+            // Validate schema extensions
+            for extension_path in &project.schema_extensions {
+                validator
+                    .assert_is_included_schema_dir(extension_path, "schema extension directory");
             }
         }
 
-        for (&project_name, project) in &self.projects {
-            match &project.schema_location {
-                SchemaLocation::File(schema_file) => {
-                    let abs_schema_file = self.root_dir.join(schema_file);
-                    if !abs_schema_file.exists() {
-                        errors.push(ConfigValidationError::SchemaFileNotExistent {
-                            project_name,
-                            schema_file: abs_schema_file.clone(),
-                        });
-                    } else if !abs_schema_file.is_file() {
-                        errors.push(ConfigValidationError::SchemaFileNotFile {
-                            project_name,
-                            schema_file: abs_schema_file.clone(),
-                        });
-                    }
-                }
-                SchemaLocation::Directory(schema_dir) => {
-                    let abs_schema_dir = self.root_dir.join(schema_dir);
-                    if !abs_schema_dir.exists() {
-                        errors.push(ConfigValidationError::SchemaDirNotExistent {
-                            project_name,
-                            schema_dir: abs_schema_dir.clone(),
-                        });
-                    } else if !abs_schema_dir.is_dir() {
-                        errors.push(ConfigValidationError::SchemaDirNotDirectory {
-                            project_name,
-                            schema_dir: abs_schema_dir.clone(),
-                        });
-                    }
-                }
-            }
-        }
+        errors.extend(validator.into_errors());
     }
 
     /// Compute all root paths that we need to query. All files relevant to the
@@ -746,6 +734,12 @@ mod test {
             &[PathBuf::from("Foo"), PathBuf::from("Foo2"),]
         );
     }
+}
+
+fn normalize_relative_path(root_dir: &Path, path: &PathBuf) -> PathBuf {
+    let absolute = root_dir.join(path);
+
+    absolute.strip_prefix(root_dir).unwrap().to_path_buf()
 }
 
 impl fmt::Debug for Config {
@@ -902,7 +896,7 @@ pub struct SingleProjectConfigFile {
 
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
-    #[serde(alias = "exclude")]
+    #[serde(default = "get_default_excludes")]
     pub excludes: Vec<String>,
 
     /// List of directories with schema extensions.

@@ -17,7 +17,7 @@ graphql`query fooCustomScalarLiteralArgQuery($arg: CustomScalarType = "foobar", 
       "enable_relay_resolver_mutations": true
    },
    "schemaExtensions": [
-      "./extensions.graphql"
+      "./extensions"
    ]
 }
 
@@ -27,7 +27,7 @@ type Query
 
 scalar CustomServerScalarType
 
-//- extensions.graphql
+//- extensions/extensions.graphql
 
 scalar CustomScalarType
 

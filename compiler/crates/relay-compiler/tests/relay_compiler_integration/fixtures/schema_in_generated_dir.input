@@ -1,0 +1,38 @@
+//- src/component.js
+
+graphql`query componentQuery {
+  node(id: "123") {
+    ... on User {
+      name
+    }
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "excludes": [],
+   "projects": {
+      "test_project": {
+         "schema": "schema/__generated__/schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema/__generated__/schema.graphql
+
+type Query {
+   node(id: ID!): Node
+}
+
+interface Node {
+   id: ID!
+}
+
+type User implements Node {
+   id: ID!
+   name: String
+}

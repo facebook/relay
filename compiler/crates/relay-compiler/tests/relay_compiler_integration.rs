@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -20,6 +21,7 @@ use relay_compiler::RemotePersister;
 use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
 use relay_compiler::compiler::Compiler;
 use relay_compiler::config::Config;
+use relay_compiler::errors::Error;
 use relay_compiler::print_compiler_error;
 use relay_config::PersistConfig;
 
@@ -35,9 +37,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     std::env::set_current_dir(test_dir.path()).expect("Could not set cwd");
 
     let run_future = async {
-        let mut config =
-            Config::search(&PathBuf::from(test_dir.path())).expect("Could not load config");
+        let config = match Config::search(&PathBuf::from(test_dir.path())) {
+            Ok(config) => config,
+            Err(config_error) => {
+                return format_compiler_error(test_dir.path(), config_error);
+            }
+        };
 
+        let mut config = config;
         config.file_source_config = FileSourceKind::WalkDir;
         config.create_operation_persister = Some(Box::new(|project_config| {
             project_config.persist.as_ref().map(
@@ -74,7 +81,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 expected.push_str(&format!("\n\nArtifact Map:\n{:?}", state.artifacts));
                 expected
             }
-            Err(compiler_error) => print_compiler_error(test_dir.path(), compiler_error),
+            Err(compiler_error) => format_compiler_error(test_dir.path(), compiler_error),
         }
     };
 
@@ -93,4 +100,10 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     std::env::set_current_dir(original_cwd).expect("Could set cwd");
 
     result
+}
+
+fn format_compiler_error(root_dir: &Path, error: Error) -> String {
+    let output = print_compiler_error(root_dir, error);
+    // Replace the test directory path with a placeholder for deterministic test output
+    output.replace(root_dir.to_str().unwrap(), "<TEST_DIR>")
 }

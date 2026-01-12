@@ -1,0 +1,36 @@
+//- a/C.js
+graphql`
+  fragment C_aData on Query {
+    hello
+  }
+`
+
+//- b/C.js
+graphql`
+  fragment C_bData on Query {
+    hello
+  }
+`
+
+//- relay.config.json
+{
+  "projects": {
+    "a": {
+      "schema": "./schema.graphql",
+      "language": "typescript"
+    },
+    "b": {
+      "schema": "./schema.graphql",
+      "language": "typescript"
+    }
+  },
+  "sources": {
+    "a": "a",
+    "b": "b"
+  }
+}
+
+//- schema.graphql
+type Query {
+  hello: String
+}

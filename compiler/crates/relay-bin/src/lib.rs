@@ -193,4 +193,3 @@ pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> 
 
     Ok(output)
 }
-

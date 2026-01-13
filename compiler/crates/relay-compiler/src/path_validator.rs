@@ -33,6 +33,8 @@ impl PathValidator {
         let file_type = "source";
         self.assert_is_in_root(path, file_type);
         self.assert_is_not_excluded(path, file_type);
+        // Also check if files inside the directory would be excluded
+        self.assert_contents_not_excluded(path, file_type);
         if !self.assert_exists(path, file_type) {
             return;
         }
@@ -78,6 +80,29 @@ impl PathValidator {
             // Check if the path matches the pattern directly
             pattern.matches_path(&abs_path)
         });
+
+        if let Some(pattern) = matching_pattern {
+            self.errors.push(ConfigValidationError::FileMatchesExclude {
+                file_type: file_type.to_string(),
+                path: abs_path,
+                pattern: pattern.as_str().to_string(),
+            });
+        }
+    }
+
+    /// For source directories, we also need to check if files inside would be
+    /// excluded. This handles cases like source="node_modules" with
+    /// excludes=["**/node_modules/**"] where the directory itself doesn't match
+    /// but all files inside would be excluded.
+    pub fn assert_contents_not_excluded(&mut self, path: &PathBuf, file_type: &str) {
+        let abs_path = self.root_dir.join(path);
+        // Check if a hypothetical file inside this directory would be excluded
+        let test_path = abs_path.join("__test_file__");
+
+        let matching_pattern = self
+            .excludes
+            .iter()
+            .find(|pattern| pattern.matches_path(&test_path));
 
         if let Some(pattern) = matching_pattern {
             self.errors.push(ConfigValidationError::FileMatchesExclude {

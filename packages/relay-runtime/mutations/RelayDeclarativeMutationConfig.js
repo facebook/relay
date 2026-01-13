@@ -27,13 +27,13 @@ const MutationTypes = Object.freeze({
   RANGE_DELETE: 'RANGE_DELETE',
   NODE_DELETE: 'NODE_DELETE',
 });
-export type MutationType = $Values<typeof MutationTypes>;
+export type MutationType = Values<typeof MutationTypes>;
 
 const RangeOperations = Object.freeze({
   APPEND: 'append',
   PREPEND: 'prepend',
 });
-export type RangeOperation = $Values<typeof RangeOperations>;
+export type RangeOperation = Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {
   [name: string]: $FlowFixMe,

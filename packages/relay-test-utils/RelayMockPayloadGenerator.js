@@ -946,7 +946,7 @@ class RelayMockPayloadGenerator {
    */
   _getTypeDetailsForPath(
     path: ReadonlyArray<string>,
-  ): $Values<SelectionMetadata> {
+  ): Values<SelectionMetadata> {
     return this._selectionMetadata[
       // When selecting metadata, skip the number on plural fields so that every field in the array
       // gets the same metadata.

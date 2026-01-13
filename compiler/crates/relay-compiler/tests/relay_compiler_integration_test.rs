@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58e190b62dc6455639e5995e15b0447b>>
+ * @generated SignedSource<<260a55cc74e24638eb988d1dab47d824>>
  */
 
 mod relay_compiler_integration;
@@ -66,6 +66,13 @@ async fn client_schema_extension_interface_uses_resolver_type() {
     let input = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected");
     test_fixture(transform_fixture, file!(), "client_schema_extension_interface_uses_resolver_type.input", "relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn config_validation_project_missing() {
+    let input = include_str!("relay_compiler_integration/fixtures/config_validation_project_missing.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/config_validation_project_missing.expected");
+    test_fixture(transform_fixture, file!(), "config_validation_project_missing.input", "relay_compiler_integration/fixtures/config_validation_project_missing.expected", input, expected).await;
 }
 
 #[tokio::test]

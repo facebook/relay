@@ -52,7 +52,7 @@ type Visitor implements IPerson {
 
 ## Output
 
-### __generated__/Admin____relay_model_instance.graphql.js
+### `__generated__/Admin____relay_model_instance.graphql.js`
 
 ```js
 /**
@@ -122,7 +122,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/Admin__id.graphql.js
+### `__generated__/Admin__id.graphql.js`
 
 ```js
 /**
@@ -180,7 +180,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/IPersonResolversFragment.graphql.js
+### `__generated__/IPersonResolversFragment.graphql.js`
 
 ```js
 /**
@@ -298,7 +298,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/User____relay_model_instance.graphql.js
+### `__generated__/User____relay_model_instance.graphql.js`
 
 ```js
 /**
@@ -368,7 +368,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/User__id.graphql.js
+### `__generated__/User__id.graphql.js`
 
 ```js
 /**

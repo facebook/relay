@@ -60,7 +60,7 @@ union Person = User | Admin
 
 ## Output
 
-### __generated__/PersonComponentQuery.graphql.js
+### `__generated__/PersonComponentQuery.graphql.js`
 
 ```js
 /**

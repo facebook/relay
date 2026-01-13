@@ -47,7 +47,7 @@ extend type Query {
 
 ## Output
 
-### __generated__/fooCustomScalarLiteralArgQuery.graphql.js
+### `__generated__/fooCustomScalarLiteralArgQuery.graphql.js`
 
 ```js
 /**

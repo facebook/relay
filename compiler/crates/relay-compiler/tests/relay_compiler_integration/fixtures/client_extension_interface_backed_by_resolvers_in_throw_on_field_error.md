@@ -42,7 +42,7 @@ interface MyInterface {
 
 ## Output
 
-### __generated__/ClientUser____relay_model_instance.graphql.js
+### `__generated__/ClientUser____relay_model_instance.graphql.js`
 
 ```js
 /**
@@ -112,7 +112,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/ClientUser__id.graphql.js
+### `__generated__/ClientUser__id.graphql.js`
 
 ```js
 /**
@@ -170,7 +170,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/fooFragment.graphql.js
+### `__generated__/fooFragment.graphql.js`
 
 ```js
 /**

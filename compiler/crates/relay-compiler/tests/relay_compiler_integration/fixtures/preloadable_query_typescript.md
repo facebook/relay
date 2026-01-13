@@ -25,7 +25,7 @@ type Query { userName: String }
 
 ## Output
 
-### __generated__/fooQuery$parameters.ts
+### `__generated__/fooQuery$parameters.ts`
 
 ```ts
 /**
@@ -58,7 +58,7 @@ const node: PreloadableConcreteRequest<fooQuery> = {
 export default node;
 ```
 
-### __generated__/fooQuery.graphql.ts
+### `__generated__/fooQuery.graphql.ts`
 
 ```ts
 /**

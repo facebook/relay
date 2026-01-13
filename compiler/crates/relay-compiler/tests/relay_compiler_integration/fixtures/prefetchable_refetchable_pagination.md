@@ -64,7 +64,7 @@ type Page {
 
 ## Output
 
-### __generated__/RefetchableFragmentQuery.graphql.js
+### `__generated__/RefetchableFragmentQuery.graphql.js`
 
 ```js
 /**
@@ -282,7 +282,7 @@ export default ((node/*: any*/)/*: Query<
 >*/);
 ```
 
-### __generated__/foo.graphql.js
+### `__generated__/foo.graphql.js`
 
 ```js
 /**
@@ -436,7 +436,7 @@ export default ((node/*: any*/)/*: PrefetchableRefetchableFragment<
 >*/);
 ```
 
-### __generated__/fooQuery.graphql.js
+### `__generated__/fooQuery.graphql.js`
 
 ```js
 /**
@@ -653,7 +653,7 @@ export default ((node/*: any*/)/*: Query<
 >*/);
 ```
 
-### __generated__/foo__edges.graphql.js
+### `__generated__/foo__edges.graphql.js`
 
 ```js
 /**

@@ -35,7 +35,7 @@ type User { name: String }
 
 ## Output
 
-### __generated__/ResolversSchemaModule.js
+### `__generated__/ResolversSchemaModule.js`
 
 ```js
 /**
@@ -73,7 +73,7 @@ const schema_resolvers: SchemaResolvers = {
 export default schema_resolvers;
 ```
 
-### __generated__/UserBarFragment$normalization.graphql.ts
+### `__generated__/UserBarFragment$normalization.graphql.ts`
 
 ```ts
 /**
@@ -109,7 +109,7 @@ const node: NormalizationSplitOperation = {
 export default node;
 ```
 
-### __generated__/UserBarFragment.graphql.ts
+### `__generated__/UserBarFragment.graphql.ts`
 
 ```ts
 /**
@@ -157,7 +157,7 @@ const node: ReaderFragment = {
 export default node;
 ```
 
-### __generated__/UserFooFragment$normalization.graphql.ts
+### `__generated__/UserFooFragment$normalization.graphql.ts`
 
 ```ts
 /**
@@ -193,7 +193,7 @@ const node: NormalizationSplitOperation = {
 export default node;
 ```
 
-### __generated__/UserFooFragment.graphql.ts
+### `__generated__/UserFooFragment.graphql.ts`
 
 ```ts
 /**

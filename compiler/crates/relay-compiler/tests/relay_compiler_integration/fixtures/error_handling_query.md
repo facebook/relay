@@ -22,7 +22,7 @@ type User { name: String }
 
 ## Output
 
-### __generated__/fooQuery.graphql.js
+### `__generated__/fooQuery.graphql.js`
 
 ```js
 /**

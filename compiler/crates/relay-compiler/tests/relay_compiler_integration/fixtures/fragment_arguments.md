@@ -42,7 +42,7 @@ type Post {
 
 ## Output
 
-### __generated__/foo.graphql.ts
+### `__generated__/foo.graphql.ts`
 
 ```ts
 /**
@@ -114,7 +114,7 @@ const node: ReaderFragment = {
 export default node;
 ```
 
-### __generated__/fooQuery.graphql.ts
+### `__generated__/fooQuery.graphql.ts`
 
 ```ts
 /**

@@ -28,7 +28,7 @@ type Person {
 
 ## Output
 
-### __generated__/PersonComponentFragment.graphql.js
+### `__generated__/PersonComponentFragment.graphql.js`
 
 ```js
 /**

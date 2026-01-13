@@ -34,7 +34,7 @@ extend type Mutation {
 
 ## Output
 
-### __generated__/barMutation.graphql.js
+### `__generated__/barMutation.graphql.js`
 
 ```js
 /**

@@ -48,7 +48,7 @@ enum Status {
 
 ## Output
 
-### __generated__/SomeComponentFragment.graphql.js
+### `__generated__/SomeComponentFragment.graphql.js`
 
 ```js
 /**
@@ -121,7 +121,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/User____relay_model_instance.graphql.js
+### `__generated__/User____relay_model_instance.graphql.js`
 
 ```js
 /**
@@ -191,7 +191,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/User__id.graphql.js
+### `__generated__/User__id.graphql.js`
 
 ```js
 /**

@@ -64,7 +64,7 @@ type UserSearchResult implements Node {
 
 ## Output
 
-### __generated__/ModuleNameQuery.graphql.ts
+### `__generated__/ModuleNameQuery.graphql.ts`
 
 ```ts
 /**
@@ -210,7 +210,7 @@ const node: ConcreteRequest = {
 export default node;
 ```
 
-### __generated__/ModuleName_node.graphql.ts
+### `__generated__/ModuleName_node.graphql.ts`
 
 ```ts
 /**
@@ -264,7 +264,7 @@ const node: ReaderFragment = {
 export default node;
 ```
 
-### __generated__/ModuleName_user.graphql.ts
+### `__generated__/ModuleName_user.graphql.ts`
 
 ```ts
 /**

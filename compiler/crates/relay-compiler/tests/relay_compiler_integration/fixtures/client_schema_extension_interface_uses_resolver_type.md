@@ -57,7 +57,7 @@ interface Worker {
 
 ## Output
 
-### __generated__/Admin____relay_model_instance.graphql.js
+### `__generated__/Admin____relay_model_instance.graphql.js`
 
 ```js
 /**
@@ -127,7 +127,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/Admin__id.graphql.js
+### `__generated__/Admin__id.graphql.js`
 
 ```js
 /**
@@ -185,7 +185,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/PersonComponentQuery.graphql.js
+### `__generated__/PersonComponentQuery.graphql.js`
 
 ```js
 /**

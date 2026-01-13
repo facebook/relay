@@ -59,7 +59,7 @@ type Person {
 
 ## Output
 
-### __generated__/Mutation__foo_mutation$normalization.graphql.js
+### `__generated__/Mutation__foo_mutation$normalization.graphql.js`
 
 ```js
 /**
@@ -113,7 +113,7 @@ var node/*: NormalizationSplitOperation*/ = {
 export default node;
 ```
 
-### __generated__/barMutation.graphql.js
+### `__generated__/barMutation.graphql.js`
 
 ```js
 /**

@@ -35,7 +35,7 @@ type User { name: String }
 
 ## Output
 
-### __generated__/foo.graphql.js
+### `__generated__/foo.graphql.js`
 
 ```js
 /**
@@ -102,7 +102,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/fooInner.graphql.js
+### `__generated__/fooInner.graphql.js`
 
 ```js
 /**
@@ -157,7 +157,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/fooQuery.graphql.js
+### `__generated__/fooQuery.graphql.js`
 
 ```js
 /**

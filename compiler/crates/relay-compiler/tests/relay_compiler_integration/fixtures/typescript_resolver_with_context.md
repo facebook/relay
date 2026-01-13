@@ -27,7 +27,7 @@ type User { name: String }
 
 ## Output
 
-### __generated__/barFragment.graphql.ts
+### `__generated__/barFragment.graphql.ts`
 
 ```ts
 /**

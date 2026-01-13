@@ -60,7 +60,7 @@ interface IPerson {
 
 ## Output
 
-### __generated__/Admin____relay_model_instance.graphql.js
+### `__generated__/Admin____relay_model_instance.graphql.js`
 
 ```js
 /**
@@ -119,7 +119,7 @@ export default ((node/*: any*/)/*: Fragment<
 >*/);
 ```
 
-### __generated__/QueryComponentQuery.graphql.js
+### `__generated__/QueryComponentQuery.graphql.js`
 
 ```js
 /**
@@ -338,7 +338,7 @@ export default ((node/*: any*/)/*: ClientQuery<
 >*/);
 ```
 
-### __generated__/Query__person$normalization.graphql.js
+### `__generated__/Query__person$normalization.graphql.js`
 
 ```js
 /**
@@ -413,7 +413,7 @@ return {
 export default node;
 ```
 
-### __generated__/User____relay_model_instance.graphql.js
+### `__generated__/User____relay_model_instance.graphql.js`
 
 ```js
 /**

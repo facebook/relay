@@ -33,7 +33,7 @@ type Query {
 
 ## Output
 
-### __generated__/barMutation.graphql.js
+### `__generated__/barMutation.graphql.js`
 
 ```js
 /**

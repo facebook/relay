@@ -34,7 +34,7 @@ type User { name: String }
 
 ## Output
 
-### __generated__/UserFooFragment.graphql.js
+### `__generated__/UserFooFragment.graphql.js`
 
 ```js
 /**

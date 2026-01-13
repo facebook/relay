@@ -25,7 +25,7 @@ type Query { userName: String }
 
 ## Output
 
-### __generated__/fooQuery$parameters.js
+### `__generated__/fooQuery$parameters.js`
 
 ```js
 /**
@@ -55,7 +55,7 @@ var node = {
 export default node;
 ```
 
-### __generated__/fooQuery.graphql.js
+### `__generated__/fooQuery.graphql.js`
 
 ```js
 /**

@@ -105,5 +105,9 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 fn format_compiler_error(root_dir: &Path, error: Error) -> String {
     let output = print_compiler_error(root_dir, error);
     // Replace the test directory path with a placeholder for deterministic test output
-    output.replace(root_dir.to_str().unwrap(), "<TEST_DIR>")
+    // On Windows, paths use backslashes, so we first replace the root directory,
+    // then normalize all remaining backslashes to forward slashes for consistent output
+    let output = output.replace(root_dir.to_str().unwrap(), "<TEST_DIR>");
+    // Normalize path separators for cross-platform consistency
+    output.replace('\\', "/")
 }

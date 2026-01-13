@@ -208,35 +208,11 @@ pub enum ConfigValidationError {
     },
 
     #[error(
-        "The `schema` configured for project `{project_name}` to be `{schema_file}` is not a file."
-    )]
-    SchemaFileNotFile {
-        project_name: ProjectName,
-        schema_file: PathBuf,
-    },
-
-    #[error(
-        "The `schema_dir` configured for project `{project_name}` does not exist at `{schema_dir}`."
-    )]
-    SchemaDirNotExistent {
-        project_name: ProjectName,
-        schema_dir: PathBuf,
-    },
-
-    #[error(
         "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_path}`."
     )]
     ExtensionPathNotExistent {
         project_name: ProjectName,
         extension_path: PathBuf,
-    },
-
-    #[error(
-        "The `schema_dir` configured for project `{project_name}` to be `{schema_dir}` is not a directory."
-    )]
-    SchemaDirNotDirectory {
-        project_name: ProjectName,
-        schema_dir: PathBuf,
     },
 
     #[error("The regex in `{key}` for project `{project_name}` is invalid.\n {error}.")]
@@ -256,6 +232,36 @@ pub enum ConfigValidationError {
     RemovedConfigField {
         name: &'static str,
         action: &'static str,
+    },
+
+    #[error("The `{file_type}` at `{path}` is not within the project root `{project_root}`.")]
+    FileNotInRoot {
+        file_type: String,
+        path: PathBuf,
+        project_root: PathBuf,
+    },
+
+    #[error("The `{file_type}` at `{path}` matches an exclude pattern `{pattern}`.")]
+    FileMatchesExclude {
+        file_type: String,
+        path: PathBuf,
+        pattern: String,
+    },
+
+    #[error("The `{file_type}` at `{path}` does not exist.")]
+    FileNotExistent { file_type: String, path: PathBuf },
+
+    #[error("The `{file_type}` at `{path}` is not a directory.")]
+    FileNotDirectory { file_type: String, path: PathBuf },
+
+    #[error("The `{file_type}` at `{path}` is not a file.")]
+    FileNotFile { file_type: String, path: PathBuf },
+
+    #[error("Invalid glob pattern `{pattern}` in `{field}`: {reason}")]
+    InvalidGlobPattern {
+        field: String,
+        pattern: String,
+        reason: String,
     },
 }
 

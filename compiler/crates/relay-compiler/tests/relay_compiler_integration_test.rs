@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<17229b7418e89b4ba004efd1b7a70757>>
+ * @generated SignedSource<<47b9aec72d8e5a8fc0175b9b8965c89c>>
  */
 
 mod relay_compiler_integration;
@@ -66,6 +66,48 @@ async fn client_schema_extension_interface_uses_resolver_type() {
     let input = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.input");
     let expected = include_str!("relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected");
     test_fixture(transform_fixture, file!(), "client_schema_extension_interface_uses_resolver_type.input", "relay_compiler_integration/fixtures/client_schema_extension_interface_uses_resolver_type.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn config_validation_excluded_source_directory() {
+    let input = include_str!("relay_compiler_integration/fixtures/config_validation_excluded_source_directory.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/config_validation_excluded_source_directory.expected");
+    test_fixture(transform_fixture, file!(), "config_validation_excluded_source_directory.input", "relay_compiler_integration/fixtures/config_validation_excluded_source_directory.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn config_validation_invalid_exclude_glob() {
+    let input = include_str!("relay_compiler_integration/fixtures/config_validation_invalid_exclude_glob.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/config_validation_invalid_exclude_glob.expected");
+    test_fixture(transform_fixture, file!(), "config_validation_invalid_exclude_glob.input", "relay_compiler_integration/fixtures/config_validation_invalid_exclude_glob.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn config_validation_invalid_excludes_extensions_glob() {
+    let input = include_str!("relay_compiler_integration/fixtures/config_validation_invalid_excludes_extensions_glob.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/config_validation_invalid_excludes_extensions_glob.expected");
+    test_fixture(transform_fixture, file!(), "config_validation_invalid_excludes_extensions_glob.input", "relay_compiler_integration/fixtures/config_validation_invalid_excludes_extensions_glob.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn config_validation_missing_schema_extension_directory() {
+    let input = include_str!("relay_compiler_integration/fixtures/config_validation_missing_schema_extension_directory.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/config_validation_missing_schema_extension_directory.expected");
+    test_fixture(transform_fixture, file!(), "config_validation_missing_schema_extension_directory.input", "relay_compiler_integration/fixtures/config_validation_missing_schema_extension_directory.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn config_validation_missing_schema_file() {
+    let input = include_str!("relay_compiler_integration/fixtures/config_validation_missing_schema_file.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/config_validation_missing_schema_file.expected");
+    test_fixture(transform_fixture, file!(), "config_validation_missing_schema_file.input", "relay_compiler_integration/fixtures/config_validation_missing_schema_file.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn config_validation_missing_source_directory() {
+    let input = include_str!("relay_compiler_integration/fixtures/config_validation_missing_source_directory.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/config_validation_missing_source_directory.expected");
+    test_fixture(transform_fixture, file!(), "config_validation_missing_source_directory.input", "relay_compiler_integration/fixtures/config_validation_missing_source_directory.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -458,6 +500,27 @@ async fn resolvers_with_context_path_import() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_path_import.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_with_context_path_import.expected");
     test_fixture(transform_fixture, file!(), "resolvers_with_context_path_import.input", "relay_compiler_integration/fixtures/resolvers_with_context_path_import.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_in_excluded_dir_works() {
+    let input = include_str!("relay_compiler_integration/fixtures/schema_in_excluded_dir_works.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/schema_in_excluded_dir_works.expected");
+    test_fixture(transform_fixture, file!(), "schema_in_excluded_dir_works.input", "relay_compiler_integration/fixtures/schema_in_excluded_dir_works.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_in_generated_dir() {
+    let input = include_str!("relay_compiler_integration/fixtures/schema_in_generated_dir.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/schema_in_generated_dir.expected");
+    test_fixture(transform_fixture, file!(), "schema_in_generated_dir.input", "relay_compiler_integration/fixtures/schema_in_generated_dir.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_outside_root_dir() {
+    let input = include_str!("relay_compiler_integration/fixtures/schema_outside_root_dir.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/schema_outside_root_dir.expected");
+    test_fixture(transform_fixture, file!(), "schema_outside_root_dir.input", "relay_compiler_integration/fixtures/schema_outside_root_dir.expected", input, expected).await;
 }
 
 #[tokio::test]

@@ -21,6 +21,7 @@ pub mod file_source;
 mod get_programs;
 mod graphql_asts;
 mod operation_persister;
+mod path_validator;
 mod red_to_green;
 pub mod status_reporter;
 mod utils;

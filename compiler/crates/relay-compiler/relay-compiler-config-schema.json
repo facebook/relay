@@ -243,7 +243,7 @@
           ]
         },
         "schemaExtensions": {
-          "description": "Directory containing *.graphql files with schema extensions.",
+          "description": "File or directory containing *.graphql files with schema extensions.",
           "type": "array",
           "default": [],
           "items": {
@@ -1550,7 +1550,7 @@
           }
         },
         "schemaExtensions": {
-          "description": "List of directories with schema extensions.",
+          "description": "List of files or directories with schema extensions.",
           "type": "array",
           "default": [],
           "items": {

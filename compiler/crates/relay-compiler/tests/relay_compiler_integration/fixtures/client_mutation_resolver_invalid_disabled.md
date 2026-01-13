@@ -1,0 +1,38 @@
+## Input
+
+```
+//- foo.js
+/**
+ * @RelayResolver Mutation.foo_mutation: Boolean
+ */
+
+//- bar.js
+graphql`mutation barMutation {
+   foo_mutation
+}`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql",
+   "featureFlags": {
+       "allow_output_type_resolvers": {
+         "kind": "enabled"
+      }
+   }
+}
+
+//- schema.graphql
+
+type Mutation
+```
+
+## Output
+
+✖︎ Resolvers on the mutation type Mutation are disallowed without the enable_relay_resolver_mutations feature flag
+
+  foo.js:2:28
+    1 │ *
+    2 │  * @RelayResolver Mutation.foo_mutation: Boolean
+      │                            ^^^^^^^^^^^^
+    3 │

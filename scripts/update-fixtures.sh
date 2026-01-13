@@ -12,4 +12,9 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 GITHUB_ROOT=$(dirname "$SCRIPT_DIR")
 
 cd "$GITHUB_ROOT"/compiler || exit
-cargo run --bin fixture_tests_bin --release --  $(cat "$GITHUB_ROOT"/compiler/fixture_dirs.txt)
+
+# Generate regular fixture tests with .expected extension
+cargo run --bin fixture_tests_bin --release -- $(cat "$GITHUB_ROOT"/compiler/fixture_dirs.txt)
+
+# Generate markdown fixture tests with .md extension
+cargo run --bin fixture_tests_bin --release -- --expected-extension md $(cat "$GITHUB_ROOT"/compiler/fixture_dirs_md.txt)

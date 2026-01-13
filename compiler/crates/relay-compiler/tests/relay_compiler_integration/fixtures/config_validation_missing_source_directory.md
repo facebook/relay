@@ -1,0 +1,36 @@
+## Input
+
+```
+//- relay.config.json
+{
+   "sources": {
+      "nonexistent_src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "./schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema.graphql
+
+type Query {
+   node(id: ID!): Node
+}
+
+interface Node {
+   id: ID!
+}
+
+type User implements Node {
+   id: ID!
+   name: String
+}
+```
+
+## Output
+
+Config `<TEST_DIR>/relay.config.json` is invalid:
+ - The `source` at `<TEST_DIR>/nonexistent_src` does not exist.

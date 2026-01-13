@@ -78,12 +78,13 @@ impl ProjectFixture {
         for (file_name, content) in sorted {
             let normalized_path = format_normalized_path(&file_name);
             let language = infer_language(&file_name);
-            output.push_str(&format!("```{} title=\"{}\"\n", language, normalized_path));
+            output.push_str(&format!("### {}\n\n", normalized_path));
+            output.push_str(&format!("```{}\n", language));
             output.push_str(&content);
             if !content.ends_with('\n') {
                 output.push('\n');
             }
-            output.push_str("```\n");
+            output.push_str("```\n\n");
         }
 
         output

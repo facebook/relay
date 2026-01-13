@@ -32,6 +32,10 @@ struct Options {
 
     #[clap(long)]
     customized_snapshot_fixer: Option<String>,
+
+    /// Expected file extension (default: "expected")
+    #[clap(long, default_value = "expected")]
+    expected_extension: String,
 }
 #[derive(Debug)]
 struct TestCase {
@@ -39,8 +43,6 @@ struct TestCase {
     input: Option<PathBuf>,
     expected: Option<PathBuf>,
 }
-
-const EXPECTED_EXTENSION: &str = "expected";
 
 fn main() {
     let opt = Options::parse();
@@ -62,7 +64,7 @@ fn main() {
                 input: None,
                 expected: None,
             });
-            if path.extension().unwrap() == EXPECTED_EXTENSION {
+            if path.extension().unwrap() == opt.expected_extension.as_str() {
                 if let Some(ref previous) = test_case.expected {
                     panic!("Conflicting fixture name, {previous:?} and {path:?}");
                 }
@@ -79,7 +81,7 @@ fn main() {
                 && let Some(ref input) = test_case.input
             {
                 let mut expected = input.clone();
-                expected.set_extension(EXPECTED_EXTENSION);
+                expected.set_extension(&opt.expected_extension);
                 let fixer = match &opt.customized_snapshot_fixer {
                         Some(customized) => customized.as_str().as_bytes(),
                         None => {

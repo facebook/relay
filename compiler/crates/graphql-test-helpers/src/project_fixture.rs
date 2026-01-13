@@ -48,7 +48,7 @@ impl ProjectFixture {
         Self { files }
     }
 
-    /// Serialize ProjectFixture as a fixture file string.
+    /// Serialize ProjectFixture as a fixture file string using the original format.
     /// Useful for encoding the results of a compiler integration test as
     /// a single output file.
     pub fn serialize(&self) -> String {
@@ -61,6 +61,29 @@ impl ProjectFixture {
             output.push_str(&format!("//- {}\n", format_normalized_path(&file_name)));
             output.push_str(&content);
             output.push('\n');
+        }
+
+        output
+    }
+
+    /// Serialize ProjectFixture as markdown with fenced code blocks.
+    /// Each file is output as a separate code block with syntax highlighting
+    /// based on the file extension.
+    pub fn serialize_as_markdown(&self) -> String {
+        let mut sorted: Vec<_> = self.files.clone().into_iter().collect();
+        sorted.sort_by(|x, y| x.0.cmp(&y.0));
+
+        let mut output: String = Default::default();
+
+        for (file_name, content) in sorted {
+            let normalized_path = format_normalized_path(&file_name);
+            let language = infer_language(&file_name);
+            output.push_str(&format!("```{} title=\"{}\"\n", language, normalized_path));
+            output.push_str(&content);
+            if !content.ends_with('\n') {
+                output.push('\n');
+            }
+            output.push_str("```\n");
         }
 
         output
@@ -119,4 +142,15 @@ fn format_normalized_path(path: &Path) -> String {
     path.to_string_lossy()
         .to_string()
         .replace(MAIN_SEPARATOR, "/")
+}
+
+// Infer the language identifier for markdown code fence from file extension
+fn infer_language(path: &Path) -> &'static str {
+    match path.extension().and_then(|ext| ext.to_str()) {
+        Some("js") => "js",
+        Some("ts") | Some("tsx") => "ts",
+        Some("graphql") | Some("gql") => "graphql",
+        Some("json") => "json",
+        _ => "",
+    }
 }

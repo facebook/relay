@@ -125,25 +125,61 @@ pub async fn test_fixture<T, U, V>(
         colored::control::unset_override();
     }
 
-    let actual = match &actual_result {
-        Ok(output) => format!(
-            "==================================== INPUT ====================================
+    // Check if we should use markdown format based on expected file extension
+    let use_markdown = expected_file_name.ends_with(".md");
+
+    let actual = if use_markdown {
+        match &actual_result {
+            Ok(output) => format!(
+                "## Input
+
+```
+{}
+```
+
+## Output
+
+{}
+",
+                &fixture.content.trim(),
+                output,
+            ),
+            Err(output) => format!(
+                "## Input
+
+```
+{}
+```
+
+## Error
+
+{}
+",
+                fixture.content.trim(),
+                output
+            ),
+        }
+    } else {
+        match &actual_result {
+            Ok(output) => format!(
+                "==================================== INPUT ====================================
 {}
 ==================================== OUTPUT ===================================
 {}
 ",
-            &fixture.content.trim(),
-            output,
-        ),
-        Err(output) => format!(
-            "==================================== INPUT ====================================
+                &fixture.content.trim(),
+                output,
+            ),
+            Err(output) => format!(
+                "==================================== INPUT ====================================
 {}
 ==================================== ERROR ====================================
 {}
 ",
-            fixture.content.trim(),
-            output
-        ),
+                fixture.content.trim(),
+                output
+            ),
+        }
     };
 
     match actual_result {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<260a55cc74e24638eb988d1dab47d824>>
+ * @generated SignedSource<<17229b7418e89b4ba004efd1b7a70757>>
  */
 
 mod relay_compiler_integration;
@@ -94,6 +94,13 @@ async fn dangerously_throw_on_semantically_nullable_field() {
     let input = include_str!("relay_compiler_integration/fixtures/dangerously_throw_on_semantically_nullable_field.input");
     let expected = include_str!("relay_compiler_integration/fixtures/dangerously_throw_on_semantically_nullable_field.expected");
     test_fixture(transform_fixture, file!(), "dangerously_throw_on_semantically_nullable_field.input", "relay_compiler_integration/fixtures/dangerously_throw_on_semantically_nullable_field.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn default_excludes_node_modules() {
+    let input = include_str!("relay_compiler_integration/fixtures/default_excludes_node_modules.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/default_excludes_node_modules.expected");
+    test_fixture(transform_fixture, file!(), "default_excludes_node_modules.input", "relay_compiler_integration/fixtures/default_excludes_node_modules.expected", input, expected).await;
 }
 
 #[tokio::test]

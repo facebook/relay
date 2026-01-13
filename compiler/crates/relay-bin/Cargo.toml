@@ -8,6 +8,10 @@ edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
+[[test]]
+name = "relay_subschema_extraction_test"
+path = "tests/subschema_extraction_test.rs"
+
 [dependencies]
 clap = { version = "4.5.42", features = ["derive", "env", "string", "unicode", "wrap_help"] }
 common = { path = "../common" }
@@ -17,9 +21,15 @@ program-with-dependencies = { path = "../program-with-dependencies" }
 relay-codemod = { path = "../relay-codemod" }
 relay-compiler = { path = "../relay-compiler" }
 relay-lsp = { path = "../relay-lsp" }
+relay-transforms = { path = "../relay-transforms" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-set = { path = "../schema-set" }
 simplelog = "0.12.2"
 thiserror = "2.0.12"
 tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }
+
+[dev-dependencies]
+fixture-tests = { path = "../fixture-tests" }
+futures-util = { version = "0.3.30", features = ["compat"] }
+graphql-test-helpers = { path = "../graphql-test-helpers" }

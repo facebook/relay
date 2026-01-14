@@ -93,13 +93,12 @@ jobs:
     runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
           toolchain: nightly-2025-08-01
-          override: true
       - name: "Run tests"
         run: cargo test --manifest-path=compiler/Cargo.toml --locked ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
 
@@ -119,13 +118,12 @@ jobs:
     runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
           toolchain: nightly-2025-08-01
-          override: true
       - name: "Update fixture tests"
         run: ./scripts/update-fixtures.sh
       - name: "Build test project"
@@ -140,11 +138,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561
         with:
           # Should stay in sync with tools/third-party/rustfmt/.rustfmt-version
           toolchain: nightly-2025-08-01
-          override: true
           components: rustfmt
       - name: "rustfmt"
         run: grep -r --include "*.rs" --files-without-match $'\x40generated' crates | xargs rustfmt --check --config="skip_children=true"
@@ -182,14 +179,13 @@ jobs:
     runs-on: ${{ matrix.target.os }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions-rs/toolchain@v1
+      - uses: dtolnay/rust-toolchain@f7ccc83f9ed1e5b9c81d8a67d7ad1a747e22a561
         with:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # docusaurus.yml
           toolchain: nightly-2025-08-01
-          override: true
-          target: ${{ matrix.target.target }}
+          targets: ${{ matrix.target.target }}
       - uses: actions/setup-node@v4
         if: github.event_name == 'push' && github.repository == 'facebook/relay' && github.ref == 'refs/heads/main'
         with:

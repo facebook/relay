@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<35e38e7009aedcdad200ebca63ccaa18>>
+ * @generated SignedSource<<e73e0f01d763893458338bcb944955fd>>
  */
 
 mod ir;
@@ -157,6 +157,13 @@ async fn schema_object_with_interface_change() {
     let input = include_str!("ir/fixtures/schema-object-with-interface-change.graphql");
     let expected = include_str!("ir/fixtures/schema-object-with-interface-change.expected");
     test_fixture(transform_fixture, file!(), "schema-object-with-interface-change.graphql", "ir/fixtures/schema-object-with-interface-change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_recursive_input_type_change() {
+    let input = include_str!("ir/fixtures/schema-recursive-input-type-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-recursive-input-type-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-recursive-input-type-change.graphql", "ir/fixtures/schema-recursive-input-type-change.expected", input, expected).await;
 }
 
 #[tokio::test]

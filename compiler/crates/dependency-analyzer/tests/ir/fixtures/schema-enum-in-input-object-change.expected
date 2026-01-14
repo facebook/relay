@@ -27,3 +27,4 @@ fragment UnrelatedFragment on User {
 %extensions%
 # Enum: StoryType
 ==================================== OUTPUT ===================================
+Operation: QueryWithInputContainingEnum

@@ -31,7 +31,7 @@ jobs:
       - name: cargo check
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
       - name: pull-request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           title: "Update Cargo.lock"

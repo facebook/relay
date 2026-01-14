@@ -24,6 +24,7 @@ mod operation_persister;
 mod path_validator;
 mod red_to_green;
 pub mod status_reporter;
+pub mod subschema_extraction;
 mod utils;
 
 pub use artifact_map::ArtifactSourceKey;

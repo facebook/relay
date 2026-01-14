@@ -13,13 +13,11 @@ clap = { version = "4.5.42", features = ["derive", "env", "string", "unicode", "
 common = { path = "../common" }
 intern = { path = "../intern" }
 log = { version = "0.4.27", features = ["kv_unstable", "kv_unstable_std"] }
-program-with-dependencies = { path = "../program-with-dependencies" }
 relay-codemod = { path = "../relay-codemod" }
 relay-compiler = { path = "../relay-compiler" }
 relay-lsp = { path = "../relay-lsp" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
-schema-set = { path = "../schema-set" }
 simplelog = "0.12.2"
 thiserror = "2.0.12"
 tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

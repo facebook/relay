@@ -307,6 +307,10 @@ impl SchemaSet {
             self.types
                 .entry("Query".intern())
                 .or_insert(SetType::Object(SetObject {
+                    // Note: When partitioning a schema into server and client
+                    // types, types without any definition/fields will be
+                    // assumed to be client types (presumably since it's not
+                    // valid SDL to have no fields).
                     definition: None,
                     interfaces: StringKeyIndexMap::default(),
                     fields: StringKeyMap::default(),

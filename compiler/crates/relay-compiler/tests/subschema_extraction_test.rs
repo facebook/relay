@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c2a6e7ab385e72dedbf7b6e180f584bd>>
+ * @generated SignedSource<<2041e5f30a9d9b11cee1caf612cbffb1>>
  */
 
 mod subschema_extraction;
@@ -38,4 +38,25 @@ async fn simple_extraction() {
     let input = include_str!("subschema_extraction/fixtures/simple_extraction.input");
     let expected = include_str!("subschema_extraction/fixtures/simple_extraction.expected");
     test_fixture(transform_fixture, file!(), "simple_extraction.input", "subschema_extraction/fixtures/simple_extraction.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn subscription_only() {
+    let input = include_str!("subschema_extraction/fixtures/subscription_only.input");
+    let expected = include_str!("subschema_extraction/fixtures/subscription_only.expected");
+    test_fixture(transform_fixture, file!(), "subscription_only.input", "subschema_extraction/fixtures/subscription_only.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn unknown_field_error() {
+    let input = include_str!("subschema_extraction/fixtures/unknown_field_error.input");
+    let expected = include_str!("subschema_extraction/fixtures/unknown_field_error.expected");
+    test_fixture(transform_fixture, file!(), "unknown_field_error.input", "subschema_extraction/fixtures/unknown_field_error.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn with_client_extensions() {
+    let input = include_str!("subschema_extraction/fixtures/with_client_extensions.input");
+    let expected = include_str!("subschema_extraction/fixtures/with_client_extensions.expected");
+    test_fixture(transform_fixture, file!(), "with_client_extensions.input", "subschema_extraction/fixtures/with_client_extensions.expected", input, expected).await;
 }

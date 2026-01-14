@@ -21,6 +21,7 @@ use thiserror::Error;
 
 use crate::SchemaLocation;
 use crate::config::Config;
+use crate::errors::print_compiler_error;
 use crate::get_programs;
 
 /// Errors that can occur during subschema extraction.
@@ -127,12 +128,16 @@ pub async fn compile_and_extract_subschema(
         .schema_location = schema_location;
 
     // Compile the project to get IR
+    let root_dir = config.root_dir.clone();
     let programs_result = get_programs(config, Arc::new(ConsoleLogger))
         .await
         .map(|(programs, _, _)| programs.values().cloned().collect::<Vec<_>>());
 
-    let programs_vec =
-        programs_result.map_err(|e| SubschemaError::CompilationFailed(format!("{}", e)))?;
+    let programs_vec = programs_result.map_err(|e| {
+        // Use print_compiler_error to get detailed error output with source context
+        let formatted_error = print_compiler_error(&root_dir, e);
+        SubschemaError::CompilationFailed(formatted_error)
+    })?;
 
     // Expect exactly one program based on exactly one project asserted earlier
     let programs = programs_vec
@@ -175,16 +180,8 @@ pub fn extract_subschema(programs: &Programs) -> Result<String, SubschemaError> 
 
     used_schema.fix_all_types();
 
-    let (printed_base_schema, printed_client_schema) =
+    let (printed_base_schema, _printed_client_schema) =
         used_schema.print_base_and_client_definitions();
-
-    // We should never end up with client schema in the subschema extraction process.
-    // This would indicate that client schema definitions are being included in the used
-    // schema, which shouldn't happen for server-only schema extraction. If this occurs,
-    // it's a bug in the schema collection logic.
-    if !printed_client_schema.is_empty() {
-        panic!("Unexpected client schema in extracted subschema. This is a bug.");
-    }
 
     let mut output = printed_base_schema
         .into_iter()

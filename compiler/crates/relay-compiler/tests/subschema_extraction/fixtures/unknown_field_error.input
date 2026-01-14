@@ -1,0 +1,30 @@
+# expected-to-throw
+# Test: compiler errors are formatted with source context
+
+//- src/TestQuery.js
+graphql`
+  query TestQuery {
+    user {
+      unknownField
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  user: User
+}
+
+type User {
+  id: ID!
+}

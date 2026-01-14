@@ -65,19 +65,19 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let run_future = async {
         // Load the config
         let mut config =
-            Config::search(&PathBuf::from(test_dir.path())).map_err(|e| format!("{}", e))?;
+            Config::search(&PathBuf::from(test_dir.path())).map_err(|e| format!("{:#}", e))?;
 
         config.file_source_config = FileSourceKind::WalkDir;
 
         // Use the shared function to compile and extract subschema
         let result = compile_and_extract_subschema(config, &full_schema_path)
             .await
-            .map_err(|e| format!("{}", e))?;
+            .map_err(|e| format!("{:#}", e))?;
 
         // Write the subschema to the original location
         let output_path = test_dir.path().join(&result.original_schema_path);
         fs::write(&output_path, &result.schema_content)
-            .map_err(|e| format!("Failed to write subschema: {}", e))?;
+            .map_err(|e| format!("Failed to write subschema: {:#}", e))?;
 
         // Return the extracted subschema content
         Ok(result.schema_content)

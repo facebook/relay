@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5b2abeace41115052593de1a35f81a74>>
+ * @generated SignedSource<<35e38e7009aedcdad200ebca63ccaa18>>
  */
 
 mod ir;
@@ -129,6 +129,13 @@ async fn schema_enum_change() {
     let input = include_str!("ir/fixtures/schema-enum-change.graphql");
     let expected = include_str!("ir/fixtures/schema-enum-change.expected");
     test_fixture(transform_fixture, file!(), "schema-enum-change.graphql", "ir/fixtures/schema-enum-change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_enum_in_input_object_change() {
+    let input = include_str!("ir/fixtures/schema-enum-in-input-object-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-enum-in-input-object-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-enum-in-input-object-change.graphql", "ir/fixtures/schema-enum-in-input-object-change.expected", input, expected).await;
 }
 
 #[tokio::test]

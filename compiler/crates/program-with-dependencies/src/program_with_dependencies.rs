@@ -94,22 +94,20 @@ impl ProgramWithDependencies {
     pub fn from_definitions(
         schema: Arc<SDLSchema>,
         scoped_definitions: Vec<ExecutableDefinition>,
-        dependencies: Vec<FragmentDefinition>,
+        dependencies: FragmentSignatures,
     ) -> Self {
         let mut scoped_operations = Vec::new();
         let mut scoped_fragments = FragmentDefinitionNameMap::default();
 
-        let fragment_signatures: FragmentSignatures = dependencies
-            .iter()
-            .map(|f| (f.name.item.clone(), f.into()))
-            .chain(scoped_definitions.iter().filter_map(|def| {
-                if let ExecutableDefinition::Fragment(fragment) = def {
-                    Some((fragment.name.item.clone(), fragment.into()))
-                } else {
-                    None
-                }
-            }))
-            .collect();
+        let mut fragment_signatures = dependencies.clone();
+
+        fragment_signatures.extend(scoped_definitions.iter().filter_map(|def| {
+            if let ExecutableDefinition::Fragment(fragment) = def {
+                Some((fragment.name.item.clone(), fragment.into()))
+            } else {
+                None
+            }
+        }));
         let transformed_scoped_definitions =
             add_signatures_to_spreads(&fragment_signatures, scoped_definitions);
 
@@ -132,10 +130,12 @@ impl ProgramWithDependencies {
                     let loc = fragment.name.location;
                     let name = fragment.name.item;
                     let fragment_ref = Arc::new(fragment);
-                    if let Some(another) = seen_fragments_loc.insert(name, fragment_ref.clone()) {
+                    if let Some(another) =
+                        seen_fragments_loc.insert(name, fragment_ref.name.location)
+                    {
                         panic!(
                             "\nDuplicate fragment definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
-                            name, loc, &another.name.location
+                            name, loc, &another
                         );
                     }
                     scoped_fragments.insert(name, fragment_ref.clone()); // Keep the order the fragments same as inputs.
@@ -144,14 +144,12 @@ impl ProgramWithDependencies {
         }
 
         // Ensure there are no duplicate fragments referenced in the dependencies.
-        for fragment in dependencies.into_iter() {
-            let loc = fragment.name.location;
-            let name = fragment.name.item;
-            let fragment_ref = Arc::new(fragment);
-            if let Some(another) = seen_fragments_loc.insert(name, fragment_ref.clone()) {
+        for (fragment_name, signature) in &dependencies {
+            let loc = signature.name.location;
+            if let Some(another) = seen_fragments_loc.insert(*fragment_name, loc) {
                 panic!(
                     "\nDuplicate fragment definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
-                    name, loc, &another.name.location
+                    fragment_name, loc, &another
                 );
             }
         }

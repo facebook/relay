@@ -27,7 +27,7 @@ pub use parser::FragmentArgumentSyntaxKind;
 pub use parser::ParserFeatures;
 pub use source::GraphQLSource;
 pub use syntax_error::SyntaxError;
-pub use visitor::SchemaSetSyntaxVisitor;
+pub use visitor::SyntaxVisitor;
 
 use crate::parser::Parser;
 

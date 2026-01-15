@@ -44,7 +44,7 @@ use crate::Value;
 use crate::VariableDefinition;
 use crate::VariableIdentifier;
 
-pub trait SchemaSetSyntaxVisitor {
+pub trait SyntaxVisitor {
     const NAME: &'static str;
 
     // ExecutableDefinition Visitors

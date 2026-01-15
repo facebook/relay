@@ -10,7 +10,7 @@ use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_syntax::SchemaSetSyntaxVisitor;
+use graphql_syntax::SyntaxVisitor;
 use graphql_syntax::parse_executable;
 
 /// A test visitor that tracks all visited nodes
@@ -28,7 +28,7 @@ impl TestVisitor {
     }
 }
 
-impl SchemaSetSyntaxVisitor for TestVisitor {
+impl SyntaxVisitor for TestVisitor {
     const NAME: &'static str = "TestVisitor";
 
     fn visit_operation(&mut self, operation: &graphql_syntax::OperationDefinition) {

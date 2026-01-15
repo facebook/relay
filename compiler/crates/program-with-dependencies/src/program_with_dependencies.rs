@@ -146,7 +146,9 @@ impl ProgramWithDependencies {
         // Ensure there are no duplicate fragments referenced in the dependencies.
         for (fragment_name, signature) in &dependencies {
             let loc = signature.name.location;
-            if let Some(another) = seen_fragments_loc.insert(*fragment_name, loc) {
+            if let Some(another) = seen_fragments_loc.insert(*fragment_name, loc)
+                && another != loc
+            {
                 panic!(
                     "\nDuplicate fragment definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
                     fragment_name, loc, &another

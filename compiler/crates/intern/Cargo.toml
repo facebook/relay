@@ -23,7 +23,7 @@ smallvec = { version = "1.15", features = ["serde", "union"] }
 
 [dev-dependencies]
 bincode = "1.3.3"
-rand = { version = "0.8", features = ["small_rng"] }
+rand = { version = "0.9", features = ["small_rng"] }
 serde_json = { version = "1.0.140", features = ["alloc", "float_roundtrip", "raw_value", "unbounded_depth"] }
 
 [lints]

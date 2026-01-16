@@ -65,6 +65,7 @@ use crate::StringKeyNamed;
 use crate::schema_set::SetRootSchema;
 
 pub trait ToSDLDefinition<T> {
+    /// Creates a *fully, recursively sorted* SDL definition
     fn to_sdl_definition(&self) -> T;
 }
 
@@ -505,32 +506,37 @@ fn build_name(name: StringKey) -> Identifier {
     }
 }
 
+/// NOTE: we do NOT preserve the original order, instead sorting by argument name
 fn build_argument_definitions(
     arguments: &StringKeyIndexMap<SetArgument>,
 ) -> Option<List<InputValueDefinition>> {
     if arguments.is_empty() {
         return None;
     }
+    let mut items: Vec<InputValueDefinition> = arguments
+        .values()
+        .map(|arg| arg.to_sdl_definition())
+        .collect();
+    items.sort_by(|a, b| a.name.cmp(&b.name));
     Some(List {
         span: Span::empty(),
         start: build_token(TokenKind::OpenParen),
-        items: arguments
-            .values()
-            .map(|arg| arg.to_sdl_definition())
-            .collect(),
+        items,
         end: build_token(TokenKind::CloseParen),
     })
 }
 
+/// NOTE: we do NOT preserve the original order, instead sorting by argument name
 fn build_arguments(arguments: &[ArgumentValue]) -> Option<List<ConstantArgument>> {
     if arguments.is_empty() {
         return None;
     }
 
-    let arguments_vec: Vec<ConstantArgument> = arguments
+    let mut arguments_vec: Vec<ConstantArgument> = arguments
         .iter()
         .map(|arg| arg.to_sdl_definition())
         .collect();
+    arguments_vec.sort_by(|a, b| a.name.cmp(&b.name));
 
     Some(List {
         span: Span::empty(),
@@ -540,11 +546,14 @@ fn build_arguments(arguments: &[ArgumentValue]) -> Option<List<ConstantArgument>
     })
 }
 
+/// NOTE: we do NOT preserve the original order, instead sorting by directive name
 fn build_directives(directives: &[DirectiveValue]) -> Vec<ConstantDirective> {
-    directives
+    let mut built: Vec<ConstantDirective> = directives
         .iter()
         .map(|directive| directive.to_sdl_definition())
-        .collect()
+        .collect();
+    built.sort_by(|a, b| a.name.cmp(&b.name));
+    built
 }
 
 fn build_description(definition_item: &Option<SchemaDefinitionItem>) -> Option<StringNode> {
@@ -557,11 +566,14 @@ fn build_description(definition_item: &Option<SchemaDefinitionItem>) -> Option<S
         })
 }
 
+/// NOTE: we do NOT preserve the original order, instead sorting by member name
 fn build_members(members: &StringKeyIndexMap<SetMemberType>) -> Vec<Identifier> {
-    members
+    let mut built: Vec<Identifier> = members
         .values()
         .map(|member| build_name(member.name))
-        .collect()
+        .collect();
+    built.sort();
+    built
 }
 
 fn build_fields(fields: &StringKeyMap<SetField>) -> Option<List<FieldDefinition>> {

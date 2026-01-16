@@ -99,9 +99,9 @@ export type $FragmentRef<T> = {
 
 /* $FlowExpectedError[unclear-type]: Intentional so that it won't fail,
  * even if the type we want to exclude doesn't exist in Props */
-type LooseOmitRelayProps<Props, K: $Keys<any>> = Pick<
+type LooseOmitRelayProps<Props, K: keyof any> = Pick<
   Props,
-  Exclude<$Keys<Props>, K>,
+  Exclude<keyof Props, K>,
 >;
 /**
  * A utility type that takes the Props of a component and the type of

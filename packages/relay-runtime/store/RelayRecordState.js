@@ -31,6 +31,6 @@ const RelayRecordState = {
   UNKNOWN: 'UNKNOWN',
 } as const;
 
-export type RecordState = $Keys<typeof RelayRecordState>;
+export type RecordState = keyof typeof RelayRecordState;
 
 module.exports = RelayRecordState;

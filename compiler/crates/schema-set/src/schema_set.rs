@@ -288,6 +288,14 @@ impl SchemaSet {
     /// This should be run before printing a binary-level, must-be-valid used schema,
     /// but should NOT be run to produce partial, library-level used schemas.
     pub fn fix_all_types(&mut self) {
+        self.fix_all_types_impl(None);
+    }
+
+    pub fn fix_all_types_with_schema(&mut self, original_schema: &SchemaSet) {
+        self.fix_all_types_impl(Some(original_schema));
+    }
+
+    fn fix_all_types_impl(&mut self, original_schema: Option<&SchemaSet>) {
         let defined_interfaces: StringKeyMap<SetInterface> = self
             .types
             .iter()
@@ -362,7 +370,18 @@ impl SchemaSet {
                     for included_interface in included_interfaces.keys() {
                         if let Some(interface_to_merge) = defined_interfaces.get(included_interface)
                         {
-                            set_object.merge_from_abstract_definition(interface_to_merge.clone());
+                            set_object.merge_from_abstract_definition(
+                                interface_to_merge.clone(),
+                                original_schema.and_then(|s| {
+                                    if let Some(SetType::Object(o)) =
+                                        s.types.get(&set_object.name.0)
+                                    {
+                                        Some(o)
+                                    } else {
+                                        None
+                                    }
+                                }),
+                            );
                         }
                     }
                     set_object.interfaces = included_interfaces;
@@ -384,8 +403,18 @@ impl SchemaSet {
                     for included_interface in included_interfaces.keys() {
                         if let Some(interface_to_merge) = defined_interfaces.get(included_interface)
                         {
-                            set_interface
-                                .merge_from_abstract_definition(interface_to_merge.clone());
+                            set_interface.merge_from_abstract_definition(
+                                interface_to_merge.clone(),
+                                original_schema.and_then(|s| {
+                                    if let Some(SetType::Interface(i)) =
+                                        s.types.get(&set_interface.name.0)
+                                    {
+                                        Some(i)
+                                    } else {
+                                        None
+                                    }
+                                }),
+                            );
                         }
                     }
                     set_interface.interfaces = included_interfaces;

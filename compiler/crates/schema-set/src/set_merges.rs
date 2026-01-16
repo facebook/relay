@@ -63,7 +63,11 @@ impl Merges for SchemaSet {
 // Sometimes we need to merge a parent type's definition in with the child definition.
 // Use this trait to indicate definitions that may have this property.
 pub trait MergesFromAbstractDefinition<TAbstract> {
-    fn merge_from_abstract_definition(&mut self, abstract_definition: TAbstract);
+    fn merge_from_abstract_definition(
+        &mut self,
+        abstract_definition: TAbstract,
+        original_definition: Option<&Self>,
+    );
 }
 
 impl Merges for SetRootSchema {
@@ -144,14 +148,22 @@ impl Merges for SetInterface {
 }
 // Special merge for merging from an interface's field definition
 impl MergesFromAbstractDefinition<SetInterface> for SetInterface {
-    fn merge_from_abstract_definition(&mut self, abstract_definition: SetInterface) {
+    fn merge_from_abstract_definition(
+        &mut self,
+        abstract_definition: SetInterface,
+        original_definition: Option<&SetInterface>,
+    ) {
         // Do not update the is_extension from self: if this field was *explicitly*
         // defined by a client definition, then
         // Also do not merge directives: any that we needed should have already
         // been defined on the object itself.
 
         merge_members_from_abstract_parent(&mut self.interfaces, abstract_definition.interfaces);
-        merge_fields_from_abstract_parent(self, abstract_definition.fields);
+        merge_fields_from_abstract_parent(
+            self,
+            abstract_definition.fields,
+            original_definition.map(|def| &def.fields),
+        );
     }
 }
 
@@ -166,13 +178,21 @@ impl Merges for SetObject {
 }
 
 impl MergesFromAbstractDefinition<SetInterface> for SetObject {
-    fn merge_from_abstract_definition(&mut self, abstract_definition: SetInterface) {
+    fn merge_from_abstract_definition(
+        &mut self,
+        abstract_definition: SetInterface,
+        original_definition: Option<&SetObject>,
+    ) {
         // Do not update the is_extension from self: if this field was *explicitly*
         // defined by a client definition, then
         // Also do not merge directives: any that we needed should have already
         // been defined on the object itself.
         merge_members_from_abstract_parent(&mut self.interfaces, abstract_definition.interfaces);
-        merge_fields_from_abstract_parent(self, abstract_definition.fields);
+        merge_fields_from_abstract_parent(
+            self,
+            abstract_definition.fields,
+            original_definition.map(|def| &def.fields),
+        );
     }
 }
 
@@ -229,12 +249,16 @@ impl Merges for SetField {
 
 // Special merge for merging from an interface's field definition
 impl MergesFromAbstractDefinition<Self> for SetField {
-    fn merge_from_abstract_definition(&mut self, abstract_field: Self) {
+    fn merge_from_abstract_definition(&mut self, abstract_field: Self, original: Option<&Self>) {
         // Do not update the is_extension from self: if this field was *explicitly*
         // defined by a client definition, then
-
-        merge_directive_values(self, abstract_field.directives);
-        merge_arguments(self, abstract_field.arguments);
+        if let Some(original) = original {
+            merge_directive_values(self, original.directives.clone());
+            merge_arguments(self, original.arguments.clone());
+        } else {
+            merge_directive_values(self, abstract_field.directives);
+            merge_arguments(self, abstract_field.arguments);
+        }
     }
 }
 
@@ -407,14 +431,25 @@ pub(crate) fn merge_fields<T: HasFields>(existing: &mut T, other_fields: StringK
 pub(crate) fn merge_fields_from_abstract_parent<T: HasFields>(
     existing: &mut T,
     abstract_parent_fields: StringKeyMap<SetField>,
+    original_definition_fields: Option<&StringKeyMap<SetField>>,
 ) {
     let existing_fields = existing.fields_mut();
     for (field_name, other_field) in abstract_parent_fields.into_iter() {
-        if let Some(existing_field) = existing_fields.get_mut(&field_name) {
-            existing_field.merge_from_abstract_definition(other_field);
-        } else {
-            existing_fields.insert(field_name, other_field);
-        }
+        let original_field = original_definition_fields.and_then(|fields| fields.get(&field_name));
+        let to_merge = existing_fields.entry(field_name).or_insert(SetField {
+            definition: original_field.map_or_else(
+                || other_field.definition.clone(),
+                |original| original.definition.clone(),
+            ),
+            name: other_field.name,
+            arguments: Default::default(),
+            type_: original_field.map_or_else(
+                || other_field.type_.clone(),
+                |original| original.type_.clone(),
+            ),
+            directives: Default::default(),
+        });
+        to_merge.merge_from_abstract_definition(other_field, original_field);
     }
 }
 

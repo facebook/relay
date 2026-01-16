@@ -276,7 +276,7 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
 }
 
 /// Update Config if the `project` flag is set
-fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Error> {
+fn set_project_flag(config: &mut Config, projects: &Vec<String>) -> Result<(), Error> {
     if projects.is_empty() {
         return Ok(());
     }
@@ -311,7 +311,7 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
 async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
     let mut config = get_config(command.config)?;
     let root_dir = config.root_dir.clone();
-    set_project_flag(&mut config, command.projects)?;
+    set_project_flag(&mut config, &command.projects)?;
     let programs = get_programs(config, Arc::new(ConsoleLogger))
         .await
         .map(|(programs, _, _)| programs.values().cloned().collect());
@@ -360,7 +360,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
 
     let mut config = get_config(command.config)?;
 
-    set_project_flag(&mut config, command.projects)?;
+    set_project_flag(&mut config, &command.projects)?;
 
     if command.validate {
         config.artifact_writer = Box::<ArtifactValidationWriter>::default();

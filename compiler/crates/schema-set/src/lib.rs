@@ -17,6 +17,7 @@ mod schema_set_collection_options;
 mod schema_set_collector;
 mod set_exclude;
 mod set_merges;
+mod set_remove_defined_references;
 mod set_type_reference;
 
 use common::ArgumentName;

@@ -191,7 +191,7 @@ export type EntryPointComponent<
 // Return type of the `getPreloadProps(...)` of the entry point
 export type PreloadProps<
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
+  TPreloadedQueries: {+[string]: ?PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TExtraProps = null,
   TEnvironmentProviderOptions = EnvironmentProviderOptions,
@@ -256,19 +256,23 @@ export type ExtractQueryTypeHelper<TEnvironmentProviderOptions> = <TQuery>(
 // up the union type would cause us to lose track of TQuery.
 type ExtractThinQueryParams<T, TEnvironmentProviderOptions> = [+t: T] extends [
   // $FlowFixMe[incompatible-type]
-  +t: PreloadedQuery<infer TQuery>,
+  +t: PreloadedQuery<infer TQuery extends OperationType>,
 ]
   ? ThinQueryParams<TQuery, TEnvironmentProviderOptions>
   : [+t: T] extends [
         +t: PreloadedQuery<infer TQuery extends OperationType> | void,
       ]
     ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | void
-    : empty;
+    : [+t: T] extends [
+          +t: PreloadedQuery<infer TQuery extends OperationType> | null | void,
+        ]
+      ? ThinQueryParams<TQuery, TEnvironmentProviderOptions> | null | void
+      : empty;
 
 export type ExtractQueryTypes<
   TEnvironmentProviderOptions,
   // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
-  PreloadedQueries: {+[string]: PreloadedQuery<any>} | void,
+  PreloadedQueries: {+[string]: ?PreloadedQuery<any>} | void,
 > = {
   [K in keyof PreloadedQueries]: ExtractThinQueryParams<
     PreloadedQueries[K],

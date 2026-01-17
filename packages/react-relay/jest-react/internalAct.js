@@ -30,7 +30,7 @@ const Scheduler = require('scheduler/unstable_mock');
 interface Thenable<+R> {
   then<U>(
     onFulfill: (value: R) => void | Thenable<U> | U,
-    onReject: (error: mixed) => void | Thenable<U> | U,
+    onReject: (error: unknown) => void | Thenable<U> | U,
   ): void | Thenable<U>;
 }
 

@@ -15,7 +15,7 @@ declare module 'warning' {
   declare module.exports: (
     condition: boolean,
     format: string,
-    ...args: $ReadOnlyArray<mixed>
+    ...args: ReadonlyArray<unknown>
   ) => void;
 }
 

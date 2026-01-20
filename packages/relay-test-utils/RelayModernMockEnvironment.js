@@ -214,22 +214,6 @@ function createMockEnvironment(
     const {id, text} = request;
     const cacheID = id ?? text;
 
-    // Create an OperationDescriptor and add to pendingOperations if not already present
-    // This ensures operations initiated via network.execute() (like from loadQuery/preloadQuery)
-    // are tracked for queueOperationResolver to work correctly
-    const concreteRequest = getRequest(request);
-    const operation = createOperationDescriptor(concreteRequest, variables);
-
-    const existingOperation = pendingOperations.find(
-      op =>
-        op.request.node.params === request &&
-        areEqual(op.request.variables, variables),
-    );
-
-    if (existingOperation == null) {
-      pendingOperations = pendingOperations.concat([operation]);
-    }
-
     let cachedPayload = null;
     if (
       (cacheConfig?.force == null || cacheConfig?.force === false) &&
@@ -242,35 +226,52 @@ function createMockEnvironment(
       return Observable.from<GraphQLSingularResponse>(cachedPayload);
     }
 
-    const currentOperation = pendingOperations.find(
-      op =>
-        op.request.node.params === request &&
-        areEqual(op.request.variables, variables),
-    );
-
-    // Handle network responses added by
-    if (currentOperation != null && resolversQueue.length > 0) {
-      const currentResolver = resolversQueue[0];
-      const result = currentResolver(currentOperation);
-      if (result != null) {
-        resolversQueue = resolversQueue.filter(res => res !== currentResolver);
-        pendingOperations = pendingOperations.filter(
-          op => op !== currentOperation,
-        );
-        if (result instanceof Error) {
-          return Observable.create<GraphQLSingularResponse>(sink => {
-            sink.error(result);
-          });
-        } else {
-          return Observable.from<GraphQLSingularResponse>(result);
-        }
-      }
-    }
-
     return Observable.create<GraphQLSingularResponse>(sink => {
       const nextRequest = {request, variables, cacheConfig, sink};
       pendingRequests = pendingRequests.concat([nextRequest]);
 
+      // Try to find and execute queued resolver
+      const tryExecuteQueuedResolver = () => {
+        const currentOperation = pendingOperations.find(
+          op =>
+            op.request.node.params === request &&
+            areEqual(op.request.variables, variables),
+        );
+
+        if (currentOperation != null && resolversQueue.length > 0) {
+          const currentResolver = resolversQueue[0];
+          const result = currentResolver(currentOperation);
+          if (result != null) {
+            // Remove from queues
+            resolversQueue = resolversQueue.filter(res => res !== currentResolver);
+            pendingOperations = pendingOperations.filter(op => op !== currentOperation);
+            pendingRequests = pendingRequests.filter(pending => pending !== nextRequest);
+
+            // Emit result
+            if (result instanceof Error) {
+              sink.error(result);
+            } else {
+              sink.next(result);
+              sink.complete();
+            }
+            return true;
+          }
+        }
+        return false;
+      };
+
+      // Try synchronously first (for cases where operation was added via queuePendingOperation)
+      const handled = tryExecuteQueuedResolver();
+
+      if (!handled && resolversQueue.length > 0) {
+        // If not handled synchronously, defer check to allow executeWithSource proxy to add operation
+        // This handles the case where loadQuery() calls network.execute() before environment.executeWithSource()
+        setImmediate(() => {
+          tryExecuteQueuedResolver();
+        });
+      }
+
+      // Normal cleanup function for non-queued requests
       return () => {
         pendingRequests = pendingRequests.filter(
           pending => !areEqual(pending, nextRequest),

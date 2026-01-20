@@ -846,8 +846,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       // Mock network response upfront
       environment.mock.queueOperationResolver(operation =>
         MockPayloadGenerator.generate(operation, {
-          Node: () => ({
-            __typename: 'User',
+          User: () => ({
             id: '1',
             name: 'Alice',
             profile_picture: {

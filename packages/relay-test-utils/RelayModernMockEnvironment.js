@@ -214,11 +214,21 @@ function createMockEnvironment(
     const {id, text} = request;
     const cacheID = id ?? text;
 
-    console.log('DEBUG: MockEnvironment.execute', {
-      request,
-      variables,
-      pendingOperations,
-    });
+    // Create an OperationDescriptor and add to pendingOperations if not already present
+    // This ensures operations initiated via network.execute() (like from loadQuery/preloadQuery)
+    // are tracked for queueOperationResolver to work correctly
+    const concreteRequest = getRequest(request);
+    const operation = createOperationDescriptor(concreteRequest, variables);
+
+    const existingOperation = pendingOperations.find(
+      op =>
+        op.request.node.params === request &&
+        areEqual(op.request.variables, variables),
+    );
+
+    if (existingOperation == null) {
+      pendingOperations = pendingOperations.concat([operation]);
+    }
 
     let cachedPayload = null;
     if (
@@ -237,12 +247,6 @@ function createMockEnvironment(
         op.request.node.params === request &&
         areEqual(op.request.variables, variables),
     );
-
-    console.log('DEBUG: MockEnvironment.execute', {
-      currentOperation,
-      pendingOperations,
-      resolversQueueLength: resolversQueue.length,
-    });
 
     // Handle network responses added by
     if (currentOperation != null && resolversQueue.length > 0) {

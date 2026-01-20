@@ -833,7 +833,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       expect(isOperationRetained(refetchQuery)).toBe(true);
     });
 
-    it.only('refetches new variables correctly when refetching same id and queued resolver', () => {
+    it('refetches new variables correctly when refetching same id and queued resolver', () => {
       const renderer = renderFragment();
       const initialUser = {
         id: '1',

@@ -68,15 +68,15 @@ impl Validator for ValidateUnusedVariables<'_> {
                 })
                 .collect());
         }
-        if unused_variables.is_empty() {
-            if let Some(directive) = ignore_directive {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnusedIgnoreUnusedVariablesDirective {
-                        operation_name: operation.name.item.0,
-                    },
-                    directive.location,
-                )]);
-            }
+        if unused_variables.is_empty()
+            && let Some(directive) = ignore_directive
+        {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::UnusedIgnoreUnusedVariablesDirective {
+                    operation_name: operation.name.item.0,
+                },
+                directive.location,
+            )]);
         }
         Ok(())
     }

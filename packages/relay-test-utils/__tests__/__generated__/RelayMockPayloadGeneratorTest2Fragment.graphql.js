@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<584340e529e49ec5c42d57fb2a39a634>>
+ * @generated SignedSource<<7a0a6df9ae6039de2f424b4d91a9300a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ export type RelayMockPayloadGeneratorTest2Fragment$data = {|
       +month: ?number,
       +year: ?number,
     |},
-    +emailAddresses: ?$ReadOnlyArray<?string>,
+    +emailAddresses: ?ReadonlyArray<?string>,
     +id?: string,
     +myId: string,
     +myUsername: ?string,

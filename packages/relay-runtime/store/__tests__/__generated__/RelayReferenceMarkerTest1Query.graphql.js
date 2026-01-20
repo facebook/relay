@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ebe03edb67634c562ea08f987657a60d>>
+ * @generated SignedSource<<e3e8730d9471e2c6ca5b0285faa06e90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,12 +21,12 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReferenceMarkerTest1Fragment$fragmentType } from "./RelayReferenceMarkerTest1Fragment.graphql";
 export type RelayReferenceMarkerTest1Query$variables = {|
   id?: ?string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayReferenceMarkerTest1Query$data = {|
   +node: ?{|
     +__typename: string,
-    +actors?: ?$ReadOnlyArray<?{|
+    +actors?: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
     +id: string,

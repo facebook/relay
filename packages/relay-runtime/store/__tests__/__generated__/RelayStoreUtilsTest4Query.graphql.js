@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e213a4d6a95f1dc06a6bfd15e683992>>
+ * @generated SignedSource<<867e87828bdb6b465cf963edbb319e76>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ export type RelayStoreUtilsTest4Query$variables = {|
 export type RelayStoreUtilsTest4Query$data = {|
   +me: ?{|
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +id: string,
         |},

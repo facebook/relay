@@ -14,7 +14,7 @@
 const ReactRelayLoggingContext = require('./../ReactRelayLoggingContext');
 const {useContext} = require('react');
 
-hook useRelayLoggingContext(): mixed | void {
+hook useRelayLoggingContext(): unknown | void {
   return useContext(ReactRelayLoggingContext);
 }
 

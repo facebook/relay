@@ -18,10 +18,10 @@ fragment PhotoFragment on Image @argumentDefinitions(count: {type: "Int"}) {
       │        ^^^^^^^^^^^^^
     5 │   }
 
-  ℹ︎ related location
+  ℹ︎ related 'argumentDefinitions' directive
 
-  unmasked-spread-with-argument-definition.invalid.graphql:8:10
+  unmasked-spread-with-argument-definition.invalid.graphql:8:34
     7 │ 
     8 │ fragment PhotoFragment on Image @argumentDefinitions(count: {type: "Int"}) {
-      │          ^^^^^^^^^^^^^
+      │                                  ^^^^^^^^^^^^^^^^^^^
     9 │   uri

@@ -40,7 +40,7 @@ export type Variables = {+[string]: $FlowFixMe};
 export type OperationType = {
   // TODO(T33395812) Make this an open object type
   +variables: Variables,
-  +response: mixed,
+  +response: unknown,
   +rawResponse?: {...},
 };
 
@@ -62,14 +62,14 @@ export type VariablesOf<T: OperationType> = T['variables'];
  *   a given instance of executing an operation.
  */
 export type CacheConfig = {
-  force?: ?boolean,
-  poll?: ?number,
-  liveConfigId?: ?string,
-  onSubscribe?: () => void,
-  onResume?: (pauseTimeMs: number) => void,
-  onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
-  metadata?: {[key: string]: mixed, ...},
-  transactionId?: ?string,
+  +force?: ?boolean,
+  +poll?: ?number,
+  +liveConfigId?: ?string,
+  +onSubscribe?: () => void,
+  +onResume?: (pauseTimeMs: number) => void,
+  +onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
+  +metadata?: {+[key: string]: unknown, ...},
+  +transactionId?: ?string,
 };
 
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';

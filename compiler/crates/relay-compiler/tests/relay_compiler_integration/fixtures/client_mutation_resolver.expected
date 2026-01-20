@@ -120,3 +120,11 @@ export default ((node/*: any*/)/*: Mutation<
   barMutation$variables,
   barMutation$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: barMutation
+    Path: __generated__/barMutation.graphql.js

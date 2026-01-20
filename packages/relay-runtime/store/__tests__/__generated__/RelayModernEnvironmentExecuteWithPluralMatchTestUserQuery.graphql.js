@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2876a51e0e7653e5855aacebb73555c7>>
+ * @generated SignedSource<<a1b2356364094353e53420731b7bcf33>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables 
 |};
 export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data = {|
   +node: ?{|
-    +nameRenderers?: ?$ReadOnlyArray<?{|
+    +nameRenderers?: ?ReadonlyArray<?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
       +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,

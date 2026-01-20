@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2d89f9e5fb2920a25148cf8da6b3e612>>
+ * @generated SignedSource<<0b57ee50dabcf104e9bbcadcb89a57d1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayResponseNormalizerTest33Query$variables = {|
   id?: ?string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayResponseNormalizerTest33Query$data = {|
   +node: ?{|

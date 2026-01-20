@@ -61,9 +61,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        (store: $FlowFixMe).notify = jest.fn(store.notify.bind(store));
+        (store as $FlowFixMe).notify = jest.fn(store.notify.bind(store));
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        (store: $FlowFixMe).publish = jest.fn(store.publish.bind(store));
+        (store as $FlowFixMe).publish = jest.fn(store.publish.bind(store));
         const fetch = jest.fn<
           [
             RequestParameters,
@@ -94,8 +94,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         environment.commitPayload(operation, {
           me: {
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
           },
         });
@@ -130,8 +130,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
         environment.commitPayload(operation, {
           me: {
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             // birthdate is missing in this response
           },
@@ -139,8 +139,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual({
           me: {
-            name: 'Zuck',
             birthdate: undefined, // with treatMissingFieldsAsNull disabled this is left missing
+            name: 'Zuck',
           },
         });
         // and thus the snapshot has missing data
@@ -173,8 +173,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         environment.commitPayload(operation, {
           me: {
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
             // birthdate is missing in this response
           },
@@ -182,8 +182,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual({
           me: {
-            name: 'Zuck',
             birthdate: null, // with treatMissingFieldsAsNull enabled this is filled with null
+            name: 'Zuck',
           },
         });
         // and thus the snapshot does not have missing data
@@ -210,8 +210,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         environment.commitPayload(operation, {
           me: {
-            id: '4',
             __typename: 'User',
+            id: '4',
             name: 'Zuck',
           },
         });
@@ -257,8 +257,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(fragmentCallback.mock.calls.length).toBe(0);
         environment.commitPayload(operation, {
           me: {
-            id,
             __typename: 'User',
+            id,
             name: 'Zuck',
             username: 'Zucc',
           },
@@ -266,12 +266,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(queryCallback.mock.calls.length).toBe(1);
         expect(queryCallback.mock.calls[0][0].data).toEqual({
           me: {
-            name: 'Zuck',
-            __id: id,
+            __fragmentOwner: operation.request,
             __fragments: {
               RelayModernEnvironmentCommitPayloadTest4UserFragment: {},
             },
-            __fragmentOwner: operation.request,
+            __id: id,
+            name: 'Zuck',
           },
         });
         expect(fragmentCallback.mock.calls.length).toBe(1);
@@ -309,13 +309,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         environment = new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
-          store,
           operationLoader: {
             get: () => {
               return nameFragmentNormalizationNode;
             },
             load: jest.fn(),
           },
+          store,
         });
 
         operation = createOperationDescriptor(query, {});
@@ -337,17 +337,17 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(fragmentCallback.mock.calls.length).toBe(0);
         environment.commitPayload(operation, {
           me: {
-            id,
             __typename: 'User',
+            id,
+            name: 'Zuck',
             nameRenderer: {
-              __typename: 'MarkdownUserNameRenderer',
               __module_component_RelayModernEnvironmentCommitPayloadTest6ActorQuery:
                 'MarkdownUserNameRenderer.react',
               __module_operation_RelayModernEnvironmentCommitPayloadTest6ActorQuery:
                 'RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$normalization.graphql',
+              __typename: 'MarkdownUserNameRenderer',
               markdown: 'markdown payload',
             },
-            name: 'Zuck',
             username: 'Zucc',
           },
         });
@@ -398,8 +398,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           environment.commitPayload(operation, {
             me: {
-              id: '4',
               __typename: 'User',
+              id: '4',
               name: 'Zuck',
             },
           });

@@ -169,9 +169,7 @@ impl SortSelectionsTransform<'_> {
                 let b_ordering = selection_kind_ordering(b);
                 assert!(
                     a_ordering != b_ordering,
-                    "expected different ordering, got {} == {}",
-                    a_ordering,
-                    b_ordering
+                    "expected different ordering, got {a_ordering} == {b_ordering}"
                 );
                 a_ordering.cmp(&b_ordering)
             }

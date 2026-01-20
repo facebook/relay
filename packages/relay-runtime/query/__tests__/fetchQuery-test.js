@@ -252,7 +252,7 @@ describe('fetchQuery with missing @required value', () => {
       }
     `;
 
-    const observer = {next: jest.fn<[$FlowFixMe], mixed>()};
+    const observer = {next: jest.fn<[$FlowFixMe], unknown>()};
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     expect(observer.next).not.toHaveBeenCalled();
     const queryNode = getRequest(query);
@@ -286,8 +286,8 @@ describe('fetchQuery with missing @required value', () => {
     `;
 
     const observer = {
-      next: jest.fn<[$FlowFixMe], mixed>(),
-      error: jest.fn<[Error], mixed>(),
+      next: jest.fn<[$FlowFixMe], unknown>(),
+      error: jest.fn<[Error], unknown>(),
     };
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     const queryNode = getRequest(query);
@@ -329,8 +329,8 @@ describe('fetchQuery with missing @required value', () => {
     `;
 
     const observer = {
-      next: jest.fn<[$FlowFixMe], mixed>(),
-      error: jest.fn<[Error], mixed>(),
+      next: jest.fn<[$FlowFixMe], unknown>(),
+      error: jest.fn<[Error], unknown>(),
     };
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     const queryNode = getRequest(query);
@@ -362,12 +362,12 @@ test('client-only query with error', () => {
     }
   `;
   const observer = {
-    next: jest.fn<[empty], mixed>(),
-    error: jest.fn<[Error], mixed>(),
+    next: jest.fn<[empty], unknown>(),
+    error: jest.fn<[Error], unknown>(),
   };
 
-  // $FlowExpectedError[incompatible-call] - fetch query is expecting a fetchable query, `fetchQueryTest5Query` is client-only
-  fetchQuery<{...}, empty, mixed>(environment, query, {}).subscribe(observer);
+  // $FlowExpectedError[incompatible-type] - fetch query is expecting a fetchable query, `fetchQueryTest5Query` is client-only
+  fetchQuery<{...}, empty, unknown>(environment, query, {}).subscribe(observer);
 
   expect(observer.next).not.toBeCalled();
   expect(observer.error).toBeCalledWith(new Error('Expected ID or Text'));

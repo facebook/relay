@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<834b1cc235e29a0149d68f66240f01ad>>
+ * @generated SignedSource<<5ec8b0c37bb522eacd198077e8366770>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,10 +43,10 @@ export type readUpdatableQueryTestRegularQuery$data = {|
   |},
   +node2: ?{|
     +name?: ?string,
-    +parents?: $ReadOnlyArray<{|
+    +parents?: ReadonlyArray<{|
       +id: string,
       +name: ?string,
-      +parents: $ReadOnlyArray<{|
+      +parents: ReadonlyArray<{|
         +id: string,
       |}>,
     |}>,

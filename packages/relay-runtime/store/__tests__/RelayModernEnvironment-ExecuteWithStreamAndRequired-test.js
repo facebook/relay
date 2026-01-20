@@ -67,9 +67,9 @@ describe('execute() a query with @stream and @required', () => {
     `;
     const variables = {id: '1', enableStream: true};
 
-    const complete = jest.fn<[], mixed>();
-    const error = jest.fn<[Error], mixed>();
-    const next = jest.fn<[GraphQLResponse], mixed>();
+    const complete = jest.fn<[], unknown>();
+    const error = jest.fn<[Error], unknown>();
+    const next = jest.fn<[GraphQLResponse], unknown>();
 
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);

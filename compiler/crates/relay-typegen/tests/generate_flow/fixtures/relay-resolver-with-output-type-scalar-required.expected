@@ -29,7 +29,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 ) => ?string);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
-  +poppy: $NonMaybeType<?string>,
+  +poppy: NonNullable<?string>,
   +$fragmentType: Foo_user$fragmentType,
 |};
 export type Foo_user$key = {
@@ -45,7 +45,7 @@ export type PopStarNameResolverFragment_name$data = {|
     +street: ?string,
   |},
   +name: ?string,
-  +parents: $ReadOnlyArray<{|
+  +parents: ReadonlyArray<{|
     +lastName: ?string,
   |}>,
   +$fragmentType: PopStarNameResolverFragment_name$fragmentType,

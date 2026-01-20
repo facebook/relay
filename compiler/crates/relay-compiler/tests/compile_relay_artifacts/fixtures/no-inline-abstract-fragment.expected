@@ -42,7 +42,7 @@ fragment noInlineAbstractFragment_parent on Actor
         scalar_from_parent: $scalar_from_parent
         local_from_parent: $global_from_parent
         shadowed_global: $shadowed_global
-      )
+      ) @alias
   }
 }
 
@@ -658,24 +658,35 @@ fragment noInlineAbstractFragment_parent_4pGKCl on Actor {
           "storageKey": null
         },
         {
-          "args": [
-            {
-              "kind": "Variable",
-              "name": "local_from_parent",
-              "variableName": "global_from_parent"
-            },
-            {
-              "kind": "Variable",
-              "name": "scalar_from_parent",
-              "variableName": "scalar_from_parent"
-            },
-            {
-              "kind": "Variable",
-              "name": "shadowed_global",
-              "variableName": "shadowed_global"
-            }
-          ],
-          "kind": "FragmentSpread",
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "local_from_parent",
+                    "variableName": "global_from_parent"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "scalar_from_parent",
+                    "variableName": "scalar_from_parent"
+                  },
+                  {
+                    "kind": "Variable",
+                    "name": "shadowed_global",
+                    "variableName": "shadowed_global"
+                  }
+                ],
+                "kind": "FragmentSpread",
+                "name": "noInlineAbstractFragment_child"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
           "name": "noInlineAbstractFragment_child"
         }
       ],

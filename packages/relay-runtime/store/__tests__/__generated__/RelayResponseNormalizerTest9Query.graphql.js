@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b24d8f83d68bd29b81ae13405e98e8c5>>
+ * @generated SignedSource<<0362728f34fbc4ac24be4b95570e76e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayResponseNormalizerTest9Query$variables = {|
 |};
 export type RelayResponseNormalizerTest9Query$data = {|
   +node: ?{|
-    +actors?: ?$ReadOnlyArray<?{|
+    +actors?: ?ReadonlyArray<?{|
       +$fragmentSpreads: RelayResponseNormalizerTest5Fragment$fragmentType,
     |}>,
   |},

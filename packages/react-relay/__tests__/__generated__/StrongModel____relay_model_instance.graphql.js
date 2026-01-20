@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<121d882061018b32d818400b6e40b218>>
+ * @generated SignedSource<<c48cc81277aa200a828850439d605215>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,10 +28,10 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   id: StrongModel__id$data['id'],
   args: void,
   context: TestResolverContextType,
-) => mixed);
+) => unknown);
 declare export opaque type StrongModel____relay_model_instance$fragmentType: FragmentType;
 export type StrongModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof strongModelRelayModelInstanceResolverType>>,
+  +__relay_model_instance: NonNullable<ReturnType<typeof strongModelRelayModelInstanceResolverType>>,
   +$fragmentType: StrongModel____relay_model_instance$fragmentType,
 |};
 export type StrongModel____relay_model_instance$key = {

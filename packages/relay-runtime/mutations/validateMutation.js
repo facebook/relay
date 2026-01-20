@@ -62,12 +62,12 @@ if (__DEV__) {
   ) => {
     const operationName = mutation.operation.name;
     const context: ValidationContext = {
-      path: 'ROOT',
-      visitedPaths: new Set(),
-      variables: variables || {},
-      missingDiff: {},
       extraDiff: {},
+      missingDiff: {},
       moduleImportPaths: new Set(),
+      path: 'ROOT',
+      variables: variables || {},
+      visitedPaths: new Set(),
     };
     validateSelections(
       optimisticResponse,
@@ -91,7 +91,7 @@ if (__DEV__) {
 
   const validateSelections = (
     optimisticResponse: Object,
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     context: ValidationContext,
   ) => {
     selections.forEach(selection =>
@@ -156,7 +156,7 @@ if (__DEV__) {
         return;
       }
       default:
-        (selection: empty);
+        selection as empty;
         return;
     }
   };
@@ -261,4 +261,4 @@ if (__DEV__) {
   };
 }
 
-module.exports = (validateMutation: (Object, ConcreteRequest, ?Object) => void);
+module.exports = validateMutation as (Object, ConcreteRequest, ?Object) => void;

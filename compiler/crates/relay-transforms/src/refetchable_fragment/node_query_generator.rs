@@ -74,22 +74,16 @@ fn build_refetch_operation(
                                 schema
                                     .object(object_id)
                                     .interfaces
-                                    .iter()
-                                    .any(|interface_id| *interface_id == node_interface_id)
+                                    .contains(&node_interface_id)
                             })
                     }
                 }
-                Type::Object(id) => schema
-                    .object(id)
-                    .interfaces
-                    .iter()
-                    .any(|interface_id| *interface_id == node_interface_id),
+                Type::Object(id) => schema.object(id).interfaces.contains(&node_interface_id),
                 Type::Union(id) => schema.union(id).members.iter().all(|&object_id| {
                     schema
                         .object(object_id)
                         .interfaces
-                        .iter()
-                        .any(|interface_id| *interface_id == node_interface_id)
+                        .contains(&node_interface_id)
                 }),
                 _ => false,
             };
@@ -111,7 +105,7 @@ fn build_refetch_operation(
                 .iter()
                 .find(|&&id| schema.field(id).name.item == id_name)
                 .unwrap_or_else(|| {
-                    panic!("Expected `Node` to contain a field named `{:}`.", id_name)
+                    panic!("Expected `Node` to contain a field named `{id_name:}`.")
                 });
 
             let fragment = Arc::new(FragmentDefinition {
@@ -200,10 +194,10 @@ fn get_node_field_id_and_id_arg<'s>(
     if let Some(node_field_id) = node_field_id {
         let node_field = schema.field(node_field_id);
         let mut arg_iter = node_field.arguments.iter();
-        if let Some(id_arg) = arg_iter.next() {
-            if arg_iter.len() == 0 {
-                return Ok((node_field_id, id_arg));
-            }
+        if let Some(id_arg) = arg_iter.next()
+            && arg_iter.len() == 0
+        {
+            return Ok((node_field_id, id_arg));
         }
     }
     Err(vec![Diagnostic::error(

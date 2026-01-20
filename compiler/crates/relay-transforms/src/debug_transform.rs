@@ -55,7 +55,7 @@ impl Transformer<'_> for DebugTransform {
             .is_some()
         {
             let output = print_operation(&self.schema, operation, PRINTER_OPTIONS);
-            println!("{}", output);
+            println!("{output}");
         }
         Transformed::Keep
     }
@@ -70,7 +70,7 @@ impl Transformer<'_> for DebugTransform {
             .is_some()
         {
             let output = print_fragment(&self.schema, fragment, PRINTER_OPTIONS);
-            println!("{}", output);
+            println!("{output}");
         }
         Transformed::Keep
     }

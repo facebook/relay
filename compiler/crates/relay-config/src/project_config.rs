@@ -86,19 +86,13 @@ where
     Ok(Some(permits))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[derive(JsonSchema)]
 pub enum LocalPersistAlgorithm {
+    #[default]
     MD5,
     SHA1,
     SHA256,
-}
-
-impl Default for LocalPersistAlgorithm {
-    // For backwards compatibility
-    fn default() -> Self {
-        Self::MD5
-    }
 }
 
 /// Configuration for local persistence of GraphQL documents.
@@ -160,11 +154,10 @@ impl<'de> Deserialize<'de> for PersistConfig {
                 Err(local_error) => {
                     let error_message = format!(
                         r#"Persist configuration cannot be parsed as a remote configuration due to:
-- {:?}.
+- {remote_error:?}.
 
 It also cannot be a local persist configuration due to:
-- {:?}."#,
-                        remote_error, local_error
+- {local_error:?}."#
                     );
 
                     Err(Error::custom(error_message))
@@ -200,6 +193,11 @@ impl Debug for ExtraArtifactsConfig {
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
+    /// Configuration for connection field names in the schema.
+    ///
+    /// **Important**: When you configure this option in the compiler, you must also configure
+    /// the Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.
+    /// See: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>
     #[serde(default)]
     pub connection_interface: ConnectionInterface,
 
@@ -462,7 +460,7 @@ impl ProjectConfig {
         } else {
             self.path_for_language_specific_artifact(
                 source_location,
-                format!("{}.graphql", artifact_name),
+                format!("{artifact_name}.graphql"),
             )
         };
         if let Some(get_custom_path_for_artifact) = &self.get_custom_path_for_artifact {
@@ -480,9 +478,9 @@ impl ProjectConfig {
     ) -> PathBuf {
         let filename = match &self.typegen_config.language {
             TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-                format!("{}.js", artifact_file_name)
+                format!("{artifact_file_name}.js")
             }
-            TypegenLanguage::TypeScript => format!("{}.ts", artifact_file_name),
+            TypegenLanguage::TypeScript => format!("{artifact_file_name}.ts"),
         };
 
         self.create_path_for_artifact(source_file, filename)
@@ -499,20 +497,17 @@ impl ProjectConfig {
             JsModuleFormat::CommonJS => {
                 let importing_artifact_directory = importing_artifact_path.parent().unwrap_or_else(||{
                     panic!(
-                        "expected importing_artifact_path: {:?} to have a parent path, maybe it's not a file?",
-                        importing_artifact_path
+                        "expected importing_artifact_path: {importing_artifact_path:?} to have a parent path, maybe it's not a file?"
                     );
                 });
                 let target_module_directory = target_module_path.parent().unwrap_or_else(||{
                     panic!(
-                        "expected target_module_path: {:?} to have a parent path, maybe it's not a file?",
-                        target_module_path
+                        "expected target_module_path: {target_module_path:?} to have a parent path, maybe it's not a file?"
                     );
                 });
                 let target_module_file_name = target_module_path.file_name().unwrap_or_else(|| {
                     panic!(
-                        "expected target_module_path: {:?} to have a file name",
-                        target_module_path
+                        "expected target_module_path: {target_module_path:?} to have a file name"
                     )
                 });
                 let relative_path =

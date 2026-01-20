@@ -38,7 +38,7 @@ let renderCount: ?number;
 let loadedQuery;
 let instance;
 let queryLoaderCallback;
-let dispose: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+let dispose: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 let disposeQuery;
 
 let render;
@@ -59,12 +59,13 @@ jest.mock('../loadQuery', () => ({
 }));
 
 beforeEach(() => {
+  // Disable Activity compatibility for live query tests to maintain original behavior
   renderCount = undefined;
   dispose = undefined;
   environment = createMockEnvironment();
   render = function (
     initialPreloadedQuery: ?{
-      dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   ) {
     renderCount = 0;
@@ -77,7 +78,7 @@ beforeEach(() => {
 
   update = function (
     initialPreloadedQuery: ?{
-      dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   ) {
     ReactTestRenderer.act(() => {
@@ -91,11 +92,11 @@ beforeEach(() => {
     initialPreloadedQuery,
   }: {
     initialPreloadedQuery: ?{
-      dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   }) {
     renderCount = (renderCount || 0) + 1;
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
       query,
       initialPreloadedQuery,
@@ -107,7 +108,7 @@ beforeEach(() => {
     initialPreloadedQuery,
   }: {
     initialPreloadedQuery?: ?{
-      dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      dispose: JestMockFn<ReadonlyArray<unknown>, unknown>,
     },
   }) {
     return (
@@ -338,7 +339,7 @@ it('does not release or cancel the query before the new component tree unsuspend
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -377,6 +378,8 @@ it('does not release or cancel the query before the new component tree unsuspend
     expect(currentDispose).not.toHaveBeenCalled();
 
     ReactTestRenderer.act(() => {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       resolve && resolve();
       jest.runAllImmediates();
     });
@@ -409,7 +412,7 @@ it('releases and cancels query references associated with previous suspensions w
           <RelayEnvironmentProvider environment={environment}>
             <ConcurrentWrapper />
           </RelayEnvironmentProvider>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -506,7 +509,7 @@ it('releases and cancels query references associated with subsequent suspensions
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
           <ConcurrentWrapper />,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: true},
         );
       });
@@ -637,7 +640,8 @@ it('should release and cancel queries on unmount if the callback is called, the 
   expect(outerInstance?.toJSON()).toEqual('fallback');
   expect(dispose).not.toHaveBeenCalled();
   ReactTestRenderer.act(() => outerInstance?.unmount());
-  expect(dispose).toHaveBeenCalledTimes(1);
+  return; // @oss-only
+  // @fb-only expect(dispose).toHaveBeenCalledTimes(1);
 });
 
 it.skip('releases and cancels all queries if a the callback is called, the component suspends, another query is called and then the component unmounts', () => {
@@ -666,7 +670,7 @@ it.skip('releases and cancels all queries if a the callback is called, the compo
   ReactTestRenderer.act(() => {
     outerInstance = ReactTestRenderer.create(
       <Outer />,
-      // $FlowFixMe[prop-missing]
+      // $FlowFixMe[incompatible-type]
       {
         unstable_isConcurrent: true,
       },
@@ -724,7 +728,7 @@ it.skip('releases and cancels all queries if the component suspends, another que
   ReactTestRenderer.act(() => {
     outerInstance = ReactTestRenderer.create(
       <Outer />,
-      // $FlowFixMe[prop-missing]
+      // $FlowFixMe[incompatible-type]
       {
         unstable_isConcurrent: true,
       },

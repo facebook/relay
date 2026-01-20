@@ -15,8 +15,25 @@ import type {MockResolvers} from '../RelayMockPayloadGenerator';
 import type {Query, Variables} from 'relay-runtime';
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
-const {createOperationDescriptor, graphql} = require('relay-runtime');
-const {FIXTURE_TAG} = require('relay-test-utils-internal');
+const {
+  ROOT_ID,
+  ROOT_TYPE,
+  createNormalizationSelector,
+  createOperationDescriptor,
+  graphql,
+} = require('relay-runtime');
+const defaultGetDataID = require('relay-runtime/store/defaultGetDataID');
+const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
+const RelayResponseNormalizer = require('relay-runtime/store/RelayResponseNormalizer');
+const {ID_KEY, TYPENAME_KEY} = require('relay-runtime/store/RelayStoreUtils');
+const {
+  FIXTURE_TAG,
+  disallowWarnings,
+  expectToWarn,
+  expectToWarnMany,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
   query: Query<TVariables, TData, TRawResponse>,
@@ -30,6 +47,35 @@ function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
     mockResolvers,
     options,
   );
+
+  // Run the normalizer to ensure the payload is valid
+  const recordSource = new RelayRecordSource({
+    [ROOT_ID]: {
+      [ID_KEY]: ROOT_ID,
+      [TYPENAME_KEY]: ROOT_TYPE,
+    },
+  });
+  const selector = createNormalizationSelector(
+    operation.request.node.operation,
+    ROOT_ID,
+    operation.request.variables,
+  );
+  // For deferred payloads (arrays), only normalize the initial payload.
+  // Subsequent payloads are incremental updates that would need different handling.
+  const initialPayload = Array.isArray(payload) ? payload[0] : payload;
+  if (initialPayload.data != null) {
+    RelayResponseNormalizer.normalize(
+      recordSource,
+      selector,
+      initialPayload.data,
+      {
+        getDataID: defaultGetDataID,
+        treatMissingFieldsAsNull: false,
+        log: null,
+        deferDeduplicatedFields: false,
+      },
+    );
+  }
 
   expect({
     [FIXTURE_TAG]: true,
@@ -117,13 +163,19 @@ test('generate mock with inline fragment', () => {
       }
     }
   `;
-  testGeneratedData(graphql`
-    query RelayMockPayloadGeneratorTest3Query($condition: Boolean!) {
-      node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest2Fragment @dangerously_unaliased_fixme
-      }
-    }
-  `);
+  expectToWarn(
+    'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `<User-mock-id-2>` with conflicting field, id and its values: <User-mock-id-2> and <User-mock-id-3>. If two fields are different but share the same id, one field will overwrite the other.',
+    () => {
+      testGeneratedData(graphql`
+        query RelayMockPayloadGeneratorTest3Query($condition: Boolean!) {
+          node(id: "my-id") {
+            ...RelayMockPayloadGeneratorTest2Fragment
+              @dangerously_unaliased_fixme
+          }
+        }
+      `);
+    },
+  );
 });
 
 test('generate mock with condition (and other complications)', () => {
@@ -160,18 +212,30 @@ test('generate mock with condition (and other complications)', () => {
       }
     }
   `;
-  testGeneratedData(graphql`
-    query RelayMockPayloadGeneratorTest4Query(
-      $showProfilePicture: Boolean!
-      $hideBirthday: Boolean!
-      $showBirthdayMonth: Boolean!
-      $hideAuthorUsername: Boolean!
-    ) {
-      node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest3Fragment @dangerously_unaliased_fixme
-      }
-    }
-  `);
+  expectToWarnMany(
+    [
+      'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `<mock-id-1>` with conflicting field, id and its values: <mock-id-1> and <User-mock-id-2>. If two fields are different but share the same id, one field will overwrite the other.',
+      'RelayResponseNormalizer: Payload did not contain a value for field `birthdate: birthdate`. Check that you are parsing with the same query that was used to fetch the payload.',
+      'RelayResponseNormalizer: Payload did not contain a value for field `authorID: id`. Check that you are parsing with the same query that was used to fetch the payload.',
+      'RelayResponseNormalizer: Payload did not contain a value for field `objectType: __typename`. Check that you are parsing with the same query that was used to fetch the payload.',
+      'RelayResponseNormalizer: Payload did not contain a value for field `username: username`. Check that you are parsing with the same query that was used to fetch the payload.',
+    ],
+    () => {
+      testGeneratedData(graphql`
+        query RelayMockPayloadGeneratorTest4Query(
+          $showProfilePicture: Boolean!
+          $hideBirthday: Boolean!
+          $showBirthdayMonth: Boolean!
+          $hideAuthorUsername: Boolean!
+        ) {
+          node(id: "my-id") {
+            ...RelayMockPayloadGeneratorTest3Fragment
+              @dangerously_unaliased_fixme
+          }
+        }
+      `);
+    },
+  );
 });
 
 test('generate mock with connection', () => {
@@ -206,16 +270,27 @@ test('generate mock with connection', () => {
       }
     }
   `;
-  testGeneratedData(graphql`
-    query RelayMockPayloadGeneratorTest5Query(
-      $first: Int
-      $skipUserInConnection: Boolean!
-    ) {
-      node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest5Fragment @dangerously_unaliased_fixme
-      }
-    }
-  `);
+  expectToWarnMany(
+    [
+      'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `<mock-id-2>` with conflicting field, name and its values: <mock-value-for-field-"myName"> and <mock-value-for-field-"name">. If two fields are different but share the same id, one field will overwrite the other.',
+      'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      'RelayResponseNormalizer: Payload did not contain a value for field `username: username`. Check that you are parsing with the same query that was used to fetch the payload.',
+      'RelayResponseNormalizer: Payload did not contain a value for field `emailAddresses: emailAddresses`. Check that you are parsing with the same query that was used to fetch the payload.',
+    ],
+    () => {
+      testGeneratedData(graphql`
+        query RelayMockPayloadGeneratorTest5Query(
+          $first: Int
+          $skipUserInConnection: Boolean!
+        ) {
+          node(id: "my-id") {
+            ...RelayMockPayloadGeneratorTest5Fragment
+              @dangerously_unaliased_fixme
+          }
+        }
+      `);
+    },
+  );
 });
 
 test('generate basic mock data', () => {
@@ -661,13 +736,19 @@ test('generate mock for multiple fragment spreads', () => {
       ...RelayMockPayloadGeneratorTest19Fragment
     }
   `;
-  testGeneratedData(graphql`
-    query RelayMockPayloadGeneratorTest17Query {
-      node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest20Fragment @dangerously_unaliased_fixme
-      }
-    }
-  `);
+  expectToWarn(
+    'RelayResponseNormalizer: Invalid record. The record contains references to the conflicting field, actor and its id values: <mock-id-2> and <mock-id-3>. We need to make sure that the record the field points to remains consistent or one field will overwrite the other.',
+    () => {
+      testGeneratedData(graphql`
+        query RelayMockPayloadGeneratorTest17Query {
+          node(id: "my-id") {
+            ...RelayMockPayloadGeneratorTest20Fragment
+              @dangerously_unaliased_fixme
+          }
+        }
+      `);
+    },
+  );
 });
 
 test('generate mock for with directives and handlers', () => {
@@ -743,19 +824,28 @@ test('generate mock for with directives and handlers', () => {
       }
     }
   `;
-  testGeneratedData(graphql`
-    query RelayMockPayloadGeneratorTest18Query(
-      $first: Int = 10
-      $picturePreset: PhotoSize
-      $RELAY_INCREMENTAL_DELIVERY: Boolean = false
-    ) {
-      node(id: "my-id") {
-        ...RelayMockPayloadGeneratorTest22Fragment
-          @dangerously_unaliased_fixme
-          @arguments(condition: true)
-      }
-    }
-  `);
+  expectToWarnMany(
+    [
+      'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `<mock-id-1>` with conflicting field, name and its values: <mock-value-for-field-"name"> and <mock-value-for-field-"customName">. If two fields are different but share the same id, one field will overwrite the other.',
+      'RelayResponseNormalizer: Invalid record. The record contains references to the conflicting field, actor and its id values: <mock-id-2> and <mock-id-4>. We need to make sure that the record the field points to remains consistent or one field will overwrite the other.',
+      'RelayResponseNormalizer: Invalid record. The record contains two instances of the same id: `<mock-id-4>` with conflicting field, username and its values: <mock-value-for-field-"username"> and <mock-value-for-field-"name">. If two fields are different but share the same id, one field will overwrite the other.',
+    ],
+    () => {
+      testGeneratedData(graphql`
+        query RelayMockPayloadGeneratorTest18Query(
+          $first: Int = 10
+          $picturePreset: PhotoSize
+          $RELAY_INCREMENTAL_DELIVERY: Boolean = false
+        ) {
+          node(id: "my-id") {
+            ...RelayMockPayloadGeneratorTest22Fragment
+              @dangerously_unaliased_fixme
+              @arguments(condition: true)
+          }
+        }
+      `);
+    },
+  );
 });
 
 test('should return `null` for selection if that is specified in default values', () => {
@@ -796,21 +886,26 @@ test('should return `null` for selection if that is specified in default values'
       ...RelayMockPayloadGeneratorTest25Fragment
     }
   `;
-  testGeneratedData(
-    graphql`
-      query RelayMockPayloadGeneratorTest19Query {
-        node(id: "my-id") {
-          ...RelayMockPayloadGeneratorTest27Fragment
-            @dangerously_unaliased_fixme
-        }
-      }
-    `,
-    {
-      User() {
-        return {
-          actor: null,
-        };
-      },
+  expectToWarn(
+    'RelayResponseNormalizer: Invalid record. The record contains references to the conflicting field, actor and its id values: null and <mock-id-2>. We need to make sure that the record the field points to remains consistent or one field will overwrite the other.',
+    () => {
+      testGeneratedData(
+        graphql`
+          query RelayMockPayloadGeneratorTest19Query {
+            node(id: "my-id") {
+              ...RelayMockPayloadGeneratorTest27Fragment
+                @dangerously_unaliased_fixme
+            }
+          }
+        `,
+        {
+          User() {
+            return {
+              actor: null,
+            };
+          },
+        },
+      );
     },
   );
 });
@@ -1872,25 +1967,33 @@ test('generate mock for streamed fragments', () => {
       id
     }
   `;
-  testGeneratedData(
-    graphql`
-      query RelayMockPayloadGeneratorTest64Query {
-        me {
-          ... on User {
-            friends(first: 10)
-              @stream_connection(initial_count: 4, key: "test-64__friends") {
-              edges {
-                node {
-                  ...RelayMockPayloadGeneratorTest64Fragment
+  expectToWarn(
+    'RelayResponseNormalizer: Payload did not contain a value for field `edges: edges`. Check that you are parsing with the same query that was used to fetch the payload.',
+    () => {
+      testGeneratedData(
+        graphql`
+          query RelayMockPayloadGeneratorTest64Query {
+            me {
+              ... on User {
+                friends(first: 10)
+                  @stream_connection(
+                    initial_count: 4
+                    key: "test-64__friends"
+                  ) {
+                  edges {
+                    node {
+                      ...RelayMockPayloadGeneratorTest64Fragment
+                    }
+                  }
                 }
               }
             }
           }
-        }
-      }
-    `,
-    null,
-    {generateDeferredPayload: true},
+        `,
+        null,
+        {generateDeferredPayload: true},
+      );
+    },
   );
 });
 
@@ -1900,29 +2003,34 @@ test('generate mock for streamed fragments with if condition true', () => {
       id
     }
   `;
-  testGeneratedData(
-    graphql`
-      query RelayMockPayloadGeneratorTest65Query {
-        me {
-          ... on User {
-            friends(first: 10)
-              @stream_connection(
-                initial_count: 4
-                key: "test-65__friends"
-                if: true
-              ) {
-              edges {
-                node {
-                  ...RelayMockPayloadGeneratorTest65Fragment
+  expectToWarn(
+    'RelayResponseNormalizer: Payload did not contain a value for field `edges: edges`. Check that you are parsing with the same query that was used to fetch the payload.',
+    () => {
+      testGeneratedData(
+        graphql`
+          query RelayMockPayloadGeneratorTest65Query {
+            me {
+              ... on User {
+                friends(first: 10)
+                  @stream_connection(
+                    initial_count: 4
+                    key: "test-65__friends"
+                    if: true
+                  ) {
+                  edges {
+                    node {
+                      ...RelayMockPayloadGeneratorTest65Fragment
+                    }
+                  }
                 }
               }
             }
           }
-        }
-      }
-    `,
-    null,
-    {generateDeferredPayload: true},
+        `,
+        null,
+        {generateDeferredPayload: true},
+      );
+    },
   );
 });
 
@@ -2068,5 +2176,28 @@ describe('allows skipping abstract inline fragment for @alias', () => {
         },
       }),
     });
+  });
+});
+
+describe("Aliased linked fields without arguments don't overwrite each other", () => {
+  test('generate mock for query with aliased linked fields', () => {
+    // This is currently broken.
+    expectToWarn(
+      'RelayResponseNormalizer: Invalid record. The record contains references to the conflicting field, me and its id values: <User-mock-id-1> and <User-mock-id-2>. We need to make sure that the record the field points to remains consistent or one field will overwrite the other.',
+      () => {
+        testGeneratedData(graphql`
+          query RelayMockPayloadGeneratorTest69Query {
+            a: me {
+              id
+              name
+            }
+            b: me {
+              id
+              emailAddresses
+            }
+          }
+        `);
+      },
+    );
   });
 });

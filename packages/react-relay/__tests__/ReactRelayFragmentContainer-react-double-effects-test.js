@@ -39,7 +39,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     // Set up mocks
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    renderSpy = jest.fn<ReadonlyArray<unknown>, unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -96,14 +96,13 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
       return user.name;
     };
 
-    const FragmentContainer = createContainer<
-      any,
-      void,
-      typeof FragmentComponent,
-    >(FragmentComponent, {
-      // eslint-disable-next-line relay/graphql-naming
-      user: gqlFragment,
-    });
+    const FragmentContainer = createContainer<any, typeof FragmentComponent>(
+      FragmentComponent,
+      {
+        // eslint-disable-next-line relay/graphql-naming
+        user: gqlFragment,
+      },
+    );
 
     let instance;
     const data = environment.lookup(query.fragment).data;
@@ -114,7 +113,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
             <FragmentContainer user={data?.node} />
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true, unstable_strictMode: true},
       );
     });

@@ -1,6 +1,6 @@
 query UpdatableQuery @updatable {
   nodes(ids: [4]) {
-    ...Updatable_user
+    ...Updatable_user @alias
   }
 }
 

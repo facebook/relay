@@ -59,15 +59,15 @@ beforeEach(() => {
 
 test('Can read an external state resolver directly', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -94,15 +94,15 @@ test('Can read an external state resolver directly', () => {
 
 test('Environment subscribers see updates pushed from external data source', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -125,12 +125,12 @@ test('Environment subscribers see updates pushed from external data source', () 
 
   const snapshot = environment.lookup(operation.fragment);
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  observedCounter = (snapshot.data: any).counter;
+  observedCounter = (snapshot.data as any).counter;
 
   const environmentUpdateHandler = jest.fn(() => {
     const s = environment.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    observedCounter = (s.data: any).counter;
+    observedCounter = (s.data as any).counter;
   });
   const disposable = environment.subscribe(
     snapshot,
@@ -166,15 +166,15 @@ test('Environment subscribers see updates pushed from external data source', () 
 
 test('Relay Resolvers that read Live Resolvers see updates pushed from external data source', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -197,12 +197,12 @@ test('Relay Resolvers that read Live Resolvers see updates pushed from external 
 
   const snapshot = environment.lookup(operation.fragment);
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  observedCounterPlusOne = (snapshot.data: any).counter_plus_one;
+  observedCounterPlusOne = (snapshot.data as any).counter_plus_one;
 
   const environmentUpdateHandler = jest.fn(() => {
     const s = environment.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    observedCounterPlusOne = (s.data: any).counter_plus_one;
+    observedCounterPlusOne = (s.data as any).counter_plus_one;
   });
   const disposable = environment.subscribe(
     snapshot,
@@ -239,15 +239,15 @@ test('Relay Resolvers that read Live Resolvers see updates pushed from external 
 // we create the record where we store the value.
 test('Can handle a Live Resolver that triggers an update immediately on subscribe', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -274,15 +274,15 @@ test('Can handle a Live Resolver that triggers an update immediately on subscrib
 
 test('Subscriptions created while in an optimistic state is in place get cleaned up correctly', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
       name: 'Alice',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
     },
   });
   const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
@@ -335,16 +335,16 @@ test('Subscriptions created while in an optimistic state is in place get cleaned
 
 test('Outer resolvers do not overwrite subscriptions made by inner resolvers (regression)', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
       name: 'Alice',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
 
@@ -458,8 +458,8 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
   const mockPayload = Promise.resolve({
     data: {
       me: {
-        id: '1',
         __typename: 'User',
+        id: '1',
       },
     },
   });
@@ -580,16 +580,16 @@ test('Can suspend', () => {
 
 test('Can suspend with resolver that uses live resolver', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
       name: 'Alice',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
 
@@ -656,7 +656,7 @@ test('Can suspend with resolver that uses live resolver', () => {
       {},
     );
     environment.commitPayload(operationDescriptor, {
-      me: {id: '1', name: 'Bob', __typename: 'User'},
+      me: {__typename: 'User', id: '1', name: 'Bob'},
     });
   });
   // $FlowFixMe[incompatible-use]
@@ -713,16 +713,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 
   it('should renderer the data from the store, after global state resolves the value', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        'node(id:"1")': {__ref: '1'},
-      },
       '1': {
         __id: '1',
         __typename: 'User',
-        name: 'Alice',
         id: '1',
+        name: 'Alice',
         'profile_picture(scale:1.5)': {
           __ref: 'client:1:profile_picture(scale:1.5)',
         },
@@ -730,6 +725,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       'client:1:profile_picture(scale:1.5)': {
         __id: 'client:1:profile_picture(scale:1.5)',
         uri: 'scale 1.5',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
       },
     });
     const environment = createEnvironment(source);
@@ -751,16 +751,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 
   it('should render undefined value for missing data in live resolver field', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        'node(id:"1")': {__ref: '1'},
-      },
       '1': {
         __id: '1',
         __typename: 'User',
-        name: 'Alice',
         id: '1',
+        name: 'Alice',
         'profile_picture(scale:1.5)': {
           __ref: 'client:1:profile_picture(scale:1.5)',
         },
@@ -775,6 +770,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       'client:1:profile_picture(scale:2)': {
         __id: 'client:1:profile_picture(scale:2)',
         // missing data for uri
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
       },
     });
     const environment = createEnvironment(source);
@@ -799,16 +799,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 
   it('should render undefined value for missing data in live resolver field and trigger different states of suspense ', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        'node(id:"1")': {__ref: '1'},
-      },
       '1': {
         __id: '1',
         __typename: 'User',
-        name: 'Alice',
         id: '1',
+        name: 'Alice',
         'profile_picture(scale:1.5)': {
           __ref: 'client:1:profile_picture(scale:1.5)',
         },
@@ -830,6 +825,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       'client:1:profile_picture(scale:3)': {
         __id: 'client:1:profile_picture(scale:3)',
         uri: 'scale 3',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
       },
     });
     const environment = createEnvironment(source);
@@ -936,31 +936,31 @@ skipIf(
     function createEnvironment(source: MutableRecordSource) {
       return new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
-        store: new RelayModernStore(source),
         relayFieldLogger,
+        store: new RelayModernStore(source),
       });
     }
 
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        // username is missing
+        id: '1',
+        name: 'Alice',
+      },
+      '2': {
+        __id: '2',
+        __typename: 'User',
+        id: '2',
+        name: 'Bob',
+        username: 'bob',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         'node(id:"1")': {__ref: '1'},
         'node(id:"2")': {__ref: '2'},
-      },
-      '1': {
-        __id: '1',
-        __typename: 'User',
-        name: 'Alice',
-        // username is missing
-        id: '1',
-      },
-      '2': {
-        __id: '2',
-        __typename: 'User',
-        name: 'Bob',
-        username: 'bob',
-        id: '2',
       },
     });
     const environment = createEnvironment(source);
@@ -979,10 +979,10 @@ skipIf(
       ],
       [
         {
-          kind: 'missing_required_field.throw',
-          owner: 'ResolverThatThrows',
           fieldPath: 'username',
           handled: true,
+          kind: 'missing_required_field.throw',
+          owner: 'ResolverThatThrows',
         },
       ],
     ]);
@@ -1007,10 +1007,10 @@ skipIf(
             'The resolver should throw earlier. It should have missing data.',
           ),
           fieldPath: 'node.resolver_that_throws',
+          handled: false,
           kind: 'relay_resolver.error',
           owner: 'LiveResolversTest8Query',
           shouldThrow: false,
-          handled: false,
         },
       ],
     ]);
@@ -1067,16 +1067,11 @@ test('apply optimistic updates to live resolver field', () => {
   }
 
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      'node(id:"1")': {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
-      name: 'Alice',
       id: '1',
+      name: 'Alice',
       'profile_picture(scale:1.5)': {
         __ref: 'client:1:profile_picture(scale:1.5)',
       },
@@ -1084,6 +1079,11 @@ test('apply optimistic updates to live resolver field', () => {
     'client:1:profile_picture(scale:1.5)': {
       __id: 'client:1:profile_picture(scale:1.5)',
       uri: 'scale 1.5',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      'node(id:"1")': {__ref: '1'},
     },
   });
   const environment = createEnvironment(source);
@@ -1142,15 +1142,15 @@ test('apply optimistic updates to live resolver field', () => {
 // `isMissingData` to false when reading a live resolver field.
 test('Missing data is not clobbered by non-null empty missingLiveResolverFields on snapshot', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -1306,15 +1306,15 @@ test('with client-only field and args', () => {
 
 test('Can read a live client edge without a fragment', () => {
   const source = RelayRecordSource.create({
+    '1338': {
+      __id: '1338',
+      __typename: 'User',
+      id: '1338',
+      name: 'Elizabeth',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
-    },
-    '1338': {
-      __id: '1338',
-      id: '1338',
-      __typename: 'User',
-      name: 'Elizabeth',
     },
   });
 
@@ -1442,7 +1442,7 @@ describe('client-only fragments', () => {
         id: '1',
       }),
       {
-        node: {id: '1', __typename: 'User'},
+        node: {__typename: 'User', id: '1'},
       },
     );
     let renderer;
@@ -1477,7 +1477,7 @@ describe('client-only fragments', () => {
         id: '1',
       }),
       {
-        node: {id: '1', __typename: 'User'},
+        node: {__typename: 'User', id: '1'},
       },
     );
     let renderer;
@@ -1507,7 +1507,7 @@ describe('client-only fragments', () => {
     expect(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     }).toThrowError(
-      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:$r:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
+      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{\"__id\":\"client:1:$r:counter_suspends_when_odd\",\"__typename\":\"__RELAY_RESOLVER__\",\"__resolverError\":null,\"__resolverValue\":{\"__LIVE_RESOLVER_SUSPENSE_SENTINEL\":true},\"__resolverOutputTypeRecordIDs\":{},\"__resolverLiveStateDirty\":true}`.',
     );
     // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
@@ -1704,12 +1704,12 @@ test('Errors when reading a @live resolver that does not return a LiveState obje
   const data = environment.lookup(operation.fragment);
   expect(data.fieldErrors).toEqual([
     {
+      error: new Error('What?'),
+      fieldPath: 'live_resolver_throws',
+      handled: false,
       kind: 'relay_resolver.error',
       owner: 'LiveResolversTest18Query',
-      fieldPath: 'live_resolver_throws',
-      error: new Error('What?'),
       shouldThrow: false,
-      handled: false,
     },
   ]);
 });
@@ -1818,15 +1818,15 @@ test('allows objects to be provided to be provided through the store', () => {
 
 test('ResolverContext can contain observable values', async () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -1858,12 +1858,12 @@ test('ResolverContext can contain observable values', async () => {
 
   const snapshot = environment.lookup(operation.fragment);
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  observedCounter = (snapshot.data: any).counter_context;
+  observedCounter = (snapshot.data as any).counter_context;
 
   const environmentUpdateHandler = jest.fn(() => {
     const s = environment.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    observedCounter = (s.data: any).counter_context;
+    observedCounter = (s.data as any).counter_context;
   });
   const disposable = environment.subscribe(
     snapshot,
@@ -1899,15 +1899,15 @@ test('ResolverContext can contain observable values', async () => {
 
 test('ResolverContext as passed through nested resolver counters', async () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -1941,12 +1941,12 @@ test('ResolverContext as passed through nested resolver counters', async () => {
 
   const snapshot = environment.lookup(operation.fragment);
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  observedCounter = (snapshot.data: any).base_counter_context.count_plus_one;
+  observedCounter = (snapshot.data as any).base_counter_context.count_plus_one;
 
   const environmentUpdateHandler = jest.fn(() => {
     const s = environment.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    observedCounter = (s.data: any).base_counter_context.count_plus_one;
+    observedCounter = (s.data as any).base_counter_context.count_plus_one;
   });
   const disposable = environment.subscribe(
     snapshot,

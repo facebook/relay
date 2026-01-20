@@ -20,10 +20,10 @@ fragment unmaskedFragmentSpreadsLocalArguments_User_user on User
       │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     6 │   }
 
-  ℹ︎ related location
+  ℹ︎ related 'argumentDefinitions' directive
 
-  unmasked-fragment-spreads-local-arguments.invalid.graphql:9:10
-    8 │ 
+  unmasked-fragment-spreads-local-arguments.invalid.graphql:10:4
     9 │ fragment unmaskedFragmentSpreadsLocalArguments_User_user on User
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    10 │   @argumentDefinitions(isRelative: {type: "Boolean!", defaultValue: false}) {
+      │    ^^^^^^^^^^^^^^^^^^^
+   11 │   url(relative: $isRelative)

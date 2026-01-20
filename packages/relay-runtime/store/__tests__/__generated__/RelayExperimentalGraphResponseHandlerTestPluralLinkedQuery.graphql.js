@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4a46406fc3073b2de0fc5bc305b6823>>
+ * @generated SignedSource<<b56065a3aeb80e8345196805f9e4a157>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayExperimentalGraphResponseHandlerTestPluralLinkedQuery$variables = {||};
 export type RelayExperimentalGraphResponseHandlerTestPluralLinkedQuery$data = {|
   +me: ?{|
-    +allPhones: ?$ReadOnlyArray<?{|
+    +allPhones: ?ReadonlyArray<?{|
       +isVerified: ?boolean,
     |}>,
   |},

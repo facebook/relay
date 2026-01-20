@@ -16,7 +16,7 @@ import type {
   PreloadedQueryInner,
   PreloadedQueryInner_DEPRECATED,
 } from './EntryPointTypes.flow';
-import type {Query, RenderPolicy, Variables} from 'relay-runtime';
+import type {ClientQuery, Query, RenderPolicy, Variables} from 'relay-runtime';
 
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
@@ -51,110 +51,147 @@ type PreloadedQuery<
       TEnvironmentProviderOptions,
     >;
 
-hook usePreloadedQuery<
+declare hook usePreloadedQuery<
   TVariables: Variables,
   TData,
   TRawResponse: ?{...} = void,
 >(
-  gqlQuery: Query<TVariables, TData, TRawResponse>,
-  preloadedQuery: PreloadedQuery<
-    TVariables,
-    TData,
-    $NonMaybeType<TRawResponse>,
-  >,
+  gqlQuery:
+    | Query<TVariables, TData, TRawResponse>
+    | ClientQuery<TVariables, TData, TRawResponse>,
+  preloadedQuery: PreloadedQuery<TVariables, TData, NonNullable<TRawResponse>>,
   options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
   },
-): TData {
+): TData;
+
+declare hook usePreloadedQuery<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+>(
+  gqlQuery:
+    | Query<TVariables, TData, TRawResponse>
+    | ClientQuery<TVariables, TData, TRawResponse>,
+  preloadedQuery: ?PreloadedQuery<TVariables, TData, NonNullable<TRawResponse>>,
+  options?: {
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  },
+): ?TData;
+
+hook usePreloadedQuery<
+  TVariables: Variables,
+  TData,
+  TRawResponse: ?{...} = void,
+  TPreloadedQuery: ?PreloadedQuery<
+    TVariables,
+    TData,
+    NonNullable<TRawResponse>,
+  > = PreloadedQuery<TVariables, TData, NonNullable<TRawResponse>>,
+>(
+  gqlQuery:
+    | Query<TVariables, TData, TRawResponse>
+    | ClientQuery<TVariables, TData, TRawResponse>,
+  preloadedQuery: TPreloadedQuery,
+  options?: {
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  },
+): ?TData {
   const environment = useRelayEnvironment();
-  const {fetchKey, fetchPolicy, source, variables, networkCacheConfig} =
-    preloadedQuery;
   const operation = useMemoOperationDescriptor(
     gqlQuery,
-    variables,
-    networkCacheConfig,
+    preloadedQuery != null ? preloadedQuery.variables : {},
+    preloadedQuery != null ? preloadedQuery.networkCacheConfig : undefined,
   );
 
   let useLazyLoadQueryNodeParams;
-  if (preloadedQuery.kind === 'PreloadedQuery_DEPRECATED') {
-    invariant(
-      operation.request.node.params.name === preloadedQuery.name,
-      'usePreloadedQuery(): Expected data to be prefetched for query `%s`, ' +
-        'got prefetch results for query `%s`.',
-      operation.request.node.params.name,
-      preloadedQuery.name,
-    );
-
-    useLazyLoadQueryNodeParams = {
-      componentDisplayName: 'usePreloadedQuery()',
-      fetchKey,
-      fetchObservable: fetchQueryDeduped(
-        environment,
-        operation.request.identifier,
-        () => {
-          if (environment === preloadedQuery.environment && source != null) {
-            return environment.executeWithSource({operation, source});
-          } else {
-            return environment.execute({operation});
-          }
-        },
-      ),
-      fetchPolicy,
-      query: operation,
-      renderPolicy: options?.UNSTABLE_renderPolicy,
-    };
-  } else {
-    warning(
-      preloadedQuery.isDisposed === false,
-      'usePreloadedQuery(): Expected preloadedQuery to not be disposed yet. ' +
-        'This is because disposing the query marks it for future garbage ' +
-        'collection, and as such query results may no longer be present in the Relay ' +
-        'store. In the future, this will become a hard error.',
-    );
-
-    const fallbackFetchObservable = fetchQuery(environment, operation);
-    let fetchObservable;
-    if (source != null && environment === preloadedQuery.environment) {
-      // If the source observable exists and the environments match, reuse
-      // the source observable.
-      // If the source observable happens to be empty, we need to fall back
-      // and re-execute and de-dupe the query (at render time).
-      fetchObservable = source.ifEmpty(fallbackFetchObservable);
-    } else if (environment !== preloadedQuery.environment) {
-      // If a call to loadQuery is made with a particular environment, and that
-      // preloaded query is passed to usePreloadedQuery in a different environment
-      // context, we cannot re-use the existing preloaded query.
-      // Instead, we need to fall back and re-execute and de-dupe the query with
-      // the new environment (at render time).
-      // TODO T68036756 track occurences of this warning and turn it into a hard error
-      warning(
-        false,
-        'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query ' +
-          'that was created with a different environment than the one that is currently ' +
-          'in context. In the future, this will become a hard error.',
+  if (preloadedQuery != null) {
+    const {fetchKey, fetchPolicy, source} = preloadedQuery;
+    if (preloadedQuery.kind === 'PreloadedQuery_DEPRECATED') {
+      invariant(
+        operation.request.node.params.name === preloadedQuery.name,
+        'usePreloadedQuery(): Expected data to be prefetched for query `%s`, ' +
+          'got prefetch results for query `%s`.',
+        operation.request.node.params.name,
+        preloadedQuery.name,
       );
-      fetchObservable = fallbackFetchObservable;
-    } else {
-      // if (source == null)
-      // If the source observable does not exist, we need to
-      // fall back and re-execute and de-dupe the query (at render time).
-      fetchObservable = fallbackFetchObservable;
-    }
 
+      useLazyLoadQueryNodeParams = {
+        componentDisplayName: 'usePreloadedQuery()',
+        fetchKey,
+        fetchObservable: fetchQueryDeduped(
+          environment,
+          operation.request.identifier,
+          () => {
+            if (environment === preloadedQuery.environment && source != null) {
+              return environment.executeWithSource({operation, source});
+            } else {
+              return environment.execute({operation});
+            }
+          },
+        ),
+        fetchPolicy,
+        query: operation,
+        renderPolicy: options?.UNSTABLE_renderPolicy,
+      };
+    } else {
+      warning(
+        preloadedQuery.isDisposed === false,
+        'usePreloadedQuery(): Expected preloadedQuery to not be disposed yet. ' +
+          'This is because disposing the query marks it for future garbage ' +
+          'collection, and as such query results may no longer be present in the Relay ' +
+          'store. In the future, this will become a hard error.',
+      );
+
+      const fallbackFetchObservable = fetchQuery(environment, operation);
+      let fetchObservable;
+      if (source != null && environment === preloadedQuery.environment) {
+        // If the source observable exists and the environments match, reuse
+        // the source observable.
+        // If the source observable happens to be empty, we need to fall back
+        // and re-execute and de-dupe the query (at render time).
+        fetchObservable = source.ifEmpty(fallbackFetchObservable);
+      } else if (environment !== preloadedQuery.environment) {
+        // If a call to loadQuery is made with a particular environment, and that
+        // preloaded query is passed to usePreloadedQuery in a different environment
+        // context, we cannot re-use the existing preloaded query.
+        // Instead, we need to fall back and re-execute and de-dupe the query with
+        // the new environment (at render time).
+        // TODO T68036756 track occurrences of this warning and turn it into a hard error
+        warning(
+          false,
+          'usePreloadedQuery(): usePreloadedQuery was passed a preloaded query ' +
+            'that was created with a different environment than the one that is currently ' +
+            'in context. In the future, this will become a hard error.',
+        );
+        fetchObservable = fallbackFetchObservable;
+      } else {
+        // if (source == null)
+        // If the source observable does not exist, we need to
+        // fall back and re-execute and de-dupe the query (at render time).
+        fetchObservable = fallbackFetchObservable;
+      }
+
+      useLazyLoadQueryNodeParams = {
+        componentDisplayName: 'usePreloadedQuery()',
+        fetchKey,
+        fetchObservable,
+        fetchPolicy,
+        query: operation,
+        renderPolicy: options?.UNSTABLE_renderPolicy,
+      };
+    }
+  } else {
     useLazyLoadQueryNodeParams = {
       componentDisplayName: 'usePreloadedQuery()',
-      fetchObservable,
-      fetchKey,
-      fetchPolicy,
-      query: operation,
-      renderPolicy: options?.UNSTABLE_renderPolicy,
+      fragmentNode: gqlQuery.fragment,
     };
   }
 
   const data = useLazyLoadQueryNode<{
     variables: TVariables,
     response: TData,
-    rawResponse?: $NonMaybeType<TRawResponse>,
+    rawResponse?: NonNullable<TRawResponse>,
   }>(useLazyLoadQueryNodeParams);
 
   if (__DEV__) {
@@ -162,14 +199,15 @@ hook usePreloadedQuery<
     // $FlowFixMe[react-rule-hook]
     // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({
-      query: preloadedQuery.name,
-      variables: preloadedQuery.variables,
       data,
-      fetchKey,
-      fetchPolicy,
+      fetchKey: preloadedQuery?.fetchKey,
+      fetchPolicy: preloadedQuery?.fetchPolicy,
+      query: preloadedQuery?.name,
       renderPolicy: options?.UNSTABLE_renderPolicy,
+      variables: preloadedQuery?.variables,
     });
   }
+
   return data;
 }
 

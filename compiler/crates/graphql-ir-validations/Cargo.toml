@@ -4,7 +4,7 @@
 name = "graphql-ir-validations"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -21,8 +21,8 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 intern = { path = "../intern" }
 relay-config = { path = "../relay-config" }
 schema = { path = "../schema" }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "2"
+serde = { version = "1.0.219", features = ["derive", "rc"] }
+thiserror = "2.0.12"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
@@ -30,4 +30,4 @@ graphql-cli = { path = "../graphql-cli" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

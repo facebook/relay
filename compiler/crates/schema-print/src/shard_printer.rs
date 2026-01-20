@@ -77,7 +77,7 @@ impl<'schema> TypedShardPrinter<'schema> {
         if let Some(t) = type_ {
             let object_id = t
                 .get_object_id()
-                .unwrap_or_else(|| panic!("Expected object type, got {:?}", t));
+                .unwrap_or_else(|| panic!("Expected object type, got {t:?}"));
             let object = self.schema.object(object_id);
             let mut printer = Printer::new(self.schema, &mut result);
             if self.is_start {

@@ -37,7 +37,7 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type MutationConfig<TMutation: MutationParameters> = {
+export type MutationConfig<TMutation: MutationParameters> = Readonly<{
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
@@ -57,9 +57,9 @@ export type MutationConfig<TMutation: MutationParameters> = {
   updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
   variables: TMutation['variables'],
-};
+}>;
 
-export type CommitMutationConfig<TVariables, TData, TRawResponse> = {
+export type CommitMutationConfig<TVariables, TData, TRawResponse> = Readonly<{
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: Mutation<TVariables, TData, TRawResponse>,
@@ -71,8 +71,8 @@ export type CommitMutationConfig<TVariables, TData, TRawResponse> = {
   optimisticUpdater?: ?SelectorStoreUpdater<TData>,
   updater?: ?SelectorStoreUpdater<TData>,
   uploadables?: UploadableMap,
-  variables: TVariables,
-};
+  variables: NoInfer<TVariables>,
+}>;
 
 /**
  * Higher-level helper function to execute a mutation against a specific
@@ -122,7 +122,7 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   if (configs) {
     ({optimisticUpdater, updater} = RelayDeclarativeMutationConfig.convert<{
       variables: TVariables,
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       response: TData,
     }>(configs, mutation, optimisticUpdater, updater));
@@ -131,7 +131,7 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
   const subscription = environment
     .executeMutation<{
       variables: TVariables,
-      /* $FlowFixMe[incompatible-call] error exposed when improving flow typing
+      /* $FlowFixMe[incompatible-type] error exposed when improving flow typing
        * of commitMutation */
       response: TData,
     }>({
@@ -142,6 +142,17 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
       uploadables,
     })
     .subscribe({
+      complete: () => {
+        const {onCompleted} = config;
+        if (onCompleted) {
+          const snapshot = environment.lookup(operation.fragment);
+          onCompleted(
+            snapshot.data as $FlowFixMe,
+            errors.length !== 0 ? errors : null,
+          );
+        }
+      },
+      error: onError,
       next: payload => {
         if (Array.isArray(payload)) {
           payload.forEach(item => {
@@ -156,17 +167,6 @@ function commitMutation<TVariables: Variables, TData, TRawResponse = {...}>(
         }
         config.onNext?.();
       },
-      complete: () => {
-        const {onCompleted} = config;
-        if (onCompleted) {
-          const snapshot = environment.lookup(operation.fragment);
-          onCompleted(
-            (snapshot.data: $FlowFixMe),
-            errors.length !== 0 ? errors : null,
-          );
-        }
-      },
-      error: onError,
       unsubscribe: onUnsubscribe,
     });
   return {dispose: subscription.unsubscribe};

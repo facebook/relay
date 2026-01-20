@@ -1,7 +1,7 @@
 query providedVariableInFragment_Query($id: ID!) {
     node(id: $id) {
-        ...providedVariableInFragment_Fragment1
-        ...providedVariableInFragment_Fragment2
+        ...providedVariableInFragment_Fragment1 @alias
+        ...providedVariableInFragment_Fragment2 @alias
     }
 }
 

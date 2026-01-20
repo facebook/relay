@@ -420,10 +420,11 @@ impl<'s> ConnectionTransform<'s> {
                         self.edge_fragments.push(edges_fragment);
                     }
                     return Selection::LinkedField(From::from(edges_field_to_maybe_fragmentify));
-                } else if let Some(page_info_ix) = page_info_ix {
-                    if ix == page_info_ix && !is_aliased_page_info {
-                        return transformed_page_info_field_selection.clone();
-                    }
+                } else if let Some(page_info_ix) = page_info_ix
+                    && ix == page_info_ix
+                    && !is_aliased_page_info
+                {
+                    return transformed_page_info_field_selection.clone();
                 }
                 selection.clone()
             })

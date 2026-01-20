@@ -21,7 +21,7 @@ import type {
   SingularReaderSelector,
   UpdatableData,
 } from '../store/RelayStoreTypes';
-import type {ReaderLinkedField} from '../util/ReaderNode';
+import type {ReaderLinkedField, ReaderSelection} from '../util/ReaderNode';
 import type {
   DataID,
   UpdatableFragment,
@@ -47,13 +47,13 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __mutator: RelayRecordSourceMutator;
   __recordSource: RecordSourceProxy;
   _readSelector: SingularReaderSelector;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
 
   constructor(
     mutator: RelayRecordSourceMutator,
     recordSource: RecordSourceProxy,
     readSelector: SingularReaderSelector,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
   ) {
     this.__mutator = mutator;
     this.__recordSource = recordSource;
@@ -90,7 +90,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     fieldName: string,
     plural: boolean,
   ): ReaderLinkedField {
-    let field = selector.node.selections.find(
+    let field: ReaderSelection | void = selector.node.selections.find(
       selection =>
         (selection.kind === 'LinkedField' && selection.name === fieldName) ||
         (selection.kind === 'RequiredField' &&

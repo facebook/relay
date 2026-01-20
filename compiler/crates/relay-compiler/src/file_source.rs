@@ -93,11 +93,10 @@ impl FileSource {
                 if let Err(err) = &result {
                     perf_logger_event.string(
                         "external_file_source_create_compiler_state_error",
-                        format!("{:?}", err),
+                        format!("{err:?}"),
                     );
                     warn!(
-                        "Unable to create state from external source: {:?}. Sending a full watchman query...",
-                        err
+                        "Unable to create state from external source: {err:?}. Sending a full watchman query..."
                     );
                     let watchman_file_source =
                         WatchmanFileSource::connect(&file_source.config, perf_logger_event).await?;

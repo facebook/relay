@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<520b92b838637598ce6b190feda24304>>
+ * @generated SignedSource<<87c3add50b63ba8c6f0bf4938d43228e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyLinkedFieldWithThr
   +node: ?{|
     +__typename: string,
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
       |}>,
     |},

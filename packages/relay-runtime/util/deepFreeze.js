@@ -35,7 +35,7 @@ function deepFreeze<T: {...}>(object: T): T {
   return object;
 }
 
-function shouldBeFrozen(value: mixed): boolean {
+function shouldBeFrozen(value: unknown): boolean {
   // Only freeze plain JS arrays and objects
   return (
     value != null &&

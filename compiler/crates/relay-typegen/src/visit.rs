@@ -430,7 +430,7 @@ fn add_fragment_name_to_encountered_fragments(
 }
 
 fn get_fragment_data_type(fragment_name: StringKey) -> Box<AST> {
-    Box::new(AST::RawType(format!("{}$data", fragment_name).intern()))
+    Box::new(AST::RawType(format!("{fragment_name}$data").intern()))
 }
 
 fn add_model_argument_for_interface_resolver(
@@ -1170,11 +1170,11 @@ fn raw_response_visit_inline_fragment(
         }));
         return;
     }
-    if let Some(type_condition) = inline_fragment.type_condition {
-        if !type_condition.is_abstract_type() {
-            for selection in &mut selections {
-                selection.set_concrete_type(type_condition);
-            }
+    if let Some(type_condition) = inline_fragment.type_condition
+        && !type_condition.is_abstract_type()
+    {
+        for selection in &mut selections {
+            selection.set_concrete_type(type_condition);
         }
     }
     type_selections.append(&mut selections);
@@ -1256,30 +1256,30 @@ fn visit_scalar_field(
         &typegen_context.project_config.schema_config,
     );
 
-    if matches!(special_field, Some(ScalarFieldSpecialSchemaField::TypeName)) {
-        if let Some(concrete_type) = enclosing_linked_field_concrete_type {
-            // If we are creating a typename selection within a linked field with a concrete type, we generate
-            // the type e.g. "User", i.e. the concrete string name of the concrete type.
-            //
-            // This cannot be done within abstract fields and at the top level (even in fragments), because
-            // we have the following type hole. With `node { ...Fragment_user }`, `Fragment_user` can be
-            // unconditionally read out, without checking whether the `node` field actually has a matching
-            // type at runtime.
-            //
-            // Note that passing concrete_type: enclosing_linked_field_concrete_type here has the effect
-            // of making the emitted fields left-hand-optional, causing the compiler to panic (because
-            // within updatable fragments/queries, we expect never to generate an optional type.)
-            return type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
-                field_name_or_alias: key,
-                special_field,
-                value: AST::StringLiteral(StringLiteral(
-                    typegen_context.schema.get_type_name(concrete_type),
-                )),
-                conditional: false,
-                concrete_type: None,
-                is_result_type: is_result_type_directive(&scalar_field.directives),
-            }));
-        }
+    if matches!(special_field, Some(ScalarFieldSpecialSchemaField::TypeName))
+        && let Some(concrete_type) = enclosing_linked_field_concrete_type
+    {
+        // If we are creating a typename selection within a linked field with a concrete type, we generate
+        // the type e.g. "User", i.e. the concrete string name of the concrete type.
+        //
+        // This cannot be done within abstract fields and at the top level (even in fragments), because
+        // we have the following type hole. With `node { ...Fragment_user }`, `Fragment_user` can be
+        // unconditionally read out, without checking whether the `node` field actually has a matching
+        // type at runtime.
+        //
+        // Note that passing concrete_type: enclosing_linked_field_concrete_type here has the effect
+        // of making the emitted fields left-hand-optional, causing the compiler to panic (because
+        // within updatable fragments/queries, we expect never to generate an optional type.)
+        return type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+            field_name_or_alias: key,
+            special_field,
+            value: AST::StringLiteral(StringLiteral(
+                typegen_context.schema.get_type_name(concrete_type),
+            )),
+            conditional: false,
+            concrete_type: None,
+            is_result_type: is_result_type_directive(&scalar_field.directives),
+        }));
     }
 
     let ast = transform_type_reference_into_ast(&field_type, |type_| {
@@ -1505,38 +1505,38 @@ fn get_merged_object_with_optional_fields(
     }
     let mut props = group_refs(hashmap_into_values(selection_map))
         .map(|mut sel| {
-            if sel.is_typename() {
-                if let Some(concrete_type) = sel.get_enclosing_concrete_type() {
-                    sel.set_conditional(false);
-                    return make_prop(
-                        typegen_context,
-                        sel,
-                        mask_status,
-                        Some(concrete_type),
-                        encountered_enums,
-                        encountered_fragments,
-                        custom_scalars,
-                        runtime_imports,
-                        custom_error_import,
-                    );
-                }
+            if sel.is_typename()
+                && let Some(concrete_type) = sel.get_enclosing_concrete_type()
+            {
+                sel.set_conditional(false);
+                return make_prop(
+                    typegen_context,
+                    sel,
+                    mask_status,
+                    Some(concrete_type),
+                    encountered_enums,
+                    encountered_fragments,
+                    custom_scalars,
+                    runtime_imports,
+                    custom_error_import,
+                );
             }
-            if let TypeSelection::LinkedField(ref linked_field) = sel {
-                if let Some(concrete_type) = linked_field.concrete_type {
-                    let mut linked_field = linked_field.clone();
-                    linked_field.concrete_type = None;
-                    return make_prop(
-                        typegen_context,
-                        TypeSelection::LinkedField(linked_field),
-                        mask_status,
-                        Some(concrete_type),
-                        encountered_enums,
-                        encountered_fragments,
-                        custom_scalars,
-                        runtime_imports,
-                        custom_error_import,
-                    );
-                }
+            if let TypeSelection::LinkedField(ref linked_field) = sel
+                && let Some(concrete_type) = linked_field.concrete_type
+            {
+                let mut linked_field = linked_field.clone();
+                linked_field.concrete_type = None;
+                return make_prop(
+                    typegen_context,
+                    TypeSelection::LinkedField(linked_field),
+                    mask_status,
+                    Some(concrete_type),
+                    encountered_enums,
+                    encountered_fragments,
+                    custom_scalars,
+                    runtime_imports,
+                    custom_error_import,
+                );
             }
 
             make_prop(
@@ -1829,8 +1829,7 @@ pub fn make_custom_error_import(
         .clone();
     if custom_error_type.is_some() && *custom_error_type != current_error_type {
         panic!(
-            "Custom error type is not consistent across fragments. This indicates a bug in Relay. current_error_type: {:?}, custom_error_type: {:?}",
-            current_error_type, custom_error_type
+            "Custom error type is not consistent across fragments. This indicates a bug in Relay. current_error_type: {current_error_type:?}, custom_error_type: {custom_error_type:?}"
         );
     } else if custom_error_type.is_some() && *custom_error_type == current_error_type {
         return Ok(());
@@ -1875,8 +1874,7 @@ fn make_prop(
     let optional = type_selection.is_conditional();
     if typegen_context.generating_updatable_types && optional {
         panic!(
-            "When generating types for updatable operations and fragments, we should never generate optional fields! This indicates a bug in Relay. type_selection: {:?}",
-            type_selection
+            "When generating types for updatable operations and fragments, we should never generate optional fields! This indicates a bug in Relay. type_selection: {type_selection:?}"
         );
     }
 
@@ -2012,7 +2010,7 @@ fn make_prop(
                     match make_custom_error_import(typegen_context, custom_error_import) {
                         Ok(_) => {}
                         Err(e) => {
-                            panic!("Error while generating custom error type: {}", e);
+                            panic!("Error while generating custom error type: {e}");
                         }
                     }
                 }
@@ -2053,7 +2051,7 @@ fn make_prop(
                     match make_custom_error_import(typegen_context, custom_error_import) {
                         Ok(_) => {}
                         Err(e) => {
-                            panic!("Error while generating custom error type: {}", e);
+                            panic!("Error while generating custom error type: {e}");
                         }
                     }
                 }
@@ -2069,10 +2067,7 @@ fn make_prop(
                 })
             }
         }
-        _ => panic!(
-            "Unexpected TypeSelection variant in make_prop, {:?}",
-            type_selection
-        ),
+        _ => panic!("Unexpected TypeSelection variant in make_prop, {type_selection:?}"),
     }
 }
 
@@ -2154,10 +2149,9 @@ fn raw_response_make_prop(
             }
         }
         TypeSelection::RawResponseFragmentSpread(f) => Prop::Spread(SpreadProp { value: f.value }),
-        _ => panic!(
-            "Unexpected TypeSelection variant in raw_response_make_prop {:?}",
-            type_selection
-        ),
+        _ => {
+            panic!("Unexpected TypeSelection variant in raw_response_make_prop {type_selection:?}")
+        }
     }
 }
 
@@ -2590,19 +2584,13 @@ fn merge_selection(
                 );
                 TypeSelection::LinkedField(lf_a)
             } else {
-                panic!(
-                    "Invalid variants passed to merge_selection linked field a={:?} b={:?}",
-                    lf_a, b
-                )
+                panic!("Invalid variants passed to merge_selection linked field a={lf_a:?} b={b:?}")
             }
         } else if let TypeSelection::ScalarField(sf_a) = a {
             if let TypeSelection::ScalarField(_) = b {
                 TypeSelection::ScalarField(sf_a)
             } else {
-                panic!(
-                    "Invalid variants passed to merge_selection scalar field a={:?} b={:?}",
-                    sf_a, b
-                )
+                panic!("Invalid variants passed to merge_selection scalar field a={sf_a:?} b={b:?}")
             }
         } else {
             a

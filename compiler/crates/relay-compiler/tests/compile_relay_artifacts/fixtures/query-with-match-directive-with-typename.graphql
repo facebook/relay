@@ -1,6 +1,6 @@
 query queryWithMatchDirectiveWithTypename_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithMatchDirectiveWithTypename_NameRendererFragment
+    ...queryWithMatchDirectiveWithTypename_NameRendererFragment @alias
   }
 }
 

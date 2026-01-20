@@ -73,8 +73,7 @@ fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
     for label in labels {
         assert!(
             completion_labels.remove(label),
-            "Expected to have {} in the set",
-            label
+            "Expected to have {label} in the set"
         );
     }
     assert!(completion_labels.is_empty());

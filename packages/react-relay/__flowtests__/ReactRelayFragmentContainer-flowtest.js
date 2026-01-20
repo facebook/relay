@@ -54,10 +54,10 @@ class BarComponent extends React.Component<{
     const reqLen = this.props.requiredProp.length;
     const optionalProp = this.props.optionalProp;
 
-    /** $FlowExpectedError: `optionalProp` might be null **/
+    /** $FlowExpectedError[incompatible-use] : `optionalProp` might be null **/
     const optionalFoo = this.props.optionalProp.foo;
 
-    /** $FlowExpectedError: there is no prop `missingProp` **/
+    /** $FlowExpectedError[prop-missing] : there is no prop `missingProp` **/
     const missing = this.props.missingProp;
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
@@ -78,7 +78,7 @@ const Bar = createFragmentContainer(BarComponent, {
 
 module.exports = {
   checkMissingPropOnFunctionalComponent(): React.Node {
-    /** $FlowExpectedError: Foo missing `requiredProp` **/
+    /** $FlowExpectedError[incompatible-type] : Foo missing `requiredProp` **/
     return <Foo />;
   },
   checkMinimalPropsOnFunctionalComponent(): React.Node {
@@ -86,7 +86,7 @@ module.exports = {
     return <Foo requiredProp="foo" />;
   },
   checkMissingPropOnClassComponent(): React.Node {
-    /** $FlowExpectedError: Bar missing `requiredProp` **/
+    /** $FlowExpectedError[incompatible-type] : Bar missing `requiredProp` **/
     return <Bar />;
   },
   checkMinimalPropsOnClassComponent(): React.Node {
@@ -94,19 +94,19 @@ module.exports = {
     return <Bar requiredProp="foo" />;
   },
   checkWrongPropType(): React.Node {
-    /** $FlowExpectedError: Bar wrong `requiredProp` type, should be string **/
+    /** $FlowExpectedError[incompatible-type] : Bar wrong `requiredProp` type, should be string **/
     return <Bar requiredProp={17} />;
   },
   checkWrongOptionalType(): React.Node {
-    /** $FlowExpectedError: Bar wrong `optionalProp` type, should be `{foo: string}` **/
+    /** $FlowExpectedError[incompatible-type] : Bar wrong `optionalProp` type, should be `{foo: string}` **/
     return <Bar optionalProp="wrongType" requiredProp="foo" />;
   },
   checkNullOptionalType(): React.Node {
-    /** $FlowExpectedError: Bar `optionalProp` must be omitted or truthy, not null **/
+    /** $FlowExpectedError[incompatible-type] : Bar `optionalProp` must be omitted or truthy, not null **/
     return <Bar optionalProp={null} requiredProp="foo" />;
   },
   checkWrongDefaultPropType(): React.Node {
-    /** $FlowExpectedError: Bar wrong `defaultProp` type, should be string **/
+    /** $FlowExpectedError[incompatible-type] : Bar wrong `defaultProp` type, should be string **/
     return <Bar defaultProp={false} requiredProp="foo" />;
   },
   checkAllPossibleProps(): React.Node {
@@ -122,7 +122,7 @@ module.exports = {
   },
   checkMissingPropSpread(): React.Node {
     const props = {defaultProp: 'foo'};
-    /** $FlowExpectedError: Bar missing `requiredProp` with spread **/
+    /** $FlowExpectedError[incompatible-type] : Bar missing `requiredProp` with spread **/
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying(): React.Node {
@@ -131,10 +131,10 @@ module.exports = {
       getString(): string {
         const ok = this._barRef ? this._barRef.getNum() : 'default'; // legit
 
-        /** $FlowExpectedError: Bar does not have `missingMethod` **/
+        /** $FlowExpectedError[prop-missing] : Bar does not have `missingMethod` **/
         const bad = this._barRef ? this._barRef.missingMethod() : 'default';
 
-        /** $FlowExpectedError: Bar `getNum` gives number, but `getString` assumes string  **/
+        /** $FlowExpectedError[incompatible-type] : Bar `getNum` gives number, but `getString` assumes string  **/
         return bad ? 'not good' : ok;
       }
       render(): React.MixedElement {

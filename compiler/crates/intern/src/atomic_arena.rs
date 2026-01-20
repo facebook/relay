@@ -668,7 +668,7 @@ mod tests {
     use parking_lot::Condvar;
     use parking_lot::Mutex;
     use rand::Rng;
-    use rand::thread_rng;
+    use rand::rng;
 
     use super::*;
 
@@ -807,7 +807,7 @@ mod tests {
             let len = len.clone();
             consumers.push(thread::spawn(move || {
                 const I: u32 = N * 3 / 2;
-                let mut rng = thread_rng();
+                let mut rng = rng();
                 let mut next_poke = 1500;
                 let mut next_seek = 1000;
                 let mut n_seen = 0;
@@ -815,7 +815,11 @@ mod tests {
                     let n = len.load(Ordering::Acquire);
                     if n > 0 {
                         // First reader always checks latest completed add.
-                        let i = if r == 0 { n - 1 } else { rng.gen_range(0..n) };
+                        let i = if r == 0 {
+                            n - 1
+                        } else {
+                            rng.random_range(0..n)
+                        };
                         let s = arena.get(mk_ref(i));
                         assert_eq!(s, &format!("{}", i));
                         if r == 0 {
@@ -900,12 +904,12 @@ mod tests {
             let avail = avail.clone();
             let progress = progress.clone();
             consumers.push(thread::spawn(move || {
-                let mut rng = thread_rng();
+                let mut rng = rng();
                 let mut next_poke = 150;
                 let mut next_seek = 10;
                 let mut n_seen = 0;
                 for ii in 0..I {
-                    let i = rng.gen_range(0..N);
+                    let i = rng.random_range(0..N);
                     let expect = avail[i as usize].load(Ordering::Acquire);
                     if expect < N {
                         let s = arena.get(mk_ref(i));

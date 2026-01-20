@@ -37,7 +37,7 @@ let renderCount: ?number;
 let loadedQuery;
 let instance;
 let queryLoaderCallback;
-let releaseQuery: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+let releaseQuery: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 let lastLoadQueryReturnValue;
 let disposeQuery;
 
@@ -71,7 +71,7 @@ describe.each([
     environment = createMockEnvironment();
     render = function (
       initialPreloadedQuery: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<ReadonlyArray<unknown>, unknown>,
       },
     ) {
       renderCount = 0;
@@ -84,7 +84,7 @@ describe.each([
 
     update = function (
       initialPreloadedQuery: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<ReadonlyArray<unknown>, unknown>,
       },
     ) {
       ReactTestRenderer.act(() => {
@@ -98,11 +98,11 @@ describe.each([
       initialPreloadedQuery,
     }: {
       initialPreloadedQuery: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<ReadonlyArray<unknown>, unknown>,
       },
     }) {
       renderCount = (renderCount || 0) + 1;
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
         query,
         initialPreloadedQuery,
@@ -114,7 +114,7 @@ describe.each([
       initialPreloadedQuery,
     }: {
       initialPreloadedQuery?: void | {
-        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+        releaseQuery: JestMockFn<ReadonlyArray<unknown>, unknown>,
       },
     }) {
       return (
@@ -397,7 +397,7 @@ describe.each([
             <RelayEnvironmentProvider environment={environment}>
               <ConcurrentWrapper />
             </RelayEnvironmentProvider>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -436,6 +436,8 @@ describe.each([
       expect(currentRelease).not.toHaveBeenCalled();
 
       ReactTestRenderer.act(() => {
+        /* $FlowFixMe[constant-condition] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
         resolve && resolve();
         jest.runAllImmediates();
       });
@@ -468,7 +470,7 @@ describe.each([
             <RelayEnvironmentProvider environment={environment}>
               <ConcurrentWrapper />
             </RelayEnvironmentProvider>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -565,7 +567,7 @@ describe.each([
         ReactTestRenderer.act(() => {
           instance = ReactTestRenderer.create(
             <ConcurrentWrapper />,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
         });
@@ -731,7 +733,7 @@ describe.each([
     ReactTestRenderer.act(() => {
       outerInstance = ReactTestRenderer.create(
         <Outer />,
-        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type]
         {
           unstable_isConcurrent: true,
         },
@@ -791,7 +793,7 @@ describe.each([
     ReactTestRenderer.act(() => {
       outerInstance = ReactTestRenderer.create(
         <Outer />,
-        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type]
         {
           unstable_isConcurrent: true,
         },

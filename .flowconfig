@@ -15,12 +15,6 @@ module.system.haste.paths.includes=<PROJECT_ROOT>/node_modules/fbjs/lib/.*
 munge_underscores=true
 ; https://fburl.com/code/h2jnts20 - to match internval value
 
-suppress_type=$FlowIssue
-suppress_type=$FlowFixMe
-suppress_type=$FlowFixMeProps
-suppress_type=$FlowFixMeState
-suppress_type=$FlowExpectedError
-
 format.bracket_spacing=false
 
 [lints]
@@ -36,4 +30,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.270.0
+^0.297.0

@@ -17,6 +17,6 @@ const {
   __internal: {createRelayContext},
 } = require('relay-runtime');
 
-module.exports = (createRelayContext(
+module.exports = createRelayContext(
   React,
-): React.Context<RelayContext | null>);
+) as React.Context<RelayContext | null>;

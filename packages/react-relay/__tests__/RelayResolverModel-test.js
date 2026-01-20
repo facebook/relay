@@ -482,7 +482,7 @@ describe.each([['New', useFragment]])(
 
         return fancyDescriptions
           .map(item =>
-            item == null ? 'ITEM IS NULL' : item.text ?? 'TEXT IS NULL',
+            item == null ? 'ITEM IS NULL' : (item.text ?? 'TEXT IS NULL'),
           )
           .join(', ');
       }
@@ -617,7 +617,7 @@ describe.each([['New', useFragment]])(
           </EnvironmentWrapper>,
         );
       });
-      // $FlowFixMe[incompatible-call] Yes, it is compatible...
+      // $FlowFixMe[incompatible-type] Yes, it is compatible...
       const response = JSON.parse(renderer?.toJSON() ?? '{}');
       jest.runAllImmediates();
 

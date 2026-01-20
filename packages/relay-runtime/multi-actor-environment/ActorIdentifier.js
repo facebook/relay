@@ -30,12 +30,12 @@ function assertInternalActorIdentifier(actorIdentifier: ActorIdentifier): void {
 }
 
 module.exports = {
+  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
   assertInternalActorIdentifier,
   getActorIdentifier(actorID: string): ActorIdentifier {
-    return (actorID: ActorIdentifier);
+    return actorID as ActorIdentifier;
   },
   getDefaultActorIdentifier(): ActorIdentifier {
     throw new Error('Not Implemented');
   },
-  INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
 };

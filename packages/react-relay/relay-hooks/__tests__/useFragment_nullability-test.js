@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -16,8 +17,9 @@ import type {useFragmentNullabilityTestFragmentWithFieldThatThrows$key} from './
 const ReactRelayLoggingContext = require('../../ReactRelayLoggingContext');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useClientQuery = require('../useClientQuery');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const TestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {RelayFeatureFlags} = require('relay-runtime');
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
@@ -68,16 +70,16 @@ describe('useFragment_nullability-test.js', () => {
       );
       return <div>{data.field_that_throws}</div>;
     };
-    const renderer = TestRenderer.create(
+    const renderer = ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <ErrorBoundary fallback={({error}) => `Error: ${error}`}>
           <TestComponent />
         </ErrorBoundary>
       </RelayEnvironmentProvider>,
     );
-    await TestRenderer.act(() => jest.runAllTimers());
+    await act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes(
+      String(renderer.container.textContent).includes(
         "Resolver error at path 'field_that_throws' in 'useFragmentNullabilityTest1Query'.",
       ),
     ).toEqual(true);
@@ -97,7 +99,7 @@ describe('useFragment_nullability-test.js', () => {
       );
       return <div>{data.field_with_fragment_that_throws}</div>;
     };
-    const renderer = TestRenderer.create(
+    const renderer = ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <ErrorBoundary fallback={({error}) => `Error: ${error}`}>
           <TestComponent />
@@ -105,9 +107,9 @@ describe('useFragment_nullability-test.js', () => {
         ,
       </RelayEnvironmentProvider>,
     );
-    await TestRenderer.act(() => jest.runAllTimers());
+    await act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes(
+      String(renderer.container.textContent).includes(
         "Resolver error at path 'field_that_throws' in 'useFragmentNullabilityTestFragmentWithFieldThatThrows'.",
       ),
     ).toEqual(true);
@@ -129,7 +131,7 @@ describe('useFragment_nullability-test.js', () => {
       );
       return <div>{data.field_with_fragment_that_throws}</div>;
     };
-    const renderer = TestRenderer.create(
+    const renderer = ReactTestingLibrary.render(
       <ReactRelayLoggingContext.Provider
         value={{
           randomKey: 'randomValue',
@@ -141,9 +143,11 @@ describe('useFragment_nullability-test.js', () => {
         </RelayEnvironmentProvider>
       </ReactRelayLoggingContext.Provider>,
     );
-    await TestRenderer.act(() => jest.runAllTimers());
+    await act(() => jest.runAllTimers());
     expect(
-      String(renderer.toJSON()).includes('Unexpected response payload'),
+      String(renderer.container.textContent).includes(
+        'Unexpected response payload',
+      ),
     ).toEqual(false);
 
     expect(environment.relayFieldLogger).toHaveBeenCalledWith({

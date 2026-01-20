@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0f51d603b9eb4efd57fa5e2131bea477>>
+ * @generated SignedSource<<6d73ad12ce6c374b97014dda01d09b50>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../mutations/__tests__/TestR
 export type RelayReaderResolverTest8Query$variables = {||};
 export type RelayReaderResolverTest8Query$data = {|
   +me: ?{|
-    +name_passthrough: $NonMaybeType<?string>,
+    +name_passthrough: NonNullable<?string>,
   |},
 |};
 export type RelayReaderResolverTest8Query = {|

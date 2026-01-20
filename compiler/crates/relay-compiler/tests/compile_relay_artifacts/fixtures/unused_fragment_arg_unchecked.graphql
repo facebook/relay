@@ -1,6 +1,6 @@
 query unusedFragmentArgUnchecked_QueryWithUnusedFragmentArgumentQuery($id: ID!) {
   node(id: $id) {
-    ...unusedFragmentArgUnchecked_Profile
+    ...unusedFragmentArgUnchecked_Profile @alias
   }
 }
 

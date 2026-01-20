@@ -40,7 +40,7 @@ expect.addSnapshotSerializer({
  */
 function generateTestsFromFixtures(
   fixturesPath: string,
-  operation: (input: string) => string,
+  operation: (input: string) => Promise<string>,
 ): void {
   let fixtures = fs.readdirSync(fixturesPath);
 
@@ -56,9 +56,9 @@ function generateTestsFromFixtures(
     );
     fixtures = onlyFixtures;
   }
-  test.each(fixtures)('matches expected output: %s', file => {
+  test.each(fixtures)('matches expected output: %s', async file => {
     const input = fs.readFileSync(path.join(fixturesPath, file), 'utf8');
-    const output = getOutputForFixture(input, operation, file);
+    const output = await getOutputForFixture(input, operation, file);
     expect({
       [FIXTURE_TAG]: true,
       input,

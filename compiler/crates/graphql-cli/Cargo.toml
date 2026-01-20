@@ -4,7 +4,7 @@
 name = "graphql-cli"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 

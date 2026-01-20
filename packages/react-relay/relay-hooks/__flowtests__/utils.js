@@ -42,8 +42,8 @@ export type NonNullableData = {
   +count: number,
 };
 export type NullableData = ?NonNullableData;
-export type NonNullablePluralData = $ReadOnlyArray<NonNullableData>;
-export type NullablePluralData = ?$ReadOnlyArray<NonNullableData>;
+export type NonNullablePluralData = ReadonlyArray<NonNullableData>;
+export type NullablePluralData = ?ReadonlyArray<NonNullableData>;
 
 export type AnotherNonNullableData = {
   +name: ?string,
@@ -52,9 +52,9 @@ export type AnotherNonNullableData = {
 
 declare export var keyNonNullable: Example_user$key;
 
-declare export var keyNonNullablePlural: $ReadOnlyArray<Example_user$key>;
+declare export var keyNonNullablePlural: ReadonlyArray<Example_user$key>;
 
-declare export var keyNullablePlural: ?$ReadOnlyArray<Example_user$key>;
+declare export var keyNullablePlural: ?ReadonlyArray<Example_user$key>;
 
 declare export var keyNullable: ?Example_user$key;
 

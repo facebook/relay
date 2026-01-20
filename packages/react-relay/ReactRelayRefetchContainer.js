@@ -49,10 +49,10 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-type ContainerProps = $FlowFixMeProps;
+type ContainerProps = $FlowFixMe;
 
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   prevProps: ContainerProps,
   localVariables: ?Variables,
   prevPropsContext: RelayContext,
@@ -104,11 +104,11 @@ function createContainerWithFragments<
         rootIsQueryRenderer,
       );
       this.state = {
+        contextForChildren: relayContext,
         data: resolver.resolve(),
         localVariables: null,
         prevProps: props,
         prevPropsContext: relayContext,
-        contextForChildren: relayContext,
         relayProp: getRelayProp(relayContext.environment, this._refetch),
         resolver,
       };
@@ -187,11 +187,11 @@ function createContainerWithFragments<
           rootIsQueryRenderer,
         );
         return {
+          contextForChildren: relayContext,
           data: resolver.resolve(),
           localVariables: null,
           prevProps: nextProps,
           prevPropsContext: relayContext,
-          contextForChildren: relayContext,
           relayProp: getRelayProp(
             relayContext.environment,
             prevState.relayProp.refetch,
@@ -339,7 +339,7 @@ function createContainerWithFragments<
         ? {...fetchVariables, ...renderVariables}
         : fetchVariables;
 
-      const cacheConfig: ?CacheConfig = options
+      const cacheConfig: ?{...CacheConfig} = options
         ? {force: !!options.force}
         : undefined;
       if (cacheConfig != null && options?.metadata != null) {
@@ -349,12 +349,12 @@ function createContainerWithFragments<
       const observer =
         typeof observerOrCallback === 'function'
           ? {
+              error: observerOrCallback,
               // callback is not exectued on complete or unsubscribe
               // for backward compatibility
               next: observerOrCallback,
-              error: observerOrCallback,
             }
-          : observerOrCallback || ({}: any);
+          : observerOrCallback || ({} as any);
 
       const query = getRequest(taggedNode);
       const operation = createOperationDescriptor(
@@ -385,10 +385,10 @@ function createContainerWithFragments<
         );
         this.setState(
           latestState => ({
-            data: latestState.resolver.resolve(),
             contextForChildren: {
               environment: this.props.__relayContext.environment,
             },
+            data: latestState.resolver.resolve(),
           }),
           () => {
             observer.next && observer.next();
@@ -415,10 +415,10 @@ function createContainerWithFragments<
           return Observable.create<void>(sink =>
             this.setState(
               latestState => ({
-                data: latestState.resolver.resolve(),
                 contextForChildren: {
                   environment: this.props.__relayContext.environment,
                 },
+                data: latestState.resolver.resolve(),
               }),
               () => {
                 sink.next();
@@ -493,7 +493,7 @@ function createContainer<Props: {...}, TComponent: component(...Props)>(
 ): component(
   ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
 ) {
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

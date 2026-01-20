@@ -42,7 +42,7 @@ injectPromisePolyfill__DEPRECATED();
 /**
  * @RelayResolver Query.edge_to_plural_live_objects_some_exist: [TodoModel]
  */
-export function edge_to_plural_live_objects_some_exist(): $ReadOnlyArray<{
+export function edge_to_plural_live_objects_some_exist(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: 'todo-1'}, {id: 'THERE_IS_NO_TODO_WITH_THIS_ID'}];
@@ -51,7 +51,7 @@ export function edge_to_plural_live_objects_some_exist(): $ReadOnlyArray<{
 /**
  * @RelayResolver Query.edge_to_plural_live_objects_none_exist: [TodoModel]
  */
-export function edge_to_plural_live_objects_none_exist(): $ReadOnlyArray<{
+export function edge_to_plural_live_objects_none_exist(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: 'NO_TODO_1'}, {id: 'NO_TODO_2'}];
@@ -167,7 +167,7 @@ export function edge_to_model_that_throws(): {id: DataID} {
 /**
  * @RelayResolver Query.edge_to_plural_models_that_throw: [ErrorModel]
  */
-export function edge_to_plural_models_that_throw(): $ReadOnlyArray<{
+export function edge_to_plural_models_that_throw(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: `${ERROR_ID}-1`}, {id: `${ERROR_ID}-2`}];
@@ -176,7 +176,7 @@ export function edge_to_plural_models_that_throw(): $ReadOnlyArray<{
 /**
  * @RelayResolver Query.edge_to_plural_models_some_throw: [ErrorModel]
  */
-export function edge_to_plural_models_some_throw(): $ReadOnlyArray<{
+export function edge_to_plural_models_some_throw(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: ERROR_ID}, {id: 'a valid id!'}];
@@ -503,7 +503,7 @@ test('Errors thrown when reading the model a client edge points to are caught as
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_model_that_throws).toBe(null);
 });
 
@@ -537,7 +537,7 @@ test('Errors thrown when reading plural client edge are caught as resolver error
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_plural_models_that_throw).toStrictEqual([null, null]);
 });
 
@@ -564,7 +564,7 @@ test('Errors thrown when reading plural client edge are caught as resolver error
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_plural_models_some_throw).toStrictEqual([
     null,
     {id: 'a valid id!'},

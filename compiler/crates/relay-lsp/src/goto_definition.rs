@@ -157,8 +157,7 @@ fn locate_fragment_definition(
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let fragment = program.fragment(fragment_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!(
-            "Could not find fragment with name {}",
-            fragment_name
+            "Could not find fragment with name {fragment_name}"
         ))
     })?;
     Ok(GotoDefinitionResponse::Scalar(
@@ -211,8 +210,7 @@ fn locate_type_definition(
         // try to find a location in the server sdl.
         Err(err) => {
             error!(
-                "Failed to resolve type definition through extra data provider. Falling back to schema file. Got error: {:?}",
-                err
+                "Failed to resolve type definition through extra data provider. Falling back to schema file. Got error: {err:?}"
             );
             let type_ = schema.get_type(type_name);
 
@@ -244,7 +242,7 @@ fn locate_field_argument_definition(
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name))
+        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {field_name}"))
     })?);
 
     let argument = field
@@ -253,8 +251,7 @@ fn locate_field_argument_definition(
         .find(|argument| argument.name.item == argument_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not find argument with name {} on field with name {}",
-                argument_name, field_name,
+                "Could not find argument with name {argument_name} on field with name {field_name}",
             ))
         })?;
 
@@ -272,8 +269,7 @@ fn locate_directive_argument_definition(
         schema
             .get_directive(directive_name)
             .ok_or(LSPRuntimeError::UnexpectedError(format!(
-                "Could not find directive with name {}",
-                directive_name
+                "Could not find directive with name {directive_name}"
             )))?;
 
     let argument = directive
@@ -282,8 +278,7 @@ fn locate_directive_argument_definition(
         .find(|argument| argument.name.item == argument_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not find argument with name {} on directive with name {}",
-                argument_name, directive_name,
+                "Could not find argument with name {argument_name} on directive with name {directive_name}",
             ))
         })?;
 
@@ -300,7 +295,7 @@ fn locate_field_definition(
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let field = schema.field(schema.named_field(parent_type, field_name).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {}", field_name,))
+        LSPRuntimeError::UnexpectedError(format!("Could not find field with name {field_name}",))
     })?);
     let parent_type = schema.get_type_name(parent_type);
     let provider_response = extra_data_provider.resolve_field_definition(
@@ -335,8 +330,7 @@ fn locate_field_definition(
         // Step 2: is field a standalone graphql file?
         Err(err) => {
             error!(
-                "Failed to resolve field definition through extra data provider. Falling back to schema file. Got error: {:?}",
-                err
+                "Failed to resolve field definition through extra data provider. Falling back to schema file. Got error: {err:?}"
             );
         }
     }
@@ -358,8 +352,8 @@ fn get_location(
     };
     let range = lsp_types::Range { start, end: start };
 
-    let uri = Url::parse(&format!("file://{}", path)).map_err(|e| {
-        LSPRuntimeError::UnexpectedError(format!("Could not parse path as URL: {}", e))
+    let uri = Url::parse(&format!("file://{path}")).map_err(|e| {
+        LSPRuntimeError::UnexpectedError(format!("Could not parse path as URL: {e}"))
     })?;
 
     Ok(lsp_types::Location { uri, range })
@@ -408,8 +402,7 @@ pub(crate) fn on_get_source_location_of_type_definition(
                 .named_field(type_, (&field_name as &str).intern())
                 .ok_or_else(|| {
                     LSPRuntimeError::UnexpectedError(format!(
-                        "Could not find field with name {}",
-                        field_name
+                        "Could not find field with name {field_name}"
                     ))
                 })
         })

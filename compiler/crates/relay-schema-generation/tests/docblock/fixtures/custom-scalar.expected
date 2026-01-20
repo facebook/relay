@@ -153,6 +153,7 @@ Field(
                                 ),
                                 default_value: None,
                                 directives: [],
+                                description: None,
                                 span: 560:578,
                             },
                         ],

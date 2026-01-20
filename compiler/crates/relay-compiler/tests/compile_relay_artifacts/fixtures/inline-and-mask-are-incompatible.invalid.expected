@@ -19,10 +19,10 @@ fragment inlineAndMaskAreIncompatible_Profile on User @inline {
       │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     6 │   }
 
-  ℹ︎ related location
+  ℹ︎ related 'inline' directive
 
-  inline-and-mask-are-incompatible.invalid.graphql:9:10
+  inline-and-mask-are-incompatible.invalid.graphql:9:55
     8 │ 
     9 │ fragment inlineAndMaskAreIncompatible_Profile on User @inline {
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │                                                       ^^^^^^^
    10 │   id

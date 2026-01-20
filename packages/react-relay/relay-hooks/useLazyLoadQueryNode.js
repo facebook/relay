@@ -17,6 +17,7 @@ import type {
   Observable,
   OperationDescriptor,
   OperationType,
+  ReaderFragment,
   RenderPolicy,
 } from 'relay-runtime';
 
@@ -32,53 +33,80 @@ const React = require('react');
 
 const {useContext, useEffect, useState, useRef} = React;
 
-hook useLazyLoadQueryNode<TQuery: OperationType>({
-  query,
-  componentDisplayName,
-  fetchObservable,
-  fetchPolicy,
-  fetchKey,
-  renderPolicy,
-}: {
+export type LazyLoadQueryNodeParamsWithQuery = Readonly<{
   query: OperationDescriptor,
   componentDisplayName: string,
   fetchObservable: Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   renderPolicy?: ?RenderPolicy,
-}): TQuery['response'] {
+}>;
+
+/**
+ * This param will be used when the query key is not provided
+ * (e.g. in usePreloadedQuery)
+ */
+export type LazyLoadQueryNodeParamsWithoutQuery = Readonly<{
+  componentDisplayName: string,
+  fragmentNode: ReaderFragment,
+}>;
+
+export type LazyLoadQueryNodeParams =
+  | LazyLoadQueryNodeParamsWithQuery
+  | LazyLoadQueryNodeParamsWithoutQuery;
+
+hook useLazyLoadQueryNode<
+  TQuery: OperationType,
+  TParams: LazyLoadQueryNodeParams = LazyLoadQueryNodeParams,
+>(
+  params: TParams,
+): TParams extends LazyLoadQueryNodeParamsWithQuery
+  ? TQuery['response']
+  : null {
   const environment = useRelayEnvironment();
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);
 
   const [forceUpdateKey, forceUpdate] = useState(0);
   const {startFetch, completeFetch} = useFetchTrackingRef();
-  const cacheBreaker = `${forceUpdateKey}-${fetchKey ?? ''}`;
-  const cacheIdentifier = getQueryCacheIdentifier(
-    environment,
-    query,
-    fetchPolicy,
-    renderPolicy,
-    cacheBreaker,
-  );
 
-  const preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {
-    return QueryResource.prepareWithIdentifier(
-      cacheIdentifier,
+  let cacheIdentifier = null;
+  let preparedQueryResult = null;
+  let fragmentNode;
+  if (params.query != null) {
+    const {query, fetchObservable, fetchPolicy, fetchKey, renderPolicy} =
+      params;
+    const cacheBreaker = `${forceUpdateKey}-${fetchKey ?? ''}`;
+    const queryCacheIdentifier = getQueryCacheIdentifier(
+      environment,
       query,
-      fetchObservable,
       fetchPolicy,
       renderPolicy,
-      {start: startFetch, complete: completeFetch, error: completeFetch},
-      profilerContext,
+      cacheBreaker,
     );
-  });
+    cacheIdentifier = queryCacheIdentifier;
+
+    preparedQueryResult = profilerContext.wrapPrepareQueryResource(() => {
+      return QueryResource.prepareWithIdentifier(
+        queryCacheIdentifier,
+        query,
+        fetchObservable,
+        fetchPolicy,
+        renderPolicy,
+        {start: startFetch, complete: completeFetch, error: completeFetch},
+        profilerContext,
+      );
+    });
+    fragmentNode = preparedQueryResult.fragmentNode;
+  } else {
+    fragmentNode = params.fragmentNode;
+  }
 
   const maybeHiddenOrFastRefresh = useRef(false);
   useEffect(() => {
     return () => {
       // Attempt to detect if the component was
-      // hidden (by Offscreen API), or fast refresh occured;
+      // hidden (by Offscreen API), or fast refresh occurred;
       // Only in these situations would the effect cleanup
       // for "unmounting" run multiple times, so if
       // we are ever able to read this ref with a value
@@ -103,6 +131,10 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
       return;
     }
 
+    if (preparedQueryResult == null) {
+      return;
+    }
+
     const disposable = QueryResource.retain(
       preparedQueryResult,
       profilerContext,
@@ -117,6 +149,10 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
   }, [environment, cacheIdentifier]);
 
   useEffect(() => {
+    if (preparedQueryResult == null) {
+      return;
+    }
+
     // Release any temporary retain that's not released. At this point, if the
     // cacheIdentifier doesn't change, the query is still permanently retained,
     // and the temporary retain is redundant.
@@ -124,13 +160,16 @@ hook useLazyLoadQueryNode<TQuery: OperationType>({
     // This effect is intended to run on every commit, thus no dependency
   });
 
-  const {fragmentNode, fragmentRef} = preparedQueryResult;
   const data = useFragmentInternal(
     fragmentNode,
-    fragmentRef,
-    componentDisplayName,
+    preparedQueryResult?.fragmentRef,
+    params.componentDisplayName,
   );
-  return data;
+
+  // Flow is confused in understanding the conditional type.
+  // We know data is the query response if input params is LazyLoadQueryNodeParamsWithQuery,
+  // and void if otherwise.
+  return data as $FlowFixMe;
 }
 
 module.exports = useLazyLoadQueryNode;

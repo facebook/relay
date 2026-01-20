@@ -23,7 +23,7 @@ pub struct ObjectEntry {
 /// For now, field names are defined in `CODEGEN_CONSTANTS
 #[macro_export]
 macro_rules! object {
-    { $ ( $(:$func: expr_2021,)* $key:ident: $value:expr_2021,)* } => ({
+    { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
         vec![
             $(
                 $(

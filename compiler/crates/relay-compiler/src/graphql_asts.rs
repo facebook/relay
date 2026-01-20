@@ -286,16 +286,15 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
                                 } else {
                                     false
                                 }
-                            })) {
-                                if let Some(operation_name) = operation.name {
-                                    local_removed_definition_names.push(
-                                        ArtifactSourceKey::ExecutableDefinition(
-                                            ExecutableDefinitionName::OperationDefinitionName(
-                                                OperationDefinitionName(operation_name.value),
-                                            ),
+                            })) && let Some(operation_name) = operation.name
+                            {
+                                local_removed_definition_names.push(
+                                    ArtifactSourceKey::ExecutableDefinition(
+                                        ExecutableDefinitionName::OperationDefinitionName(
+                                            OperationDefinitionName(operation_name.value),
                                         ),
-                                    );
-                                }
+                                    ),
+                                );
                             }
                         }
                         ExecutableDefinition::Fragment(fragment) => {

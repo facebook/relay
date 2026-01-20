@@ -123,7 +123,7 @@ pub fn parse_schema_with_extensions<
                 }
             }
             if !buffer.is_empty() {
-                eprintln!("Incomplete schema document:  {}", buffer)
+                eprintln!("Incomplete schema document:  {buffer}")
             }
             chunks
         }

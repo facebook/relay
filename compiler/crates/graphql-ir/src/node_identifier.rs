@@ -177,19 +177,19 @@ impl<TBehavior: LocationAgnosticBehavior> fmt::Debug for NodeIdentifier<TBehavio
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self.inner {
             NodeIdentifierInner::LinkedField(v) => {
-                write!(f, "NodeIdentifierInner::LinkedField({:?})", v)
+                write!(f, "NodeIdentifierInner::LinkedField({v:?})")
             }
             NodeIdentifierInner::ScalarField(v) => {
-                write!(f, "NodeIdentifierInner::ScalarField({:?})", v)
+                write!(f, "NodeIdentifierInner::ScalarField({v:?})")
             }
             NodeIdentifierInner::FragmentSpread(v) => {
-                write!(f, "NodeIdentifierInner::FragmentSpread({:?})", v)
+                write!(f, "NodeIdentifierInner::FragmentSpread({v:?})")
             }
             NodeIdentifierInner::InlineFragment(v) => {
-                write!(f, "NodeIdentifierInner::InlineFragment({:?})", v)
+                write!(f, "NodeIdentifierInner::InlineFragment({v:?})")
             }
             NodeIdentifierInner::Condition(v) => {
-                write!(f, "NodeIdentifierInner::Condition({:?})", v)
+                write!(f, "NodeIdentifierInner::Condition({v:?})")
             }
         }
     }

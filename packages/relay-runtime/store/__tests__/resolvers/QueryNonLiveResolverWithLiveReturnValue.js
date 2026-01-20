@@ -17,7 +17,7 @@
  * A non-@live resolver that returns a LiveObject
  */
 function non_live_resolver_with_live_return_value(): string {
-  // $FlowFixMe This is an intentionally wrong type to test what happens when you return a LiveObject from a non-@live resolver.
+  // $FlowFixMe[incompatible-type] This is an intentionally wrong type to test what happens when you return a LiveObject from a non-@live resolver.
   return {
     read() {
       return 'Oops!';

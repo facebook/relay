@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8234a98afc2ebec72a3b7912ec081f8c>>
+ * @generated SignedSource<<48d4e4c5398d88f3f134c8ea71eea335>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,16 +25,16 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryManyTodosResolverType: (
   args: {|
-    todo_ids: $ReadOnlyArray<?string>,
+    todo_ids: ReadonlyArray<?string>,
   |},
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?Query__many_todos$normalization>);
+) => ?ReadonlyArray<?Query__many_todos$normalization>);
 import type { Query__many_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyTodosQuery$variables = {|
-  todos: $ReadOnlyArray<?string>,
+  todos: ReadonlyArray<?string>,
 |};
 export type RelayResolversWithOutputTypeTestManyTodosQuery$data = {|
-  +many_todos: ?$ReadOnlyArray<?{|
+  +many_todos: ?ReadonlyArray<?{|
     +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
   |}>,
 |};

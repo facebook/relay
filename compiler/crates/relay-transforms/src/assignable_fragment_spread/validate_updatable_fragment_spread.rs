@@ -214,14 +214,14 @@ impl Validator for UpdatableFragmentSpread<'_> {
             _ => panic!("Unexpected path item"),
         };
 
-        if linked_field_item.should_ensure_discriminated_union_is_created {
-            if let Err(e) = ensure_discriminated_union_is_created(
+        if linked_field_item.should_ensure_discriminated_union_is_created
+            && let Err(e) = ensure_discriminated_union_is_created(
                 &self.program.schema,
                 linked_field,
                 "an updatable fragment was spread in an inline fragment in this linked field",
-            ) {
-                errors.extend(e)
-            }
+            )
+        {
+            errors.extend(e)
         }
 
         if !errors.is_empty() {

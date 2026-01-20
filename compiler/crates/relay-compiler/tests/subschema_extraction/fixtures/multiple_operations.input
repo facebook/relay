@@ -1,0 +1,56 @@
+//- src/UserQuery.js
+graphql`
+  query UserQuery {
+    me {
+      name
+      email
+      profile {
+        bio
+      }
+      friends {
+        name
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  me: User
+  users: [User!]!
+  posts: [Post!]!
+}
+
+type User {
+  id: ID!
+  name: String
+  email: String
+  age: Int
+  phone: String
+  friends: [User!]
+  profile: Profile
+  posts: [Post!]
+}
+
+type Profile {
+  bio: String
+  avatar: String
+  website: String
+}
+
+type Post {
+  id: ID!
+  title: String
+  content: String
+  author: User
+}

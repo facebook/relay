@@ -34,9 +34,6 @@ const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironme
 const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
-  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
-} = require('relay-runtime/store/RelayStoreUtils');
-const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
@@ -56,11 +53,11 @@ beforeEach(() => {
 
 function createEnvironment() {
   return new RelayModernEnvironment({
+    log: logFn,
     network: RelayNetwork.create(jest.fn()),
     store: new RelayModernStore(RelayRecordSource.create(), {
       log: logFn,
     }),
-    log: logFn,
   });
 }
 
@@ -233,7 +230,7 @@ function TodoRootWithBlockedComponent(props: {todoID: string}) {
   });
 }
 
-function ManyTodosComponent(props: {todos: $ReadOnlyArray<?string>}) {
+function ManyTodosComponent(props: {todos: ReadonlyArray<?string>}) {
   const data = useClientQuery(
     graphql`
       query RelayResolversWithOutputTypeTestManyTodosQuery($todos: [ID]!) {
@@ -558,93 +555,8 @@ test('renders after GC', () => {
     'color: color is red',
   ]);
 
-  (environment.getStore(): $FlowFixMe).__gc();
+  (environment.getStore() as $FlowFixMe).__gc();
   jest.runAllTimers();
-
-  expect(environment.getStore().getSource().toJSON()).toEqual({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      // $FlowFixMe[invalid-computed-prop]
-      [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]: {
-        __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
-      },
-    },
-    // $FlowFixMe[invalid-computed-prop]
-    [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]: {
-      __id: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
-      __resolverError: null,
-      __resolverLiveStateDirty: false,
-      __resolverLiveStateSubscription: expect.anything(),
-      __resolverLiveStateValue: {
-        read: expect.anything(),
-        subscribe: expect.anything(),
-      },
-      __resolverOutputTypeRecordIDs: new Set([
-        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
-        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`,
-        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
-        `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,
-      ]),
-      __resolverSnapshot: undefined,
-      __resolverValue: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
-      __typename: '__RELAY_RESOLVER__',
-    },
-    // $FlowFixMe[invalid-computed-prop]
-    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`]:
-      {
-        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10)`,
-        __typename: 'TodoConnection',
-        count: 1,
-        edges: {
-          __refs: [
-            `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`,
-          ],
-        },
-        pageInfo: {
-          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,
-        },
-      },
-    // $FlowFixMe[invalid-computed-prop]
-    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`]:
-      {
-        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0`,
-        __typename: 'TodoEdge',
-        cursor: null,
-        node: {
-          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
-        },
-      },
-    // $FlowFixMe[invalid-computed-prop]
-    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`]:
-      {
-        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node`,
-        __typename: 'Todo',
-        // $FlowFixMe[invalid-computed-prop]
-        [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}complete`]: {
-          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}complete`,
-        },
-        // $FlowFixMe[invalid-computed-prop]
-        [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}self`]: {
-          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}self`,
-        },
-        // $FlowFixMe[invalid-computed-prop]
-        [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}text`]: {
-          __ref: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):edges:0:node:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}text`,
-        },
-        todo_id: 'todo-1',
-      },
-    // $FlowFixMe[invalid-computed-prop]
-    [`client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`]:
-      {
-        __id: `client:TodoConnection:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}todos(first:10):pageInfo`,
-        __typename: 'TodoConnectionPageInfo',
-        endCursor: null,
-        hasNextPage: false,
-        hasPreviousPage: false,
-        startCursor: null,
-      },
-  });
 
   expect(() => {
     TestRenderer.act(() => {

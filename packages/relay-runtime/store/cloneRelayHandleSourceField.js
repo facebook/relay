@@ -32,7 +32,7 @@ const invariant = require('invariant');
  */
 function cloneRelayHandleSourceField(
   handleField: NormalizationLinkedHandle,
-  selections: $ReadOnlyArray<NormalizationSelection>,
+  selections: ReadonlyArray<NormalizationSelection>,
   variables: Variables,
 ): NormalizationLinkedField {
   const sourceField = selections.find(

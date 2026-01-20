@@ -114,15 +114,14 @@ pub fn create_node_resolution_info(
                     ..
                 } = operation;
 
-                if let Some(variable_definitions) = variable_definitions {
-                    if let Some(variable) = variable_definitions
+                if let Some(variable_definitions) = variable_definitions
+                    && let Some(variable) = variable_definitions
                         .items
                         .iter()
                         .find(|var| var.span.contains(position_span))
-                    {
-                        node_resolution_info.kind = NodeKind::Variable(variable.type_.to_string());
-                        return Ok(node_resolution_info);
-                    }
+                {
+                    node_resolution_info.kind = NodeKind::Variable(variable.type_.to_string());
+                    return Ok(node_resolution_info);
                 }
 
                 let (_, kind) = operation.operation.ok_or_else(|| {
@@ -376,7 +375,7 @@ mod test {
             NodeKind::FragmentDefinition(fragment) => {
                 assert_eq!(fragment.name.value, "User_data".intern())
             }
-            node_kind => panic!("Unexpected node node_resolution_info.kind {:?}", node_kind),
+            node_kind => panic!("Unexpected node node_resolution_info.kind {node_kind:?}"),
         }
     }
 

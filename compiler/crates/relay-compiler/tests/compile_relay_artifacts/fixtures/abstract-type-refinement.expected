@@ -4,7 +4,7 @@ query abstractTypeRefinement_AbstractTypeRefinementQuery {
     ... on Named {
       name_from_query: name
     }
-    ...abstractTypeRefinement_ActorFragment
+    ...abstractTypeRefinement_ActorFragment @alias
   }
 }
 
@@ -51,8 +51,19 @@ fragment abstractTypeRefinement_ActorFragment on Actor {
             "abstractKey": "__isNamed"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "abstractTypeRefinement_ActorFragment"
+                }
+              ],
+              "type": "Actor",
+              "abstractKey": "__isActor"
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "abstractTypeRefinement_ActorFragment"
           }
         ],

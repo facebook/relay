@@ -62,8 +62,8 @@ enum IdentiferValue {
 impl fmt::Display for IdentiferValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match &self {
-            IdentiferValue::Variable(var) => write!(f, "{{\"variable\":\"{}\"}}", var),
-            IdentiferValue::Value(val) => write!(f, "{{\"value\":{}}}", val),
+            IdentiferValue::Variable(var) => write!(f, "{{\"variable\":\"{var}\"}}"),
+            IdentiferValue::Value(val) => write!(f, "{{\"value\":{val}}}"),
             IdentiferValue::Object(obj) => write!(
                 f,
                 "{{\"object\":{{{}}}}}",
@@ -100,10 +100,10 @@ fn build_constant_value_string(value: &ConstantValue) -> String {
     match value {
         ConstantValue::Int(val) => val.to_string(),
         ConstantValue::Float(val) => val.to_string(),
-        ConstantValue::String(val) => format!("\"{}\"", val),
+        ConstantValue::String(val) => format!("\"{val}\""),
         ConstantValue::Boolean(val) => val.to_string(),
         ConstantValue::Null() => "null".to_string(),
-        ConstantValue::Enum(val) => format!("\"{}\"", val),
+        ConstantValue::Enum(val) => format!("\"{val}\""),
         ConstantValue::List(val_list) => {
             let json_values = val_list
                 .iter()

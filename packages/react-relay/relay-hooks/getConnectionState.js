@@ -19,8 +19,8 @@ const {ConnectionInterface, getValueAtPath} = require('relay-runtime');
 function getConnectionState(
   direction: Direction,
   fragmentNode: ReaderFragment,
-  fragmentData: mixed,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  fragmentData: unknown,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
 ): {
   cursor: ?string,
   hasMore: boolean,
@@ -73,8 +73,8 @@ function getConnectionState(
 
   const cursor =
     direction === 'forward'
-      ? pageInfo[END_CURSOR] ?? null
-      : pageInfo[START_CURSOR] ?? null;
+      ? (pageInfo[END_CURSOR] ?? null)
+      : (pageInfo[START_CURSOR] ?? null);
   invariant(
     cursor === null || typeof cursor === 'string',
     'Relay: Expected page info for connection in fragment `%s` to have a ' +

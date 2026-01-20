@@ -32,6 +32,7 @@ use relay_compiler::config::Config;
 use relay_compiler::config::ConfigFile;
 use relay_compiler::errors::Error as CompilerError;
 use relay_compiler::get_programs;
+use relay_compiler::subschema_extraction::compile_and_extract_subschema;
 use relay_lsp::DummyExtraDataProvider;
 use relay_lsp::FieldDefinitionSourceInfo;
 use relay_lsp::FieldSchemaInfo;
@@ -125,6 +126,27 @@ struct CompileCommand {
 
 #[derive(Parser)]
 #[clap(
+    rename_all = "camel_case",
+    about = "EXPERIMENTAL! Replaces the currently configured schema file with the portion of the provided --fullSchema that is actually used by this Relay project."
+)]
+struct UpdateSchemaCommand {
+    /// Compile using this config file. If not provided, searches for a config in
+    /// package.json under the `relay` key or `relay.config.json` files among other up
+    /// from the current working directory.
+    #[clap(long)]
+    config: Option<PathBuf>,
+
+    /// Path to the full schema file or directory to use as the source for extracting the used subset
+    #[clap(long)]
+    full_schema: PathBuf,
+
+    /// Verbosity level
+    #[clap(long, value_enum, default_value = "verbose")]
+    output: OutputKind,
+}
+
+#[derive(Parser)]
+#[clap(
     about = "Run the language server. Used by IDEs.",
     rename_all = "camel_case"
 )]
@@ -154,6 +176,7 @@ enum Commands {
     Lsp(LspCommand),
     ConfigJsonSchema(ConfigJsonSchemaCommand),
     Codemod(CodemodCommand),
+    ExperimentalRegenerateSubSchema(UpdateSchemaCommand),
 }
 
 #[derive(ValueEnum, Clone, Copy)]
@@ -215,6 +238,9 @@ async fn main() {
             Ok(())
         }
         Commands::Codemod(command) => handle_codemod_command(command).await,
+        Commands::ExperimentalRegenerateSubSchema(command) => {
+            handle_regenerate_subschema_command(command).await
+        }
     };
 
     if let Err(err) = result {
@@ -250,7 +276,7 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
 }
 
 /// Update Config if the `project` flag is set
-fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Error> {
+fn set_project_flag(config: &mut Config, projects: &Vec<String>) -> Result<(), Error> {
     if projects.is_empty() {
         return Ok(());
     }
@@ -284,16 +310,40 @@ fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Er
 
 async fn handle_codemod_command(command: CodemodCommand) -> Result<(), Error> {
     let mut config = get_config(command.config)?;
-    set_project_flag(&mut config, command.projects)?;
-    let (programs, _, config) = get_programs(config, Arc::new(ConsoleLogger)).await;
-    let programs = programs.values().cloned().collect();
+    let root_dir = config.root_dir.clone();
+    set_project_flag(&mut config, &command.projects)?;
+    let programs = get_programs(config, Arc::new(ConsoleLogger))
+        .await
+        .map(|(programs, _, _)| programs.values().cloned().collect());
 
-    match run_codemod(programs, Arc::clone(&config), command.codemod).await {
+    match run_codemod(programs, root_dir, command.codemod).await {
         Ok(_) => Ok(()),
         Err(e) => Err(Error::CodemodError {
             details: format!("{:?}", e),
         }),
     }
+}
+
+async fn handle_regenerate_subschema_command(command: UpdateSchemaCommand) -> Result<(), Error> {
+    configure_logger(command.output, TerminalMode::Mixed);
+    let config = get_config(command.config)?;
+
+    let result = compile_and_extract_subschema(config, &command.full_schema)
+        .await
+        .map_err(|e| Error::CompilerError {
+            details: format!("{}", e),
+        })?;
+
+    // Write the used schema back to the original schema location
+    std::fs::write(&result.original_schema_path, &result.schema_content).map_err(|e| {
+        Error::ConfigError(CompilerError::ConfigError {
+            details: format!(
+                "Failed to write used schema file to {}: {}",
+                result.original_schema_path.to_string_lossy(),
+                e
+            ),
+        })
+    })
 }
 
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
@@ -310,7 +360,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
 
     let mut config = get_config(command.config)?;
 
-    set_project_flag(&mut config, command.projects)?;
+    set_project_flag(&mut config, &command.projects)?;
 
     if command.validate {
         config.artifact_writer = Box::<ArtifactValidationWriter>::default();
@@ -455,9 +505,11 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
 /// environment variable. If this `FORCE_NO_WATCHMAN` is set, this method will return `false`
 /// and compiler will use non-watchman file finder.
 fn should_use_watchman() -> bool {
-    let check_watchman = Command::new("watchman")
+    if env::var("FORCE_NO_WATCHMAN").is_ok() {
+        return false;
+    }
+    Command::new("watchman")
         .args(["list-capabilities"])
-        .output();
-
-    check_watchman.is_ok() && env::var("FORCE_NO_WATCHMAN").is_err()
+        .output()
+        .is_ok()
 }

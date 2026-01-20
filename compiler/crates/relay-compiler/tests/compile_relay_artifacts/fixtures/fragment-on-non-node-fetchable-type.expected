@@ -2,7 +2,7 @@
 fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory
   @refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
-    ...fragmentOnNonNodeFetchableType_ProfilePicture
+    ...fragmentOnNonNodeFetchableType_ProfilePicture @alias
   }
 }
 
@@ -272,8 +272,19 @@ fragment fragmentOnNonNodeFetchableType_RefetchableFragment on NonNodeStory {
       "plural": false,
       "selections": [
         {
-          "args": null,
-          "kind": "FragmentSpread",
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "fragmentOnNonNodeFetchableType_ProfilePicture"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
           "name": "fragmentOnNonNodeFetchableType_ProfilePicture"
         }
       ],

@@ -86,7 +86,7 @@ test('unsubscribe happens when record is updated due to missing data', () => {
 
   const snapshot = environment.lookup(operation.fragment);
   // lookup() doesn't have the nice types of reading a fragment through the actual APIs
-  let data: $FlowExpectedError = snapshot.data;
+  let data: $FlowFixMe = snapshot.data;
   const environmentUpdateHandler = jest.fn(() => {
     data = environment.lookup(operation.fragment).data;
   });
@@ -122,13 +122,7 @@ test('unsubscribe happens when record is updated due to missing data', () => {
   expect(__debug.state.subscribers.size).toBe(1);
 });
 
-test('Updates can be batched', () => {
-  const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-    },
-  });
+describe('batching', () => {
   const operation = createOperationDescriptor(
     graphql`
       query LiveResolversTestBatchingQuery {
@@ -140,95 +134,191 @@ test('Updates can be batched', () => {
     `,
     {},
   );
-  const log = jest.fn();
-  const store = new RelayModernStore(source, {
-    gcReleaseBufferSize: 0,
-    log,
-  });
-  const environment = new RelayModernEnvironment({
-    network: RelayNetwork.create(jest.fn()),
-    store,
-    log,
-  });
+  test('Updates can be batched', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
+    });
 
-  function getBatchLogEventNames(): string[] {
-    return log.mock.calls
-      .map(log => log[0].name)
-      .filter(name => {
-        return name.startsWith('liveresolver.batch');
-      });
-  }
+    const log = jest.fn();
+    const store = new RelayModernStore(source, {
+      gcReleaseBufferSize: 0,
+      log,
+    });
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+      log,
+    });
 
-  const snapshot = environment.lookup(operation.fragment);
+    function getBatchLogEventNames(): string[] {
+      return log.mock.calls
+        .map(log => log[0].name)
+        .filter(name => {
+          return name.startsWith('liveresolver.batch');
+        });
+    }
 
-  const handler = jest.fn<[Snapshot], void>();
-  environment.subscribe(snapshot, handler);
+    const snapshot = environment.lookup(operation.fragment);
 
-  expect(handler.mock.calls.length).toBe(0);
+    const handler = jest.fn<[Snapshot], void>();
+    environment.subscribe(snapshot, handler);
 
-  // Update without batching
-  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    expect(handler.mock.calls.length).toBe(0);
 
-  // We get notified once per live resolver. :(
-  expect(handler.mock.calls.length).toBe(2);
-
-  let lastCallCount = handler.mock.calls.length;
-
-  expect(getBatchLogEventNames()).toEqual([]);
-
-  // Update _with_ batching.
-  store.batchLiveStateUpdates(() => {
+    // Update without batching
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-  });
 
-  expect(getBatchLogEventNames()).toEqual([
-    'liveresolver.batch.start',
-    'liveresolver.batch.end',
-  ]);
+    // We get notified once per live resolver. :(
+    expect(handler.mock.calls.length).toBe(2);
 
-  // We get notified once per batch! :)
-  expect(handler.mock.calls.length - lastCallCount).toBe(1);
+    let lastCallCount = handler.mock.calls.length;
 
-  lastCallCount = handler.mock.calls.length;
+    expect(getBatchLogEventNames()).toEqual([]);
 
-  // Update with batching, but update throws.
-  // This might happen if some other subscriber to the store throws when they
-  // get notified of an error.
-  expect(() => {
+    // Update _with_ batching.
     store.batchLiveStateUpdates(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-      throw new Error('An Example Error');
     });
-  }).toThrowError('An Example Error');
 
-  expect(getBatchLogEventNames()).toEqual([
-    'liveresolver.batch.start',
-    'liveresolver.batch.end',
-    'liveresolver.batch.start',
-    'liveresolver.batch.end',
-  ]);
+    expect(getBatchLogEventNames()).toEqual([
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+    ]);
 
-  // We still notify our subscribers
-  expect(handler.mock.calls.length - lastCallCount).toBe(1);
+    // We get notified once per batch! :)
+    expect(handler.mock.calls.length - lastCallCount).toBe(1);
 
-  // Nested calls to batchLiveStateUpdate throw
-  expect(() => {
-    store.batchLiveStateUpdates(() => {
-      store.batchLiveStateUpdates(() => {});
+    lastCallCount = handler.mock.calls.length;
+
+    // Update with batching, but update throws.
+    // This might happen if some other subscriber to the store throws when they
+    // get notified of an error.
+    expect(() => {
+      store.batchLiveStateUpdates(() => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+        throw new Error('An Example Error');
+      });
+    }).toThrowError('An Example Error');
+
+    expect(getBatchLogEventNames()).toEqual([
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+    ]);
+
+    // We still notify our subscribers
+    expect(handler.mock.calls.length - lastCallCount).toBe(1);
+
+    // Nested calls to batchLiveStateUpdate throw
+    expect(() => {
+      store.batchLiveStateUpdates(() => {
+        store.batchLiveStateUpdates(() => {});
+      });
+    }).toThrow('Unexpected nested call to batchLiveStateUpdates.');
+
+    expect(getBatchLogEventNames()).toEqual([
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      // Here we can see the nesting
+      'liveresolver.batch.start',
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      'liveresolver.batch.end',
+    ]);
+  });
+
+  test('Updates can be batched without notify', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
     });
-  }).toThrow('Unexpected nested call to batchLiveStateUpdates.');
+    const log = jest.fn();
+    const store = new RelayModernStore(source, {
+      gcReleaseBufferSize: 0,
+      log,
+    });
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+      log,
+    });
 
-  expect(getBatchLogEventNames()).toEqual([
-    'liveresolver.batch.start',
-    'liveresolver.batch.end',
-    'liveresolver.batch.start',
-    'liveresolver.batch.end',
-    // Here we can see the nesting
-    'liveresolver.batch.start',
-    'liveresolver.batch.start',
-    'liveresolver.batch.end',
-    'liveresolver.batch.end',
-  ]);
+    function getBatchLogEventNames(): string[] {
+      return log.mock.calls
+        .map(log => log[0].name)
+        .filter(name => {
+          return name.startsWith('liveresolver.batch');
+        });
+    }
+
+    const snapshot = environment.lookup(operation.fragment);
+
+    const handler = jest.fn<[Snapshot], void>();
+    environment.subscribe(snapshot, handler);
+
+    expect(handler.mock.calls.length).toBe(0);
+
+    let lastCallCount = handler.mock.calls.length;
+
+    expect(getBatchLogEventNames()).toEqual([]);
+
+    // Update _with_ batching.
+    store.batchLiveStateUpdatesWithoutNotify(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    });
+
+    expect(getBatchLogEventNames()).toEqual([
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+    ]);
+
+    // We don't get notified
+    expect(handler.mock.calls.length - lastCallCount).toBe(0);
+
+    lastCallCount = handler.mock.calls.length;
+
+    // Update with batching, but update throws.
+    // This might happen if some other subscriber to the store throws when they
+    // get notified of an error.
+    const _ = store.batchLiveStateUpdatesWithoutNotify(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    });
+
+    expect(getBatchLogEventNames()).toEqual([
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+    ]);
+
+    // Don't notify
+    expect(handler.mock.calls.length - lastCallCount).toBe(0);
+
+    // Nested calls to batchLiveStateUpdate throw
+    store.batchLiveStateUpdatesWithoutNotify(() => {
+      store.batchLiveStateUpdatesWithoutNotify(() => {});
+    });
+
+    expect(getBatchLogEventNames()).toEqual([
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      // Here we can see the nesting
+      'liveresolver.batch.start',
+      'liveresolver.batch.start',
+      'liveresolver.batch.end',
+      'liveresolver.batch.end',
+    ]);
+  });
 });
 
 test('Errors thrown during _initial_ read() are caught as resolver errors', () => {
@@ -266,7 +356,7 @@ test('Errors thrown during _initial_ read() are caught as resolver errors', () =
       handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.counter_throws_when_odd).toBe(null);
 });
 
@@ -300,7 +390,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
 
   // Confirm there are no initial errors
   expect(snapshot.fieldErrors).toEqual(null);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.counter_throws_when_odd).toBe(0);
 
   // This should trigger a read that throws
@@ -320,7 +410,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
       handled: false,
     },
   ]);
-  const nextData: $FlowExpectedError = nextSnapshot.data;
+  const nextData: $FlowFixMe = nextSnapshot.data;
   expect(nextData.counter_throws_when_odd).toBe(null);
 
   handler.mockReset();
@@ -332,7 +422,7 @@ test('Errors thrown during read() _after update_ are caught as resolver errors',
 
   // Confirm there are no initial errors
   expect(finalSnapshot.fieldErrors).toEqual(null);
-  const finalData: $FlowExpectedError = finalSnapshot.data;
+  const finalData: $FlowFixMe = finalSnapshot.data;
   expect(finalData.counter_throws_when_odd).toBe(2);
 });
 

@@ -5,6 +5,7 @@
 
 directive @relay_test_operation(
   DO_NOT_USE_use_in_production: Boolean = false @static
+  emitRawText: Boolean = false @static
 ) on QUERY | MUTATION | SUBSCRIPTION
 
 """
@@ -26,7 +27,7 @@ directive @no_inline(raw_response_type: Boolean) on FRAGMENT_DEFINITION
 
 A directive added to queries and fragments which causes the Relay client to throw
 if reading a field that has an error. Relay will also honor the @semanticNonNull
-direcitve on fields read from that query or fragment. Emitted types for such
+directive on fields read from that query or fragment. Emitted types for such
 fields will be non-null. Requires the `experimental_emit_semantic_nullability_types`
 typegen configuration to be enabled.
 
@@ -153,10 +154,59 @@ directive @stream_connection(
 ) on FIELD
 
 # RequiredTransform
+"""
+(Relay Only)
+
+Actions that can be taken when a @required field is null at runtime.
+These actions correspond to your expectations about the data and how
+your application should handle missing values.
+
+[Read More](https://relay.dev/docs/guides/required-directive/)
+"""
 enum RequiredFieldAction {
+  """
+  This data is expected to be null sometimes.
+
+  The field's nullability will "bubble up" to make the parent field null if this
+  field is missing, allowing the component to check the parent field instead of
+  this specific field.
+  """
   NONE
+
+  """
+  This data should always be present. We can recover if it is null but want to
+  report that something unexpected happened.
+
+  A event will be logged to the `relayFieldLogger` and the field's nullability
+  will "bubble up" to make the parent field null if this field is missing,
+  allowing the component to check the parent field instead of this specific
+  field.
+  """
   LOG
+
+  """
+  This data should always be present. We cannot recover if it is null.
+
+  Use THROW when the data is absolutely critical and your application cannot
+  function without it. This will throw an error at runtime if the field is null.
+
+  Note: If you have opted into the optional 'disallow_required_action_throw_on_semantically_nullable_fields'
+  feature flag, this can only be used on fields that are non-nullable or marked
+  with @semanticNonNull (an optional semantic nullability feature that indicates
+  fields should never be null in normal operation).
+  """
   THROW
+
+  """
+  This data should always be present. We cannot recover if it is null.
+  This action bypasses semantic nullability validation.
+
+  This action behaves identically to THROW but can be used on fields that are
+  nullable. This is only needed when the optional compiler feature flag
+  'disallow_required_action_throw_on_semantically_nullable_fields' is enabled,
+  which prevents using THROW on (semantically) nullable fields.
+  """
+  DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD
 }
 
 # CatchTransform
@@ -367,4 +417,7 @@ If added to a query, resolvers in that query to run at exec-time, rather than re
 This means the resolvers are run when the query data is requested rather than when the
 query is used (i.e. when the network request is made instead of at render time).
 """
-directive @exec_time_resolvers(enabledProvider: String) on QUERY
+directive @exec_time_resolvers(
+  enabledProvider: String
+  useExperimentalProvider: String
+) on QUERY

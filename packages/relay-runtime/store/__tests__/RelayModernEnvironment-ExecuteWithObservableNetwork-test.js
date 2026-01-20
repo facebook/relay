@@ -68,9 +68,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           foo: 'bar', // should be filtered from network fetch
         });
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetch = jest.fn((_query, _variables, _cacheConfig) =>

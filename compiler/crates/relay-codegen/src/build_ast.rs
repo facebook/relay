@@ -75,6 +75,7 @@ use relay_transforms::generate_abstract_type_refinement_key;
 use relay_transforms::get_normalization_fragment_filename;
 use relay_transforms::get_normalization_operation_name;
 use relay_transforms::get_resolver_fragment_dependency_name;
+use relay_transforms::raw_text::get_raw_text_value;
 use relay_transforms::relay_resolvers::ResolverInfo;
 use relay_transforms::relay_resolvers::ResolverSchemaGenType;
 use relay_transforms::relay_resolvers::get_resolver_info;
@@ -388,11 +389,15 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
         let has_exec_time_resolvers_directive =
             operation.directives.named(*EXEC_TIME_RESOLVERS).is_some();
-        let exec_time_resolvers_enabled_provider = operation
-            .directives
-            .named(*EXEC_TIME_RESOLVERS)
-            .and_then(|directive| {
-                directive
+        // `exec_time_resolvers_enabled_provider` make the query use exec time resolvers, for a query with
+        //  @exec_time_resolvers but without the exec time provider argument, exec time is enabled by default.
+        // `use_experimental_provider` make the exec time query use the experimental exec time exeuctor in runtime
+        let (exec_time_resolvers_enabled_provider, use_experimental_provider) = if let Some(
+            directive,
+        ) =
+            operation.directives.named(*EXEC_TIME_RESOLVERS)
+        {
+            (directive
                     .arguments
                     .named(*EXEC_TIME_RESOLVERS_ENABLED_ARGUMENT)
                     .map(|arg| match &arg.value.item {
@@ -403,14 +408,30 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         _ => panic!(
                             "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
                         ),
-                    })
-            });
+                    }),
+                    directive
+                    .arguments
+                    .named(ArgumentName(intern!("useExperimentalProvider")))
+                    .map(|arg| match &arg.value.item {
+                        Value::Constant(ConstantValue::String(cons)) => WithLocation {
+                            item: *cons,
+                            location: arg.value.location,
+                        },
+                        _ => panic!(
+                            "The enabled argument in exec_time_resolvers directive should be the string name of your provider file."
+                        ),
+                    }),
+                )
+        } else {
+            (None, None)
+        };
 
         let mut context = ContextualMetadata {
             has_client_edges: false,
             has_exec_time_resolvers_directive,
             has_exec_time_resolvers_enabled_provider: exec_time_resolvers_enabled_provider
                 .is_some(),
+            use_experimental_provider,
         };
         match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
             Some(_split_directive) => {
@@ -472,6 +493,17 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             }
                         },
                     );
+                    if let Some(use_experimental_provider) = context.use_experimental_provider {
+                        fields.push(ObjectEntry {
+                            key: "use_experimental_provider".intern(),
+                            value: Primitive::JSModuleDependency(JSModuleDependency {
+                                path: use_experimental_provider.item,
+                                import_name: ModuleImportName::Default(
+                                    use_experimental_provider.item,
+                                ),
+                            }),
+                        })
+                    }
                 }
                 if let Some(client_abstract_types) =
                     self.maybe_build_client_abstract_types(operation)
@@ -564,10 +596,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         let mut metadata = vec![];
-        if !skip_connection_metadata {
-            if let Some(connection_metadata) = &connection_metadata {
-                metadata.push(self.build_connection_metadata(connection_metadata))
-            }
+        if !skip_connection_metadata && let Some(connection_metadata) = &connection_metadata {
+            metadata.push(self.build_connection_metadata(connection_metadata))
         }
         if unmask {
             metadata.push(ObjectEntry {
@@ -1338,8 +1368,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             if let Some(handle_field_directive) = handle_field_directives.next() {
                 if let Some(other_handle_field_directive) = handle_field_directives.next() {
                     panic!(
-                        "Expected at most one handle directive, got `{:?}` and `{:?}`.",
-                        handle_field_directive, other_handle_field_directive
+                        "Expected at most one handle directive, got `{handle_field_directive:?}` and `{other_handle_field_directive:?}`."
                     );
                 }
                 let values = extract_values_from_handle_field_directive(handle_field_directive);
@@ -1763,7 +1792,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             // `false` constant values should've been transformed away in skip_unreachable_node
             Value::Constant(ConstantValue::Boolean(true)) => None,
             Value::Variable(var) => Some(var.name.item),
-            other => panic!("unexpected value for @defer if argument: {:?}", other),
+            other => panic!("unexpected value for @defer if argument: {other:?}"),
         });
         let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
@@ -1815,7 +1844,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     // `false` constant values should've been transformed away in skip_unreachable_node
                     Value::Constant(ConstantValue::Boolean(true)) => None,
                     Value::Variable(var) => Some(var.name.item),
-                    other => panic!("unexpected value for @stream if argument: {:?}", other),
+                    other => panic!("unexpected value for @stream if argument: {other:?}"),
                 });
                 let label_name = label_arg.unwrap().value.item.expect_string_literal();
                 self.object(object! {
@@ -1954,10 +1983,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
                     self.build_scalar_backed_resolver_field(context, field, resolver_metadata)
                 } else {
-                    panic!(
-                        "Expected field backing a Client Edge to be a Relay Resolver. {:?}",
-                        field
-                    )
+                    panic!("Expected field backing a Client Edge to be a Relay Resolver. {field:?}")
                 }
             }
             _ => panic!(
@@ -2338,7 +2364,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .iter()
                     .enumerate()
                     .map(|(i, val)| {
-                        let item_name = format!("{}.{}", arg_name, i).as_str().intern();
+                        let item_name = format!("{arg_name}.{i}").as_str().intern();
                         match self.build_argument(item_name, val) {
                             None => Primitive::Null,
                             Some(key) => Primitive::Key(key),
@@ -2443,8 +2469,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let fragment_name_str = fragment_name.0.lookup();
         let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
             panic!(
-                "@module fragments should be named 'FragmentName_propName', got '{}'.",
-                fragment_name
+                "@module fragments should be named 'FragmentName_propName', got '{fragment_name}'."
             )
         });
 
@@ -2476,20 +2501,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         match self.variant {
             CodegenVariant::Reader => {
-                if module_metadata.read_time_resolvers || should_use_reader_module_imports {
-                    if let Some(dynamic_module_provider) = self
+                if (module_metadata.read_time_resolvers || should_use_reader_module_imports)
+                    && let Some(dynamic_module_provider) = self
                         .project_config
                         .module_import_config
                         .dynamic_module_provider
-                    {
-                        module_import.push(ObjectEntry {
-                            key: CODEGEN_CONSTANTS.component_module_provider,
-                            value: Primitive::DynamicImport {
-                                provider: dynamic_module_provider,
-                                module: module_metadata.module_name,
-                            },
-                        });
-                    }
+                {
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.component_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: dynamic_module_provider,
+                            module: module_metadata.module_name,
+                        },
+                    });
                 }
             }
             CodegenVariant::Normalization => {
@@ -2497,36 +2521,34 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .project_config
                     .module_import_config
                     .dynamic_module_provider
-                {
-                    if self.project_config.module_import_config.surface.is_none()
+                    && (self.project_config.module_import_config.surface.is_none()
                         || self.project_config.module_import_config.surface == Some(Surface::All)
                         || (self.project_config.module_import_config.surface
                             == Some(Surface::Resolvers)
-                            && module_metadata.read_time_resolvers)
+                            && module_metadata.read_time_resolvers))
+                {
+                    let operation_module_provider = match self
+                        .project_config
+                        .module_import_config
+                        .operation_module_provider
                     {
-                        let operation_module_provider = match self
-                            .project_config
-                            .module_import_config
-                            .operation_module_provider
-                        {
-                            Some(operation_module_provider) => operation_module_provider,
-                            None => dynamic_module_provider,
-                        };
-                        module_import.push(ObjectEntry {
-                            key: CODEGEN_CONSTANTS.component_module_provider,
-                            value: Primitive::DynamicImport {
-                                provider: dynamic_module_provider,
-                                module: module_metadata.module_name,
-                            },
-                        });
-                        module_import.push(ObjectEntry {
-                            key: CODEGEN_CONSTANTS.operation_module_provider,
-                            value: Primitive::DynamicImport {
-                                provider: operation_module_provider,
-                                module: get_normalization_fragment_filename(fragment_name),
-                            },
-                        });
-                    }
+                        Some(operation_module_provider) => operation_module_provider,
+                        None => dynamic_module_provider,
+                    };
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.component_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: dynamic_module_provider,
+                            module: module_metadata.module_name,
+                        },
+                    });
+                    module_import.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.operation_module_provider,
+                        value: Primitive::DynamicImport {
+                            provider: operation_module_provider,
+                            module: get_normalization_fragment_filename(fragment_name),
+                        },
+                    });
                 }
             }
         }
@@ -2691,9 +2713,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             }),
         });
 
+        let text = get_raw_text_value(operation).or(request_parameters.text);
         params_object.push(ObjectEntry {
             key: CODEGEN_CONSTANTS.text,
-            value: match request_parameters.text {
+            value: match text {
                 Some(text) => Primitive::RawString(text),
                 None => Primitive::Null,
             },
@@ -2828,4 +2851,5 @@ struct ContextualMetadata {
     has_client_edges: bool,
     has_exec_time_resolvers_directive: bool,
     has_exec_time_resolvers_enabled_provider: bool,
+    use_experimental_provider: Option<WithLocation<StringKey>>,
 }

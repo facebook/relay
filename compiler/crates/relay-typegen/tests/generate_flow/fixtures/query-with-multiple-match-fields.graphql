@@ -2,14 +2,14 @@ query Test @raw_response_type {
   node(id: "1") {
     ... on User {
       username
-      ...NameRendererFragment
+      ...NameRendererFragment @alias
     }
   }
   viewer {
     actor {
       ... on User {
         name
-        ...AnotherNameRendererFragment
+        ...AnotherNameRendererFragment @alias
       }
     }
   }

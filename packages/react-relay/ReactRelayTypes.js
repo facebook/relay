@@ -22,7 +22,7 @@ import type {
 
 export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode, ...};
 
-export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
+export type ObserverOrCallback = Observer<void> | ((error: ?Error) => unknown);
 
 // NOTE: This is an inexact type in order to allow a RelayPaginationProp or
 // RelayRefetchProp to flow into a RelayProp.
@@ -57,7 +57,7 @@ export type RelayRefetchProp = {
 export type RefetchOptions = {
   +force?: boolean,
   +fetchPolicy?: 'store-or-network' | 'network-only',
-  +metadata?: {[key: string]: mixed, ...},
+  +metadata?: {[key: string]: unknown, ...},
 };
 
 /**
@@ -99,9 +99,9 @@ export type $FragmentRef<T> = {
 
 /* $FlowExpectedError[unclear-type]: Intentional so that it won't fail,
  * even if the type we want to exclude doesn't exist in Props */
-type LooseOmitRelayProps<Props, K: $Keys<any>> = Pick<
+type LooseOmitRelayProps<Props, K: keyof any> = Pick<
   Props,
-  Exclude<$Keys<Props>, K>,
+  Exclude<keyof Props, K>,
 >;
 /**
  * A utility type that takes the Props of a component and the type of
@@ -121,33 +121,33 @@ type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
     : [+t: T] extends [+t: {+$fragmentType: FragmentType, ...}]
       ? $FragmentRef<T>
       : [+t: T] extends [+t: ?{+$fragmentType: FragmentType, ...}]
-        ? ?$FragmentRef<$NonMaybeType<T>>
+        ? ?$FragmentRef<NonNullable<T>>
         : [+t: T] extends [
-              +t: $ReadOnlyArray<
+              +t: ReadonlyArray<
                 infer V extends {+$fragmentType: FragmentType, ...},
               >,
             ]
-          ? $ReadOnlyArray<$FragmentRef<V>>
+          ? ReadonlyArray<$FragmentRef<V>>
           : [+t: T] extends [
-                +t: ?$ReadOnlyArray<
+                +t: ?ReadonlyArray<
                   infer V extends {+$fragmentType: FragmentType, ...},
                 >,
               ]
-            ? ?$ReadOnlyArray<$FragmentRef<V>>
+            ? ?ReadonlyArray<$FragmentRef<V>>
             : [+t: T] extends [
-                  +t: $ReadOnlyArray<?infer V extends {
+                  +t: ReadonlyArray<?infer V extends {
                     +$fragmentType: FragmentType,
                     ...
                   }>,
                 ]
-              ? $ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+              ? ReadonlyArray<?$FragmentRef<NonNullable<V>>>
               : [+t: T] extends [
-                    +t: ?$ReadOnlyArray<?infer V extends {
+                    +t: ?ReadonlyArray<?infer V extends {
                       +$fragmentType: FragmentType,
                       ...
                     }>,
                   ]
-                ? ?$ReadOnlyArray<?$FragmentRef<$NonMaybeType<V>>>
+                ? ?ReadonlyArray<?$FragmentRef<NonNullable<V>>>
                 : T;
 
 export type RelayFragmentContainer<TComponent: component(...empty)> = component(

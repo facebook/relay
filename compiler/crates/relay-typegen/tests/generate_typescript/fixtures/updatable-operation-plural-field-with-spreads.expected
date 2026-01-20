@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query UpdatableQuery @updatable {
   nodes(ids: [4]) {
-    ...Updatable_user
+    ...Updatable_user @alias
   }
 }
 
@@ -12,12 +12,15 @@ fragment Updatable_user on User @assignable {
 import { FragmentRefs } from "relay-runtime";
 export type UpdatableQuery$variables = Record<PropertyKey, never>;
 export type UpdatableQuery$data = {
-  get nodes(): ReadonlyArray<Record<PropertyKey, never> | null | undefined> | null | undefined;
-  set nodes(value: ReadonlyArray<{
-    readonly __typename: "User";
-    readonly __id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"Updatable_user">;
-  }>);
+  get nodes(): ReadonlyArray<{
+    get Updatable_user(): Record<PropertyKey, never> | null | undefined;
+    set Updatable_user(value: {
+      readonly __typename: "User";
+      readonly __id: string;
+      readonly " $fragmentSpreads": FragmentRefs<"Updatable_user">;
+    } | null | undefined);
+  } | null | undefined> | null | undefined;
+  set nodes(value: []);
 };
 export type UpdatableQuery = {
   response: UpdatableQuery$data;

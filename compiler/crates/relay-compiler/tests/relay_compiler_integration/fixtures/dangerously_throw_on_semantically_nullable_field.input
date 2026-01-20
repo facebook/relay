@@ -1,0 +1,17 @@
+//- UserComponent.js
+graphql`
+  fragment UserComponent on Query {
+    me {
+      name @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+    }
+  }`;
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

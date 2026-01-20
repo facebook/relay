@@ -15,10 +15,10 @@ import type { FragmentType } from "relay-runtime";
 import clientUserNameResolverType from "bar";
 // Type assertion validating that `clientUserNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(clientUserNameResolverType: () => mixed);
+(clientUserNameResolverType: () => unknown);
 declare export opaque type MyFragment$fragmentType: FragmentType;
 export type MyFragment$data = {|
-  +name: $NonMaybeType<ReturnType<typeof clientUserNameResolverType>>,
+  +name: NonNullable<ReturnType<typeof clientUserNameResolverType>>,
   +$fragmentType: MyFragment$fragmentType,
 |};
 export type MyFragment$key = {

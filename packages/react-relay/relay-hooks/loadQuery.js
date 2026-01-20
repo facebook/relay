@@ -43,12 +43,12 @@ const {
 
 let fetchKey = 100001;
 
-type QueryType<T> =
+export type QueryType<T> =
   T extends Query<infer V, infer D, infer RR>
     ? {
         variables: V,
         response: D,
-        rawResponse?: $NonMaybeType<RR>,
+        rawResponse?: NonNullable<RR>,
       }
     : [+t: T] extends [+t: PreloadableConcreteRequest<infer V>]
       ? V
@@ -126,7 +126,7 @@ function loadQuery<
   let networkError = null;
   // makeNetworkRequest will immediately start a raw network request if
   // one isn't already in flight and return an Observable that when
-  // subscribed to will replay the network events that have occured so far,
+  // subscribed to will replay the network events that have occurred so far,
   // as well as subsequent events.
   let didMakeNetworkRequest = false;
   const makeNetworkRequest = (
@@ -175,15 +175,15 @@ function loadQuery<
     });
 
     const {unsubscribe} = observable.subscribe({
+      complete() {
+        subject.complete();
+      },
       error(err) {
         networkError = err;
         subject.error(err);
       },
       next(data) {
         subject.next(data);
-      },
-      complete() {
-        subject.complete();
       },
     });
     unsubscribeFromNetworkRequest = unsubscribe;
@@ -230,14 +230,14 @@ function loadQuery<
       operation.request.identifier,
       fetchFn,
     ).subscribe({
+      complete() {
+        executionSubject.complete();
+      },
       error(err) {
         executionSubject.error(err);
       },
       next(data) {
         executionSubject.next(data);
-      },
-      complete() {
-        executionSubject.complete();
       },
     }));
   };
@@ -284,7 +284,7 @@ function loadQuery<
   let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
-      (preloadableRequest: $FlowFixMe);
+      preloadableRequest as $FlowFixMe;
     ({params} = preloadableConcreteRequest);
 
     ({id: queryId} = params);
@@ -329,7 +329,7 @@ function loadQuery<
     }
   } else {
     const graphQlTaggedNode: GraphQLTaggedNode =
-      (preloadableRequest: $FlowFixMe);
+      preloadableRequest as $FlowFixMe;
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
     queryId = params.cacheID != null ? params.cacheID : params.id;
@@ -351,17 +351,21 @@ function loadQuery<
       return;
     }
     if (didExecuteNetworkSource) {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       unsubscribeFromExecution && unsubscribeFromExecution();
     } else {
+      /* $FlowFixMe[constant-condition] Error discovered during Constant
+       * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
       unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
     }
+    /* $FlowFixMe[constant-condition] Error discovered during Constant
+     * Condition roll out. See https://fburl.com/workplace/1v97vimq. */
     cancelOnLoadCallback && cancelOnLoadCallback();
     isNetworkRequestCancelled = true;
   };
   return {
-    kind: 'PreloadedQuery',
-    environment,
-    environmentProviderOptions,
+    cancelNetworkRequest,
     dispose() {
       if (isDisposed) {
         return;
@@ -370,21 +374,23 @@ function loadQuery<
       cancelNetworkRequest();
       isDisposed = true;
     },
-    releaseQuery,
-    cancelNetworkRequest,
+    environment,
+    environmentProviderOptions,
     fetchKey,
+    fetchPolicy,
     id: queryId,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed || isReleased;
     },
+    kind: 'PreloadedQuery',
+    name: params.name,
+    networkCacheConfig,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get networkError() {
       return networkError;
     },
-    name: params.name,
-    networkCacheConfig,
-    fetchPolicy,
+    releaseQuery,
     source: didMakeNetworkRequest ? returnedObservable : undefined,
     variables,
   };

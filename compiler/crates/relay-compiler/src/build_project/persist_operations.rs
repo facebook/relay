@@ -139,10 +139,10 @@ fn extract_persist_id(path: &PathBuf, text_hash: &str) -> Option<String> {
     }
 
     // If the existing hash doesn't match the hash of the new query test, abort.
-    if let Some(existing_hash) = extract_relay_hash(&content) {
-        if existing_hash != text_hash {
-            return None;
-        }
+    if let Some(existing_hash) = extract_relay_hash(&content)
+        && existing_hash != text_hash
+    {
+        return None;
     }
 
     extract_request_id(&content)

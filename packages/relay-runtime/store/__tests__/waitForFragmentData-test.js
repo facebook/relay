@@ -47,7 +47,8 @@ test('data ok', async () => {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe - data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] - data is untyped
   const result = await waitForFragmentData(environment, fragment, data.me);
   expect(result).toEqual({name: 'Elizabeth'});
 });
@@ -80,7 +81,8 @@ test('data ok with plural fragment', async () => {
     ],
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe - data is untyped
+  // $FlowFixMe[incompatible-type]
+  // $FlowFixMe[incompatible-use] - data is untyped
   const result = await waitForFragmentData(environment, fragment, data.nodes);
   expect(result).toEqual([{name: 'Alice'}, {name: 'Bob'}]);
 });
@@ -110,7 +112,8 @@ test('Promise rejects with @throwOnFieldError', async () => {
   const {data} = environment.lookup(operation.fragment);
   let result;
   try {
-    // $FlowFixMe - data is untyped
+    // $FlowFixMe[incompatible-type]
+    // $FlowFixMe[incompatible-use] - data is untyped
     await waitForFragmentData(environment, fragment, data.me);
   } catch (e) {
     result = e;
@@ -151,7 +154,6 @@ test('data goes missing due to unrelated query response', async () => {
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
 
   // Now an unrelated query comes in and changes the Query.me relationship to a
   // new user, but does not fetch `name` for that user. Now we are missing data
@@ -162,7 +164,7 @@ test('data goes missing due to unrelated query response', async () => {
     me: {id: '99', __typename: 'User'},
   });
 
-  // $FlowFixMe - data is untyped
+  // $FlowFixMe[incompatible-type] - data is untyped
   const result = await waitForFragmentData(environment, fragment, data);
   expect(result).toEqual({me: {name: undefined}});
 });
@@ -199,7 +201,6 @@ test('data goes missing due to unrelated query response (@throwOnFieldErrro)', a
     me: {id: '7', __typename: 'User', name: 'Elizabeth'},
   });
   const {data} = environment.lookup(operation.fragment);
-  // $FlowFixMe Data is untyped
 
   // Now an unrelated query comes in and changes the Query.me relationship to a
   // new user, but does not fetch `name` for that user. Now we are missing data
@@ -211,7 +212,7 @@ test('data goes missing due to unrelated query response (@throwOnFieldErrro)', a
   });
   let result;
   try {
-    // $FlowFixMe - data is untyped
+    // $FlowFixMe[incompatible-type] - data is untyped
     await waitForFragmentData(environment, fragment, data);
   } catch (e) {
     result = e;

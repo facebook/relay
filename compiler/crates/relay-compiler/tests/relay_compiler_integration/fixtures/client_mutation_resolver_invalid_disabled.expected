@@ -12,7 +12,12 @@ graphql`mutation barMutation {
 //- relay.config.json
 {
    "language": "flow",
-   "schema": "./schema.graphql"
+   "schema": "./schema.graphql",
+   "featureFlags": {
+       "allow_output_type_resolvers": {
+         "kind": "enabled"
+      }
+   }
 }
 
 //- schema.graphql

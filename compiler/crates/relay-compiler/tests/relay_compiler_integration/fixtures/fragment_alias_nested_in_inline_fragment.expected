@@ -242,3 +242,15 @@ export default ((node/*: any*/)/*: Query<
   fooQuery$variables,
   fooQuery$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooQuery
+    Path: __generated__/fooQuery.graphql.js
+  - Source: ExecutableDefinition: foo
+    Path: __generated__/foo.graphql.js
+  - Source: ExecutableDefinition: fooInner
+    Path: __generated__/fooInner.graphql.js

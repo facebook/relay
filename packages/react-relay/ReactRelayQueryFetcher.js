@@ -116,7 +116,7 @@ class ReactRelayQueryFetcher {
     environment,
     operation,
     preservePreviousReferences = false,
-  }: ExecuteConfig): Observable<mixed> {
+  }: ExecuteConfig): Observable<unknown> {
     const reference = environment.retain(operation);
     const error = () => {
       // We may have partially fulfilled the request, so let the next request

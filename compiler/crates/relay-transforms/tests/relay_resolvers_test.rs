@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ed09766c9f906b6da4f1eb1e6082c33>>
+ * @generated SignedSource<<c4953c95b3cbfebed7b3bd1b96325e9d>>
  */
 
 mod relay_resolvers;
@@ -136,6 +136,27 @@ async fn relay_resolver_within_named_inline_fragment() {
     let input = include_str!("relay_resolvers/fixtures/relay-resolver-within-named-inline-fragment.graphql");
     let expected = include_str!("relay_resolvers/fixtures/relay-resolver-within-named-inline-fragment.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-within-named-inline-fragment.graphql", "relay_resolvers/fixtures/relay-resolver-within-named-inline-fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_fragment_inline_spread() {
+    let input = include_str!("relay_resolvers/fixtures/resolver-fragment-inline-spread.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/resolver-fragment-inline-spread.expected");
+    test_fixture(transform_fixture, file!(), "resolver-fragment-inline-spread.graphql", "relay_resolvers/fixtures/resolver-fragment-inline-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_fragment_non_inline_spread_invalid() {
+    let input = include_str!("relay_resolvers/fixtures/resolver-fragment-non-inline-spread.invalid.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/resolver-fragment-non-inline-spread.invalid.expected");
+    test_fixture(transform_fixture, file!(), "resolver-fragment-non-inline-spread.invalid.graphql", "relay_resolvers/fixtures/resolver-fragment-non-inline-spread.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_fragment_unmasked_spread() {
+    let input = include_str!("relay_resolvers/fixtures/resolver-fragment-unmasked-spread.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/resolver-fragment-unmasked-spread.expected");
+    test_fixture(transform_fixture, file!(), "resolver-fragment-unmasked-spread.graphql", "relay_resolvers/fixtures/resolver-fragment-unmasked-spread.expected", input, expected).await;
 }
 
 #[tokio::test]

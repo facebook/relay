@@ -136,9 +136,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             }),
         );
         callbacks = {
-          complete: jest.fn<[], mixed>(),
-          error: jest.fn<[Error], mixed>(),
-          next: jest.fn<[GraphQLResponse], mixed>(),
+          complete: jest.fn<[], unknown>(),
+          error: jest.fn<[Error], unknown>(),
+          next: jest.fn<[GraphQLResponse], unknown>(),
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
@@ -179,7 +179,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         });
         expect(
-          (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+          (callbacks.error as $FlowFixMe).mock.calls.map(call => call[0].stack),
         ).toEqual([]);
         expect(callbacks.next).toBeCalledTimes(1);
         expect(callbacks.complete).toBeCalledTimes(0);
@@ -189,11 +189,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const queryData = environment.lookup(operation.fragment);
         expect(queryData.data).toEqual({
           me: {
-            __id: '1',
+            __fragmentOwner: operation.request,
             __fragments: {
               [NoInlineFragment.name]: expect.anything(),
             },
-            __fragmentOwner: operation.request,
+            __id: '1',
           },
         });
 
@@ -201,16 +201,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const selector = nullthrows(
           getSingularSelector(
             NoInlineFragment,
-            (queryData.data: $FlowFixMe).me,
+            (queryData.data as $FlowFixMe).me,
           ),
         );
         const selectorData = environment.lookup(selector);
         expect(selectorData.data).toEqual({
-          __id: '1',
+          __fragmentOwner: operation.request,
           __fragments: {
             [InnerFragment.name]: expect.anything(),
           },
-          __fragmentOwner: operation.request,
+          __id: '1',
           profile_picture: {
             uri: 'https://profile.png',
           },
@@ -218,7 +218,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         // Inner (normal, inlined) fragment data is present
         const innerSelector = nullthrows(
-          getSingularSelector(InnerFragment, (selectorData.data: $FlowFixMe)),
+          getSingularSelector(InnerFragment, selectorData.data as $FlowFixMe),
         );
         const innerSelectorData = environment.lookup(innerSelector);
         expect(innerSelectorData.isMissingData).toBe(false);
@@ -236,7 +236,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         // available after GC if the query is retained
         const retain = environment.retain(operation);
-        (environment.getStore(): $FlowFixMe).scheduleGC();
+        (environment.getStore() as $FlowFixMe).scheduleGC();
         jest.runAllTimers();
         expect(environment.check(operation)).toEqual({
           fetchTime: null,
@@ -245,7 +245,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         // missing after being freed plus a GC run
         retain.dispose();
-        (environment.getStore(): $FlowFixMe).scheduleGC();
+        (environment.getStore() as $FlowFixMe).scheduleGC();
         jest.runAllTimers();
         expect(environment.check(operation)).toEqual({
           status: 'missing',
@@ -267,7 +267,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         });
         expect(
-          (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+          (callbacks.error as $FlowFixMe).mock.calls.map(call => call[0].stack),
         ).toEqual([]);
         expect(callbacks.next).toBeCalledTimes(1);
         expect(callbacks.complete).toBeCalledTimes(0);
@@ -277,11 +277,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const queryData = environment.lookup(operation.fragment);
         expect(queryData.data).toEqual({
           me: {
-            __id: '1',
+            __fragmentOwner: operation.request,
             __fragments: {
               [NoInlineFragment.name]: expect.anything(),
             },
-            __fragmentOwner: operation.request,
+            __id: '1',
           },
         });
 
@@ -291,12 +291,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const selector = nullthrows(
           getSingularSelector(
             NoInlineFragment,
-            (queryData.data: $FlowFixMe).me,
+            (queryData.data as $FlowFixMe).me,
           ),
         );
         const selectorData = environment.lookup(selector);
         expect(selectorData.data).toEqual({
-          __id: '1',
+          __fragmentOwner: operation.request,
           __fragments: {
             [InnerFragment.name]: {
               $isWithinUnmatchedTypeRefinement: true, // fragment type didn't match
@@ -305,12 +305,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               preset: null,
             },
           },
-          __fragmentOwner: operation.request,
+          __id: '1',
         });
 
         // Inner data should be missing bc the type didn't match
         const innerSelector = nullthrows(
-          getSingularSelector(InnerFragment, (selectorData.data: $FlowFixMe)),
+          getSingularSelector(InnerFragment, selectorData.data as $FlowFixMe),
         );
         const innerSelectorData = environment.lookup(innerSelector);
         expect(innerSelectorData.isMissingData).toBe(false);
@@ -324,7 +324,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         // available after GC if the query is retained
         const retain = environment.retain(operation);
-        (environment.getStore(): $FlowFixMe).scheduleGC();
+        (environment.getStore() as $FlowFixMe).scheduleGC();
         jest.runAllTimers();
         expect(environment.check(operation)).toEqual({
           fetchTime: null,
@@ -333,7 +333,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         // missing after being freed plus a GC run
         retain.dispose();
-        (environment.getStore(): $FlowFixMe).scheduleGC();
+        (environment.getStore() as $FlowFixMe).scheduleGC();
         jest.runAllTimers();
         expect(environment.check(operation)).toEqual({
           status: 'missing',
@@ -400,8 +400,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 },
               },
               username: {
-                __typename: 'User',
                 __isActor: 'User',
+                __typename: 'User',
                 id: '2',
                 profile_picture: {
                   uri: 'https://profile.png',
@@ -416,7 +416,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           });
           expect(
-            (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+            (callbacks.error as $FlowFixMe).mock.calls.map(
+              call => call[0].stack,
+            ),
           ).toEqual([]);
           expect(callbacks.next).toBeCalledTimes(1);
           expect(callbacks.complete).toBeCalledTimes(0);
@@ -426,18 +428,18 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const queryData = environment.lookup(operation.fragment);
           expect(queryData.data).toEqual({
             me: {
-              __id: '1',
+              __fragmentOwner: operation.request,
               __fragments: {
                 [NoInlineFragmentWithArgs.name]: expect.anything(),
               },
-              __fragmentOwner: operation.request,
+              __id: '1',
             },
             username: {
-              __id: '2',
+              __fragmentOwner: operation.request,
               __fragments: {
                 [NoInlineFragmentWithArgs.name]: expect.anything(),
               },
-              __fragmentOwner: operation.request,
+              __id: '2',
             },
           });
 
@@ -445,16 +447,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithArgs,
-              (queryData.data: $FlowFixMe).me,
+              (queryData.data as $FlowFixMe).me,
             ),
           );
           const selectorData = environment.lookup(selector);
           expect(selectorData.data).toEqual({
-            __id: '1',
+            __fragmentOwner: operation.request,
             __fragments: {
               [InnerFragment.name]: expect.anything(),
             },
-            __fragmentOwner: operation.request,
+            __id: '1',
             profile_picture: {
               uri: 'https://profile.png',
             },
@@ -463,16 +465,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selectorUsername = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithArgs,
-              (queryData.data: $FlowFixMe).username,
+              (queryData.data as $FlowFixMe).username,
             ),
           );
           const selectorUsernameData = environment.lookup(selectorUsername);
           expect(selectorUsernameData.data).toEqual({
-            __id: '2',
+            __fragmentOwner: operation.request,
             __fragments: {
               [InnerFragment.name]: expect.anything(),
             },
-            __fragmentOwner: operation.request,
+            __id: '2',
             profile_picture: {
               uri: 'https://profile.png',
             },
@@ -480,7 +482,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // Inner (normal, inlined) fragment data is present
           const innerSelector = nullthrows(
-            getSingularSelector(InnerFragment, (selectorData.data: $FlowFixMe)),
+            getSingularSelector(InnerFragment, selectorData.data as $FlowFixMe),
           );
           const innerSelectorData = environment.lookup(innerSelector);
           expect(innerSelectorData.isMissingData).toBe(false);
@@ -495,7 +497,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const innerSelectorUsername = nullthrows(
             getSingularSelector(
               InnerFragment,
-              (selectorUsernameData.data: $FlowFixMe),
+              selectorUsernameData.data as $FlowFixMe,
             ),
           );
           const innerSelectorUsernameData = environment.lookup(
@@ -512,7 +514,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // available after GC if the query is retained
           const retain = environment.retain(operation);
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
@@ -521,7 +523,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // missing after being freed plus a GC run
           retain.dispose();
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
@@ -576,23 +578,23 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           subject.next({
             data: {
-              mark: {
-                __typename: 'User',
+              joe: {
                 __isActor: 'User',
+                __typename: 'User',
+                id: '3',
+                name: 'Joe',
+              },
+              mark: {
+                __isActor: 'User',
+                __typename: 'User',
                 id: '1',
                 name: 'Zuck',
               },
               zuck: {
-                __typename: 'User',
                 __isActor: 'User',
+                __typename: 'User',
                 id: '2',
                 name: 'Zuck',
-              },
-              joe: {
-                __typename: 'User',
-                __isActor: 'User',
-                id: '3',
-                name: 'Joe',
               },
             },
             extensions: {
@@ -600,7 +602,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           });
           expect(
-            (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+            (callbacks.error as $FlowFixMe).mock.calls.map(
+              call => call[0].stack,
+            ),
           ).toEqual([]);
           expect(callbacks.next).toBeCalledTimes(1);
           expect(callbacks.complete).toBeCalledTimes(0);
@@ -611,31 +615,31 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector = nullthrows(
             getSingularSelector(
               NoInlineFragmentNestedParent,
-              (queryData.data: $FlowFixMe),
+              queryData.data as $FlowFixMe,
             ),
           );
           const selectorData = environment.lookup(selector);
           expect(selectorData.data).toEqual({
-            mark: {
-              __id: '1',
+            joe: {
+              __fragmentOwner: operation.request,
               __fragments: {
                 [NoInlineFragmentNested.name]: expect.anything(),
               },
+              __id: '3',
+            },
+            mark: {
               __fragmentOwner: operation.request,
+              __fragments: {
+                [NoInlineFragmentNested.name]: expect.anything(),
+              },
+              __id: '1',
             },
             zuck: {
+              __fragmentOwner: operation.request,
+              __fragments: {
+                [NoInlineFragmentNested.name]: expect.anything(),
+              },
               __id: '2',
-              __fragments: {
-                [NoInlineFragmentNested.name]: expect.anything(),
-              },
-              __fragmentOwner: operation.request,
-            },
-            joe: {
-              __id: '3',
-              __fragments: {
-                [NoInlineFragmentNested.name]: expect.anything(),
-              },
-              __fragmentOwner: operation.request,
             },
           });
 
@@ -643,7 +647,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector1 = nullthrows(
             getSingularSelector(
               NoInlineFragmentNested,
-              // $FlowFixMe
+              // $FlowFixMe[incompatible-use]
               selectorData.data.mark,
             ),
           );
@@ -655,7 +659,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector2 = nullthrows(
             getSingularSelector(
               NoInlineFragmentNested,
-              // $FlowFixMe
+              // $FlowFixMe[incompatible-use]
               selectorData.data.zuck,
             ),
           );
@@ -667,7 +671,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector3 = nullthrows(
             getSingularSelector(
               NoInlineFragmentNested,
-              // $FlowFixMe
+              // $FlowFixMe[incompatible-use]
               selectorData.data.joe,
             ),
           );
@@ -683,7 +687,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // available after GC if the query is retained
           const retain = environment.retain(operation);
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
@@ -692,7 +696,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // missing after being freed plus a GC run
           retain.dispose();
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
@@ -733,8 +737,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               node: {
                 __typename: 'Feedback',
-                id: '1',
                 actors: [],
+                id: '1',
               },
             },
           });
@@ -750,7 +754,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             path: ['node', 'actors', 0],
           });
           expect(
-            (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+            (callbacks.error as $FlowFixMe).mock.calls.map(
+              call => call[0].stack,
+            ),
           ).toEqual([]);
           expect(callbacks.next).toBeCalledTimes(2);
           expect(callbacks.complete).toBeCalledTimes(0);
@@ -760,18 +766,18 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const queryData = environment.lookup(operation.fragment);
           expect(queryData.data).toEqual({
             node: {
-              __id: '1',
+              __fragmentOwner: operation.request,
               __fragments: {
                 [NoInlineFragmentWithStream.name]: expect.anything(),
               },
-              __fragmentOwner: operation.request,
+              __id: '1',
             },
           });
 
           const selector = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithStream,
-              (queryData.data: $FlowFixMe).node,
+              (queryData.data as $FlowFixMe).node,
             ),
           );
           const selectorData = environment.lookup(selector);
@@ -788,7 +794,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // available after GC if the query is retained
           const retain = environment.retain(operation);
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
@@ -797,7 +803,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // missing after being freed plus a GC run
           retain.dispose();
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
@@ -812,8 +818,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               node: {
                 __typename: 'Feedback',
-                id: '1',
                 actors: [],
+                id: '1',
               },
             },
           });
@@ -831,7 +837,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector2 = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithStream,
-              (queryData2.data: $FlowFixMe).node,
+              (queryData2.data as $FlowFixMe).node,
             ),
           );
           const selectorData2 = environment.lookup(selector2);
@@ -919,15 +925,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               node: {
                 __typename: 'Story',
-                id: '1',
                 feedback: {
-                  id: 'feedback-1',
                   author: {
-                    id: 'actor-1',
                     __typename: 'User',
+                    id: 'actor-1',
                     name: 'Alice',
                   },
+                  id: 'feedback-1',
                 },
+                id: '1',
               },
             },
             label:
@@ -936,7 +942,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
 
           expect(
-            (callbacks.error: $FlowFixMe).mock.calls.map(call => call[0].stack),
+            (callbacks.error as $FlowFixMe).mock.calls.map(
+              call => call[0].stack,
+            ),
           ).toEqual([]);
           expect(callbacks.next).toBeCalledTimes(3);
           expect(callbacks.complete).toBeCalledTimes(0);
@@ -946,28 +954,28 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const queryData = environment.lookup(operation.fragment);
           expect(queryData.data).toEqual({
             viewer: {
-              __id: 'client:root:viewer',
+              __fragmentOwner: operation.request,
               __fragments: {
                 [NoInlineFragmentWithDeferredStreamParent.name]: {
                   cond: false,
                   enableStream: true,
                 },
               },
-              __fragmentOwner: operation.request,
+              __id: 'client:root:viewer',
             },
           });
 
           const parentSelector = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithDeferredStreamParent,
-              (queryData.data: $FlowFixMe).viewer,
+              (queryData.data as $FlowFixMe).viewer,
             ),
           );
           const parentSelectorData = environment.lookup(parentSelector);
           const selector = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithDeferredStream,
-              (parentSelectorData.data: $FlowFixMe),
+              parentSelectorData.data as $FlowFixMe,
             ),
           );
           const selectorData = environment.lookup(selector);
@@ -984,7 +992,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // available after GC if the query is retained
           const retain = environment.retain(operation);
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
@@ -993,7 +1001,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // missing after being freed plus a GC run
           retain.dispose();
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             status: 'missing',
@@ -1019,15 +1027,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   {
                     node: {
                       __typename: 'Story',
-                      id: '1',
                       feedback: {
-                        id: 'feedback-1',
                         author: {
-                          id: 'actor-1',
                           __typename: 'User',
+                          id: 'actor-1',
                           name: 'Alice',
                         },
+                        id: 'feedback-1',
                       },
+                      id: '1',
                     },
                   },
                 ],
@@ -1042,15 +1050,15 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               node: {
                 __typename: 'Story',
-                id: '2',
                 feedback: {
-                  id: 'feedback-2',
                   author: {
-                    id: 'actor-2',
                     __typename: 'User',
+                    id: 'actor-2',
                     name: 'Bob',
                   },
+                  id: 'feedback-2',
                 },
+                id: '2',
               },
             },
             label:
@@ -1061,14 +1069,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const parentSelector2 = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithDeferredStreamParent,
-              (queryData2.data: $FlowFixMe).viewer,
+              (queryData2.data as $FlowFixMe).viewer,
             ),
           );
           const parentSelectorData2 = environment.lookup(parentSelector2);
           const selector2 = nullthrows(
             getSingularSelector(
               NoInlineFragmentWithDeferredStream,
-              (parentSelectorData2.data: $FlowFixMe),
+              parentSelectorData2.data as $FlowFixMe,
             ),
           );
           const selectorData2 = environment.lookup(selector2);
@@ -1112,26 +1120,26 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         beforeEach(() => {
           fragmentToReturn = null;
           operationLoader = {
-            load: jest.fn((moduleName: mixed) => {
+            get: jest.fn(() => fragmentToReturn),
+            load: jest.fn((moduleName: unknown) => {
               return new Promise(resolve => {
                 resolveFragment = resolve;
               });
             }),
-            get: jest.fn(() => fragmentToReturn),
           };
           store = new RelayModernStore(source, {
             gcReleaseBufferSize: 0,
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-            // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+            // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
             operationLoader,
           });
           environment = new RelayModernEnvironment({
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
             network: RelayNetwork.create(fetch),
-            store,
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-            // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+            // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
             operationLoader,
+            store,
           });
         });
 
@@ -1144,19 +1152,19 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           subject.next({
             data: {
               node: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
                 nameRenderer: {
-                  __typename: 'MarkdownUserNameRenderer',
                   __module_component_RelayModernEnvironmentNoInlineTestModuleQuery:
                     'MarkdownUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentNoInlineTestModuleQuery:
                     'RelayModernEnvironmentNoInlineTestModuleMarkdownUserNameRenderer_name$normalization.graphql',
-                  markdown: 'markdown payload',
+                  __typename: 'MarkdownUserNameRenderer',
                   data: {
                     id: 'data-1',
                     markup: '<markup/>',
                   },
+                  markdown: 'markdown payload',
                 },
               },
             },
@@ -1170,14 +1178,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           expect(queryData.data).toEqual({
             node: {
               nameRenderer: {
-                __id: 'client:1:nameRenderer',
+                __fragmentOwner: operation.request,
+                __fragmentPropName: 'name',
                 __fragments: {
                   [NoInlineFragmentMarkdownUserNameRenderer.name]: {
                     cond: true,
                   },
                 },
-                __fragmentOwner: operation.request,
-                __fragmentPropName: 'name',
+                __id: 'client:1:nameRenderer',
                 __module_component: 'MarkdownUserNameRenderer.react',
               },
             },
@@ -1186,7 +1194,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const selector = nullthrows(
             getSingularSelector(
               NoInlineFragmentMarkdownUserNameRenderer,
-              (queryData.data: $FlowFixMe).node.nameRenderer,
+              (queryData.data as $FlowFixMe).node.nameRenderer,
             ),
           );
           const initialSelectorData = environment.lookup(selector);
@@ -1223,7 +1231,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // available after GC if the query is retained
           const retain = environment.retain(operation);
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             fetchTime: null,
@@ -1232,7 +1240,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           // missing after being freed plus a GC run
           retain.dispose();
-          (environment.getStore(): $FlowFixMe).scheduleGC();
+          (environment.getStore() as $FlowFixMe).scheduleGC();
           jest.runAllTimers();
           expect(environment.check(operation)).toEqual({
             status: 'missing',

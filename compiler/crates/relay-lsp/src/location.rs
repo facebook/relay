@@ -110,8 +110,7 @@ fn get_uri(path: &PathBuf) -> LSPRuntimeResult<Url> {
         "file://{}",
         path.to_str()
             .ok_or_else(|| LSPRuntimeError::UnexpectedError(format!(
-                "Could not cast path {:?} as string",
-                path
+                "Could not cast path {path:?} as string"
             )))?
     ))
     .map_err(|e| LSPRuntimeError::UnexpectedError(e.to_string()))

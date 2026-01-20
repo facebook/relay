@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+{
+  "type_name": "StoryCommentSearchInput"
+}
+==================================== OUTPUT ===================================
+input StoryCommentSearchInput {
+  text: String
+  limit: Int
+  offset: Int
+}

@@ -61,7 +61,7 @@ const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-export type Props = $ReadOnly<{
+export type Props = Readonly<{
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
@@ -105,7 +105,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     // "leak" them before mounting (since we would be unable to clean up). For
     // that reason, we define them as null initially and fill them in after
     // mounting to avoid leaking memory.
-    const retryCallbacks = {
+    const retryCallbacks: RetryCallbacks = {
       handleDataChange: null,
       handleRetryAfterError: null,
     };

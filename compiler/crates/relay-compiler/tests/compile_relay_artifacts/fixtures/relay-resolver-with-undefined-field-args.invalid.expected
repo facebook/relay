@@ -3,7 +3,7 @@
 
 query relayResolverWithUndefinedFieldArgsQuery {
   node(id: "SOME_ID") {
-    ...relayResolverWithUndefinedFieldArgs_PopStarName
+    ...relayResolverWithUndefinedFieldArgs_PopStarName @alias
   }
 }
 
@@ -18,7 +18,11 @@ fragment relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name on
 # %extensions%
 
 extend type User {
-  pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+  pop_star_name(scale: Float!): String
+    @relay_resolver(
+      fragment_name: "relayResolverWithUndefinedFieldArgs_PopStarNameResolverFragment_name"
+      import_path: "./path/to/PopStarNameResolver.js"
+    )
 }
 ==================================== ERROR ====================================
 ✖︎ Operation 'relayResolverWithUndefinedFieldArgsQuery' references undefined variable: '$scale'.

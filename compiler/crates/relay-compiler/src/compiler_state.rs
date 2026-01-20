@@ -18,6 +18,8 @@ use std::fs::File as FsFile;
 use std::hash::Hash;
 use std::io::BufReader;
 use std::io::BufWriter;
+use std::path::MAIN_SEPARATOR;
+use std::path::Path;
 use std::path::PathBuf;
 use std::slice;
 use std::sync::Arc;
@@ -124,7 +126,7 @@ impl fmt::Display for ProjectSet {
             .collect::<Vec<String>>()
             .join(",");
 
-        write!(f, "{}", names)
+        write!(f, "{names}")
     }
 }
 
@@ -186,8 +188,7 @@ impl<V: Source + Clone> IncrementalSources<V> {
                     entry.insert(value.clone());
                 }
                 Entry::Vacant(vacant) => {
-                    if !value.is_empty() || self.processed.get(key).map_or(false, |v| !v.is_empty())
-                    {
+                    if !value.is_empty() || self.processed.get(key).is_some_and(|v| !v.is_empty()) {
                         vacant.insert(value.clone());
                     }
                 }
@@ -300,6 +301,9 @@ pub enum ArtifactMapKind {
     Mapping(ArtifactMap),
 }
 
+#[derive(Serialize, Deserialize, Default)]
+pub struct ProjectArtifactMap(pub FnvHashMap<ProjectName, Arc<ArtifactMapKind>>);
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct CompilerState {
     pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
@@ -307,7 +311,7 @@ pub struct CompilerState {
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
     pub full_sources: FnvHashMap<ProjectName, FullSources>,
-    pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
+    pub artifacts: ProjectArtifactMap,
     #[serde(with = "clock_json_string")]
     pub clock: Option<Clock>,
     pub saved_state_version: String,
@@ -319,6 +323,73 @@ pub struct CompilerState {
     pub schema_cache: FnvHashMap<ProjectName, Arc<SDLSchema>>,
     #[serde(skip)]
     pub source_control_update_status: Arc<SourceControlUpdateStatus>,
+}
+
+/// Stringify a path such that it's stable across operating systems.
+/// This normalizes path separators to forward slashes for consistent output.
+fn format_normalized_path(path: &Path) -> String {
+    path.to_string_lossy()
+        .to_string()
+        .replace(MAIN_SEPARATOR, "/")
+}
+
+impl fmt::Debug for ProjectArtifactMap {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut output = String::new();
+
+        // Sort projects by name for stable ordering
+        let mut sorted_projects: Vec<_> = self.0.iter().collect();
+        sorted_projects.sort_by_key(|(project_name, _)| project_name.to_string());
+
+        for (project_name, artifact_map_kind) in sorted_projects {
+            output.push_str(&format!("Project: {}\n", project_name));
+
+            match artifact_map_kind.as_ref() {
+                ArtifactMapKind::Unconnected(_) => {
+                    panic!("Expected artifact map to be connected once compilation is complete")
+                }
+                ArtifactMapKind::Mapping(artifact_map) => {
+                    output.push_str("  Type: Mapping\n");
+
+                    // Collect and sort all entries by source key
+                    let mut entries: Vec<_> = artifact_map.0.iter().collect();
+                    entries.sort_by(|a, b| a.key().cmp(b.key()));
+
+                    for entry in entries {
+                        let (source_key, records) = entry.pair();
+                        let source_label = match source_key {
+                            ArtifactSourceKey::ExecutableDefinition(name) => {
+                                format!("ExecutableDefinition: {}", name)
+                            }
+                            ArtifactSourceKey::ResolverHash(hash) => {
+                                format!("ResolverHash: {:?}", hash)
+                            }
+                            ArtifactSourceKey::Schema() => "Schema".to_string(),
+                        };
+
+                        output.push_str(&format!("  - Source: {}\n", source_label));
+
+                        // Sort artifacts by path
+                        let mut sorted_records: Vec<_> = records.iter().collect();
+                        sorted_records.sort_by_key(|record| &record.path);
+
+                        for record in sorted_records {
+                            output.push_str(&format!(
+                                "    Path: {}\n",
+                                format_normalized_path(&record.path)
+                            ));
+                            if let Some(persisted_id) = &record.persisted_operation_id {
+                                output.push_str(&format!("    Persisted ID: {}\n", persisted_id));
+                            }
+                        }
+                    }
+                }
+            }
+            output.push('\n');
+        }
+
+        write!(f, "{}", output)
+    }
 }
 /// Used to store the intermediate results of processing a file source in parallel.
 /// Because the compiler state does not support concurrency, we process in parallel,
@@ -396,6 +467,7 @@ impl CompilerState {
                 FileSourceIntermediateResult::Generated(project_name, files) => {
                     result
                         .artifacts
+                        .0
                         .insert(project_name, Arc::new(ArtifactMapKind::Unconnected(files)));
                 }
                 FileSourceIntermediateResult::Ignore => {}
@@ -408,7 +480,7 @@ impl CompilerState {
     pub fn project_has_pending_changes(&self, project_name: ProjectName) -> bool {
         self.graphql_sources
             .get(&project_name)
-            .map_or(false, |sources| !sources.pending.is_empty())
+            .is_some_and(|sources| !sources.pending.is_empty())
             || self.project_has_pending_schema_changes(project_name)
             || self.dirty_artifact_paths.contains_key(&project_name)
     }
@@ -416,19 +488,19 @@ impl CompilerState {
     pub fn project_has_pending_schema_changes(&self, project_name: ProjectName) -> bool {
         self.schemas
             .get(&project_name)
-            .map_or(false, |sources| !sources.pending.is_empty())
+            .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .extensions
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .docblocks
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
             || self
                 .full_sources
                 .get(&project_name)
-                .map_or(false, |sources| !sources.pending.is_empty())
+                .is_some_and(|sources| !sources.pending.is_empty())
     }
 
     pub fn has_processed_changes(&self) -> bool {
@@ -501,39 +573,39 @@ impl CompilerState {
         project_name: ProjectName,
         schema_config: &SchemaConfig,
     ) -> SchemaChangeSafety {
-        if let Some(extension) = self.extensions.get(&project_name) {
-            if !extension.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "extension".to_owned());
-                return SchemaChangeSafety::Unsafe;
-            }
+        if let Some(extension) = self.extensions.get(&project_name)
+            && !extension.pending.is_empty()
+        {
+            log_event.string("has_breaking_schema_change", "extension".to_owned());
+            return SchemaChangeSafety::Unsafe;
         }
-        if let Some(docblocks) = self.docblocks.get(&project_name) {
-            if !docblocks.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "docblock".to_owned());
-                return SchemaChangeSafety::Unsafe;
-            }
+        if let Some(docblocks) = self.docblocks.get(&project_name)
+            && !docblocks.pending.is_empty()
+        {
+            log_event.string("has_breaking_schema_change", "docblock".to_owned());
+            return SchemaChangeSafety::Unsafe;
         }
-        if let Some(full_sources) = self.full_sources.get(&project_name) {
-            if !full_sources.pending.is_empty() {
-                log_event.string("has_breaking_schema_change", "full_source".to_owned());
-                return SchemaChangeSafety::Unsafe;
-            }
+        if let Some(full_sources) = self.full_sources.get(&project_name)
+            && !full_sources.pending.is_empty()
+        {
+            log_event.string("has_breaking_schema_change", "full_source".to_owned());
+            return SchemaChangeSafety::Unsafe;
         }
-        if let Some(schema) = self.schemas.get(&project_name) {
-            if !schema.pending.is_empty() {
-                let schema_change = self.get_schema_change(schema);
-                let schema_change_string = schema_change.to_string();
-                let schema_change_safety =
-                    self.get_schema_change_safety(schema, schema_change, schema_config);
-                match schema_change_safety {
-                    SchemaChangeSafety::Unsafe => {
-                        log_event.string("schema_change", schema_change_string);
-                        log_event.string("has_breaking_schema_change", "schema_change".to_owned());
-                    }
-                    SchemaChangeSafety::SafeWithIncrementalBuild(_) | SchemaChangeSafety::Safe => {}
+        if let Some(schema) = self.schemas.get(&project_name)
+            && !schema.pending.is_empty()
+        {
+            let schema_change = self.get_schema_change(schema);
+            let schema_change_string = schema_change.to_string();
+            let schema_change_safety =
+                self.get_schema_change_safety(schema, schema_change, schema_config);
+            match schema_change_safety {
+                SchemaChangeSafety::Unsafe => {
+                    log_event.string("schema_change", schema_change_string);
+                    log_event.string("has_breaking_schema_change", "schema_change".to_owned());
                 }
-                return schema_change_safety;
+                SchemaChangeSafety::SafeWithIncrementalBuild(_) | SchemaChangeSafety::Safe => {}
             }
+            return schema_change_safety;
         }
         SchemaChangeSafety::Safe
     }
@@ -656,6 +728,7 @@ impl CompilerState {
                 let paths = paths.clone();
                 let artifacts = self
                     .artifacts
+                    .0
                     .get(project_name)
                     .expect("Expected the artifacts map to exist.");
                 if let ArtifactMapKind::Mapping(artifacts) = &**artifacts {
@@ -699,7 +772,7 @@ impl CompilerState {
                 let mut encoder = ZstdEncoder::new(writer, zstd_level)?;
                 match u32::try_from(std::thread::available_parallelism()?.get()) {
                     Ok(threads) => {
-                        debug!("Using {} zstd threads", threads);
+                        debug!("Using {threads} zstd threads");
                         encoder.multithread(threads).ok();
                     }
                     Err(_) => {
@@ -723,16 +796,28 @@ impl CompilerState {
     }
 
     pub fn deserialize_from_file(path: &PathBuf) -> Result<Self> {
-        let reader = FsFile::open(path)
-            .and_then(ZstdDecoder::new)
-            .map_err(|err| Error::ReadFileError {
+        let is_already_decompressed = path
+            .to_str()
+            .map(|s| s.ends_with(".decompressed"))
+            .unwrap_or(false);
+
+        let file = FsFile::open(path).map_err(|err| Error::ReadFileError {
+            file: path.clone(),
+            source: err,
+        })?;
+
+        let reader: Box<dyn std::io::Read> = if is_already_decompressed {
+            Box::new(BufReader::new(file))
+        } else {
+            let zstd_decoder = ZstdDecoder::new(file).map_err(|err| Error::ReadFileError {
                 file: path.clone(),
                 source: err,
             })?;
-        let reader = BufReader::with_capacity(
-            ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
-            reader,
-        );
+            Box::new(BufReader::with_capacity(
+                ZstdDecoder::<BufReader<FsFile>>::recommended_output_size(),
+                zstd_decoder,
+            ))
+        };
 
         let memory_limit: u64 = env::var("RELAY_SAVED_STATE_MEMORY_LIMIT").map_or_else(
             |_| 10_u64.pow(10), /* 10GB */
@@ -927,7 +1012,7 @@ mod clock_json_string {
         S: Serializer,
     {
         let json_string = serde_json::to_string(clock).map_err(|err| {
-            SerializationError::custom(format!("Unable to serialize clock value. Error {}", err))
+            SerializationError::custom(format!("Unable to serialize clock value. Error {err}"))
         })?;
         serializer.serialize_str(&json_string)
     }
@@ -949,10 +1034,7 @@ mod clock_json_string {
 
         fn visit_str<E: DeserializationError>(self, v: &str) -> Result<Option<Clock>, E> {
             serde_json::from_str(v).map_err(|err| {
-                DeserializationError::custom(format!(
-                    "Unable deserialize clock value. Error {}",
-                    err
-                ))
+                DeserializationError::custom(format!("Unable deserialize clock value. Error {err}"))
             })
         }
     }

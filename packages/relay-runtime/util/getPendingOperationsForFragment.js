@@ -22,9 +22,9 @@ function getPendingOperationsForFragment(
   fragmentOwner: RequestDescriptor,
 ): {
   promise: Promise<void>,
-  pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+  pendingOperations: ReadonlyArray<RequestDescriptor>,
 } | null {
-  let pendingOperations: $ReadOnlyArray<RequestDescriptor> = [];
+  let pendingOperations: ReadonlyArray<RequestDescriptor> = [];
   let promise = getPromiseForActiveRequest(environment, fragmentOwner);
 
   if (promise != null) {

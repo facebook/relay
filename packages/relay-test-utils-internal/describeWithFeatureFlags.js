@@ -27,20 +27,20 @@ type JestDoneFn = {
   ...
 };
 declare function afterEach(
-  fn: (done: JestDoneFn) => ?Promise<mixed>,
+  fn: (done: JestDoneFn) => ?Promise<unknown>,
   timeout?: number,
 ): void;
 declare function beforeEach(
-  fn: (done: JestDoneFn) => ?Promise<mixed>,
+  fn: (done: JestDoneFn) => ?Promise<unknown>,
   timeout?: number,
 ): void;
 declare var describe: {
   (name: JestTestName, fn: () => void): void,
   each(
-    ...table: $ReadOnlyArray<Array<mixed> | mixed> | [Array<string>, string]
+    ...table: ReadonlyArray<Array<unknown> | unknown> | [Array<string>, string]
   ): (
     name: JestTestName,
-    fn?: (...args: Array<any>) => ?Promise<mixed>,
+    fn?: (...args: Array<any>) => ?Promise<unknown>,
     timeout?: number,
   ) => void,
   ...

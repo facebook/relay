@@ -16,6 +16,7 @@ import type {PayloadData, PayloadError} from '../network/RelayNetworkTypes';
 import type {
   NormalizationActorChange,
   NormalizationDefer,
+  NormalizationInlineFragment,
   NormalizationLinkedField,
   NormalizationLiveResolverField,
   NormalizationModuleImport,
@@ -54,6 +55,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {createNormalizationSelector} = require('./RelayModernSelector');
 const {
   ROOT_ID,
+  ROOT_TYPE,
   TYPENAME_KEY,
   getArgumentValues,
   getHandleStorageKey,
@@ -67,15 +69,16 @@ const invariant = require('invariant');
 const warning = require('warning');
 
 export type GetDataID = (
-  fieldValue: {[string]: mixed},
+  fieldValue: {+[string]: unknown},
   typeName: string,
-) => mixed;
+) => unknown;
 
 export type NormalizationOptions = {
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
+  +deferDeduplicatedFields: boolean,
   +log: ?LogFunction,
-  +path?: $ReadOnlyArray<string>,
+  +path?: ReadonlyArray<string>,
   +shouldProcessClientComponents?: ?boolean,
   +actorIdentifier?: ?ActorIdentifier,
 };
@@ -112,6 +115,7 @@ class RelayResponseNormalizer {
   _getDataId: GetDataID;
   _handleFieldPayloads: Array<HandleFieldPayload>;
   _treatMissingFieldsAsNull: boolean;
+  _deferDeduplicatedFields: boolean;
   _incrementalPlaceholders: Array<IncrementalDataPlaceholder>;
   _isClientExtension: boolean;
   _isUnmatchedAbstractType: boolean;
@@ -134,6 +138,7 @@ class RelayResponseNormalizer {
     this._getDataId = options.getDataID;
     this._handleFieldPayloads = [];
     this._treatMissingFieldsAsNull = options.treatMissingFieldsAsNull;
+    this._deferDeduplicatedFields = options.deferDeduplicatedFields;
     this._incrementalPlaceholders = [];
     this._isClientExtension = false;
     this._isUnmatchedAbstractType = false;
@@ -164,10 +169,10 @@ class RelayResponseNormalizer {
     return {
       errors,
       fieldPayloads: this._handleFieldPayloads,
-      incrementalPlaceholders: this._incrementalPlaceholders,
       followupPayloads: this._followupPayloads,
-      source: this._recordSource,
+      incrementalPlaceholders: this._incrementalPlaceholders,
       isFinal: false,
+      source: this._recordSource,
     };
   }
 
@@ -192,7 +197,7 @@ class RelayResponseNormalizer {
     }
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayResponseNormalizer(): Undefined variable `%s`.',
@@ -202,7 +207,7 @@ class RelayResponseNormalizer {
   }
 
   _getRecordType(data: PayloadData): string {
-    const typeName = (data: any)[TYPENAME_KEY];
+    const typeName = (data as any)[TYPENAME_KEY];
     invariant(
       typeName != null,
       'RelayResponseNormalizer(): Expected a typename for record `%s`.',
@@ -243,35 +248,16 @@ class RelayResponseNormalizer {
           break;
         }
         case 'InlineFragment': {
-          const {abstractKey} = selection;
-          if (abstractKey == null) {
-            const typeName = RelayModernRecord.getType(record);
-            if (typeName === selection.type) {
-              this._traverseSelections(selection, record, data);
-            }
-          } else {
-            const implementsInterface = data.hasOwnProperty(abstractKey);
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            let typeRecord = this._recordSource.get(typeID);
-            if (typeRecord == null) {
-              typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
-              this._recordSource.set(typeID, typeRecord);
-            }
-            RelayModernRecord.setValue(
-              typeRecord,
-              abstractKey,
-              implementsInterface,
-            );
-            if (implementsInterface) {
-              this._traverseSelections(selection, record, data);
-            }
-          }
+          this._normalizeInlineFragment(selection, record, data);
           break;
         }
         case 'TypeDiscriminator': {
           const {abstractKey} = selection;
-          const implementsInterface = data.hasOwnProperty(abstractKey);
+          // $FlowFixMe[method-unbinding] - data could be prototype less
+          const implementsInterface = Object.prototype.hasOwnProperty.call(
+            data,
+            abstractKey,
+          );
           const typeName = RelayModernRecord.getType(record);
           const typeID = generateTypeID(typeName);
           let typeRecord = this._recordSource.get(typeID);
@@ -298,10 +284,10 @@ class RelayResponseNormalizer {
             dataID: RelayModernRecord.getDataID(record),
             fieldKey,
             handle: selection.handle,
-            handleKey,
             handleArgs: selection.handleArgs
               ? getArgumentValues(selection.handleArgs, this._variables)
               : {},
+            handleKey,
           });
           break;
         case 'ModuleImport':
@@ -340,12 +326,54 @@ class RelayResponseNormalizer {
           }
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayResponseNormalizer(): Unexpected ast kind `%s`.',
             selection.kind,
           );
+      }
+    }
+  }
+
+  _normalizeInlineFragment(
+    selection: NormalizationInlineFragment,
+    record: Record,
+    data: PayloadData,
+  ) {
+    const {abstractKey} = selection;
+    if (abstractKey == null) {
+      const typeName = RelayModernRecord.getType(record);
+      if (
+        typeName === selection.type ||
+        // The root record type is a special `__Root` type and may not match the
+        // type on the ast, so ignore type mismatches at the root.  We currently
+        // detect whether we're at the root by checking against ROOT_ID, but this
+        // does not work for mutations/subscriptions which generate unique root
+        // ids. This is acceptable in practice as we don't read data for
+        // mutations/subscriptions in a situation where we would use
+        // isMissingData to decide whether to suspend or not.
+        // TODO T96653810: Correctly detect reading from root of mutation/subscription
+        typeName === ROOT_TYPE
+      ) {
+        this._traverseSelections(selection, record, data);
+      }
+    } else {
+      // $FlowFixMe[method-unbinding] - data could be prototype less
+      const implementsInterface = Object.prototype.hasOwnProperty.call(
+        data,
+        abstractKey,
+      );
+      const typeName = RelayModernRecord.getType(record);
+      const typeID = generateTypeID(typeName);
+      let typeRecord = this._recordSource.get(typeID);
+      if (typeRecord == null) {
+        typeRecord = RelayModernRecord.create(typeID, TYPE_SCHEMA_TYPE);
+        this._recordSource.set(typeID, typeRecord);
+      }
+      RelayModernRecord.setValue(typeRecord, abstractKey, implementsInterface);
+      if (implementsInterface) {
+        this._traverseSelections(selection, record, data);
       }
     }
   }
@@ -356,7 +384,7 @@ class RelayResponseNormalizer {
     data: PayloadData,
   ) {
     if (resolver.fragment != null) {
-      this._traverseSelections(resolver.fragment, record, data);
+      this._normalizeInlineFragment(resolver.fragment, record, data);
     }
   }
 
@@ -382,8 +410,9 @@ class RelayResponseNormalizer {
       // Otherwise data *for this selection* should not be present: enqueue
       // metadata to process the subsequent response chunk.
       this._incrementalPlaceholders.push({
-        kind: 'defer',
+        actorIdentifier: this._actorIdentifier,
         data,
+        kind: 'defer',
         label: defer.label,
         path: [...this._path],
         selector: createNormalizationSelector(
@@ -392,7 +421,6 @@ class RelayResponseNormalizer {
           this._variables,
         ),
         typeName: RelayModernRecord.getType(record),
-        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -419,13 +447,13 @@ class RelayResponseNormalizer {
       // If streaming is enabled, *also* emit metadata to process any
       // response chunks that may be delivered.
       this._incrementalPlaceholders.push({
+        actorIdentifier: this._actorIdentifier,
         kind: 'stream',
         label: stream.label,
-        path: [...this._path],
-        parentID: RelayModernRecord.getDataID(record),
         node: stream,
+        parentID: RelayModernRecord.getDataID(record),
+        path: [...this._path],
         variables: this._variables,
-        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -458,15 +486,15 @@ class RelayResponseNormalizer {
     );
     if (operationReference != null) {
       this._followupPayloads.push({
-        kind: 'ModuleImportPayload',
+        actorIdentifier: this._actorIdentifier,
         args: moduleImport.args,
         data,
         dataID: RelayModernRecord.getDataID(record),
+        kind: 'ModuleImportPayload',
         operationReference,
         path: [...this._path],
         typeName,
         variables: this._variables,
-        actorIdentifier: this._actorIdentifier,
       });
     }
   }
@@ -500,7 +528,9 @@ class RelayResponseNormalizer {
         // client is assumed to be correctly configured with
         // treatMissingFieldsAsNull=true.
         const isOptionalField =
-          this._isClientExtension || this._isUnmatchedAbstractType;
+          this._isClientExtension ||
+          this._isUnmatchedAbstractType ||
+          this._deferDeduplicatedFields;
 
         if (isOptionalField) {
           // Field not expected to exist regardless of whether the server is pruning null
@@ -575,7 +605,7 @@ class RelayResponseNormalizer {
       this._errorTrie = oldErrorTrie;
       this._path.pop();
     } else {
-      (selection: empty);
+      selection as empty;
       invariant(
         false,
         'RelayResponseNormalizer(): Unexpected ast kind `%s` during normalization.',
@@ -640,11 +670,11 @@ class RelayResponseNormalizer {
       return;
     }
 
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     const typeName = field.concreteType ?? this._getRecordType(fieldValue);
     const nextID =
       this._getDataId(
-        // $FlowFixMe[incompatible-call]
+        // $FlowFixMe[incompatible-type]
         fieldValue,
         typeName,
       ) ||
@@ -665,14 +695,14 @@ class RelayResponseNormalizer {
     );
 
     this._followupPayloads.push({
-      kind: 'ActorPayload',
-      data: (fieldValue: $FlowFixMe),
+      actorIdentifier,
+      data: fieldValue as $FlowFixMe,
       dataID: nextID,
+      kind: 'ActorPayload',
+      node: field,
       path: [...this._path, responseKey],
       typeName,
       variables: this._variables,
-      node: field,
-      actorIdentifier,
     });
   }
 
@@ -680,7 +710,7 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     record: Record,
     storageKey: string,
-    fieldValue: mixed,
+    fieldValue: unknown,
   ): void {
     invariant(
       typeof fieldValue === 'object' && fieldValue,
@@ -725,7 +755,7 @@ class RelayResponseNormalizer {
     field: NormalizationLinkedField,
     record: Record,
     storageKey: string,
-    fieldValue: mixed,
+    fieldValue: unknown,
   ): void {
     invariant(
       Array.isArray(fieldValue),
@@ -815,8 +845,8 @@ class RelayResponseNormalizer {
       if (!expected) {
         const logEvent: IdCollisionTypenameLogEvent = {
           name: 'idCollision.typename',
-          previous_typename: RelayModernRecord.getType(record),
           new_typename: typeName,
+          previous_typename: RelayModernRecord.getType(record),
         };
         if (this._log != null) {
           this._log(logEvent);
@@ -850,7 +880,7 @@ class RelayResponseNormalizer {
   _validateConflictingFieldsWithIdenticalId(
     record: Record,
     storageKey: string,
-    fieldValue: mixed,
+    fieldValue: unknown,
   ): void {
     // NOTE: Only emit a warning in DEV
     if (__DEV__) {

@@ -33,10 +33,10 @@ pub fn build_schema(
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     log_event: &impl PerfLogEvent,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
-    if let Some(schema) = compiler_state.schema_cache.get(&project_config.name) {
-        if !compiler_state.project_has_pending_schema_changes(project_config.name) {
-            return Ok(schema.clone());
-        }
+    if let Some(schema) = compiler_state.schema_cache.get(&project_config.name)
+        && !compiler_state.project_has_pending_schema_changes(project_config.name)
+    {
+        return Ok(schema.clone());
     }
     build_schema_impl(
         compiler_state,
@@ -127,10 +127,10 @@ fn get_extension_sources<'a>(
     if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
         extensions.extend(project_extensions.get_sources_with_location());
     }
-    if let Some(base_project_name) = project_config.base {
-        if let Some(base_project_extensions) = compiler_state.extensions.get(&base_project_name) {
-            extensions.extend(base_project_extensions.get_sources_with_location());
-        }
+    if let Some(base_project_name) = project_config.base
+        && let Some(base_project_extensions) = compiler_state.extensions.get(&base_project_name)
+    {
+        extensions.extend(base_project_extensions.get_sources_with_location());
     }
     extensions
 }

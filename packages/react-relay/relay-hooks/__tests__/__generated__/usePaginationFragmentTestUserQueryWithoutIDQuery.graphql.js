@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<047f8a49a087d81653faf18ca849d217>>
+ * @generated SignedSource<<228d52abe4493fb96adc77f0417fd4c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ export type usePaginationFragmentTestUserQueryWithoutIDQuery$variables = {|
   first?: ?number,
   isViewerFriend?: ?boolean,
   last?: ?number,
-  orderby?: ?$ReadOnlyArray<?string>,
+  orderby?: ?ReadonlyArray<?string>,
 |};
 export type usePaginationFragmentTestUserQueryWithoutIDQuery$data = {|
   +viewer: ?{|

@@ -77,16 +77,16 @@ class RelayQueryResponseCache {
               ...payload.extensions,
               cacheTimestamp: response.fetchTime,
             },
-          }: GraphQLSingularResponse),
+          }) as GraphQLSingularResponse,
       );
     }
-    return ({
+    return {
       ...response.payload,
       extensions: {
         ...response.payload.extensions,
         cacheTimestamp: response.fetchTime,
       },
-    }: GraphQLSingularResponse);
+    } as GraphQLSingularResponse;
   }
 
   set(queryID: string, variables: Variables, payload: GraphQLResponse): void {

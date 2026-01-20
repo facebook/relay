@@ -115,7 +115,7 @@ impl<'a> InlayHintVisitor<'a> {
     fn add_alias_hint(&mut self, alias: StringKey, location: Location) {
         self.inlay_hints.push(Hint {
                 location,
-                label: format!("{}:", alias),
+                label: format!("{alias}:"),
                 tooltip: Some("Fragment alias from the attached `@alias` directive. [Read More](https://relay.dev/docs/guides/alias-directive/).".to_string()),
             });
     }

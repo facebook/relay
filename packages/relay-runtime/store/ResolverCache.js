@@ -32,11 +32,11 @@ export type EvaluationResult<T> = {
   error: ?Error,
 };
 
-export type ResolverFragmentResult = {
-  data: mixed,
+export type ResolverFragmentResult = Readonly<{
+  data: unknown,
   isMissingData: boolean,
   fieldErrors: ?FieldErrors,
-};
+}>;
 
 export type GetDataForResolverFragmentFn =
   SingularReaderSelector => ResolverFragmentResult;

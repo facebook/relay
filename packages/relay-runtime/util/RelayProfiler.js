@@ -18,7 +18,7 @@ const profileHandlersByName: {
   [name: EventName]: Array<ProfileHandler>,
 } = {};
 
-const defaultProfiler = {
+const defaultProfiler: {stop: (error?: Error) => void, ...} = {
   stop() {},
 };
 

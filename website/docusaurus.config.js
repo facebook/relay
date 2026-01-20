@@ -15,6 +15,7 @@ const {
   fbContent,
   isInternal,
 } = require('docusaurus-plugin-internaldocs-fb/internal');
+const {themes: prismThemes} = require('prism-react-renderer');
 
 module.exports = {
   title: 'Relay',
@@ -26,6 +27,12 @@ module.exports = {
   projectName: 'relay',
   scripts: [],
   favicon: 'img/favicon.png',
+  future: {
+    experimental_faster: true,
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+    },
+  },
   customFields: {
     users: [
       {
@@ -43,11 +50,11 @@ module.exports = {
         description: 'Used on artsy.net, and the React Native iOS app, Eigen.',
       },
       {
-        caption: 'Entria',
-        image: '/img/logos/entria.png',
-        infoLink: 'https://github.com/entria',
+        caption: 'Woovi',
+        image: '/img/logos/woovi.png',
+        infoLink: 'http://woovi.com/',
         pinned: true,
-        description: 'Powers feedback.house',
+        description: 'Used on woovi.com',
       },
       {
         caption: 'Facebook',
@@ -362,6 +369,10 @@ module.exports = {
             to: '/compiler-explorer',
             from: ['/compiler-playground'],
           },
+          {
+            to: '/docs/getting-started/quick-start/',
+            from: ['/docs/guided-tour/'],
+          },
         ],
       },
     ],
@@ -460,7 +471,7 @@ module.exports = {
     },
     prism: {
       theme: require('./prismTheme'),
-      darkTheme: require('prism-react-renderer/themes/dracula'),
+      darkTheme: prismThemes.dracula,
       defaultLanguage: 'javascript',
       magicComments: [
         {

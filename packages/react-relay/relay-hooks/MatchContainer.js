@@ -88,14 +88,14 @@ const {useMemo} = React;
 type TypenameOnlyPointer = {+__typename: string};
 export type MatchPointer = {
   +__fragmentPropName?: ?string,
-  +__module_component?: mixed,
-  +$fragmentSpreads: mixed,
+  +__module_component?: unknown,
+  +$fragmentSpreads: unknown,
   ...
 };
 
 export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {
   +fallback?: ?TFallback,
-  +loader: (module: mixed) => component(...TProps),
+  +loader: (module: unknown) => component(...TProps),
   +match: ?MatchPointer | ?TypenameOnlyPointer,
   +props?: TProps,
 };
@@ -127,7 +127,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
     __fragmentOwner,
     __fragmentPropName,
     __module_component,
-  } = (match: $FlowFixMe) ?? {};
+  } = (match as $FlowFixMe) ?? {};
   if (
     (__fragmentOwner != null && typeof __fragmentOwner !== 'object') ||
     (__fragmentPropName != null && typeof __fragmentPropName !== 'string') ||

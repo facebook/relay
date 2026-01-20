@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6620c21fdc16d53f3650b3330946b6ef>>
+ * @generated SignedSource<<5d0863ddd15ce4da02d3ec80b748ff93>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,7 +32,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 declare export opaque type UserBestFriendShoutedGreetingResolver$fragmentType: FragmentType;
 export type UserBestFriendShoutedGreetingResolver$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +cursor: ?string,
       +node: ?{|
         +greeting: ?string,

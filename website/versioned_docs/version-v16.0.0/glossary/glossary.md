@@ -789,7 +789,7 @@ An object associating a [concrete request](#concrete-request) and [variables](#v
 
 ## Resolver
 
-An overloaded term, mostly referring to virtual fields, but also occassionally referring to other things.
+An overloaded term, mostly referring to virtual fields, but also occasionally referring to other things.
 
 ### When describing a field
 

@@ -4,7 +4,7 @@ query abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractType
     # After inlining even though `id` will be skipped:
     #  - Printed query should still select __isNode and __isActor
     #  - Normalization ast should include inline fragments with abstractKeys for Node and Actor
-    ...abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment @alias
   }
 }
 
@@ -37,8 +37,19 @@ fragment abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFrag
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment"
+                }
+              ],
+              "type": "Actor",
+              "abstractKey": "__isActor"
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFragment"
           }
         ],

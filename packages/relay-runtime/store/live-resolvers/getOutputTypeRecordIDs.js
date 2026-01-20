@@ -18,7 +18,7 @@ const RelayModernRecord = require('../RelayModernRecord');
 const {RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS} = require('../RelayStoreUtils');
 const invariant = require('invariant');
 
-function getOutputTypeRecordIDs(record: Record): $ReadOnlySet<DataID> | null {
+function getOutputTypeRecordIDs(record: Record): ReadonlySet<DataID> | null {
   const maybeOutputTypeRecordIDs = RelayModernRecord.getValue(
     record,
     RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,

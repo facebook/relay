@@ -1,0 +1,50 @@
+==================================== INPUT ====================================
+# F1
+query Q1 {
+  cat {
+    ...F1
+  }
+}
+
+fragment F1 on Cat {
+  description
+}
+
+fragment TabbyFragment on Tabby {
+    id
+}
+
+fragment PersianFragment on Persian {
+    id
+}
+
+# %definitions%
+
+%extensions%
+
+interface Cat {
+    id: ID!
+    description: String
+}
+
+extend type Query {
+  cat: Cat
+}
+
+type Tabby implements Cat @__RelayResolverModel {
+    id: ID!
+    description: String @relay_resolver(import_path: "TabbyResolver", fragment_name: "TabbyFragment")
+}
+
+type Persian implements Cat @__RelayResolverModel {
+    id: ID!
+    description: String @relay_resolver(import_path: "TabbyResolver", fragment_name: "PersianFragment")
+}
+==================================== OUTPUT ===================================
+Fragment: F1
+
+Fragment: PersianFragment
+
+Fragment: TabbyFragment
+
+Operation: Q1

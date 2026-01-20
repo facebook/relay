@@ -20,6 +20,7 @@ import type {
   useFragmentTestUsersFragment$data,
   useFragmentTestUsersFragment$fragmentType,
 } from './__generated__/useFragmentTestUsersFragment.graphql';
+import type {RelayContext} from 'relay-runtime';
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
@@ -73,7 +74,7 @@ hook useFragment(
       >,
   fragmentRef: any,
 ) {
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   const data = useFragmentImpl(fragmentNode, fragmentRef);
   renderSpy(data);
   return data;
@@ -107,7 +108,7 @@ describe.each([
 
     renderSpy = jest.fn<
       [useFragmentTestUserFragment$data | useFragmentTestUsersFragment$data],
-      mixed,
+      unknown,
     >();
 
     // Set up environment and base data
@@ -213,7 +214,7 @@ describe.each([
     };
 
     const PluralContainer = (props: {
-      usersRef?: $ReadOnlyArray<{$data?: {...}, ...}>,
+      usersRef?: ReadonlyArray<{$data?: {...}, ...}>,
       owner: $FlowFixMe,
       ...
     }) => {
@@ -236,7 +237,10 @@ describe.each([
       // $FlowFixMe[react-rule-hook]
       const [env, _setEnv] = React.useState(environment);
       // $FlowFixMe[react-rule-hook]
-      const relayContext = React.useMemo(() => ({environment: env}), [env]);
+      const relayContext = React.useMemo(
+        (): RelayContext => ({environment: env}),
+        [env],
+      );
 
       setEnvironment = _setEnv;
       return (

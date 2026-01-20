@@ -10,7 +10,12 @@
  */
 
 'use strict';
-import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
+import type {
+  Direction,
+  OperationDescriptor,
+  RelayContext,
+  Variables,
+} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useBlockingPaginationFragmentOriginal = require('../legacy/useBlockingPaginationFragment');
@@ -126,7 +131,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function expectFragmentResults(
-      expectedYields: $ReadOnlyArray<{
+      expectedYields: ReadonlyArray<{
         data: $FlowFixMe,
         isPendingNext: boolean,
         hasNext: boolean,
@@ -158,7 +163,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       renderer: any,
       direction: Direction,
       expected: {
-        data: mixed,
+        data: unknown,
         hasNext: boolean,
         hasPrevious: boolean,
         paginationVariables: Variables,
@@ -168,9 +173,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       expectFragmentResults([
         {
           data: expected.data,
-          isPendingNext: direction === 'forward',
           hasNext: expected.hasNext,
           hasPrevious: expected.hasPrevious,
+          isPendingNext: direction === 'forward',
         },
       ]);
 
@@ -180,12 +185,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
     function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
-        [ID_KEY]: id,
+        [FRAGMENT_OWNER_KEY]: owner.request,
         [FRAGMENTS_KEY]: {
           useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment:
             {},
         },
-        [FRAGMENT_OWNER_KEY]: owner.request,
+        [ID_KEY]: id,
       };
     }
 
@@ -211,7 +216,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       environment = createMockEnvironment({
         handlerProvider: () => ConnectionHandler,
       });
-      release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+      release = jest.fn<ReadonlyArray<unknown>, unknown>();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
@@ -301,10 +306,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       variablesWithoutID = {
         after: null,
-        first: 1,
         before: null,
-        last: null,
+        first: 1,
         isViewerFriend: false,
+        last: null,
         orderby: ['name'],
       };
       variables = {
@@ -325,11 +330,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       environment.commitPayload(query, {
         node: {
           __typename: 'Feedback',
-          id: '<feedbackid>',
           actor: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -349,15 +351,16 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
+          id: '<feedbackid>',
         },
       });
       environment.commitPayload(queryWithoutID, {
         viewer: {
           actor: {
             __typename: 'User',
-            id: '1',
-            name: 'Alice',
             friends: {
               edges: [
                 {
@@ -377,6 +380,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                 startCursor: 'cursor:1',
               },
             },
+            id: '1',
+            name: 'Alice',
           },
         },
       });
@@ -396,7 +401,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         const fragment = props.fragment ?? gqlFragment;
         const artificialUserRef = useMemo(() => {
           const snapshot = environment.lookup(owner.fragment);
-          return (snapshot.data: $FlowFixMe)?.node?.actor;
+          return (snapshot.data as $FlowFixMe)?.node?.actor;
         }, [owner]);
         const userRef = props.hasOwnProperty('userRef')
           ? props.userRef
@@ -417,7 +422,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useBlockingPaginationFragment does not use them, instead it uses
         // the variables from the fragment owner.
-        const relayContext = useMemo(() => ({environment}), []);
+        const relayContext = useMemo((): RelayContext => ({environment}), []);
 
         return (
           <ReactRelayContext.Provider value={relayContext}>
@@ -450,14 +455,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       };
 
       initialUser = {
-        id: '1',
-        name: 'Alice',
         friends: {
           edges: [
             {
@@ -477,6 +480,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             startCursor: 'cursor:1',
           },
         },
+        id: '1',
+        name: 'Alice',
       };
     });
 
@@ -490,26 +495,26 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       // Sanity check test, should already be tested in useBlockingPagination test
       it('loads and renders next items in connection', () => {
-        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+        const callback = jest.fn<ReadonlyArray<unknown>, unknown>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
             data: initialUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
 
         loadNext(1, {onComplete: callback});
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
         };
         expectFragmentIsPendingOnPagination(renderer, direction, {
@@ -525,8 +530,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -540,12 +543,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -585,35 +590,35 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: expectedUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
       });
 
       it('renders pending flag correctly if pagination update is interrupted before it commits (unsuspends)', () => {
-        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+        const callback = jest.fn<ReadonlyArray<unknown>, unknown>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
             data: initialUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
 
         loadNext(1, {onComplete: callback});
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
         };
         expectFragmentIsPendingOnPagination(renderer, direction, {
@@ -641,10 +646,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: initialUser,
-            // Assert that isPending flag is still true
-            isPendingNext: true,
             hasNext: true,
             hasPrevious: false,
+            // Assert that isPending flag is still true
+            isPendingNext: true,
           },
         ]);
 
@@ -653,8 +658,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -668,12 +671,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -714,16 +719,16 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: expectedUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
       });
 
       it('loads more correctly when original variables do not include an id', () => {
-        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+        const callback = jest.fn<ReadonlyArray<unknown>, unknown>();
         const viewer = environment.lookup(queryWithoutID.fragment).data?.viewer;
         const userRef =
           typeof viewer === 'object' && viewer != null ? viewer?.actor : null;
@@ -751,21 +756,21 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: expectedUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
 
         loadNext(1, {onComplete: callback});
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
         };
         expectFragmentIsPendingOnPagination(renderer, direction, {
@@ -781,8 +786,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -796,12 +799,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -841,35 +846,35 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: expectedUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
       });
 
       it('calls callback with error when error occurs during fetch', () => {
-        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+        const callback = jest.fn<ReadonlyArray<unknown>, unknown>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
             data: initialUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
 
         loadNext(1, {onComplete: callback});
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
         };
         expectFragmentIsPendingOnPagination(renderer, direction, {
@@ -892,26 +897,26 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       it('preserves pagination request if re-rendered with same fragment ref', () => {
-        const callback = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+        const callback = jest.fn<ReadonlyArray<unknown>, unknown>();
         const renderer = renderFragment();
         expectFragmentResults([
           {
             data: initialUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
 
         loadNext(1, {onComplete: callback});
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:1',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: false,
+          last: null,
           orderby: ['name'],
         };
         expectFragmentIsPendingOnPagination(renderer, direction, {
@@ -928,10 +933,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         // Assert that request is still in flight after re-rendering
         // with new fragment ref that points to the same data.
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlPaginationQuery,
+          inFlight: true,
           paginationVariables,
+          requestCount: 1,
         });
         expect(callback).toBeCalledTimes(0);
 
@@ -939,8 +944,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -954,12 +957,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:2',
                   endCursor: 'cursor:2',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:2',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -999,15 +1004,15 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: expectedUser,
-            isPendingNext: true,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: true,
           },
           {
             data: expectedUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
         expect(callback).toBeCalledTimes(1);
@@ -1034,7 +1039,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       function expectFragmentSuspendedOnRefetch(
         renderer: any,
         expected: {
-          data: mixed,
+          data: unknown,
           hasNext: boolean,
           hasPrevious: boolean,
           refetchVariables: Variables,
@@ -1088,9 +1093,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: initialUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
 
@@ -1100,11 +1105,11 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         // suspends upon refetch
         const refetchVariables = {
           after: null,
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
           id: '1',
           isViewerFriendLocal: true,
+          last: null,
           orderby: ['lastname'],
         };
         paginationQuery = createOperationDescriptor(
@@ -1118,8 +1123,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             data: initialUser,
             hasNext: true,
             hasPrevious: false,
-            refetchVariables,
             refetchQuery: paginationQuery,
+            refetchVariables,
           },
           false,
         );
@@ -1129,8 +1134,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1150,14 +1153,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                   startCursor: 'cursor:100',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
 
         // Assert fragment is rendered with new data
         const expectedUser = {
-          id: '1',
-          name: 'Alice',
           friends: {
             edges: [
               {
@@ -1177,15 +1180,17 @@ describe('useBlockingPaginationFragment with useTransition', () => {
               startCursor: 'cursor:100',
             },
           },
+          id: '1',
+          name: 'Alice',
         };
 
         jest.runAllImmediates();
         expectFragmentResults([
           {
             data: expectedUser,
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            isPendingNext: false,
           },
         ]);
 
@@ -1202,12 +1207,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         loadNext(1);
 
         const paginationVariables = {
-          id: '1',
           after: 'cursor:100',
-          first: 1,
           before: null,
-          last: null,
+          first: 1,
+          id: '1',
           isViewerFriendLocal: true,
+          last: null,
           orderby: ['lastname'],
         };
         expectFragmentIsPendingOnPagination(renderer, 'forward', {
@@ -1221,8 +1226,6 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           data: {
             node: {
               __typename: 'User',
-              id: '1',
-              name: 'Alice',
               friends: {
                 edges: [
                   {
@@ -1236,12 +1239,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
                   },
                 ],
                 pageInfo: {
-                  startCursor: 'cursor:200',
                   endCursor: 'cursor:200',
                   hasNextPage: true,
                   hasPreviousPage: true,
+                  startCursor: 'cursor:200',
                 },
               },
+              id: '1',
+              name: 'Alice',
             },
           },
         });
@@ -1281,10 +1286,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         expectFragmentResults([
           {
             data: paginatedUser,
-            // Assert pending flag is set back to false
-            isPendingNext: false,
             hasNext: true,
             hasPrevious: false,
+            // Assert pending flag is set back to false
+            isPendingNext: false,
           },
         ]);
       });

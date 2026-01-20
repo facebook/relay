@@ -18,13 +18,13 @@ const SELF: Self = Symbol('$SELF');
 
 export opaque type Self = typeof SELF;
 
-export type TRelayFieldErrorForDisplay = $ReadOnly<{
-  path?: $ReadOnlyArray<string | number>,
+export type TRelayFieldErrorForDisplay = Readonly<{
+  path?: ReadonlyArray<string | number>,
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
 }>;
 
 // We display a subset of the TRelayFieldError to the user. Removing the message by default.
-export type TRelayFieldError = $ReadOnly<{
+export type TRelayFieldError = Readonly<{
   ...TRelayFieldErrorForDisplay,
   message: string,
 }>;
@@ -49,13 +49,13 @@ export opaque type RelayErrorTrie = Map<
 >;
 
 function buildErrorTrie(
-  errors: ?$ReadOnlyArray<PayloadError>,
+  errors: ?ReadonlyArray<PayloadError>,
 ): RelayErrorTrie | null {
   if (errors == null) {
     return null;
   }
 
-  const trie: $NonMaybeType<RelayErrorTrie> = new Map();
+  const trie: NonNullable<RelayErrorTrie> = new Map();
   // eslint-disable-next-line no-unused-vars
   ERRORS: for (const {path, locations: _, ...error} of errors) {
     if (path == null) {
@@ -100,7 +100,7 @@ function buildErrorTrie(
 function getErrorsByKey(
   trie: RelayErrorTrie,
   key: string | number,
-): $ReadOnlyArray<TRelayFieldError> | null {
+): ReadonlyArray<TRelayFieldError> | null {
   const value = trie.get(key);
   if (value == null) {
     return null;
@@ -109,7 +109,7 @@ function getErrorsByKey(
     return value;
   }
   const errors: Array<
-    $ReadOnly<{
+    Readonly<{
       message: string,
       path?: Array<string | number>,
       severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
@@ -122,7 +122,7 @@ function getErrorsByKey(
 function recursivelyCopyErrorsIntoArray(
   trieOrSet: RelayErrorTrie,
   errors: Array<
-    $ReadOnly<{
+    Readonly<{
       message: string,
       path?: Array<string | number>,
       severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
@@ -165,14 +165,14 @@ function getNestedErrorTrieByKey(
   return null;
 }
 
-module.exports = ({
+module.exports = {
   SELF,
   buildErrorTrie,
-  getNestedErrorTrieByKey,
   getErrorsByKey,
-}: {
+  getNestedErrorTrieByKey,
+} as {
   SELF: typeof SELF,
   buildErrorTrie: typeof buildErrorTrie,
   getNestedErrorTrieByKey: typeof getNestedErrorTrieByKey,
   getErrorsByKey: typeof getErrorsByKey,
-});
+};

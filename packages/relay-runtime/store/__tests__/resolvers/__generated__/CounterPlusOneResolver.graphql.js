@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f95011d8dff80d1ea583db54ba3896a5>>
+ * @generated SignedSource<<20d020948201bd947ae921b85d61f9d2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
 ) => LiveState<?number>);
 declare export opaque type CounterPlusOneResolver$fragmentType: FragmentType;
 export type CounterPlusOneResolver$data = {|
-  +counter: $NonMaybeType<?number>,
+  +counter: NonNullable<?number>,
   +$fragmentType: CounterPlusOneResolver$fragmentType,
 |};
 export type CounterPlusOneResolver$key = {

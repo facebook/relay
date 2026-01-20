@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cd23e87152132054c21d7b0c7c40aa70>>
+ * @generated SignedSource<<b948504c815cc854ba422e94d9782f1e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType: FragmentType;
-export type usePrefetchableForwardPaginationFragmentTest_user__edges$data = $ReadOnlyArray<{|
+export type usePrefetchableForwardPaginationFragmentTest_user__edges$data = ReadonlyArray<{|
   +cursor: ?string,
   +node: ?{|
     +__typename: "User",
@@ -29,7 +29,7 @@ export type usePrefetchableForwardPaginationFragmentTest_user__edges$data = $Rea
   |},
   +$fragmentType: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
 |}>;
-export type usePrefetchableForwardPaginationFragmentTest_user__edges$key = $ReadOnlyArray<{
+export type usePrefetchableForwardPaginationFragmentTest_user__edges$key = ReadonlyArray<{
   +$data?: usePrefetchableForwardPaginationFragmentTest_user__edges$data,
   +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
   ...

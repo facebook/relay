@@ -172,10 +172,10 @@ impl<'program> FragmentAliasTransform<'program> {
         type_condition: Option<Type>,
         spread: &FragmentSpread,
     ) {
-        if let Some(parent_name) = self.parent_name {
-            if !self.is_enforced.is_enabled_for(parent_name) {
-                return;
-            }
+        if let Some(parent_name) = self.parent_name
+            && !self.is_enforced.is_enabled_for(parent_name)
+        {
+            return;
         }
         if spread
             .directives
@@ -192,7 +192,7 @@ impl<'program> FragmentAliasTransform<'program> {
             .expect("I believe we have already validated that all fragments exist");
 
         let fragment_is_plural =
-            RelayDirective::find(&fragment.directives).map_or(false, |directive| directive.plural);
+            RelayDirective::find(&fragment.directives).is_some_and(|directive| directive.plural);
 
         if fragment_is_plural && self.parent_type.expect("expect parent type").is_plural {
             // Plural fragments handle their own nullability when read. However,
@@ -297,14 +297,14 @@ impl Transformer<'_> for FragmentAliasTransform<'_> {
     }
 
     fn transform_condition(&mut self, condition: &Condition) -> Transformed<Selection> {
-        let parent_condition =
-            std::mem::replace(&mut self.maybe_condition, Some(condition.clone()));
+        let parent_condition = self.maybe_condition.replace(condition.clone());
         let selections = self.transform_selections(&condition.selections);
         self.maybe_condition = parent_condition;
-        if let TransformedValue::Replace(selections) = &selections {
-            if !Self::RETAIN_EMPTY_SELECTION_SETS && selections.is_empty() {
-                return Transformed::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && !Self::RETAIN_EMPTY_SELECTION_SETS
+            && selections.is_empty()
+        {
+            return Transformed::Delete;
         }
         let condition_value = self.transform_condition_value(&condition.value);
         if selections.should_keep() && condition_value.should_keep() {
@@ -414,7 +414,7 @@ impl Transformer<'_> for FragmentAliasTransform<'_> {
         match spread.alias() {
             Ok(Some(alias)) => {
                 let fragment_is_plural = RelayDirective::find(&fragment.directives)
-                    .map_or(false, |directive| directive.plural);
+                    .is_some_and(|directive| directive.plural);
 
                 let parent_type = self
                     .parent_type

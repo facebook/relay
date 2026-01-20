@@ -93,6 +93,11 @@ pub struct BuilderOptions {
     /// defined in the same program.
     pub allow_undefined_fragment_spreads: bool,
 
+    /// Do not error when an abstract fragment spread's type has no overlap with the
+    /// abstract parent type. This allows old definitions to still be built after
+    /// a type no longer implements an interface or is removed from a union.
+    pub allow_non_overlapping_abstract_spreads: bool,
+
     /// The semantic of defining variables on a fragment definition.
     pub fragment_variables_semantic: FragmentVariablesSemantic,
 
@@ -122,6 +127,7 @@ pub fn build_ir_in_relay_mode(
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let builder_options = BuilderOptions {
         allow_undefined_fragment_spreads: false,
+        allow_non_overlapping_abstract_spreads: false,
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
         relay_mode: Some(RelayMode),
         default_anonymous_operation_name: None,
@@ -140,6 +146,7 @@ pub fn build_ir(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -175,6 +182,7 @@ pub fn build_type_annotation(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -197,6 +205,7 @@ pub fn build_directive(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -220,6 +229,7 @@ pub fn build_constant_value(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -241,6 +251,7 @@ pub fn build_variable_definitions(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -263,6 +274,7 @@ pub fn build_directives(
         location,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::Disabled,
             relay_mode: None,
             default_anonymous_operation_name: None,
@@ -429,15 +441,15 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let directives = self.build_directives(&operation.directives, kind.into());
         let operation_type_reference = TypeReference::Named(operation_type);
         // assert the subscription only contains one selection
-        if let OperationKind::Subscription = kind {
-            if operation.selections.items.len() != 1 {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
-                        subscription_name: name.value,
-                    },
-                    operation.location,
-                )]);
-            }
+        if let OperationKind::Subscription = kind
+            && operation.selections.items.len() != 1
+        {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::GenerateSubscriptionNameSingleSelectionItem {
+                    subscription_name: name.value,
+                },
+                operation.location,
+            )]);
         }
         let selections =
             self.build_selections(&operation.selections.items, &[operation_type_reference]);
@@ -990,19 +1002,18 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             None => None,
         };
 
-        if let Some((type_condition, span)) = type_condition_with_span {
-            if let Some(parent_type) =
+        if let Some((type_condition, span)) = type_condition_with_span
+            && let Some(parent_type) =
                 self.find_conflicting_parent_type(parent_types, type_condition)
-            {
-                // no possible overlap
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::InvalidInlineFragmentTypeCondition {
-                        parent_type: self.schema.get_type_name(parent_type.inner()),
-                        type_condition: self.schema.get_type_name(type_condition),
-                    },
-                    self.location.with_span(span),
-                )]);
-            }
+        {
+            // no possible overlap
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::InvalidInlineFragmentTypeCondition {
+                    parent_type: self.schema.get_type_name(parent_type.inner()),
+                    type_condition: self.schema.get_type_name(type_condition),
+                },
+                self.location.with_span(span),
+            )]);
         }
 
         let type_condition = type_condition_with_span.map(|(type_, _)| type_);
@@ -1092,8 +1103,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 }
             },
         );
-        let selections =
-            self.build_selections(&field.selections.items, &[field_definition.type_.clone()]);
+        let selections = self.build_selections(
+            &field.selections.items,
+            std::slice::from_ref(&field_definition.type_),
+        );
         let directives = self.build_directives(&field.directives, DirectiveLocation::Field);
         let (arguments, selections, directives) = try3(arguments, selections, directives)?;
         Ok(LinkedField {
@@ -1358,12 +1371,12 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         // Check for repeated directives that are not @repeatable
         if directives.len() > 1 {
             for (index, directive) in directives.iter().enumerate() {
-                let directive_repeatable = self.schema.get_directive(directive.name.item).map_or(
-                    // Default to `false` instead of expecting a definition
-                    // since @arguments directive is not defined in the schema.
-                    false,
-                    |dir| dir.repeatable,
-                );
+                let directive_repeatable =
+                    self.schema.get_directive(directive.name.item).is_some_and(
+                        // Default to `false` instead of expecting a definition
+                        // since @arguments directive is not defined in the schema.
+                        |dir| dir.repeatable,
+                    );
                 if directive_repeatable {
                     continue;
                 }
@@ -2037,7 +2050,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 if !self.options.allow_custom_scalar_literals {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::UnexpectedCustomScalarLiteral {
-                            literal_value: format!("{}", value),
+                            literal_value: format!("{value}"),
                             scalar_type_name: type_definition.name.item,
                         },
                         self.location.with_span(value.span()),
@@ -2126,10 +2139,16 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         parent_types: &'a [TypeReference<Type>],
         type_condition: Type,
     ) -> Option<&'a TypeReference<Type>> {
+        let allow_non_overlapping_abstract_spreads =
+            self.options.allow_non_overlapping_abstract_spreads
+                && type_condition.is_abstract_type();
         parent_types.iter().find(|parent_type| {
-            !self
-                .schema
-                .are_overlapping_types(parent_type.inner(), type_condition)
+            let is_allowed_abstract_spread =
+                allow_non_overlapping_abstract_spreads && type_condition.is_abstract_type();
+            !is_allowed_abstract_spread
+                && !self
+                    .schema
+                    .are_overlapping_types(parent_type.inner(), type_condition)
         })
     }
 }

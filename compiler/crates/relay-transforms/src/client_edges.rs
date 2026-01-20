@@ -68,6 +68,7 @@ lazy_static! {
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
+    pub static ref EXEC_TIME_RESOLVERS_DIRECTIVE_NAME: DirectiveName = DirectiveName("exec_time_resolvers".intern());
 }
 
 /// Directive added to inline fragments created by the transform. The inline
@@ -158,8 +159,20 @@ pub fn client_edges(
     program: &Program,
     project_config: &ProjectConfig,
     base_fragment_names: &FragmentDefinitionNameSet,
+    validate_exec_time_resolvers: bool,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesTransform::new(program, project_config, base_fragment_names);
+    let fragments_in_exec_time_operations = if validate_exec_time_resolvers {
+        collect_fragments_in_exec_time_operations(program)
+    } else {
+        Default::default()
+    };
+
+    let mut transform = ClientEdgesTransform::new(
+        program,
+        project_config,
+        base_fragment_names,
+        fragments_in_exec_time_operations,
+    );
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -177,6 +190,63 @@ pub fn client_edges(
     }
 }
 
+fn collect_fragments_in_exec_time_operations(program: &Program) -> FragmentDefinitionNameSet {
+    let mut collector = FragmentCollector {
+        program,
+        fragments: Default::default(),
+    };
+
+    for operation in program.operations() {
+        let has_exec_time_resolvers = operation
+            .directives
+            .named(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME)
+            .is_some();
+
+        if has_exec_time_resolvers {
+            collector.collect_fragments_in_selections(&operation.selections);
+        }
+    }
+
+    collector.fragments
+}
+
+struct FragmentCollector<'p> {
+    fragments: FragmentDefinitionNameSet,
+    program: &'p Program,
+}
+
+impl<'p> FragmentCollector<'p> {
+    fn collect_fragments_in_selections(&mut self, selections: &[Selection]) {
+        for selection in selections {
+            match selection {
+                Selection::FragmentSpread(fragment_spread) => {
+                    // Traverse into the fragment's selections
+                    let fragment_name = fragment_spread.fragment.item;
+                    if !self.fragments.contains(&fragment_name) {
+                        self.fragments.insert(fragment_spread.fragment.item);
+                        if let Some(fragment_def) = self.program.fragment(fragment_name) {
+                            self.fragments.insert(fragment_name);
+                            self.collect_fragments_in_selections(&fragment_def.selections);
+                        }
+                    }
+                }
+                Selection::LinkedField(field) => {
+                    self.collect_fragments_in_selections(&field.selections);
+                }
+                Selection::InlineFragment(fragment) => {
+                    self.collect_fragments_in_selections(&fragment.selections);
+                }
+                Selection::ScalarField(_) => {
+                    // Scalar fields don't contain fragment spreads
+                }
+                Selection::Condition(condition) => {
+                    self.collect_fragments_in_selections(&condition.selections);
+                }
+            }
+        }
+    }
+}
+
 struct ClientEdgesTransform<'program, 'pc> {
     path: Vec<&'program str>,
     document_name: Option<WithLocation<ExecutableDefinitionName>>,
@@ -188,6 +258,8 @@ struct ClientEdgesTransform<'program, 'pc> {
     project_config: &'pc ProjectConfig,
     next_key: u32,
     base_fragment_names: &'program FragmentDefinitionNameSet,
+    has_exec_time_resolvers: bool,
+    fragments_in_exec_time_operations: FragmentDefinitionNameSet,
 }
 
 impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
@@ -195,6 +267,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         program: &'program Program,
         project_config: &'pc ProjectConfig,
         base_fragment_names: &'program FragmentDefinitionNameSet,
+        fragments_in_exec_time_operations: FragmentDefinitionNameSet,
     ) -> Self {
         Self {
             program,
@@ -207,6 +280,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             next_key: 0,
             project_config,
             base_fragment_names,
+            has_exec_time_resolvers: false,
+            fragments_in_exec_time_operations,
         }
     }
 
@@ -229,7 +304,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
 
         match num {
             0 => OperationDefinitionName(name_root),
-            n => OperationDefinitionName(format!("{}_{}", name_root, n).intern()),
+            n => OperationDefinitionName(format!("{name_root}_{n}").intern()),
         }
     }
 
@@ -248,7 +323,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             // source, and thus will be placed in the same `__generated__`
             // directory. Based on this assumption they import the file using `./`.
             document_name.location,
-            FragmentDefinitionName(format!("Refetchable{}", generated_query_name).intern()),
+            FragmentDefinitionName(format!("Refetchable{generated_query_name}").intern()),
         );
 
         let synthetic_refetchable_fragment = FragmentDefinition {
@@ -321,11 +396,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
 
         let other_directives = directives
             .iter()
-            .filter(|directive| {
-                !allowed_directive_names
-                    .iter()
-                    .any(|item| directive.name.item == *item)
-            })
+            .filter(|directive| !allowed_directive_names.contains(&directive.name.item))
             .collect::<Vec<_>>();
 
         for directive in other_directives {
@@ -568,6 +639,11 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             .replace_or_else(|| field.selections.clone());
 
         let metadata_directive = if is_edge_to_client_object {
+            // Server-to-client edges are not compatible with exec time resolvers
+            // A server-to-client edge is when we extend an existing server type with a client field
+            if self.has_exec_time_resolvers {
+                self.validte_server_to_client_edges_for_exec_time(field);
+            }
             match self.get_edge_to_client_object_metadata_directive(
                 field,
                 edge_to_type,
@@ -578,6 +654,13 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 None => return Transformed::Keep,
             }
         } else {
+            // Client-to-server edges are not compatible with exec time resolvers
+            if self.has_exec_time_resolvers {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ClientEdgeToServerWithExecTimeResolvers,
+                    field.definition.location,
+                ));
+            }
             self.get_edge_to_server_object_metadata_directive(
                 field_type,
                 field.definition.location,
@@ -653,7 +736,20 @@ impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.document_name = Some(fragment.name.map(|name| name.into()));
+
+        // Check if this fragment is used within an exec time resolver operation
+        let fragment_in_exec_time_operation = self
+            .fragments_in_exec_time_operations
+            .contains(&fragment.name.item);
+
+        let previous_exec_time_resolvers = self.has_exec_time_resolvers;
+        self.has_exec_time_resolvers =
+            previous_exec_time_resolvers || fragment_in_exec_time_operation;
+
         let new_fragment = self.default_transform_fragment(fragment);
+
+        // Restore the previous state
+        self.has_exec_time_resolvers = previous_exec_time_resolvers;
         self.document_name = None;
         new_fragment
     }
@@ -663,7 +759,17 @@ impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.document_name = Some(operation.name.map(|name| name.into()));
+
+        // Check if this operation has the @exec_time_resolvers directive
+        self.has_exec_time_resolvers = operation
+            .directives
+            .named(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME)
+            .is_some();
+
         let new_operation = self.default_transform_operation(operation);
+
+        // Reset the flag after processing the operation
+        self.has_exec_time_resolvers = false;
         self.document_name = None;
         new_operation
     }
@@ -709,7 +815,34 @@ impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
                 directive.location,
             ));
         }
+        if self.has_exec_time_resolvers {
+            let field_type: &schema::Field = self.program.schema.field(field.definition().item);
+            let resolver_directive = field_type.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
+            let is_client_edge = field_type.is_extension && resolver_directive.is_some();
+            if is_client_edge {
+                self.validte_server_to_client_edges_for_exec_time(field)
+            }
+        }
+
         self.default_transform_scalar_field(field)
+    }
+}
+
+impl ClientEdgesTransform<'_, '_> {
+    fn validte_server_to_client_edges_for_exec_time<T: graphql_ir::Field>(&mut self, field: &T) {
+        // Server-to-client fields are not compatible with exec time resolvers
+        // A server-to-client edge is when we extend an existing server type with a client field
+        let field_type: &schema::Field = self.program.schema.field(field.definition().item);
+        let is_server_field = field_type
+            .parent_type
+            .is_some_and(|parent_type| !self.program.schema.is_extension_type(parent_type))
+            && field_type.parent_type != self.program.schema.query_type();
+        if is_server_field {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ServerEdgeToClientWithExecTimeResolvers,
+                field.alias_or_name_location(),
+            ));
+        }
     }
 }
 

@@ -7,6 +7,7 @@
  * @flow strict-local
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -39,7 +40,7 @@ let isLoadingNextSpy;
 component Container(
   userRef: ?usePrefetchableForwardPaginationFragmentTest_user$key,
   minimalEdgesToFetch: number = 1,
-  UNSTABLE_extraVariables?: mixed,
+  UNSTABLE_extraVariables?: unknown,
 ) {
   const {
     edges,
@@ -148,11 +149,11 @@ beforeEach(() => {
   });
 });
 
-it('should prefetch the next page when the component is mounted', () => {
+it('should prefetch the next page when the component is mounted', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -172,7 +173,7 @@ it('should prefetch the next page when the component is mounted', () => {
   expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
     2,
   );
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -215,7 +216,7 @@ it('should prefetch the next page when the component is mounted', () => {
   expect(app.toJSON()).toEqual('node1/2');
 
   // Use 1 more, fullfil from cache, and tries to fill the buffer
-  act(() => {
+  await act(() => {
     loadMore(1);
   });
   expect(environment.mock.getAllOperations().length).toBe(1);
@@ -224,7 +225,7 @@ it('should prefetch the next page when the component is mounted', () => {
   );
   expect(app.toJSON()).toEqual('node1,node2/1');
 
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -256,7 +257,7 @@ it('should prefetch the next page when the component is mounted', () => {
   expect(app.toJSON()).toEqual('node1,node2/2');
 
   // Use 2 more from the cache and load more
-  act(() => {
+  await act(() => {
     loadMore(2);
   });
   expect(environment.mock.getAllOperations().length).toBe(1);
@@ -265,7 +266,7 @@ it('should prefetch the next page when the component is mounted', () => {
   );
   expect(app.toJSON()).toEqual('node1,node2,node3,node4/0');
 
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -305,11 +306,11 @@ it('should prefetch the next page when the component is mounted', () => {
   expect(app.toJSON()).toEqual('node1,node2,node3,node4/2');
 });
 
-it('should reset edges in use on a refetch', () => {
+it('should reset edges in use on a refetch', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -325,7 +326,7 @@ it('should reset edges in use on a refetch', () => {
   expect(app.toJSON()).toEqual('node1/0');
 
   // After refetch, should display all edges returned from the refetch query
-  act(() => {
+  await act(() => {
     refetch({
       id: '2',
     });
@@ -371,10 +372,10 @@ it('should reset edges in use on a refetch', () => {
   expect(app.toJSON()).toEqual('node1refetch,node2refetch/0');
 });
 
-it('`hasNext` should reflect available items in the cache', () => {
+it('`hasNext` should reflect available items in the cache', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -391,7 +392,7 @@ it('`hasNext` should reflect available items in the cache', () => {
   expect(hasNextSpy).toHaveBeenLastCalledWith(true);
 
   // Prefetches 2 mores and no more available
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -436,18 +437,18 @@ it('`hasNext` should reflect available items in the cache', () => {
   expect(hasNextSpy).toHaveBeenLastCalledWith(true);
 
   // Use 2 more, need to load
-  act(() => {
+  await act(() => {
     loadMore(2);
   });
   expect(app.toJSON()).toEqual('node1,node2,node3/0');
   expect(hasNextSpy).toHaveBeenLastCalledWith(false);
 });
 
-it('should not set `isLoading` to true if loading is for fullfilling the cache buffer', () => {
+it('should not set `isLoading` to true if loading is for fullfilling the cache buffer', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -464,7 +465,7 @@ it('should not set `isLoading` to true if loading is for fullfilling the cache b
 
   // It starts prefetching, but should not show the loading state
   expect(isLoadingNextSpy).toHaveBeenLastCalledWith(false);
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -507,7 +508,7 @@ it('should not set `isLoading` to true if loading is for fullfilling the cache b
   expect(app.toJSON()).toEqual('node1/2');
 
   // Use 1 more, fulfill from cache, and it should kickoff a prefetching for 1 element
-  act(() => {
+  await act(() => {
     loadMore(1);
   });
   expect(environment.mock.getAllOperations().length).toBe(1);
@@ -519,14 +520,14 @@ it('should not set `isLoading` to true if loading is for fullfilling the cache b
   expect(app.toJSON()).toEqual('node1,node2/1');
 
   // Use 2 more, need to load to fullfil the product's need, thus `isLoading` should be `true`
-  act(() => {
+  await act(() => {
     loadMore(2);
   });
   expect(isLoadingNextSpy).toHaveBeenLastCalledWith(true);
 
   expect(app.toJSON()).toEqual('node1,node2,node3/0');
 
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -568,11 +569,11 @@ it('should not set `isLoading` to true if loading is for fullfilling the cache b
   expect(isLoadingNextSpy).toHaveBeenLastCalledWith(false);
 });
 
-it('should not try to prefetch if there is already no more edges left', () => {
+it('should not try to prefetch if there is already no more edges left', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -586,7 +587,7 @@ it('should not try to prefetch if there is already no more edges left', () => {
     throw new Error('should not be null');
   }
   expect(app.toJSON()).toEqual('node1/0');
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -629,7 +630,7 @@ it('should not try to prefetch if there is already no more edges left', () => {
 
   expect(app.toJSON()).toEqual('node1/2');
 
-  act(() => {
+  await act(() => {
     loadMore(1);
   });
   expect(app.toJSON()).toEqual('node1,node2/1');
@@ -637,11 +638,11 @@ it('should not try to prefetch if there is already no more edges left', () => {
   expect(environment.mock.getAllOperations().length).toBe(0);
 });
 
-it('should not fetch when a fetch is ongoing', () => {
+it('should not fetch when a fetch is ongoing', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -655,7 +656,7 @@ it('should not fetch when a fetch is ongoing', () => {
     throw new Error('should not be null');
   }
   expect(app.toJSON()).toEqual('node1/0');
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -697,7 +698,7 @@ it('should not fetch when a fetch is ongoing', () => {
 
   expect(app.toJSON()).toEqual('node1/2');
 
-  act(() => {
+  await act(() => {
     loadMore(2);
   });
   expect(app.toJSON()).toEqual('node1,node2,node3/0');
@@ -708,7 +709,7 @@ it('should not fetch when a fetch is ongoing', () => {
     2,
   );
 
-  act(() => {
+  await act(() => {
     loadMore(1);
   });
   // There isn't a second fetch because we don't allow multiple `loadMore`s
@@ -718,11 +719,11 @@ it('should not fetch when a fetch is ongoing', () => {
   );
 });
 
-it('should fetch at least the minimal amount of edges defined in every pagination query', () => {
+it('should fetch at least the minimal amount of edges defined in every pagination query', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -740,7 +741,7 @@ it('should fetch at least the minimal amount of edges defined in every paginatio
   expect(environment.mock.getAllOperations()[0].fragment.variables.first).toBe(
     3,
   );
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -791,7 +792,7 @@ it('should fetch at least the minimal amount of edges defined in every paginatio
 
   expect(app.toJSON()).toEqual('node1/3');
 
-  act(() => {
+  await act(() => {
     loadMore(2);
   });
   expect(app.toJSON()).toEqual('node1,node2,node3/1');
@@ -802,11 +803,11 @@ it('should fetch at least the minimal amount of edges defined in every paginatio
   );
 });
 
-it('loadMore should be a no-op when there is active fetching for missing items', () => {
+it('loadMore should be a no-op when there is active fetching for missing items', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -820,7 +821,7 @@ it('loadMore should be a no-op when there is active fetching for missing items',
     throw new Error('should not be null');
   }
   expect(app.toJSON()).toEqual('node1/0');
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -862,7 +863,7 @@ it('loadMore should be a no-op when there is active fetching for missing items',
 
   expect(app.toJSON()).toEqual('node1/2');
 
-  act(() => {
+  await act(() => {
     loadMore(2);
   });
   expect(app.toJSON()).toEqual('node1,node2,node3/0');
@@ -873,15 +874,15 @@ it('loadMore should be a no-op when there is active fetching for missing items',
     2,
   );
 
-  act(() => {
+  await act(() => {
     loadMore(1);
     loadMore(2); // no-op
   });
-  act(() => {
+  await act(() => {
     loadMore(3); // no-op
   });
 
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -930,11 +931,11 @@ it('loadMore should be a no-op when there is active fetching for missing items',
   );
 });
 
-it('should fetch the amount of items enough to fulfill the product and cache', () => {
+it('should fetch the amount of items enough to fulfill the product and cache', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -948,7 +949,7 @@ it('should fetch the amount of items enough to fulfill the product and cache', (
     throw new Error('should not be null');
   }
   expect(app.toJSON()).toEqual('node1/0');
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -990,7 +991,7 @@ it('should fetch the amount of items enough to fulfill the product and cache', (
 
   expect(app.toJSON()).toEqual('node1/2');
 
-  act(() => {
+  await act(() => {
     loadMore(4);
   });
   expect(app.toJSON()).toEqual('node1,node2,node3/0');
@@ -1002,7 +1003,7 @@ it('should fetch the amount of items enough to fulfill the product and cache', (
   );
 });
 
-it('getServerEdges should return all unfiltered server edges', () => {
+it('getServerEdges should return all unfiltered server edges', async () => {
   const fragmentKey = environment.lookup(query.fragment).data?.node;
   // render the initial page
   let app;
@@ -1012,7 +1013,7 @@ it('getServerEdges should return all unfiltered server edges', () => {
     const edges = getServerEdges();
     extraVariablesFn(hasNext, edges);
   };
-  act(() => {
+  await act(() => {
     app = create(
       <RelayEnvironmentProvider environment={environment}>
         <Suspense fallback="Fallback">
@@ -1045,7 +1046,7 @@ it('getServerEdges should return all unfiltered server edges', () => {
   ]);
   extraVariablesFn.mockClear();
 
-  act(() => {
+  await act(() => {
     environment.mock.resolveMostRecentOperation({
       data: {
         node: {
@@ -1085,7 +1086,7 @@ it('getServerEdges should return all unfiltered server edges', () => {
     });
   });
 
-  act(() => {
+  await act(() => {
     loadMore(1);
   });
 

@@ -114,7 +114,7 @@ describe('QueryResource', () => {
       liveQueryMissingData,
     );
 
-    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    release = jest.fn<ReadonlyArray<unknown>, unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {
@@ -137,8 +137,8 @@ describe('QueryResource', () => {
         });
         it('should return result and not send a network request if all data is locally available', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           const result = QueryResource.prepare(
@@ -151,11 +151,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -185,11 +185,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -263,11 +263,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           };
@@ -285,7 +285,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -330,7 +330,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -341,7 +341,7 @@ describe('QueryResource', () => {
             });
             const snapshot = environment.lookup(queryMissingData.fragment);
             networkExecute();
-            sink.next((snapshot: $FlowFixMe));
+            sink.next(snapshot as $FlowFixMe);
             sink.complete();
           });
           const result = QueryResource.prepare(
@@ -354,11 +354,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -374,7 +374,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -428,8 +428,8 @@ describe('QueryResource', () => {
               queryWithFragments,
             );
             expect(environment.check(queryWithFragments)).toEqual({
-              status: 'available',
               fetchTime: null,
+              status: 'available',
             });
 
             const result = QueryResource.prepare(
@@ -442,11 +442,11 @@ describe('QueryResource', () => {
               cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
-                __id: ROOT_ID,
+                __fragmentOwner: queryWithFragments.request,
                 __fragments: {
                   QueryResourceTest3Query: variables,
                 },
-                __fragmentOwner: queryWithFragments.request,
+                __id: ROOT_ID,
               },
               operation: queryWithFragments,
             });
@@ -499,11 +499,11 @@ describe('QueryResource', () => {
               cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
-                __id: ROOT_ID,
+                __fragmentOwner: queryWithFragments.request,
                 __fragments: {
                   QueryResourceTest4Query: variables,
                 },
-                __fragmentOwner: queryWithFragments.request,
+                __id: ROOT_ID,
               },
               operation: queryWithFragments,
             });
@@ -587,8 +587,8 @@ describe('QueryResource', () => {
         });
         it('should return result and not send a network request if all data is locally available', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           const result = QueryResource.prepare(
@@ -601,11 +601,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -701,7 +701,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -752,7 +752,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -763,7 +763,7 @@ describe('QueryResource', () => {
             });
             const snapshot = environment.lookup(queryMissingData.fragment);
             networkExecute();
-            sink.next((snapshot: $FlowFixMe));
+            sink.next(snapshot as $FlowFixMe);
             sink.complete();
           });
           const result = QueryResource.prepare(
@@ -776,11 +776,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -796,7 +796,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -898,8 +898,8 @@ describe('QueryResource', () => {
               queryWithFragments,
             );
             expect(environment.check(queryWithFragments)).toEqual({
-              status: 'available',
               fetchTime: null,
+              status: 'available',
             });
 
             const result = QueryResource.prepare(
@@ -912,11 +912,11 @@ describe('QueryResource', () => {
               cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
-                __id: ROOT_ID,
+                __fragmentOwner: queryWithFragments.request,
                 __fragments: {
                   QueryResourceTest6Query: variables,
                 },
-                __fragmentOwner: queryWithFragments.request,
+                __id: ROOT_ID,
               },
               operation: queryWithFragments,
             });
@@ -1041,8 +1041,8 @@ describe('QueryResource', () => {
             environment.mock.nextValue(queryWithFragments, {
               data: {
                 node: {
-                  id: '4',
                   __typename: 'User',
+                  id: '4',
                 },
               },
             });
@@ -1063,11 +1063,11 @@ describe('QueryResource', () => {
               cacheIdentifier: expect.any(String),
               fragmentNode: queryWithFragments.fragment.node,
               fragmentRef: {
-                __id: ROOT_ID,
+                __fragmentOwner: queryWithFragments.request,
                 __fragments: {
                   QueryResourceTest8Query: variables,
                 },
-                __fragmentOwner: queryWithFragments.request,
+                __id: ROOT_ID,
               },
               operation: queryWithFragments,
             };
@@ -1082,8 +1082,8 @@ describe('QueryResource', () => {
             // Resolve deferred payload
             environment.mock.nextValue(queryWithFragments, {
               data: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
                 username: 'zuck',
               },
               label: 'QueryResourceTest8Query$defer$QueryResourceTest6Fragment',
@@ -1091,8 +1091,8 @@ describe('QueryResource', () => {
             });
             // Data should not be missing anymore
             expect(environment.check(queryWithFragments)).toEqual({
-              status: 'available',
               fetchTime: null,
+              status: 'available',
             });
 
             // Calling prepare again should return same result
@@ -1125,8 +1125,8 @@ describe('QueryResource', () => {
 
         it('should return result and send a network request even when data is locally available', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           const result = QueryResource.prepare(
@@ -1139,11 +1139,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -1173,11 +1173,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -1239,11 +1239,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           };
@@ -1263,7 +1263,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1307,7 +1307,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -1318,7 +1318,7 @@ describe('QueryResource', () => {
             });
             const snapshot = environment.lookup(queryMissingData.fragment);
             networkExecute();
-            sink.next((snapshot: $FlowFixMe));
+            sink.next(snapshot as $FlowFixMe);
             sink.complete();
           });
           const result = QueryResource.prepare(
@@ -1331,11 +1331,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -1351,7 +1351,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -1387,8 +1387,8 @@ describe('QueryResource', () => {
 
         it('should return result and send a network request even when data is locally available', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           const result = QueryResource.prepare(
@@ -1401,11 +1401,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -1501,7 +1501,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors', () => {
           let thrown = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1550,7 +1550,7 @@ describe('QueryResource', () => {
             status: 'missing',
           });
 
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
@@ -1561,7 +1561,7 @@ describe('QueryResource', () => {
             });
             const snapshot = environment.lookup(queryMissingData.fragment);
             networkExecute();
-            sink.next((snapshot: $FlowFixMe));
+            sink.next(snapshot as $FlowFixMe);
             sink.complete();
           });
           const result = QueryResource.prepare(
@@ -1574,11 +1574,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -1594,7 +1594,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
@@ -1635,8 +1635,8 @@ describe('QueryResource', () => {
         });
         it('should suspend and send a network request even if data is available locally', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           let thrown = false;
@@ -1726,7 +1726,7 @@ describe('QueryResource', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1773,11 +1773,11 @@ describe('QueryResource', () => {
         });
 
         it('should return result if network observable returns synchronously', () => {
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
-            sink.next((snapshot: $FlowFixMe));
+            sink.next(snapshot as $FlowFixMe);
             sink.complete();
           });
           const result = QueryResource.prepare(
@@ -1791,11 +1791,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -1811,7 +1811,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
@@ -1847,8 +1847,8 @@ describe('QueryResource', () => {
         });
         it('should suspend and send a network request even if data is available locally', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           let thrown = false;
@@ -1908,7 +1908,7 @@ describe('QueryResource', () => {
           let thrownPromise = false;
           let thrownError = false;
           let sink;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
@@ -1955,11 +1955,11 @@ describe('QueryResource', () => {
         });
 
         it('should return result if network observable returns synchronously', () => {
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
-            sink.next((snapshot: $FlowFixMe));
+            sink.next(snapshot as $FlowFixMe);
             sink.complete();
           });
           const result = QueryResource.prepare(
@@ -1973,11 +1973,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -1993,7 +1993,7 @@ describe('QueryResource', () => {
 
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
-          const networkExecute = jest.fn<[], mixed>();
+          const networkExecute = jest.fn<[], unknown>();
           const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
@@ -2036,8 +2036,8 @@ describe('QueryResource', () => {
 
         it('should not send network request if data is available locally', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           const result = QueryResource.prepare(
@@ -2050,11 +2050,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -2084,11 +2084,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -2119,11 +2119,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -2146,8 +2146,8 @@ describe('QueryResource', () => {
 
         it('should not send network request if data is available locally', () => {
           expect(environment.check(query)).toEqual({
-            status: 'available',
             fetchTime: null,
+            status: 'available',
           });
 
           const result = QueryResource.prepare(
@@ -2160,11 +2160,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: query.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: query.request,
               __fragments: {
                 QueryResourceTest1Query: variables,
               },
-              __fragmentOwner: query.request,
+              __id: ROOT_ID,
             },
             operation: query,
           });
@@ -2194,11 +2194,11 @@ describe('QueryResource', () => {
             cacheIdentifier: expect.any(String),
             fragmentNode: queryMissingData.fragment.node,
             fragmentRef: {
-              __id: ROOT_ID,
+              __fragmentOwner: queryMissingData.request,
               __fragments: {
                 QueryResourceTest2Query: variables,
               },
-              __fragmentOwner: queryMissingData.request,
+              __id: ROOT_ID,
             },
             operation: queryMissingData,
           });
@@ -2606,8 +2606,8 @@ describe('QueryResource', () => {
         // simultaneously
 
         let subscription1: Subscription = {
-          unsubscribe: () => {},
           closed: false,
+          unsubscribe: () => {},
         };
         const result1 = QueryResource.prepare(
           queryMissingData,
@@ -2709,8 +2709,8 @@ describe('QueryResource', () => {
         // simultaneously
 
         let subscription1: Subscription = {
-          unsubscribe: () => {},
           closed: false,
+          unsubscribe: () => {},
         };
         const result1 = QueryResource.prepare(
           queryMissingData,
@@ -2924,7 +2924,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
 
     fetchObservable = fetchQuery(environment, query);
 
-    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    release = jest.fn<ReadonlyArray<unknown>, unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.retain.mockImplementation((...args) => {
       return {
@@ -2938,8 +2938,8 @@ describe('QueryResource, with an environment meant for SSR', () => {
   describe('prepare', () => {
     it('does not attempt to temporarily retain the query in a server environment', () => {
       expect(environment.check(query)).toEqual({
-        status: 'available',
         fetchTime: null,
+        status: 'available',
       });
 
       jest.useFakeTimers();
@@ -2953,11 +2953,11 @@ describe('QueryResource, with an environment meant for SSR', () => {
         cacheIdentifier: expect.any(String),
         fragmentNode: query.fragment.node,
         fragmentRef: {
-          __id: ROOT_ID,
+          __fragmentOwner: query.request,
           __fragments: {
             QueryResourceTest9Query: variables,
           },
-          __fragmentOwner: query.request,
+          __id: ROOT_ID,
         },
         operation: query,
       });

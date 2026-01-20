@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query streamAndHandleQuery {
   node(id: "<id>") {
-    ...streamAndHandleFragment
+    ...streamAndHandleFragment @alias
   }
 }
 
@@ -35,8 +35,19 @@ fragment streamAndHandleFragment on Feedback {
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "streamAndHandleFragment"
+                }
+              ],
+              "type": "Feedback",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "streamAndHandleFragment"
           }
         ],

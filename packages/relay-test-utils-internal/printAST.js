@@ -21,11 +21,11 @@
  *     prop: value,
  *   }
  */
-function printAST(ast: mixed): string {
+function printAST(ast: unknown): string {
   return printASTImpl(ast, '');
 }
 
-function printASTImpl(ast: mixed, indent: string): string {
+function printASTImpl(ast: unknown, indent: string): string {
   switch (typeof ast) {
     case 'undefined':
       return 'undefined';
@@ -33,6 +33,8 @@ function printASTImpl(ast: mixed, indent: string): string {
       if (ast === null) {
         return 'null';
       } else if (Array.isArray(ast)) {
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/4oq3zi07. */
         if (ast.length === 0) {
           return '[]';
         }

@@ -191,3 +191,11 @@ export default ((node/*: any*/)/*: ClientQuery<
   fooCustomScalarLiteralArgQuery$variables,
   fooCustomScalarLiteralArgQuery$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooCustomScalarLiteralArgQuery
+    Path: __generated__/fooCustomScalarLiteralArgQuery.graphql.js

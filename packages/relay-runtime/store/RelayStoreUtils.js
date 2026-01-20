@@ -36,7 +36,7 @@ const invariant = require('invariant');
 
 export type Arguments = {
   +FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
-  +[string]: mixed,
+  +[string]: unknown,
 };
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
@@ -50,7 +50,7 @@ const RELAY_READ_TIME_RESOLVER_KEY_PREFIX = '$r:';
 function getArgumentValue(
   arg: NormalizationArgument | ReaderArgument,
   variables: Variables,
-): mixed {
+): unknown {
   if (arg.kind === VARIABLE) {
     // Variables are provided at runtime and are not guaranteed to be stable.
     return getStableVariableValue(arg.variableName, variables);
@@ -58,7 +58,7 @@ function getArgumentValue(
     // The Relay compiler generates stable ConcreteArgument values.
     return arg.value;
   } else if (arg.kind === OBJECT_VALUE) {
-    const value: {[string]: mixed} = {};
+    const value: {[string]: unknown} = {};
     arg.fields.forEach(field => {
       value[field.name] = getArgumentValue(field, variables);
     });
@@ -77,13 +77,13 @@ function getArgumentValue(
  * names. Guaranteed to return a result with stable ordered nested values.
  */
 function getArgumentValues(
-  args?: ?$ReadOnlyArray<NormalizationArgument | ReaderArgument>,
+  args?: ?ReadonlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
   isWithinUnmatchedTypeRefinement?: boolean,
 ): Arguments {
   const values: {
     FRAGMENT_POINTER_IS_WITHIN_UNMATCHED_TYPE_REFINEMENT?: boolean,
-    [string]: mixed,
+    [string]: unknown,
   } = {};
   if (isWithinUnmatchedTypeRefinement) {
     values[
@@ -204,7 +204,7 @@ function getArguments(
     | NormalizationHandle
     | ReaderField
     | ReaderActorChange,
-): ?$ReadOnlyArray<NormalizationArgument | ReaderArgument> {
+): ?ReadonlyArray<NormalizationArgument | ReaderArgument> {
   if (field.kind === 'RelayResolver' || field.kind === 'RelayLiveResolver') {
     if (field.args == null) {
       return field.fragment?.args;
@@ -256,7 +256,7 @@ function formatStorageKey(name: string, argValues: ?Arguments): string {
  * Given Variables and a variable name, return a variable value with
  * all values in a stable order.
  */
-function getStableVariableValue(name: string, variables: Variables): mixed {
+function getStableVariableValue(name: string, variables: Variables): unknown {
   invariant(
     variables.hasOwnProperty(name),
     'getVariableValue(): Undefined variable `%s`.',
@@ -298,6 +298,7 @@ const RelayStoreUtils = {
   RELAY_RESOLVER_SNAPSHOT_KEY: '__resolverSnapshot',
   RELAY_RESOLVER_ERROR_KEY: '__resolverError',
   RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS: '__resolverOutputTypeRecordIDs',
+  RELAY_RESOLVER_RECORD_TYPENAME: '__RELAY_RESOLVER__',
   RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
 
   formatStorageKey,

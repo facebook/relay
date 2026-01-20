@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cbf75b3a347f72685bc732f1d587539a>>
+ * @generated SignedSource<<e73e0f01d763893458338bcb944955fd>>
  */
 
 mod ir;
@@ -83,6 +83,13 @@ async fn new_resolver_model_field_with_custom_fragment() {
 }
 
 #[tokio::test]
+async fn new_resolver_on_interface() {
+    let input = include_str!("ir/fixtures/new-resolver-on-interface.graphql");
+    let expected = include_str!("ir/fixtures/new-resolver-on-interface.expected");
+    test_fixture(transform_fixture, file!(), "new-resolver-on-interface.graphql", "ir/fixtures/new-resolver-on-interface.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn query_then_fragment() {
     let input = include_str!("ir/fixtures/query-then-fragment.graphql");
     let expected = include_str!("ir/fixtures/query-then-fragment.expected");
@@ -125,6 +132,13 @@ async fn schema_enum_change() {
 }
 
 #[tokio::test]
+async fn schema_enum_in_input_object_change() {
+    let input = include_str!("ir/fixtures/schema-enum-in-input-object-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-enum-in-input-object-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-enum-in-input-object-change.graphql", "ir/fixtures/schema-enum-in-input-object-change.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn schema_object_change() {
     let input = include_str!("ir/fixtures/schema-object-change.graphql");
     let expected = include_str!("ir/fixtures/schema-object-change.expected");
@@ -143,6 +157,13 @@ async fn schema_object_with_interface_change() {
     let input = include_str!("ir/fixtures/schema-object-with-interface-change.graphql");
     let expected = include_str!("ir/fixtures/schema-object-with-interface-change.expected");
     test_fixture(transform_fixture, file!(), "schema-object-with-interface-change.graphql", "ir/fixtures/schema-object-with-interface-change.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn schema_recursive_input_type_change() {
+    let input = include_str!("ir/fixtures/schema-recursive-input-type-change.graphql");
+    let expected = include_str!("ir/fixtures/schema-recursive-input-type-change.expected");
+    test_fixture(transform_fixture, file!(), "schema-recursive-input-type-change.graphql", "ir/fixtures/schema-recursive-input-type-change.expected", input, expected).await;
 }
 
 #[tokio::test]

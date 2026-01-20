@@ -1,0 +1,8 @@
+==================================== INPUT ====================================
+{
+  "type_name": "ImplementsUserNameRenderable"
+}
+==================================== OUTPUT ===================================
+interface ImplementsUserNameRenderable implements UserNameRenderable {
+  name: String
+}

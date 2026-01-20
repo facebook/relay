@@ -54,16 +54,16 @@ impl RelayDirective {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         unmask = !arg_value;
                     } else {
-                        panic!("Invalid @relay(mask: ...) directive argument: {:?}", arg);
+                        panic!("Invalid @relay(mask: ...) directive argument: {arg:?}");
                     }
                 } else if arg.name.item == *PLURAL_ARG_NAME {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         plural = arg_value;
                     } else {
-                        panic!("Invalid @relay(plural: ...) directive argument: {:?}", arg);
+                        panic!("Invalid @relay(plural: ...) directive argument: {arg:?}");
                     }
                 } else {
-                    panic!("Invalid @relay directive argument: {:?}", arg);
+                    panic!("Invalid @relay directive argument: {arg:?}");
                 }
             }
             Some(RelayDirective { unmask, plural })
@@ -73,16 +73,13 @@ impl RelayDirective {
     }
 
     fn has_unmasked_directive(directives: &[Directive]) -> bool {
-        if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME) {
-            if let Some(mask_arg) = relay_directive.arguments.named(*MASK_ARG_NAME) {
-                if let Value::Constant(ConstantValue::Boolean(arg_value)) = mask_arg.value.item {
-                    return !arg_value;
-                } else {
-                    panic!(
-                        "Invalid @relay(mask: ...) directive argument: {:?}",
-                        mask_arg
-                    );
-                }
+        if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME)
+            && let Some(mask_arg) = relay_directive.arguments.named(*MASK_ARG_NAME)
+        {
+            if let Value::Constant(ConstantValue::Boolean(arg_value)) = mask_arg.value.item {
+                return !arg_value;
+            } else {
+                panic!("Invalid @relay(mask: ...) directive argument: {mask_arg:?}");
             }
         }
         false

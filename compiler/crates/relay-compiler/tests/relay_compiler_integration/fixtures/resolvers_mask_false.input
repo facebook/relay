@@ -1,0 +1,30 @@
+//- User_foo.js
+/**
+ * @RelayResolver User.foo: String
+ * @rootFragment UserFooFragment
+ */
+graphql`fragment UserFooFragment on User {
+  ...UserBarFragment @relay(mask: false)
+}`
+
+//- User_bar.js
+/**
+ * @RelayResolver User.bar: String
+ * @rootFragment UserBarFragment
+ */
+graphql`fragment UserBarFragment on User @relay(mask: false) {
+  name
+}`
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql",
+  "resolversSchemaModule": {
+    "path": "__generated__/ResolversSchemaModule.js"
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

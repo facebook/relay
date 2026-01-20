@@ -46,6 +46,7 @@ const {
   RELAY_RESOLVER_ERROR_KEY,
   RELAY_RESOLVER_INVALIDATION_KEY,
   RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
+  RELAY_RESOLVER_RECORD_TYPENAME,
   RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
   getReadTimeResolverStorageKey,
@@ -63,7 +64,6 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
   '__resolverLiveStateSubscription';
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
-const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
 const MODEL_PROPERTY_NAME = '__relay_model_instance';
 
 /**
@@ -181,7 +181,7 @@ class LiveResolverCache implements ResolverCache {
             evaluationResult.error == null,
             'Did not expect resolver to have both a value and an error.',
           );
-          const liveState: LiveState<mixed> =
+          const liveState: LiveState<unknown> =
             // $FlowFixMe[incompatible-type] - casting mixed
             evaluationResult.resolverResult;
           updatedDataIDs = this._setLiveStateValue(
@@ -261,7 +261,7 @@ class LiveResolverCache implements ResolverCache {
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
       linkedRecord = RelayModernRecord.clone(linkedRecord);
       // $FlowFixMe[incompatible-type] - casting mixed
-      const liveState: LiveState<mixed> = RelayModernRecord.getValue(
+      const liveState: LiveState<unknown> = RelayModernRecord.getValue(
         linkedRecord,
         RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
@@ -327,7 +327,7 @@ class LiveResolverCache implements ResolverCache {
     );
 
     // $FlowFixMe[incompatible-type] - casting mixed
-    const liveState: LiveState<mixed> = RelayModernRecord.getValue(
+    const liveState: LiveState<unknown> = RelayModernRecord.getValue(
       liveStateRecord,
       RELAY_RESOLVER_LIVE_STATE_VALUE,
     );
@@ -345,7 +345,7 @@ class LiveResolverCache implements ResolverCache {
   _setLiveStateValue(
     linkedRecord: Record,
     linkedID: DataID,
-    liveState: LiveState<mixed>,
+    liveState: LiveState<unknown>,
     field: ReaderRelayLiveResolver,
     variables: Variables,
   ): DataIDSet | null {
@@ -474,14 +474,39 @@ class LiveResolverCache implements ResolverCache {
     }
   }
 
+  // Returns true if source is published
+  batchLiveStateUpdatesWithoutNotify(callback: () => void): boolean {
+    invariant(
+      !this._handlingBatch,
+      'Unexpected nested call to batchLiveStateUpdates.',
+    );
+    this._handlingBatch = true;
+    try {
+      callback();
+    } finally {
+      const shouldPublish = this._liveResolverBatchRecordSource != null;
+      // We lazily create the record source. If one has not been created, there
+      // is nothing to publish.
+      if (shouldPublish) {
+        // $FlowFixMe[incompatible-type]  Null checked
+        this._store.publish(this._liveResolverBatchRecordSource);
+      }
+
+      // Reset batched state.
+      this._liveResolverBatchRecordSource = null;
+      this._handlingBatch = false;
+      return shouldPublish;
+    }
+  }
+
   _setLiveResolverValue(
     resolverRecord: Record,
-    liveValue: LiveState<mixed>,
+    liveValue: LiveState<unknown>,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
   ): DataIDSet | null {
-    let value: null | mixed = null;
-    let resolverError: null | mixed = null;
+    let value: null | unknown = null;
+    let resolverError: null | unknown = null;
     try {
       value = liveValue.read();
     } catch (e) {
@@ -498,7 +523,7 @@ class LiveResolverCache implements ResolverCache {
 
   _setResolverValue(
     resolverRecord: Record,
-    value: mixed,
+    value: unknown,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
   ): DataIDSet | null {
@@ -623,12 +648,22 @@ class LiveResolverCache implements ResolverCache {
       );
     } else {
       shallowFreeze(value);
-      // For "classic" resolvers (or if the value is nullish), we are just setting their
-      // value as is.
+
+      // For "classic" resolvers (or if the value is nullish/suspense), we are
+      // set their value...
       RelayModernRecord.setValue(
         resolverRecord,
         RELAY_RESOLVER_VALUE_KEY,
         value,
+      );
+
+      // ...and clear the output type record IDs, if any since a resolver must
+      // be an output type resolver with a non-suspended, non-null value to
+      // refernce any output type record ids.
+      RelayModernRecord.setValue(
+        resolverRecord,
+        RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
+        new Set(),
       );
     }
 
@@ -639,7 +674,7 @@ class LiveResolverCache implements ResolverCache {
     this._store.__notifyUpdatedSubscribers(updatedDataIDs);
   }
 
-  _getResolverValue(resolverRecord: Record): mixed {
+  _getResolverValue(resolverRecord: Record): unknown {
     return RelayModernRecord.getValue(resolverRecord, RELAY_RESOLVER_VALUE_KEY);
   }
 
@@ -659,9 +694,9 @@ class LiveResolverCache implements ResolverCache {
       const recordID: string = recordsToVisit.pop();
       visited.add(recordID);
 
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       updatedDataIDs.add(recordID);
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       const fragmentSet = this._recordIDToResolverIDs.get(recordID);
       if (fragmentSet == null) {
         continue;
@@ -737,7 +772,7 @@ class LiveResolverCache implements ResolverCache {
   // containing only "weak" records.
   _normalizeOutputTypeValue(
     outputTypeDataID: DataID,
-    value: {+[key: string]: mixed},
+    value: {+[key: string]: unknown},
     variables: Variables,
     normalizationInfo: ResolverNormalizationInfo,
     fieldPath: Array<string>,
@@ -788,7 +823,7 @@ class LiveResolverCache implements ResolverCache {
         return source;
       }
       default:
-        (normalizationInfo.kind: empty);
+        normalizationInfo.kind as empty;
         invariant(
           false,
           'LiveResolverCache: Unexpected normalization info kind `%s`.',
@@ -846,7 +881,7 @@ class LiveResolverCache implements ResolverCache {
 function updateCurrentSource(
   currentSource: MutableRecordSource,
   nextSource: RecordSource,
-  prevOutputTypeRecordIDs: ?$ReadOnlySet<DataID>,
+  prevOutputTypeRecordIDs: ?ReadonlySet<DataID>,
 ): DataIDSet {
   const updatedDataIDs = new Set<DataID>();
 
@@ -944,7 +979,7 @@ function markInvalidatedLinkedResolverRecords(
 
 function unsubscribeFromLiveResolverRecordsImpl(
   recordSource: RecordSource,
-  invalidatedDataIDs: $ReadOnlySet<DataID>,
+  invalidatedDataIDs: ReadonlySet<DataID>,
 ): void {
   if (invalidatedDataIDs.size === 0) {
     return;
@@ -999,7 +1034,7 @@ function getConcreteTypename(
   const typename =
     normalizationInfo.concreteType ??
     // $FlowFixMe[prop-missing]
-    (currentValue.__typename: string);
+    (currentValue.__typename as string);
   invariant(
     typename != null,
     'normalizationInfo.concreteType should not be null, or the value returned from the resolver should include a __typename field, ' +
@@ -1010,6 +1045,6 @@ function getConcreteTypename(
 
 module.exports = {
   LiveResolverCache,
-  getUpdatedDataIDs,
   RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+  getUpdatedDataIDs,
 };

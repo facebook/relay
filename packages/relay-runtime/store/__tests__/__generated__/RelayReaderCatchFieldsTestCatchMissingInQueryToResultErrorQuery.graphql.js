@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<26736870d74b5df84afdef1f37960e39>>
+ * @generated SignedSource<<6411ccd68e0937feb20f9a42153e2601>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayReaderCatchFieldsTestCatchMissingInQueryToResultErrorQuery$data
   +me: ?{|
     +firstName: ?string,
   |},
-|}, mixed>;
+|}, unknown>;
 export type RelayReaderCatchFieldsTestCatchMissingInQueryToResultErrorQuery = {|
   response: RelayReaderCatchFieldsTestCatchMissingInQueryToResultErrorQuery$data,
   variables: RelayReaderCatchFieldsTestCatchMissingInQueryToResultErrorQuery$variables,

@@ -29,9 +29,9 @@ const {
   isScalarAndEqual,
 } = require('relay-runtime');
 
-type ContainerProps = $FlowFixMeProps;
+type ContainerProps = $FlowFixMe;
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   prevProps: ContainerProps,
   prevPropsContext: RelayContext,
   relayProp: RelayProp,
@@ -121,8 +121,8 @@ function createContainerWithFragments<
 
         return {
           data: resolver.resolve(),
-          prevPropsContext: relayContext,
           prevProps: nextProps,
+          prevPropsContext: relayContext,
           relayProp: getRelayProp(relayContext.environment),
           resolver,
         };
@@ -265,15 +265,11 @@ function getRelayProp(environment: IEnvironment) {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<
-  Props: {...},
-  Ref,
-  TComponent: component(ref: Ref, ...Props),
->(
+function createContainer<Props: {...}, TComponent: component(...Props)>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
-): component(ref: Ref, ...$RelayProps<Props, RelayProp>) {
-  // $FlowFixMe[incompatible-return]
+): component(...$RelayProps<Props, RelayProp>) {
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

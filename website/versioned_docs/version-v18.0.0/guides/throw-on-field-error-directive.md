@@ -15,7 +15,7 @@ The `@throwOnFieldError` directive can be added to fragments and queries. When
 this directive is used, the Relay runtime will throw an exception if a field
 with a field error is encountered while reading the fragment or query, or if
 Relay is missing data due to a
-[graph relationship change](../debugging/why-null.md/#graph-relationship-change).
+[graph relationship change](../debugging/why-null.md#graph-relationship-change).
 
 In addition to causing the Relay runtime to throw an exception if a field error
 is encountered, the `@throwOnFieldError` directive also enables generation of

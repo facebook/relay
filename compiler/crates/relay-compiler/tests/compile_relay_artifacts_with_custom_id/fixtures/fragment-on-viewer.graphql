@@ -1,9 +1,9 @@
 fragment fragmentOnViewer_RefetchableFragment on Viewer
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     global_id
     name
-    ...fragmentOnViewer_ProfilePicture
+    ...fragmentOnViewer_ProfilePicture @alias
   }
 }
 

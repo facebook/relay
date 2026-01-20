@@ -55,7 +55,7 @@ export type ReturnType<TVariables, TData, TEdgeData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -72,7 +72,7 @@ type LoadMoreOptions<TVariables> = {
 
 export type GetExtraVariablesFn<TEdgeData, TData, TVariables, TKey> = ({
   hasNext: boolean,
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? TData
     : ?TData,
   getServerEdges: () => TEdgeData,
@@ -257,26 +257,26 @@ hook usePrefetchableForwardPaginationFragment<
               onComplete: prefetchingOnComplete,
               UNSTABLE_extraVariables:
                 typeof prefetchingUNSTABLE_extraVariables === 'function'
-                  ? // $FlowFixMe[incompatible-call]
+                  ? // $FlowFixMe[incompatible-type]
                     prefetchingUNSTABLE_extraVariables({
                       hasNext,
-                      // $FlowFixMe[incompatible-call]
+                      // $FlowFixMe[incompatible-type]
                       data: fragmentData,
                       getServerEdges: () => {
                         const selector = getSelector(
-                          // $FlowFixMe[incompatible-call]
+                          // $FlowFixMe[incompatible-type]
                           edgesFragment,
                           edgeKeys,
                         );
                         if (selector == null) {
-                          // $FlowFixMe[incompatible-call]
+                          // $FlowFixMe[incompatible-type]
                           return [];
                         }
                         invariant(
                           selector.kind === 'PluralReaderSelector',
                           'Expected a plural selector',
                         );
-                        // $FlowFixMe[incompatible-call]
+                        // $FlowFixMe[incompatible-type]
                         return selector.selectors.map(
                           sel => environment.lookup(sel).data,
                         );
@@ -332,22 +332,22 @@ hook usePrefetchableForwardPaginationFragment<
           onComplete,
           UNSTABLE_extraVariables:
             typeof prefetchingUNSTABLE_extraVariables === 'function'
-              ? // $FlowFixMe[incompatible-call]
+              ? // $FlowFixMe[incompatible-type]
                 prefetchingUNSTABLE_extraVariables({
                   hasNext,
-                  // $FlowFixMe[incompatible-call]
+                  // $FlowFixMe[incompatible-type]
                   data: fragmentData,
                   getServerEdges: () => {
                     const selector = getSelector(edgesFragment, edgeKeys);
                     if (selector == null) {
-                      // $FlowFixMe[incompatible-call]
+                      // $FlowFixMe[incompatible-type]
                       return [];
                     }
                     invariant(
                       selector.kind === 'PluralReaderSelector',
                       'Expected a plural selector',
                     );
-                    // $FlowFixMe[incompatible-call]
+                    // $FlowFixMe[incompatible-type]
                     return selector.selectors.map(
                       sel => environment.lookup(sel).data,
                     );
@@ -375,12 +375,12 @@ hook usePrefetchableForwardPaginationFragment<
 
   const realNumInUse = Math.min(numInUse, sourceSize);
 
-  const derivedEdgeKeys: $ReadOnlyArray<mixed> = useMemo(
+  const derivedEdgeKeys: ReadonlyArray<unknown> = useMemo(
     () => edgeKeys?.slice(0, realNumInUse) ?? [],
     [edgeKeys, realNumInUse],
   );
 
-  // $FlowExpectedError[incompatible-call] - we know derivedEdgeKeys are the correct keys
+  // $FlowExpectedError[incompatible-type] - we know derivedEdgeKeys are the correct keys
   const edges: TEdgeData = useFragment(edgesFragment, derivedEdgeKeys);
 
   const refetchPagination = useCallback(
@@ -422,13 +422,14 @@ hook usePrefetchableForwardPaginationFragment<
 
   return {
     edges,
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentData,
     loadNext: showMore,
     hasNext: hasNext || sourceSize > numInUse,
     // Only reflect `isLoadingMore` if the product depends on it, do not refelect
     // `isLoaindgMore` state if it is for fufilling the buffer
     isLoadingNext: isLoadingMore && numInUse > sourceSize,
+    // $FlowFixMe[incompatible-type]
     refetch: refetchPagination,
   };
 }

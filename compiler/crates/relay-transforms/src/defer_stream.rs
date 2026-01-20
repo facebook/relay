@@ -309,12 +309,10 @@ impl Transformer<'_> for DeferStreamTransform<'_> {
             if let Some(label) = directive
                 .arguments
                 .named(self.defer_stream_interface.label_arg)
+                && let Some(label) = label.value.item.get_string_literal()
+                && label.lookup().contains("$defer$")
             {
-                if let Some(label) = label.value.item.get_string_literal() {
-                    if label.lookup().contains("$defer$") {
-                        return self.default_transform_inline_fragment(inline_fragment);
-                    }
-                }
+                return self.default_transform_inline_fragment(inline_fragment);
             }
             self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidDeferOnInlineFragment,
@@ -394,7 +392,7 @@ fn transform_label(
     directive_name: DirectiveName,
     label: StringKey,
 ) -> StringKey {
-    format!("{}${}${}", parent_name, directive_name, label).intern()
+    format!("{parent_name}${directive_name}${label}").intern()
 }
 
 fn get_literal_string_argument(

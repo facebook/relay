@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<857f9de42d12580d9d937fdcc8300a2e>>
+ * @generated SignedSource<<284cc104032e27cd84923271e13a3154>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -47,7 +47,7 @@ import {friends as relayReaderExecResolversTestUserFriendsResolverType} from "..
   __relay_model_instance: RelayReaderExecResolversTestUser____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?{|
+) => ?ReadonlyArray<?{|
   +id: DataID,
 |}>);
 import {name as relayReaderExecResolversTestUserNameResolverType} from "../RelayReader-ExecResolvers-test.js";
@@ -64,7 +64,7 @@ export type RelayReaderExecResolversTestQuery$data = {|
     +best_friend: ?{|
       +name: ?string,
     |},
-    +friends: ?$ReadOnlyArray<?{|
+    +friends: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
     +name: ?string,

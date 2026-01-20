@@ -55,7 +55,7 @@ function buildReactRelayContainer<TBase: component(...empty)>(
   function ForwardRef(
     props: any,
     ref:
-      | ((null | React.ElementRef<TBase>) => mixed)
+      | ((null | React.ElementRef<TBase>) => unknown)
       | {-current: null | React.ElementRef<TBase>, ...},
   ) {
     // $FlowFixMe[react-rule-hook]
@@ -82,16 +82,15 @@ function buildReactRelayContainer<TBase: component(...empty)>(
     );
   }
   ForwardRef.displayName = containerName;
-  // $FlowFixMe[incompatible-call]
-  const ForwardContainer = React.forwardRef(ForwardRef);
+  const ForwardContainer = (React as $FlowFixMe).forwardRef(ForwardRef);
 
   if (__DEV__) {
     // Used by RelayModernTestUtils
-    (ForwardContainer: any).__ComponentClass = ComponentClass;
+    (ForwardContainer as any).__ComponentClass = ComponentClass;
     ForwardContainer.displayName = containerName;
   }
 
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return ForwardContainer;
 }
 

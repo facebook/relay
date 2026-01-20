@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2c60ec73649f0e4bc8815075399bb5bc>>
+ * @generated SignedSource<<9fbfdde4c6a05c38950d73f4a1cd39e3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,7 +30,7 @@ import type { TestResolverContextType } from "../../../relay-runtime/mutations/_
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -46,10 +46,10 @@ import {many_fancy_descriptions as todoModelManyFancyDescriptionsResolverType} f
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<?TodoDescription>);
+) => ?ReadonlyArray<?TodoDescription>);
 declare export opaque type RelayResolverModelTestWithPluralFragment$fragmentType: FragmentType;
 export type RelayResolverModelTestWithPluralFragment$data = {|
-  +many_fancy_descriptions: ?$ReadOnlyArray<?{|
+  +many_fancy_descriptions: ?ReadonlyArray<?{|
     +color: ?ReturnType<typeof todoDescriptionColorResolverType>,
     +text: ?string,
   |}>,

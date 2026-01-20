@@ -92,7 +92,7 @@ function base_counter_context(
  * Resolver interface.
  */
 function count_plus_one(
-  _parent: mixed,
+  _parent: unknown,
   _args: void,
   context: TestResolverContextType,
 ): LiveState<number> {

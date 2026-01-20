@@ -17,22 +17,22 @@ const {Environment} = require('relay-runtime');
 describe('isRelayEnvironment()', () => {
   it('returns true for `RelayEnvironment` instances', () => {
     const environment = new Environment({
-      network: (null: $FlowFixMe),
-      store: (null: $FlowFixMe),
+      network: null as $FlowFixMe,
+      store: null as $FlowFixMe,
     });
     expect(isRelayEnvironment(environment)).toBe(true);
   });
 
   it('returns true for objects that conform to the interface', () => {
     const environment = {
-      applyMutation: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
-      check: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
-      lookup: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
-      retain: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
-      sendMutation: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
-      sendQuery: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
-      execute: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
-      subscribe: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
+      applyMutation: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      check: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      execute: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      lookup: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      retain: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      sendMutation: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      sendQuery: jest.fn<ReadonlyArray<unknown>, unknown>(),
+      subscribe: jest.fn<ReadonlyArray<unknown>, unknown>(),
     };
     expect(isRelayEnvironment(environment)).toBe(true);
   });
@@ -40,9 +40,9 @@ describe('isRelayEnvironment()', () => {
   it('returns false for objects that do not conform to the interface', () => {
     const fakeEnvironment = {
       check: null,
+      execute: null,
       lookup: null,
       sendQuery: null,
-      execute: null,
       subscribe: null,
     };
     expect(isRelayEnvironment(fakeEnvironment)).toBe(false);

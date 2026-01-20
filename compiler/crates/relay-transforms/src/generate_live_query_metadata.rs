@@ -25,17 +25,20 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use itertools::Itertools;
 use lazy_static::lazy_static;
 use thiserror::Error;
 
 use crate::create_metadata_directive;
 
 lazy_static! {
+    // Deprecating @live_query in favor of @client_polling and @live for server pushed updates
     static ref LIVE_QUERY_DIRECTIVE_NAME: DirectiveName = DirectiveName("live_query".intern());
+    static ref CLIENT_POLLING_DIRECTIVE_NAME: DirectiveName = DirectiveName("client_polling".intern());
     static ref LIVE_DIRECTIVE_NAME: DirectiveName = DirectiveName("live".intern());
     static ref LIVE_METADATA_KEY: ArgumentName = ArgumentName("live".intern());
     static ref POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("polling_interval".intern());
+
+    static ref CLIENT_POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("interval".intern());
     static ref CONFIG_ID_ARG: ArgumentName = ArgumentName("config_id".intern());
 }
 
@@ -140,34 +143,44 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
                             }]),
                         ));
                     }
-                } else {
-                    // Look for `@live` query root fields
-                    let live_directives = operation
-                        .selections
-                        .iter()
-                        .filter(|sel| !matches!(sel, Selection::Condition(_)))
-                        .filter_map(|sel| sel.directives().named(*LIVE_DIRECTIVE_NAME))
-                        .collect::<Vec<_>>();
-
-                    if live_directives.is_empty() {
-                        return Transformed::Keep;
-                    }
-                    // We allow multiple `@live` selections in a query but don't allow multiple `config_id`s. Because
-                    // it confuses `method` header formation. `config_id` on `@live` is only used for `@live_query`
-                    // use case migration, which translates into exactly 1 `@live` selection.
-                    let config_id = live_directives
-                        .iter()
-                        .filter_map(|dir| dir.arguments.named(*CONFIG_ID_ARG))
-                        .at_most_one()
-                        .unwrap()
-                        .and_then(|arg| arg.value.item.get_string_literal())
-                        .unwrap_or_else(|| StringKey::from_str("").unwrap());
-
+                } else if let Some(client_polling_directive) =
+                    operation.directives.named(*CLIENT_POLLING_DIRECTIVE_NAME)
+                {
+                    let polling_interval = client_polling_directive
+                        .arguments
+                        .named(*CLIENT_POLLING_INTERVAL_ARG)
+                        .unwrap();
+                    let poll_interval_value = match polling_interval.value.item {
+                        Value::Constant(ConstantValue::Int(value)) => value,
+                        _ => {
+                            self.errors.push(Diagnostic::error(
+                                LiveQueryTransformValidationMessage::InvalidPollingInterval {
+                                    query_name: operation.name.item,
+                                },
+                                polling_interval.value.location,
+                            ));
+                            return Transformed::Keep;
+                        }
+                    };
                     next_directives.push(create_metadata_directive(
                         *LIVE_METADATA_KEY,
                         ConstantValue::Object(vec![ConstantArgument {
+                            name: WithLocation::generated(*POLLING_INTERVAL_ARG),
+                            value: WithLocation::generated(ConstantValue::Int(poll_interval_value)),
+                        }]),
+                    ));
+                } else {
+                    if !has_live_directive(&operation.selections) {
+                        return Transformed::Keep;
+                    }
+                    next_directives.push(create_metadata_directive(
+                        *LIVE_METADATA_KEY,
+                        ConstantValue::Object(vec![ConstantArgument {
+                            // Setting a non null config id value to make sure query is executed in live stack.
                             name: WithLocation::generated(*CONFIG_ID_ARG),
-                            value: WithLocation::generated(ConstantValue::String(config_id)),
+                            value: WithLocation::generated(ConstantValue::String(
+                                StringKey::from_str("").unwrap(),
+                            )),
                         }]),
                     ));
                 }
@@ -179,6 +192,26 @@ impl Transformer<'_> for GenerateLiveQueryMetadata {
             _ => Transformed::Keep,
         }
     }
+}
+
+fn has_live_directive(selections: &[Selection]) -> bool {
+    selections.iter().any(|selection| -> bool {
+        match selection {
+            Selection::FragmentSpread(_) => is_live_selection(selection),
+            Selection::InlineFragment(inline_fragment) => {
+                is_live_selection(selection) || has_live_directive(&inline_fragment.selections)
+            }
+            Selection::LinkedField(linked_field) => {
+                is_live_selection(selection) || has_live_directive(&linked_field.selections)
+            }
+            Selection::ScalarField(_) => false,
+            Selection::Condition(condition) => has_live_directive(&condition.selections),
+        }
+    })
+}
+
+fn is_live_selection(selection: &Selection) -> bool {
+    selection.directives().named(*LIVE_DIRECTIVE_NAME).is_some()
 }
 
 #[derive(Error, Debug, serde::Serialize)]

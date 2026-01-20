@@ -46,7 +46,7 @@ export type PopStarNameResolverFragment_name$data = {|
     +street: ?string,
   |},
   +name: ?string,
-  +parents: $ReadOnlyArray<{|
+  +parents: ReadonlyArray<{|
     +lastName: ?string,
   |}>,
   +$fragmentType: PopStarNameResolverFragment_name$fragmentType,

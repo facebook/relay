@@ -79,7 +79,15 @@ pub type ProjectStatusMap = Arc<DashMap<StringKey, ProjectStatus, FnvBuildHasher
 
 #[derive(Eq, PartialEq)]
 pub enum ProjectStatus {
-    Activated,
+    /// The project was just activated, but not yet built.
+    Activated {
+        /// Can be awaited to wait for the project to be built.
+        /// The value is set to () the first time the schema project completed, even if it failed.
+        /// This should be safe to await as the first project to complete.
+        when_completed: Arc<tokio::sync::SetOnce<()>>,
+    },
+
+    /// The project was built at least once.
     Completed,
 }
 
@@ -240,7 +248,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn validate_synced_js_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
         let mut diagnostics = vec![];
         let javascript_features = self.synced_javascript_sources.get(url).ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
+            LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {url}"))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
         let project_config = self
@@ -337,7 +345,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     fn validate_synced_schema_source(&self, url: &Url) -> LSPRuntimeResult<()> {
         let schema_source = self.synced_schema_sources.get(url).ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError(format!("Expected schema source for URL {}", url))
+            LSPRuntimeError::UnexpectedError(format!("Expected schema source for URL {url}"))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
         let project_config = self
@@ -415,10 +423,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .clear_quick_diagnostics_for_url(url);
     }
 
-    fn initialize_lsp_state_resources(&self, project_name: StringKey) {
+    /// Marks a project to be built. Returns a token that can be awaited for the project to complete building
+    /// the project schema (or error, then the schema would still not be set).
+    pub fn initialize_lsp_state_resources(
+        &self,
+        project_name: StringKey,
+    ) -> Option<Arc<tokio::sync::SetOnce<()>>> {
         if let Entry::Vacant(e) = self.project_status.entry(project_name) {
-            e.insert(ProjectStatus::Activated);
+            let when_completed = Arc::new(tokio::sync::SetOnce::new());
+            e.insert(ProjectStatus::Activated {
+                when_completed: Arc::clone(&when_completed),
+            });
             self.notify_lsp_state_resources.notify_one();
+            Some(when_completed)
+        } else {
+            None
         }
     }
 }
@@ -440,8 +459,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .cloned()
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "get_schema: schema is missing (or not ready, yet) for the `{}` project.",
-                    project_name
+                    "get_schema: schema is missing (or not ready, yet) for the `{project_name}` project."
                 ))
             })
     }
@@ -452,8 +470,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .map(|p| p.value().clone())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "get_program: program is missing (or not ready, yet) for the `{}` project.",
-                    project_name
+                    "get_program: program is missing (or not ready, yet) for the `{project_name}` project."
                 ))
             })
     }
@@ -546,8 +563,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not determine project name for \"{}\": {}",
-                url, msg
+                "Could not determine project name for \"{url}\": {msg}"
             ))
         })
     }
@@ -596,8 +612,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .find(|project_config| project_config.name == (*project_name).into())
             .ok_or_else(|| {
                 LSPRuntimeError::UnexpectedError(format!(
-                    "Unable to get project config for project {}.",
-                    project_name
+                    "Unable to get project config for project {project_name}."
                 ))
             })?;
 
@@ -642,8 +657,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             get_file_group_from_uri(&self.file_categorizer, uri, &self.root_dir, &self.config)?;
         let project_name = get_project_name_from_file_group(&file_group).map_err(|msg| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Could not determine project name for \"{}\": {}",
-                uri, msg
+                "Could not determine project name for \"{uri}\": {msg}"
             ))
         })?;
 
@@ -732,6 +746,7 @@ pub fn build_ir_for_lsp(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,

@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithMatchDirectiveWithTypename_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithMatchDirectiveWithTypename_NameRendererFragment
+    ...queryWithMatchDirectiveWithTypename_NameRendererFragment @alias
   }
 }
 
@@ -97,8 +97,19 @@ fragment queryWithMatchDirectiveWithTypename_MarkdownUserNameRenderer_name on Ma
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "queryWithMatchDirectiveWithTypename_NameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "queryWithMatchDirectiveWithTypename_NameRendererFragment"
           }
         ],

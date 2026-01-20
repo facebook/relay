@@ -120,7 +120,7 @@ impl fmt::Debug for BuildMode {
             BuildMode::Full => write!(f, "Full"),
             BuildMode::Incremental => write!(f, "Incremental"),
             BuildMode::IncrementalWithSchemaChanges(changes) => {
-                write!(f, "IncrementalWithSchemaChanges({:?})", changes)
+                write!(f, "IncrementalWithSchemaChanges({changes:?})")
             }
         }
     }
@@ -382,6 +382,7 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
     let base_fragment_names = Arc::new(base_fragment_names);
+    let validate_and_transform_all_timer = log_event.start("validate_and_transform_all_time");
     let validation_results = programs
         .into_par_iter()
         .map(
@@ -412,6 +413,7 @@ pub fn build_programs(
             },
         )
         .collect::<Vec<_>>();
+    log_event.stop(validate_and_transform_all_timer);
 
     let results: Vec<(Programs, Vec<Diagnostic>)> =
         try_all(validation_results).map_err(|diagnostics| {
@@ -448,7 +450,7 @@ pub fn build_project(
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name;
     log_event.string("project", project_name.to_string());
-    info!("[{}] compiling...", project_name);
+    info!("[{project_name}] compiling...");
 
     // Construct a schema instance including project specific extensions.
     let schema = log_event

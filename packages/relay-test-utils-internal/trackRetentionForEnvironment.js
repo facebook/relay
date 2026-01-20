@@ -23,12 +23,12 @@ import type {OperationDescriptor} from '../relay-runtime/store/RelayStoreTypes';
  * should use `isOperationRetained` for new tests as it is much less error-prone.
  */
 function trackRetentionForEnvironment(environment: IEnvironment): {
-  release_DEPRECATED: JestMockFn<[mixed], void>,
+  release_DEPRECATED: JestMockFn<[unknown], void>,
   isOperationRetained: OperationDescriptor => boolean,
 } {
-  const retainCountsByOperation = new Map<mixed, number>();
+  const retainCountsByOperation = new Map<unknown, number>();
 
-  const release = jest.fn((id: mixed) => {
+  const release = jest.fn((id: unknown) => {
     const existing = retainCountsByOperation.get(id) ?? NaN;
     if (existing === 1) {
       retainCountsByOperation.delete(id);

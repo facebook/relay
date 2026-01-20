@@ -66,7 +66,10 @@
         "relay_resolver_enable_interface_output_type": {
           "kind": "enabled"
         },
-        "enable_exec_time_resolvers_directive": true
+        "enable_exec_time_resolvers_directive": true,
+        "allow_output_type_resolvers": {
+          "kind": "enabled"
+        }
       },
       "language": "flow",
       "resolverContextType": {

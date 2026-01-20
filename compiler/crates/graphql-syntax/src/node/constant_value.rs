@@ -26,7 +26,7 @@ pub enum ConstantValue {
 }
 
 macro_rules! generate_unwrap_fn {
-    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr_2021) => {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
         pub fn $fn_name(&$self) -> $t {
             match $self {
                 $cv => $result,
@@ -75,17 +75,18 @@ impl ConstantValue {
     generate_unwrap_fn!(unwrap_boolean, self, bool, ConstantValue::Boolean(b) => b.value);
     generate_unwrap_fn!(unwrap_string, self, StringKey, ConstantValue::String(s) => s.value);
     generate_unwrap_fn!(unwrap_enum, self, StringKey, ConstantValue::Enum(e) => e.value);
+    generate_unwrap_fn!(unwrap_list, self, &List<ConstantValue>, ConstantValue::List(l) => l);
 }
 
 impl fmt::Display for ConstantValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ConstantValue::Int(value) => f.write_fmt(format_args!("{}", value)),
-            ConstantValue::Float(value) => f.write_fmt(format_args!("{}", value)),
-            ConstantValue::String(value) => f.write_fmt(format_args!("\"{}\"", value)),
-            ConstantValue::Boolean(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::Int(value) => f.write_fmt(format_args!("{value}")),
+            ConstantValue::Float(value) => f.write_fmt(format_args!("{value}",)),
+            ConstantValue::String(value) => f.write_fmt(format_args!("\"{value}\"")),
+            ConstantValue::Boolean(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::Null(_) => f.write_str("null"),
-            ConstantValue::Enum(value) => f.write_fmt(format_args!("{}", value)),
+            ConstantValue::Enum(value) => f.write_fmt(format_args!("{value}")),
             ConstantValue::List(value) => f.write_fmt(format_args!(
                 "[{}]",
                 value

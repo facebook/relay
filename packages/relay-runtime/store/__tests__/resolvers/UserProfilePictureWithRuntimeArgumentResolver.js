@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  */
 function user_profile_picture_uri_with_scale_and_additional_argument(
   rootKey: UserProfilePictureWithRuntimeArgumentResolver$key,
-  args: mixed,
+  args: unknown,
 ): ?string {
   const {name} = args != null && typeof args === 'object' ? args : {};
 

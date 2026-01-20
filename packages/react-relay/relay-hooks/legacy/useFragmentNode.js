@@ -20,15 +20,15 @@ const {useEffect, useState} = require('react');
 const {RelayFeatureFlags, getFragmentIdentifier} = require('relay-runtime');
 const warning = require('warning');
 
-type ReturnType<TFragmentData: mixed> = {
+type ReturnType<TFragmentData: unknown> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
 
-hook useFragmentNode<TFragmentData: mixed>(
+hook useFragmentNode<TFragmentData: unknown>(
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   componentDisplayName: string,
 ): ReturnType<TFragmentData> {
   const environment = useRelayEnvironment();
@@ -123,7 +123,7 @@ hook useFragmentNode<TFragmentData: mixed>(
   }
 
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentResult.data,
     disableStoreUpdates,
     enableStoreUpdates,

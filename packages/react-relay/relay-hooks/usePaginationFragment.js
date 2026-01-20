@@ -32,11 +32,11 @@ const {
   getPaginationMetadata,
 } = require('relay-runtime');
 
-type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: mixed, ...}> =
+type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: unknown, ...}> =
   // NOTE: This type ensures that the type of the returned variables is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? Partial<TVariables>
     : TVariables;
 
@@ -54,7 +54,7 @@ export type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -155,7 +155,7 @@ hook usePaginationFragment<
     });
   }
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentData,
     loadNext,
     loadPrevious,
@@ -163,6 +163,7 @@ hook usePaginationFragment<
     hasPrevious,
     isLoadingNext,
     isLoadingPrevious,
+    // $FlowFixMe[incompatible-type]
     refetch: refetchPagination,
   };
 }

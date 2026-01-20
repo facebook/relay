@@ -30,6 +30,7 @@ const RelayModernStore = require('../../store/RelayModernStore');
 const RelayReader = require('../../store/RelayReader');
 const RelayRecordSource = require('../../store/RelayRecordSource');
 const commitLocalUpdate = require('../commitLocalUpdate');
+
 const regularQuery = graphql`
   query readUpdatableFragmentTestRegularQuery($if2: Boolean, $if3: Boolean) {
     me {
@@ -86,19 +87,21 @@ describe('readUpdatableFragment', () => {
   it('handles variables correctly', () => {
     environment.commitPayload(operation, {
       me: {
-        id: '4',
         __typename: 'User',
         firstName: 'Mark',
         firstName2: 'Twain',
         firstName3: null,
+        id: '4',
       },
     });
 
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData: readUpdatableFragmentTestRegularQuery['response'] =
-      // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      // $FlowFixMe[incompatible-type]
+      // $FlowFixMe[incompatible-indexer]
+      RelayReader.read(source, selector, null, undefined, undefined)
+        .data as readUpdatableFragmentTestRegularQuery['response'];
 
     const me = readOnlyData.me;
     if (me == null) {
@@ -124,8 +127,10 @@ describe('readUpdatableFragment', () => {
     });
 
     const readOnlyData2: readUpdatableFragmentTestRegularQuery['response'] =
-      // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      // $FlowFixMe[incompatible-type]
+      // $FlowFixMe[incompatible-indexer]
+      RelayReader.read(source, selector, null, undefined, undefined)
+        .data as readUpdatableFragmentTestRegularQuery['response'];
     expect(readOnlyData2?.me?.firstName).toBe('Rita');
     expect(readOnlyData2?.me?.firstName2).toBe('Repulsa');
   });
@@ -133,19 +138,21 @@ describe('readUpdatableFragment', () => {
   it('correctly handles multiple aliased fields that use different variables', () => {
     environment.commitPayload(operation, {
       me: {
-        id: '4',
         __typename: 'User',
         firstName: null,
         firstName2: 'Twain',
         firstName3: 'Wahlburg',
+        id: '4',
       },
     });
 
     const source = environment.getStore().getSource();
     const selector = operation.fragment;
     const readOnlyData: readUpdatableFragmentTestRegularQuery['response'] =
-      // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      // $FlowFixMe[incompatible-type]
+      // $FlowFixMe[incompatible-indexer]
+      RelayReader.read(source, selector, null, undefined, undefined)
+        .data as readUpdatableFragmentTestRegularQuery['response'];
 
     const me = readOnlyData.me;
     if (me == null) {
@@ -171,8 +178,10 @@ describe('readUpdatableFragment', () => {
     });
 
     const readOnlyData2: readUpdatableFragmentTestRegularQuery['response'] =
-      // $FlowFixMe[unclear-type] Just to cast it to a better type!
-      (RelayReader.read(source, selector).data: any);
+      // $FlowFixMe[incompatible-type]
+      // $FlowFixMe[incompatible-indexer]
+      RelayReader.read(source, selector, null, undefined, undefined)
+        .data as readUpdatableFragmentTestRegularQuery['response'];
     expect(readOnlyData2?.me?.firstName2).toBe('Lord');
     expect(readOnlyData2?.me?.firstName3).toBe('Zedd');
   });

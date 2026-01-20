@@ -39,7 +39,7 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-// $FlowFixMe Not yet exists in the Flow types in OSS
+// $FlowFixMe[missing-export] Not yet exists in the Flow types in OSS
 const Activity = React.unstable_Activity;
 
 const defaultFetchPolicy = 'network-only';
@@ -102,7 +102,7 @@ let _setProps;
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY = true;
 
-  errorBoundaryDidCatchFn = jest.fn<[Error], mixed>();
+  errorBoundaryDidCatchFn = jest.fn<[Error], unknown>();
 
   class ErrorBoundary extends React.Component<any, any> {
     state: any | {error: null} = {error: null};
@@ -137,7 +137,8 @@ beforeEach(() => {
     const [nextProps, setNextProps] = React.useState(props);
     _setProps = setNextProps;
     return (
-      //$FlowFixMe
+      //$FlowFixMe[incompatible-type]
+      //$FlowFixMe[not-a-component]
       <Activity mode={mode}>
         <Renderer {...nextProps} />
       </Activity>
@@ -169,7 +170,7 @@ beforeEach(() => {
     },
     store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
   });
-  release = jest.fn<[mixed], mixed>();
+  release = jest.fn<[unknown], unknown>();
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const originalRetain = environment.retain.bind(environment);
   // $FlowFixMe[cannot-write]

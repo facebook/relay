@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5c7c939d3ffc6b9844374755a102896b>>
+ * @generated SignedSource<<fc525fc4c2c4e21bb20670e9c0b89562>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernStoreTest6Fragment$fragmentType } from "./RelayModernStoreTest6Fragment.graphql";
 export type RelayModernStoreTest5Query$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayModernStoreTest5Query$data = {|
   +me: ?{|

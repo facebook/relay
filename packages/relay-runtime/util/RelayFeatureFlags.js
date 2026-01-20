@@ -80,6 +80,16 @@ export type FeatureFlags = {
   //
   // See https://github.com/facebook/relay/issues/4882
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: boolean,
+
+  // When enabled, records created for Relay Resolvers will be filtered out
+  // from the store when serializing to JSON.
+  FILTER_OUT_RELAY_RESOLVER_RECORDS: boolean,
+
+  // Reduce the work on store.notify
+  OPTIMIZE_NOTIFY: boolean,
+
+  // Enable logging for reader reading fragment spreads and fragments. Useful for logging unused fragments.
+  ENABLE_READER_FRAGMENTS_LOGGING: boolean,
 };
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -102,13 +112,16 @@ const RelayFeatureFlags: FeatureFlags = {
   PROCESS_OPTIMISTIC_UPDATE_BEFORE_SUBSCRIPTION: false,
   MARK_RESOLVER_VALUES_AS_CLEAN_AFTER_FRAGMENT_REREAD: false,
   ENABLE_CYLE_DETECTION_IN_VARIABLES: false,
-  ENABLE_ACTIVITY_COMPATIBILITY: false,
+  ENABLE_ACTIVITY_COMPATIBILITY: true,
   ENABLE_READ_TIME_RESOLVER_STORAGE_KEY_PREFIX: true,
   ENABLE_USE_PAGINATION_IS_LOADING_FIX: false,
   DISALLOW_NESTED_UPDATES: false,
   ENABLE_TYPENAME_PREFIXED_DATA_ID: false,
   ENABLE_UI_CONTEXT_ON_RELAY_LOGGER: false,
   CHECK_ALL_FRAGMENTS_FOR_MISSING_CLIENT_EDGES: false,
+  FILTER_OUT_RELAY_RESOLVER_RECORDS: false,
+  OPTIMIZE_NOTIFY: false,
+  ENABLE_READER_FRAGMENTS_LOGGING: false,
 };
 
 module.exports = RelayFeatureFlags;

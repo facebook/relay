@@ -162,9 +162,9 @@ class ReactRelayTestMocker {
       }
 
       this._pendingFetches.push({
-        ident,
         cacheConfig,
-        deferred: {resolve, reject},
+        deferred: {reject, resolve},
+        ident,
         request,
         variables: strippedVars,
       });
@@ -199,16 +199,16 @@ class ReactRelayTestMocker {
       deferred.reject(payload.error);
     };
 
-    (env: any).mock = {
+    (env as any).mock = {
+      fetch,
       isLoading,
       rejectQuery,
       resolveRawQuery,
-      fetch,
     };
 
-    (env: any).hasMockedNetwork = true;
+    (env as any).hasMockedNetwork = true;
 
-    (env: any).__setNet(Network.create(fetch));
+    (env as any).__setNet(Network.create(fetch));
     return env;
   }
 
@@ -264,7 +264,7 @@ class ReactRelayTestMocker {
    */
   networkWrite(config: NetworkWriteConfig): void {
     invariant(
-      (this._environment: any).hasMockedNetwork,
+      (this._environment as any).hasMockedNetwork,
       'You cannot resolve queries without a mocked environment. Did you mean ' +
         'to use `writeDirect` instead?',
     );
@@ -315,16 +315,16 @@ class ReactRelayTestMocker {
     );
 
     const realPayload =
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       typeof payload === 'function' ? payload(toResolve.variables) : payload;
 
     // if there are errors, reject the query
     if (realPayload.errors != null && realPayload.errors.length > 0) {
-      (this._environment: any).mock.rejectQuery(toResolve, {
+      (this._environment as any).mock.rejectQuery(toResolve, {
         error: realPayload.errors[0],
       });
     } else {
-      (this._environment: any).mock.resolveRawQuery(toResolve, realPayload);
+      (this._environment as any).mock.resolveRawQuery(toResolve, realPayload);
     }
   }
 }

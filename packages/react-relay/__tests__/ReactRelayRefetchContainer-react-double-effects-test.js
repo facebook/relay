@@ -39,7 +39,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     // Set up mocks
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    renderSpy = jest.fn<ReadonlyArray<unknown>, unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -114,7 +114,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
             <FragmentContainer user={data?.node} />
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true, unstable_strictMode: true},
       );
     });

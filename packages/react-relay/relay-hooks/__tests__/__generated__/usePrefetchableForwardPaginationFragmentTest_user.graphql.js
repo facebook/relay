@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8becc1a8ce7b77e8e0c4d71b66d7450f>>
+ * @generated SignedSource<<04b783e50555d0acdcf3132294736957>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ type usePrefetchableForwardPaginationFragmentRefetchQuery$variables = any;
 type usePrefetchableForwardPaginationFragmentTest_user__edges$data = any;
 export type usePrefetchableForwardPaginationFragmentTest_user$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +$fragmentSpreads: usePrefetchableForwardPaginationFragmentTest_user__edges$fragmentType,
     |}>,
     +pageInfo: ?{|

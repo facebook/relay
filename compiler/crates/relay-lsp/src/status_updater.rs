@@ -68,8 +68,7 @@ pub(crate) fn set_error_status(sender: &Sender<Message>, error: impl std::fmt::D
     update_status(
         "Relay: error",
         Some(format!(
-            "The Relay extension has errors: {}. Try reloading the IDE. If the error persists, report the issue via appropriate channels.",
-            error
+            "The Relay extension has errors: {error}. Try reloading the IDE. If the error persists, report the issue via appropriate channels."
         )),
         MessageType::ERROR,
         sender,

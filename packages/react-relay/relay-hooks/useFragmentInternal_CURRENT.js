@@ -47,10 +47,10 @@ type FragmentQueryOptions = {
   networkCacheConfig?: ?CacheConfig,
 };
 
-type FragmentState = $ReadOnly<
+type FragmentState = Readonly<
   | {kind: 'bailout'}
   | {kind: 'singular', snapshot: Snapshot, epoch: number}
-  | {kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number},
+  | {kind: 'plural', snapshots: ReadonlyArray<Snapshot>, epoch: number},
 >;
 
 type StateUpdaterFunction<T> = ((T) => T) => void;
@@ -67,7 +67,7 @@ function isMissingData(state: FragmentState): boolean {
 
 function getMissingClientEdges(
   state: FragmentState,
-): $ReadOnlyArray<MissingClientEdgeRequestInfo> | null {
+): ReadonlyArray<MissingClientEdgeRequestInfo> | null {
   if (state.kind === 'bailout') {
     return null;
   } else if (state.kind === 'singular') {
@@ -88,7 +88,7 @@ function getMissingClientEdges(
 
 function getSuspendingLiveResolver(
   state: FragmentState,
-): $ReadOnlyArray<DataID> | null {
+): ReadonlyArray<DataID> | null {
   if (state.kind === 'bailout') {
     return null;
   } else if (state.kind === 'singular') {
@@ -110,7 +110,7 @@ function getSuspendingLiveResolver(
 function handlePotentialSnapshotErrorsForState(
   environment: IEnvironment,
   state: FragmentState,
-  loggingContext: mixed | void,
+  loggingContext: unknown | void,
 ): void {
   if (state.kind === 'singular') {
     handlePotentialSnapshotErrors(
@@ -155,19 +155,19 @@ function handleMissedUpdates(
     );
     const updatedCurrentSnapshot: Snapshot = {
       data: updatedData,
+      fieldErrors: currentSnapshot.fieldErrors,
       isMissingData: currentSnapshot.isMissingData,
       missingClientEdges: currentSnapshot.missingClientEdges,
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      fieldErrors: currentSnapshot.fieldErrors,
     };
     return [
       updatedData !== state.snapshot.data,
       {
+        epoch: currentEpoch,
         kind: 'singular',
         snapshot: updatedCurrentSnapshot,
-        epoch: currentEpoch,
       },
     ];
   } else {
@@ -179,12 +179,12 @@ function handleMissedUpdates(
       const updatedData = recycleNodesInto(snapshot.data, currentSnapshot.data);
       const updatedCurrentSnapshot: Snapshot = {
         data: updatedData,
+        fieldErrors: currentSnapshot.fieldErrors,
         isMissingData: currentSnapshot.isMissingData,
         missingClientEdges: currentSnapshot.missingClientEdges,
         missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
         seenRecords: currentSnapshot.seenRecords,
         selector: currentSnapshot.selector,
-        fieldErrors: currentSnapshot.fieldErrors,
       };
       if (updatedData !== snapshot.data) {
         didMissUpdates = true;
@@ -198,9 +198,9 @@ function handleMissedUpdates(
     return [
       didMissUpdates,
       {
+        epoch: currentEpoch,
         kind: 'plural',
         snapshots: currentSnapshots,
-        epoch: currentEpoch,
       },
     ];
   }
@@ -209,10 +209,10 @@ function handleMissedUpdates(
 function handleMissingClientEdge(
   environment: IEnvironment,
   parentFragmentNode: ReaderFragment,
-  parentFragmentRef: mixed,
+  parentFragmentRef: unknown,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
-): [QueryResult, ?Promise<mixed>] {
+): [QueryResult, ?Promise<unknown>] {
   const originalVariables = getVariablesFromFragment(
     parentFragmentNode,
     parentFragmentRef,
@@ -265,8 +265,8 @@ function subscribeToSnapshot(
           if (updates != null) {
             const [dataChanged, nextState] = updates;
             environment.__log({
-              name: 'useFragment.subscription.missedUpdates',
               hasDataChanges: dataChanged,
+              name: 'useFragment.subscription.missedUpdates',
             });
             hasPendingStateChanges.current = dataChanged;
             return dataChanged ? nextState : prevState;
@@ -277,9 +277,9 @@ function subscribeToSnapshot(
 
         hasPendingStateChanges.current = true;
         return {
+          epoch: environment.getStore().getEpoch(),
           kind: 'singular',
           snapshot: latestSnapshot,
-          epoch: environment.getStore().getEpoch(),
         };
       });
     });
@@ -301,8 +301,8 @@ function subscribeToSnapshot(
             if (updates != null) {
               const [dataChanged, nextState] = updates;
               environment.__log({
-                name: 'useFragment.subscription.missedUpdates',
                 hasDataChanges: dataChanged,
+                name: 'useFragment.subscription.missedUpdates',
               });
               hasPendingStateChanges.current =
                 hasPendingStateChanges.current || dataChanged;
@@ -315,9 +315,9 @@ function subscribeToSnapshot(
           updated[index] = latestSnapshot;
           hasPendingStateChanges.current = true;
           return {
+            epoch: environment.getStore().getEpoch(),
             kind: 'plural',
             snapshots: updated,
-            epoch: environment.getStore().getEpoch(),
           };
         });
       }),
@@ -340,15 +340,15 @@ function getFragmentState(
     // Note that if fragmentRef is an empty array, fragmentSelector will be null so we'll hit the above case.
     // Null is returned by getSelector if fragmentRef has no non-null items.
     return {
+      epoch: environment.getStore().getEpoch(),
       kind: 'plural',
       snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
-      epoch: environment.getStore().getEpoch(),
     };
   } else {
     return {
+      epoch: environment.getStore().getEpoch(),
       kind: 'singular',
       snapshot: environment.lookup(fragmentSelector),
-      epoch: environment.getStore().getEpoch(),
     };
   }
 }
@@ -356,7 +356,7 @@ function getFragmentState(
 // fragmentNode cannot change during the lifetime of the component, though fragmentRef may change.
 hook useFragmentInternal(
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
 ): ?SelectorData | Array<?SelectorData> {
@@ -400,13 +400,14 @@ hook useFragmentInternal(
       'to `%s`. If the parent fragment only fetches the fragment conditionally ' +
       '- with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` ' +
       'spread  - then the fragment reference will not exist. ' +
-      'In this case, pass `null` if the conditions for evaluating the ' +
-      'fragment are not met (e.g. if the `@include(if)` value is false.)',
+      'This issue can generally be fixed by adding `@alias` after `...%s`.\n' +
+      'See https://relay.dev/docs/next/guides/alias-directive/',
     fragmentNode.name,
     fragmentNode.name,
     hookDisplayName,
     fragmentNode.name,
     hookDisplayName,
+    fragmentNode.name,
   );
 
   const environment = useRelayEnvironment();
@@ -477,7 +478,7 @@ hook useFragmentInternal(
       let clientEdgeQueries;
       const activeRequestPromises = [];
       if (missingClientEdges?.length) {
-        clientEdgeQueries = ([]: Array<QueryResult>);
+        clientEdgeQueries = [] as Array<QueryResult>;
         for (const edge of missingClientEdges) {
           const [queryResult, requestPromise] = handleMissingClientEdge(
             environment,
@@ -537,7 +538,7 @@ hook useFragmentInternal(
     if (
       RelayFeatureFlags.ENABLE_RELAY_OPERATION_TRACKER_SUSPENSE ||
       environment !== previousEnvironment ||
-      !committedFragmentSelectorRef.current ||
+      committedFragmentSelectorRef.current === false ||
       // $FlowFixMe[react-rule-unsafe-ref]
       !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)
     ) {
@@ -665,7 +666,7 @@ hook useFragmentInternal(
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
     // $FlowFixMe[react-rule-hook-conditional]
-    useDebugValue({fragment: fragmentNode.name, data});
+    useDebugValue({data, fragment: fragmentNode.name});
   }
 
   return data;

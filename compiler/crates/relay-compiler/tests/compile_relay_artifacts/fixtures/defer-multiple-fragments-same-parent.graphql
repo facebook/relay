@@ -1,8 +1,8 @@
 query deferMultipleFragmentsSameParent_QueryWithMultipeDeferredFragmentsOnSameParentQuery($id: ID!) {
   feedback: node(id: $id) {
     id
-    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @defer
-    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @defer
+    ...deferMultipleFragmentsSameParent_FeedbackComments_feedback @alias @defer
+    ...deferMultipleFragmentsSameParent_FeedbackText_feedback @alias @defer
   }
 }
 

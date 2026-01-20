@@ -14,7 +14,7 @@ fragment inlineDataFragment_ParentFragment on Query {
 
   username(name: "test") {
     # Should refine from type Actor to User.
-    ...inlineDataFragment_Profile
+    ...inlineDataFragment_Profile @alias
   }
 }
 

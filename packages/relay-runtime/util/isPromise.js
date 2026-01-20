@@ -11,9 +11,9 @@
 
 'use strict';
 
-declare function isPromise<T>(p: mixed): p is Promise<T>;
+declare function isPromise<T>(p: unknown): p is Promise<T>;
 
-function isPromise(p: mixed) {
+function isPromise(p: unknown) {
   return p != null && typeof p === 'object' && typeof p.then === 'function';
 }
 

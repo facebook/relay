@@ -64,7 +64,7 @@ impl ConsoleStatusReporter {
                 info!("Compilation cancelled due to new changes.");
             }
             error => {
-                error!("{}", error);
+                error!("{error}");
             }
         }
     }
@@ -78,12 +78,12 @@ impl ConsoleStatusReporter {
 
     fn print_by_severity(&self, severity: DiagnosticSeverity, output: String) {
         match severity {
-            DiagnosticSeverity::ERROR => error!("{}", output),
-            DiagnosticSeverity::WARNING => warn!("{}", output),
+            DiagnosticSeverity::ERROR => error!("{output}"),
+            DiagnosticSeverity::WARNING => warn!("{output}"),
             DiagnosticSeverity::HINT => {
                 // Opting to omit, not emit, hints in the CLI output.
             }
-            _ => info!("{}", output),
+            _ => info!("{output}"),
         }
     }
 
@@ -100,14 +100,14 @@ impl ConsoleStatusReporter {
                         let formatted_output = match diagnostic.severity() {
                             DiagnosticSeverity::ERROR => {
                                 if self.is_multi_project {
-                                    format!("Error in the project `{}`: {}", project_name, output)
+                                    format!("Error in the project `{project_name}`: {output}")
                                 } else {
-                                    format!("Error: {}", output)
+                                    format!("Error: {output}")
                                 }
                             }
                             _ => {
                                 if self.is_multi_project {
-                                    format!("In the project `{}`: {}", project_name, output)
+                                    format!("In the project `{project_name}`: {output}")
                                 } else {
                                     output
                                 }
@@ -124,14 +124,14 @@ impl ConsoleStatusReporter {
             } => {
                 for error in errors {
                     if self.is_multi_project {
-                        error!("Error in the project `{}`: {}", project_name, error);
+                        error!("Error in the project `{project_name}`: {error}");
                     } else {
-                        error!("Error: {}", error);
+                        error!("Error: {error}");
                     }
                 }
             }
             _ => {
-                error!("{}", error);
+                error!("{error}");
             }
         }
     }

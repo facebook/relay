@@ -16,7 +16,7 @@ query MyQuery @raw_response_type @throwOnFieldError {
 export type MyQuery$variables = {||};
 export type MyQuery$data = {|
   +opera: ?{|
-    +cast: $ReadOnlyArray<{|
+    +cast: ReadonlyArray<{|
       +character: string,
       +singer: {|
         +name: ?string,
@@ -29,7 +29,7 @@ export type MyQuery$data = {|
 |};
 export type MyQuery$rawResponse = {|
   +opera?: ?{|
-    +cast: ?$ReadOnlyArray<?{|
+    +cast: ?ReadonlyArray<?{|
       +character: ?string,
       +singer: ?{|
         +id: string,

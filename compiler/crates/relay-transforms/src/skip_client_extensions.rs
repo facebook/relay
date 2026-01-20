@@ -93,10 +93,10 @@ impl Transformer<'_> for SkipClientExtensionsTransform<'_> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        if let Some(type_condition) = fragment.type_condition {
-            if self.program.schema.is_extension_type(type_condition) {
-                return Transformed::Delete;
-            }
+        if let Some(type_condition) = fragment.type_condition
+            && self.program.schema.is_extension_type(type_condition)
+        {
+            return Transformed::Delete;
         }
         self.default_transform_inline_fragment(fragment)
     }

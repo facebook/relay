@@ -1,0 +1,69 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!, $condition: Boolean = true) @queryDirective {
+  node(id: $id) {
+    id
+    ... on User @onInlineFragment {
+      name
+      profile @include(if: $condition) {
+        bio
+        avatar(size: 100)
+      }
+    }
+    ...UserFragment @skip(unless: $condition)
+  }
+}
+
+mutation UpdateUser($input: UpdateUserInput!) @mutationDirective {
+  updateUser(input: $input) {
+    user {
+      id
+      name
+    }
+  }
+}
+
+fragment UserFragment on User @fragmentDirective {
+  id
+  email
+  friends {
+    count
+  }
+}
+==================================== OUTPUT ===================================
+visit_operation: Query TestQuery
+visit_directive: @queryDirective at Query
+visit_linked_field: node
+visit_argument: id
+visit_variable: $id
+visit_scalar_field: id
+visit_inline_fragment: on User
+visit_directive: @onInlineFragment at InlineFragment
+visit_scalar_field: name
+visit_linked_field: profile
+visit_directive: @include at Field
+visit_argument: if
+visit_variable: $condition
+visit_scalar_field: bio
+visit_scalar_field: avatar
+visit_argument: size
+visit_fragment_spread: UserFragment
+visit_directive: @skip at FragmentSpread
+visit_argument: unless
+visit_variable: $condition
+visit_variable_definition: $id
+visit_variable_definition: $condition
+visit_operation: Mutation UpdateUser
+visit_directive: @mutationDirective at Mutation
+visit_linked_field: updateUser
+visit_argument: input
+visit_variable: $input
+visit_linked_field: user
+visit_scalar_field: id
+visit_scalar_field: name
+visit_variable_definition: $input
+visit_fragment: UserFragment
+visit_scalar_field: id
+visit_scalar_field: email
+visit_linked_field: friends
+visit_scalar_field: count
+visit_directive: @fragmentDirective at FragmentDefinition

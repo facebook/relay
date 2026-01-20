@@ -64,18 +64,17 @@ pub fn parse_docblock_ast(
 
 /// Check if this docblock has Resolver Model (type) definition
 pub fn resolver_maybe_defining_type(ast: &DocblockAST) -> bool {
-    ast.find_field(*RELAY_RESOLVER_FIELD)
-        .map_or(false, |field| {
-            if let Some(value) = field.field_value {
-                // If @RelayResolver value contains a `.`
-                // it is mostly likely a terse version of resolver
-                // field definition.
-                // values without `.` will be considered type definitions
-                !value.item.lookup().contains('.')
-            } else {
-                false
-            }
-        })
+    ast.find_field(*RELAY_RESOLVER_FIELD).is_some_and(|field| {
+        if let Some(value) = field.field_value {
+            // If @RelayResolver value contains a `.`
+            // it is mostly likely a terse version of resolver
+            // field definition.
+            // values without `.` will be considered type definitions
+            !value.item.lookup().contains('.')
+        } else {
+            false
+        }
+    })
 }
 
 pub fn extend_schema_with_resolver_type_system_definition(

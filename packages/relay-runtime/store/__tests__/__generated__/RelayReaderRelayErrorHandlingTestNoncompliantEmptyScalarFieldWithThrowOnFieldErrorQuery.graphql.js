@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7d7421d8f95edf6cade0e79bbabb6616>>
+ * @generated SignedSource<<b5a527b8460b00ff4b0becf21e3b2768>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThr
 export type RelayReaderRelayErrorHandlingTestNoncompliantEmptyScalarFieldWithThrowOnFieldErrorQuery$data = {|
   +node: ?{|
     +__typename: string,
-    +emailAddresses?: ?$ReadOnlyArray<?string>,
+    +emailAddresses?: ?ReadonlyArray<?string>,
     +id: string,
   |},
 |};

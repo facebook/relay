@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<73dfa993cd14eb071971ec8ae446eea0>>
+ * @generated SignedSource<<be19da5084bbe77a5d284beea6e3c12a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,11 +20,11 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType: FragmentType;
-export type observeFragmentTestPluralThrowOnFieldErrorFragment$data = $ReadOnlyArray<{|
+export type observeFragmentTestPluralThrowOnFieldErrorFragment$data = ReadonlyArray<{|
   +name: ?string,
   +$fragmentType: observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType,
 |}>;
-export type observeFragmentTestPluralThrowOnFieldErrorFragment$key = $ReadOnlyArray<{
+export type observeFragmentTestPluralThrowOnFieldErrorFragment$key = ReadonlyArray<{
   +$data?: observeFragmentTestPluralThrowOnFieldErrorFragment$data,
   +$fragmentSpreads: observeFragmentTestPluralThrowOnFieldErrorFragment$fragmentType,
   ...

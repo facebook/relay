@@ -61,16 +61,16 @@ class RelayRecordProxy implements RecordProxy {
     return type;
   }
 
-  getValue(name: string, args?: ?Arguments): mixed {
+  getValue(name: string, args?: ?Arguments): unknown {
     const storageKey = getStableStorageKey(name, args);
     return this._mutator.getValue(this._dataID, storageKey);
   }
 
   setValue(
-    value: mixed,
+    value: unknown,
     name: string,
     args?: ?Arguments,
-    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+    errors?: ?ReadonlyArray<TRelayFieldError>,
   ): RecordProxy {
     invariant(
       isValidLeafValue(value),
@@ -82,10 +82,7 @@ class RelayRecordProxy implements RecordProxy {
     return this.setValue__UNSAFE(value, name, args, errors);
   }
 
-  getErrors(
-    name: string,
-    args?: ?Arguments,
-  ): ?$ReadOnlyArray<TRelayFieldError> {
+  getErrors(name: string, args?: ?Arguments): ?ReadonlyArray<TRelayFieldError> {
     const storageKey = getStableStorageKey(name, args);
     return this._mutator.getErrors(this._dataID, storageKey);
   }
@@ -94,10 +91,10 @@ class RelayRecordProxy implements RecordProxy {
   // We already validated that the value has the correct type
   // so it should be safe to store complex structures as scalar values (custom scalars)
   setValue__UNSAFE(
-    value: mixed,
+    value: unknown,
     name: string,
     args?: ?Arguments,
-    errors?: ?$ReadOnlyArray<TRelayFieldError>,
+    errors?: ?ReadonlyArray<TRelayFieldError>,
   ): RecordProxy {
     const storageKey = getStableStorageKey(name, args);
     this._mutator.setValue(this._dataID, storageKey, value);
@@ -166,7 +163,7 @@ class RelayRecordProxy implements RecordProxy {
   }
 
   setLinkedRecords(
-    records: $ReadOnlyArray<?RecordProxy>,
+    records: ReadonlyArray<?RecordProxy>,
     name: string,
     args?: ?Arguments,
   ): RecordProxy {
@@ -186,7 +183,7 @@ class RelayRecordProxy implements RecordProxy {
   }
 }
 
-function isValidLeafValue(value: mixed): boolean {
+function isValidLeafValue(value: unknown): boolean {
   return (
     value == null ||
     typeof value !== 'object' ||

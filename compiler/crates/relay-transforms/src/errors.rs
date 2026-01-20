@@ -62,6 +62,11 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Expected fragment spread into Relay Resolver root fragment to be annotated with `@inline` or `@relay(mask: false)`. Relay Resolvers only support reading `@inline` fragments and unmasked fragments."
+    )]
+    UnsupportedFragmentSpreadInResolverFragment,
+
+    #[error(
         "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
     )]
     ActorChangeInvalidSelection,
@@ -159,6 +164,16 @@ pub enum ValidationMessage {
     ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
 
     #[error(
+        "Client to server edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using client to server edges."
+    )]
+    ClientEdgeToServerWithExecTimeResolvers,
+
+    #[error(
+        "Server to client edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using server to client edges."
+    )]
+    ServerEdgeToClientWithExecTimeResolvers,
+
+    #[error(
         "Invalid @RelayResolver output type for field `{field_name}`. Got input object `{type_name}`."
     )]
     RelayResolverOutputTypeInvalidInputObjectType {
@@ -213,8 +228,8 @@ pub enum ValidationMessage {
 
     #[error(
         "Disallowed selection of field `{}{field_name}`.{}",
-        parent_name.map_or("".to_string(), |name| format!("{}.", name)),
-        reason.map_or("".to_string(), |reason| format!(" Reason: \"{}\"", reason)),
+        parent_name.map_or("".to_string(), |name| format!("{name}.")),
+        reason.map_or("".to_string(), |reason| format!(" Reason: \"{reason}\"")),
     )]
     UnselectableField {
         field_name: StringKey,
@@ -281,13 +296,19 @@ pub enum ValidationMessageWithData {
         fragment_name: FragmentDefinitionName,
         condition_name: String,
     },
+
+    #[error("The Codemod '{codemod_name}' wants to update the query at this location to '{fix}.")]
+    CodemodCustomErrorWithFix {
+        codemod_name: StringKey,
+        fix: String,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
             ValidationMessageWithData::RelayResolversMissingWaterfall { field_name } => {
-                vec![Box::new(format!("{} @waterfall", field_name,))]
+                vec![Box::new(format!("{field_name} @waterfall",))]
             }
             ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
                 vec![Box::new("")]
@@ -324,6 +345,9 @@ impl WithDiagnosticData for ValidationMessageWithData {
                     Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
                     Box::new(format!("{fragment_name} @alias")),
                 ]
+            }
+            ValidationMessageWithData::CodemodCustomErrorWithFix { fix, .. } => {
+                vec![Box::new(fix.to_owned())]
             }
         }
     }

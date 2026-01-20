@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DiagnosticDisplay;
+use common::WithDiagnosticData;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -41,4 +43,29 @@ pub(super) enum RequiredDirectiveValidationMessage {
         "A @required field may not have an `action` less severe than that of its @required parent. This @required directive should probably have `action: {suggested_action}`"
     )]
     FieldInvalidNesting { suggested_action: StringKey },
+}
+
+#[derive(Error, Debug, serde::Serialize)]
+pub(super) enum RequiredDirectiveValidationMessageWithData {
+    #[error(
+        "@required with action THROW is not allowed on fields that are semantically nullable. Fields that can legitimately be null should not use the THROW action."
+    )]
+    ThrowActionOnSemanticNullableFieldWithFix,
+    #[error(
+        "@required with action DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD is not allowed on non-nullable fields. Use action THROW instead."
+    )]
+    DangerousThrowActionOnNonNullableFieldWithFix,
+}
+
+impl WithDiagnosticData for RequiredDirectiveValidationMessageWithData {
+    fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
+        match self {
+            RequiredDirectiveValidationMessageWithData::ThrowActionOnSemanticNullableFieldWithFix => {
+                vec![Box::new("DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD".to_string())]
+            }
+            RequiredDirectiveValidationMessageWithData::DangerousThrowActionOnNonNullableFieldWithFix => {
+                vec![Box::new("THROW".to_string())]
+            }
+        }
+    }
 }

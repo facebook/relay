@@ -40,6 +40,7 @@ const {
   assertInternalActorIdentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../util/deepFreeze');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const resolveImmediate = require('../util/resolveImmediate');
 const DataChecker = require('./DataChecker');
 const defaultGetDataID = require('./defaultGetDataID');
@@ -58,7 +59,7 @@ const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 
 export opaque type InvalidationState = {
-  dataIDs: $ReadOnlyArray<DataID>,
+  dataIDs: ReadonlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
 };
 
@@ -115,6 +116,7 @@ class RelayModernStore implements Store {
   _resolverContext: ?ResolverContext;
   _actorIdentifier: ?ActorIdentifier;
   _treatMissingFieldsAsNull: boolean;
+  _deferDeduplicatedFields: boolean;
 
   constructor(
     source: MutableRecordSource,
@@ -134,6 +136,7 @@ class RelayModernStore implements Store {
       // These additional config options are only used if the experimental
       // @outputType resolver feature is used
       treatMissingFieldsAsNull?: ?boolean,
+      deferDeduplicatedFields?: ?boolean,
       actorIdentifier?: ?ActorIdentifier,
     },
   ) {
@@ -182,6 +185,7 @@ class RelayModernStore implements Store {
       options?.shouldProcessClientComponents ?? false;
 
     this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
+    this._deferDeduplicatedFields = options?.deferDeduplicatedFields ?? false;
     this._actorIdentifier = options?.actorIdentifier;
 
     initializeRecordSource(this._recordSource);
@@ -233,6 +237,22 @@ class RelayModernStore implements Store {
         this.__log({name: 'liveresolver.batch.end'});
       }
     }
+  }
+
+  batchLiveStateUpdatesWithoutNotify(callback: () => void): boolean {
+    if (this.__log != null) {
+      this.__log({name: 'liveresolver.batch.start'});
+    }
+    let hasPublished = false;
+    try {
+      hasPublished =
+        this._resolverCache.batchLiveStateUpdatesWithoutNotify(callback);
+    } finally {
+      if (this.__log != null) {
+        this.__log({name: 'liveresolver.batch.end'});
+      }
+    }
+    return hasPublished;
   }
 
   check(
@@ -341,7 +361,7 @@ class RelayModernStore implements Store {
           if (this._releaseBuffer.length > this._gcReleaseBufferSize) {
             const _id = this._releaseBuffer.shift();
             if (!this._shouldRetainWithinTTL_EXPERIMENTAL) {
-              // $FlowFixMe[incompatible-call]
+              // $FlowFixMe[incompatible-type]
               this._roots.delete(_id);
             }
             this.scheduleGC();
@@ -385,6 +405,7 @@ class RelayModernStore implements Store {
     const snapshot = RelayReader.read(
       source,
       selector,
+      log,
       this._resolverCache,
       this._resolverContext,
     );
@@ -404,7 +425,7 @@ class RelayModernStore implements Store {
   notify(
     sourceOperation?: OperationDescriptor,
     invalidateStore?: boolean,
-  ): $ReadOnlyArray<RequestDescriptor> {
+  ): ReadonlyArray<RequestDescriptor> {
     const log = this.__log;
     if (log != null) {
       log({
@@ -413,34 +434,73 @@ class RelayModernStore implements Store {
       });
     }
 
-    // Increment the current write when notifying after executing
-    // a set of changes to the store.
-    this._currentWriteEpoch++;
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY) {
+      // Increment the current write when notifying after executing
+      // a set of changes to the store.
+      this._currentWriteEpoch++;
 
-    if (invalidateStore === true) {
-      this._globalInvalidationEpoch = this._currentWriteEpoch;
+      if (invalidateStore === true) {
+        this._globalInvalidationEpoch = this._currentWriteEpoch;
+      }
     }
 
     // When a record is updated, we need to also handle records that depend on it,
     // specifically Relay Resolver result records containing results based on the
     // updated records. This both adds to updatedRecordIDs and invalidates any
     // cached data as needed.
-    this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY || this._updatedRecordIDs.size > 0) {
+      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+    }
 
     const source = this.getSource();
     const updatedOwners: Array<RequestDescriptor> = [];
-    this._storeSubscriptions.updateSubscriptions(
-      source,
-      this._updatedRecordIDs,
-      updatedOwners,
-      sourceOperation,
-    );
-    this._invalidationSubscriptions.forEach(subscription => {
-      this._updateInvalidationSubscription(
-        subscription,
-        invalidateStore === true,
+    if (!RelayFeatureFlags.OPTIMIZE_NOTIFY || this._updatedRecordIDs.size > 0) {
+      this._storeSubscriptions.updateSubscriptions(
+        source,
+        this._updatedRecordIDs,
+        updatedOwners,
+        sourceOperation,
       );
-    });
+    } else {
+      // If no record is updated, we still need to traverse stale subscriptions for
+      // subscriptions that were using values from optimistic updates
+      this._storeSubscriptions.updateStaleSubscriptions(
+        source,
+        this._updatedRecordIDs,
+        updatedOwners,
+        sourceOperation,
+      );
+    }
+
+    if (
+      RelayFeatureFlags.OPTIMIZE_NOTIFY &&
+      (this._updatedRecordIDs.size > 0 ||
+        updatedOwners.length > 0 ||
+        this._invalidatedRecordIDs.size > 0 ||
+        invalidateStore === true ||
+        this._globalInvalidationEpoch === this._currentWriteEpoch)
+    ) {
+      // Increment the current write when notifying after executing
+      // a set of changes to the store.
+      this._currentWriteEpoch++;
+
+      if (invalidateStore === true) {
+        this._globalInvalidationEpoch = this._currentWriteEpoch;
+      }
+    }
+
+    if (
+      !RelayFeatureFlags.OPTIMIZE_NOTIFY ||
+      this._invalidatedRecordIDs.size > 0 ||
+      invalidateStore === true
+    ) {
+      this._invalidationSubscriptions.forEach(subscription => {
+        this._updateInvalidationSubscription(
+          subscription,
+          invalidateStore === true,
+        );
+      });
+    }
 
     // If a source operation was provided (indicating the operation
     // that produced this update to the store), record the current epoch
@@ -470,6 +530,8 @@ class RelayModernStore implements Store {
           fetchTime: Date.now(),
         };
         this._releaseBuffer.push(id);
+        /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
+         * https://fburl.com/gdoc/y8dn025u */
         this._roots.set(id, temporaryRootEntry);
       }
     }
@@ -541,7 +603,7 @@ class RelayModernStore implements Store {
     return {dispose};
   }
 
-  toJSON(): mixed {
+  toJSON(): unknown {
     return 'RelayModernStore()';
   }
 
@@ -554,7 +616,7 @@ class RelayModernStore implements Store {
     return this._updatedRecordIDs;
   }
 
-  lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
+  lookupInvalidationState(dataIDs: ReadonlyArray<DataID>): InvalidationState {
     const invalidations = new Map<DataID, ?number>();
     dataIDs.forEach(dataID => {
       const record = this.getSource().get(dataID);
@@ -793,7 +855,7 @@ class RelayModernStore implements Store {
               RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
             );
             if (maybeResolverSubscription != null) {
-              // $FlowFixMe - this value if it is not null, it is a function
+              // $FlowFixMe[not-a-function] - this value if it is not null, it is a function
               maybeResolverSubscription();
             }
           }
@@ -817,14 +879,13 @@ class RelayModernStore implements Store {
   }
 
   // Internal API for normalizing @outputType payloads in LiveResolverCache.
-  __getNormalizationOptions(
-    path: $ReadOnlyArray<string>,
-  ): NormalizationOptions {
+  __getNormalizationOptions(path: ReadonlyArray<string>): NormalizationOptions {
     return {
       path,
       getDataID: this._getDataID,
       log: this.__log,
       treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      deferDeduplicatedFields: this._deferDeduplicatedFields,
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,
     };

@@ -32,69 +32,62 @@ import {
 
 // Nullability of returned data type is correct
 // $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-type]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[react-rule-hook]
-(useRefetchableFragment(refetchableFragmentInput, keyNonNullable): [
+useRefetchableFragment(refetchableFragmentInput, keyNonNullable) as [
   NonNullableData,
   FetchFn<QueryVariablesSubset>,
-]);
+];
 
 // $FlowFixMe[react-rule-hook]
-(useRefetchableFragment(refetchableFragmentInput, keyNullable): [
+useRefetchableFragment(refetchableFragmentInput, keyNullable) as [
   NullableData,
   FetchFn<QueryVariables>,
-]);
+];
 
-// $FlowExpectedError: can't cast nullable to non-nullable
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-cast]
-(useRefetchableFragment(refetchableFragmentInput, keyNullable): [
+// $FlowFixMe[incompatible-type] can't cast nullable to non-nullable
+useRefetchableFragment(refetchableFragmentInput, keyNullable) as [
   NonNullableData,
   FetchFn<QueryVariables>,
-]);
+];
 
-// $FlowExpectedError: refetch requires exact type if key is nullable
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-exact]
-// $FlowFixMe[prop-missing]
-(useRefetchableFragment(refetchableFragmentInput, keyNullable): [
+// $FlowFixMe[incompatible-type] refetch requires exact type if key is nullable
+useRefetchableFragment(refetchableFragmentInput, keyNullable) as [
   NullableData,
   FetchFn<QueryVariablesSubset>,
-]);
+];
 
-// $FlowExpectedError: actual type of returned data is correct
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-call]
+// $FlowFixMe[incompatible-type]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-cast]
-(useRefetchableFragment(refetchableFragmentInput, keyAnotherNonNullable): [
+// $FlowFixMe[incompatible-type] actual type of returned data is correct
+useRefetchableFragment(refetchableFragmentInput, keyAnotherNonNullable) as [
   NonNullableData,
   FetchFn<QueryVariablesSubset>,
-]);
+];
 
-// $FlowExpectedError - incompatible key types
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-call]
-(useRefetchableFragment(refetchableFragmentInput, keyAnotherNullable): [
+// $FlowFixMe[incompatible-type]: incompatible key types
+useRefetchableFragment(refetchableFragmentInput, keyAnotherNullable) as [
   NullableData,
   FetchFn<QueryVariables>,
-]);
+];
 
-// $FlowExpectedError: Key should not be a user provided object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type] Key should not be a user provided object
 useRefetchableFragment(refetchableFragmentInput, {abc: 123});
 
-// $FlowExpectedError: Key should not be an empty object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type] Key should not be an empty object
 useRefetchableFragment(refetchableFragmentInput, {});
 
-// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type] Key should be the `<name>$key` type from generated flow
 useRefetchableFragment(refetchableFragmentInput, fragmentData);
 
 // Refetch function options:
@@ -106,12 +99,12 @@ const [, refetch] = useRefetchableFragment(
   refetchableFragmentInput,
   keyNonNullable,
 );
-// $FlowExpectedError: internal option
+// $FlowExpectedError[incompatible-type] : internal option
 refetch(variables, {
   __environment: environment,
 });
 
-// $FlowExpectedError: doesn't exist
+// $FlowExpectedError[incompatible-type] : doesn't exist
 refetch(variables, {
   NON_EXIST: 'NON_EXIST',
 });

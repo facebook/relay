@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50860b038f1f099a4dff3e28b751b6ab>>
+ * @generated SignedSource<<a8ae5d5cf2446669bb5e7ead996db06a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,10 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceWithOperationTrackerSuspenseTest2Fragment$fragmentType } from "./FragmentResourceWithOperationTrackerSuspenseTest2Fragment.graphql";
 export type FragmentResourceWithOperationTrackerSuspenseTest2Query$variables = {|
-  ids: $ReadOnlyArray<string>,
+  ids: ReadonlyArray<string>,
 |};
 export type FragmentResourceWithOperationTrackerSuspenseTest2Query$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +__typename: string,
     +$fragmentSpreads: FragmentResourceWithOperationTrackerSuspenseTest2Fragment$fragmentType,
   |}>,

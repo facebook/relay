@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be6df0193255d36dba24a47c86e45426>>
+ * @generated SignedSource<<43655081ddc05388781f47af83c99cf5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,15 +19,15 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentsDeleteInput = {|
-  commentIds?: ?$ReadOnlyArray<?string>,
+  commentIds?: ?ReadonlyArray<?string>,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$variables = {|
-  connections: $ReadOnlyArray<string>,
+  connections: ReadonlyArray<string>,
   input?: ?CommentsDeleteInput,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation$data = {|
   +commentsDelete: ?{|
-    +deletedCommentIds: ?$ReadOnlyArray<?string>,
+    +deletedCommentIds: ?ReadonlyArray<?string>,
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsEdgeMutation = {|

@@ -60,36 +60,36 @@ type ValueResolver = (
   typeName: ?string,
   context: MockResolverContext,
   plural: ?boolean,
-  defaultValue?: mixed,
-) => mixed;
+  defaultValue?: unknown,
+) => unknown;
 type Traversable = {
-  +selections: $ReadOnlyArray<NormalizationSelection>,
+  +selections: ReadonlyArray<NormalizationSelection>,
   +typeName: ?string,
   +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
-  +args: ?{[string]: mixed, ...},
+  +args: ?{[string]: unknown, ...},
 };
-type MockData = {[string]: mixed, ...};
+type MockData = {[string]: unknown, ...};
 export type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
-  +path: ?$ReadOnlyArray<string>,
-  +args: ?{[string]: mixed, ...},
+  +path: ?ReadonlyArray<string>,
+  +args: ?{[string]: unknown, ...},
 };
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
-) => mixed;
-export type MockResolvers = {[typeName: string]: MockResolver, ...};
+) => unknown;
+export type MockResolvers = {+[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
   [selectionPath: string]: {
     +type: string,
     +plural: boolean,
     +nullable: boolean,
-    +enumValues: $ReadOnlyArray<string> | null,
+    +enumValues: ReadonlyArray<string> | null,
   },
   ...
 };
@@ -131,9 +131,9 @@ function valueResolver(
   typeName: ?string,
   context: MockResolverContext,
   plural: ?boolean = false,
-  defaultValue?: mixed,
-): mixed {
-  const generateValue = (possibleDefaultValue: mixed) => {
+  defaultValue?: unknown,
+): unknown {
+  const generateValue = (possibleDefaultValue: unknown) => {
     let mockValue;
     const mockResolver =
       typeName != null && mockResolvers != null
@@ -170,9 +170,9 @@ function createValueResolver(mockResolvers: ?MockResolvers): ValueResolver {
 }
 
 function generateMockList<T>(
-  placeholderArray: $ReadOnlyArray<mixed>,
-  generateListItem: (defaultValue: mixed, index?: number) => T,
-): $ReadOnlyArray<T> {
+  placeholderArray: ReadonlyArray<unknown>,
+  generateListItem: (defaultValue: unknown, index?: number) => T,
+): ReadonlyArray<T> {
   return placeholderArray.map((possibleDefaultValue, index) =>
     generateListItem(possibleDefaultValue, index),
   );
@@ -207,7 +207,7 @@ class RelayMockPayloadGenerator {
   }
 
   generate(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     operationType: string,
   ): Array<GraphQLSingularResponse> {
     const defaultValues = this._getDefaultValuesForObject(
@@ -236,7 +236,7 @@ class RelayMockPayloadGenerator {
 
   _traverse(
     traversable: Traversable,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
@@ -256,10 +256,10 @@ class RelayMockPayloadGenerator {
    * Generate mock values for selection of fields
    */
   _traverseSelections(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     typeName: ?string,
     isAbstractType: ?boolean,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
@@ -278,6 +278,8 @@ class RelayMockPayloadGenerator {
           break;
         }
         // $FlowFixMe[incompatible-type]
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/4oq3zi07. */
         case CONNECTION: {
           mockData = this._traverseSelections(
             [selection.edges, selection.pageInfo],
@@ -528,7 +530,7 @@ class RelayMockPayloadGenerator {
             );
 
             const splitOperation: NormalizationSplitOperation =
-              (operation: $FlowFixMe);
+              operation as $FlowFixMe;
             const {documentName} = selection;
             if (mockData == null) {
               mockData = {};
@@ -587,7 +589,7 @@ class RelayMockPayloadGenerator {
           );
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayMockPayloadGenerator(): Unexpected AST kind `%s`.',
@@ -595,7 +597,7 @@ class RelayMockPayloadGenerator {
           );
       }
     });
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     return mockData;
   }
 
@@ -604,9 +606,9 @@ class RelayMockPayloadGenerator {
    * @private
    */
   _getCorrectDefaultEnum(
-    enumValues: $ReadOnlyArray<string>,
-    value: mixed | Array<mixed>,
-    path: $ReadOnlyArray<string>,
+    enumValues: ReadonlyArray<string>,
+    value: unknown | Array<unknown>,
+    path: ReadonlyArray<string>,
     applicationName: string,
   ): ?(string | Array<string>) {
     if (value === undefined) {
@@ -662,17 +664,17 @@ class RelayMockPayloadGenerator {
   _mockScalar(
     field: NormalizationScalarField,
     typeName: ?string,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     mockData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    const data = mockData ?? ({}: {[string]: mixed});
+    const data = mockData ?? ({} as {[string]: unknown});
     const applicationName = field.alias ?? field.name;
     if (data.hasOwnProperty(applicationName) && field.name !== TYPENAME_KEY) {
       return data;
     }
 
-    let value: mixed;
+    let value: unknown;
 
     // For __typename fields we are going to return typeName
     if (field.name === TYPENAME_KEY) {
@@ -740,7 +742,7 @@ class RelayMockPayloadGenerator {
    */
   _mockLink(
     field: NormalizationLinkedField,
-    path: $ReadOnlyArray<string>,
+    path: ReadonlyArray<string>,
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData | null {
@@ -787,7 +789,7 @@ class RelayMockPayloadGenerator {
       field.concreteType == null && typeName === typeFromSelection.type;
 
     const generateDataForField = (
-      possibleDefaultValue: mixed,
+      possibleDefaultValue: unknown,
       index?: number,
     ) => {
       const fieldPath = field.plural
@@ -819,7 +821,7 @@ class RelayMockPayloadGenerator {
           ? // $FlowFixMe[incompatible-variance]
             data[applicationName]
           : null,
-        // $FlowFixMe[incompatible-call]
+        // $FlowFixMe[incompatible-type]
         fieldDefaultValue,
       );
     };
@@ -837,7 +839,7 @@ class RelayMockPayloadGenerator {
   /**
    * Get the value for a variable by name
    */
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
@@ -855,8 +857,8 @@ class RelayMockPayloadGenerator {
     typeName: ?string,
     fieldName: ?string,
     fieldAlias: ?string,
-    path: $ReadOnlyArray<string>,
-    args: ?{[string]: mixed, ...},
+    path: ReadonlyArray<string>,
+    args: ?{[string]: unknown, ...},
   ): ?MockData {
     let data;
     if (typeName != null && this._mockResolvers[typeName] != null) {
@@ -881,8 +883,8 @@ class RelayMockPayloadGenerator {
   /**
    * Get object with variables for field
    */
-  _getFieldArgs(field: NormalizationField): {[string]: mixed, ...} {
-    const args: {[string]: mixed} = {};
+  _getFieldArgs(field: NormalizationField): {[string]: unknown, ...} {
+    const args: {[string]: unknown} = {};
     if (field.args != null) {
       field.args.forEach(arg => {
         args[arg.name] = this._getArgValue(arg);
@@ -891,14 +893,14 @@ class RelayMockPayloadGenerator {
     return args;
   }
 
-  _getArgValue(arg: NormalizationArgument): mixed {
+  _getArgValue(arg: NormalizationArgument): unknown {
     switch (arg.kind) {
       case 'Literal':
         return arg.value;
       case 'Variable':
         return this._getVariableValue(arg.variableName);
       case 'ObjectValue': {
-        const value: {[string]: mixed} = {};
+        const value: {[string]: unknown} = {};
         arg.fields.forEach(field => {
           value[field.name] = this._getArgValue(field);
         });
@@ -920,11 +922,11 @@ class RelayMockPayloadGenerator {
   _getScalarFieldTypeDetails(
     field: NormalizationScalarField,
     typeName: ?string,
-    selectionPath: $ReadOnlyArray<string>,
+    selectionPath: ReadonlyArray<string>,
   ): {
     +type: string,
     +plural: boolean,
-    +enumValues: $ReadOnlyArray<string> | null,
+    +enumValues: ReadonlyArray<string> | null,
     +nullable: boolean,
   } {
     return (
@@ -943,8 +945,8 @@ class RelayMockPayloadGenerator {
    * @private
    */
   _getTypeDetailsForPath(
-    path: $ReadOnlyArray<string>,
-  ): $Values<SelectionMetadata> {
+    path: ReadonlyArray<string>,
+  ): Values<SelectionMetadata> {
     return this._selectionMetadata[
       // When selecting metadata, skip the number on plural fields so that every field in the array
       // gets the same metadata.
@@ -1050,7 +1052,7 @@ function generateWithDefer(
     operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
-    {...otherOptions, generateDeferredPayload: generateDeferredPayload},
+    {...otherOptions, generateDeferredPayload},
   );
 
   if (!generateDeferredPayload) {

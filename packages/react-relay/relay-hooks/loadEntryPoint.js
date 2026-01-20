@@ -78,9 +78,9 @@ function loadEntryPoint<
         parameters,
         variables,
         {
+          __nameForWarning: 'loadEntryPoint',
           fetchPolicy: options?.fetchPolicy,
           networkCacheConfig: options?.networkCacheConfig,
-          __nameForWarning: 'loadEntryPoint',
         },
         environmentProviderOptions,
       );
@@ -101,8 +101,8 @@ function loadEntryPoint<
         {},
         {...},
         {...},
-        mixed,
-        EntryPointComponent<{}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(environmentProvider, nestedEntryPoint, nestedParams);
     });
@@ -130,7 +130,8 @@ function loadEntryPoint<
       }
       isDisposed = true;
     },
-    entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
+    // $FlowFixMe[incompatible-type]
+    entryPoints: preloadedEntryPoints as TPreloadedEntryPoints,
     extraProps: extraProps ?? null,
     getComponent: () => {
       const componentModule = entryPoint.root.getModuleIfRequired();
@@ -144,18 +145,19 @@ function loadEntryPoint<
       // that it's actually an es6 module wrapper, so unwrap it. This won't work for React classes with a static property named "default", but
       // that's probably a worthwhile trade-off.
       const component =
-        // $FlowIgnore[prop-missing]
+        // $FlowFixMe[prop-missing]
         componentModule.default != null
           ? componentModule.default
           : componentModule;
-      // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
-      return (component: TEntryPointComponent);
+      // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
+      return component as TEntryPointComponent;
     },
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
       return isDisposed;
     },
-    queries: (preloadedQueries: TPreloadedQueries),
+    // $FlowFixMe[incompatible-type]
+    queries: preloadedQueries as TPreloadedQueries,
     rootModuleID: entryPoint.root.getModuleId(),
   };
 }

@@ -7,16 +7,20 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {RecordSourceJSON} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useSubscribeToInvalidationState = require('../useSubscribeToInvalidationState');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
 const {useEffect, useState} = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {RecordSource, REF_KEY, Store} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
@@ -27,7 +31,7 @@ let setDataIDs;
 let setCallback;
 let disposable;
 let renderedInstance;
-let data;
+let data: RecordSourceJSON;
 let callback;
 
 beforeEach(() => {
@@ -65,22 +69,22 @@ beforeEach(() => {
   const store = new Store(source);
 
   environment = createMockEnvironment({store});
-  callback = jest.fn<$ReadOnlyArray<mixed>, void>();
+  callback = jest.fn<ReadonlyArray<unknown>, void>();
 
   function Renderer({
     initialDataIDs,
     initialCallback,
   }: {
-    initialCallback: JestMockFn<$ReadOnlyArray<mixed>, void>,
-    initialDataIDs: $ReadOnlyArray<string>,
+    initialCallback: JestMockFn<ReadonlyArray<unknown>, void>,
+    initialDataIDs: ReadonlyArray<string>,
   }) {
     const [dataIDs, _setDataIDs] = useState(initialDataIDs);
     const [cbState, _setCallback] = useState({callback: initialCallback});
     const cb = cbState.callback;
 
     setDataIDs = _setDataIDs;
-    setCallback = (_cb: JestMockFn<Array<mixed>, void>) =>
-      // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+    setCallback = (_cb: JestMockFn<Array<unknown>, void>) =>
+      // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
       _setCallback({callback: _cb});
 
     const _disposable = useSubscribeToInvalidationState(dataIDs, cb);
@@ -92,8 +96,8 @@ beforeEach(() => {
   }
 
   function Container(props: {
-    callback: JestMockFn<$ReadOnlyArray<mixed>, void>,
-    dataIDs: $ReadOnlyArray<string>,
+    callback: JestMockFn<ReadonlyArray<unknown>, void>,
+    dataIDs: ReadonlyArray<string>,
     environment: RelayMockEnvironment,
   }) {
     const [env, setEnv] = useState(props.environment);
@@ -108,13 +112,13 @@ beforeEach(() => {
     );
   }
 
-  render = (
+  render = async (
     env: RelayMockEnvironment,
-    dataIDs: $ReadOnlyArray<string>,
-    cb: JestMockFn<$ReadOnlyArray<mixed>, void>,
+    dataIDs: ReadonlyArray<string>,
+    cb: JestMockFn<ReadonlyArray<unknown>, void>,
   ) => {
-    ReactTestRenderer.act(() => {
-      renderedInstance = ReactTestRenderer.create(
+    await act(() => {
+      renderedInstance = ReactTestingLibrary.render(
         <Container environment={env} dataIDs={dataIDs} callback={cb} />,
       );
     });
@@ -123,8 +127,8 @@ beforeEach(() => {
 
 const dataIDs = ['4', 'client:1'];
 
-it('notifies when invalidation state changes due to global invalidation', () => {
-  render(environment, dataIDs, callback);
+it('notifies when invalidation state changes due to global invalidation', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     storeProxy.invalidateStore();
@@ -133,8 +137,8 @@ it('notifies when invalidation state changes due to global invalidation', () => 
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies when invalidation state changes due to invalidating one of the provided ids', () => {
-  render(environment, dataIDs, callback);
+it('notifies when invalidation state changes due to invalidating one of the provided ids', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('4');
@@ -147,8 +151,8 @@ it('notifies when invalidation state changes due to invalidating one of the prov
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies once when invalidating multiple affected records in the same update', () => {
-  render(environment, dataIDs, callback);
+it('notifies once when invalidating multiple affected records in the same update', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('4');
@@ -167,8 +171,8 @@ it('notifies once when invalidating multiple affected records in the same update
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies once per update when multiple affected records invalidated', () => {
-  render(environment, dataIDs, callback);
+it('notifies once per update when multiple affected records invalidated', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('4');
@@ -190,8 +194,8 @@ it('notifies once per update when multiple affected records invalidated', () => 
   expect(callback).toHaveBeenCalledTimes(2);
 });
 
-it('notifies once when invalidation state changes due to both global and local invalidation in a single update', () => {
-  render(environment, dataIDs, callback);
+it('notifies once when invalidation state changes due to both global and local invalidation in a single update', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     storeProxy.invalidateStore();
@@ -212,8 +216,8 @@ it('notifies once when invalidation state changes due to both global and local i
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('notifies once per update when invalidation state changes due to both global and local invalidation in multiple', () => {
-  render(environment, dataIDs, callback);
+it('notifies once per update when invalidation state changes due to both global and local invalidation in multiple', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     storeProxy.invalidateStore();
@@ -240,8 +244,8 @@ it('notifies once per update when invalidation state changes due to both global 
   expect(callback).toHaveBeenCalledTimes(3);
 });
 
-it('does not notify if invalidated ids do not affect subscription', () => {
-  render(environment, dataIDs, callback);
+it('does not notify if invalidated ids do not affect subscription', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('5');
@@ -253,8 +257,8 @@ it('does not notify if invalidated ids do not affect subscription', () => {
   expect(callback).toHaveBeenCalledTimes(0);
 });
 
-it('does not notify if subscription has been manually disposed of', () => {
-  render(environment, dataIDs, callback);
+it('does not notify if subscription has been manually disposed of', async () => {
+  await render(environment, dataIDs, callback);
   disposable.dispose();
 
   environment.commitUpdate(storeProxy => {
@@ -263,10 +267,12 @@ it('does not notify if subscription has been manually disposed of', () => {
   expect(callback).toHaveBeenCalledTimes(0);
 });
 
-it('does not notify after component unmounts', () => {
-  render(environment, dataIDs, callback);
+it('does not notify after component unmounts', async () => {
+  await render(environment, dataIDs, callback);
 
-  ReactTestRenderer.act(() => renderedInstance.unmount());
+  await act(() => {
+    renderedInstance.unmount();
+  });
 
   environment.commitUpdate(storeProxy => {
     storeProxy.invalidateStore();
@@ -274,8 +280,8 @@ it('does not notify after component unmounts', () => {
   expect(callback).toHaveBeenCalledTimes(0);
 });
 
-it('re-establishes subscription when data ids change', () => {
-  render(environment, dataIDs, callback);
+it('re-establishes subscription when data ids change', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('4');
@@ -287,7 +293,7 @@ it('re-establishes subscription when data ids change', () => {
 
   expect(callback).toHaveBeenCalledTimes(1);
 
-  ReactTestRenderer.act(() => {
+  await act(() => {
     setDataIDs(['5', 'client:2']);
   });
 
@@ -316,8 +322,8 @@ it('re-establishes subscription when data ids change', () => {
   expect(callback).toHaveBeenCalledTimes(1);
 });
 
-it('does not re-establish subscription id data ids change but array changes', () => {
-  render(environment, dataIDs, callback);
+it('does not re-establish subscription id data ids change but array changes', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('4');
@@ -332,7 +338,7 @@ it('does not re-establish subscription id data ids change but array changes', ()
   const store = environment.getStore();
   jest.spyOn(store, 'subscribeToInvalidationState');
 
-  ReactTestRenderer.act(() => {
+  await act(() => {
     setDataIDs(['client:1', '4']);
   });
 
@@ -352,8 +358,8 @@ it('does not re-establish subscription id data ids change but array changes', ()
   expect(callback).toHaveBeenCalledTimes(2);
 });
 
-it('re-establishes subscription when callback changes', () => {
-  render(environment, dataIDs, callback);
+it('re-establishes subscription when callback changes', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('4');
@@ -365,8 +371,8 @@ it('re-establishes subscription when callback changes', () => {
 
   expect(callback).toHaveBeenCalledTimes(1);
 
-  const newCallback = jest.fn<Array<mixed>, void>();
-  ReactTestRenderer.act(() => {
+  const newCallback = jest.fn<Array<unknown>, void>();
+  await act(() => {
     setCallback(newCallback);
   });
 
@@ -384,8 +390,8 @@ it('re-establishes subscription when callback changes', () => {
   expect(newCallback).toHaveBeenCalledTimes(1);
 });
 
-it('re-establishes subscription when environment changes', () => {
-  render(environment, dataIDs, callback);
+it('re-establishes subscription when environment changes', async () => {
+  await render(environment, dataIDs, callback);
 
   environment.commitUpdate(storeProxy => {
     const user = storeProxy.get('4');
@@ -398,7 +404,7 @@ it('re-establishes subscription when environment changes', () => {
   expect(callback).toHaveBeenCalledTimes(1);
 
   const newEnvironment = createMockEnvironment();
-  ReactTestRenderer.act(() => {
+  await act(() => {
     setEnvironment(newEnvironment);
   });
 

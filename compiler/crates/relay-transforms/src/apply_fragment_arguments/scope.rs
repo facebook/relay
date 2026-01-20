@@ -95,7 +95,7 @@ pub fn format_local_variable(
     fragment_name: FragmentDefinitionName,
     arg_name: StringKey,
 ) -> StringKey {
-    format!("{}${}", fragment_name, arg_name).intern()
+    format!("{fragment_name}${arg_name}").intern()
 }
 
 #[cfg(test)]

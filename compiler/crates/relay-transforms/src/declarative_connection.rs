@@ -243,8 +243,7 @@ impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
                                 }
                                 Transformed::Keep => field.clone(),
                                 _ => panic!(
-                                    "DeclarativeConnection got unexpected transform result: `{:?}`.",
-                                    transformed_field
+                                    "DeclarativeConnection got unexpected transform result: `{transformed_field:?}`."
                                 ),
                             };
                             let index = next_field
@@ -289,12 +288,11 @@ impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
                                 .item
                                 .get_constant()
                                 .and_then(|c| c.get_string_literal())
-                            {
-                                if !self.feature_flags.disable_edge_type_name_validation_on_declerative_connection_directives.is_enabled_for(edge_typename_value) {
+                                && !self.feature_flags.disable_edge_type_name_validation_on_declerative_connection_directives.is_enabled_for(edge_typename_value) {
                                     let is_not_object_type = self
                                         .schema
                                         .get_type(edge_typename_value)
-                                        .map_or(true, |edge_type| !edge_type.is_object());
+                                        .is_none_or(|edge_type| !edge_type.is_object());
 
                                     if is_not_object_type {
                                         let suggestions = GraphQLSuggestions::new(self.schema);
@@ -312,7 +310,6 @@ impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
                                         return Transformed::Keep;
                                     }
                                 }
-                            }
 
                             let field_definition = self.schema.field(field.definition.item);
                             match field_definition.type_.inner() {
@@ -334,8 +331,7 @@ impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
                                         )) => (*linked_field).clone(),
                                         Transformed::Keep => field.clone(),
                                         _ => panic!(
-                                            "DeclarativeConnection got unexpected transform result: `{:?}`.",
-                                            transformed_field
+                                            "DeclarativeConnection got unexpected transform result: `{transformed_field:?}`."
                                         ),
                                     };
                                     let index = next_field

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8449eea2ea4af32a0baf88ba1ea33cf8>>
+ * @generated SignedSource<<53fb7999c9c76bbe516af2493f21b882>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,12 +28,12 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<{|
+) => ?ReadonlyArray<{|
   +id: DataID,
 |}>);
 export type ResolverGCTestResolverClientEdgeToPluralClientQuery$variables = {||};
 export type ResolverGCTestResolverClientEdgeToPluralClientQuery$data = {|
-  +all_astrological_signs: ?$ReadOnlyArray<{|
+  +all_astrological_signs: ?ReadonlyArray<{|
     +__id: string,
   |}>,
 |};

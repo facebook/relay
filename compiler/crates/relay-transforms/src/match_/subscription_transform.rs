@@ -162,7 +162,7 @@ impl<'program> SubscriptionTransform<'program> {
         selections.push(Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(WithLocation::new(
                 location,
-                format!("__module_operation_{}", operation_name_with_suffix).intern(),
+                format!("__module_operation_{operation_name_with_suffix}").intern(),
             )),
             definition: WithLocation::new(location, js_field_id),
             arguments: vec![Argument {

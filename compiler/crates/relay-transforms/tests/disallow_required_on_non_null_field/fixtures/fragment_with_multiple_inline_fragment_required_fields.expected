@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+fragment MyFragment on Animal @throwOnFieldError {
+  ... on Cat {
+    noise @required(action: THROW) # can't be removed due to Dog's noise also being present
+  }
+  ... on Dog {
+    noise @required(action: THROW) # can't be removed
+  }
+}
+
+# %extensions%
+
+interface Animal {
+  name: String!
+}
+
+type Cat implements Animal {
+  noise: String!
+}
+type Dog implements Animal {
+  noise: String # nullable
+}
+==================================== OUTPUT ===================================
+OK

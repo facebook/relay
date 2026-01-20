@@ -51,6 +51,13 @@ pub enum ExecutableDefinition {
 }
 
 impl ExecutableDefinition {
+    pub fn directives(&self) -> &[Directive] {
+        match self {
+            ExecutableDefinition::Operation(node) => &node.directives,
+            ExecutableDefinition::Fragment(node) => &node.directives,
+        }
+    }
+
     pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             ExecutableDefinition::Operation(node) => node
@@ -119,6 +126,17 @@ impl OperationDefinition {
     pub fn is_subscription(&self) -> bool {
         self.kind == OperationKind::Subscription
     }
+
+    // Get the alias of this operation definition from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?
+                .or_else(|| Some(WithLocation::new(directive.name.location, self.name.item.0))))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 /// A newtype wrapper around StringKey to represent a FragmentDefinition's name
@@ -158,6 +176,19 @@ pub struct FragmentDefinition {
     pub type_condition: Type,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+}
+
+impl FragmentDefinition {
+    // Get the alias of this fragment definition from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?
+                .or_else(|| Some(WithLocation::new(directive.name.location, self.name.item.0))))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 /// An enum that can contain an operation definition name (e.g. names of queries,
@@ -236,7 +267,7 @@ impl ExecutableDefinitionName {
     pub fn unwrap_fragment_definition_name(&self) -> FragmentDefinitionName {
         match self {
             ExecutableDefinitionName::OperationDefinitionName(_) => {
-                panic!("Expected FragmentDefinitionName, found {}", self)
+                panic!("Expected FragmentDefinitionName, found {self}")
             }
             ExecutableDefinitionName::FragmentDefinitionName(name) => *name,
         }
@@ -394,11 +425,11 @@ impl Selection {
 impl fmt::Debug for Selection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::InlineFragment(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::LinkedField(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::ScalarField(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::Condition(node) => f.write_fmt(format_args!("{:#?}", node)),
+            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::InlineFragment(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::LinkedField(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::ScalarField(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::Condition(node) => f.write_fmt(format_args!("{node:#?}")),
         }
     }
 }
@@ -656,7 +687,7 @@ impl Value {
     /// Panics if the value is not a constant.
     pub fn expect_constant(&self) -> &ConstantValue {
         self.get_constant().unwrap_or_else(|| {
-            panic!("expected a constant, got {:?}", self);
+            panic!("expected a constant, got {self:?}");
         })
     }
 
@@ -664,7 +695,7 @@ impl Value {
     /// Panics if the value is not a constant string literal.
     pub fn expect_string_literal(&self) -> StringKey {
         self.get_string_literal().unwrap_or_else(|| {
-            panic!("expected a string literal, got {:?}", self);
+            panic!("expected a string literal, got {self:?}");
         })
     }
 }
@@ -689,7 +720,7 @@ impl Named for ConstantArgument {
 }
 
 macro_rules! generate_unwrap_fn {
-    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr_2021) => {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
         pub fn $fn_name(&$self) -> $t {
             match $self {
                 $cv => $result,
@@ -743,7 +774,9 @@ pub enum ConditionValue {
 }
 
 /// Extract the `as` argument from the `@alias` directive
-fn alias_arg_as(alias_directive: &Directive) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+pub fn alias_arg_as(
+    alias_directive: &Directive,
+) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
     match alias_directive.arguments.named(ArgumentName(intern!("as"))) {
         Some(arg) => match arg.value.item {
             Value::Constant(ConstantValue::String(alias)) => {

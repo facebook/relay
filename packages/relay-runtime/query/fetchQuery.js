@@ -115,8 +115,8 @@ const invariant = require('invariant');
 function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
   query: Query<TVariables, TData, TRawResponse>,
-  variables: TVariables,
-  options?: $ReadOnly<{
+  variables: NoInfer<TVariables>,
+  options?: Readonly<{
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
   }>,
@@ -139,7 +139,7 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
 
   function readData(snapshot: Snapshot): TData {
     handlePotentialSnapshotErrors(environment, snapshot.fieldErrors);
-    /* $FlowFixMe[incompatible-return] we assume readData returns the right
+    /* $FlowFixMe[incompatible-type] we assume readData returns the right
      * data just having written it from network or checked availability. */
     return snapshot.data;
   }
@@ -151,17 +151,30 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
       );
     }
     case 'store-or-network': {
-      if (environment.check(operation).status === 'available') {
-        return RelayObservable.from<Snapshot>(
+      const queryAvailability = environment.check(operation);
+      const shouldFetch = queryAvailability.status !== 'available';
+      let observable;
+      if (!shouldFetch) {
+        observable = RelayObservable.from<Snapshot>(
           environment.lookup(operation.fragment),
         ).map(readData);
+      } else {
+        observable = getNetworkObservable<$FlowFixMe>(
+          environment,
+          operation,
+        ).map(readData);
       }
-      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
-        readData,
-      );
+      environment.__log({
+        name: 'fetchquery.fetch',
+        operation,
+        fetchPolicy,
+        queryAvailability,
+        shouldFetch,
+      });
+      return observable;
     }
     default:
-      (fetchPolicy: empty);
+      fetchPolicy as empty;
       throw new Error('fetchQuery: Invalid fetchPolicy ' + fetchPolicy);
   }
 }

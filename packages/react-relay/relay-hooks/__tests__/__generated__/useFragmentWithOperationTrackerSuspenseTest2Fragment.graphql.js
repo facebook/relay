@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<488137e059826e157a95ea8a087abedd>>
+ * @generated SignedSource<<27265e4414929cba6efbbeb2bf8a93e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,12 +20,12 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType: FragmentType;
-export type useFragmentWithOperationTrackerSuspenseTest2Fragment$data = $ReadOnlyArray<{|
+export type useFragmentWithOperationTrackerSuspenseTest2Fragment$data = ReadonlyArray<{|
   +id: string,
   +name: ?string,
   +$fragmentType: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
 |}>;
-export type useFragmentWithOperationTrackerSuspenseTest2Fragment$key = $ReadOnlyArray<{
+export type useFragmentWithOperationTrackerSuspenseTest2Fragment$key = ReadonlyArray<{
   +$data?: useFragmentWithOperationTrackerSuspenseTest2Fragment$data,
   +$fragmentSpreads: useFragmentWithOperationTrackerSuspenseTest2Fragment$fragmentType,
   ...

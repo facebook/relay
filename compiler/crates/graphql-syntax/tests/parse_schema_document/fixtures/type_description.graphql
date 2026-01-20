@@ -1,0 +1,160 @@
+# Tests for all description locations in GraphQL schema documents per spec
+
+# SchemaDefinition with description
+"Schema description"
+schema {
+  query: Query
+}
+
+# ScalarTypeDefinition with description
+"Single line scalar description"
+scalar SingleLineScalar
+
+"""
+Block scalar description
+"""
+scalar BlockScalar
+
+# ObjectTypeDefinition with description
+"Single line type description"
+type SingleLineType {
+  field: String
+}
+
+"""
+Block type description
+"""
+type BlockType {
+  field: String
+}
+
+"""
+Multiline block type description which is so long
+that it spans onto a second line.
+"""
+type MultilineBlockType {
+  field: String
+}
+
+# FieldDefinition with description (inside type)
+type TypeWithFieldDescriptions {
+  "Single line field description"
+  singleLineField: String
+
+  """
+  Block field description
+  """
+  blockField: String
+}
+
+# InputValueDefinition with description (arguments)
+type TypeWithArgumentDescriptions {
+  fieldWithArgs(
+    "Single line argument description"
+    singleLineArg: String
+
+    """
+    Block argument description
+    """
+    blockArg: String
+  ): String
+}
+
+# InterfaceTypeDefinition with description
+"Single line interface description"
+interface SingleLineInterface {
+  field: String
+}
+
+"""
+Block interface description
+"""
+interface BlockInterface {
+  field: String
+}
+
+# UnionTypeDefinition with description
+"Single line union description"
+union SingleLineUnion = TypeA | TypeB
+
+"""
+Block union description
+"""
+union BlockUnion = TypeA | TypeB
+
+# EnumTypeDefinition with description
+"Single line enum description"
+enum SingleLineEnum {
+  VALUE
+}
+
+"""
+Block enum description
+"""
+enum BlockEnum {
+  VALUE
+}
+
+# EnumValueDefinition with description
+enum EnumWithValueDescriptions {
+  "Single line enum value description"
+  SINGLE_LINE_VALUE
+
+  """
+  Block enum value description
+  """
+  BLOCK_VALUE
+
+  """
+  Multiline block enum value description
+  that spans multiple lines.
+  """
+  MULTILINE_BLOCK_VALUE
+}
+
+# InputObjectTypeDefinition with description
+"Single line input description"
+input SingleLineInput {
+  field: String
+}
+
+"""
+Block input description
+"""
+input BlockInput {
+  field: String
+}
+
+# InputValueDefinition with description (input fields)
+input InputWithFieldDescriptions {
+  "Single line input field description"
+  singleLineField: String
+
+  """
+  Block input field description
+  """
+  blockField: String
+}
+
+# DirectiveDefinition with description
+"Single line directive description"
+directive @singleLineDirective on FIELD
+
+"""
+Block directive description
+"""
+directive @blockDirective on FIELD
+
+# DirectiveDefinition with argument descriptions
+"""
+Directive with argument descriptions
+"""
+directive @directiveWithArgs(
+  "Single line directive argument description"
+  singleLineArg: String
+
+  """
+  Block directive argument description
+  """
+  blockArg: String
+) on FIELD

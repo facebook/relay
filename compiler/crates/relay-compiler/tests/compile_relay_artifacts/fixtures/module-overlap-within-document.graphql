@@ -1,7 +1,7 @@
 query moduleOverlapWithinDocument_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...moduleOverlapWithinDocument_FooNameRendererFragment
-    ...moduleOverlapWithinDocument_BarNameRendererFragment
+    ...moduleOverlapWithinDocument_FooNameRendererFragment @alias
+    ...moduleOverlapWithinDocument_BarNameRendererFragment @alias
   }
 }
 

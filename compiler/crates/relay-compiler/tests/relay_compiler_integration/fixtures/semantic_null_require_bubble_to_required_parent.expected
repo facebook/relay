@@ -97,3 +97,11 @@ export default ((node/*: any*/)/*: Fragment<
   PersonComponentFragment$fragmentType,
   PersonComponentFragment$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: PersonComponentFragment
+    Path: __generated__/PersonComponentFragment.graphql.js

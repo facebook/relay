@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
@@ -35,7 +36,13 @@ import type {
   useRefetchableFragmentNodeTestUserQuery$data,
   useRefetchableFragmentNodeTestUserQuery$variables,
 } from './__generated__/useRefetchableFragmentNodeTestUserQuery.graphql';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {RelayContext} from 'relay-runtime';
+import type {
+  FetchPolicy,
+  OperationDescriptor,
+  RenderPolicy,
+  Variables,
+} from 'relay-runtime';
 import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {MockPayloadGenerator} = require('relay-test-utils');
@@ -113,7 +120,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
   let forceUpdate;
   let setEnvironment;
   let setOwner;
-  let fetchPolicy;
+  let fetchPolicy: FetchPolicy;
   let renderPolicy;
   let renderFragment;
   let commitSpy;
@@ -156,7 +163,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
   }
 
   function expectFragmentResults(
-    expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
+    expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
   ) {
     // This ensures that useEffect runs
     TestRenderer.act(() => jest.runAllImmediates());
@@ -171,11 +178,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     fragmentName: string = 'useRefetchableFragmentNodeTestNestedUserFragment',
   ) {
     return {
-      [ID_KEY]: id,
+      [FRAGMENT_OWNER_KEY]: owner.request,
       [FRAGMENTS_KEY]: {
         [fragmentName]: {},
       },
-      [FRAGMENT_OWNER_KEY]: owner.request,
+      [ID_KEY]: id,
     };
   }
 
@@ -186,10 +193,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    commitSpy = jest.fn<_, mixed>();
+    commitSpy = jest.fn<_, unknown>();
 
     fetchPolicy = 'store-or-network';
-    renderPolicy = 'partial';
+    renderPolicy = 'partial' as RenderPolicy;
     callDuringRenderCount = 0;
 
     // Set up environment and base data
@@ -307,13 +314,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         __typename: 'User',
         id: '1',
         name: 'Alice',
-        username: 'useralice',
         profile_picture: null,
+        username: 'useralice',
       },
     });
 
     // Set up renderers
-    Renderer = (props: {user: mixed}) => null;
+    Renderer = (props: {user: unknown}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -328,13 +335,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => ({
-          [ID_KEY]:
-            owner.request.variables.id ?? owner.request.variables.nodeID,
+          [FRAGMENT_OWNER_KEY]: owner.request,
           [FRAGMENTS_KEY]: {
             // $FlowFixMe[invalid-computed-prop] Error found while enabling LTI on this file
             [fragment.name]: {},
           },
-          [FRAGMENT_OWNER_KEY]: owner.request,
+          [ID_KEY]:
+            owner.request.variables.id ?? owner.request.variables.nodeID,
         }),
         [owner, fragment.name],
       );
@@ -360,7 +367,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
 
     const ContextProvider = ({children}: {children: React.Node}) => {
       const [env, _setEnv] = useState(environment);
-      const relayContext = useMemo(() => ({environment: env}), [env]);
+      const relayContext = useMemo(
+        (): RelayContext => ({environment: env}),
+        [env],
+      );
 
       setEnvironment = _setEnv;
 
@@ -398,7 +408,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               </ContextProvider>
             </React.Suspense>
           </ErrorBoundary>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
         jest.runAllImmediates();
@@ -677,8 +687,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         {force: true},
       );
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
         refetchQuery,
+        refetchVariables,
       });
 
       // Mock network error
@@ -727,8 +737,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         {force: true},
       );
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
         refetchQuery,
+        refetchVariables,
       });
 
       // Mock network response
@@ -789,8 +799,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         {force: true},
       );
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
         refetchQuery,
+        refetchVariables,
       });
 
       // Mock network response
@@ -887,21 +897,22 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         environment.commitPayload(queryNestedFragment, {
           node: {
             __typename: 'Feedback',
-            id: '<feedbackid>',
             actor: {
               __typename: 'User',
               id: '1',
               name: 'Alice',
-              username: 'useralice',
               profile_picture: null,
+              username: 'useralice',
             },
+            id: '<feedbackid>',
           },
         });
       });
 
       // Get fragment ref for user using nested fragment
-      const userRef = (environment.lookup(queryNestedFragment.fragment)
-        .data: $FlowFixMe)?.node?.actor;
+      const userRef = (
+        environment.lookup(queryNestedFragment.fragment).data as $FlowFixMe
+      )?.node?.actor;
 
       const renderer = renderFragment({owner: queryNestedFragment, userRef});
       const initialUser = {
@@ -930,8 +941,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         {force: true},
       );
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
         refetchQuery,
+        refetchVariables,
       });
 
       // Mock network response
@@ -994,9 +1005,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         {force: true},
       );
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
-        refetchQuery: refetchQueryWithArgs,
         gqlRefetchQuery: gqlRefetchQueryWithArgs,
+        refetchQuery: refetchQueryWithArgs,
+        refetchVariables,
       });
 
       // Mock network response
@@ -1060,9 +1071,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         {force: true},
       );
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
-        refetchQuery: refetchQueryWithArgs,
         gqlRefetchQuery: gqlRefetchQueryWithArgs,
+        refetchQuery: refetchQueryWithArgs,
+        refetchVariables,
       });
 
       // Mock network response
@@ -1219,8 +1230,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           __typename: 'User',
           id: '1',
           name: 'Alice in a different env',
-          username: 'useralice',
           profile_picture: null,
+          username: 'useralice',
         },
       });
       TestRenderer.act(() => {
@@ -1280,8 +1291,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           __typename: 'User',
           id: '1',
           name: 'Alice in a different env',
-          username: 'useralice',
           profile_picture: null,
+          username: 'useralice',
         },
       });
       TestRenderer.act(() => {
@@ -1297,8 +1308,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       expectFragmentIsRefetching(
         renderer,
         {
-          refetchVariables: variables,
           refetchQuery,
+          refetchVariables: variables,
         },
         newEnvironment,
       );
@@ -1382,10 +1393,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           __typename: 'User',
           id: '1',
           name: 'Alice',
-          username: 'useralice',
           profile_picture: {
             uri: 'uri32',
           },
+          username: 'useralice',
         },
       });
       TestRenderer.act(() => {
@@ -1469,8 +1480,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       });
 
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
         refetchQuery,
+        refetchVariables,
       });
 
       // Mock network response
@@ -1542,8 +1553,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       });
 
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
         refetchQuery,
+        refetchVariables,
       });
 
       // Mock network response
@@ -1598,8 +1609,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       });
 
       expectFragmentIsRefetching(renderer, {
-        refetchVariables,
         refetchQuery,
+        refetchVariables,
       });
 
       TestRenderer.act(() => {
@@ -1702,7 +1713,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     describe('multiple refetches', () => {
       const internalRuntime = require('relay-runtime').__internal;
       const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
-      const fetchSpy = jest.fn<Array<any>, mixed>();
+      const fetchSpy = jest.fn<Array<any>, unknown>();
       jest
         .spyOn(internalRuntime, 'fetchQueryDeduped')
         .mockImplementation((...args) => {
@@ -1764,8 +1775,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           // Assert that fragment is refetching with the right variables and
           // suspends upon refetch
           expectFragmentIsRefetching(renderer, {
-            refetchVariables,
             refetchQuery,
+            refetchVariables,
           });
 
           // Mock network response
@@ -1806,8 +1817,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '1'},
             {
-              fetchPolicy: 'network-only',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'network-only',
             },
           );
         });
@@ -1841,8 +1852,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '4'},
             {
-              fetchPolicy: 'network-only',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'network-only',
             },
           );
         });
@@ -1914,8 +1925,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '1'},
             {
-              fetchPolicy: 'network-only',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'network-only',
             },
           );
         });
@@ -1949,8 +1960,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '4'},
             {
-              fetchPolicy: 'network-only',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'network-only',
             },
           );
         });
@@ -2041,8 +2052,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '1'},
             {
-              fetchPolicy: 'network-only',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'network-only',
             },
           );
         });
@@ -2076,8 +2087,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '4'},
             {
-              fetchPolicy: 'network-only',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'network-only',
             },
           );
         });
@@ -2095,8 +2106,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '1'},
             {
-              fetchPolicy: 'network-only',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'network-only',
             },
           );
         });
@@ -2162,8 +2173,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           refetch(
             {id: '1'},
             {
-              fetchPolicy: 'store-and-network',
               UNSTABLE_renderPolicy: renderPolicy,
+              fetchPolicy: 'store-and-network',
             },
           );
         });
@@ -2176,10 +2187,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables: refetchVariables1,
+          requestCount: 1,
         });
 
         // Component renders immediately even though request is in flight
@@ -2199,24 +2210,24 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '4'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
           );
         });
 
         // Assert first request is not cancelled
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables: refetchVariables1,
+          requestCount: 1,
         });
 
         // Assert second request is started
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables: refetchVariables2,
+          requestCount: 1,
         });
         // Assert component suspended
         expect(commitSpy).toBeCalledTimes(0);
@@ -2250,7 +2261,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           }
           useEffect(() => {
             refetchCount++;
-            // $FlowFixMe useRefetchableFragmentNode is untyped
+            // $FlowFixMe[incompatible-use] useRefetchableFragmentNode is untyped
             refetch({id: fragmentData.id});
           }, [fragmentData, refetch]);
 
@@ -2282,7 +2293,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
                 </RelayEnvironmentProvider>
               </React.Suspense>
             </ErrorBoundary>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {unstable_isConcurrent: true},
           );
           jest.runAllImmediates();
@@ -2308,7 +2319,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2320,10 +2331,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectRequestIsInFlight({
-              inFlight: false,
-              requestCount: 0,
               gqlRefetchQuery,
+              inFlight: false,
               refetchVariables,
+              requestCount: 0,
             });
 
             // Assert component renders immediately since data is cached
@@ -2349,7 +2360,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2365,8 +2376,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectFragmentIsRefetching(renderer, {
-              refetchVariables,
               refetchQuery,
+              refetchVariables,
             });
 
             // Mock network response
@@ -2420,16 +2431,16 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
             // Assert request is started
             expectRequestIsInFlight({
-              inFlight: true,
-              requestCount: 1,
               gqlRefetchQuery,
+              inFlight: true,
               refetchVariables,
+              requestCount: 1,
             });
 
             // Assert component renders immediately since data is cached
@@ -2453,7 +2464,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2465,10 +2476,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectRequestIsInFlight({
-              inFlight: false,
-              requestCount: 0,
               gqlRefetchQuery,
+              inFlight: false,
               refetchVariables,
+              requestCount: 0,
             });
 
             // Assert component renders immediately since data is cached
@@ -2494,7 +2505,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2510,8 +2521,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectFragmentIsRefetching(renderer, {
-              refetchVariables,
               refetchQuery,
+              refetchVariables,
             });
 
             // Mock network response
@@ -2572,13 +2583,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
             expectFragmentIsRefetching(renderer, {
-              refetchVariables,
               refetchQuery,
+              refetchVariables,
             });
 
             // Mock network response
@@ -2628,7 +2639,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2640,10 +2651,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectRequestIsInFlight({
-              inFlight: true,
-              requestCount: 1,
               gqlRefetchQuery,
+              inFlight: true,
               refetchVariables,
+              requestCount: 1,
             });
 
             // Assert component renders immediately since data is cached
@@ -2669,7 +2680,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2685,8 +2696,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectFragmentIsRefetching(renderer, {
-              refetchVariables,
               refetchQuery,
+              refetchVariables,
             });
 
             // Mock network response
@@ -2740,16 +2751,16 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
             // Assert request is started
             expectRequestIsInFlight({
-              inFlight: true,
-              requestCount: 1,
               gqlRefetchQuery,
+              inFlight: true,
               refetchVariables,
+              requestCount: 1,
             });
 
             // Assert component renders immediately since data is cached
@@ -2774,7 +2785,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '1'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2786,10 +2797,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectRequestIsInFlight({
-              inFlight: true,
-              requestCount: 1,
               gqlRefetchQuery,
+              inFlight: true,
               refetchVariables,
+              requestCount: 1,
             });
 
             // Assert component renders immediately since data is cached
@@ -2815,7 +2826,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
@@ -2831,8 +2842,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
               {force: true},
             );
             expectFragmentIsRefetching(renderer, {
-              refetchVariables,
               refetchQuery,
+              refetchVariables,
             });
 
             // Mock network response
@@ -2886,14 +2897,14 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             TestRenderer.act(() => {
               refetch(
                 {id: '4'},
-                {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+                {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
               );
             });
 
             // Assert component suspended
             expectFragmentIsRefetching(renderer, {
-              refetchVariables,
               refetchQuery,
+              refetchVariables,
             });
 
             // Mock network response
@@ -2945,7 +2956,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '1'},
-              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+              {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
             );
           });
 
@@ -2960,8 +2971,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             {force: true},
           );
           expectFragmentIsRefetching(renderer, {
-            refetchVariables,
             refetchQuery,
+            refetchVariables,
           });
 
           // Mock network response
@@ -3000,7 +3011,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '4'},
-              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+              {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
             );
           });
 
@@ -3016,8 +3027,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             {force: true},
           );
           expectFragmentIsRefetching(renderer, {
-            refetchVariables,
             refetchQuery,
+            refetchVariables,
           });
 
           // Mock network response
@@ -3061,7 +3072,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '1'},
-              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+              {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
             );
           });
 
@@ -3073,10 +3084,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             {force: true},
           );
           expectRequestIsInFlight({
-            inFlight: false,
-            requestCount: 0,
             gqlRefetchQuery,
+            inFlight: false,
             refetchVariables,
+            requestCount: 0,
           });
 
           // Assert component renders immediately since data is cached
@@ -3095,7 +3106,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '4'},
-              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+              {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
             );
           });
 
@@ -3107,10 +3118,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             {force: true},
           );
           expectRequestIsInFlight({
-            inFlight: false,
-            requestCount: 0,
             gqlRefetchQuery,
+            inFlight: false,
             refetchVariables,
+            requestCount: 0,
           });
 
           // Assert component renders immediately with empty data
@@ -3124,8 +3135,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             refetch(
               {id: '4'},
               {
-                fetchPolicy: 'network-only',
                 UNSTABLE_renderPolicy: renderPolicy,
+                fetchPolicy: 'network-only',
               },
             );
           });
@@ -3138,8 +3149,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             {force: true},
           );
           expectFragmentIsRefetching(renderer, {
-            refetchVariables,
             refetchQuery,
+            refetchVariables,
           });
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
@@ -3180,7 +3191,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           TestRenderer.act(() => {
             refetch(
               {id: '6'},
-              {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+              {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
             );
           });
 
@@ -3192,10 +3203,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             {force: true},
           );
           expectRequestIsInFlight({
-            inFlight: false,
-            requestCount: 0,
             gqlRefetchQuery,
+            inFlight: false,
             refetchVariables,
+            requestCount: 0,
           });
 
           // Assert component renders immediately with empty data
@@ -3207,7 +3218,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     });
 
     describe('disposing', () => {
-      const unsubscribe = jest.fn<[], mixed>();
+      const unsubscribe = jest.fn<[], unknown>();
       jest.doMock('relay-runtime', () => {
         const originalRuntime = jest.requireActual<any>('relay-runtime');
         const originalInternal = originalRuntime.__internal;
@@ -3239,7 +3250,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '1'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
           );
         });
 
@@ -3251,10 +3262,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables,
+          requestCount: 1,
         });
 
         // Component renders immediately even though request is in flight
@@ -3274,8 +3285,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             __typename: 'User',
             id: '1',
             name: 'Alice in a different env',
-            username: 'useralice',
             profile_picture: null,
+            username: 'useralice',
           },
         });
         TestRenderer.act(() => {
@@ -3286,10 +3297,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         // cancel network requests when disposing query refs.
         expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables,
+          requestCount: 1,
         });
 
         // Assert newly rendered data
@@ -3308,7 +3319,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '1'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
           );
         });
 
@@ -3320,10 +3331,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables,
+          requestCount: 1,
         });
 
         // Component renders immediately even though request is in flight
@@ -3346,10 +3357,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             __typename: 'User',
             id: '1',
             name: 'Alice',
-            username: 'useralice',
             profile_picture: {
               uri: 'uri32',
             },
+            username: 'useralice',
           },
         });
         TestRenderer.act(() => {
@@ -3360,10 +3371,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         // cancel network requests when disposing query refs.
         expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables,
+          requestCount: 1,
         });
 
         // Assert newly rendered data
@@ -3384,7 +3395,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '2'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
           );
         });
 
@@ -3397,8 +3408,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         );
 
         expectFragmentIsRefetching(renderer, {
-          refetchVariables,
           refetchQuery,
+          refetchVariables,
         });
 
         TestRenderer.act(() => {
@@ -3416,7 +3427,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         TestRenderer.act(() => {
           refetch(
             {id: '1'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
           );
         });
 
@@ -3428,10 +3439,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables,
+          requestCount: 1,
         });
 
         // Component renders immediately even though request is in flight
@@ -3460,7 +3471,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         TestRenderer.act(() => {
           disposable = refetch(
             {id: '2'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
           );
         });
 
@@ -3472,8 +3483,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectFragmentIsRefetching(renderer, {
-          refetchVariables,
           refetchQuery,
+          refetchVariables,
         });
 
         TestRenderer.act(() => {
@@ -3490,10 +3501,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         // so there is nothing to cancel.
         expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables,
+          requestCount: 1,
         });
 
         // Assert that when the refetch is disposed we reset to rendering the
@@ -3514,7 +3525,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         TestRenderer.act(() => {
           disposable = refetch(
             {id: '1'},
-            {fetchPolicy, UNSTABLE_renderPolicy: renderPolicy},
+            {UNSTABLE_renderPolicy: renderPolicy, fetchPolicy},
           );
         });
 
@@ -3526,10 +3537,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectRequestIsInFlight({
-          inFlight: true,
-          requestCount: 1,
           gqlRefetchQuery,
+          inFlight: true,
           refetchVariables,
+          requestCount: 1,
         });
 
         // Component renders immediately even though request is in flight
@@ -3566,7 +3577,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
     describe('refetching @fetchable types', () => {
       beforeEach(() => {
         // $FlowFixMe[prop-missing]
-        // $FlowFixMe[incompatible-type-arg]
+        // $FlowFixMe[incompatible-type]
         gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
           @refetchable(
@@ -3602,9 +3613,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         environment.commitPayload(query, {
           nonNodeStory: {
             __typename: 'NonNodeStory',
-            id: 'a',
-            actor: {name: 'Alice', __typename: 'User', id: '1'},
+            actor: {__typename: 'User', id: '1', name: 'Alice'},
             fetch_id: 'fetch:a',
+            id: 'a',
           },
         });
       });
@@ -3636,8 +3647,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectFragmentIsRefetching(renderer, {
-          refetchVariables,
           refetchQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -3646,9 +3657,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             data: {
               fetch__NonNodeStory: {
                 __typename: 'NonNodeStory',
-                id: 'b',
-                actor: {name: 'Mark', __typename: 'User', id: '4'},
+                actor: {__typename: 'User', id: '4', name: 'Mark'},
                 fetch_id: 'fetch:b',
+                id: 'b',
               },
             },
           });
@@ -3690,8 +3701,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectFragmentIsRefetching(renderer, {
-          refetchVariables,
           refetchQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -3700,9 +3711,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             data: {
               fetch__NonNodeStory: {
                 __typename: 'NonNodeStory',
-                id: 'a',
-                actor: {name: 'Alice (updated)', __typename: 'User', id: '1'},
+                actor: {__typename: 'User', id: '1', name: 'Alice (updated)'},
                 fetch_id: 'fetch:a',
+                id: 'a',
               },
             },
           });
@@ -3729,9 +3740,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         environment.commitPayload(query2, {
           nonNodeStory: {
             __typename: 'NonNodeStory',
-            id: 'b',
-            actor: {name: 'Zuck', __typename: 'User', id: '4'},
+            actor: {__typename: 'User', id: '4', name: 'Zuck'},
             fetch_id: 'fetch:b',
+            id: 'b',
           },
         });
 
@@ -3774,8 +3785,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectFragmentIsRefetching(renderer, {
-          refetchVariables,
           refetchQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -3784,9 +3795,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             data: {
               fetch__NonNodeStory: {
                 __typename: 'NonNodeStory',
-                id: 'b',
-                actor: {name: 'Zuck (updated)', __typename: 'User', id: '4'},
+                actor: {__typename: 'User', id: '4', name: 'Zuck (updated)'},
                 fetch_id: 'fetch:b',
+                id: 'b',
               },
             },
           });
@@ -3809,7 +3820,7 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             username
           }
         `;
-        // $FlowFixMe[incompatible-type-arg]
+        // $FlowFixMe[incompatible-type]
         gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
           @refetchable(
@@ -3853,8 +3864,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
             __typename: 'User',
             id: '1',
             name: 'Alice',
-            username: 'useralice',
             profile_picture: null,
+            username: 'useralice',
           },
         });
       });
@@ -3893,8 +3904,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectFragmentIsRefetching(renderer, {
-          refetchVariables,
           refetchQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -3965,8 +3976,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
           {force: true},
         );
         expectFragmentIsRefetching(renderer, {
-          refetchVariables,
           refetchQuery,
+          refetchVariables,
         });
 
         // Mock network response
@@ -4054,8 +4065,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         expectFragmentIsRefetching(
           renderer,
           {
-            refetchVariables,
             refetchQuery,
+            refetchVariables,
           },
           newEnvironment,
         );
@@ -4067,10 +4078,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
                 __typename: 'User',
                 id: '1',
                 name: 'Mark',
-                username: 'usermark',
                 profile_picture: {
                   uri: 'scale16',
                 },
+                username: 'usermark',
               },
             },
           });
@@ -4081,11 +4092,11 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         const dataInSource = {
           __id: '1',
           __typename: 'User',
+          id: '1',
+          name: 'Mark',
           'profile_picture(scale:16)': {
             __ref: 'client:1:profile_picture(scale:16)',
           },
-          id: '1',
-          name: 'Mark',
           username: 'usermark',
         };
         const source = newEnvironment.getStore().getSource();
@@ -4132,8 +4143,8 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         expectFragmentIsRefetching(
           renderer,
           {
-            refetchVariables,
             refetchQuery,
+            refetchVariables,
           },
           anotherNewEnvironment,
         );
@@ -4145,10 +4156,10 @@ describe('useRefetchableFragmentInternal (%s)', () => {
                 __typename: 'User',
                 id: '1',
                 name: 'Mark',
-                username: 'usermark',
                 profile_picture: {
                   uri: 'scale16',
                 },
+                username: 'usermark',
               },
             },
           });

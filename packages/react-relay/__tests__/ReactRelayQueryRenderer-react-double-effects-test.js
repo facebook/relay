@@ -60,10 +60,10 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
 
     environment = createMockEnvironment();
-    release = jest.fn<[], mixed>();
+    release = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
-    (environment: $FlowFixMe).retain = jest.fn(operation => {
+    (environment as $FlowFixMe).retain = jest.fn(operation => {
       const originalDisposable = originalRetain(operation);
       return {
         dispose() {
@@ -73,10 +73,10 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn<[], mixed>();
+    cancelNetworkRequest = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecute = environment.execute;
-    (environment: $FlowFixMe).execute = jest.fn((...args) => {
+    (environment as $FlowFixMe).execute = jest.fn((...args) => {
       const originalObservable = originalExecute(...args);
 
       return Observable.create(sink => {
@@ -147,7 +147,7 @@ describe.skip('ReactRelayQueryRenderer-react-double-effects', () => {
         <React.StrictMode>
           <QueryContainer variables={variables} />
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true, unstable_strictMode: true},
       );
     });

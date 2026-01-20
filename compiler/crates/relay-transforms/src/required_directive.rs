@@ -16,6 +16,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::FeatureFlags;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -40,8 +41,10 @@ use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use requireable_field::RequireableField;
 use requireable_field::RequiredMetadata;
+use schema::Schema;
 
 use self::validation_message::RequiredDirectiveValidationMessage;
+use self::validation_message::RequiredDirectiveValidationMessageWithData;
 use crate::DirectiveFinder;
 use crate::FragmentAliasMetadata;
 
@@ -53,7 +56,11 @@ lazy_static! {
     pub static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
     static ref NONE_ACTION: StringKey = "NONE".intern();
+    static ref DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD_ACTION: StringKey =
+        "DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD".intern();
     static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
+    static ref SEMANTIC_NON_NULL_DIRECTIVE: DirectiveName =
+        DirectiveName("semanticNonNull".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -63,8 +70,11 @@ pub struct RequiredMetadataDirective {
 }
 associated_data_impl!(RequiredMetadataDirective);
 
-pub fn required_directive(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = RequiredDirective::new(program);
+pub fn required_directive(
+    program: &Program,
+    feature_flags: &FeatureFlags,
+) -> DiagnosticsResult<Program> {
+    let mut transform = RequiredDirective::new(program, feature_flags);
 
     let next_program = transform
         .transform_program(program)
@@ -90,6 +100,7 @@ struct RequiredField {
 
 struct RequiredDirective<'s> {
     program: &'s Program,
+    feature_flags: &'s FeatureFlags,
     errors: Vec<Diagnostic>,
     path: Vec<&'s str>,
     within_abstract_inline_fragment: bool,
@@ -98,12 +109,14 @@ struct RequiredDirective<'s> {
     current_node_required_children: StringKeyMap<RequiredField>,
     required_children_map: StringKeyMap<StringKeyMap<RequiredField>>,
     required_directive_visitor: RequiredDirectiveVisitor<'s>,
+    current_document_name: Option<StringKey>,
 }
 
 impl<'program> RequiredDirective<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, feature_flags: &'program FeatureFlags) -> Self {
         Self {
             program,
+            feature_flags,
             errors: Default::default(),
             path: vec![],
             within_abstract_inline_fragment: false,
@@ -115,14 +128,16 @@ impl<'program> RequiredDirective<'program> {
                 program,
                 visited_fragments: Default::default(),
             },
+            current_document_name: None,
         }
     }
 
-    fn reset_state(&mut self) {
+    fn reset_state(&mut self, document_name: StringKey) {
         self.path_required_map = Default::default();
         self.current_node_required_children = Default::default();
         self.parent_inline_fragment_directive = None;
         self.required_children_map = Default::default();
+        self.current_document_name = Some(document_name);
     }
 
     fn assert_not_within_abstract_inline_fragment(&mut self, directive_location: Location) {
@@ -151,7 +166,9 @@ impl<'program> RequiredDirective<'program> {
         if let Some(previous) = self.path_required_map.get(&path) {
             if let Some(previous_metadata) = &previous.required {
                 if let Some(current_metadata) = current.required {
-                    if previous_metadata.action != current_metadata.action {
+                    if previous_metadata.action.to_metadata_action()
+                        != current_metadata.action.to_metadata_action()
+                    {
                         self.errors.push(
                             Diagnostic::error(
                                 RequiredDirectiveValidationMessage::ActionMismatch {
@@ -210,6 +227,11 @@ impl<'program> RequiredDirective<'program> {
         if let Some(metadata) = maybe_required {
             self.assert_not_within_abstract_inline_fragment(metadata.directive_location);
             self.assert_not_within_inline_directive(metadata.directive_location);
+            self.validate_semantic_non_null_for_field(
+                self.program.schema.field(field.field_id()),
+                metadata,
+            );
+
             self.current_node_required_children.insert(
                 path_name,
                 RequiredField {
@@ -235,7 +257,9 @@ impl<'program> RequiredDirective<'program> {
     ) {
         let parent_action = required_metadata.action;
         for required_child in self.current_node_required_children.values() {
-            if required_child.required.action < parent_action {
+            if required_child.required.action.to_metadata_action()
+                < parent_action.to_metadata_action()
+            {
                 self.errors.push(
                     Diagnostic::error(
                         RequiredDirectiveValidationMessage::FieldInvalidNesting {
@@ -251,6 +275,34 @@ impl<'program> RequiredDirective<'program> {
             }
         }
     }
+    fn validate_semantic_non_null_for_field(
+        &mut self,
+        field: &schema::definitions::Field,
+        metadata: RequiredMetadata,
+    ) {
+        let enforce_no_throw_on_nullable = self
+            .feature_flags
+            .disallow_required_action_throw_on_semantically_nullable_fields
+            .is_enabled_for(
+                self.current_document_name
+                    .expect("Expect to have a document while transforming linked field"),
+            );
+
+        if field.semantic_type().is_non_null() {
+            if metadata.action == RequiredAction::DangerouslyThrowOnSemanticallyNullableField {
+                self.errors.push(Diagnostic::error_with_data(
+                    RequiredDirectiveValidationMessageWithData::DangerousThrowActionOnNonNullableFieldWithFix,
+                    metadata.action_location,
+                ));
+            }
+        } else if metadata.action == RequiredAction::Throw && enforce_no_throw_on_nullable {
+            self.errors.push(Diagnostic::error_with_data(
+                    RequiredDirectiveValidationMessageWithData::ThrowActionOnSemanticNullableFieldWithFix,
+                    metadata.action_location,
+                ));
+        }
+    }
+
     fn assert_compatible_required_children<T: RequireableField>(
         &mut self,
         field: &T,
@@ -331,7 +383,7 @@ impl Transformer<'_> for RequiredDirective<'_> {
         if !self.required_directive_visitor.visit_fragment(fragment) {
             return Transformed::Keep;
         }
-        self.reset_state();
+        self.reset_state(fragment.name.item.into());
         self.parent_inline_fragment_directive = fragment
             .directives
             .named(*INLINE_DIRECTIVE_NAME)
@@ -362,7 +414,7 @@ impl Transformer<'_> for RequiredDirective<'_> {
         {
             return Transformed::Keep;
         }
-        self.reset_state();
+        self.reset_state(operation.name.item.into());
         let selections = self.transform_selections(&operation.selections);
         let directives = maybe_add_children_can_bubble_metadata_directive(
             &operation.directives,
@@ -391,7 +443,7 @@ impl Transformer<'_> for RequiredDirective<'_> {
                     directives: add_metadata_directive(
                         &field.directives,
                         path_name,
-                        required_metadata.action,
+                        required_metadata.action.to_metadata_action(),
                     ),
                     ..field.clone()
                 })))
@@ -405,11 +457,12 @@ impl Transformer<'_> for RequiredDirective<'_> {
         let path_name = self.path.join(".").intern();
 
         let maybe_required_metadata = self.get_required_metadata(field, path_name);
+
         let next_directives = match maybe_required_metadata {
             Some(required_metadata) => Cow::from(add_metadata_directive(
                 &field.directives,
                 path_name,
-                required_metadata.action,
+                required_metadata.action.to_metadata_action(),
             )),
             None => Cow::from(&field.directives),
         };
@@ -502,10 +555,10 @@ impl Transformer<'_> for RequiredDirective<'_> {
                 })))
             }
         } else {
-            if let Some(type_) = fragment.type_condition {
-                if type_.is_abstract_type() {
-                    self.within_abstract_inline_fragment = true;
-                }
+            if let Some(type_) = fragment.type_condition
+                && type_.is_abstract_type()
+            {
+                self.within_abstract_inline_fragment = true;
             }
             self.default_transform_inline_fragment(fragment)
         };
@@ -538,7 +591,7 @@ fn maybe_add_children_can_bubble_metadata_directive(
 ) -> TransformedValue<Vec<Directive>> {
     let children_can_bubble = current_node_required_children
         .values()
-        .any(|child| child.required.action != RequiredAction::Throw);
+        .any(|child| !child.required.action.is_throw_action());
 
     if !children_can_bubble {
         return TransformedValue::Keep;
@@ -563,6 +616,27 @@ pub enum RequiredAction {
     None,
     Log,
     Throw,
+    DangerouslyThrowOnSemanticallyNullableField,
+}
+
+impl RequiredAction {
+    /// Returns true if this action should be treated as a throw action
+    /// (i.e., THROW or DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+    pub fn is_throw_action(&self) -> bool {
+        matches!(
+            self,
+            RequiredAction::Throw | RequiredAction::DangerouslyThrowOnSemanticallyNullableField
+        )
+    }
+
+    /// Returns the action that should be used for metadata generation.
+    /// DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD maps to THROW.
+    pub fn to_metadata_action(&self) -> RequiredAction {
+        match self {
+            RequiredAction::DangerouslyThrowOnSemanticallyNullableField => RequiredAction::Throw,
+            _ => *self,
+        }
+    }
 }
 
 impl From<RequiredAction> for StringKey {
@@ -571,6 +645,9 @@ impl From<RequiredAction> for StringKey {
             RequiredAction::None => *NONE_ACTION,
             RequiredAction::Log => *LOG_ACTION,
             RequiredAction::Throw => *THROW_ACTION,
+            RequiredAction::DangerouslyThrowOnSemanticallyNullableField => {
+                *DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD_ACTION
+            }
         }
     }
 }
@@ -581,6 +658,9 @@ impl From<StringKey> for RequiredAction {
             _ if action == *THROW_ACTION => Self::Throw,
             _ if action == *LOG_ACTION => Self::Log,
             _ if action == *NONE_ACTION => Self::None,
+            _ if action == *DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD_ACTION => {
+                Self::DangerouslyThrowOnSemanticallyNullableField
+            }
             // Actions that don't conform to the GraphQL schema should have been filtered out in IR validation.
             _ => unreachable!(),
         }

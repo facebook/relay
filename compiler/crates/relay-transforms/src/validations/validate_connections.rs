@@ -423,7 +423,7 @@ impl<'s> ConnectionValidation<'s> {
                         Some(alias) => alias.item,
                         None => connection_schema_field.name.item,
                     };
-                    let postfix = format!("_{}", field_alias_or_name);
+                    let postfix = format!("_{field_alias_or_name}");
                     if !string_val.lookup().ends_with(postfix.as_str()) {
                         return Err(vec![
                             Diagnostic::error(
@@ -584,15 +584,15 @@ impl<'s> ConnectionValidation<'s> {
                 }
                 _ => None,
             });
-        if let Some(page_info_selection) = page_info_selection {
-            if page_info_selection.alias.is_some() {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnsupportedAliasingInStreamConnection {
-                        field_name: self.connection_interface.page_info,
-                    },
-                    page_info_selection.definition.location,
-                )]);
-            }
+        if let Some(page_info_selection) = page_info_selection
+            && page_info_selection.alias.is_some()
+        {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::UnsupportedAliasingInStreamConnection {
+                    field_name: self.connection_interface.page_info,
+                },
+                page_info_selection.definition.location,
+            )]);
         }
 
         Ok(())

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6e1039059f1c88ea8e6e5c3c64cbec32>>
+ * @generated SignedSource<<5e523c89d6fcc03cb512e078ded86282>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import type { RelayModernSelectorTestUsersFragment$fragmentType } from "./RelayM
 export type RelayModernSelectorTestUserQuery$variables = {|
   cond: boolean,
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayModernSelectorTestUserQuery$data = {|
   +node: ?{|

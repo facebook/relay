@@ -271,31 +271,19 @@ impl Schema for InMemorySchema {
 
         format!(
             r#"Schema {{
-  query_type: {:#?}
-  mutation_type: {:#?}
-  subscription_type: {:#?}
-  directives: {:#?}
-  type_map: {:#?}
-  enums: {:#?}
-  fields: {:#?}
-  input_objects: {:#?}
-  interfaces: {:#?}
-  objects: {:#?}
-  scalars: {:#?}
-  unions: {:#?}
+  query_type: {query_type:#?}
+  mutation_type: {mutation_type:#?}
+  subscription_type: {subscription_type:#?}
+  directives: {ordered_directives:#?}
+  type_map: {ordered_type_map:#?}
+  enums: {enums:#?}
+  fields: {fields:#?}
+  input_objects: {input_objects:#?}
+  interfaces: {interfaces:#?}
+  objects: {objects:#?}
+  scalars: {scalars:#?}
+  unions: {unions:#?}
   }}"#,
-            query_type,
-            mutation_type,
-            subscription_type,
-            ordered_directives,
-            ordered_type_map,
-            enums,
-            fields,
-            input_objects,
-            interfaces,
-            objects,
-            scalars,
-            unions,
         )
     }
 
@@ -835,9 +823,7 @@ impl InMemorySchema {
                 TypeSystemDefinition::SchemaExtension { .. } => {
                     todo!("SchemaExtension not implemented: {}", definition)
                 }
-                TypeSystemDefinition::UnionTypeExtension { .. } => {
-                    todo!("UnionTypeExtension not implemented: {}", definition)
-                }
+                TypeSystemDefinition::UnionTypeExtension { .. } => {}
                 TypeSystemDefinition::InputObjectTypeExtension { .. } => {
                     todo!("InputObjectTypeExtension not implemented: {}", definition)
                 }
@@ -912,7 +898,7 @@ impl InMemorySchema {
                     let name = schema.get_type_name(type_);
                     let previous_location = schema.get_type_location(type_);
                     Diagnostic::error(SchemaError::DuplicateType(name), location).annotate(
-                        format!("`{}` was previously defined here:", name),
+                        format!("`{name}` was previously defined here:"),
                         previous_location,
                     )
                 })
@@ -989,20 +975,20 @@ impl InMemorySchema {
     // This is not standard GraphQL behavior, and we might want to remove
     // this at some point.
     fn load_default_root_types(&mut self) {
-        if self.query_type.is_none() {
-            if let Some(Type::Object(id)) = self.type_map.get(&"Query".intern()) {
-                self.query_type = Some(*id);
-            }
+        if self.query_type.is_none()
+            && let Some(Type::Object(id)) = self.type_map.get(&"Query".intern())
+        {
+            self.query_type = Some(*id);
         }
-        if self.mutation_type.is_none() {
-            if let Some(Type::Object(id)) = self.type_map.get(&"Mutation".intern()) {
-                self.mutation_type = Some(*id);
-            }
+        if self.mutation_type.is_none()
+            && let Some(Type::Object(id)) = self.type_map.get(&"Mutation".intern())
+        {
+            self.mutation_type = Some(*id);
         }
-        if self.subscription_type.is_none() {
-            if let Some(Type::Object(id)) = self.type_map.get(&"Subscription".intern()) {
-                self.subscription_type = Some(*id);
-            }
+        if self.subscription_type.is_none()
+            && let Some(Type::Object(id)) = self.type_map.get(&"Subscription".intern())
+        {
+            self.subscription_type = Some(*id);
         }
     }
 
@@ -1433,6 +1419,7 @@ impl InMemorySchema {
                         .map(|enum_def| EnumValue {
                             value: enum_def.name.value,
                             directives: self.build_directive_values(&enum_def.directives),
+                            description: enum_def.description.as_ref().map(|d| d.value),
                         })
                         .collect()
                 } else {
@@ -1503,6 +1490,14 @@ impl InMemorySchema {
                         .iter()
                         .map(|name| self.build_interface_id(name, location_key))
                         .collect::<DiagnosticsResult<Vec<_>>>()?;
+
+                    for interface_id in &built_interfaces {
+                        extend_without_duplicates(
+                            &mut self.interfaces[interface_id.as_usize()].implementing_objects,
+                            vec![id],
+                        );
+                    }
+
                     extend_without_duplicates(
                         &mut self.objects[index].interfaces,
                         built_interfaces,
@@ -1597,6 +1592,7 @@ impl InMemorySchema {
                                 .map(|enum_def| EnumValue {
                                     value: enum_def.name.value,
                                     directives: self.build_directive_values(&enum_def.directives),
+                                    description: enum_def.description.as_ref().map(|d| d.value),
                                 })
                                 .collect::<Vec<_>>();
                             extend_without_duplicates(
@@ -1620,7 +1616,36 @@ impl InMemorySchema {
             }
             TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
 
-            TypeSystemDefinition::UnionTypeExtension { .. } => todo!("UnionTypeExtension"),
+            TypeSystemDefinition::UnionTypeExtension(UnionTypeExtension {
+                name,
+                directives,
+                members,
+                ..
+            }) => match self.type_map.get(&name.value).cloned() {
+                Some(Type::Union(id)) => {
+                    let index = id.as_usize();
+                    self.unions.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::new(*location_key, name.span),
+                        )]
+                    })?;
+                    let client_members = members
+                        .iter()
+                        .map(|name| self.build_object_id(name.value))
+                        .collect::<DiagnosticsResult<Vec<_>>>()?;
+                    extend_without_duplicates(&mut self.unions[index].members, client_members);
+
+                    let built_directives = self.build_directive_values(directives);
+                    extend_without_duplicates(&mut self.unions[index].directives, built_directives);
+                }
+                _ => {
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(*location_key, name.span),
+                    )]);
+                }
+            },
             TypeSystemDefinition::InputObjectTypeExtension { .. } => {
                 todo!("InputObjectTypeExtension")
             }
@@ -1955,6 +1980,7 @@ mod tests {
                     interfaces: vec![identifier_from_value("ITunes".intern())],
                     directives: vec![],
                     fields: None,
+                    description: None,
                     span: Span::empty(),
                 },
                 SourceLocationKey::Generated,
@@ -1963,6 +1989,67 @@ mod tests {
 
         let interface = schema.interface(InterfaceID(0));
 
+        assert!(
+            interface.implementing_objects.len() == 1,
+            "ITunes should have an implementing object"
+        );
+    }
+
+    #[test]
+    fn test_adding_object_extension() {
+        let mut schema = InMemorySchema::create_uninitialized();
+
+        schema
+            .add_interface(Interface {
+                name: WithLocation::generated(InterfaceName("ITunes".intern())),
+                is_extension: false,
+                implementing_interfaces: vec![],
+                implementing_objects: vec![],
+                fields: vec![],
+                directives: vec![],
+                interfaces: vec![],
+                description: None,
+                hack_source: None,
+            })
+            .unwrap();
+
+        schema
+            .add_extension_object(
+                ObjectTypeDefinition {
+                    name: identifier_from_value("EarlyModel".intern()),
+                    interfaces: vec![],
+                    directives: vec![],
+                    fields: None,
+                    description: None,
+                    span: Span::empty(),
+                },
+                SourceLocationKey::Generated,
+            )
+            .unwrap();
+
+        {
+            let interface = schema.interface(InterfaceID(0));
+
+            assert!(
+                &interface.implementing_objects.is_empty(),
+                "ITunes should not yet have an implementing object"
+            );
+        }
+
+        schema
+            .add_object_type_extension(
+                ObjectTypeExtension {
+                    name: identifier_from_value("EarlyModel".intern()),
+                    interfaces: vec![identifier_from_value("ITunes".intern())],
+                    directives: vec![],
+                    fields: None,
+                    span: Span::empty(),
+                },
+                SourceLocationKey::Generated,
+            )
+            .unwrap();
+
+        let interface = schema.interface(InterfaceID(0));
         assert!(
             interface.implementing_objects.len() == 1,
             "ITunes should have an implementing object"

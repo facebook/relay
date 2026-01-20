@@ -58,7 +58,7 @@ function weak_animal(args: {
  * @RelayResolver Query.weak_animals(requests: [WeakAnimalRequest!]!): [IWeakAnimal]
  */
 function weak_animals(args: {
-  requests: $ReadOnlyArray<{ofType: string}>,
+  requests: ReadonlyArray<{ofType: string}>,
 }): Array<Query__weak_animal$normalization> {
   return args.requests.map(request => {
     return weak_animal({request});

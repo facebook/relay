@@ -68,7 +68,7 @@ function check(
   getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
   defaultActorIdentifier: ActorIdentifier,
   selector: NormalizationSelector,
-  handlers: $ReadOnlyArray<MissingFieldHandler>,
+  handlers: ReadonlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
   shouldProcessClientComponents: ?boolean,
@@ -108,7 +108,7 @@ function check(
  * @private
  */
 class DataChecker {
-  _handlers: $ReadOnlyArray<MissingFieldHandler>;
+  _handlers: ReadonlyArray<MissingFieldHandler>;
   _mostRecentlyInvalidatedAt: number | null;
   _mutator: RelayRecordSourceMutator;
   _operationLoader: OperationLoader | null;
@@ -136,7 +136,7 @@ class DataChecker {
     ) => MutableRecordSource,
     defaultActorIdentifier: ActorIdentifier,
     variables: Variables,
-    handlers: $ReadOnlyArray<MissingFieldHandler>,
+    handlers: ReadonlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
@@ -193,16 +193,16 @@ class DataChecker {
 
     return this._recordWasMissing === true
       ? {
-          status: 'missing',
           mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+          status: 'missing',
         }
       : {
-          status: 'available',
           mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+          status: 'available',
         };
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayAsyncLoader(): Undefined variable `%s`.',
@@ -218,7 +218,7 @@ class DataChecker {
   _handleMissingScalarField(
     field: NormalizationScalarField,
     dataID: DataID,
-  ): mixed {
+  ): unknown {
     if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
       return undefined;
     }
@@ -238,6 +238,15 @@ class DataChecker {
           return newValue;
         }
       }
+    }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'scalar',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
     }
     this._handleMissing();
   }
@@ -265,6 +274,15 @@ class DataChecker {
           return newValue;
         }
       }
+    }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'linked',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
     }
     this._handleMissing();
   }
@@ -299,12 +317,28 @@ class DataChecker {
         }
       }
     }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'pluralLinked',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
+    }
     this._handleMissing();
   }
 
   _traverse(node: NormalizationNode, dataID: DataID): void {
     const status = this._mutator.getStatus(dataID);
     if (status === UNKNOWN) {
+      if (this._log != null) {
+        this._log({
+          name: 'store.datachecker.missing',
+          kind: 'unknown_record',
+          dataID,
+        });
+      }
       this._handleMissing();
     }
 
@@ -323,7 +357,7 @@ class DataChecker {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     dataID: DataID,
   ): void {
     selections.forEach(selection => {
@@ -470,7 +504,7 @@ class DataChecker {
           }
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',

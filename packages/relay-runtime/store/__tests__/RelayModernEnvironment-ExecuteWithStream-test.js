@@ -99,16 +99,16 @@ describe('execute() a query with @stream', () => {
       },
     };
 
-    function getDataID(data: {[string]: mixed}, typename: string) {
+    function getDataID(data: {+[string]: unknown}, typename: string) {
       if (typename === 'MessagingParticipant') {
         return `${typename}:${String(data.id)}`;
       }
       return data.id;
     }
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,

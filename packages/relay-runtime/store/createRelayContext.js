@@ -19,7 +19,7 @@ const invariant = require('invariant');
 
 // Ideally, we'd just import the type of the react module, but this causes Flow
 // problems.
-type React = $ReadOnly<{
+type React = Readonly<{
   createContext: createContext<RelayContext | null>,
   version: string,
   ...

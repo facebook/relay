@@ -30,11 +30,9 @@ describe('commitMultiActorUpdate', () => {
       multiActorEnvironment.forActor(getActorIdentifier('actor3')),
     ];
 
-    const updater = jest.fn(
-      ((actorID, env, store) => {
-        store.create('foo123', 'Test').setValue(42, 'test');
-      }: MultiActorStoreUpdater),
-    );
+    const updater = jest.fn(((actorID, env, store) => {
+      store.create('foo123', 'Test').setValue(42, 'test');
+    }) as MultiActorStoreUpdater);
 
     multiActorEnvironment.commitMultiActorUpdate(updater);
     const environmentsCalled = updater.mock.calls.map(([, env]) => env);
@@ -51,8 +49,14 @@ describe('commitMultiActorUpdate', () => {
       expect(RelayModernRecord.getValue(testRecord, 'test')).toBe(42);
     });
 
+    /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+     * Array.{includes,indexOf,lastIndexOf} */
     expect(actorsCalled.includes('actor1')).toBe(true);
+    /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+     * Array.{includes,indexOf,lastIndexOf} */
     expect(actorsCalled.includes('actor2')).toBe(true);
+    /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+     * Array.{includes,indexOf,lastIndexOf} */
     expect(actorsCalled.includes('actor3')).toBe(true);
   });
 });

@@ -64,8 +64,7 @@ impl Transformer<'_> for HashSupportedArgumentTransform<'_> {
             Transformed::Replace(Selection::LinkedField(linked_field)) => linked_field,
             Transformed::Delete | Transformed::Replace(_) => {
                 panic!(
-                    "unexpected transformed_field in HashSupportedArgumentTransform: {:?}",
-                    transformed_field
+                    "unexpected transformed_field in HashSupportedArgumentTransform: {transformed_field:?}"
                 )
             }
         };
@@ -128,10 +127,10 @@ impl HashSupportedArgumentTransform<'_> {
             .named(MATCH_CONSTANTS.supported_arg)
             .expect("field has supported arg, but missing from the schema");
 
-        if let TypeReference::List(item_type) = supported_arg_def.type_.nullable_type() {
-            if let TypeReference::Named(item_type_name) = item_type.nullable_type() {
-                return self.schema.is_string(*item_type_name);
-            }
+        if let TypeReference::List(item_type) = supported_arg_def.type_.nullable_type()
+            && let TypeReference::Named(item_type_name) = item_type.nullable_type()
+        {
+            return self.schema.is_string(*item_type_name);
         }
         false
     }

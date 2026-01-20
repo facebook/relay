@@ -14,6 +14,7 @@ use common::PerfLogger;
 use common::sync::try_join;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
+use raw_text::set_raw_text;
 use relay_config::ProjectConfig;
 use validate_operation_variables::ValidateVariablesOptions;
 
@@ -152,8 +153,11 @@ fn apply_common_transforms(
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_config.name.to_string());
 
+    // raw_text stores the operation text before transforms and should be executed first
+    let mut program = log_event.time("raw_text", || set_raw_text(&program))?;
+
     let custom_transforms = &custom_transforms_config.and_then(|c| c.common_transforms.as_ref());
-    let mut program = apply_before_custom_transforms(
+    program = apply_before_custom_transforms(
         &program,
         custom_transforms,
         project_config,
@@ -273,12 +277,14 @@ fn apply_reader_transforms(
         None,
     )?;
 
-    program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
+    })?;
 
     program = log_event.time("catch_directive", || catch_directive(&program))?;
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, false)
     })?;
 
     program = log_event.time("relay_resolvers", || {
@@ -365,7 +371,7 @@ fn apply_operation_transforms(
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, true)
     })?;
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(project_config.name, &program)
@@ -698,7 +704,9 @@ fn apply_typegen_transforms(
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
     })?;
-    program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
+    })?;
     program = log_event.time("catch_directive", || catch_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
         generate_relay_resolvers_model_fragments(
@@ -732,7 +740,7 @@ fn apply_typegen_transforms(
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, false)
     })?;
 
     program = log_event.time("relay_resolvers", || {

@@ -180,7 +180,7 @@ describe('RelayOperationTracker', () => {
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
-      const callback = jest.fn<[void], mixed>();
+      const callback = jest.fn<[void], unknown>();
       // $FlowFixMe[unused-promise]
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
@@ -197,7 +197,7 @@ describe('RelayOperationTracker', () => {
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
-      const callback = jest.fn<[void], mixed>();
+      const callback = jest.fn<[void], unknown>();
       // $FlowFixMe[unused-promise]
       result.promise.then(callback);
       expect(callback).not.toBeCalled();
@@ -228,7 +228,7 @@ describe('RelayOperationTracker', () => {
       const result =
         tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
-      const callback = jest.fn<[void], mixed>();
+      const callback = jest.fn<[void], unknown>();
       // $FlowFixMe[unused-promise]
       result.promise.then(callback);
       expect(callback).not.toBeCalled();

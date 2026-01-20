@@ -1,10 +1,10 @@
 ==================================== INPUT ====================================
 fragment fragmentOnViewer_RefetchableFragment on Viewer
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   actor {
     global_id
     name
-    ...fragmentOnViewer_ProfilePicture
+    ...fragmentOnViewer_ProfilePicture @alias
   }
 }
 
@@ -253,8 +253,19 @@ fragment fragmentOnViewer_RefetchableFragment on Viewer {
           "storageKey": null
         },
         {
-          "args": null,
-          "kind": "FragmentSpread",
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "fragmentOnViewer_ProfilePicture"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
           "name": "fragmentOnViewer_ProfilePicture"
         }
       ],

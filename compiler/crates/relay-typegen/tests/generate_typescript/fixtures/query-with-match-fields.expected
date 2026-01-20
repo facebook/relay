@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query Test @raw_response_type {
   node(id: "1") {
-    ...NameRendererFragment
+    ...NameRendererFragment @alias
   }
 }
 
@@ -32,7 +32,9 @@ import { FragmentRefs, Local3DPayload } from "relay-runtime";
 export type Test$variables = Record<PropertyKey, never>;
 export type Test$data = {
   readonly node: {
-    readonly " $fragmentSpreads": FragmentRefs<"NameRendererFragment">;
+    readonly NameRendererFragment: {
+      readonly " $fragmentSpreads": FragmentRefs<"NameRendererFragment">;
+    } | null | undefined;
   } | null | undefined;
 };
 export type PlainUserNameRenderer_name = {

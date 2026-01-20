@@ -31,7 +31,7 @@ function readUpdatableFragment<TFragmentType: FragmentType, TData>(
   fragment: UpdatableFragment<TFragmentType, TData>,
   fragmentReference: HasUpdatableSpread<TFragmentType>,
   proxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): UpdatableData<TData> {
   const updatableFragment = getFragment(fragment);
   const fragmentVariables = getVariablesFromFragment(
@@ -48,7 +48,7 @@ function readUpdatableFragment<TFragmentType: FragmentType, TData>(
   );
 
   return {
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     updatableData: createUpdatableProxy<TData>(
       fragmentRoot,
       fragmentVariables,

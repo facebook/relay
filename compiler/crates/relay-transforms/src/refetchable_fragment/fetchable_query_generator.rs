@@ -154,10 +154,10 @@ fn get_fetchable_field_name(
 
     if let Some(fetchable) = fetchable_directive {
         let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
-        if let Some(field_name_arg) = field_name_arg {
-            if let Some(value) = field_name_arg.value.get_string_literal() {
-                return Ok(Some(value));
-            }
+        if let Some(field_name_arg) = field_name_arg
+            && let Some(value) = field_name_arg.value.get_string_literal()
+        {
+            return Ok(Some(value));
         }
         return Err(vec![Diagnostic::error(
             ValidationMessage::InvalidRefetchDirectiveDefinition {
@@ -201,14 +201,15 @@ fn get_fetch_field_id_and_id_arg<'s>(
     let fetch_field_id = schema.named_field(query_type, fetch_field_name);
     if let Some(fetch_field_id) = fetch_field_id {
         let fetch_field = schema.field(fetch_field_id);
-        if let Some(inner_type) = fetch_field.type_.non_list_type() {
-            if inner_type == fragment.type_condition {
-                let mut arg_iter = fetch_field.arguments.iter();
-                if let Some(id_arg) = arg_iter.next() {
-                    if !id_arg.type_.is_list() && schema.is_id(id_arg.type_.inner()) {
-                        return Ok((fetch_field_id, id_arg));
-                    }
-                }
+        if let Some(inner_type) = fetch_field.type_.non_list_type()
+            && inner_type == fragment.type_condition
+        {
+            let mut arg_iter = fetch_field.arguments.iter();
+            if let Some(id_arg) = arg_iter.next()
+                && !id_arg.type_.is_list()
+                && schema.is_id(id_arg.type_.inner())
+            {
+                return Ok((fetch_field_id, id_arg));
             }
         }
     }
@@ -243,15 +244,15 @@ fn enforce_selections_with_id_field(
             directives: vec![],
         })));
     }
-    if let Some(fetch_token_field_id) = fetch_token_field_id {
-        if !has_field(&next_selections, fetch_token_field_id) {
-            next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
-                alias: None,
-                definition: WithLocation::new(fragment.name.location, fetch_token_field_id),
-                arguments: vec![],
-                directives: vec![],
-            })));
-        }
+    if let Some(fetch_token_field_id) = fetch_token_field_id
+        && !has_field(&next_selections, fetch_token_field_id)
+    {
+        next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
+            alias: None,
+            definition: WithLocation::new(fragment.name.location, fetch_token_field_id),
+            arguments: vec![],
+            directives: vec![],
+        })));
     };
     next_selections
 }

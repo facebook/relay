@@ -1,0 +1,6 @@
+==================================== INPUT ====================================
+{
+  "type_name": "PersonalityTraits"
+}
+==================================== OUTPUT ===================================
+enum PersonalityTraits { CHEERFUL, DERISIVE, HELPFUL, SNARKY }

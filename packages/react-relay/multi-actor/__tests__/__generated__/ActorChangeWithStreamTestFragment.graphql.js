@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3c3174fbf13be1dabf2a7d5ce86282fb>>
+ * @generated SignedSource<<84e8f72d0c0972d9649efeee083cc9e5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type ActorChangeWithStreamTestFragment$fragmentType: FragmentType;
 export type ActorChangeWithStreamTestFragment$data = {|
   +feedback: ?{|
-    +actors: ?$ReadOnlyArray<?{|
+    +actors: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
     +id: string,

@@ -382,7 +382,7 @@ impl<'b> JSONPrinter<'b> {
                 )
                 .unwrap();
             }
-            write!(&mut with_variables, "return {};\n}})()", result).unwrap();
+            write!(&mut with_variables, "return {result};\n}})()").unwrap();
             with_variables
         }
     }
@@ -443,7 +443,7 @@ impl<'b> JSONPrinter<'b> {
                 self.variable_definitions.insert(key, variable);
                 v
             };
-            return write!(f, "(v{}/*: any*/)", v).unwrap();
+            return write!(f, "(v{v}/*: any*/)").unwrap();
         }
 
         let ast = self.builder.lookup(key);
@@ -461,7 +461,7 @@ impl<'b> JSONPrinter<'b> {
                         }
                         f.push('\n');
                         print_indentation(f, next_indent);
-                        write!(f, "\"{}\": ", key).unwrap();
+                        write!(f, "\"{key}\": ").unwrap();
                         self.print_primitive(f, value, next_indent, is_dedupe_var)
                             .unwrap();
                         f.push(',');
@@ -521,10 +521,10 @@ impl<'b> JSONPrinter<'b> {
                 f.push('\"');
                 Ok(())
             }
-            Primitive::String(key) => write!(f, "\"{}\"", key),
+            Primitive::String(key) => write!(f, "\"{key}\""),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
-            Primitive::Int(value) => write!(f, "{}", value),
-            Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
+            Primitive::Int(value) => write!(f, "{value}"),
+            Primitive::Variable(variable_name) => write!(f, "{variable_name}"),
             Primitive::Key(key) => {
                 self.print_ast(f, *key, indent, is_dedupe_var);
                 Ok(())
@@ -552,7 +552,7 @@ impl<'b> JSONPrinter<'b> {
                 // There are likely others.
                 self.write_js_dependency(
                     f,
-                    ModuleImportName::Default(format!("{}_graphql", variable_name).intern()),
+                    ModuleImportName::Default(format!("{variable_name}_graphql").intern()),
                     Cow::Owned(format!(
                         "{}.graphql",
                         self.get_module_path(*key, ModuleOrigin::Artifact)
@@ -580,7 +580,7 @@ impl<'b> JSONPrinter<'b> {
                             import_name: ModuleImportName::Default("JSResource".intern()),
                         }),
                     );
-                    write!(f, "() => JSResource('m#{}')", module)
+                    write!(f, "() => JSResource('m#{module}')")
                 }
                 ModuleProvider::Custom { statement } => {
                     f.push_str(&statement.lookup().replace(
@@ -618,8 +618,7 @@ impl<'b> JSONPrinter<'b> {
             ModuleImportName::Named { name, .. } => {
                 write!(
                     f,
-                    "{{ resolverFunctionName: \"{}\", fieldType: \"{}\" }}",
-                    name, field_type
+                    "{{ resolverFunctionName: \"{name}\", fieldType: \"{field_type}\" }}"
                 )
             }
         }
@@ -648,14 +647,14 @@ impl<'b> JSONPrinter<'b> {
                     import_name: module_import_name,
                 }),
             );
-            write!(f, "{}", key)
+            write!(f, "{key}")
         } else {
             match module_import_name {
                 ModuleImportName::Default(_) => {
-                    write!(f, "require('{}')", path)
+                    write!(f, "require('{path}')")
                 }
                 ModuleImportName::Named { name, .. } => {
-                    write!(f, "require('{}').{}", path, name)
+                    write!(f, "require('{path}').{name}")
                 }
             }
         }
@@ -683,7 +682,7 @@ impl<'b> JSONPrinter<'b> {
         write!(f, "(")?;
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(format!("{}_graphql", graphql_module_name).intern()),
+            ModuleImportName::Default(format!("{graphql_module_name}_graphql").intern()),
             Cow::Owned(format!(
                 "{}.graphql",
                 self.get_module_path(graphql_module_path, ModuleOrigin::Artifact)
@@ -697,12 +696,12 @@ impl<'b> JSONPrinter<'b> {
                 self.get_module_path(js_module.path, ModuleOrigin::SourceFile),
             )?,
             ResolverJSFunction::PropertyLookup(property) => {
-                write_arrow_fn(f, &["o"], &format!("o.{}", property))?
+                write_arrow_fn(f, &["o"], &format!("o.{property}"))?
             }
         }
         if let Some((field_name, is_required_field)) = injected_field_name_details {
-            write!(f, ", '{}'", field_name)?;
-            write!(f, ", {}", is_required_field)?;
+            write!(f, ", '{field_name}'")?;
+            write!(f, ", {is_required_field}")?;
         }
         write!(f, ")")
     }
@@ -720,20 +719,20 @@ impl<'b> JSONPrinter<'b> {
                 let should_relativize = matches!(origin, ModuleOrigin::Artifact)
                     || (self.relativize_js_module_paths && !has_path_prefix);
 
-                if let Some(extension) = extension {
-                    if extension == "ts" || extension == "tsx" || extension == "js" {
-                        let path_without_extension = path.with_extension("");
+                if let Some(extension) = extension
+                    && (extension == "ts" || extension == "tsx" || extension == "js")
+                {
+                    let path_without_extension = path.with_extension("");
 
-                        let path_without_extension = path_without_extension
-                            .to_str()
-                            .expect("could not convert `path_without_extension` to a str");
+                    let path_without_extension = path_without_extension
+                        .to_str()
+                        .expect("could not convert `path_without_extension` to a str");
 
-                        return Cow::Owned(if should_relativize {
-                            format!("./{}", path_without_extension)
-                        } else {
-                            path_without_extension.to_string()
-                        });
-                    }
+                    return Cow::Owned(if should_relativize {
+                        format!("./{path_without_extension}")
+                    } else {
+                        path_without_extension.to_string()
+                    });
                 }
                 Cow::Owned(if should_relativize {
                     format!("./{}", key.borrow())
@@ -766,7 +765,7 @@ fn write_static_storage_key(
     field_name: StringKey,
     args_key: AstKey,
 ) -> FmtResult {
-    write!(f, "\"{}(", field_name)?;
+    write!(f, "\"{field_name}(")?;
     let args = builder.lookup(args_key).assert_array();
     for arg_key in args {
         let arg = builder.lookup(arg_key.assert_key()).assert_object();
@@ -776,7 +775,7 @@ fn write_static_storage_key(
             .expect("Expected `name` to exist")
             .value;
         let name = name.assert_string();
-        write!(f, "{}:", name)?;
+        write!(f, "{name}:")?;
         write_argument_value(f, builder, arg)?;
         f.push(',');
     }
@@ -844,7 +843,7 @@ fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry
                 .expect("Expected `name` to exist")
                 .value;
             let name = name.assert_string();
-            write!(f, "\\\"{}\\\":", name)?;
+            write!(f, "\\\"{name}\\\":")?;
             write_argument_value(f, builder, field)?;
             f.push(',');
         }
@@ -859,10 +858,10 @@ fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry
 fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive) -> FmtResult {
     match value {
         Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
-        Primitive::String(key) => write!(f, "\\\"{}\\\"", key),
+        Primitive::String(key) => write!(f, "\\\"{key}\\\""),
         Primitive::Float(value) => write!(f, "{}", value.as_float()),
-        Primitive::Int(value) => write!(f, "{}", value),
-        Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
+        Primitive::Int(value) => write!(f, "{value}"),
+        Primitive::Variable(variable_name) => write!(f, "{variable_name}"),
         Primitive::Key(key) => {
             let ast = builder.lookup(*key);
             match ast {
@@ -881,7 +880,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
                 Ast::Object(obj) => {
                     f.push('{');
                     for ObjectEntry { key: name, value } in obj {
-                        write!(f, "\\\"{}\\\":", name)?;
+                        write!(f, "\\\"{name}\\\":")?;
                         write_constant_value(f, builder, value)?;
                         f.push(',');
                     }

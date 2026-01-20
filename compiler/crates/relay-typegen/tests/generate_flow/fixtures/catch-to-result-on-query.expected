@@ -13,7 +13,7 @@ export type MyQuery$data = Result<{|
     +id: string,
     +name: ?string,
   |},
-|}, mixed>;
+|}, unknown>;
 export type MyQuery = {|
   response: MyQuery$data,
   variables: MyQuery$variables,

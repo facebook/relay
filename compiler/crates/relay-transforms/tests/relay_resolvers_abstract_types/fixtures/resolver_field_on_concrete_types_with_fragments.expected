@@ -1,0 +1,147 @@
+==================================== INPUT ====================================
+# relay-resolver-enable-interface-output-type
+
+fragment resolverFieldOnConcreteTypesWithFragmentsFragment on Cat {
+    description
+}
+
+fragment TabbyDescriptionFragment on Tabby {
+    description
+}
+
+fragment TabbyDescriptionFragment2 on Tabby {
+    color
+}
+
+fragment PersianDescriptionFragment on Persian {
+    description
+}
+
+fragment PersianDescriptionFragment2 on Persian {
+    color
+}
+
+# %extensions%
+
+interface Cat {
+    description: String
+}
+
+type Tabby implements Cat {
+    description: String @relay_resolver(import_path: "TabbyDescriptionResolver", fragment_name: "TabbyDescriptionFragment")
+    color: String @relay_resolver(import_path: "TabbyDescriptionResolver2", fragment_name: "TabbyDescriptionFragment2")
+}
+
+type Persian implements Cat {
+    description: String @relay_resolver(import_path: "PersianDescriptionResolver", fragment_name: "PersianDescriptionFragment")
+    color: String @relay_resolver(import_path: "PersianDescriptionResolver2", fragment_name: "PersianDescriptionFragment2")
+}
+==================================== OUTPUT ===================================
+fragment PersianDescriptionFragment on Persian {
+  ...PersianDescriptionFragment @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(529),
+  #     import_path: "PersianDescriptionResolver",
+  #     import_name: None,
+  #     field_alias: None,
+  #     field_path: "description",
+  #     field_arguments: [],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
+  # }
+  
+}
+
+fragment PersianDescriptionFragment2 on Persian {
+  ...PersianDescriptionFragment2 @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(530),
+  #     import_path: "PersianDescriptionResolver2",
+  #     import_name: None,
+  #     field_alias: None,
+  #     field_path: "color",
+  #     field_arguments: [],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
+  # }
+  
+}
+
+fragment TabbyDescriptionFragment on Tabby {
+  ...TabbyDescriptionFragment @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(527),
+  #     import_path: "TabbyDescriptionResolver",
+  #     import_name: None,
+  #     field_alias: None,
+  #     field_path: "description",
+  #     field_arguments: [],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
+  # }
+  
+}
+
+fragment TabbyDescriptionFragment2 on Tabby {
+  ...TabbyDescriptionFragment2 @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_id: FieldID(528),
+  #     import_path: "TabbyDescriptionResolver2",
+  #     import_name: None,
+  #     field_alias: None,
+  #     field_path: "color",
+  #     field_arguments: [],
+  #     live: false,
+  #     output_type_info: Legacy,
+  #     fragment_data_injection_mode: None,
+  #     type_confirmed: false,
+  #     resolver_type: ResolverModule,
+  # }
+  
+}
+
+fragment resolverFieldOnConcreteTypesWithFragmentsFragment on Cat {
+  ... on Tabby {
+    ...TabbyDescriptionFragment @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(527),
+    #     import_path: "TabbyDescriptionResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    # }
+    
+  }
+  ... on Persian {
+    ...PersianDescriptionFragment @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_id: FieldID(529),
+    #     import_path: "PersianDescriptionResolver",
+    #     import_name: None,
+    #     field_alias: None,
+    #     field_path: "description",
+    #     field_arguments: [],
+    #     live: false,
+    #     output_type_info: Legacy,
+    #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
+    # }
+    
+  }
+}

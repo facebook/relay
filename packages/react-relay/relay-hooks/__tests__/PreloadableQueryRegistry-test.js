@@ -17,7 +17,7 @@ const {PreloadableQueryRegistry} = require('relay-runtime');
 
 // We don't actually make use of the internals of ConcreteRequest,
 // so an empty object (that supports === equality) is enough.
-const makeConcreteRequest = (): ConcreteRequest => ({}: $FlowFixMe);
+const makeConcreteRequest = (): ConcreteRequest => ({}) as $FlowFixMe;
 
 let count = 0;
 const generateUniqueId = () => `id-${count++}`;

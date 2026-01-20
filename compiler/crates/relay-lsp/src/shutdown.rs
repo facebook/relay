@@ -13,14 +13,14 @@ use lsp_types::request::Shutdown;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
 
-pub(crate) fn on_shutdown(
+pub fn on_shutdown(
     _state: &impl GlobalState,
     _params: <Shutdown as Request>::Params,
 ) -> LSPRuntimeResult<<Shutdown as Request>::Result> {
     LSPRuntimeResult::Ok(())
 }
 
-pub(crate) fn on_exit(
+pub fn on_exit(
     _state: &impl GlobalState,
     _params: <Exit as Notification>::Params,
 ) -> LSPRuntimeResult<()> {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d09424e7c8fc4045a7828cac752ef6f2>>
+ * @generated SignedSource<<d7569abd3e4583103aff92e2df2628e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,10 +28,10 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type TodoDescription_text_style$fragmentType: FragmentType;
 export type TodoDescription_text_style$data = {|
-  +color: $NonMaybeType<ReturnType<typeof todoDescriptionColorResolverType>>,
+  +color: NonNullable<ReturnType<typeof todoDescriptionColorResolverType>>,
   +$fragmentType: TodoDescription_text_style$fragmentType,
 |};
 export type TodoDescription_text_style$key = {

@@ -22,7 +22,7 @@ const invariant = require('invariant');
 function handleFieldErrors(
   environment: IEnvironment,
   fieldErrors: FieldErrors,
-  loggingContext: mixed | void,
+  loggingContext: unknown | void,
 ) {
   for (const fieldError of fieldErrors) {
     // First we log all events. Note that the logger may opt to throw its own
@@ -67,7 +67,7 @@ function handleFieldErrors(
           // can't assert this via types.
           break;
         default:
-          (fieldError.kind: empty);
+          fieldError.kind as empty;
           invariant(false, 'Relay: Unexpected event kind: %s', fieldError.kind);
       }
     }
@@ -86,7 +86,7 @@ function eventShouldThrow(event: FieldError): boolean {
     case 'missing_expected_data.log':
       return false;
     default:
-      (event.kind: empty);
+      event.kind as empty;
       throw new Error('Relay: Unexpected event kind');
   }
 }
@@ -94,7 +94,7 @@ function eventShouldThrow(event: FieldError): boolean {
 function handlePotentialSnapshotErrors(
   environment: IEnvironment,
   fieldErrors: ?FieldErrors,
-  loggingContext: mixed | void,
+  loggingContext: unknown | void,
 ) {
   /**
    * Inside handleFieldErrors, we check for throwOnFieldError - but this fn logs the error anyway by default
@@ -106,6 +106,6 @@ function handlePotentialSnapshotErrors(
 }
 
 module.exports = {
-  handlePotentialSnapshotErrors,
   eventShouldThrow,
+  handlePotentialSnapshotErrors,
 };

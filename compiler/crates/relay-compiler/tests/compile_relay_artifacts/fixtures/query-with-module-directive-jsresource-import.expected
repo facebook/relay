@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithModuleDirectiveJsresourceImport_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithModuleDirectiveJsresourceImport_NameRendererFragment
+    ...queryWithModuleDirectiveJsresourceImport_NameRendererFragment @alias
   }
 }
 
@@ -100,8 +100,19 @@ import JSResource from 'JSResource';
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "queryWithModuleDirectiveJsresourceImport_NameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "queryWithModuleDirectiveJsresourceImport_NameRendererFragment"
           }
         ],

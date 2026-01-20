@@ -20,7 +20,7 @@ import type {
   useFragmentNodeTestUsersFragment$data,
   useFragmentNodeTestUsersFragment$fragmentType,
 } from './__generated__/useFragmentNodeTestUsersFragment.graphql';
-import type {OperationDescriptor} from 'relay-runtime';
+import type {OperationDescriptor, RelayContext} from 'relay-runtime';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useFragmentNode_LEGACY = require('../legacy/useFragmentNode');
@@ -38,6 +38,7 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
+const RelayFeatureFlags = require('relay-runtime/util/RelayFeatureFlags');
 const {
   createMockEnvironment,
   disallowWarnings,
@@ -88,12 +89,12 @@ function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
 // The current tests are against useFragmentNode which as a different Flow signature
 // than the external API useFragment. I want to keep the more accurate types
 // for useFragmentInternal, though, so this wrapper adapts it.
-type ReturnType<TFragmentData: mixed> = {
+type ReturnType<TFragmentData: unknown> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
 };
-hook useFragmentNode_CURRENT<TFragmentData: mixed>(
+hook useFragmentNode_CURRENT<TFragmentData: unknown>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -108,13 +109,13 @@ hook useFragmentNode_CURRENT<TFragmentData: mixed>(
 ): ReturnType<TFragmentData> {
   const data = useFragmentInternal_CURRENT(fragment, key, displayName);
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data,
     disableStoreUpdates: () => {},
     enableStoreUpdates: () => {},
   };
 }
-hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
+hook useFragmentNode_EXPERIMENTAL<TFragmentData: unknown>(
   fragment:
     | Fragment<
         useFragmentNodeTestUserFragment$fragmentType,
@@ -129,7 +130,7 @@ hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
 ): ReturnType<TFragmentData> {
   const data = useFragmentInternal_EXPERIMENTAL(fragment, key, displayName);
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data,
     disableStoreUpdates: () => {},
     enableStoreUpdates: () => {},
@@ -137,12 +138,15 @@ hook useFragmentNode_EXPERIMENTAL<TFragmentData: mixed>(
 }
 
 describe.each([
-  ['Experimental', useFragmentNode_EXPERIMENTAL],
-  ['Current', useFragmentNode_CURRENT],
-  ['Legacy', useFragmentNode_LEGACY],
+  ['Experimental', useFragmentNode_EXPERIMENTAL, true],
+  ['Experimental', useFragmentNode_EXPERIMENTAL, false],
+  ['Current', useFragmentNode_CURRENT, true],
+  ['Current', useFragmentNode_CURRENT, false],
+  ['Legacy', useFragmentNode_LEGACY, true],
+  ['Legacy', useFragmentNode_LEGACY, false],
 ])(
   'useFragmentNode / useFragment (%s)',
-  (_hookName, useFragmentNodeOriginal) => {
+  (_hookName, useFragmentNodeOriginal, optimizeNotify) => {
     const isUsingNewImplementation =
       useFragmentNodeOriginal === useFragmentNode_CURRENT ||
       useFragmentNodeOriginal === useFragmentNode_EXPERIMENTAL;
@@ -198,7 +202,7 @@ describe.each([
     }
 
     function assertFragmentResults(
-      expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
+      expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
     ) {
       expect(commitSpy).toBeCalledTimes(expectedCalls.length);
       expectedCalls.forEach((expected, idx) => {
@@ -213,7 +217,7 @@ describe.each([
     /// * items 0..length-1 (for length > 1) are calls expected to be rendered, but not committed
     /// * item length-1 is expected to be rendered and committed
     function assertRenderBatch(
-      expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
+      expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
     ) {
       expect(expectedCalls.length >= 1).toBeTruthy(); // must expect at least one value
       expect(renderSpy).toBeCalledTimes(expectedCalls.length);
@@ -231,18 +235,21 @@ describe.each([
 
     function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
-        [ID_KEY]: id,
+        [FRAGMENT_OWNER_KEY]: owner.request,
         [FRAGMENTS_KEY]: {
           useFragmentNodeTestNestedUserFragment: {},
         },
-        [FRAGMENT_OWNER_KEY]: owner.request,
+        [ID_KEY]: id,
       };
     }
 
+    const defaultOptimizeNotify = RelayFeatureFlags.OPTIMIZE_NOTIFY;
+
     beforeEach(() => {
+      RelayFeatureFlags.OPTIMIZE_NOTIFY = optimizeNotify;
       jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
-      commitSpy = jest.fn<any | [any], mixed>();
-      renderSpy = jest.fn<[any], mixed>();
+      commitSpy = jest.fn<any | [any], unknown>();
+      renderSpy = jest.fn<[any], unknown>();
 
       // Set up environment and base data
       ReactTestRenderer.act(() => {
@@ -317,8 +324,8 @@ describe.each([
           __typename: 'User',
           id: '1',
           name: 'Alice',
-          username: 'useralice',
           profile_picture: null,
+          username: 'useralice',
         },
       });
       environment.commitPayload(pluralQuery, {
@@ -327,15 +334,15 @@ describe.each([
             __typename: 'User',
             id: '1',
             name: 'Alice',
-            username: 'useralice',
             profile_picture: null,
+            username: 'useralice',
           },
           {
             __typename: 'User',
             id: '2',
             name: 'Bob',
-            username: 'userbob',
             profile_picture: null,
+            username: 'userbob',
           },
         ],
       });
@@ -355,11 +362,11 @@ describe.each([
         const userRef = props.hasOwnProperty('userRef')
           ? props.userRef
           : {
-              [ID_KEY]: owner.request.variables.id,
+              [FRAGMENT_OWNER_KEY]: owner.request,
               [FRAGMENTS_KEY]: {
                 useFragmentNodeTestUserFragment: {},
               },
-              [FRAGMENT_OWNER_KEY]: owner.request,
+              [ID_KEY]: owner.request.variables.id,
             };
 
         setSingularOwner = _setOwner;
@@ -379,11 +386,11 @@ describe.each([
         const usersRef = props.hasOwnProperty('usersRef')
           ? props.usersRef
           : owner.request.variables.ids.map(id => ({
-              [ID_KEY]: id,
+              [FRAGMENT_OWNER_KEY]: owner.request,
               [FRAGMENTS_KEY]: {
                 useFragmentNodeTestUsersFragment: {},
               },
-              [FRAGMENT_OWNER_KEY]: owner.request,
+              [ID_KEY]: id,
             }));
 
         const [usersData] = useFragmentNode(gqlPluralFragment, usersRef);
@@ -392,7 +399,10 @@ describe.each([
 
       const ContextProvider = ({children}: {children: React.Node}) => {
         const [env, _setEnv] = useState(environment);
-        const relayContext = useMemo(() => ({environment: env}), [env]);
+        const relayContext = useMemo(
+          (): RelayContext => ({environment: env}),
+          [env],
+        );
 
         setEnvironment = _setEnv;
 
@@ -416,7 +426,7 @@ describe.each([
                 <SingularContainer owner={singularQuery} {...props} />
               </ContextProvider>
             </React.Suspense>,
-            // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+            // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
             {
               unstable_isConcurrent: true,
             },
@@ -430,7 +440,7 @@ describe.each([
                   <SingularContainer owner={singularQuery} {...props} />
                 </ContextProvider>
               </React.Suspense>,
-              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
               {
                 unstable_isConcurrent: true,
               },
@@ -463,7 +473,7 @@ describe.each([
           ReactTestRenderer.act(() => {
             instance = ReactTestRenderer.create(
               elements,
-              // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+              // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
               {
                 unstable_isConcurrent: true,
               },
@@ -475,6 +485,7 @@ describe.each([
     });
 
     afterEach(() => {
+      RelayFeatureFlags.OPTIMIZE_NOTIFY = defaultOptimizeNotify;
       flushScheduler();
       environment.mockClear();
       commitSpy.mockClear();
@@ -580,8 +591,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice in Wonderland',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });
@@ -619,8 +630,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice in Wonderland',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });
@@ -679,8 +690,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice in Wonderland',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });
@@ -825,8 +836,8 @@ describe.each([
           __typename: 'User',
           id: '200',
           name: 'Foo',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -851,8 +862,8 @@ describe.each([
           id: '1',
           // Update name
           name: 'Alice in Wonderland',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -880,8 +891,8 @@ describe.each([
             id: '1',
             // Update name
             name: 'Alice Updated',
-            username: 'userfoo',
             profile_picture: null,
+            username: 'userfoo',
           },
         });
       });
@@ -946,8 +957,8 @@ describe.each([
             __typename: 'User',
             id: '200',
             name: 'Foo',
-            username: 'userfoo',
             profile_picture: null,
+            username: 'userfoo',
           },
         });
       });
@@ -969,8 +980,8 @@ describe.each([
           __typename: 'User',
           id: '1',
           name: 'Alice in Wonderland',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -1005,8 +1016,8 @@ describe.each([
           id: '200',
           // Update name
           name: 'Foo Updated',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -1077,8 +1088,8 @@ describe.each([
           __typename: 'User',
           id: '200',
           name: 'Foo',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
 
@@ -1133,8 +1144,8 @@ describe.each([
           id: '200',
           // Update name
           name: 'Foo Updated',
-          username: 'userfoo',
           profile_picture: null,
+          username: 'userfoo',
         },
       });
       expectSchedulerToFlushAndYield([
@@ -1327,10 +1338,10 @@ describe.each([
           __typename: 'User',
           id: '1',
           name: 'Alice',
-          username: 'useralice',
           profile_picture: {
             uri: 'uri32',
           },
+          username: 'useralice',
         },
       });
 
@@ -1520,7 +1531,7 @@ describe.each([
       // Clearing the data in the environment will make it so the fragment ref
       // we pass to useFragmentNode points to data that does not exist; we expect
       // an error to be thrown in this case.
-      (environment.getStore().getSource(): $FlowFixMe).clear();
+      (environment.getStore().getSource() as $FlowFixMe).clear();
 
       expectWarningWillFire(
         "Relay: Expected to have been able to read non-null data for fragment `useFragmentNodeTestUserFragment` declared in `TestDisplayName`, since fragment reference was non-null. Make sure that that `TestDisplayName`'s parent isn't holding on to and/or passing a fragment reference for data that has been deleted.",
@@ -1534,8 +1545,9 @@ describe.each([
         nodes: [],
       });
       // Pass the updated fragment ref
-      const usersRef = (environment.lookup(pluralQuery.fragment)
-        .data: $FlowFixMe).nodes;
+      const usersRef = (
+        environment.lookup(pluralQuery.fragment).data as $FlowFixMe
+      ).nodes;
       renderPluralFragment({usersRef});
     });
 
@@ -1543,7 +1555,7 @@ describe.each([
       // Clearing the data in the environment will make it so the fragment ref
       // we pass to useFragmentNode points to data that does not exist; we expect
       // an error to be thrown in this case.
-      (environment.getStore().getSource(): $FlowFixMe).clear();
+      (environment.getStore().getSource() as $FlowFixMe).clear();
 
       expectWarningWillFire(
         "Relay: Expected to have been able to read non-null data for fragment `useFragmentNodeTestUsersFragment` declared in `TestDisplayName`, since fragment reference was non-null. Make sure that that `TestDisplayName`'s parent isn't holding on to and/or passing a fragment reference for data that has been deleted.",
@@ -1595,8 +1607,8 @@ describe.each([
             __typename: 'User',
             id: '4',
             name: 'Mark',
-            username: null,
             profile_picture: null,
+            username: null,
           },
         });
       });

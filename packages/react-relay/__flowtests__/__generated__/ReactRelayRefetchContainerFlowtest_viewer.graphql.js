@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6f9cebfabb127ad6db1de1705f8a9764>>
+ * @generated SignedSource<<5d3ebf33e240ea945e67c237db51e16b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type ReactRelayRefetchContainerFlowtest_viewer$fragmentTyp
 export type ReactRelayRefetchContainerFlowtest_viewer$data = {|
   +account_user: ?{|
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +__typename: "User",
         |},

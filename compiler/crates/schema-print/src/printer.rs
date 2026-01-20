@@ -82,13 +82,13 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         write!(self.writer(), "schema {{")?;
         self.print_new_line()?;
         if let Some(type_name) = query_type_name {
-            writeln!(self.writer(), "  query: {}", type_name)?;
+            writeln!(self.writer(), "  query: {type_name}")?;
         }
         if let Some(type_name) = mutation_type_name {
-            writeln!(self.writer(), "  mutation: {}", type_name)?;
+            writeln!(self.writer(), "  mutation: {type_name}")?;
         }
         if let Some(type_name) = subscription_type_name {
-            writeln!(self.writer(), "  subscription: {}", type_name)?;
+            writeln!(self.writer(), "  subscription: {type_name}")?;
         }
         write!(self.writer(), "}}")?;
         self.print_definition_end()
@@ -109,6 +109,9 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
     pub fn print_directive(&mut self, directive: &Directive) -> FmtResult {
         write!(self.writer(), "directive @{}", directive.name.item)?;
         self.print_args(&directive.arguments)?;
+        if directive.repeatable {
+            write!(self.writer(), " repeatable")?;
+        }
         write!(
             self.writer(),
             " on {}",
@@ -185,7 +188,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
                 .collect::<Vec<_>>()
                 .iter()
                 .join(" | ");
-            write!(self.writer(), " = {}", union_members)?;
+            write!(self.writer(), " = {union_members}")?;
         }
         self.print_definition_end()
     }
@@ -223,7 +226,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             write!(self.writer(), "{}", field.name.item)?;
             self.print_args(&field.arguments)?;
             let type_string = self.schema.get_type_string(&field.type_);
-            write!(self.writer(), ": {}", type_string)?;
+            write!(self.writer(), ": {type_string}")?;
             self.print_directive_values(&field.directives)?;
             self.print_new_line()?;
         }
@@ -244,7 +247,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             write!(self.writer(), "{}", field.name.item)?;
             self.print_args(&field.arguments)?;
             let type_string = self.schema.get_type_string(&field.type_);
-            write!(self.writer(), ": {}", type_string)?;
+            write!(self.writer(), ": {type_string}")?;
             self.print_directive_values(&field.directives)?;
             self.print_new_line()?;
         }
@@ -266,7 +269,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             let type_string = self.schema.get_type_string(&arg.type_);
             write!(self.writer(), "{}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
-                write!(self.writer(), " = {}", default,)?;
+                write!(self.writer(), " = {default}")?;
             }
             self.print_directive_values(&arg.directives)?;
         }
@@ -297,7 +300,7 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             let type_string = self.schema.get_type_string(&arg.type_);
             write!(self.writer(), "  {}: {}", arg.name.item, type_string,)?;
             if let Some(default) = &arg.default_value {
-                write!(self.writer(), " = {}", default,)?;
+                write!(self.writer(), " = {default}")?;
             }
             self.print_directive_values(&arg.directives)?;
             self.print_new_line()?;
@@ -339,13 +342,13 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
                 .iter()
                 .map(|id| self.schema.interface(*id).name.item)
                 .join(" & ");
-            write!(self.writer(), " implements {}", interface_names,)?;
+            write!(self.writer(), " implements {interface_names}")?;
         }
         Ok(())
     }
 
     pub fn print_type_declaration(&mut self, type_name: StringKey) -> FmtResult {
-        writeln!(self.writer(), "type {} {{", type_name)
+        writeln!(self.writer(), "type {type_name} {{")
     }
 
     pub fn print_definition_closure(&mut self) -> FmtResult {
@@ -366,12 +369,11 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
     }
 
     fn writer(&mut self) -> &mut String {
-        if let Some(type_writers) = &mut self.type_writers {
-            if let Some((type_name, index)) = self.type_writers_index {
-                if let Some(writers) = type_writers.get_mut(&type_name) {
-                    return writers.get_mut(index).unwrap();
-                }
-            }
+        if let Some(type_writers) = &mut self.type_writers
+            && let Some((type_name, index)) = self.type_writers_index
+            && let Some(writers) = type_writers.get_mut(&type_name)
+        {
+            return writers.get_mut(index).unwrap();
         }
         self.writers.get_mut(self.writers_index).unwrap()
     }
@@ -381,10 +383,10 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
             let type_name = self.schema.get_type_name(*type_);
             let type_hash = calculate_hash(&type_name.lookup()) as usize;
             self.writers_index = type_hash % self.shard_count;
-            if let Some(type_writers) = &self.type_writers {
-                if type_writers.contains_key(&type_name) {
-                    self.type_writers_index = Some((type_name, 0));
-                }
+            if let Some(type_writers) = &self.type_writers
+                && type_writers.contains_key(&type_name)
+            {
+                self.type_writers_index = Some((type_name, 0));
             }
         }
     }
@@ -394,19 +396,19 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
     }
 
     fn update_writer_index_for_field_start(&mut self, field_name: StringKey, type_name: StringKey) {
-        if let Some(type_writers) = &mut self.type_writers {
-            if let Some(writers) = type_writers.get_mut(&type_name) {
-                let index = (calculate_hash(&field_name.lookup()) as usize) % writers.len();
-                self.type_writers_index = Some((type_name, index));
-            }
+        if let Some(type_writers) = &mut self.type_writers
+            && let Some(writers) = type_writers.get_mut(&type_name)
+        {
+            let index = (calculate_hash(&field_name.lookup()) as usize) % writers.len();
+            self.type_writers_index = Some((type_name, index));
         }
     }
 
     fn update_writer_index_for_all_field_end(&mut self, type_name: StringKey) {
-        if let Some(type_writers) = &self.type_writers {
-            if let Some(writers) = type_writers.get(&type_name) {
-                self.type_writers_index = Some((type_name, writers.len() - 1));
-            }
+        if let Some(type_writers) = &self.type_writers
+            && let Some(writers) = type_writers.get(&type_name)
+        {
+            self.type_writers_index = Some((type_name, writers.len() - 1));
         }
     }
 }

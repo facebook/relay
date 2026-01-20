@@ -38,8 +38,8 @@ function recycleNodesIntoImpl<T>(
   let canRecycle = false;
 
   // Assign local variables to preserve Flow type refinement.
-  const prevArray: ?Array<mixed> = Array.isArray(prevData) ? prevData : null;
-  const nextArray: ?Array<mixed> = Array.isArray(nextData) ? nextData : null;
+  const prevArray: ?Array<unknown> = Array.isArray(prevData) ? prevData : null;
+  const nextArray: ?Array<unknown> = Array.isArray(nextData) ? nextData : null;
   if (prevArray && nextArray) {
     const canMutateNext = canMutate && !Object.isFrozen(nextArray);
     canRecycle =

@@ -66,7 +66,7 @@ const networkError = new Error('A wild, uncaught error appeared');
 
 // Only queries with an ID are preloadable
 const ID = '12345';
-(query.params: $FlowFixMe).id = ID;
+(query.params as $FlowFixMe).id = ID;
 
 const variables = {id: '4'};
 
@@ -79,7 +79,7 @@ let next: JestMockFn<Array<GraphQLResponse>, empty>;
 let error: JestMockFn<Array<Error>, empty>;
 let complete: JestMockFn<Array<empty>, empty>;
 let executeObservable;
-let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
+let executeUnsubscribe: ?JestMockFn<ReadonlyArray<unknown>, unknown>;
 let networkUnsubscribe;
 
 beforeEach(() => {
@@ -95,7 +95,7 @@ beforeEach(() => {
   // Re-enable the default, test-failing behavior here; it is turned off
   // in tests where unhandled errors are expected.
   Observable.onUnhandledError(uncaughtError => {
-    declare function fail(string): void;
+    declare function fail(message: string): void;
     if (typeof fail === 'function') {
       // In test environments (Jest), fail() immediately fails the current test.
       fail(String(uncaughtError));
@@ -181,9 +181,9 @@ beforeEach(() => {
     complete = jest.fn();
     if (loadedQuery.source) {
       loadedQuery.source.subscribe({
-        next,
-        error,
         complete,
+        error,
+        next,
       });
     }
 
@@ -473,9 +473,9 @@ describe('when passed a PreloadableConcreteRequest', () => {
         // Subscribe to the query reference and assert that
         // we can observe the query results
         queryRef2.source?.subscribe({
-          next,
-          error,
           complete,
+          error,
+          next,
         });
         expect(next).toHaveBeenCalledTimes(1);
         expect(next).toHaveBeenCalledWith(response);

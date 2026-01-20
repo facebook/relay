@@ -49,10 +49,10 @@ export type LoadMoreFn<TVariables: Variables> = (
 export type UseLoadMoreFunctionArgs = {
   direction: Direction,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   fragmentIdentifier: string,
-  fragmentData: mixed,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  fragmentData: unknown,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,

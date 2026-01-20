@@ -15,7 +15,7 @@ declare module 'warning' {
   declare module.exports: (
     condition: boolean,
     format: string,
-    ...args: $ReadOnlyArray<mixed>
+    ...args: ReadonlyArray<unknown>
   ) => void;
 }
 
@@ -30,7 +30,7 @@ declare module 'react-test-renderer' {
 }
 
 declare module 'JSResourceReference' {
-  declare export interface JSResourceReference<T> {
+  declare export interface JSResourceReference<+T> {
     getModuleId(): string;
     getModuleIfRequired(): ?T;
     load(): Promise<T>;

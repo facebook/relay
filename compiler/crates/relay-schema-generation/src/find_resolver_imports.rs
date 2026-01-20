@@ -53,7 +53,7 @@ impl fmt::Display for JSImportType {
         match self {
             JSImportType::Default => write!(f, "default"),
             JSImportType::Namespace(_) => write!(f, "namespace"),
-            JSImportType::Named(key) => write!(f, "{}", key),
+            JSImportType::Named(key) => write!(f, "{key}"),
         }
     }
 }

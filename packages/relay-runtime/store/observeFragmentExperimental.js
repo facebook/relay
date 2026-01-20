@@ -9,7 +9,11 @@
  * @oncall relay
  */
 
-import type {PluralReaderSelector, RequestDescriptor} from './RelayStoreTypes';
+import type {
+  PluralReaderSelector,
+  ReaderSelector,
+  RequestDescriptor,
+} from './RelayStoreTypes';
 import type {
   Fragment,
   FragmentType,
@@ -64,7 +68,7 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
     | HasSpread<TFragmentType>
-    | $ReadOnlyArray<HasSpread<TFragmentType>>,
+    | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Promise<TData> {
   let subscription: ?Subscription;
 
@@ -86,7 +90,7 @@ async function waitForFragmentData<TFragmentType: FragmentType, TData>(
     });
     subscription?.unsubscribe();
     return data;
-  } catch (e: mixed) {
+  } catch (e: unknown) {
     subscription?.unsubscribe();
     throw e;
   }
@@ -97,7 +101,7 @@ declare function observeFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
   fragmentRef:
     | HasSpread<TFragmentType>
-    | $ReadOnlyArray<HasSpread<TFragmentType>>,
+    | ReadonlyArray<HasSpread<TFragmentType>>,
 ): Observable<FragmentState<TData>>;
 
 /**
@@ -115,27 +119,52 @@ declare function observeFragment<TFragmentType: FragmentType, TData>(
 function observeFragment<TFragmentType: FragmentType, TData>(
   environment: IEnvironment,
   fragment: Fragment<TFragmentType, TData>,
-  fragmentRef: mixed,
-): mixed {
+  fragmentRef: unknown,
+): unknown {
   const fragmentNode = getFragment(fragment);
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
+
+  invariant(fragmentSelector != null, 'Expected a selector, got null.');
+
   invariant(
-    fragmentNode.metadata?.hasClientEdges == null,
+    fragmentNode.metadata?.hasClientEdges == null ||
+      fragmentSelectorUsesExecTimeResolver(fragmentSelector),
     "Client edges aren't supported yet.",
   );
-  invariant(fragmentSelector != null, 'Expected a selector, got null.');
   switch (fragmentSelector.kind) {
     case 'SingularReaderSelector':
       return observeSingularSelector(environment, fragment, fragmentSelector);
     case 'PluralReaderSelector': {
       return observePluralSelector(
         environment,
-        (fragment: $FlowFixMe),
+        fragment as $FlowFixMe,
         fragmentSelector,
       );
     }
   }
   invariant(false, 'Unsupported fragment selector kind');
+}
+
+function fragmentSelectorUsesExecTimeResolver(
+  fragmentSelector: ReaderSelector,
+) {
+  switch (fragmentSelector?.kind) {
+    case 'SingularReaderSelector':
+      return (
+        (fragmentSelector.owner.node.operation?.use_exec_time_resolvers ??
+          fragmentSelector.owner.node.operation?.exec_time_resolvers_enabled_provider?.get()) ===
+        true
+      );
+    case 'PluralReaderSelector': {
+      return fragmentSelector.selectors?.every(
+        selector =>
+          (selector.owner.node.operation.use_exec_time_resolvers ??
+            selector.owner.node.operation?.exec_time_resolvers_enabled_provider?.get()) ===
+          true,
+      );
+    }
+  }
+  return false;
 }
 
 function observeSingularSelector<TFragmentType: FragmentType, TData>(
@@ -172,7 +201,7 @@ function observeSingularSelector<TFragmentType: FragmentType, TData>(
 
 function observePluralSelector<
   TFragmentType: FragmentType,
-  TData: Array<mixed>,
+  TData: Array<unknown>,
 >(
   environment: IEnvironment,
   fragmentNode: Fragment<TFragmentType, TData>,
@@ -193,7 +222,7 @@ function observePluralSelector<
       ),
     );
 
-    sink.next((mergeFragmentStates(states): $FlowFixMe));
+    sink.next(mergeFragmentStates(states) as $FlowFixMe);
 
     const subscriptions = snapshots.map((snapshot, index) =>
       environment.subscribe(snapshot, latestSnapshot => {
@@ -205,7 +234,7 @@ function observePluralSelector<
         );
         // This doesn't batch updates, so it will notify the subscriber multiple times
         // if a store update impacting multiple items in the list is published.
-        sink.next((mergeFragmentStates(states): $FlowFixMe));
+        sink.next(mergeFragmentStates(states) as $FlowFixMe);
       }),
     );
 
@@ -266,11 +295,11 @@ function snapshotToFragmentState<TFragmentType: FragmentType, TData>(
 
   invariant(snapshot.data != null, 'Expected data to be non-null.');
 
-  return {state: 'ok', value: (snapshot.data: $FlowFixMe)};
+  return {state: 'ok', value: snapshot.data as $FlowFixMe};
 }
 
 function mergeFragmentStates<T>(
-  states: $ReadOnlyArray<FragmentState<T>>,
+  states: ReadonlyArray<FragmentState<T>>,
 ): FragmentState<Array<T>> {
   const value = [];
   for (const state of states) {

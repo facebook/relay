@@ -4,9 +4,10 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -14,8 +15,9 @@ import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useIsParentQueryActive = require('../useIsParentQueryActive');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const TestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {
   __internal: {fetchQuery},
   Environment,
@@ -46,11 +48,7 @@ beforeEach(() => {
   const source = new RecordSource();
   const store = new Store(source);
   fetch = jest.fn(
-    (
-      _query: $FlowExpectedError,
-      _variables: $FlowExpectedError,
-      _cacheConfig: $FlowExpectedError,
-    ) =>
+    (_query: $FlowFixMe, _variables: $FlowFixMe, _cacheConfig: $FlowFixMe) =>
       Observable.create(
         (
           sink: Sink<
@@ -68,7 +66,7 @@ beforeEach(() => {
       ),
   );
   environment = new Environment({
-    network: Network.create((fetch: $FlowFixMe)),
+    network: Network.create(fetch as $FlowFixMe),
     store,
   });
 
@@ -96,17 +94,17 @@ beforeEach(() => {
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  fragmentRef = (snapshot.data?.node: $FlowFixMe);
+  fragmentRef = snapshot.data?.node as $FlowFixMe;
 });
 
-it('returns false when owner is not pending', () => {
+it('returns false when owner is not pending', async () => {
   let pending = null;
   function Component() {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
@@ -116,7 +114,7 @@ it('returns false when owner is not pending', () => {
   expect(pending).toBe(false);
 });
 
-it('returns false when an unrelated owner is pending', () => {
+it('returns false when an unrelated owner is pending', async () => {
   // fetch a different id
   fetchQuery(
     environment,
@@ -128,8 +126,8 @@ it('returns false when an unrelated owner is pending', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
@@ -138,7 +136,7 @@ it('returns false when an unrelated owner is pending', () => {
   expect(pending).toBe(false);
 });
 
-it('returns true when owner is started but has not returned payloads', () => {
+it('returns true when owner is started but has not returned payloads', async () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   let pending = null;
@@ -146,8 +144,8 @@ it('returns true when owner is started but has not returned payloads', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
@@ -156,10 +154,10 @@ it('returns true when owner is started but has not returned payloads', () => {
   expect(pending).toBe(true);
 });
 
-it('returns true when owner fetch has returned payloads but not completed', () => {
+it('returns true when owner fetch has returned payloads but not completed', async () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
-  TestRenderer.act(() => {
+  await act(() => {
     dataSource.next({
       data: {
         node: {
@@ -175,8 +173,8 @@ it('returns true when owner fetch has returned payloads but not completed', () =
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
@@ -185,10 +183,10 @@ it('returns true when owner fetch has returned payloads but not completed', () =
   expect(pending).toBe(true);
 });
 
-it('returns false when owner fetch completed', () => {
+it('returns false when owner fetch completed', async () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
-  TestRenderer.act(() => {
+  await act(() => {
     dataSource.next({
       data: {
         node: {
@@ -205,8 +203,8 @@ it('returns false when owner fetch completed', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
@@ -215,8 +213,8 @@ it('returns false when owner fetch completed', () => {
   expect(pending).toBe(false);
 });
 
-it('returns false when owner fetch errored', () => {
-  const onError = jest.fn<[Error], mixed>();
+it('returns false when owner fetch errored', async () => {
+  const onError = jest.fn<[Error], unknown>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
   });
@@ -236,8 +234,8 @@ it('returns false when owner fetch errored', () => {
     pending = useIsParentQueryActive(fragment, fragmentRef);
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
@@ -247,21 +245,21 @@ it('returns false when owner fetch errored', () => {
   expect(pending).toBe(false);
 });
 
-it('does not update the component when the owner is fetched', () => {
+it('does not update the component when the owner is fetched', async () => {
   const states = [];
   function Component() {
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
     );
   });
   // Ensure that useEffect runs
-  TestRenderer.act(() => jest.runAllImmediates());
+  await act(() => jest.runAllImmediates());
 
   expect(fetch).toBeCalledTimes(0);
   expect(states).toEqual([false]);
@@ -270,7 +268,7 @@ it('does not update the component when the owner is fetched', () => {
   expect(states).toEqual([false]);
 });
 
-it('does not update the component when a pending owner fetch returns a payload', () => {
+it('does not update the component when a pending owner fetch returns a payload', async () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   const states = [];
@@ -278,18 +276,18 @@ it('does not update the component when a pending owner fetch returns a payload',
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
     );
   });
   // Ensure that useEffect runs
-  TestRenderer.act(() => jest.runAllImmediates());
+  await act(() => jest.runAllImmediates());
 
   expect(states).toEqual([true]);
-  TestRenderer.act(() => {
+  await act(() => {
     dataSource.next({
       data: {
         node: {
@@ -304,7 +302,7 @@ it('does not update the component when a pending owner fetch returns a payload',
   expect(states).toEqual([true]);
 });
 
-it('updates the component when a pending owner fetch completes', () => {
+it('updates the component when a pending owner fetch completes', async () => {
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   const states = [];
@@ -312,26 +310,26 @@ it('updates the component when a pending owner fetch completes', () => {
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
     );
   });
   // Ensure that useEffect runs
-  TestRenderer.act(() => jest.runAllImmediates());
+  await act(() => jest.runAllImmediates());
 
   expect(states).toEqual([true]);
-  TestRenderer.act(() => {
+  await act(() => {
     dataSource.complete();
     jest.runAllImmediates();
   });
   expect(states).toEqual([true, false]);
 });
 
-it('updates the component when a pending owner fetch errors', () => {
-  const onError = jest.fn<[Error], mixed>();
+it('updates the component when a pending owner fetch errors', async () => {
+  const onError = jest.fn<[Error], unknown>();
   fetchQuery(environment, operation).subscribe({
     error: onError,
   });
@@ -341,18 +339,18 @@ it('updates the component when a pending owner fetch errors', () => {
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
     );
   });
   // Ensure that useEffect runs
-  TestRenderer.act(() => jest.runAllImmediates());
+  await act(() => jest.runAllImmediates());
 
   expect(states).toEqual([true]);
-  TestRenderer.act(() => {
+  await act(() => {
     dataSource.error(new Error('wtf'));
     jest.runAllImmediates();
   });
@@ -360,7 +358,7 @@ it('updates the component when a pending owner fetch errors', () => {
   expect(states).toEqual([true, false]);
 });
 
-it('updates the component when a pending owner fetch with multiple payloads completes ', () => {
+it('updates the component when a pending owner fetch with multiple payloads completes ', async () => {
   query = graphql`
     query useIsParentQueryActiveTestUserDeferQuery($id: ID!) {
       node(id: $id) {
@@ -372,7 +370,7 @@ it('updates the component when a pending owner fetch with multiple payloads comp
   `;
   operation = createOperationDescriptor(query, {id: '4'});
   const snapshot = environment.lookup(operation.fragment);
-  fragmentRef = (snapshot.data?.node: $FlowFixMe);
+  fragmentRef = snapshot.data?.node as $FlowFixMe;
 
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
@@ -381,33 +379,33 @@ it('updates the component when a pending owner fetch with multiple payloads comp
     states.push(useIsParentQueryActive(fragment, fragmentRef));
     return null;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
     );
   });
   // Ensure that useEffect runs
-  TestRenderer.act(() => jest.runAllImmediates());
+  await act(() => jest.runAllImmediates());
   expect(states).toEqual([true]);
 
-  TestRenderer.act(() => {
+  await act(() => {
     dataSource.next({
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
         },
       },
     });
     jest.runAllImmediates();
   });
-  TestRenderer.act(() => {
+  await act(() => {
     dataSource.next({
       data: {
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: 'Mark',
       },
       label:
@@ -420,7 +418,7 @@ it('updates the component when a pending owner fetch with multiple payloads comp
   expect(states).toEqual([true, false]);
 });
 
-it('should only update if the latest owner completes the query', () => {
+it('should only update if the latest owner completes the query', async () => {
   fetchQuery(environment, operation).subscribe({});
   const oldDataSource = dataSource;
   expect(fetch).toBeCalledTimes(1);
@@ -437,14 +435,14 @@ it('should only update if the latest owner completes the query', () => {
     const pending = useIsParentQueryActive(fragment, ref);
     return <Renderer pending={pending} />;
   }
-  TestRenderer.act(() => {
-    TestRenderer.create(
+  await act(() => {
+    ReactTestingLibrary.render(
       <RelayEnvironmentProvider environment={environment}>
         <Component />
       </RelayEnvironmentProvider>,
     );
   });
-  TestRenderer.act(() => jest.runAllImmediates());
+  await act(() => jest.runAllImmediates());
   expect(mockFn.mock.calls[0]).toEqual([true]);
 
   const newOperation = createOperationDescriptor(query, {id: '5'});
@@ -459,17 +457,17 @@ it('should only update if the latest owner completes the query', () => {
   const newFragmentRef: $FlowFixMe = snapshot.data?.node;
   expect(mockFn.mock.calls[0]).toEqual([true]);
 
-  TestRenderer.act(() => {
+  await act(() => {
     fetchQuery(environment, newOperation).subscribe({});
     setRef(newFragmentRef);
   });
   expect(mockFn.mock.calls).toEqual([[true], [true]]);
-  TestRenderer.act(() => oldDataSource.complete());
+  await act(() => oldDataSource.complete());
   expect(mockFn.mock.calls).toEqual([[true], [true]]);
 
-  TestRenderer.act(() => dataSource.complete());
+  await act(() => dataSource.complete());
   expect(mockFn.mock.calls).toEqual([[true], [true], [false]]);
-  TestRenderer.act(() => {
+  await act(() => {
     setRef(fragmentRef);
   });
   expect(mockFn.mock.calls).toEqual([[true], [true], [false], [false]]);

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2e4ae25f68052d1b3f1d5a0327a06554>>
+ * @generated SignedSource<<64c6617ba532691d18ce873b5097dc76>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type usePaginationFragmentTestStoryFragment$fragmentType: 
 type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = any;
 export type usePaginationFragmentTestStoryFragment$data = {|
   +comments: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +id: string,
       |},

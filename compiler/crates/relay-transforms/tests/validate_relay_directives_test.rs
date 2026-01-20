@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a1fce11adc33569aed81a730c1369f46>>
+ * @generated SignedSource<<2df264bee52e84eb0dc28b2c098e73ad>>
  */
 
 mod validate_relay_directives;
@@ -66,6 +66,13 @@ async fn unmasked_spread() {
     let input = include_str!("validate_relay_directives/fixtures/unmasked-spread.graphql");
     let expected = include_str!("validate_relay_directives/fixtures/unmasked-spread.expected");
     test_fixture(transform_fixture, file!(), "unmasked-spread.graphql", "validate_relay_directives/fixtures/unmasked-spread.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn unmasked_spread_unmasked_fragment() {
+    let input = include_str!("validate_relay_directives/fixtures/unmasked-spread-unmasked-fragment.graphql");
+    let expected = include_str!("validate_relay_directives/fixtures/unmasked-spread-unmasked-fragment.expected");
+    test_fixture(transform_fixture, file!(), "unmasked-spread-unmasked-fragment.graphql", "validate_relay_directives/fixtures/unmasked-spread-unmasked-fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

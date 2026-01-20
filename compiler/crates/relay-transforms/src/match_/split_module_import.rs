@@ -61,12 +61,11 @@ impl<'program, 'base_fragment_names> SplitModuleImportTransform<'program, 'base_
         &self,
         fragment: &'a InlineFragment,
     ) -> Option<&'a ModuleMetadata> {
-        if fragment.directives.len() == 1 {
-            if let Some(module_metadata) = ModuleMetadata::find(&fragment.directives) {
-                if !module_metadata.no_inline {
-                    return Some(module_metadata);
-                }
-            }
+        if fragment.directives.len() == 1
+            && let Some(module_metadata) = ModuleMetadata::find(&fragment.directives)
+            && !module_metadata.no_inline
+        {
+            return Some(module_metadata);
         }
         None
     }

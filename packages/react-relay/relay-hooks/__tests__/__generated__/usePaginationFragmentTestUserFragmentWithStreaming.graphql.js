@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<43148d01576a91b8c9b8380b998b1063>>
+ * @generated SignedSource<<bc1b2aaeb8974c3762beec79f31769d9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ declare export opaque type usePaginationFragmentTestUserFragmentWithStreaming$fr
 type usePaginationFragmentTestUserFragmentStreamingPaginationQuery$variables = any;
 export type usePaginationFragmentTestUserFragmentWithStreaming$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +id: string,
         +name: ?string,

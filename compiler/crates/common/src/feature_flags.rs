@@ -19,12 +19,24 @@ use serde::Serialize;
 use crate::Rollout;
 use crate::rollout::RolloutRange;
 
-#[derive(Default, Debug, Serialize, Deserialize, Clone, JsonSchema)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct FeatureFlags {
     #[serde(default)]
-    // Enable returning interfaces from Relay Resolvers without @outputType
+    /// Enable returning interfaces from Relay Resolvers without @outputType
     pub relay_resolver_enable_interface_output_type: FeatureFlag,
+
+    #[serde(default)]
+    /// @outputType resolvers are a discontinued experimental feature. This flag
+    /// allows users to allowlist old uses of this feature while they work to
+    /// remove them. Weak types (types without an `id` field) returned by a Relay
+    /// Resolver should be limited to types defined using `@RelayResolver` with `@weak`.
+    ///
+    /// If using the "limited" feature flag variant, users can allowlist a
+    /// specific list of field names.
+    ///
+    /// https://relay.dev/docs/next/guides/relay-resolvers/defining-types/#defining-a-weak-type
+    pub allow_output_type_resolvers: FeatureFlag,
 
     /// For now, this also disallows fragments with variable definitions
     /// This also makes @module to opt in using @no_inline internally
@@ -167,9 +179,67 @@ pub struct FeatureFlags {
     /// across a number of diffs.
     #[serde(default)]
     pub legacy_include_path_in_required_reader_nodes: FeatureFlag,
+
+    /// Disallow @required action THROW on semantically nullable fields.
+    /// When enabled, this will prevent the use of THROW action on fields
+    /// that are semantically nullable (e.g., fields that can legitimately
+    /// be null in normal operation).
+    #[serde(default)]
+    pub disallow_required_action_throw_on_semantically_nullable_fields: FeatureFlag,
+
+    /// Use ReadonlyArray<T> instead of $ReadOnlyArray<T> for Flow typegen.
+    /// This enables gradual rollout of the new array type across files.
+    #[serde(default)]
+    pub readonly_array_for_flow: FeatureFlag,
 }
 
-#[derive(Debug, Deserialize, Clone, Serialize, Default, JsonSchema)]
+impl Default for FeatureFlags {
+    fn default() -> Self {
+        FeatureFlags {
+            relay_resolver_enable_interface_output_type: Default::default(),
+            allow_output_type_resolvers: Default::default(),
+            no_inline: Default::default(),
+            enable_3d_branch_arg_generation: Default::default(),
+            actor_change_support: Default::default(),
+            text_artifacts: Default::default(),
+            skip_printing_nulls: Default::default(),
+            compact_query_text: Default::default(),
+            enable_resolver_normalization_ast: Default::default(),
+            enable_exec_time_resolvers_directive: Default::default(),
+            enable_relay_resolver_mutations: Default::default(),
+            enable_strict_custom_scalars: Default::default(),
+            allow_resolvers_in_mutation_response: Default::default(),
+            allow_required_in_mutation_response: Default::default(),
+            disable_resolver_reader_ast: Default::default(),
+            enable_fragment_argument_transform: Default::default(),
+            allow_resolver_non_nullable_return_type: Default::default(),
+            disable_schema_validation: Default::default(),
+            prefer_fetchable_in_refetch_queries: Default::default(),
+            disable_edge_type_name_validation_on_declerative_connection_directives:
+                Default::default(),
+            disable_full_argument_type_validation: Default::default(),
+            use_reader_module_imports: Default::default(),
+            omit_resolver_type_assertions_for_confirmed_types: Default::default(),
+            disable_deduping_common_structures_in_artifacts: Default::default(),
+            legacy_include_path_in_required_reader_nodes: Default::default(),
+            disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
+            readonly_array_for_flow: Default::default(),
+
+            // enabled-by-default
+            enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,
+        }
+    }
+}
+
+#[derive(
+    Debug,
+    serde::Deserialize,
+    Clone,
+    Serialize,
+    Default,
+    PartialEq,
+    JsonSchema
+)]
 #[serde(tag = "kind", rename_all = "lowercase")]
 pub enum FeatureFlag {
     /// Fully disabled: developers may not use this feature
@@ -220,8 +290,32 @@ impl Display for FeatureFlag {
                 f.write_str("limited to: ")?;
                 f.write_str(&items.join(", "))
             }
-            FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
-            FeatureFlag::RolloutRange { rollout } => write!(f, "RolloutRange: {:#?}", rollout),
+            FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {rollout:#?}"),
+            FeatureFlag::RolloutRange { rollout } => write!(f, "RolloutRange: {rollout:#?}"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_trait_sets_enforce_fragment_alias_enabled() {
+        let flags = FeatureFlags::default();
+        assert!(matches!(
+            flags.enforce_fragment_alias_where_ambiguous,
+            FeatureFlag::Enabled
+        ));
+        // A couple of quick sanity checks for other defaults
+        assert!(matches!(flags.no_inline, FeatureFlag::Disabled));
+        assert!(!flags.enable_resolver_normalization_ast);
+    }
+
+    #[test]
+    fn serde_empty_object_deserializes_to_default() {
+        // When deserializing from an empty JSON object, serde applies per-field defaults.
+        let flags: FeatureFlags = serde_json::from_str("{} ").expect("valid json");
+        assert_eq!(flags, FeatureFlags::default());
     }
 }

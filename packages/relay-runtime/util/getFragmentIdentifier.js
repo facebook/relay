@@ -25,7 +25,7 @@ const {intern} = require('./StringInterner');
 
 function getFragmentIdentifier(
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
 ): string {
   const selector = getSelector(fragmentNode, fragmentRef);
   const fragmentOwnerIdentifier =

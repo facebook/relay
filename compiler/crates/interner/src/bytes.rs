@@ -72,7 +72,7 @@ impl BytesKey {
 impl fmt::Debug for BytesKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bytes_value = self.lookup();
-        write!(f, "{:?}", bytes_value)
+        write!(f, "{bytes_value:?}")
     }
 }
 
@@ -123,14 +123,14 @@ impl StringKey {
 impl fmt::Debug for StringKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let str_value = self.lookup();
-        write!(f, "{:?}", str_value)
+        write!(f, "{str_value:?}")
     }
 }
 
 impl fmt::Display for StringKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let str_value = self.lookup();
-        write!(f, "{}", str_value)
+        write!(f, "{str_value}")
     }
 }
 

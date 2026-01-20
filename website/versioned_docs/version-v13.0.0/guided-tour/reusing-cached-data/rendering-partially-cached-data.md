@@ -10,8 +10,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbProfilePhotoHeaderExample from './fb/FbProfileHeaderExample.md';
-import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';
 
 When rendering cached data in Relay, it is possible to perform partial rendering. We define *"partial rendering"* as the ability to immediately render a query that is partially cached. That is, parts of the query might be missing, but parts of the query might already be cached. In these cases, we want to be able to immediately render the parts of the query that are cached, without waiting on the full query to be fetched.
 
@@ -163,12 +161,8 @@ function HomeTab() {
 }
 ```
 
-<FbSuspensePlaceholder />
-
 The process that we described above works the same way for nested fragments (i.e. fragments that include other fragments). This means that if the data required to render a fragment is locally cached, the fragment component will be able to render, regardless of whether data for any of its child or descendant fragments is missing. If data for a child fragment is missing, we can wrap it in a `Suspense` component to allow other fragments and parts of the app to continue rendering.
 
 As mentioned in our motivating example, this is desirable because it can allows us to skip loading states entirely. More specifically, the ability to render data that is partially available allows us to render intermediate UI states that more closely resemble the final rendered state.
-
-<FbProfilePhotoHeaderExample />
 
 <DocsRating />

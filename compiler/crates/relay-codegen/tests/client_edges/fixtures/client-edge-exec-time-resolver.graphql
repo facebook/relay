@@ -1,7 +1,7 @@
 # enable-exec-time-resolvers-directive
 
 query Foo @exec_time_resolvers(enabledProvider: "execTimeResolversFlagProvider") {
-  me {
+  client_me {
     pet {
       name
     }
@@ -20,6 +20,10 @@ type Cat @__RelayResolverModel {
     )
 }
 
-extend type User {
+type ClientUser {
   pet: Cat @relay_resolver(import_name: "Pet", import_path: "PetResolver")
+}
+
+extend type Query {
+  client_me: ClientUser
 }

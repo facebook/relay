@@ -541,7 +541,7 @@ trait ResolverIr: Sized {
                         }
                         _ => None,
                     };
-                    let mut is_edge_to_strong_object = fields.map_or(false, |fields| {
+                    let mut is_edge_to_strong_object = fields.is_some_and(|fields| {
                         fields.iter().any(|id| {
                             schema.field(*id).name.item
                                 == project_config.schema_config.node_interface_id_field
@@ -808,6 +808,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                             }
                         }),
                         directives: vec![],
+                        description: None,
                         span,
                     })
                     .collect::<Vec<_>>(),
@@ -1210,7 +1211,7 @@ impl StrongObjectIr {
             generate_model_instance_field(
                 schema_config.unselectable_directive_name,
                 RESOLVER_VALUE_SCALAR_NAME.0,
-                None,
+                self.description.map(as_string_node),
                 None,
                 self.type_directives(schema_config),
                 self.location(),
@@ -1227,6 +1228,7 @@ impl StrongObjectIr {
             }],
             fields: Some(List::generated(fields)),
             span,
+            description: self.description.map(as_string_node),
         })
     }
 }
@@ -1370,6 +1372,7 @@ impl WeakObjectIr {
                 location,
             )])),
             span,
+            description: self.description.map(as_string_node),
         })
     }
 
@@ -1412,6 +1415,7 @@ impl WeakObjectIr {
                 ])),
             }],
             span,
+            description: None,
         })
     }
 

@@ -13,11 +13,9 @@ use std::str::FromStr;
 
 use indexmap::IndexMap;
 use schemars::JsonSchema;
-use schemars::r#gen::SchemaGenerator;
-use schemars::schema::InstanceType;
-use schemars::schema::Schema;
-use schemars::schema::SchemaObject;
-use schemars::schema::SingleOrVec;
+use schemars::Schema;
+use schemars::SchemaGenerator;
+use schemars::json_schema;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
@@ -36,17 +34,16 @@ use crate::string::StringId;
 pub struct StringKey(StringId);
 
 impl JsonSchema for StringKey {
-    fn schema_name() -> std::string::String {
-        String::from("StringKey")
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        String::from("StringKey").into()
     }
 
     fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
-        SchemaObject {
-            instance_type: Some(SingleOrVec::Single(Box::new(InstanceType::String))),
-            format: None,
-            ..Default::default()
-        }
-        .into()
+        json_schema!({
+                "type": "string",
+                "format": null,
+                }
+        )
     }
 }
 
@@ -128,7 +125,7 @@ macro_rules! intern {
         static INSTANCE: Lazy<$crate::string_key::StringKey> = Lazy::new(|| $value.intern());
         *INSTANCE
     }};
-    ($_:expr_2021) => {
+    ($_:expr) => {
         compile_error!("intern! macro can only be used with string literals.")
     };
 }

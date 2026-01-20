@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c9b2717b54de0445d4d67300accc8240>>
+ * @generated SignedSource<<7ddb2879a19a31a23bb7621f794bd4a7>>
  */
 
 mod relay_resolvers_abstract_types;
@@ -164,6 +164,13 @@ async fn resolver_field_on_client_type_implementing_server_interface() {
     let input = include_str!("relay_resolvers_abstract_types/fixtures/resolver_field_on_client_type_implementing_server_interface.graphql");
     let expected = include_str!("relay_resolvers_abstract_types/fixtures/resolver_field_on_client_type_implementing_server_interface.expected");
     test_fixture(transform_fixture, file!(), "resolver_field_on_client_type_implementing_server_interface.graphql", "relay_resolvers_abstract_types/fixtures/resolver_field_on_client_type_implementing_server_interface.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_field_on_concrete_types_with_fragments() {
+    let input = include_str!("relay_resolvers_abstract_types/fixtures/resolver_field_on_concrete_types_with_fragments.graphql");
+    let expected = include_str!("relay_resolvers_abstract_types/fixtures/resolver_field_on_concrete_types_with_fragments.expected");
+    test_fixture(transform_fixture, file!(), "resolver_field_on_concrete_types_with_fragments.graphql", "relay_resolvers_abstract_types/fixtures/resolver_field_on_concrete_types_with_fragments.expected", input, expected).await;
 }
 
 #[tokio::test]

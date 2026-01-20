@@ -109,8 +109,8 @@ describe('execute()', () => {
       network: RelayNetwork.create(fetchFn, subscribeFn),
       store,
     });
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
     callbacks = {complete, error};
   });
 
@@ -146,7 +146,7 @@ describe('execute()', () => {
           if (!body) {
             throw new Error('Expected comment to have a body');
           }
-          const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+          const bodyValue: string = body.getValue('text') as $FlowFixMe;
           if (bodyValue == null) {
             throw new Error('Expected comment body to have text');
           }
@@ -160,10 +160,10 @@ describe('execute()', () => {
       data: {
         commentCreateSubscribe: {
           comment: {
-            id: commentID,
             body: {
               text: 'Gave Relay', // server data is lowercase
             },
+            id: commentID,
           },
         },
       },
@@ -173,10 +173,10 @@ describe('execute()', () => {
     expect(error).not.toBeCalled();
     expect(callback.mock.calls.length).toBe(1);
     expect(callback.mock.calls[0][0].data).toEqual({
-      id: commentID,
       body: {
         text: 'GAVE RELAY', // converted to uppercase by updater
       },
+      id: commentID,
     });
 
     // The Subscription affecting the query should not be marked as in flight
@@ -211,7 +211,7 @@ describe('execute()', () => {
           if (!body) {
             throw new Error('Expected comment to have a body');
           }
-          const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+          const bodyValue: string = body.getValue('text') as $FlowFixMe;
           if (bodyValue == null) {
             throw new Error('Expected comment body to have text');
           }
@@ -226,10 +226,10 @@ describe('execute()', () => {
       data: {
         commentCreateSubscribe: {
           comment: {
-            id: commentID,
             body: {
               text: 'Gave Relay',
             },
+            id: commentID,
           },
         },
       },

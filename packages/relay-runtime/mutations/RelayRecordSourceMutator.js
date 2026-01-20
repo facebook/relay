@@ -161,7 +161,7 @@ class RelayRecordSourceMutator {
     }
   }
 
-  getValue(dataID: DataID, storageKey: string): mixed {
+  getValue(dataID: DataID, storageKey: string): unknown {
     for (let ii = 0; ii < this.__sources.length; ii++) {
       const record = this.__sources[ii].get(dataID);
       if (record) {
@@ -175,7 +175,7 @@ class RelayRecordSourceMutator {
     }
   }
 
-  setValue(dataID: DataID, storageKey: string, value: mixed): void {
+  setValue(dataID: DataID, storageKey: string, value: unknown): void {
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setValue(sinkRecord, storageKey, value);
   }
@@ -183,7 +183,7 @@ class RelayRecordSourceMutator {
   getErrors(
     dataID: DataID,
     storageKey: string,
-  ): ?$ReadOnlyArray<TRelayFieldError> {
+  ): ?ReadonlyArray<TRelayFieldError> {
     for (let ii = 0; ii < this.__sources.length; ii++) {
       const record = this.__sources[ii].get(dataID);
       if (record) {
@@ -200,7 +200,7 @@ class RelayRecordSourceMutator {
   setErrors(
     dataID: DataID,
     storageKey: string,
-    errors?: $ReadOnlyArray<TRelayFieldError>,
+    errors?: ReadonlyArray<TRelayFieldError>,
   ): void {
     const sinkRecord = this._getSinkRecord(dataID);
     RelayModernRecord.setErrors(sinkRecord, storageKey, errors);

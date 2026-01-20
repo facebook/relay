@@ -157,7 +157,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                                 }
                             }
                             Err(err) => {
-                                panic!("Watchman subscription error: {}", err);
+                                panic!("Watchman subscription error: {err}");
                             }
                         }
                     }
@@ -237,7 +237,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                     Ok(b) => b,
                     Err(err) => {
                         let error_event = self.perf_logger.create_event("watch_build_error");
-                        error_event.string("error", format!("Ignored Compilation Error: {}", err));
+                        error_event.string("error", format!("Ignored Compilation Error: {err}"));
                         error_event.complete();
                         return;
                     }
@@ -324,10 +324,10 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let build_results: Vec<_> = config
         .par_enabled_projects()
         .filter(|project_config| {
-            if let Some(base) = project_config.base {
-                if compiler_state.project_has_pending_changes(base) {
-                    return true;
-                }
+            if let Some(base) = project_config.base
+                && compiler_state.project_has_pending_changes(base)
+            {
+                return true;
             }
             compiler_state.project_has_pending_changes(project_config.name)
         })
@@ -374,6 +374,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         let perf_logger = Arc::clone(&perf_logger);
         let artifact_map = compiler_state
             .artifacts
+            .0
             .get(&project_name)
             .cloned()
             .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
@@ -434,6 +435,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                 let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
                 compiler_state
                     .artifacts
+                    .0
                     .insert(project_name, next_artifact_map);
                 compiler_state.schema_cache.insert(project_name, schema);
 
@@ -500,12 +502,15 @@ fn get_removed_docblock_artifact_source_keys(
 fn get_removed_full_sources(full_sources: Option<&FullSources>) -> Vec<ArtifactSourceKey> {
     let mut removed_full_sources: Vec<ArtifactSourceKey> = vec![];
     if let Some(full_sources) = full_sources {
-        for (file, source) in full_sources.pending.iter() {
-            if source.is_empty() {
-                if let Some(text) = full_sources.processed.get(file) {
+        for (file, pending_source_text) in full_sources.pending.iter() {
+            if let Some(processed_source_text) = full_sources.processed.get(file) {
+                // Full sources are keyed by a hash of their contents.
+                // Therefore if the contents of a file have changed we must
+                // treat the hash of the old version of that file as removed.
+                if pending_source_text != processed_source_text {
                     // For now, full sources are only used for ResolverHash
                     removed_full_sources.push(ArtifactSourceKey::ResolverHash(
-                        ResolverSourceHash::new(text),
+                        ResolverSourceHash::new(processed_source_text),
                     ))
                 }
             }

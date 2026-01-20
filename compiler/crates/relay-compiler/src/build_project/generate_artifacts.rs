@@ -324,7 +324,7 @@ impl OperationGroup<'_> {
 
         Arc::clone(
             self.reader.unwrap_or_else(|| {
-                panic!("Expected to have a reader operation for `{}`", normal_name)
+                panic!("Expected to have a reader operation for `{normal_name}`")
             }),
         )
     }
@@ -334,9 +334,11 @@ impl OperationGroup<'_> {
             .normalization
             .map_or("MISSING_ENTRY", |n| n.name.item.0.lookup());
 
-        Arc::clone(self.typegen.unwrap_or_else(|| {
-            panic!("Expected to have a typegen operation for `{}`", normal_name)
-        }))
+        Arc::clone(
+            self.typegen.unwrap_or_else(|| {
+                panic!("Expected to have a typegen operation for `{normal_name}`")
+            }),
+        )
     }
 }
 

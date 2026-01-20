@@ -28,12 +28,12 @@ component EntryPointContainer<
   TRenders: React.Node,
   // $FlowFixMe[unsupported-variance-annotation]
   TEntryPointComponent: EntryPointComponent<
-    // $FlowExpectedErrors[unclear-type] Use any to accept all kinds of EntryPointComponent
+    // $FlowExpectedError[unclear-type] s[unclear-type] Use any to accept all kinds of EntryPointComponent
     any,
-    // $FlowExpectedErrors[unclear-type] Use any to accept all kinds of EntryPointComponent
+    // $FlowExpectedError[unclear-type] s[unclear-type] Use any to accept all kinds of EntryPointComponent
     any,
     TRuntimeProps,
-    // $FlowExpectedErrors[unclear-type] Use any to accept all kinds of EntryPointComponent
+    // $FlowExpectedError[unclear-type] s[unclear-type] Use any to accept all kinds of EntryPointComponent
     any,
     TRenders,
   >,

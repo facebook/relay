@@ -18,16 +18,16 @@ const invariant = require('invariant');
 
 // Ideally, we'd just import the type of the react module, but this causes Flow
 // problems.
-type React = $ReadOnly<{
-  createContext: createContext<mixed | null>,
+type React = Readonly<{
+  createContext: createContext<unknown | null>,
   version: string,
   ...
 }>;
 
-let relayLoggingContext: ?Context<mixed | null>;
+let relayLoggingContext: ?Context<unknown | null>;
 let firstReact: ?React;
 
-function createRelayLoggingContext(react: React): Context<mixed | null> {
+function createRelayLoggingContext(react: React): Context<unknown | null> {
   if (!relayLoggingContext) {
     relayLoggingContext = react.createContext(null);
     if (__DEV__) {

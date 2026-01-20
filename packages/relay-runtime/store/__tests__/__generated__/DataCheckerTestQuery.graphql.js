@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8faaaf601f3b06f1be00f5ab47724af>>
+ * @generated SignedSource<<50d3b5c1bf523e9c69152020902fed36>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,17 +20,17 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type DataCheckerTestQuery$variables = {|
   id?: ?string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type DataCheckerTestQuery$data = {|
   +node: ?{|
     +__typename: string,
-    +actors?: ?$ReadOnlyArray<?{|
+    +actors?: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
     +firstName?: ?string,
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +firstName: ?string,

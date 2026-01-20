@@ -827,6 +827,64 @@ test('Resolver reading a client-edge to a client type (recursive)', async () => 
   });
 });
 
+test('Resolver reading a weak edge', async () => {
+  await testResolverGC({
+    query: graphql`
+      query ResolverGCTestWeakQuery {
+        some_todo_description {
+          text
+        }
+      }
+    `,
+    variables: {},
+    payloads: [
+      {
+        data: {},
+      },
+    ],
+    beforeLookup: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookup: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        some_todo_description: {text: 'some todo description'},
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description:$r:text`,
+      ]);
+    },
+    afterRetainedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        some_todo_description: {text: 'some todo description'},
+      });
+
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description:$r:text`,
+      ]);
+    },
+    afterFreedGC: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        some_todo_description: {text: 'some todo description'},
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description`,
+        `client:TodoDescription:client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}some_todo_description:$r:text`,
+      ]);
+    },
+  });
+});
+
 test.each([0, 1, 5])(
   'Live Resolver cleanup when %i references retained',
   async numRetainedReferences => {

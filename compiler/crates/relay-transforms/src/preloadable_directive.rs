@@ -20,13 +20,12 @@ pub fn is_operation_preloadable(operation: &OperationDefinition) -> bool {
 
 /// Check if th the operation has a `@preloadable(hackPreloader: true)` directive
 pub fn should_generate_hack_preloader(operation: &OperationDefinition) -> DiagnosticsResult<bool> {
-    if let Some(directive) = find_preloadable_directive(operation) {
-        if let Some(arg) = directive
+    if let Some(directive) = find_preloadable_directive(operation)
+        && let Some(arg) = directive
             .arguments
             .named(ArgumentName(intern!("hackPreloader")))
-        {
-            return Ok(arg.value.item.expect_constant().unwrap_boolean());
-        }
+    {
+        return Ok(arg.value.item.expect_constant().unwrap_boolean());
     }
     Ok(false)
 }

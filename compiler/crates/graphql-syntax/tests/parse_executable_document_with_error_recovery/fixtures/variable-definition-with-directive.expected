@@ -96,6 +96,7 @@ ExecutableDocument {
                                     arguments: None,
                                 },
                             ],
+                            description: None,
                         },
                     ],
                     end: Token {
@@ -132,6 +133,7 @@ ExecutableDocument {
                     kind: CloseBrace,
                 },
             },
+            description: None,
         },
     ],
 }

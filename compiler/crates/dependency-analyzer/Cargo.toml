@@ -4,7 +4,7 @@
 name = "dependency-analyzer"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -21,13 +21,13 @@ common = { path = "../common" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 relay-transforms = { path = "../relay-transforms" }
-rustc-hash = "2.1.0"
+rustc-hash = "2.1.1"
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 intern = { path = "../intern" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

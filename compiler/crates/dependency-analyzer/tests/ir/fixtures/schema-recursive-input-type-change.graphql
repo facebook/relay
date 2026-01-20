@@ -1,0 +1,45 @@
+#
+# Test case: Schema changes in recursive input types should be detected without infinite recursion
+# This test validates that when an enum changes that is used inside a recursive input type
+# (an input type that references itself), queries using that input type are correctly
+# marked as affected without entering an infinite loop.
+#
+# RecursiveFilterInput is a recursive input type (it has a field `nested: RecursiveFilterInput`).
+# When the TestFilterEnumType enum changes, queries using RecursiveFilterInput should be
+# marked as affected, and the recursive traversal should terminate without infinite loop.
+
+query QueryWithRecursiveInput($input: RecursiveFilterInput) {
+  me {
+    recursiveSearch(filter: $input) {
+      id
+    }
+  }
+}
+
+query QueryWithoutRecursiveInput {
+  me {
+    name
+  }
+}
+
+fragment UnrelatedFragment on User {
+  id
+}
+
+%extensions%
+# Enum: TestFilterEnumType
+
+enum TestFilterEnumType {
+  ACTIVE
+  INACTIVE
+}
+
+input RecursiveFilterInput {
+  text: String
+  filterType: TestFilterEnumType
+  nested: RecursiveFilterInput
+}
+
+extend type User {
+  recursiveSearch(filter: RecursiveFilterInput): [User]
+}

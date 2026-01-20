@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<361a28885fd7d9a5528330baa02f1514>>
+ * @generated SignedSource<<8e89229d1ccf12fbd91c9cf5d9da3156>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ export type RelayMockPayloadGeneratorTest12Fragment$data = {|
   +myTown: ?{|
     +feedback: ?{|
       +comments: ?{|
-        +edges: ?$ReadOnlyArray<?{|
+        +edges: ?ReadonlyArray<?{|
           +comment: ?{|
             +id: string,
             +likeSentence: ?{|

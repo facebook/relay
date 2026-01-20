@@ -1,0 +1,9 @@
+==================================== INPUT ====================================
+{
+  "type_name": "MassiveType",
+  "string_filter": "nothing"
+}
+==================================== OUTPUT ===================================
+type MassiveType {
+  # 1000 fields not matching filter
+}

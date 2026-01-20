@@ -20,7 +20,7 @@ import {RelayFeatureFlags} from 'relay-runtime';
 
 hook useFragmentInternal(
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
 ): ?SelectorData | Array<?SelectorData> {

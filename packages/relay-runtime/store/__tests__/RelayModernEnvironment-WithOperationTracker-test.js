@@ -42,8 +42,8 @@ describe.each([true, false])(
     let QueryOperation2;
     let MutationOperation;
     let operationLoader: {
-      get: (reference: mixed) => ?NormalizationRootNode,
-      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+      get: (reference: unknown) => ?NormalizationRootNode,
+      load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
     };
 
     beforeEach(() => {
@@ -313,7 +313,7 @@ describe.each([true, false])(
       );
 
       invariant(result != null, 'Expected to have promise for operation');
-      const promiseCallback = jest.fn<[void], mixed>();
+      const promiseCallback = jest.fn<[void], unknown>();
       // $FlowFixMe[unused-promise]
       result.promise.then(promiseCallback);
       expect(promiseCallback).not.toBeCalled();

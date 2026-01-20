@@ -86,8 +86,7 @@ pub fn print_types_directives_as_shards(
     let typeshard_count: usize = type_shard_count.values().sum();
     if typeshard_count >= shard_count {
         panic!(
-            "Total shard count:{} must be greater than sum of all shard counts:{} for inidividual types",
-            shard_count, typeshard_count
+            "Total shard count:{shard_count} must be greater than sum of all shard counts:{typeshard_count} for inidividual types",
         );
     }
     let mut shards: Vec<String> = vec![String::new(); shard_count - typeshard_count];

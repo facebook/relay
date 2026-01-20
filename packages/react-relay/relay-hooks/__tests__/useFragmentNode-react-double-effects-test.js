@@ -7,15 +7,16 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
 
 const useFragmentNode = require('../legacy/useFragmentNode');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
 const {useEffect} = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 const warning = require('warning');
@@ -32,7 +33,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     jest.mock('scheduler', () => require('../../__tests__/mockScheduler'));
     jest.mock('warning');
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    renderSpy = jest.fn<ReadonlyArray<unknown>, unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -69,12 +70,12 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     warning.mockClear();
   });
 
-  it('unsubscribes and re-subscribes to fragment when effects are double invoked', () => {
+  it('unsubscribes and re-subscribes to fragment when effects are double invoked', async () => {
     // $FlowFixMe[prop-missing]
     warning.mockClear();
 
     let renderLogs = [];
-    const FragmentComponent = ({user}: $ReadOnly<{user: mixed}>) => {
+    const FragmentComponent = ({user}: Readonly<{user: unknown}>) => {
       const {data} = useFragmentNode<any>(gqlFragment, user, 'TestComponent');
       useEffect(() => {
         renderLogs.push(`commit: ${data.name}`);
@@ -89,15 +90,14 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
 
     let instance;
     const data = environment.lookup(query.fragment).data;
-    ReactTestRenderer.act(() => {
-      instance = ReactTestRenderer.create(
+    await ReactTestingLibrary.act(() => {
+      instance = ReactTestingLibrary.render(
+        // Using StrictMode will trigger double invoke effect behavior
         <React.StrictMode>
           <RelayEnvironmentProvider environment={environment}>
             <FragmentComponent user={data?.node} />
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
-        {unstable_isConcurrent: true},
       );
     });
     if (!instance) {
@@ -105,7 +105,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     }
 
     // Assert it renders normally
-    expect(instance.toJSON()).toEqual('Alice');
+    expect(instance.container.textContent).toEqual('Alice');
 
     // Assert render state of component after double invoked effects
     expect(renderLogs).toEqual([
@@ -119,7 +119,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
     // Update the data in the store, assert fragment comoponent updates,
     // meaning it re-subscribed successfully
     renderLogs = [];
-    ReactTestRenderer.act(() => {
+    await ReactTestingLibrary.act(() => {
       environment.commitPayload(query, {
         node: {
           __typename: 'User',
@@ -137,6 +137,6 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
       'commit: Alice Updated',
     ]);
     // Assert it updates and renders with updated data
-    expect(instance.toJSON()).toEqual('Alice Updated');
+    expect(instance.container.textContent).toEqual('Alice Updated');
   });
 });

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b4a023508741e0beb78ede6512e04108>>
+ * @generated SignedSource<<aa7d0672cdce6825f57f1e10a5c22a18>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$var
   after?: ?string,
   count: number,
   id: string,
-  orderby?: ?$ReadOnlyArray<?string>,
+  orderby?: ?ReadonlyArray<?string>,
 |};
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {|
   +node: ?{|

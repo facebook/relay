@@ -672,16 +672,14 @@ pub fn get_resolver_info(
                         .named_field(
                             resolver_field.parent_type.unwrap_or_else(|| {
                                 panic!(
-                                    "Parent type should be defined for the field `{}`.",
-                                    field_name
+                                    "Parent type should be defined for the field `{field_name}`."
                                 )
                             }),
                             field_name,
                         )
                         .unwrap_or_else(|| {
                             panic!(
-                                "Expect a field `{}` to be defined on the resolvers parent type.",
-                                field_name
+                                "Expect a field `{field_name}` to be defined on the resolvers parent type."
                             )
                         });
                     FragmentDataInjectionMode::Field {
@@ -767,6 +765,78 @@ pub fn get_resolver_fragment_dependency_name(field: &Field) -> Option<FragmentDe
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
 }
 
+// If the field is a resolver, return its user defined fragment names. Does not
+// return generated fragment names. For abstract types, returns all fragment names
+// from concrete implementations.
+pub fn get_all_resolver_fragment_dependency_names(
+    field: &Field,
+    schema: &SDLSchema,
+) -> Vec<FragmentDefinitionName> {
+    if !field.is_extension {
+        return vec![];
+    }
+
+    let name = field
+        .directives
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .filter(|resolver_directive| {
+            let generated = resolver_directive
+                .arguments
+                .named(*GENERATED_FRAGMENT_ARGUMENT_NAME)
+                .and_then(|arg| arg.value.get_bool_literal())
+                .unwrap_or(false);
+            !generated
+        })
+        .and_then(|resolver_directive| {
+            resolver_directive
+                .arguments
+                .named(*FRAGMENT_KEY_ARGUMENT_NAME)
+        })
+        .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName));
+
+    if let Some(name) = name {
+        return vec![name];
+    }
+
+    let mut fragment_names = Vec::new();
+    // For a resolver field on an abstract type, we currently need to include rootFragments for all implementations,
+    // because compiling resolvers don't have incremental mode
+    if let Some(Type::Interface(interface_type)) = field.parent_type {
+        let interface = schema.interface(interface_type);
+        let implementing_objects = interface.recursively_implementing_objects(schema);
+
+        // Collect all fragment names from concrete implementations
+        for object_id in implementing_objects.iter() {
+            let concrete_field_id = schema
+                .named_field(Type::Object(*object_id), field.name.item)
+                .expect("Expected field to be defined on concrete type");
+            let concrete_field = schema.field(concrete_field_id);
+
+            if let Some(fragment_name) = concrete_field
+                .directives
+                .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+                .filter(|resolver_directive| {
+                    let generated = resolver_directive
+                        .arguments
+                        .named(*GENERATED_FRAGMENT_ARGUMENT_NAME)
+                        .and_then(|arg| arg.value.get_bool_literal())
+                        .unwrap_or(false);
+                    !generated
+                })
+                .and_then(|resolver_directive| {
+                    resolver_directive
+                        .arguments
+                        .named(*FRAGMENT_KEY_ARGUMENT_NAME)
+                })
+                .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
+            {
+                fragment_names.push(fragment_name);
+            }
+        }
+    }
+    fragment_names
+}
+
 fn to_camel_case(non_camelized_string: String) -> String {
     let mut camelized_string = String::with_capacity(non_camelized_string.len());
     let mut last_character_was_not_alphanumeric = false;
@@ -785,8 +855,8 @@ fn to_camel_case(non_camelized_string: String) -> String {
 }
 
 pub fn resolver_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
-    to_camel_case(format!("{}_{}_resolver", parent_type_name, field_name,)).intern()
+    to_camel_case(format!("{parent_type_name}_{field_name}_resolver",)).intern()
 }
 pub fn resolver_type_import_alias(parent_type_name: StringKey, field_name: StringKey) -> StringKey {
-    to_camel_case(format!("{}_{}_resolver_type", parent_type_name, field_name,)).intern()
+    to_camel_case(format!("{parent_type_name}_{field_name}_resolver_type",)).intern()
 }

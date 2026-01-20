@@ -7,7 +7,7 @@ query providedVariableRefetchableFragmentQuery {
 fragment providedVariableRefetchableFragment on Node
   @refetchable(queryName: "refetchableQuery")
 {
-    ...providedVariableRefetchableFragment_providedVariableFragment
+    ...providedVariableRefetchableFragment_providedVariableFragment @alias
 }
 
 fragment providedVariableRefetchableFragment_providedVariableFragment on User

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b9c6a3c760ea59a6e6dc8a1cd6d00f86>>
+ * @generated SignedSource<<57b7df499d5141bf18aed70cd83448c3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type useBlockingPaginationFragmentTest2Fragment$fragmentTy
 type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables = any;
 export type useBlockingPaginationFragmentTest2Fragment$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +id: string,
       |},

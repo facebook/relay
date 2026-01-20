@@ -4,7 +4,7 @@
 name = "relay-typegen"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -20,7 +20,7 @@ graphql-ir = { path = "../graphql-ir" }
 indexmap = { version = "2.9.0", features = ["arbitrary", "rayon", "serde"] }
 intern = { path = "../intern" }
 itertools = "0.14.0"
-lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
+lazy_static = "1.5"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 relay-transforms = { path = "../relay-transforms" }
@@ -30,7 +30,7 @@ schema = { path = "../schema" }
 fixture-tests = { path = "../fixture-tests" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
-regex = "1.11.1"
+regex = "1.12.2"
 relay-codegen = { path = "../relay-codegen" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

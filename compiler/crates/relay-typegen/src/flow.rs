@@ -36,15 +36,15 @@ impl Writer for FlowPrinter {
     fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
-            AST::Mixed => write!(&mut self.result, "mixed"),
+            AST::Mixed => write!(&mut self.result, "unknown"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
             AST::Callable(return_type) => self.write_callable(return_type),
-            AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
-            AST::RawType(raw) => write!(&mut self.result, "{}", raw),
+            AST::Identifier(identifier) => write!(&mut self.result, "{identifier}"),
+            AST::RawType(raw) => write!(&mut self.result, "{raw}"),
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
@@ -56,7 +56,7 @@ impl Writer for FlowPrinter {
             }
             AST::FragmentReference(fragments) => self.write_fragment_references(fragments),
             AST::FragmentReferenceType(fragment) => {
-                write!(&mut self.result, "{}$fragmentType", fragment)
+                write!(&mut self.result, "{fragment}$fragmentType")
             }
             AST::ReturnTypeOfFunctionWithName(function_name) => {
                 self.write_return_type_of_function_with_name(*function_name)
@@ -76,7 +76,7 @@ impl Writer for FlowPrinter {
                 property_name,
             } => {
                 self.write(type_)?;
-                write!(&mut self.result, "['{}']", property_name)
+                write!(&mut self.result, "['{property_name}']")
             }
         }
     }
@@ -86,19 +86,19 @@ impl Writer for FlowPrinter {
     }
 
     fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "({}: ", name)?;
+        write!(&mut self.result, "({name}: ")?;
         self.write(value)?;
         writeln!(&mut self.result, ");")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "export type {} = ", name)?;
+        write!(&mut self.result, "export type {name} = ")?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
-        writeln!(&mut self.result, "import {} from \"{}\";", name, from)
+        writeln!(&mut self.result, "import {name} from \"{from}\";")
     }
 
     fn write_import_module_named(
@@ -108,9 +108,9 @@ impl Writer for FlowPrinter {
         from: &str,
     ) -> FmtResult {
         let local_name = if let Some(import_as) = import_as {
-            format!("{{{} as {}}}", name, import_as)
+            format!("{{{name} as {import_as}}}")
         } else {
-            format!("{{{}}}", name)
+            format!("{{{name}}}")
         };
         self.write_import_module_default(&local_name, from)
     }
@@ -131,8 +131,7 @@ impl Writer for FlowPrinter {
     fn write_export_fragment_type(&mut self, name: &str) -> FmtResult {
         writeln!(
             &mut self.result,
-            "declare export opaque type {name}: FragmentType;",
-            name = name
+            "declare export opaque type {name}: FragmentType;"
         )
     }
 
@@ -143,18 +142,18 @@ impl Writer for FlowPrinter {
     ) -> FmtResult {
         writeln!(
             &mut self.result,
-            "export type {{ {}, {} }};",
-            fragment_type_name_1, fragment_type_name_2
+            "export type {{ {fragment_type_name_1}, {fragment_type_name_2} }};"
         )
     }
 
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult {
-        writeln!(&mut self.result, "type {} = any;", name)
+        writeln!(&mut self.result, "type {name} = any;")
     }
 }
 
 impl FlowPrinter {
-    pub fn new() -> Self {
+    pub fn new(use_readonly_array: impl Into<Option<bool>>) -> Self {
+        let _ = use_readonly_array.into();
         Self {
             result: String::new(),
             indentation: 0,
@@ -166,7 +165,7 @@ impl FlowPrinter {
     }
 
     fn write_string_literal(&mut self, literal: StringKey) -> FmtResult {
-        write!(&mut self.result, "\"{}\"", literal)
+        write!(&mut self.result, "\"{literal}\"")
     }
 
     fn write_other_string(&mut self) -> FmtResult {
@@ -194,19 +193,19 @@ impl FlowPrinter {
             } else {
                 write!(&mut self.result, " & ")?;
             }
-            write!(&mut self.result, "{}$fragmentType", fragment)?;
+            write!(&mut self.result, "{fragment}$fragmentType")?;
         }
         Ok(())
     }
 
     fn write_read_only_array(&mut self, of_type: &AST) -> FmtResult {
-        write!(&mut self.result, "$ReadOnlyArray<")?;
+        write!(&mut self.result, "ReadonlyArray<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
 
     fn write_non_nullable(&mut self, of_type: &AST) -> FmtResult {
-        write!(&mut self.result, "$NonMaybeType<")?;
+        write!(&mut self.result, "NonNullable<")?;
         self.write(of_type)?;
         write!(&mut self.result, ">")
     }
@@ -305,14 +304,14 @@ impl FlowPrinter {
     }
 
     fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
-        write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
+        write!(&mut self.result, "Local3DPayload<\"{document_name}\", ")?;
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
     }
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
-        write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+        write!(&mut self.result, "ReturnType<typeof {function_name}>")
     }
 
     fn write_return_type_of_method_call(
@@ -322,7 +321,7 @@ impl FlowPrinter {
     ) -> FmtResult {
         write!(&mut self.result, "ReturnType<")?;
         self.write(object)?;
-        write!(&mut self.result, "[\"{}\"]>", method_name)
+        write!(&mut self.result, "[\"{method_name}\"]>")
     }
 
     fn write_actor_change_point(&mut self, selections: &AST) -> FmtResult {
@@ -345,17 +344,16 @@ impl FlowPrinter {
     ) -> FmtResult {
         writeln!(
             &mut self.result,
-            "// Type assertion validating that `{}` resolver is correctly implemented.",
-            function_name
+            "// Type assertion validating that `{function_name}` resolver is correctly implemented."
         )?;
         writeln!(
             &mut self.result,
             "// A type error here indicates that the type signature of the resolver module is incorrect."
         )?;
         if arguments.is_empty() {
-            write!(&mut self.result, "({}: (", function_name)?;
+            write!(&mut self.result, "({function_name}: (")?;
         } else {
-            writeln!(&mut self.result, "({}: (", function_name)?;
+            writeln!(&mut self.result, "({function_name}: (")?;
             self.indentation += 1;
             for argument in arguments.iter() {
                 self.write_indentation()?;
@@ -373,7 +371,7 @@ impl FlowPrinter {
     }
 
     fn write_generic_type(&mut self, outer: StringKey, inner: &[AST]) -> FmtResult {
-        write!(&mut self.result, "{}<", outer)?;
+        write!(&mut self.result, "{outer}<")?;
         for (i, inner_type) in inner.iter().enumerate() {
             if i > 0 {
                 write!(&mut self.result, ", ")?;
@@ -395,7 +393,7 @@ mod tests {
     use crate::writer::SortedASTList;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -422,7 +420,7 @@ mod tests {
     fn read_only_array_type() {
         assert_eq!(
             print_type(&AST::ReadOnlyArray(Box::new(AST::String))),
-            "$ReadOnlyArray<string>".to_string()
+            "ReadonlyArray<string>".to_string()
         );
     }
 
@@ -598,7 +596,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -608,7 +606,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new());
+        let mut printer = Box::new(FlowPrinter::new(false));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

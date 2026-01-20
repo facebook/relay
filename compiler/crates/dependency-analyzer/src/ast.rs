@@ -47,8 +47,7 @@ pub fn get_reachable_ast(
                 let name = FragmentDefinitionName(fragment.name.value);
                 assert!(
                     base_definitions_map.insert(name, base_definition).is_none(),
-                    "get_reachable_ast called on graph with duplicate definition of `{}`",
-                    name
+                    "get_reachable_ast called on graph with duplicate definition of `{name}`"
                 )
             }
             ExecutableDefinition::Operation(_) => {}

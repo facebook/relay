@@ -4,7 +4,7 @@
 name = "relay-docblock"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -24,12 +24,12 @@ errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
+lazy_static = "1.5"
 relay-config = { path = "../relay-config" }
 relay-schema = { path = "../relay-schema" }
 schema = { path = "../schema" }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
-thiserror = "2"
+serde = { version = "1.0.219", features = ["derive", "rc"] }
+thiserror = "2.0.12"
 
 [dev-dependencies]
 extract-graphql = { path = "../extract-graphql" }
@@ -37,4 +37,4 @@ fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
-tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

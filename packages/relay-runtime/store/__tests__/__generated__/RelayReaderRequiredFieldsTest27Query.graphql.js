@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<66373637d46c7080dd277569b7235e8f>>
+ * @generated SignedSource<<17bf7268f38390fcc9a3116dd67113c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,12 +37,12 @@ import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from ".
   rootKey: QueryAllAstrologicalSignsResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?$ReadOnlyArray<{|
+) => ?ReadonlyArray<{|
   +id: DataID,
 |}>);
 export type RelayReaderRequiredFieldsTest27Query$variables = {||};
 export type RelayReaderRequiredFieldsTest27Query$data = {|
-  +all_astrological_signs: $ReadOnlyArray<{|
+  +all_astrological_signs: ReadonlyArray<{|
     +name: ?string,
   |}>,
 |};

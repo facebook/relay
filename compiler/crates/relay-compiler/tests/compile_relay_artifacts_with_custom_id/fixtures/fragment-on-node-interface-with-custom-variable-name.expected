@@ -1,10 +1,10 @@
 ==================================== INPUT ====================================
 fragment fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   global_id
   ... on User {
     name
-    ...fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture
+    ...fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture @alias
   }
 }
 
@@ -270,8 +270,19 @@ fragment fragmentOnNodeInterfaceWithCustomVariableName_RefetchableFragment on No
           "storageKey": null
         },
         {
-          "args": null,
-          "kind": "FragmentSpread",
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
           "name": "fragmentOnNodeInterfaceWithCustomVariableName_ProfilePicture"
         }
       ],

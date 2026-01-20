@@ -14,6 +14,6 @@ const React = require('react');
 
 export type ReactRelayQueryRendererContext = {rootIsQueryRenderer: boolean};
 
-module.exports = (React.createContext({
+module.exports = React.createContext({
   rootIsQueryRenderer: false,
-}): React.Context<ReactRelayQueryRendererContext | null>);
+}) as React.Context<ReactRelayQueryRendererContext | null>;

@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+#
+# Test: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD cannot be used on semantically non-null fields
+# Property: Fields marked with @semanticNonNull (e.g., composer: User @semanticNonNull) should not allow DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD action
+# Expected: Error suggesting to use THROW instead
+
+query MyQuery {
+  opera {
+    composer @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD) {
+      name
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ @required with action DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD is not allowed on non-nullable fields. Use action THROW instead.
+
+  dangerously-throw-on-semantic-non-null-field.invalid.graphql:9:32
+    8 │   opera {
+    9 │     composer @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD) {
+      │                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │       name

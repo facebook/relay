@@ -22,7 +22,7 @@ export type TestStream$variables = {||};
 export type TestStream$data = {|
   +node: ?{|
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +id: string,
         |},
@@ -35,7 +35,7 @@ export type TestStream$rawResponse = {|
   +node: ?({|
     +__typename: "User",
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +__typename: "User",

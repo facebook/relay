@@ -9,7 +9,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbUseMutationParameter from './fb/FbUseMutationParameter.md';
 
 ## `useMutation`
 
@@ -68,8 +67,6 @@ function LikeButton() {
 
 </OssOnly>
 
-<FbUseMutationParameter />
-
 ### Return Value
 
 Tuple containing the following values:
@@ -89,6 +86,5 @@ Tuple containing the following values:
     * Return value:
         * `disposable`: Object containing a `dispose` function. Calling `disposable.dispose()` will revert the optimistic update, and Relay won't update the store or call any success/error callback, but the network request is not guaranteed to be cancelled. If the `dispose` is called after the mutation has succeeded, it will not rollback the update in Relay store.
 * [1] `areMutationsInFlight`: Will be `true` if any mutation triggered by calling `commitMutation` is still in flight. If you call `commitMutation` multiple times, there can be multiple mutations in flight at once.
-
 
 <DocsRating />

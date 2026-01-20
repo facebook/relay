@@ -25,12 +25,12 @@ function readUpdatableQuery<TVariables: Variables, TData>(
   query: UpdatableQuery<TVariables, TData>,
   variables: TVariables,
   proxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): UpdatableData<TData> {
   const updatableQuery = getUpdatableQuery(query);
 
   return {
-    // $FlowFixMe[incompatible-call]
+    // $FlowFixMe[incompatible-type]
     updatableData: createUpdatableProxy<TData>(
       proxy.getRoot(),
       variables,

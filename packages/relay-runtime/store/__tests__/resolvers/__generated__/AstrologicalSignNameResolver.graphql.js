@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4fadd9f926486d3b17d9d8c0b0131f26>>
+ * @generated SignedSource<<38933717a4dd9580ce42a8f5e903418f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ import type { TestResolverContextType } from "../../../../mutations/__tests__/Te
   rootKey: AstrologicalSignSelfResolver$key,
   args: void,
   context: TestResolverContextType,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type AstrologicalSignNameResolver$fragmentType: FragmentType;
 export type AstrologicalSignNameResolver$data = {|
   +self: ?ReturnType<typeof astrologicalSignSelfResolverType>,

@@ -4,7 +4,7 @@
 name = "schema"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -15,19 +15,19 @@ path = "tests/build_schema_test.rs"
 [dependencies]
 common = { path = "../common" }
 dashmap = { version = "5.5.3", features = ["rayon", "serde"] }
-flatbuffers = "2.0"
+flatbuffers = "25.2.10"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = { version = "1.5", features = ["spin_no_std"], default-features = false }
-ouroboros = "0.18.4"
-rayon = "1.9.0"
+lazy_static = "1.5"
+ouroboros = "0.18.5"
+rayon = "1.11.0"
 schema-flatbuffer = { path = "../schema-flatbuffer" }
-serde = { version = "1.0.185", features = ["derive", "rc"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 strsim = "0.10.0"
-thiserror = "2"
+thiserror = "2.0.12"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
 graphql-cli = { path = "../graphql-cli" }
-tokio = { version = "1.45.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b8937b4fd619080f4c95c07764c2e979>>
+ * @generated SignedSource<<1734d51c04fd09cd792589bb2f074fe0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ export type RelayReaderCatchFieldsTestCatchToResultFragment$data = Result<{|
     +firstName: ?string,
   |},
   +$fragmentType: RelayReaderCatchFieldsTestCatchToResultFragment$fragmentType,
-|}, mixed>;
+|}, unknown>;
 export type RelayReaderCatchFieldsTestCatchToResultFragment$key = {
   +$data?: RelayReaderCatchFieldsTestCatchToResultFragment$data,
   +$fragmentSpreads: RelayReaderCatchFieldsTestCatchToResultFragment$fragmentType,

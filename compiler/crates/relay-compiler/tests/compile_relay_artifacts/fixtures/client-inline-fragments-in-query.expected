@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query clientInlineFragmentsInQuery_FooQuery($id: ID!) {
   node(id: $id) {
-    ...clientInlineFragmentsInQuery_Foo_user
+    ...clientInlineFragmentsInQuery_Foo_user @alias
   }
 }
 
@@ -52,8 +52,19 @@ interface ClientNamed {
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "clientInlineFragmentsInQuery_Foo_user"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "clientInlineFragmentsInQuery_Foo_user"
           }
         ],

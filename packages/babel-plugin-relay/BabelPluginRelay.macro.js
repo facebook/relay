@@ -36,4 +36,4 @@ function BabelPluginRelayMacro({references, state, babel, config}: any) {
   });
 }
 
-module.exports = (createMacro(BabelPluginRelayMacro, {configName}): any);
+module.exports = createMacro(BabelPluginRelayMacro, {configName}) as any;

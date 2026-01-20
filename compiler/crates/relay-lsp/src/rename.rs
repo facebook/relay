@@ -326,9 +326,7 @@ fn is_variable_defined_in_variable_definitions(
     fragment_definition
         .variable_definitions
         .as_ref()
-        .map_or(false, |variables| {
-            variables.items.iter().any(|v| v.name.name == variable_name)
-        })
+        .is_some_and(|variables| variables.items.iter().any(|v| v.name.name == variable_name))
 }
 
 fn is_argument_defined_in_argument_definitions(
@@ -339,10 +337,11 @@ fn is_argument_defined_in_argument_definitions(
         .directives
         .named(*ARGUMENTDEFINITIONS_DIRECTIVE)
         .as_ref()
-        .map_or(false, |directive| {
-            directive.arguments.as_ref().map_or(false, |args| {
-                args.items.iter().any(|v| v.name.value == variable_name)
-            })
+        .is_some_and(|directive| {
+            directive
+                .arguments
+                .as_ref()
+                .is_some_and(|args| args.items.iter().any(|v| v.name.value == variable_name))
         })
 }
 
@@ -372,9 +371,7 @@ fn get_rename_kind_for_variable_identifier(
             if !operation_definition
                 .variable_definitions
                 .as_ref()
-                .map_or(false, |defs| {
-                    defs.items.iter().any(|v| v.name.name == variable_name)
-                })
+                .is_some_and(|defs| defs.items.iter().any(|v| v.name.name == variable_name))
             {
                 return Err(LSPRuntimeError::UnexpectedError(
                     "Couldn't find variable definition for variable".into(),
@@ -518,14 +515,12 @@ impl Visitor for FragmentArgumentFinder {
     }
 
     fn visit_argument(&mut self, argument: &graphql_ir::Argument) {
-        if let Some(fragment_name) = self.current_scope.fragment_name {
-            if fragment_name == self.fragment_name {
-                if let graphql_ir::Value::Variable(variable) = &argument.value.item {
-                    if variable.name.item.0 == self.argument_name {
-                        self.add_argument_location(variable.name.location);
-                    }
-                }
-            }
+        if let Some(fragment_name) = self.current_scope.fragment_name
+            && fragment_name == self.fragment_name
+            && let graphql_ir::Value::Variable(variable) = &argument.value.item
+            && variable.name.item.0 == self.argument_name
+        {
+            self.add_argument_location(variable.name.location);
         }
     }
 
@@ -562,10 +557,11 @@ impl Visitor for FragmentArgumentFinder {
 
     // This is necessary to visit variable usages within conditionals like @skip.
     fn visit_variable(&mut self, value: &graphql_ir::Variable) {
-        if let Some(fragment_name) = self.current_scope.fragment_name {
-            if fragment_name == self.fragment_name && value.name.item.0 == self.argument_name {
-                self.add_argument_location(value.name.location);
-            }
+        if let Some(fragment_name) = self.current_scope.fragment_name
+            && fragment_name == self.fragment_name
+            && value.name.item.0 == self.argument_name
+        {
+            self.add_argument_location(value.name.location);
         }
     }
 }

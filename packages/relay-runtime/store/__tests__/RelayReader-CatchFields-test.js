@@ -41,7 +41,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(fieldErrors).toEqual(null);
     expect(data).toEqual({me: {lastName: null}});
   });
@@ -77,7 +77,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         lastName: {
@@ -136,7 +136,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         lastName: null,
@@ -191,7 +191,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       alsoMe: null,
       me: {
@@ -243,7 +243,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: null,
     });
@@ -281,7 +281,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({me: null});
 
@@ -321,7 +325,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual(null);
 
@@ -361,7 +369,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({errors: [{path: ['me', 'firstName']}], ok: false});
 
@@ -500,7 +512,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({me: {myAlias: null}});
 
@@ -542,7 +558,11 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {});
-    const {data, fieldErrors, isMissingData} = read(source, operation.fragment);
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
 
     expect(data).toEqual({
       me: {myAlias: {ok: false, errors: [{path: ['myAlias', 'firstName']}]}},
@@ -584,7 +604,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         lastName: {
@@ -620,7 +640,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         ok: true,
@@ -664,7 +684,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         ok: false,
@@ -711,7 +731,7 @@ describe('RelayReader @catch', () => {
       }
     `;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data, fieldErrors} = read(source, operation.fragment);
+    const {data, fieldErrors} = read(source, operation.fragment, null);
     expect(data).toEqual({
       me: {
         errors: [

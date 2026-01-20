@@ -41,10 +41,10 @@ type FragmentQueryOptions = {
   networkCacheConfig?: ?CacheConfig,
 };
 
-type FragmentState = $ReadOnly<
+type FragmentState = Readonly<
   | {kind: 'bailout'}
   | {kind: 'singular', snapshot: Snapshot, epoch: number}
-  | {kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number},
+  | {kind: 'plural', snapshots: ReadonlyArray<Snapshot>, epoch: number},
 >;
 
 function isMissingData(state: FragmentState): boolean {
@@ -59,7 +59,7 @@ function isMissingData(state: FragmentState): boolean {
 
 function getMissingClientEdges(
   state: FragmentState,
-): $ReadOnlyArray<MissingClientEdgeRequestInfo> | null {
+): ReadonlyArray<MissingClientEdgeRequestInfo> | null {
   if (state.kind === 'bailout') {
     return null;
   } else if (state.kind === 'singular') {
@@ -94,7 +94,7 @@ function handlePotentialSnapshotErrorsForState(
 function handleMissingClientEdge(
   environment: IEnvironment,
   parentFragmentNode: ReaderFragment,
-  parentFragmentRef: mixed,
+  parentFragmentRef: unknown,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
 ): QueryResult {
@@ -134,16 +134,16 @@ function getFragmentState(
       return {kind: 'bailout'};
     } else {
       return {
+        epoch: environment.getStore().getEpoch(),
         kind: 'plural',
         snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
-        epoch: environment.getStore().getEpoch(),
       };
     }
   } else {
     return {
+      epoch: environment.getStore().getEpoch(),
       kind: 'singular',
       snapshot: environment.lookup(fragmentSelector),
-      epoch: environment.getStore().getEpoch(),
     };
   }
 }
@@ -152,7 +152,7 @@ function getFragmentState(
 function readFragmentInternal(
   environment: IEnvironment,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
   fragmentKey?: string,
@@ -198,14 +198,15 @@ function readFragmentInternal(
       'to `%s`. If the parent fragment only fetches the fragment conditionally ' +
       '- with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` ' +
       'spread  - then the fragment reference will not exist. ' +
-      'In this case, pass `null` if the conditions for evaluating the ' +
-      'fragment are not met (e.g. if the `@include(if)` value is false.)',
+      'This issue can generally be fixed by adding `@alias` after `...%s`.\n' +
+      'See https://relay.dev/docs/next/guides/alias-directive/',
     fragmentNode.name,
     fragmentNode.name,
     hookDisplayName,
     fragmentNode.name,
     fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
     hookDisplayName,
+    fragmentNode.name,
   );
 
   const state = getFragmentState(environment, fragmentSelector);
@@ -219,7 +220,7 @@ function readFragmentInternal(
   ) {
     const missingClientEdges = getMissingClientEdges(state);
     if (missingClientEdges?.length) {
-      clientEdgeQueries = ([]: Array<QueryResult>);
+      clientEdgeQueries = [] as Array<QueryResult>;
       for (const edge of missingClientEdges) {
         clientEdgeQueries.push(
           handleMissingClientEdge(
@@ -287,7 +288,7 @@ function readFragmentInternal(
     }
   }
 
-  return {data, clientEdgeQueries};
+  return {clientEdgeQueries, data};
 }
 
 module.exports = readFragmentInternal;

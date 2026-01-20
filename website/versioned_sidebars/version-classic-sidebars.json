@@ -1,36 +1,36 @@
 {
-  "version-classic/docs": [
+  "docs": [
     {
       "type": "category",
       "label": "Relay Classic Guides",
       "items": [
         {
           "type": "doc",
-          "id": "version-classic/introduction-to-relay"
+          "id": "introduction-to-relay"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-guides-containers"
+          "id": "classic-guides-containers"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-guides-routes"
+          "id": "classic-guides-routes"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-guides-root-container"
+          "id": "classic-guides-root-container"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-guides-ready-state"
+          "id": "classic-guides-ready-state"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-guides-mutations"
+          "id": "classic-guides-mutations"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-guides-network-layer"
+          "id": "classic-guides-network-layer"
         }
       ]
     },
@@ -40,43 +40,43 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay"
+          "id": "classic-api-reference-relay"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-container"
+          "id": "classic-api-reference-relay-container"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-route"
+          "id": "classic-api-reference-relay-route"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-renderer"
+          "id": "classic-api-reference-relay-renderer"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-root-container"
+          "id": "classic-api-reference-relay-root-container"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-ql"
+          "id": "classic-api-reference-relay-ql"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-mutation"
+          "id": "classic-api-reference-relay-mutation"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-graphql-mutation"
+          "id": "classic-api-reference-relay-graphql-mutation"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-proptypes"
+          "id": "classic-api-reference-relay-proptypes"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-api-reference-relay-store"
+          "id": "classic-api-reference-relay-store"
         }
       ]
     },
@@ -86,15 +86,15 @@
       "items": [
         {
           "type": "doc",
-          "id": "version-classic/classic-interfaces-relay-mutation-request"
+          "id": "classic-interfaces-relay-mutation-request"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-interfaces-relay-network-layer"
+          "id": "classic-interfaces-relay-network-layer"
         },
         {
           "type": "doc",
-          "id": "version-classic/classic-interfaces-relay-query-request"
+          "id": "classic-interfaces-relay-query-request"
         }
       ]
     }

@@ -160,7 +160,11 @@ fn generate_fragment_type_exports_section_impl(
             is_extra_artifact_branch_module,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let use_readonly_array = project_config
+        .feature_flags
+        .readonly_array_for_flow
+        .is_enabled_for(fragment_definition.name.item.0);
+    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
     write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
         .unwrap();
     writer.into_string()
@@ -186,17 +190,18 @@ pub fn generate_named_validator_export(
             is_extra_artifact_branch_module: false,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let use_readonly_array = project_config
+        .feature_flags
+        .readonly_array_for_flow
+        .is_enabled_for(fragment_definition.name.item.0);
+    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
 
     if project_config.typegen_config.eager_es_modules {
-        format!("export {}", validator_function_body)
+        format!("export {validator_function_body}")
     } else {
-        format!(
-            "module.exports.{} = {};",
-            VALIDATOR_EXPORT_NAME, validator_function_body
-        )
+        format!("module.exports.{VALIDATOR_EXPORT_NAME} = {validator_function_body};")
     }
 }
 
@@ -225,7 +230,11 @@ pub fn generate_operation_type_exports_section(
             is_extra_artifact_branch_module: false,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let use_readonly_array = project_config
+        .feature_flags
+        .readonly_array_for_flow
+        .is_enabled_for(typegen_operation.name.item.0);
+    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
     write_operation_type_exports_section(
         &typegen_context,
         typegen_operation,
@@ -262,7 +271,11 @@ pub fn generate_split_operation_type_exports_section(
             is_extra_artifact_branch_module: false,
         },
     );
-    let mut writer = new_writer_from_config(&project_config.typegen_config);
+    let use_readonly_array = project_config
+        .feature_flags
+        .readonly_array_for_flow
+        .is_enabled_for(typegen_operation.name.item.0);
+    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
 
     write_split_operation_type_exports_section(
         &typegen_context,

@@ -37,7 +37,6 @@ pub use lsp_state::build_ir_for_lsp;
 use lsp_types::CodeActionOptions;
 use lsp_types::CodeActionProviderCapability;
 use lsp_types::CompletionOptions;
-use lsp_types::InitializeParams;
 use lsp_types::RenameOptions;
 use lsp_types::ServerCapabilities;
 use lsp_types::TextDocumentSyncCapability;
@@ -69,6 +68,8 @@ pub use crate::LSPExtraDataProvider;
 use crate::code_action::on_code_action;
 use crate::completion::on_completion;
 use crate::completion::on_resolve_completion_item;
+use crate::daemon;
+use crate::daemon::DeamonRequestMessage;
 use crate::explore_schema_for_type::ExploreSchemaForType;
 use crate::explore_schema_for_type::on_explore_schema_for_type;
 use crate::find_field_usages::FindFieldUsages;
@@ -102,10 +103,11 @@ use crate::text_documents::on_did_change_text_document;
 use crate::text_documents::on_did_close_text_document;
 use crate::text_documents::on_did_open_text_document;
 use crate::text_documents::on_did_save_text_document;
+use crate::type_information::get_type_information;
 
 /// Initializes an LSP connection, handling the `initialize` message and `initialized` notification
 /// handshake.
-pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
+pub fn initialize(connection: &Connection) -> LSPProcessResult<()> {
     // We don't currently negotiate character encoding in the Relay LSP.
     // This means we fall back to the LSP default of UTF-16, but we make no effort to
     // ensure that the LSP positions we emit are actually representing the source text as UTF-16.
@@ -142,15 +144,15 @@ pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams>
     };
 
     let server_capabilities = serde_json::to_value(server_capabilities)?;
-    let params = connection.initialize(server_capabilities)?;
-    let params: InitializeParams = serde_json::from_value(params)?;
-    Ok(params)
+    connection.initialize(server_capabilities)?;
+    Ok(())
 }
 
 #[derive(Debug)]
 pub enum Task {
     InboundMessage(lsp_server::Message),
     LSPState(lsp_state::Task),
+    DeamonRequest(daemon::DeamonRequest),
 }
 
 /// Run the main server loop
@@ -160,7 +162,6 @@ pub async fn run<
 >(
     connection: Connection,
     mut config: Config,
-    _params: InitializeParams,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
@@ -191,9 +192,22 @@ pub async fn run<
 
     LSPStateResources::new(Arc::clone(&lsp_state)).watch();
 
-    while let Some(task) = next_task(&connection.receiver, &task_queue.receiver) {
-        task_queue.process(Arc::clone(&lsp_state), task);
-    }
+    let daemon_task_scheduler = Arc::clone(&task_scheduler);
+    tokio::spawn(daemon::start_server(Arc::new(move |request| {
+        daemon_task_scheduler.schedule(Task::DeamonRequest(request));
+    })));
+
+    tokio::task::spawn_blocking(move || {
+        // `next_task` is a blocking function that will block until a message is received, that's why we
+        // need to spawn a blocking task here and then go back to async execution with `block_in_place`.
+        while let Some(task) = next_task(&connection.receiver, &task_queue.receiver) {
+            tokio::task::block_in_place(|| {
+                tokio::runtime::Handle::current()
+                    .block_on(async { task_queue.process(Arc::clone(&lsp_state), task).await })
+            });
+        }
+    })
+    .await?;
 
     panic!("Client exited without proper shutdown sequence.")
 }
@@ -231,6 +245,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Task::InboundMessage(Message::Response(_)) => {
                 // TODO: handle response from the client -> cancel message, etc
             }
+            Task::DeamonRequest(daemon_request) => {
+                tokio::spawn(async {
+                    let response = handle_daemon_request(state, daemon_request.message).await;
+                    daemon_request.responder.respond(response);
+                });
+            }
         }
     }
 
@@ -244,11 +264,42 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 }
 
+async fn handle_daemon_request<
+    TPerfLogger: PerfLogger + 'static,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
+    state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
+    daemon_request_message: DeamonRequestMessage,
+) -> Result<String, String> {
+    match daemon_request_message {
+        daemon::DeamonRequestMessage::TypeInformation {
+            file_uri,
+            type_name,
+            string_filter,
+        } => {
+            let Ok(project_name) = state.extract_project_name_from_url(&file_uri) else {
+                return Err(format!(
+                    "Unable to map {file_uri:?} to Relay GraphQL project."
+                ));
+            };
+            if let Some(when_ready) = state.initialize_lsp_state_resources(project_name) {
+                debug!("Waiting for LSP state resources to be ready");
+                when_ready.wait().await;
+                debug!("LSP state resources are ready");
+            } else {
+                debug!("LSP state resources are already ready");
+            }
+
+            get_type_information(state.as_ref(), file_uri, type_name, string_filter)
+        }
+    }
+}
+
 fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation>(
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     request: lsp_server::Request,
 ) {
-    debug!("request received {:?}", request);
+    debug!("request received {request:?}");
     let lsp_request_event = lsp_state.perf_logger.create_event("lsp_message");
     let get_server_response_bound = |req| dispatch_request(req, lsp_state.as_ref());
     let get_response = with_request_logging(&lsp_request_event, get_server_response_bound);
@@ -343,7 +394,7 @@ fn handle_notification<
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
     notification: Notification,
 ) {
-    debug!("notification received {:?}", notification);
+    debug!("notification received {notification:?}");
     let lsp_notification_event = lsp_state.perf_logger.create_event("lsp_message");
     lsp_notification_event.string("lsp_method", notification.method.clone());
     lsp_notification_event.string("lsp_type", "notification".to_string());

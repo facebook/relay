@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b6f883604b33736c7d60132635f8cbdd>>
+ * @generated SignedSource<<1b4c860e504451d177af8ae43a4eb780>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type FragmentResourceWithOperationTrackerSuspenseTestViewerFriendsQuery$d
   +viewer: ?{|
     +actor: ?{|
       +friends: ?{|
-        +edges: ?$ReadOnlyArray<?{|
+        +edges: ?ReadonlyArray<?{|
           +node: ?{|
             +$fragmentSpreads: FragmentResourceWithOperationTrackerSuspenseTestFragment$fragmentType,
           |},

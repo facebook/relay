@@ -1077,7 +1077,7 @@ fn return_type_to_type_annotation(
                 Some(type_parameters) if type_parameters.params.len() == 1 => {
                     let identifier_name = identifier.item.lookup();
                     match identifier_name {
-                        "Array" | "$ReadOnlyArray" => {
+                        "Array" | "$ReadOnlyArray" | "ReadonlyArray" => {
                             let param = &type_parameters.params[0];
                             let (type_annotation, inner_semantic_non_null_levels) =
                                 return_type_to_type_annotation(
@@ -1273,6 +1273,7 @@ fn flow_type_to_field_arguments(
                 type_: type_annotation,
                 default_value: None,
                 directives: vec![],
+                description: None,
                 span: prop_span,
             };
             items.push(arg);
@@ -1366,10 +1367,10 @@ fn invert_custom_scalar_map(
 ) -> DiagnosticsResult<FnvIndexMap<CustomType, ScalarName>> {
     let mut custom_scalar_map = FnvIndexMap::default();
     for (graphql_scalar, flow_type) in custom_scalar_types.iter() {
-        if let CustomType::Name(scalar) = flow_type {
-            if FLOW_PRIMATIVES.contains(scalar.lookup()) {
-                continue;
-            }
+        if let CustomType::Name(scalar) = flow_type
+            && FLOW_PRIMATIVES.contains(scalar.lookup())
+        {
+            continue;
         }
         if custom_scalar_map.contains_key(flow_type) {
             // Multiple custom GraphQL scalars map to one Flow type

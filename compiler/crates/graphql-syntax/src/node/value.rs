@@ -46,8 +46,8 @@ pub enum Value {
 impl fmt::Display for Value {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Value::Constant(value) => f.write_fmt(format_args!("{}", value)),
-            Value::Variable(value) => f.write_fmt(format_args!("{}", value)),
+            Value::Constant(value) => f.write_fmt(format_args!("{value}")),
+            Value::Variable(value) => f.write_fmt(format_args!("{value}")),
             Value::List(value) => f.write_fmt(format_args!(
                 "[{}]",
                 value

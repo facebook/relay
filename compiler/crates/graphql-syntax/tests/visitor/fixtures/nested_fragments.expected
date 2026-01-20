@@ -1,0 +1,75 @@
+==================================== INPUT ====================================
+query NestedQuery {
+  viewer {
+    id
+    ... on User {
+      name
+      posts {
+        edges {
+          node {
+            id
+            title
+            ...PostDetails
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment PostDetails on Post {
+  content
+  author {
+    ...AuthorInfo
+  }
+  comments {
+    ...CommentList
+  }
+}
+
+fragment AuthorInfo on User {
+  id
+  name
+  avatar
+}
+
+fragment CommentList on CommentConnection {
+  edges {
+    node {
+      id
+      text
+      author {
+        ...AuthorInfo
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+visit_operation: Query NestedQuery
+visit_linked_field: viewer
+visit_scalar_field: id
+visit_inline_fragment: on User
+visit_scalar_field: name
+visit_linked_field: posts
+visit_linked_field: edges
+visit_linked_field: node
+visit_scalar_field: id
+visit_scalar_field: title
+visit_fragment_spread: PostDetails
+visit_fragment: PostDetails
+visit_scalar_field: content
+visit_linked_field: author
+visit_fragment_spread: AuthorInfo
+visit_linked_field: comments
+visit_fragment_spread: CommentList
+visit_fragment: AuthorInfo
+visit_scalar_field: id
+visit_scalar_field: name
+visit_scalar_field: avatar
+visit_fragment: CommentList
+visit_linked_field: edges
+visit_linked_field: node
+visit_scalar_field: id
+visit_scalar_field: text
+visit_linked_field: author
+visit_fragment_spread: AuthorInfo

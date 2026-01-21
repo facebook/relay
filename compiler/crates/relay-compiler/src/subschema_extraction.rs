@@ -103,9 +103,10 @@ pub async fn compile_and_extract_subschema(
         SubschemaError::CanonicalizeFailed(format!("{:?}", e.kind()))
     })?;
 
-    let canonical_root_dir = config.root_dir.canonicalize().map_err(|e| {
-        SubschemaError::CanonicalizeFailed(format!("{:?}", e.kind()))
-    })?;
+    let canonical_root_dir = config
+        .root_dir
+        .canonicalize()
+        .map_err(|e| SubschemaError::CanonicalizeFailed(format!("{:?}", e.kind())))?;
 
     let relative_full_schema = canonical_full_schema
         .strip_prefix(&canonical_root_dir)

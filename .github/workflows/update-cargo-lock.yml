@@ -16,9 +16,6 @@ jobs:
   update-cargo-lock:
     name: Update Cargo.lock file
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
@@ -33,6 +30,6 @@ jobs:
       - name: pull-request
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELAY_BOT_GITHUB_PAT }}
           title: "Update Cargo.lock"
           delete-branch: true

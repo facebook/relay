@@ -96,14 +96,16 @@ pub async fn compile_and_extract_subschema(
     // Canonicalize both paths to ensure consistent comparison across platforms.
     // On Windows, canonicalize() may produce UNC paths or different casing,
     // so we need to canonicalize root_dir as well for strip_prefix to work.
-    let canonical_full_schema = absolute_full_schema
-        .canonicalize()
-        .map_err(|e| SubschemaError::CanonicalizeFailed(e.to_string()))?;
+    let canonical_full_schema = absolute_full_schema.canonicalize().map_err(|e| {
+        // Use ErrorKind to produce a consistent error message across platforms
+        // (e.g., Unix says "No such file or directory" while Windows says
+        // "The system cannot find the file specified")
+        SubschemaError::CanonicalizeFailed(format!("{:?}", e.kind()))
+    })?;
 
-    let canonical_root_dir = config
-        .root_dir
-        .canonicalize()
-        .map_err(|e| SubschemaError::CanonicalizeFailed(e.to_string()))?;
+    let canonical_root_dir = config.root_dir.canonicalize().map_err(|e| {
+        SubschemaError::CanonicalizeFailed(format!("{:?}", e.kind()))
+    })?;
 
     let relative_full_schema = canonical_full_schema
         .strip_prefix(&canonical_root_dir)

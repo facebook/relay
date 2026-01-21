@@ -247,7 +247,7 @@ Run `npm run relay`. Now the Load More button should cause another three comment
 
 As it stands, there’s no user feedback when you click the “Load More” button until the new comments have finished loading and then appear. Every user action should result in immediate feedback, so let’s show a spinner while the new data is loading — but without hiding the existing UI.
 
-To do that, we need can use the `isLoadingNext` boolean value returned from `usePaginationFragment`. Here are the changes we need to make:
+To do that, we can use the `isLoadingNext` boolean value returned from `usePaginationFragment`. Here are the changes we need to make:
 
 ```
 import SmallSpinner from "./SmallSpinner";

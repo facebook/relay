@@ -254,13 +254,16 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         Ok(())
     }
 
+    /// Follow the mobile schema generation sorting strategy: sort argument definitions by name
     fn print_args(&mut self, args: &ArgumentDefinitions) -> FmtResult {
         if args.is_empty() {
             return Ok(());
         }
         let mut first = true;
         write!(self.writer(), "(")?;
-        for arg in args.iter() {
+        let mut sorted_args: Vec<_> = args.iter().collect();
+        sorted_args.sort_by(|a, b| a.name.item.cmp(&b.name.item));
+        for arg in sorted_args {
             if first {
                 first = false;
             } else {
@@ -308,24 +311,30 @@ impl<'schema, 'writer> Printer<'schema, 'writer> {
         write!(self.writer(), "}}")
     }
 
+    /// Follow the mobile schema generation sorting strategy: sort directives by name
     fn print_directive_values(&mut self, directives: &[DirectiveValue]) -> FmtResult {
         if directives.is_empty() {
             return Ok(());
         }
-        for directive in directives {
+        let mut sorted_directives: Vec<_> = directives.iter().collect();
+        sorted_directives.sort_by(|a, b| a.name.cmp(&b.name));
+        for directive in sorted_directives {
             write!(self.writer(), " @{}", directive.name)?;
             self.print_directive_argument_values(&directive.arguments)?;
         }
         Ok(())
     }
 
+    /// Follow the mobile schema generation sorting strategy: sort arguments by name
     fn print_directive_argument_values(&mut self, values: &[ArgumentValue]) -> FmtResult {
         if values.is_empty() {
             return Ok(());
         }
         let mut first = true;
         write!(self.writer(), "(")?;
-        for value in values.iter() {
+        let mut sorted_values: Vec<_> = values.iter().collect();
+        sorted_values.sort_by(|a, b| a.name.cmp(&b.name));
+        for value in sorted_values {
             if first {
                 first = false;
             } else {

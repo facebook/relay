@@ -31,6 +31,7 @@ use crate::SetObject;
 use crate::SetScalar;
 use crate::SetType;
 use crate::SetUnion;
+use crate::schema_set::CanBeClientDefinition;
 use crate::schema_set::SetRootSchema;
 
 impl SchemaSet {
@@ -49,12 +50,24 @@ impl SchemaSet {
         // Collect the names of items defined in the exclude schema
         let excluded_directive_names: StringKeySet =
             to_exclude.directives.keys().cloned().collect();
-        let excluded_type_names: StringKeySet = to_exclude.types.keys().cloned().collect();
+        let excluded_type_names: StringKeySet = to_exclude
+            .types
+            .iter()
+            .filter_map(|(name, t)| {
+                // If using `extend T` then the underlying base type is NOT a client definition and should NOT be removed.
+                // Only the fields under this definition should be removed.
+                if t.is_client_definition() {
+                    None
+                } else {
+                    Some(*name)
+                }
+            })
+            .collect();
         let excluded_interface_names: StringKeySet = to_exclude
             .types
             .iter()
             .filter_map(|(name, t)| {
-                if matches!(t, SetType::Interface(_)) {
+                if !t.is_client_definition() && matches!(t, SetType::Interface(_)) {
                     Some(*name)
                 } else {
                     None
@@ -565,6 +578,10 @@ mod tests {
 
             type ClientType {
                 id: ID!
+            }
+
+            extend type ServerType {
+                anotherClientField: String
             }
         "#;
 

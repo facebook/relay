@@ -3460,7 +3460,6 @@ eslint-plugin-react@^7.37.5:
 
 "eslint-plugin-relay-internal@link:./packages/eslint-plugin-relay-internal":
   version "0.0.0"
-  uid ""
 
 eslint-plugin-relay@1.8.3:
   version "1.8.3"
@@ -3880,10 +3879,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.6.tgz#022e9218c637f9f3fc9c35ab9c9193f05add60b2"
   integrity sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==
 
-flow-bin@^0.297.0:
-  version "0.297.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.297.0.tgz#69fa6510d1311083a4c9fd7d3294d481e895c804"
-  integrity sha512-WN9MrYZss1dGs+MzMqz6DjqErRQyyRfcm+8IsQFaKrtfLZrWSCBil0rP/ukv+DLL0jbNxhdlp14ks15TyznL+A==
+flow-bin@^0.298.0:
+  version "0.298.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.298.0.tgz#ab88aeb20464809d78405cb39c86e7aae9e5cfdb"
+  integrity sha512-vKh7o9UzO6+FKVttDr07aNsrE2oxUcp74lvzFjh7l1DynAGybu5IEq1y3pSQVTrAudrTJdqKrSYzscLfOnQ8Cg==
 
 flush-write-stream@^1.0.2:
   version "1.1.1"
@@ -5733,9 +5732,9 @@ lodash.mergewith@^4.6.0:
   integrity sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ==
 
 lodash@^4.17.21:
-  version "4.17.21"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
-  integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
+  version "4.17.23"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.23.tgz#f113b0378386103be4f6893388c73d0bde7f2c5a"
+  integrity sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w==
 
 loose-envify@^1.0.0, loose-envify@^1.4.0:
   version "1.4.0"

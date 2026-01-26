@@ -646,6 +646,13 @@
           "type": "boolean",
           "default": false
         },
+        "enable_legacy_verbose_resolver_syntax": {
+          "description": "Allow the legacy verbose resolver syntax (@onType, @onInterface, @fieldName, @edgeTo).\nThis syntax is deprecated in favor of the terse @RelayResolver Type.field: ReturnType syntax.\nWhen disabled (default), using the legacy syntax will result in a compiler error.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "enable_relay_resolver_mutations": {
           "description": "Allow relay resolvers to extend the Mutation type",
           "type": "boolean",
@@ -921,6 +928,9 @@
             "enable_3d_branch_arg_generation": false,
             "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,
+            "enable_legacy_verbose_resolver_syntax": {
+              "kind": "disabled"
+            },
             "enable_relay_resolver_mutations": false,
             "enable_resolver_normalization_ast": false,
             "enable_strict_custom_scalars": false,

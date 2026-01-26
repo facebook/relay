@@ -99,6 +99,17 @@ pub(crate) fn parse_docblock_ir(
     };
     let parsed_docblock_ir = match resolver_field {
         IrField::UnpopulatedIrField(unpopulated_ir_field) => {
+            // Check if legacy verbose syntax is enabled
+            if !parse_options
+                .enable_legacy_verbose_resolver_syntax
+                .is_fully_enabled()
+            {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::LegacyVerboseSyntaxDeprecated,
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+
             let legacy_verbose_resolver = parse_relay_resolver_ir(
                 &mut fields,
                 definitions_in_file,

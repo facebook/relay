@@ -144,6 +144,11 @@ pub enum IrParsingErrorMessages {
         "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
     )]
     UnexpectedOutputType { field_name: StringKey },
+
+    #[error(
+        "Legacy verbose resolver syntax (@onType, @onInterface, @fieldName) is deprecated. Use the terse syntax instead: @RelayResolver ParentType.fieldName: ReturnType"
+    )]
+    LegacyVerboseSyntaxDeprecated,
 }
 
 #[derive(

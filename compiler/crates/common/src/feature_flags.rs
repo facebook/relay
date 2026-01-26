@@ -191,6 +191,12 @@ pub struct FeatureFlags {
     /// This enables gradual rollout of the new array type across files.
     #[serde(default)]
     pub readonly_array_for_flow: FeatureFlag,
+
+    /// Allow the legacy verbose resolver syntax (@onType, @onInterface, @fieldName, @edgeTo).
+    /// This syntax is deprecated in favor of the terse @RelayResolver Type.field: ReturnType syntax.
+    /// When disabled (default), using the legacy syntax will result in a compiler error.
+    #[serde(default)]
+    pub enable_legacy_verbose_resolver_syntax: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -224,6 +230,7 @@ impl Default for FeatureFlags {
             legacy_include_path_in_required_reader_nodes: Default::default(),
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
             readonly_array_for_flow: Default::default(),
+            enable_legacy_verbose_resolver_syntax: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

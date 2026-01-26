@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_verbose_syntax
 // expected-to-throw
 
 /**
@@ -23,15 +24,15 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Expected either `@onType` or `@onInterface` to be defined in this `@RelayResolver` docblock.
 
-  /path/to/test/fixture/relay-resolver-missing-field.invalid.js:10:3
-   10 │ *
+  /path/to/test/fixture/relay-resolver-missing-field.invalid.js:11:3
+   11 │ *
       │ ^
-   11 │  * @RelayResolver
+   12 │  * @RelayResolver
       │ ^^^^^^^^^^^^^^^^^
-   12 │  * @fieldName favorite_page
+   13 │  * @fieldName favorite_page
       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   13 │  * @edgeTo Page
+   14 │  * @edgeTo Page
       │ ^^^^^^^^^^^^^^^
-   14 │  * @rootFragment myRootFragment
+   15 │  * @rootFragment myRootFragment
       │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   15 │
+   16 │

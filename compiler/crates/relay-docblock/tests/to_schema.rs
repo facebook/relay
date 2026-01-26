@@ -84,6 +84,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 } else {
                     &FeatureFlag::Disabled
                 },
+                enable_legacy_verbose_resolver_syntax: if fixture
+                    .content
+                    .contains("// relay:allow_legacy_verbose_syntax")
+                {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
             },
         )?
         .unwrap();

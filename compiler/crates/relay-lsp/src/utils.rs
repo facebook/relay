@@ -219,6 +219,9 @@ pub fn extract_feature_from_text(
                             allow_resolver_non_nullable_return_type: &project_config
                                 .feature_flags
                                 .allow_resolver_non_nullable_return_type,
+                            enable_legacy_verbose_resolver_syntax: &project_config
+                                .feature_flags
+                                .enable_legacy_verbose_resolver_syntax,
                         },
                     )
                 })

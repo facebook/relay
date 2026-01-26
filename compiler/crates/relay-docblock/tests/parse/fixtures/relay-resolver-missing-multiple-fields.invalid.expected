@@ -6,6 +6,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:allow_legacy_verbose_syntax
 // expected-to-throw
 
 /**
@@ -20,9 +21,9 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Missing docblock field `@fieldName`
 
-  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:10:3
-   10 │ *
+  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:11:3
+   11 │ *
       │ ^
-   11 │  * @RelayResolver
+   12 │  * @RelayResolver
       │ ^^^^^^^^^^^^^^^^^
-   12 │
+   13 │

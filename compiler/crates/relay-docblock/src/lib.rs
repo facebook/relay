@@ -44,6 +44,7 @@ pub use validate_resolver_schema::validate_resolver_schema;
 pub struct ParseOptions<'a> {
     pub enable_interface_output_type: &'a FeatureFlag,
     pub allow_resolver_non_nullable_return_type: &'a FeatureFlag,
+    pub enable_legacy_verbose_resolver_syntax: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(

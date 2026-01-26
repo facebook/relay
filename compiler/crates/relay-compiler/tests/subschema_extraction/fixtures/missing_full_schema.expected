@@ -19,4 +19,4 @@ graphql`
 //- schema.graphql
 type Query { _: ID }
 ==================================== ERROR ====================================
-Failed to canonicalize full schema path: No such file or directory (os error 2)
+Failed to canonicalize full schema path: NotFound

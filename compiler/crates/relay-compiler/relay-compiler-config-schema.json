@@ -663,6 +663,13 @@
           "type": "boolean",
           "default": false
         },
+        "enable_shadow_resolvers": {
+          "description": "Enable experimental support for shadow resolvers. Shadow resolvers allow\ndefining a Relay Resolver that \"shadows\" an existing server field,\nproviding an alternative implementation that can be used during\nmigration or for client-side overrides.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "enable_strict_custom_scalars": {
           "description": "Perform strict validations when custom scalar types are used",
           "type": "boolean",
@@ -933,6 +940,9 @@
             },
             "enable_relay_resolver_mutations": false,
             "enable_resolver_normalization_ast": false,
+            "enable_shadow_resolvers": {
+              "kind": "disabled"
+            },
             "enable_strict_custom_scalars": false,
             "enforce_fragment_alias_where_ambiguous": {
               "kind": "enabled"

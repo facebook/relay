@@ -53,6 +53,7 @@ Field(
                 item: "Query",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,

@@ -26,6 +26,7 @@ use crate::ON_INTERFACE_FIELD;
 use crate::ON_TYPE_FIELD;
 use crate::OUTPUT_TYPE_FIELD;
 use crate::RELAY_RESOLVER_FIELD;
+use crate::RETURN_FRAGMENT_FIELD;
 use crate::ROOT_FRAGMENT_FIELD;
 use crate::SEMANTIC_NON_NULL_FIELD;
 use crate::WEAK_FIELD;
@@ -50,6 +51,7 @@ pub enum AllowedFieldName {
     OnTypeField,
     OnInterfaceField,
     RootFragmentField,
+    ReturnFragmentField,
     EdgeToField,
     DeprecatedField,
     LiveField,
@@ -66,6 +68,7 @@ impl Display for AllowedFieldName {
             AllowedFieldName::OnTypeField => write!(f, "{}", *ON_TYPE_FIELD),
             AllowedFieldName::OnInterfaceField => write!(f, "{}", *ON_INTERFACE_FIELD),
             AllowedFieldName::RootFragmentField => write!(f, "{}", *ROOT_FRAGMENT_FIELD),
+            AllowedFieldName::ReturnFragmentField => write!(f, "{}", *RETURN_FRAGMENT_FIELD),
             AllowedFieldName::EdgeToField => write!(f, "{}", *EDGE_TO_FIELD),
             AllowedFieldName::DeprecatedField => write!(f, "{}", *DEPRECATED_FIELD),
             AllowedFieldName::LiveField => write!(f, "{}", *LIVE_FIELD),
@@ -86,6 +89,7 @@ impl TryFrom<WithLocation<StringKey>> for AllowedFieldName {
             value if value == *ON_TYPE_FIELD => Ok(AllowedFieldName::OnTypeField),
             value if value == *ON_INTERFACE_FIELD => Ok(AllowedFieldName::OnInterfaceField),
             value if value == *ROOT_FRAGMENT_FIELD => Ok(AllowedFieldName::RootFragmentField),
+            value if value == *RETURN_FRAGMENT_FIELD => Ok(AllowedFieldName::ReturnFragmentField),
             value if value == *EDGE_TO_FIELD => Ok(AllowedFieldName::EdgeToField),
             value if value == *DEPRECATED_FIELD => Ok(AllowedFieldName::DeprecatedField),
             value if value == *LIVE_FIELD => Ok(AllowedFieldName::LiveField),

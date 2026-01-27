@@ -55,6 +55,7 @@ Field(
                     ),
                 },
             ),
+            return_fragment: None,
             output_type: Some(
                 EdgeTo(
                     WithLocation {

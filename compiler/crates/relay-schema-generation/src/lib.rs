@@ -500,6 +500,7 @@ impl RelayResolverExtractor {
                         field: field_definition,
                         type_,
                         root_fragment,
+                        return_fragment: None,
                         location: field.field_name.location,
                         deprecated: field.deprecated,
                         live,
@@ -1033,7 +1034,7 @@ fn return_type_to_type_annotation(
                     let custom_scalar = custom_scalar_map.get(&scalar_key);
 
                     let graphql_typename = match custom_scalar {
-                        Some(scalar_name) => identifier.map(|_| scalar_name.0), // map identifer to keep the location
+                        Some(scalar_name) => identifier.map(|_| scalar_name.0), // map identifier to keep the location
                         None => {
                             // If there is no custom scalar, expect that the Flow type is imported
                             let module_key = module_key_opt.ok_or_else(|| {

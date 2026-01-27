@@ -28,6 +28,7 @@ use docblock_shared::ON_INTERFACE_FIELD;
 use docblock_shared::ON_TYPE_FIELD;
 use docblock_shared::OUTPUT_TYPE_FIELD;
 use docblock_shared::RELAY_RESOLVER_FIELD;
+use docblock_shared::RETURN_FRAGMENT_FIELD;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
 use docblock_shared::SEMANTIC_NON_NULL_FIELD;
 use docblock_shared::WEAK_FIELD;

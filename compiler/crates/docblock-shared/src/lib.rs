@@ -135,6 +135,9 @@ lazy_static! {
     /// Name of docblock tag used to indicate that a resolver reads data from a
     /// fragment, and what the name of that fragment is.
     pub static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
+    /// Name of docblock tag used to indicate that a shadow resolver returns
+    /// data conforming to a specific fragment's shape.
+    pub static ref RETURN_FRAGMENT_FIELD: StringKey = "returnFragment".intern();
     /// _Legacy resolver syntax_: The name of the docblock tag used to indicate that the resolver returns
     /// a fully/deeply populated weak type. This feature is deprecated.
     pub static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();

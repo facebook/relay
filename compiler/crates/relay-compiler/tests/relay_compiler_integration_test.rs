@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<47b9aec72d8e5a8fc0175b9b8965c89c>>
+ * @generated SignedSource<<f04a8bf029031ca6ecffa708496793c1>>
  */
 
 mod relay_compiler_integration;
@@ -451,6 +451,13 @@ async fn resolver_semantic_non_null_scalar() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected");
     test_fixture(transform_fixture, file!(), "resolver_semantic_non_null_scalar.input", "relay_compiler_integration/fixtures/resolver_semantic_non_null_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_with_return_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_with_return_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_with_return_fragment.expected");
+    test_fixture(transform_fixture, file!(), "resolver_with_return_fragment.input", "relay_compiler_integration/fixtures/resolver_with_return_fragment.expected", input, expected).await;
 }
 
 #[tokio::test]

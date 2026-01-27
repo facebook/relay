@@ -103,6 +103,7 @@ Field(
                     ),
                 },
             ),
+            return_fragment: None,
             output_type: None,
             description: None,
             hack_source: None,

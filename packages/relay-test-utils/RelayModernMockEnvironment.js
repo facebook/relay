@@ -243,9 +243,15 @@ function createMockEnvironment(
           const result = currentResolver(currentOperation);
           if (result != null) {
             // Remove from queues
-            resolversQueue = resolversQueue.filter(res => res !== currentResolver);
-            pendingOperations = pendingOperations.filter(op => op !== currentOperation);
-            pendingRequests = pendingRequests.filter(pending => pending !== nextRequest);
+            resolversQueue = resolversQueue.filter(
+              res => res !== currentResolver,
+            );
+            pendingOperations = pendingOperations.filter(
+              op => op !== currentOperation,
+            );
+            pendingRequests = pendingRequests.filter(
+              pending => pending !== nextRequest,
+            );
 
             // Emit result
             if (result instanceof Error) {
@@ -266,9 +272,9 @@ function createMockEnvironment(
       if (!handled && resolversQueue.length > 0) {
         // If not handled synchronously, defer check to allow executeWithSource proxy to add operation
         // This handles the case where loadQuery() calls network.execute() before environment.executeWithSource()
-        setImmediate(() => {
+        setTimeout(() => {
           tryExecuteQueuedResolver();
-        });
+        }, 0);
       }
 
       // Normal cleanup function for non-queued requests

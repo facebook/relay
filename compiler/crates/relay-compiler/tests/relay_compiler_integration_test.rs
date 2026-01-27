@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f04a8bf029031ca6ecffa708496793c1>>
+ * @generated SignedSource<<e3f806d4ee6d6ff02b696f5c1f4da6dc>>
  */
 
 mod relay_compiler_integration;
@@ -311,6 +311,13 @@ async fn resolver_on_interface_returns_custom_scalar() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected");
     test_fixture(transform_fixture, file!(), "resolver_on_interface_returns_custom_scalar.input", "relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_return_fragment_requires_feature_flag() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_requires_feature_flag.input", "relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.expected", input, expected).await;
 }
 
 #[tokio::test]

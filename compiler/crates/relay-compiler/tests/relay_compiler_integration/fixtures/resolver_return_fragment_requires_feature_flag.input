@@ -1,0 +1,22 @@
+//- User_foo.js
+// Test that @returnFragment requires the enable_shadow_resolvers feature flag.
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ * @returnFragment SomeExternalFragment
+ */
+
+//- UserFragment.js
+graphql`fragment UserFragment on User {
+  foo
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

@@ -236,6 +236,11 @@ pub enum ValidationMessage {
         parent_name: Option<StringKey>,
         reason: Option<StringKey>,
     },
+
+    #[error(
+        "The @returnFragment docblock tag requires the 'enable_shadow_resolvers' feature flag to be enabled."
+    )]
+    ReturnFragmentRequiresFeatureFlag,
 }
 
 #[derive(

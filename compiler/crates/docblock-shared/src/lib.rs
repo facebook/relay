@@ -73,6 +73,10 @@ lazy_static! {
     /// schema definition indicating if it had the @outputType docblock tag.
     pub static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
         ArgumentName("has_output_type".intern());
+    /// Argument name for the `@relay_resolver` directive attached to resolver's
+    /// schema definition containing the fragment name from the @returnFragment docblock tag.
+    pub static ref RETURN_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("return_fragment".intern());
     /// Relay codegen/typegen needs to know how to import a given resolver type
     /// or field. This name is the argument to the `@relay_resolver` directive
     /// attached to the schema definition for resolver types and fields that

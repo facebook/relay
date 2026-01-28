@@ -36,7 +36,7 @@ log = { version = "0.4.27", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.7.2"
 lsp-types = "0.94.1"
 percent-encoding = "2.1"
-rand = { version = "0.8", features = ["small_rng"] }
+rand = { version = "0.9", features = ["small_rng"] }
 rayon = "1.11.0"
 relay-compiler = { path = "../relay-compiler" }
 relay-docblock = { path = "../relay-docblock" }

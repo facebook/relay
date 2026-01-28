@@ -2389,6 +2389,24 @@ pub(crate) fn raw_response_visit_selections(
             ),
         }
     }
+
+    if let Some(concrete_type) = enclosing_linked_field_concrete_type {
+        // If we are generating for a concrete field type, we should 1. remove
+        // any selections that are for a different concrete type, since they are
+        // not applicable to our field, and 2. mark any selections without a
+        // concrete type as being for our field's concrete type, so that
+        // `raw_response_selections_to_babel` doesn't generate redundant types.
+        type_selections.retain_mut(|type_selection| {
+            match type_selection.get_enclosing_concrete_type() {
+                Some(selection_concrete_type) => selection_concrete_type == concrete_type,
+                None => {
+                    type_selection.set_concrete_type(concrete_type);
+                    true
+                }
+            }
+        });
+    }
+
     type_selections
 }
 

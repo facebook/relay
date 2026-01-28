@@ -47,6 +47,34 @@ impl TypegenLanguage {
     }
 }
 
+#[derive(
+    EnumIter,
+    strum::Display,
+    Debug,
+    Clone,
+    Copy,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    JsonSchema
+)]
+#[serde(deny_unknown_fields, rename_all = "lowercase")]
+pub enum OneOfGeneration {
+    /// Will generate a union type, which can have only a single property set
+    Strict,
+    /// Will exhibit previous behaviour, where @oneOf types would generate a
+    /// permissive object type that may include all, none, or some of the
+    /// properties set
+    Ignore,
+}
+
+impl Default for OneOfGeneration {
+    fn default() -> Self {
+        Self::Strict
+    }
+}
+
 /// Defines a custom GraphQL
 /// descrbing a custom scalar.
 #[derive(Debug, Serialize, Deserialize, Clone, JsonSchema, Hash, PartialEq, Eq)]
@@ -158,6 +186,13 @@ pub struct TypegenConfig {
     /// Indicates the type to import and use as the context for Relay Resolvers.
     #[serde(default)]
     pub resolver_context_type: Option<ResolverContextTypeInput>,
+
+    /// How to generate a type for an input object marked as @oneOf.
+    /// Defaults to "strict", which is to generate a union type which
+    /// permits only a single property being set at a time. "ignore"
+    /// generates the type as if the @oneOf annotation does not exist.
+    #[serde(default)]
+    pub one_of_type: OneOfGeneration,
 }
 
 fn get_true() -> bool {
@@ -178,6 +213,7 @@ impl Default for TypegenConfig {
             typescript_exclude_undefined_from_nullable_union: Default::default(),
             custom_error_type: None,
             resolver_context_type: Default::default(),
+            one_of_type: Default::default(),
         }
     }
 }

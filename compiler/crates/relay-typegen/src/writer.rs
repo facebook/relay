@@ -45,6 +45,8 @@ pub enum AST {
     Callable(Box<AST>),
     Any,
     Mixed,
+    /// aka. `never` in Typescript. `!` in Rust. `Never` in Swift. The bottom type.
+    Empty,
     FragmentReference(SortedStringKeyList),
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),

@@ -134,6 +134,11 @@
           "type": "boolean",
           "default": false
         },
+        "oneOfType": {
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
+          "$ref": "#/$defs/OneOfGeneration",
+          "default": "strict"
+        },
         "optionalInputFields": {
           "title": "For Flow type generation",
           "description": "When set, generated input types will have the listed fields optional\neven if the schema defines them as required.",
@@ -1066,6 +1071,20 @@
       },
       "additionalProperties": false
     },
+    "OneOfGeneration": {
+      "oneOf": [
+        {
+          "description": "Will generate a union type, which can have only a single property set",
+          "type": "string",
+          "const": "strict"
+        },
+        {
+          "description": "Will exhibit previous behaviour, where @oneOf types would generate a\npermissive object type that may include all, none, or some of the\nproperties set",
+          "type": "string",
+          "const": "ignore"
+        }
+      ]
+    },
     "PersistConfig": {
       "description": "Configuration for how the Relay Compiler should persist GraphQL queries.",
       "anyOf": [
@@ -1480,6 +1499,11 @@
             "null"
           ],
           "default": null
+        },
+        "oneOfType": {
+          "description": "How to generate a type for an input object marked as @oneOf.\nDefaults to \"strict\", which is to generate a union type which\npermits only a single property being set at a time. \"ignore\"\ngenerates the type as if the @oneOf annotation does not exist.",
+          "$ref": "#/$defs/OneOfGeneration",
+          "default": "strict"
         },
         "optionalInputFields": {
           "title": "For Flow type generation",

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1903a7cf2db933f9227f3b83bb115fb5>>
+ * @generated SignedSource<<30ae8dfda686626f83daf2586374c431>>
  */
 
 mod generate_typescript;
@@ -227,6 +227,13 @@ async fn mutation_with_nested_fragments() {
     let input = include_str!("generate_typescript/fixtures/mutation-with-nested-fragments.graphql");
     let expected = include_str!("generate_typescript/fixtures/mutation-with-nested-fragments.expected");
     test_fixture(transform_fixture, file!(), "mutation-with-nested-fragments.graphql", "generate_typescript/fixtures/mutation-with-nested-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn mutation_with_one_of() {
+    let input = include_str!("generate_typescript/fixtures/mutation-with-one-of.graphql");
+    let expected = include_str!("generate_typescript/fixtures/mutation-with-one-of.expected");
+    test_fixture(transform_fixture, file!(), "mutation-with-one-of.graphql", "generate_typescript/fixtures/mutation-with-one-of.expected", input, expected).await;
 }
 
 #[tokio::test]

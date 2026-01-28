@@ -1,0 +1,7 @@
+mutation SetCommentBodyMutation(
+  $body: CommentBodyInput
+) {
+  setCommentBody(commentID: "foo", body: $body) {
+    id
+  }
+}

@@ -1,0 +1,11 @@
+query MyQuery {
+  me {
+    friends(first: 10) {
+      edges {
+        nod|e {
+          name
+        }
+      }
+    }
+  }
+}

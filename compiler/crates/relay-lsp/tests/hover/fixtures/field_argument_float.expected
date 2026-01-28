@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    profile_picture(scale: 1.5|)  {
+      uri
+    }
+  }
+}
+==================================== OUTPUT ===================================
+Argument `scale: 1.5`
+--
+Field: **profile_picture**
+--
+Type: **[Image](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22Image%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
+--
+This field accepts these arguments
+--
+scale: **[Float](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Image%22,%22Float%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
+
+
+--
+media_type: **[String](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Image%22,%22String%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

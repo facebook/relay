@@ -1,0 +1,8 @@
+==================================== INPUT ====================================
+query MyQuery($i|d: ID!) {
+  node(id: $id) {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+`$id`: **[ID!](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22ID%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

@@ -843,7 +843,9 @@ describe('useRefetchableFragmentInternal (%s)', () => {
       };
       expectFragmentResults([{data: initialUser}]);
 
-      // Mock network response upfront
+      // Mock network response upfront using queueOperationResolver
+      // With the pending match fix, this will resolve synchronously when
+      // refetch() is called, without needing queuePendingOperation
       environment.mock.queueOperationResolver(operation =>
         MockPayloadGenerator.generate(operation, {
           User: () => ({
@@ -857,12 +859,6 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         }),
       );
 
-      TestRenderer.act(() => {
-        refetch({scale: 32});
-      });
-
-      // Assert that fragment is refetching with the right variables and
-      // suspends upon refetch
       const refetchVariables = {
         id: '1',
         scale: 32,
@@ -872,12 +868,13 @@ describe('useRefetchableFragmentInternal (%s)', () => {
         refetchVariables,
         {force: true},
       );
-      expectFragmentIsRefetching(renderer, {
-        refetchVariables,
-        refetchQuery,
+
+      TestRenderer.act(() => {
+        refetch({scale: 32});
       });
 
-      // Assert fragment is rendered with new data
+      // With the pending match fix, the resolver executes synchronously
+      // so the component renders with the refetched data without suspending
       const refetchedUser = {
         id: '1',
         name: 'Alice',

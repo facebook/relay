@@ -227,7 +227,7 @@ jobs:
   main-release:
     name: Publish to NPM
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.repository == 'facebook/relay'
+    if: github.event_name == 'push' && github.repository == 'facebook/relay' && (github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'v')))
     needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
     environment: npm-publish
     permissions:

@@ -54,8 +54,10 @@ const RelayObservable = require('../network/RelayObservable');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
 const RelayOperationTracker = require('../store/RelayOperationTracker');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const defaultGetDataID = require('./defaultGetDataID');
 const defaultRelayFieldLogger = require('./defaultRelayFieldLogger');
+const EmptyChecker = require('./EmptyChecker');
 const normalizeResponse = require('./normalizeResponse');
 const OperationExecutor = require('./OperationExecutor');
 const RelayModernStore = require('./RelayModernStore');
@@ -255,6 +257,13 @@ class RelayModernEnvironment implements IEnvironment {
     );
   }
 
+  isEmpty(operation: OperationDescriptor): boolean {
+    return (
+      RelayFeatureFlags.ENABLE_EMPTY_QUERY_CHECK &&
+      EmptyChecker.isEmpty(operation.root)
+    );
+  }
+
   commitPayload(operation: OperationDescriptor, payload: PayloadData): void {
     this._execute({
       createSource: () => RelayObservable.from({data: payload}),
@@ -340,6 +349,21 @@ class RelayModernEnvironment implements IEnvironment {
   }: {
     operation: OperationDescriptor,
   }): RelayObservable<GraphQLResponse> {
+    if (this.isEmpty(operation)) {
+      // DataChecker will handle the case that we can fullfill a request from
+      // cache. But due to specified fetch policies or APIs which attempt to
+      // force a request we, could still get to this point with a query that,
+      // due to being all client data or having all server fields omitted by
+      // @skip/@include conditions, does not need to be fetcheed.
+      this.__log({
+        name: 'execute.skipped',
+        params: operation.request.node.params,
+        variables: operation.request.variables,
+        cacheConfig: operation.request.cacheConfig ?? {},
+        reason: 'empty',
+      });
+      return RelayObservable.from({data: {}});
+    }
     return this._execute({
       createSource: () => {
         return this.getNetwork().execute(

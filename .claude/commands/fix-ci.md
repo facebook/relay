@@ -18,6 +18,22 @@ You are a specialized skill for checking GitHub CI status and fixing failing tes
    - Based on the failure type, take appropriate action:
    - See `CONTRIBUTING.md` for instructions on how to work in this repository.
 
+   ### Special Case: Out-of-date Cargo.lock
+
+   If the failure is related to an out-of-date `Cargo.lock` file (look for errors like "the lock file needs to be updated but --locked was passed" or diffs showing changes to Cargo.lock), there's an automated workflow to handle this:
+
+   1. **Check for existing PR**: Run `gh pr list --search "Update Cargo.lock" --state open --limit 5` to see if there's already a PR to update the lock file.
+
+   2. **If a PR exists**: Report the PR number to the user and suggest they merge it to fix CI. The PR is typically titled "Update Cargo.lock" and created by the `update-cargo-lock.yml` workflow.
+
+   3. **If no PR exists**: Trigger the workflow manually:
+      ```bash
+      gh workflow run update-cargo-lock.yml
+      ```
+      Then monitor for the PR to be created and report it to the user.
+
+   4. **Do NOT manually update Cargo.lock**: The automated workflow ensures consistent updates. Manual updates may conflict or miss dependencies.
+
 4. **Create a Pull Request**
    - Create a new branch: `git checkout -b fix-ci-failures-$(date +%Y%m%d-%H%M%S)`
    - Stage all changes: `git add .`

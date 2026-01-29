@@ -22,9 +22,9 @@ fragment providedVariableDirectiveCommonjsRelativizeDefaultFragment on User
   "language": "flow"
 }
 ==================================== OUTPUT ===================================
-import condC_provider from '../../parentProvider';
-import condB_provider from '.././relProvider';
-import condA_provider from '../bareProvider';
+import condC_provider from './../../parentProvider';
+import condB_provider from './.././relProvider';
+import condA_provider from './../bareProvider';
 {
   "fragment": {
     "argumentDefinitions": [],

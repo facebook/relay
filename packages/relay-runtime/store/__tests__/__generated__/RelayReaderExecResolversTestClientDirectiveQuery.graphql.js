@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e961375f64e7aa4d3fa8171b9584a08d>>
+ * @generated SignedSource<<7e1e736ff1730e6360c5ad4fad00fb64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -385,7 +385,7 @@ return {
         }
       }
     ],
-    "exec_time_resolvers_enabled_provider": require('../relayReaderTestExecTimeResolversTrueProvider')
+    "exec_time_resolvers_enabled_provider": require('./../relayReaderTestExecTimeResolversTrueProvider')
   },
   "params": {
     "cacheID": "93766bd16ee00d3863eac4f5873050f1",

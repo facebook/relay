@@ -419,6 +419,13 @@ async fn query_with_stream_connection() {
 }
 
 #[tokio::test]
+async fn raw_response_multiple_scalar_fields() {
+    let input = include_str!("generate_flow/fixtures/raw-response-multiple-scalar-fields.graphql");
+    let expected = include_str!("generate_flow/fixtures/raw-response-multiple-scalar-fields.expected");
+    test_fixture(transform_fixture, file!(), "raw-response-multiple-scalar-fields.graphql", "generate_flow/fixtures/raw-response-multiple-scalar-fields.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn recursive_fragments() {
     let input = include_str!("generate_flow/fixtures/recursive-fragments.graphql");
     let expected = include_str!("generate_flow/fixtures/recursive-fragments.expected");

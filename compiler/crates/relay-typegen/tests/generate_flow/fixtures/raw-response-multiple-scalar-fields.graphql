@@ -1,0 +1,16 @@
+# Test case for raw_response_make_prop with multiple scalar field selections
+
+query RawResponseMultipleScalarFieldsQuery($cond1: Boolean!, $cond2: Boolean!) @raw_response_type {
+  ... @include(if: $cond1) {
+    topLevelScalar
+  }
+  ... @include(if: $cond2) {
+    topLevelScalar
+  }
+}
+
+%extensions%
+
+extend type Query {
+  topLevelScalar: String
+}

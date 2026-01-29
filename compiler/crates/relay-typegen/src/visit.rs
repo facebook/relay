@@ -2089,20 +2089,52 @@ fn raw_response_make_prop(
         && type_selections.iter().all(|sel| sel.is_conditional());
 
     let type_selection = if type_selections.len() > 1 {
-        let mut linked_fields = type_selections.into_iter().map(|type_selection| match type_selection {
-            TypeSelection::LinkedField(linked_field) => linked_field,
-            selection => panic!("Unexpected multiple selections in raw_response_make_prop that are not linked fields: {:#?}", selection)
-        });
+        let (linked_fields, other_selections) = type_selections
+            .into_iter()
+            .map(|type_selection| match type_selection {
+                TypeSelection::LinkedField(linked_field) => (Some(linked_field), None),
+                selection => (None, Some(selection)),
+                // selection => panic!("Unexpected multiple selections in raw_response_make_prop that are not linked fields: {:#?}", selection)
+            })
+            .collect::<(Vec<_>, Vec<_>)>();
 
-        let first_linked_field = linked_fields.next().unwrap();
-        let linked_field = linked_fields.fold(first_linked_field, |mut acc, el| {
-            acc.conditional = acc.conditional && el.conditional;
-            merge_selection_maps(&mut acc.node_selections, el.node_selections, el.conditional);
+        let linked_fields = linked_fields.into_iter().flatten().collect::<Vec<_>>();
+        let other_selections = other_selections.into_iter().flatten().collect::<Vec<_>>();
 
-            acc
-        });
+        match (linked_fields.len(), other_selections.len()) {
+            (1.., 1..) => panic!(
+                "Unexpected mixed selections in raw_response_make_prop: got both linked fields ({linked_fields:#?}) and other selections ({other_selections:#?})"
+            ),
+            (0, 0) => unreachable!(),
+            (0, others) => {
+                if other_selections
+                    .iter()
+                    .all(|sel| matches!(sel, TypeSelection::ScalarField(_)))
+                {
+                    other_selections.first().unwrap().clone()
+                } else {
+                    panic!(
+                        "Unexpected multiple selections in raw_response_make_prop: got {others} other selections, some of which are not scalar fields ({other_selections:#?})"
+                    )
+                }
+            }
+            (_, 0) => {
+                let mut linked_fields = linked_fields.into_iter();
+                let first_linked_field = linked_fields.next().unwrap();
+                let linked_field = linked_fields.fold(first_linked_field, |mut acc, el| {
+                    acc.conditional = acc.conditional && el.conditional;
+                    merge_selection_maps(
+                        &mut acc.node_selections,
+                        el.node_selections,
+                        el.conditional,
+                    );
 
-        TypeSelection::LinkedField(linked_field)
+                    acc
+                });
+
+                TypeSelection::LinkedField(linked_field)
+            }
+        }
     } else {
         type_selections.into_iter().next().unwrap()
     };

@@ -120,19 +120,19 @@ class RelayOptimisticRecordSource implements MutableRecordSource {
   getOptimisticRecordIDs(): Set<DataID> {
     return new Set(this._sink.getRecordIDs());
   }
+
+  static create(base: RecordSource): MutableRecordSource {
+    return new RelayOptimisticRecordSource(base);
+  }
+
+  static getOptimisticRecordIDs(source: MutableRecordSource): Set<DataID> {
+    invariant(
+      source instanceof RelayOptimisticRecordSource,
+      'getOptimisticRecordIDs: Instance of RelayOptimisticRecordSource is expected',
+    );
+
+    return source.getOptimisticRecordIDs();
+  }
 }
 
-function create(base: RecordSource): MutableRecordSource {
-  return new RelayOptimisticRecordSource(base);
-}
-
-function getOptimisticRecordIDs(source: MutableRecordSource): Set<DataID> {
-  invariant(
-    source instanceof RelayOptimisticRecordSource,
-    'getOptimisticRecordIDs: Instance of RelayOptimisticRecordSource is expected',
-  );
-
-  return source.getOptimisticRecordIDs();
-}
-
-module.exports = {create, getOptimisticRecordIDs};
+module.exports = RelayOptimisticRecordSource;

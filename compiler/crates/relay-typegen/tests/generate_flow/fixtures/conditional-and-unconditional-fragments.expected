@@ -42,7 +42,7 @@ export type AppQuery$rawResponse = {|
   +me: ?{|
     +actor: ?{|
       +__typename: string,
-      +emailAddresses: ?$ReadOnlyArray<?string>,
+      +emailAddresses: ?ReadonlyArray<?string>,
       +hometown: ?{|
         +canViewerComment: ?CustomBoolean,
         +id: string,
@@ -91,7 +91,7 @@ declare export opaque type AppFragment$fragmentType: FragmentType;
 export type AppFragment$data = {|
   +me: ?{|
     +actor: ?{|
-      +emailAddresses: ?$ReadOnlyArray<?string>,
+      +emailAddresses: ?ReadonlyArray<?string>,
       +hometown: ?{|
         +canViewerComment: ?CustomBoolean,
       |},

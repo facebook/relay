@@ -77,7 +77,8 @@ RelayMockEnvironment is a special version of Relay Environment with additional A
     * `reject(request | operation, error)` - reject the request with particular error
     * `resolveMostRecentOperation(operation => data)` - resolve and getMostRecentOperation work together
     * `rejectMostRecentOperation(operation => error)`  - reject and getMostRecentOperation work together
-    * `queueOperationResolver(operation => data | error)` - adds an OperationResolver function to the queue. The passed resolver will be used to resolve/reject operations as they appear
+    * `queueOperationResolver(operation => data | error)` - adds an OperationResolver function to the queue. The passed resolver will be used to resolve/reject operations as they appear. By default, resolvers are consumed after their first use. For persistent resolvers that can handle multiple operations, pass an object: `queueOperationResolver({resolver: fn, persistent: true})`. You can also configure all resolvers to be persistent by default using `createMockEnvironment({mockConfig: {defaultPersistentResolvers: true}})`.
+    * `clearOperationResolvers()` - removes all queued operation resolvers. Useful when using persistent resolvers and you need to clear them between test scenarios.
     * `queuePendingOperation(query, variables)` - in order for the `usePreloadedQuery` hook to not suspend, one must call these functions:
         * `queueOperationResolver(resolver)`
         * `queuePendingOperation(query, variables)`
@@ -85,7 +86,8 @@ RelayMockEnvironment is a special version of Relay Environment with additional A
 * Additional utility methods
     * `isLoading(request | operation)` - will return `true` if operations has not been completed, yet.
     * `cachePayload(request | operation, variables, payload)` - will add payload to QueryResponse cache
-    * `clearCache() `- will clear QueryResponse cache
+    * `clearCache()` - will clear QueryResponse cache
+    * `mockClear()` - resets the mock environment, clearing the cache, pending operations, and the resolver queue
 
 ## Mock Payload Generator and the `@relay_test_operation` Directive
 
@@ -612,6 +614,53 @@ test('Error State', async () => {
 
   expect(await renderer.findByTestId('myButton')).toBeDefined();
 });
+```
+
+By default, resolvers passed to `queueOperationResolver` are consumed after their first use. For scenarios where a resolver should handle multiple operations, you can make it persistent.
+
+#### Persistent Resolvers
+
+Persistent resolvers are useful for:
+- **Storybook stories** - where typically one can interact with vaious components and it is useful to set all resolvers ahead of time
+- **Tests with refetching** - where the same query runs multiple times, with different arguments
+
+Make an individual resolver persistent by passing an object with the `persistent` option:
+
+```javascript
+environment.mock.queueOperationResolver({
+  resolver: operation => MockPayloadGenerator.generate(operation, {
+    User(context) {
+      const id = context.args?.id ?? 'default-id';
+      return { id, name: `User ${id}` };
+    },
+  }),
+  persistent: true,
+});
+```
+
+For Storybook or scenarios where all resolvers should persist by default, use the `mockConfig` option:
+
+```javascript
+const environment = createMockEnvironment({
+  mockConfig: { defaultPersistentResolvers: true },
+});
+
+// Functions are now persistent by default - no wrapper needed
+environment.mock.queueOperationResolver(operation =>
+  MockPayloadGenerator.generate(operation),
+);
+```
+
+#### Clearing Resolvers
+
+When using persistent resolvers, you may need to clear them between test scenarios:
+
+```javascript
+// Clear all queued resolvers
+environment.mock.clearOperationResolvers();
+
+// Or reset everything (cache, pending operations, and resolvers)
+environment.mockClear();
 ```
 
 ### With Relay Hooks

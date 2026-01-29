@@ -2089,50 +2089,51 @@ fn raw_response_make_prop(
         && type_selections.iter().all(|sel| sel.is_conditional());
 
     let type_selection = if type_selections.len() > 1 {
-        let (linked_fields, other_selections) = type_selections
-            .into_iter()
-            .map(|type_selection| match type_selection {
-                TypeSelection::LinkedField(linked_field) => (Some(linked_field), None),
-                selection => (None, Some(selection)),
-                // selection => panic!("Unexpected multiple selections in raw_response_make_prop that are not linked fields: {:#?}", selection)
-            })
-            .collect::<(Vec<_>, Vec<_>)>();
-
-        let linked_fields = linked_fields.into_iter().flatten().collect::<Vec<_>>();
-        let other_selections = other_selections.into_iter().flatten().collect::<Vec<_>>();
-
-        match (linked_fields.len(), other_selections.len()) {
-            (1.., 1..) => panic!(
-                "Unexpected mixed selections in raw_response_make_prop: got both linked fields ({linked_fields:#?}) and other selections ({other_selections:#?})"
-            ),
-            (0, 0) => unreachable!(),
-            (0, others) => {
-                if other_selections
-                    .iter()
-                    .all(|sel| matches!(sel, TypeSelection::ScalarField(_)))
-                {
-                    other_selections.first().unwrap().clone()
-                } else {
-                    panic!(
-                        "Unexpected multiple selections in raw_response_make_prop: got {others} other selections, some of which are not scalar fields ({other_selections:#?})"
-                    )
+        let (linked_fields, scalar_fields) = {
+            let mut linked_fields = Vec::new();
+            let mut scalar_fields = Vec::new();
+            for sel in type_selections {
+                match sel {
+                    TypeSelection::LinkedField(lf) => linked_fields.push(lf),
+                    TypeSelection::ScalarField(sf) => scalar_fields.push(sf),
+                    _ => unreachable!(
+                        "raw_response_make_prop expected LinkedField or ScalarField, found {sel:?}"
+                    ),
                 }
             }
-            (_, 0) => {
-                let mut linked_fields = linked_fields.into_iter();
-                let first_linked_field = linked_fields.next().unwrap();
-                let linked_field = linked_fields.fold(first_linked_field, |mut acc, el| {
+            (linked_fields, scalar_fields)
+        };
+
+        match (linked_fields.is_empty(), scalar_fields.is_empty()) {
+            (false, false) => panic!(
+                "Unexpected mixed selections in raw_response_make_prop: linked fields ({linked_fields:#?}) and scalar fields ({scalar_fields:#?})"
+            ),
+            (true, true) => unreachable!("type_selections.len() > 1 but both partitions empty"),
+            // Multiple scalar fields with same key - verify they have the same concrete_type
+            (true, false) => {
+                let first = scalar_fields.first().unwrap();
+                let all_same_type = scalar_fields
+                    .iter()
+                    .all(|sf| sf.concrete_type == first.concrete_type);
+                if all_same_type {
+                    TypeSelection::ScalarField(scalar_fields.into_iter().next().unwrap())
+                } else {
+                    panic!("Multiple scalar fields with different types: {scalar_fields:#?}")
+                }
+            }
+            // Multiple linked fields - merge them
+            (false, true) => {
+                let mut iter = linked_fields.into_iter();
+                let first = iter.next().unwrap();
+                TypeSelection::LinkedField(iter.fold(first, |mut acc, el| {
                     acc.conditional = acc.conditional && el.conditional;
                     merge_selection_maps(
                         &mut acc.node_selections,
                         el.node_selections,
                         el.conditional,
                     );
-
                     acc
-                });
-
-                TypeSelection::LinkedField(linked_field)
+                }))
             }
         }
     } else {

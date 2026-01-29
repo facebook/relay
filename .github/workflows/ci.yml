@@ -287,4 +287,4 @@ jobs:
         env:
           TAG: ${{ github.ref == 'refs/heads/main-atl' && '--tag=main-atl' || ((contains(github.ref_name, '-rc.') && '--tag=dev') || '' )}}
           NPM_REGISTRY: ${{ secrets.REGISTRY }}
-          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

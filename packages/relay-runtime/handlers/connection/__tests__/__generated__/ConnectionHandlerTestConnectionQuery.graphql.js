@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8cc4854e82405fcc76107eb01931e51f>>
+ * @generated SignedSource<<c6b8bf4c7ee526dcbbcc7cee83ca41e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,13 +23,13 @@ export type ConnectionHandlerTestConnectionQuery$variables = {|
   before?: ?string,
   count?: ?number,
   id: string,
-  orderby?: ?$ReadOnlyArray<?string>,
+  orderby?: ?ReadonlyArray<?string>,
 |};
 export type ConnectionHandlerTestConnectionQuery$data = {|
   +node: ?{|
     +friends?: ?{|
       +count: ?number,
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +id: string,

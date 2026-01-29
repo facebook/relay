@@ -87,6 +87,7 @@ fragment LinkedHandleField on User {
                                 },
                             ],
                             data: None,
+                            location: linked-handle-field-with-key.graphql:62:135,
                         },
                     ],
                     selections: [

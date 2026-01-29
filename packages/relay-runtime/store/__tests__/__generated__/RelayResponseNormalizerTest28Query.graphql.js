@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<989635bceb4fc0a6082237c295fe0677>>
+ * @generated SignedSource<<ef1e8d9ea97a1a504448ee087ddf2f79>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,7 @@ export type RelayResponseNormalizerTest28Query$data = {|
       +__typename: string,
       +id: string,
     |},
-    +actors?: ?$ReadOnlyArray<?{|
+    +actors?: ?ReadonlyArray<?{|
       +__typename: string,
       +id: string,
     |}>,

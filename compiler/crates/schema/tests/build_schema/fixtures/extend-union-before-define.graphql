@@ -1,0 +1,20 @@
+# expected-to-throw
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: MyType
+}
+
+type MyType {
+  id: ID!
+}
+
+# Invalid accoring to spec:
+# > The named type must already be defined and must be an Union type.
+# -- https://spec.graphql.org/June2018/#InterfaceTypeExtension
+extend union MyUnion = MyType
+
+union MyUnion

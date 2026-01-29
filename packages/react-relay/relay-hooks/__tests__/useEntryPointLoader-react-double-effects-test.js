@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -19,9 +20,9 @@ const loadEntryPoint = require('../loadEntryPoint');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useEntryPointLoader = require('../useEntryPointLoader');
 const usePreloadedQuery = require('../usePreloadedQuery');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
 const {useEffect} = require('react');
-const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
@@ -35,8 +36,10 @@ function expectToHaveFetched(
   cacheConfig: {
     force?: ?boolean,
     liveConfigId?: ?string,
-    metadata?: {[key: string]: mixed},
+    metadata?: {[key: string]: unknown},
     onSubscribe?: () => void,
+    onResume?: (pauseTimeMs: number) => void,
+    onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
     poll?: ?number,
     transactionId?: ?string,
   },
@@ -94,10 +97,10 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       getEnvironment: () => environment,
     };
 
-    release = jest.fn<[], mixed>();
+    release = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalRetain = environment.retain;
-    (environment: $FlowFixMe).retain = jest.fn(operation => {
+    (environment as $FlowFixMe).retain = jest.fn(operation => {
       const originalDisposable = originalRetain(operation);
       return {
         dispose() {
@@ -107,10 +110,10 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       };
     });
 
-    cancelNetworkRequest = jest.fn<[], mixed>();
+    cancelNetworkRequest = jest.fn<[], unknown>();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalExecuteWithSource = environment.executeWithSource;
-    (environment: $FlowFixMe).executeWithSource = jest.fn((...args) => {
+    (environment as $FlowFixMe).executeWithSource = jest.fn((...args) => {
       const originalObservable = originalExecuteWithSource(...args);
 
       return Observable.create(sink => {
@@ -133,10 +136,12 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           id
           name
           ...useEntryPointLoaderReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
-    // $FlowFixMe
+    // $FlowFixMe[cannot-write]
+    // $FlowFixMe[prop-missing]
     gqlQuery.params.cacheID = 'TestQuery';
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
@@ -145,7 +150,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     QueryComponent = function TestQueryComponent(props: any) {
       const result = usePreloadedQuery(
         gqlQuery,
-        (props.queries.TestQuery: $FlowFixMe),
+        props.queries.TestQuery as $FlowFixMe,
       );
 
       const name = result?.node?.name ?? 'Empty';
@@ -166,10 +171,10 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // $FlowFixMe[underconstrained-implicit-instantiation]
       const [entryPointRef] = useEntryPointLoader<
         _,
+        {},
         {...},
         {...},
-        {...},
-        mixed,
+        unknown,
         _,
         _,
       >(environmentProvider, props.entryPoint, {
@@ -252,20 +257,21 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       root: MockJSResourceReference(),
     };
 
-    render = function (
+    render = async function (
       entryPoint: any,
       initialEntryPointRef: any,
-      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({}: {
+      {suspendWholeTree}: {suspendWholeTree?: boolean} = {} as {
         suspendWholeTree?: boolean,
-      }),
+      },
     ): $FlowFixMe {
       let instance;
-      ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
+      await ReactTestingLibrary.act(async () => {
+        instance = ReactTestingLibrary.render(
           // Using StrictMode will trigger double invoke effect behavior
           <React.StrictMode>
             <RelayEnvironmentProvider environment={environment}>
-              <React.Suspense fallback="Fallback">
+              <React.Suspense
+                fallback={suspendWholeTree ? 'Outer Fallback' : 'Fallback'}>
                 <LoaderComponent
                   entryPoint={entryPoint}
                   initialEntryPointRef={initialEntryPointRef}
@@ -274,8 +280,6 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
               </React.Suspense>
             </RelayEnvironmentProvider>
           </React.StrictMode>,
-          // $FlowFixMe
-          {unstable_isConcurrent: true},
         );
       });
       return instance;
@@ -288,13 +292,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   });
 
   describe('when there is no committed entrypoint reference', () => {
-    it('does nothing when effects are double invoked (i.e. component is hidden/re-shown)', () => {
+    it('does nothing when effects are double invoked (i.e. component is hidden/re-shown)', async () => {
       // When the component mounts, React double invoke effects
       // will be triggered, simulating what would happen if the
       // component was hidden and then re-shown, in this case
       // without an actively committed query reference.
-      const instance = render(entryPointStoreOrNetwork);
-      expect(instance.toJSON()).toEqual('No EntryPoint loaded');
+      const instance = await render(entryPointStoreOrNetwork);
+      expect(instance.container.textContent).toEqual('No EntryPoint loaded');
 
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(0);
@@ -322,13 +326,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   // when double invoke effects are triggered on mount.
   describe('when there is a committed query reference', () => {
     describe('when network request is in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
-      it('forces a re-render and refetches when policy is network-only', () => {
+      it('forces a re-render and refetches when policy is network-only', async () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
+          {},
           {...},
           {...},
-          {...},
-          mixed,
+          unknown,
           empty,
           any,
         >(environmentProvider, entryPointNetworkOnly, variables);
@@ -345,7 +349,10 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed entry point reference.
-        const instance = render(entryPointNetworkOnly, initialEntryPointRef);
+        const instance = await render(
+          entryPointNetworkOnly,
+          initialEntryPointRef,
+        );
 
         // The effect cleanup will execute, so we assert
         // that the current entrypoint ref is disposed, meaning that
@@ -361,7 +368,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expectToHaveFetched(environment, query, {force: true});
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Loading preloaded query...');
+        expect(instance.container.textContent).toEqual(
+          'Loading preloaded query...',
+        );
 
         // Assert that the query is re-retained.
         // Retain is called 3 times here because the component consuming
@@ -395,7 +404,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Resolve network response
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -410,7 +419,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
         // Assert that the component consuming the query is no longer
         // suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the Suspense cache temporary retain is released
         // and re-established permanently.
@@ -433,7 +442,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
         // Assert that the temporary retain that never commits
         // gets released
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(3);
@@ -441,13 +450,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(4);
       });
 
-      it('forces a re-render and refetches when policy is store-or-network', () => {
+      it('forces a re-render and refetches when policy is store-or-network', async () => {
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
+          {},
           {...},
           {...},
-          {...},
-          mixed,
+          unknown,
           empty,
           any,
         >(environmentProvider, entryPointStoreOrNetwork, variables);
@@ -464,7 +473,10 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(entryPointStoreOrNetwork, initialEntryPointRef);
+        const instance = await render(
+          entryPointStoreOrNetwork,
+          initialEntryPointRef,
+        );
 
         // The effect cleanup will execute, so we assert
         // that the current entrypoint ref is disposed, meaning that
@@ -480,7 +492,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expectToHaveFetched(environment, query, {force: true});
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Loading preloaded query...');
+        expect(instance.container.textContent).toEqual(
+          'Loading preloaded query...',
+        );
 
         // Assert that the query is re-retained.
         // Retain is called 3 times here because the component consuming
@@ -514,7 +528,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Resolve network response
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -529,7 +543,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
         // Assert that the component consuming the query is no longer
         // suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the Suspense cache temporary retain is released
         // and re-established permanently.
@@ -552,7 +566,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
         // Assert that the temporary retain that never commits
         // gets released
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(3);
@@ -562,18 +576,18 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     });
 
     describe('when network request is NOT in flight when effects are double invoked (i.e. component is hidden/re-shown)', () => {
-      it('forces a re-render and refetches when policy is network-only', () => {
+      it('forces a re-render and refetches when policy is network-only', async () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
+          {},
           {...},
           {...},
-          {...},
-          mixed,
+          unknown,
           empty,
           any,
         >(environmentProvider, entryPointNetworkOnly, variables);
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -596,7 +610,10 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(entryPointNetworkOnly, initialEntryPointRef);
+        const instance = await render(
+          entryPointNetworkOnly,
+          initialEntryPointRef,
+        );
 
         // The effect cleanup will execute, so we assert
         // that the current entrypoint ref is disposed. In this case
@@ -613,7 +630,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expectToHaveFetched(environment, query, {force: true});
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Loading preloaded query...');
+        expect(instance.container.textContent).toEqual(
+          'Loading preloaded query...',
+        );
 
         // Assert that the query is re-retained.
         // Retain is called 3 times here because the component consuming
@@ -649,7 +668,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // Resolve network response
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -664,7 +683,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
         // Assert that the component consuming the query is no longer
         // suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the Suspense cache temporary retain is released
         // and re-established permanently.
@@ -684,7 +703,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
         // Assert that the query was correctly permanently retained,
         // and not released after the timeout resolves.
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(2);
@@ -692,18 +711,18 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expect(environment.retain).toHaveBeenCalledTimes(3);
       });
 
-      it('forces a re-render and does not refetch when policy is store-or-network', () => {
+      it('forces a re-render and does not refetch when policy is store-or-network', async () => {
         // Initialize and complete the entrypoint ref
         const initialEntryPointRef = loadEntryPoint<
           {id: string},
+          {},
           {...},
           {...},
-          {...},
-          mixed,
+          unknown,
           empty,
           any,
         >(environmentProvider, entryPointStoreOrNetwork, variables);
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           environment.mock.resolve(gqlQuery, {
             data: {
               node: {
@@ -726,7 +745,10 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         // will be triggered, simulating what would happen if the
         // component was hidden and then re-shown, in this case
         // with an actively committed query reference.
-        const instance = render(entryPointStoreOrNetwork, initialEntryPointRef);
+        const instance = await render(
+          entryPointStoreOrNetwork,
+          initialEntryPointRef,
+        );
 
         // The effect cleanup will execute, so we assert
         // that the current entrypoint ref is disposed. In this case
@@ -744,7 +766,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
         expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
 
         // Assert that the component consuming the query is suspended
-        expect(instance.toJSON()).toEqual('Alice');
+        expect(instance.container.textContent).toEqual('Alice');
 
         // Assert that the query is re-retained.
         // Retain is called 2 times here because the component consuming
@@ -780,7 +802,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
         // Assert that the query was correctly permanently retained,
         // and not released after the timeout resolves.
-        ReactTestRenderer.act(() => {
+        await ReactTestingLibrary.act(async () => {
           jest.runAllTimers();
         });
         expect(release).toHaveBeenCalledTimes(2);
@@ -791,13 +813,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   });
 
   describe('when whole tree suspends on query reference', () => {
-    it('forces a re-render and refetches when policy is network-only', () => {
+    it('forces a re-render and refetches when policy is network-only', async () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
+        {},
         {...},
         {...},
-        {...},
-        mixed,
+        unknown,
         empty,
         any,
       >(environmentProvider, entryPointNetworkOnly, variables);
@@ -808,14 +830,18 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
 
-      const instance = render(entryPointNetworkOnly, initialEntryPointRef, {
-        suspendWholeTree: true,
-      });
+      const instance = await render(
+        entryPointNetworkOnly,
+        initialEntryPointRef,
+        {
+          suspendWholeTree: true,
+        },
+      );
 
       // Assert that whole tree is suspended:
       expect(loaderRenderLogs).toEqual(['render: TestQuery']);
       expect(queryRenderLogs).toEqual([]);
-      expect(instance.toJSON()).toEqual('Outer Fallback');
+      expect(instance.container.textContent).toEqual('Outer Fallback');
       // Query is retained a second time by component using query (with a temporary retain)
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
@@ -825,7 +851,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       environment.executeWithSource.mockClear();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         environment.mock.resolve(gqlQuery, {
           data: {
             node: {
@@ -854,7 +880,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // Assert that query was refetched once by useEntryPointLoader
       // and the tree re-suspends
       expectToHaveFetched(environment, query, {force: true});
-      expect(instance.toJSON()).toEqual('Outer Fallback');
+      expect(instance.container.textContent).toEqual('Outer Fallback');
 
       // Assert that the query is re-retained by the query reference
       // and the temporary component retain
@@ -893,7 +919,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       loaderRenderLogs = [];
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         environment.mock.resolve(gqlQuery, {
           data: {
             node: {
@@ -917,7 +943,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
       // Assert that the component consuming the query is no longer
       // suspended
-      expect(instance.toJSON()).toEqual('Alice 2');
+      expect(instance.container.textContent).toEqual('Alice 2');
       expect(queryRenderLogs).toEqual([
         'render: Alice 2',
         'cleanup: Alice 1',
@@ -926,7 +952,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
       // Assert that the query is still permanently retained after
       // any timeouts
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         jest.runAllTimers();
       });
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -934,13 +960,13 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       expect(release).toHaveBeenCalledTimes(0);
     });
 
-    it('forces a re-render and does not refetch when policy is store-or-network', () => {
+    it('forces a re-render and does not refetch when policy is store-or-network', async () => {
       const initialEntryPointRef = loadEntryPoint<
         {id: string},
+        {},
         {...},
         {...},
-        {...},
-        mixed,
+        unknown,
         empty,
         any,
       >(environmentProvider, entryPointStoreOrNetwork, variables);
@@ -951,14 +977,18 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
 
-      const instance = render(entryPointStoreOrNetwork, initialEntryPointRef, {
-        suspendWholeTree: true,
-      });
+      const instance = await render(
+        entryPointStoreOrNetwork,
+        initialEntryPointRef,
+        {
+          suspendWholeTree: true,
+        },
+      );
 
       // Assert that whole tree is suspended:
       expect(loaderRenderLogs).toEqual(['render: TestQuery']);
       expect(queryRenderLogs).toEqual([]);
-      expect(instance.toJSON()).toEqual('Outer Fallback');
+      expect(instance.container.textContent).toEqual('Outer Fallback');
       // Query is retained a second time by component using query (with a temporary retain)
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toHaveBeenCalledTimes(2);
@@ -968,7 +998,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       environment.executeWithSource.mockClear();
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         environment.mock.resolve(gqlQuery, {
           data: {
             node: {
@@ -997,7 +1027,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       // Assert that the query is not refetched again
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
-      expect(instance.toJSON()).toEqual('Alice 1');
+      expect(instance.container.textContent).toEqual('Alice 1');
 
       // Assert that the query is re-retained by the query reference
       // and the temporary component retain
@@ -1037,7 +1067,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
 
       // Assert that the query is still permanently retained after
       // any timeouts
-      ReactTestRenderer.act(() => {
+      await ReactTestingLibrary.act(async () => {
         jest.runAllTimers();
       });
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters

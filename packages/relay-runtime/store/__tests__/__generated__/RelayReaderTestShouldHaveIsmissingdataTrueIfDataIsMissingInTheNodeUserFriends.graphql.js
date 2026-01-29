@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<76c47a81fc64da06773f78dea5a62e85>>
+ * @generated SignedSource<<b084516a83123209eb54710958e266ed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$fragmentType: FragmentType;
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingInTheNodeUserFriends$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +cursor: ?string,
       +node: ?{|
         +id: string,

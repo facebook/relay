@@ -20,13 +20,13 @@ pub struct ConsoleLogger;
 impl PerfLogEvent for ConsoleLogEvent {
     type Timer = (&'static str, Instant);
     fn number(&self, name: &'static str, number: usize) {
-        debug!("{}: {}", name, number);
+        debug!("{name}: {number}");
     }
     fn bool(&self, name: &'static str, value: bool) {
-        debug!("{}: {}", name, value);
+        debug!("{name}: {value}");
     }
     fn string(&self, name: &'static str, value: String) {
-        debug!("{}: {}", name, value);
+        debug!("{name}: {value}");
     }
     fn start(&self, name: &'static str) -> Self::Timer {
         (name, Instant::now())
@@ -47,7 +47,7 @@ impl PerfLogger for ConsoleLogger {
 
 pub fn print_time(name: &str, time: Instant) {
     let elapsed_ms = time.elapsed().as_millis();
-    let elapsed_str = format!("{:4}ms", elapsed_ms);
+    let elapsed_str = format!("{elapsed_ms:4}ms");
     let elapsed_color = if elapsed_ms < 10 {
         elapsed_str.dimmed()
     } else if elapsed_ms < 100 {

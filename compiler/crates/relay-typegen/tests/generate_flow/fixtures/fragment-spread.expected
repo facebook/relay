@@ -10,8 +10,8 @@ fragment FragmentSpread on Node {
     ...PictureFragment
   }
   ... on User {
-    ...UserFrag1
-    ...UserFrag2
+    ...UserFrag1 @alias
+    ...UserFrag2 @alias
   }
 }
 
@@ -20,7 +20,7 @@ fragment ConcreateTypes on Viewer {
     __typename
     ... on Page {
       id
-      ...PageFragment
+      ...PageFragment @alias
     }
     ... on User {
       name
@@ -54,8 +54,10 @@ declare export opaque type ConcreateTypes$fragmentType: FragmentType;
 export type ConcreateTypes$data = {|
   +actor: ?({|
     +__typename: "Page",
+    +PageFragment: ?{|
+      +$fragmentSpreads: PageFragment$fragmentType,
+    |},
     +id: string,
-    +$fragmentSpreads: PageFragment$fragmentType,
   |} | {|
     +__typename: "User",
     +name: ?string,
@@ -79,6 +81,12 @@ import type { UserFrag2$fragmentType } from "UserFrag2.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentSpread$fragmentType: FragmentType;
 export type FragmentSpread$data = {|
+  +UserFrag1?: ?{|
+    +$fragmentSpreads: UserFrag1$fragmentType,
+  |},
+  +UserFrag2?: ?{|
+    +$fragmentSpreads: UserFrag2$fragmentType,
+  |},
   +fragAndField: ?{|
     +uri: ?string,
     +$fragmentSpreads: PictureFragment$fragmentType,
@@ -87,7 +95,7 @@ export type FragmentSpread$data = {|
   +justFrag: ?{|
     +$fragmentSpreads: PictureFragment$fragmentType,
   |},
-  +$fragmentSpreads: OtherFragment$fragmentType & UserFrag1$fragmentType & UserFrag2$fragmentType,
+  +$fragmentSpreads: OtherFragment$fragmentType,
   +$fragmentType: FragmentSpread$fragmentType,
 |};
 export type FragmentSpread$key = {
@@ -113,11 +121,6 @@ declare export opaque type PageFragment$fragmentType: FragmentType;
 export type PageFragment$data = {|
   +__typename: "Page",
   +$fragmentType: PageFragment$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: PageFragment$fragmentType,
 |};
 export type PageFragment$key = {
   +$data?: PageFragment$data,
@@ -129,11 +132,6 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type PictureFragment$fragmentType: FragmentType;
 export type PictureFragment$data = {|
   +__typename: "Image",
-  +$fragmentType: PictureFragment$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +$fragmentType: PictureFragment$fragmentType,
 |};
 export type PictureFragment$key = {
@@ -147,11 +145,6 @@ declare export opaque type UserFrag1$fragmentType: FragmentType;
 export type UserFrag1$data = {|
   +__typename: "User",
   +$fragmentType: UserFrag1$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
-  +$fragmentType: UserFrag1$fragmentType,
 |};
 export type UserFrag1$key = {
   +$data?: UserFrag1$data,
@@ -163,11 +156,6 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type UserFrag2$fragmentType: FragmentType;
 export type UserFrag2$data = {|
   +__typename: "User",
-  +$fragmentType: UserFrag2$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +$fragmentType: UserFrag2$fragmentType,
 |};
 export type UserFrag2$key = {

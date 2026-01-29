@@ -128,9 +128,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -144,12 +144,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        const handlerProvider = (
-          name:
-            | string
-            | $TEMPORARY$string<'connection'>
-            | $TEMPORARY$string<'name_handler'>,
-        ) => {
+        const handlerProvider = (name: string) => {
           switch (name) {
             case 'name_handler':
               return NameHandler;

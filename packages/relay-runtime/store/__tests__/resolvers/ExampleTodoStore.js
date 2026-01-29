@@ -19,12 +19,12 @@ export type TodoItem = {
   todoID: TodoID,
   description: string,
   isCompleted: boolean,
-  blockedBy: $ReadOnlySet<TodoID>,
+  blockedBy: ReadonlySet<TodoID>,
 };
 
 const COLLECTION_SUBSCRIBERS = {};
 
-type State = $ReadOnlyArray<TodoItem>;
+type State = ReadonlyArray<TodoItem>;
 
 type ACTION =
   | {
@@ -79,10 +79,10 @@ class TodoStore {
         this._state = [
           ...this._state,
           {
-            todoID: `todo-${this._state.length + 1}`,
+            blockedBy: new Set<TodoID>(),
             description: action.payload,
             isCompleted: false,
-            blockedBy: new Set<TodoID>(),
+            todoID: `todo-${this._state.length + 1}`,
           },
         ];
         this._notify([COLLECTION_SUBSCRIBERS]);
@@ -152,7 +152,7 @@ class TodoStore {
         break;
       }
       default:
-        (action.type: empty);
+        action.type as empty;
     }
   }
 
@@ -180,7 +180,7 @@ class TodoStore {
     this._logFn = logger;
   }
 
-  _notify(subscribers: $ReadOnlyArray<TodoID | typeof COLLECTION_SUBSCRIBERS>) {
+  _notify(subscribers: ReadonlyArray<TodoID | typeof COLLECTION_SUBSCRIBERS>) {
     subscribers.forEach(subscriber => {
       const subscriptions = this._subscriptions.get(subscriber);
       if (subscriptions != null) {
@@ -193,11 +193,11 @@ class TodoStore {
 }
 
 const Selectors = {
-  getTodoIDs(state: State): $ReadOnlyArray<TodoID> {
-    return state.map(item => item.todoID);
-  },
   getTodo(state: State, maybeTodoID: string): ?TodoItem {
     return state.find(item => item.todoID === maybeTodoID);
+  },
+  getTodoIDs(state: State): ReadonlyArray<TodoID> {
+    return state.map(item => item.todoID);
   },
 };
 
@@ -209,52 +209,52 @@ function resetStore(logFn: (event: LogEvent) => void) {
 
 function addTodo(description: string) {
   TODO_STORE.dispatch({
-    type: 'ADD_TODO',
     payload: description,
+    type: 'ADD_TODO',
   });
 }
 
 function completeTodo(todoID: string) {
   TODO_STORE.dispatch({
+    payload: todoID as TodoID,
     type: 'COMPLETE_TODO',
-    payload: (todoID: TodoID),
   });
 }
 
 function removeTodo(todoID: string) {
   TODO_STORE.dispatch({
-    type: 'REMOVE_TODO',
     payload: todoID,
+    type: 'REMOVE_TODO',
   });
 }
 
 function blockedBy(todoID: string, blockedBy: string) {
   TODO_STORE.dispatch({
-    type: 'BLOCKED_BY',
     payload: {
-      todoID,
       blockedBy,
+      todoID,
     },
+    type: 'BLOCKED_BY',
   });
 }
 
 function changeDescription(todoID: string, description: string) {
   TODO_STORE.dispatch({
-    type: 'CHANGE_TODO_DESCRIPTION',
     payload: {
-      todoID,
       description,
+      todoID,
     },
+    type: 'CHANGE_TODO_DESCRIPTION',
   });
 }
 
 module.exports = {
-  TODO_STORE,
   Selectors,
-  resetStore,
+  TODO_STORE,
   addTodo,
-  completeTodo,
-  removeTodo,
   blockedBy,
   changeDescription,
+  completeTodo,
+  removeTodo,
+  resetStore,
 };

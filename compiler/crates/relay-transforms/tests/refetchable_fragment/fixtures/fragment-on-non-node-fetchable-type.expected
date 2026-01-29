@@ -47,11 +47,11 @@ fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "Refetchabl
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   actor {
     ...ProfilePicture
   }
   fetch_id
-  __token
 }

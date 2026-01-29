@@ -7,11 +7,10 @@
 
 use std::sync::Arc;
 
-use common::sync::*;
 use common::NamedItem;
 use common::PointerAddress;
+use common::sync::*;
 use dashmap::DashMap;
-use graphql_ir::node_identifier::NodeIdentifier;
 use graphql_ir::Condition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
@@ -21,12 +20,13 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
+use graphql_ir::node_identifier::NodeIdentifier;
 use relay_config::DeferStreamInterface;
 use schema::SDLSchema;
 
-use crate::util::is_relay_custom_inline_fragment_directive;
 use crate::ClientEdgeMetadataDirective;
 use crate::RelayLocationAgnosticBehavior;
+use crate::util::is_relay_custom_inline_fragment_directive;
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is
@@ -54,8 +54,8 @@ use crate::RelayLocationAgnosticBehavior;
  *
  *
  * 2. Inline fragments and conditions introduce the possibility for duplication
- * at different levels of the tree. Whenever a selection is fetched in a parent,
- * it is redundant to also fetch it in a child:
+ *    at different levels of the tree. Whenever a selection is fetched in a parent,
+ *    it is redundant to also fetch it in a child:
  *
  *
  * fragment Foo on FooType {
@@ -479,21 +479,15 @@ impl SkipRedundantNodesTransform {
      */
     fn get_partitioned_selections<'a>(&self, selections: &'a [Selection]) -> Vec<&'a Selection> {
         let mut result = Vec::with_capacity(selections.len());
-        unsafe { result.set_len(selections.len()) };
-        let mut non_field_index = selections
-            .iter()
-            .filter(|sel| self.is_selection_linked_or_scalar(sel))
-            .count();
-        let mut field_index = 0;
+        let mut non_field_selections = Vec::new();
         for sel in selections.iter() {
             if self.is_selection_linked_or_scalar(sel) {
-                result[field_index] = sel;
-                field_index += 1;
+                result.push(sel);
             } else {
-                result[non_field_index] = sel;
-                non_field_index += 1;
+                non_field_selections.push(sel);
             }
         }
+        result.extend(non_field_selections);
         result
     }
 

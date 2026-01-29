@@ -1,12 +1,12 @@
 query testQuery {
   node(id: 4) {
-    ...FragmentWithJSONProvidedVar,
+    ...FragmentWithJSONProvidedVar @alias
   }
 }
 
 fragment FragmentWithJSONProvidedVar on User
-  @argumentDefinitions(
-    additionalParameters: {type: "JSON", provider: "includeNameProvider"}
+@argumentDefinitions(
+  additionalParameters: {type: "JSON", provider: "includeNameProvider"}
 ) {
   profilePicture2(additionalParameters: $additionalParameters) {
     __typename

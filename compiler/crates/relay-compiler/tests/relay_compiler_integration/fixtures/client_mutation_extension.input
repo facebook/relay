@@ -7,10 +7,6 @@ graphql`mutation barMutation {
 {
    "language": "flow",
    "schema": "./schema.graphql",
-   "eagerEsModules": true,
-   "featureFlags": {
-      "enable_relay_resolver_transform": true
-   },
    "schemaExtensions": [
       "./extensions.graphql"
    ]

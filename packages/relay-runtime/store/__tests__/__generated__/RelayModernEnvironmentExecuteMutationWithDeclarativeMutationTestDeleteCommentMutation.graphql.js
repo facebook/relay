@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<34040f230cc2fd425154312ab521c6fa>>
+ * @generated SignedSource<<e72364ebf390f79847e1475df2e60f68>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type CommentDeleteInput = {|
   commentId?: ?string,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$variables = {|
-  connections: $ReadOnlyArray<string>,
+  connections: ReadonlyArray<string>,
   input?: ?CommentDeleteInput,
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$data = {|

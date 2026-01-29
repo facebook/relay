@@ -15,17 +15,17 @@ use graphql_watchman::WatchmanFileSourceSubscription;
 use log::debug;
 use log::info;
 use log::warn;
+use relay_saved_state_loader::SavedStateConfig;
+use relay_saved_state_loader::SavedStateLoader;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 
-use super::watchman_query_builder::get_all_roots;
-use super::watchman_query_builder::get_watchman_expr;
 use super::FileSourceResult;
+use super::watchman_query_builder::get_watchman_expr;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
-use crate::saved_state::SavedStateLoader;
 
 pub struct WatchmanFileSource {
     client: Arc<Client>,
@@ -48,10 +48,7 @@ impl WatchmanFileSource {
         })?;
         let resolved_root = client.resolve_root(canonical_root).await?;
         perf_logger_event.stop(connect_timer);
-        debug!(
-            "WatchmanFileSource::connect(...) resolved_root = {:?}",
-            resolved_root
-        );
+        debug!("WatchmanFileSource::connect(...) resolved_root = {resolved_root:?}");
         Ok(Self {
             client: Arc::new(client),
             config: config.clone(),
@@ -122,8 +119,7 @@ impl WatchmanFileSource {
                     perf_logger_event
                         .string("try_saved_state_result", saved_state_failure.to_owned());
                     warn!(
-                        "Unable to load saved state, falling back to full build: {}",
-                        saved_state_failure
+                        "Unable to load saved state, falling back to full build: {saved_state_failure}"
                     );
                 }
             }
@@ -232,9 +228,11 @@ impl WatchmanFileSource {
 
         let since = Some(scm_since.clone());
         let root = self.resolved_root.clone();
+        let saved_state_query_timer = perf_logger_event.start("saved_state_info_query_time");
         let saved_state_result = query_file_result(&self.config, &self.client, &root, since, true)
             .await
             .map_err(|_| "query failed")?;
+        perf_logger_event.stop(saved_state_query_timer);
 
         let since = Some(scm_since.clone());
         let config = Arc::clone(&self.config);
@@ -259,18 +257,26 @@ impl WatchmanFileSource {
             "WatchmanFileSource::saved_state_info(...) file_source_result = {:?}",
             &saved_state_info
         );
-        let saved_state_path = perf_logger_event.time("saved_state_loading_time", || {
-            saved_state_loader
-                .load(saved_state_info, &self.config)
-                .ok_or("unable to load")
-        })?;
+
+        let saved_state_load_timer = perf_logger_event.start("saved_state_loading_time");
+        let saved_state_path = saved_state_loader
+            .load(
+                saved_state_info,
+                &SavedStateConfig {
+                    saved_state_version: self.config.saved_state_version.clone(),
+                },
+            )
+            .await
+            .ok_or("unable to load")?;
+        perf_logger_event.stop(saved_state_load_timer);
+
         let mut compiler_state = perf_logger_event
             .time("deserialize_saved_state", || {
                 CompilerState::deserialize_from_file(&saved_state_path)
             })
             .map_err(|err| {
                 let error_event = perf_logger.create_event("saved_state_loader_error");
-                error_event.string("error", format!("Failed to deserialize: {}", err));
+                error_event.string("error", format!("Failed to deserialize: {err}"));
                 error_event.complete();
                 "failed to deserialize"
             })?;
@@ -283,9 +289,12 @@ impl WatchmanFileSource {
         }
 
         // Then await the changed files query.
+        let saved_state_await_changed_files_time =
+            perf_logger_event.start("saved_state_await_changed_files_time");
         let file_source_result = changed_files_result_future
             .await
             .map_err(|_| "query failed")??;
+        perf_logger_event.stop(saved_state_await_changed_files_time);
 
         compiler_state
             .pending_file_source_changes
@@ -296,17 +305,19 @@ impl WatchmanFileSource {
         if let Some(update_compiler_state_from_saved_state) =
             &self.config.update_compiler_state_from_saved_state
         {
+            let update_compiler_state_from_saved_state_time =
+                perf_logger_event.start("update_compiler_state_from_saved_state_time");
             update_compiler_state_from_saved_state(&mut compiler_state, &self.config);
+            perf_logger_event.stop(update_compiler_state_from_saved_state_time);
         }
 
-        if let Err(parse_error) = perf_logger_event.time("merge_file_source_changes", || {
+        match perf_logger_event.time("merge_file_source_changes", || {
             let result = compiler_state.merge_file_source_changes(&self.config, perf_logger, true);
             perf_logger_event.stop(try_saved_state_event);
             result
         }) {
-            Ok(Err(parse_error))
-        } else {
-            Ok(Ok(compiler_state))
+            Err(parse_error) => Ok(Err(parse_error)),
+            _ => Ok(Ok(compiler_state)),
         }
     }
 }
@@ -336,7 +347,8 @@ async fn query_file_result(
             ..Default::default()
         }
     } else {
-        let query_roots = get_all_roots(config)
+        let query_roots = config
+            .get_all_roots()
             .into_iter()
             .map(PathGeneratorElement::RecursivePath)
             .collect();
@@ -368,49 +380,49 @@ async fn query_file_result(
 }
 
 fn debug_query_results(query_result: &QueryResult<WatchmanFile>, extension_filter: &str) {
-    if let Ok(rust_log) = std::env::var("RUST_LOG") {
-        if rust_log == *"debug" {
+    if let Ok(rust_log) = std::env::var("RUST_LOG")
+        && rust_log == *"debug"
+    {
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.version = {:?}",
+            query_result.version
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.clock = {:?}",
+            query_result.clock
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.is_fresh_instance = {:?}",
+            query_result.is_fresh_instance
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.saved_state_info = {:?}",
+            query_result.saved_state_info
+        );
+        debug!(
+            "WatchmanFileSource::query_file_result(...) query_result.state_metadata = {:?}",
+            query_result.state_metadata
+        );
+        if let Some(files) = &query_result.files {
             debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.version = {:?}",
-                query_result.version
+                "WatchmanFileSource::query_file_result(...) query_result.files(only=*.{}) = \n{}",
+                extension_filter,
+                files
+                    .iter()
+                    .filter_map(|file| {
+                        if file.name.extension().is_some()
+                            && file.name.extension().unwrap() == extension_filter
+                        {
+                            Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
+                        } else {
+                            None
+                        }
+                    })
+                    .collect::<Vec<String>>()
+                    .join("\n")
             );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.clock = {:?}",
-                query_result.clock
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.is_fresh_instance = {:?}",
-                query_result.is_fresh_instance
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.saved_state_info = {:?}",
-                query_result.saved_state_info
-            );
-            debug!(
-                "WatchmanFileSource::query_file_result(...) query_result.state_metadata = {:?}",
-                query_result.state_metadata
-            );
-            if let Some(files) = &query_result.files {
-                debug!(
-                    "WatchmanFileSource::query_file_result(...) query_result.files(only=*.{}) = \n{}",
-                    extension_filter,
-                    files
-                        .iter()
-                        .filter_map(|file| {
-                            if file.name.extension().is_some()
-                                && file.name.extension().unwrap() == extension_filter
-                            {
-                                Some(format!("name: {:?}, exists: {}", *file.name, *file.exists))
-                            } else {
-                                None
-                            }
-                        })
-                        .collect::<Vec<String>>()
-                        .join("\n")
-                );
-            } else {
-                debug!("WatchmanFileSource::query_file_result(...): no files found");
-            }
+        } else {
+            debug!("WatchmanFileSource::query_file_result(...): no files found");
         }
     }
 }

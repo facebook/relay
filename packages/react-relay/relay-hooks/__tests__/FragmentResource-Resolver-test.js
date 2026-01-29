@@ -16,7 +16,7 @@ import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 const {
   getFragmentResourceForEnvironment,
 } = require('react-relay/relay-hooks/legacy/FragmentResource');
-const {RelayFeatureFlags, getFragment} = require('relay-runtime');
+const {getFragment} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   createOperationDescriptor,
@@ -30,19 +30,11 @@ const {
 disallowConsoleErrors();
 disallowWarnings();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 const BASIC_QUERY = graphql`
   query FragmentResourceResolverTest1Query($id: ID!) {
     node(id: $id) {
       __typename
-      ...FragmentResourceClientEdgesTestFragment1
+      ...FragmentResourceClientEdgesTestFragment1 @dangerously_unaliased_fixme
     }
   }
 `;
@@ -100,6 +92,8 @@ describe('FragmentResource RelayResolver behavior', () => {
       fieldPath: 'always_throws',
       kind: 'relay_resolver.error',
       owner: 'FragmentResourceResolverTestFragment1',
+      shouldThrow: false,
+      handled: false,
     });
     expect(event.error.message).toEqual('I always throw. What did you expect?');
   });

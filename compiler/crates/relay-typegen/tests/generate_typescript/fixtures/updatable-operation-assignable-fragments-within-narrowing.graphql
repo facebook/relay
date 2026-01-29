@@ -3,11 +3,11 @@ query UpdatableQuery @updatable {
     actor {
       ... on User {
         __typename
-        ...Assignable_user
+        ...Assignable_user @alias
       }
       ... on Page {
         __typename
-        ...Assignable_page
+        ...Assignable_page @alias
       }
     }
   }
@@ -20,4 +20,3 @@ fragment Assignable_user on User @assignable {
 fragment Assignable_page on Page @assignable {
   __typename
 }
-

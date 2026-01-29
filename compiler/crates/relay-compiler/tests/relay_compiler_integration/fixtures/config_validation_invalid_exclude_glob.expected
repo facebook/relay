@@ -1,0 +1,44 @@
+==================================== INPUT ====================================
+//- src/component.js
+
+graphql`query componentQuery {
+  node(id: "123") {
+    ... on User {
+      name
+    }
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "excludes": [
+      "[invalid"
+   ],
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema.graphql
+
+type Query {
+   node(id: ID!): Node
+}
+
+interface Node {
+   id: ID!
+}
+
+type User implements Node {
+   id: ID!
+   name: String
+}
+==================================== OUTPUT ===================================
+Config `<TEST_DIR>/relay.config.json` is invalid:
+ - Invalid glob pattern `[invalid` in `excludes`: invalid range pattern

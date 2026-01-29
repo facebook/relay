@@ -13,7 +13,6 @@ use common::FeatureFlags;
 use common::NamedItem;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -22,23 +21,24 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::RelayMode;
+use graphql_ir::build_ir_with_extra_features;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 use intern::string_key::Intern;
+use relay_codegen::JsModuleFormat;
 use relay_codegen::build_request_params;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_codegen::print_request;
-use relay_codegen::JsModuleFormat;
-use relay_compiler::validate;
 use relay_compiler::ProjectConfig;
+use relay_compiler::validate;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema_with_custom_id;
 use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
-use relay_transforms::apply_transforms;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
+use relay_transforms::apply_transforms;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -74,6 +74,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         &ast.definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
@@ -86,15 +87,11 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
-        enable_relay_resolver_transform: true,
-        enable_catch_directive_transform: FeatureFlag::Disabled,
         enable_3d_branch_arg_generation: true,
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         skip_printing_nulls: FeatureFlag::Disabled,
-        enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
-        emit_normalization_nodes_for_client_edges: true,
         ..Default::default()
     };
 
@@ -124,6 +121,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         Arc::new(ConsoleLogger),
         None,
         None,
+        vec![],
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

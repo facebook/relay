@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::mem;
 use std::sync::Arc;
 
-use graphql_ir::associated_data_impl;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
@@ -20,6 +19,7 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::associated_data_impl;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeySet;
 use schema::ObjectID;
@@ -174,7 +174,7 @@ impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
     }
 }
 
-impl Transformer for ClientExtensionsAbstactTypesTransform<'_> {
+impl Transformer<'_> for ClientExtensionsAbstactTypesTransform<'_> {
     const NAME: &'static str = "ClientExtensionsAbstactTypesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

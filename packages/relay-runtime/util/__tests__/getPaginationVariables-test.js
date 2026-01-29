@@ -11,10 +11,12 @@
 
 'use strict';
 
+import type {Direction} from '../getPaginationVariables';
+
 const getPaginationVariables = require('../getPaginationVariables');
 
 describe('getPaginationVariables', () => {
-  let direction;
+  let direction: Direction;
 
   describe('forward', () => {
     beforeEach(() => {
@@ -43,7 +45,7 @@ describe('getPaginationVariables', () => {
           'cursor-1',
           {order_by: 'LAST_NAME'},
           {},
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           {forward: {count: null, cursor: 'after'}, backward: null, path: []},
         ),
       ).toThrowError(
@@ -134,7 +136,7 @@ describe('getPaginationVariables', () => {
         {},
         {
           forward: {count: 'first', cursor: 'after'},
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           backward: {count: null, cursor: 'before'},
           path: [],
         },
@@ -175,7 +177,7 @@ describe('getPaginationVariables', () => {
           'cursor-1',
           {order_by: 'LAST_NAME'},
           {},
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           {forward: null, backward: {count: null, cursor: 'before'}, path: []},
         ),
       ).toThrowError(
@@ -265,7 +267,7 @@ describe('getPaginationVariables', () => {
         {order_by: 'LAST_NAME'},
         {},
         {
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           forward: {count: null, cursor: 'after'},
           backward: {count: 'last', cursor: 'before'},
           path: [],

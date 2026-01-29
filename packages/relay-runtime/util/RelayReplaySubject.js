@@ -64,7 +64,7 @@ class RelayReplaySubject<T> {
             sink.next(event.data);
             break;
           default:
-            (event.kind: empty);
+            event.kind as empty;
             invariant(
               false,
               'RelayReplaySubject: Unknown event kind `%s`.',
@@ -96,8 +96,8 @@ class RelayReplaySubject<T> {
     }
     this._complete = true;
     this._events.push({
-      kind: 'error',
       error,
+      kind: 'error',
     });
     this._sinks.forEach(sink => sink.error(error));
   }
@@ -107,8 +107,8 @@ class RelayReplaySubject<T> {
       return;
     }
     this._events.push({
-      kind: 'next',
       data,
+      kind: 'next',
     });
     this._sinks.forEach(sink => sink.next(data));
   }

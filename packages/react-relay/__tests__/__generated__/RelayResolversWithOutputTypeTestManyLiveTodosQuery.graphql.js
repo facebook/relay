@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b43a24486565d45075c0132169f43b27>>
+ * @generated SignedSource<<0df017f62e79dce8d709bee83a912239>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,17 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {many_live_todos as queryManyLiveTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyLiveTodos.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryManyLiveTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryManyLiveTodosResolverType: () => LiveState<?$ReadOnlyArray<?Query__many_live_todos$normalization>>);
+(queryManyLiveTodosResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?ReadonlyArray<?Query__many_live_todos$normalization>>);
 import type { Query__many_live_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_live_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$variables = {||};
 export type RelayResolversWithOutputTypeTestManyLiveTodosQuery$data = {|
-  +many_live_todos: ?$ReadOnlyArray<?{|
+  +many_live_todos: ?ReadonlyArray<?{|
     +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
   |}>,
 |};
@@ -85,7 +89,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "many_live_todos",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyLiveTodos').many_live_todos,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryManyLiveTodos').many_live_todos,
           "path": "many_live_todos",
           "normalizationInfo": {
             "kind": "OutputType",

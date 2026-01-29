@@ -24,17 +24,17 @@ use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::suggestion_list::did_you_mean;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeWithFields;
+use schema::suggestion_list::GraphQLSuggestions;
+use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
 use crate::connections::ConnectionInterface;
-use crate::handle_fields::build_handle_field_directive;
 use crate::handle_fields::HandleFieldDirectiveValues;
+use crate::handle_fields::build_handle_field_directive;
 
 pub fn transform_declarative_connection(
     program: &Program,
@@ -102,7 +102,7 @@ impl<'a> DeclarativeConnectionMutationTransform<'a> {
     }
 }
 
-impl Transformer for DeclarativeConnectionMutationTransform<'_> {
+impl Transformer<'_> for DeclarativeConnectionMutationTransform<'_> {
     const NAME: &'static str = "DeclarativeConnectionMutationTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -142,7 +142,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                             field_name: field.alias_or_name(self.schema),
                             current_type: self.schema.get_type_string(&field_definition.type_),
                         },
-                        delete_directive.name.location,
+                        delete_directive.location,
                     ));
                     Transformed::Keep
                 } else {
@@ -198,7 +198,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                         node_directive_name: node_directive.name.item,
                         field_name: field.alias_or_name(self.schema),
                     },
-                    edge_directive.name.location,
+                    edge_directive.location,
                 ));
                 transformed_field
             }
@@ -211,7 +211,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                             ValidationMessage::ConnectionsArgumentRequired {
                                 directive_name: edge_directive.name.item,
                             },
-                            edge_directive.name.location,
+                            edge_directive.location,
                         ));
                         transformed_field
                     }
@@ -243,8 +243,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                 }
                                 Transformed::Keep => field.clone(),
                                 _ => panic!(
-                                    "DeclarativeConnection got unexpected transform result: `{:?}`.",
-                                    transformed_field
+                                    "DeclarativeConnection got unexpected transform result: `{transformed_field:?}`."
                                 ),
                             };
                             let index = next_field
@@ -262,7 +261,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                     directive_name: edge_directive.name.item,
                                     field_name: field.alias_or_name(self.schema),
                                 },
-                                edge_directive.name.location,
+                                edge_directive.location,
                             ));
                             Transformed::Keep
                         }
@@ -277,7 +276,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                             ValidationMessage::ConnectionsArgumentRequired {
                                 directive_name: node_directive.name.item,
                             },
-                            node_directive.name.location,
+                            node_directive.location,
                         ));
                         transformed_field
                     }
@@ -289,12 +288,11 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                 .item
                                 .get_constant()
                                 .and_then(|c| c.get_string_literal())
-                            {
-                                if !self.feature_flags.disable_edge_type_name_validation_on_declerative_connection_directives.is_enabled_for(edge_typename_value) {
+                                && !self.feature_flags.disable_edge_type_name_validation_on_declerative_connection_directives.is_enabled_for(edge_typename_value) {
                                     let is_not_object_type = self
                                         .schema
                                         .get_type(edge_typename_value)
-                                        .map_or(true, |edge_type| !edge_type.is_object());
+                                        .is_none_or(|edge_type| !edge_type.is_object());
 
                                     if is_not_object_type {
                                         let suggestions = GraphQLSuggestions::new(self.schema);
@@ -312,7 +310,6 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                         return Transformed::Keep;
                                     }
                                 }
-                            }
 
                             let field_definition = self.schema.field(field.definition.item);
                             match field_definition.type_.inner() {
@@ -334,8 +331,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                         )) => (*linked_field).clone(),
                                         Transformed::Keep => field.clone(),
                                         _ => panic!(
-                                            "DeclarativeConnection got unexpected transform result: `{:?}`.",
-                                            transformed_field
+                                            "DeclarativeConnection got unexpected transform result: `{transformed_field:?}`."
                                         ),
                                     };
                                     let index = next_field
@@ -359,7 +355,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                                 .schema
                                                 .get_type_string(&field_definition.type_),
                                         },
-                                        node_directive.name.location,
+                                        node_directive.location,
                                     ));
                                     Transformed::Keep
                                 }
@@ -370,7 +366,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                     directive_name: node_directive.name.item,
                                     field_name: field.alias_or_name(self.schema),
                                 },
-                                node_directive.name.location,
+                                node_directive.location,
                             ));
                             Transformed::Keep
                         }

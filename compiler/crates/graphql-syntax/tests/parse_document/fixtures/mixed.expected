@@ -27,6 +27,7 @@ Document {
                         value: "Foo",
                     },
                     directives: [],
+                    description: None,
                     span: 0:12,
                 },
             ),
@@ -95,6 +96,15 @@ Document {
                             },
                         },
                     ),
+                    description: Some(
+                        StringNode {
+                            token: Token {
+                                span: 12:43,
+                                kind: BlockStringLiteral,
+                            },
+                            value: "Definition with comment",
+                        },
+                    ),
                     span: 44:69,
                 },
             ),
@@ -158,6 +168,7 @@ Document {
                         kind: CloseBrace,
                     },
                 },
+                description: None,
             },
         ),
     ],

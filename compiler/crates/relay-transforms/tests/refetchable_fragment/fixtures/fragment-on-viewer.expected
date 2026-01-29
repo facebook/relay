@@ -43,6 +43,7 @@ fragment RefetchableFragment on Viewer @refetchable(queryName: "RefetchableFragm
 #         "viewer",
 #     ],
 #     identifier_info: None,
+#     is_prefetchable_pagination: false,
 # }
  {
   actor {

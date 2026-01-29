@@ -8,20 +8,22 @@
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
+use ::intern::string_key::StringKey;
+use intern::intern;
 use itertools::Itertools;
 use relay_config::TypegenConfig;
 
+use crate::KEY_DATA;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::writer::AST;
+use crate::writer::FunctionTypeAssertion;
+use crate::writer::KeyValuePairProp;
 use crate::writer::Prop;
 use crate::writer::SortedASTList;
 use crate::writer::SortedStringKeyList;
 use crate::writer::StringLiteral;
 use crate::writer::Writer;
-use crate::writer::AST;
-use crate::KEY_DATA;
-use crate::KEY_FRAGMENT_SPREADS;
-use crate::KEY_FRAGMENT_TYPE;
 
 pub struct TypeScriptPrinter {
     result: String,
@@ -55,8 +57,8 @@ impl Writer for TypeScriptPrinter {
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
             AST::Callable(return_type) => self.write_callable(return_type),
-            AST::Identifier(identifier) => write!(&mut self.result, "{}", identifier),
-            AST::RawType(raw) => write!(&mut self.result, "{}", raw),
+            AST::Identifier(identifier) => write!(&mut self.result, "{identifier}"),
+            AST::RawType(raw) => write!(&mut self.result, "{raw}"),
             AST::Union(members) => self.write_union(members),
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
@@ -77,29 +79,30 @@ impl Writer for TypeScriptPrinter {
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
             }
-            AST::AssertFunctionType(_) => {
-                // TODO: Implement type generation for typescript
-                Ok(())
-            }
+            AST::AssertFunctionType(FunctionTypeAssertion {
+                function_name,
+                arguments,
+                return_type,
+            }) => self.write_assert_function_type(*function_name, arguments, return_type),
             AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
             AST::PropertyType {
                 type_,
                 property_name,
             } => {
                 self.write(type_)?;
-                write!(&mut self.result, "['{}']", property_name)
+                write!(&mut self.result, "['{property_name}']")
             }
         }
     }
 
     fn write_type_assertion(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "({} as ", name)?;
+        write!(&mut self.result, "({name} as ")?;
         self.write(value)?;
         writeln!(&mut self.result, ");")
     }
 
     fn write_export_type(&mut self, name: &str, value: &AST) -> FmtResult {
-        write!(&mut self.result, "export type {} = ", name)?;
+        write!(&mut self.result, "export type {name} = ")?;
         self.write(value)?;
         writeln!(&mut self.result, ";")
     }
@@ -108,8 +111,7 @@ impl Writer for TypeScriptPrinter {
         let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
         writeln!(
             &mut self.result,
-            "import {} from \"{}\";",
-            name, from_without_extension
+            "import {name} from \"{from_without_extension}\";"
         )
     }
 
@@ -120,7 +122,7 @@ impl Writer for TypeScriptPrinter {
         from: &str,
     ) -> FmtResult {
         let import_type = if let Some(import_as) = import_as {
-            format!("{} as {}", name, import_as)
+            format!("{name} as {import_as}")
         } else {
             name.to_string()
         };
@@ -181,7 +183,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_string_literal(&mut self, literal: StringKey) -> FmtResult {
-        write!(&mut self.result, "\"{}\"", literal)
+        write!(&mut self.result, "\"{literal}\"")
     }
 
     fn write_other_string(&mut self) -> FmtResult {
@@ -214,8 +216,8 @@ impl TypeScriptPrinter {
     }
 
     fn write_nullable(&mut self, of_type: &AST) -> FmtResult {
-        let null_type = AST::RawType("null".intern());
-        let undefined_type = AST::RawType("undefined".intern());
+        let null_type = AST::RawType(intern!("null"));
+        let undefined_type = AST::RawType(intern!("undefined"));
         if let AST::Union(members) = of_type {
             let mut new_members = Vec::with_capacity(members.len() + 1);
             new_members.extend_from_slice(members);
@@ -242,11 +244,11 @@ impl TypeScriptPrinter {
 
         // Replication of babel printer oddity: objects only containing a spread
         // are missing a newline.
-        if props.len() == 1 {
-            if let Prop::Spread(_) = props[0] {
-                write!(&mut self.result, "Record<PropertyKey, never>")?;
-                return Ok(());
-            }
+        if props.len() == 1
+            && let Prop::Spread(_) = props[0]
+        {
+            write!(&mut self.result, "Record<PropertyKey, never>")?;
+            return Ok(());
         }
 
         writeln!(&mut self.result, "{{")?;
@@ -313,7 +315,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_local_3d_payload(&mut self, document_name: StringKey, selections: &AST) -> FmtResult {
-        write!(&mut self.result, "Local3DPayload<\"{}\", ", document_name)?;
+        write!(&mut self.result, "Local3DPayload<\"{document_name}\", ")?;
         self.write(selections)?;
         write!(&mut self.result, ">")?;
         Ok(())
@@ -335,7 +337,7 @@ impl TypeScriptPrinter {
     }
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
-        write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+        write!(&mut self.result, "ReturnType<typeof {function_name}>")
     }
 
     fn write_return_type_of_method_call(
@@ -345,7 +347,7 @@ impl TypeScriptPrinter {
     ) -> FmtResult {
         write!(&mut self.result, "ReturnType<")?;
         self.write(object)?;
-        write!(&mut self.result, "[\"{}\"]>", method_name)
+        write!(&mut self.result, "[\"{method_name}\"]>")
     }
 
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
@@ -353,17 +355,54 @@ impl TypeScriptPrinter {
         self.write(return_type)
     }
 
-    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
-        write!(&mut self.result, "{}<", outer)?;
-        self.write(inner)?;
+    fn write_generic_type(&mut self, outer: StringKey, inner: &[AST]) -> FmtResult {
+        write!(&mut self.result, "{outer}<")?;
+        for (i, inner_type) in inner.iter().enumerate() {
+            if i > 0 {
+                write!(&mut self.result, ", ")?;
+            }
+            self.write(inner_type)?;
+        }
         write!(&mut self.result, ">")
+    }
+
+    fn write_assert_function_type(
+        &mut self,
+        function_name: StringKey,
+        arguments: &[KeyValuePairProp],
+        return_type: &AST,
+    ) -> FmtResult {
+        writeln!(
+            &mut self.result,
+            "// Type assertion validating that `{function_name}` resolver is correctly implemented."
+        )?;
+        writeln!(
+            &mut self.result,
+            "// A type error here indicates that the type signature of the resolver module is incorrect."
+        )?;
+        if arguments.is_empty() {
+            write!(&mut self.result, "({function_name} satisfies (")?;
+        } else {
+            writeln!(&mut self.result, "({function_name} satisfies (")?;
+            self.indentation += 1;
+            for argument in arguments.iter() {
+                self.write_indentation()?;
+                write!(&mut self.result, "{}: ", argument.key)?;
+                self.write(&argument.value)?;
+                writeln!(&mut self.result, ",")?;
+            }
+            self.indentation -= 1;
+        }
+        write!(&mut self.result, ") => ")?;
+        self.write(return_type)?;
+        writeln!(&mut self.result, ");")?;
+
+        Ok(())
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use intern::string_key::Intern;
-
     use super::*;
     use crate::writer::ExactObject;
     use crate::writer::InexactObject;
@@ -431,7 +470,7 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "single".intern(),
+                    key: intern!("single"),
                     optional: false,
                     read_only: false,
                     value: AST::String,
@@ -445,13 +484,13 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
+                    key: intern!("foo"),
                     optional: true,
                     read_only: false,
                     value: AST::String,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
+                    key: intern!("bar"),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
@@ -470,18 +509,18 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
+                    key: intern!("foo"),
                     optional: true,
                     read_only: false,
                     value: AST::ExactObject(ExactObject::new(vec![
                         Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo".intern(),
+                            key: intern!("nested_foo"),
                             optional: true,
                             read_only: false,
                             value: AST::String,
                         }),
                         Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo2".intern(),
+                            key: intern!("nested_foo2"),
                             optional: false,
                             read_only: true,
                             value: AST::Number,
@@ -489,7 +528,7 @@ mod tests {
                     ])),
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
+                    key: intern!("bar"),
                     optional: false,
                     read_only: true,
                     value: AST::Number,
@@ -516,7 +555,7 @@ mod tests {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "single".intern(),
+                    key: intern!("single"),
                     optional: false,
                     read_only: false,
                     value: AST::String,
@@ -531,13 +570,13 @@ mod tests {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
+                    key: intern!("foo"),
                     optional: false,
                     read_only: false,
                     value: AST::String,
                 }),
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
+                    key: intern!("bar"),
                     optional: true,
                     read_only: true,
                     value: AST::Number,
@@ -556,7 +595,7 @@ mod tests {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(vec![
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: "with_comment".intern(),
+                    key: intern!("with_comment"),
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
@@ -623,7 +662,7 @@ mod tests {
     #[test]
     fn function_return_type() {
         assert_eq!(
-            print_type(&AST::ReturnTypeOfFunctionWithName("someFunc".intern(),)),
+            print_type(&AST::ReturnTypeOfFunctionWithName(intern!("someFunc"),)),
             "ReturnType<typeof someFunc>".to_string()
         );
     }

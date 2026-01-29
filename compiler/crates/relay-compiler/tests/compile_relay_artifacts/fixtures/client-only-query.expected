@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query clientOnlyQuery {
   __id
-  ...clientOnlyQueryFragment @skip(if: true)
+  ...clientOnlyQueryFragment @alias @skip(if: true)
 }
 
 fragment clientOnlyQueryFragment on Query {

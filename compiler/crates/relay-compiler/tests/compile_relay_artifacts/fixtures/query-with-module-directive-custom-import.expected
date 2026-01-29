@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithModuleDirectiveCustomImport_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithModuleDirectiveCustomImport_NameRendererFragment
+    ...queryWithModuleDirectiveCustomImport_NameRendererFragment @alias
   }
 }
 
@@ -100,8 +100,19 @@ fragment queryWithModuleDirectiveCustomImport_MarkdownUserNameRenderer_name on M
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "queryWithModuleDirectiveCustomImport_NameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "queryWithModuleDirectiveCustomImport_NameRendererFragment"
           }
         ],

@@ -31,10 +31,10 @@ import userPopStarNamesResolverType from "PopStarNameResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNamesResolverType: (
   rootKey: PopStarNameResolverFragment_name$key,
-) => ?$ReadOnlyArray<?string>);
+) => ?ReadonlyArray<?string>);
 declare export opaque type Foo_user$fragmentType: FragmentType;
 export type Foo_user$data = {|
-  +poppy: ?$ReadOnlyArray<?string>,
+  +poppy: ?ReadonlyArray<?string>,
   +$fragmentType: Foo_user$fragmentType,
 |};
 export type Foo_user$key = {
@@ -50,7 +50,7 @@ export type PopStarNameResolverFragment_name$data = {|
     +street: ?string,
   |},
   +name: ?string,
-  +parents: $ReadOnlyArray<{|
+  +parents: ReadonlyArray<{|
     +lastName: ?string,
   |}>,
   +$fragmentType: PopStarNameResolverFragment_name$fragmentType,

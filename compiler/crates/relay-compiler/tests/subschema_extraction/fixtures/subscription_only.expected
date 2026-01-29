@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+# Test: subscription-only project extracts only subscription types
+# (No synthetic Query type should appear in output)
+
+//- src/TestSubscription.js
+graphql`
+  subscription TestSubscription($id: ID!) {
+    testSubscription(id: $id) {
+      id
+      message
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  me: User
+}
+
+type Subscription {
+  testSubscription(id: ID!): SubscriptionPayload
+}
+
+type SubscriptionPayload {
+  id: ID!
+  message: String
+}
+
+type User {
+  id: ID!
+  name: String
+}
+==================================== OUTPUT ===================================
+type Subscription {
+  testSubscription(id: ID!): SubscriptionPayload
+}
+
+type SubscriptionPayload {
+  id: ID!
+  message: String
+}

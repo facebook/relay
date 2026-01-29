@@ -1,0 +1,43 @@
+query prefetchablePaginationQueryWithoutConflictingArgsQuery($site: String) {
+  node(id: "x") {
+    ...prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment @arguments(site: $site) @alias
+    ...prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment @arguments(site: $site) @alias
+  }
+}
+
+fragment prefetchablePaginationQueryWithoutConflictingArgs_FirstFragment on Page
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+    site: {type: "String"}
+  ) {
+  name
+  friends(after: $cursor, first: $count)
+    @connection(key: "PaginationFragment_friends", prefetchable_pagination: true) {
+    edges {
+      node {
+        id
+        url(site: $site)
+      }
+    }
+  }
+}
+
+fragment prefetchablePaginationQueryWithoutConflictingArgs_SecondFragment on User
+  @argumentDefinitions(
+    count: {type: "Int", defaultValue: 10}
+    cursor: {type: "ID"}
+    site: {type: "String"}
+  ) {
+    id
+    friends(after: $cursor, first: $count)
+        @connection(key: "PaginationFragment2_friends") {
+        edges {
+            node {
+                id
+                url(site: $site)
+            }
+        }
+    }
+}

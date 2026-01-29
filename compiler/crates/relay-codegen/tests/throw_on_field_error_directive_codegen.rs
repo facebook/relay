@@ -11,13 +11,13 @@ use common::FeatureFlag;
 use common::FeatureFlags;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::ExecutableDefinition;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
+use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_config::ProjectConfig;
-use relay_config::TypegenConfig;
 use relay_test_schema::TEST_SCHEMA;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -44,14 +44,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             operation,
                             &ProjectConfig {
                                 feature_flags: Arc::new(feature_flags.clone()),
-                                typegen_config: TypegenConfig {
-                                    experimental_emit_semantic_nullability_types: fixture
-                                        .content
-                                        .contains(
-                                            "# relay:experimental_emit_semantic_nullability_types",
-                                        ),
-                                    ..Default::default()
-                                },
+                                typegen_config: Default::default(),
                                 ..Default::default()
                             },
                             &mut import_statements,
@@ -66,14 +59,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             fragment,
                             &ProjectConfig {
                                 feature_flags: Arc::new(feature_flags.clone()),
-                                typegen_config: TypegenConfig {
-                                    experimental_emit_semantic_nullability_types: fixture
-                                        .content
-                                        .contains(
-                                            "# relay:experimental_emit_semantic_nullability_types",
-                                        ),
-                                    ..Default::default()
-                                },
+                                typegen_config: Default::default(),
                                 ..Default::default()
                             },
                             &mut import_statements,
@@ -84,11 +70,5 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 .collect::<Vec<_>>()
                 .join("\n\n")
         })
-        .map_err(|errors| {
-            errors
-                .into_iter()
-                .map(|error| format!("{:?}", error))
-                .collect::<Vec<_>>()
-                .join("\n\n")
-        })
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))
 }

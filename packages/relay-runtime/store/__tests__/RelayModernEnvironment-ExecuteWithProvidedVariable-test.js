@@ -34,11 +34,7 @@ function getEnvironment(
 ): RelayModernEnvironment {
   let subject;
   const fetch = jest.fn(
-    (
-      _query: $FlowExpectedError,
-      _variables: $FlowExpectedError,
-      _cacheConfig: $FlowExpectedError,
-    ) =>
+    (_query: $FlowFixMe, _variables: $FlowFixMe, _cacheConfig: $FlowFixMe) =>
       RelayObservable.create(
         (
           sink: Sink<{
@@ -62,7 +58,7 @@ function getEnvironment(
   const source = RelayRecordSource.create();
   const store = new RelayModernStore(source);
   const environment = new RelayModernEnvironment({
-    network: RelayNetwork.create((fetch: $FlowFixMe)),
+    network: RelayNetwork.create(fetch as $FlowFixMe),
     store,
   });
   environment.execute({operation}).subscribe({});
@@ -71,16 +67,16 @@ function getEnvironment(
     data: {
       node: {
         __typename: 'User',
+        alternate_name: 'testAlternateName',
         id: '1',
         name: 'testName',
-        username: 'testUsername',
-        alternate_name: 'testAlternateName',
-        profilePicture: {
-          uri: 'https://facebook.com/test_profilePicture.jpg',
-        },
         profile_picture: {
           uri: 'https://facebook.com/test_profile_picture.jpg',
         },
+        profilePicture: {
+          uri: 'https://facebook.com/test_profilePicture.jpg',
+        },
+        username: 'testUsername',
       },
     },
   });
@@ -95,7 +91,7 @@ function getFragmentSnapshot(
 ): Snapshot {
   const fragmentSelector = RelayModernSelector.getSingularSelector(
     fragment,
-    (querySnapshot.data: $FlowFixMe).node,
+    (querySnapshot.data as $FlowFixMe).node,
   );
   invariant(fragmentSelector != null, 'Expected a singular selector.');
   const fragmentSnapshot = environment.lookup(fragmentSelector);
@@ -118,6 +114,7 @@ describe('query with fragments that use provided variables', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -128,8 +125,11 @@ describe('query with fragments that use provided variables', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3
+            @dangerously_unaliased_fixme
         }
       }
     `;

@@ -1,0 +1,33 @@
+==================================== INPUT ====================================
+fragment MyFragment on Query {
+  me @catch(to: NULL) {
+    clientUser {
+      # Should be non-nullable since it's semanticNonNull within a catch
+      name
+    }
+  }
+}
+
+%extensions%
+
+extend type User {
+  clientUser: ClientUser
+}
+
+type ClientUser {
+  name: String @semanticNonNull
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MyFragment$data = {
+  readonly me: {
+    readonly clientUser: {
+      readonly name: string;
+    } | null | undefined;
+  } | null | undefined;
+  readonly " $fragmentType": "MyFragment";
+};
+export type MyFragment$key = {
+  readonly " $data"?: MyFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyFragment">;
+};

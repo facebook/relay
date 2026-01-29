@@ -12,6 +12,7 @@
 'use strict';
 import type {PayloadError} from '../../network/RelayNetworkTypes';
 import type {Snapshot} from '../RelayStoreTypes';
+import type {RelayModernEnvironmentViewerTest_SetLocationMutation$variables} from './__generated__/RelayModernEnvironmentViewerTest_SetLocationMutation.graphql';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -66,7 +67,7 @@ describe('Mutations on viewer', () => {
         longitude: 30.0,
         latitude: 30.0,
       },
-    };
+    } as RelayModernEnvironmentViewerTest_SetLocationMutation$variables;
 
     onCompleted = jest.fn<[{...}, ?Array<PayloadError>], void>();
     onError = jest.fn<[Error], void>();
@@ -126,6 +127,8 @@ describe('Mutations on viewer', () => {
     callback.mockClear();
     commitMutation(environment, {
       mutation,
+      /* $FlowFixMe[incompatible-type] Natural Inference rollout. See
+       * https://fburl.com/gdoc/y8dn025u */
       variables,
       onCompleted,
       onError,

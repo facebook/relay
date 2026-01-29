@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af7fce71cc8861a718baa27a90404b9e>>
+ * @generated SignedSource<<a86751be3ac42e6211c05f9a21c40b24>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ export type validateMutationTest13ChangeNamePhonesMutation$variables = {|
 export type validateMutationTest13ChangeNamePhonesMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
-      +allPhones: ?$ReadOnlyArray<?{|
+      +allPhones: ?ReadonlyArray<?{|
         +isVerified: ?boolean,
       |}>,
     |},

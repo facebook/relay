@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<949c292c388e628caec8bca19f66fbef>>
+ * @generated SignedSource<<31968bade6afbc0e410fd53a943a88f3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$vari
   count: number,
   id: string,
   isViewerFriend: boolean,
-  orderby?: ?$ReadOnlyArray<?string>,
+  orderby?: ?ReadonlyArray<?string>,
 |};
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
@@ -290,7 +290,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "46153f91be065033bb3e83f093819f1b";
+  (node/*: any*/).hash = "e9d0c6d0cb6439a0d13db8521b4cefe3";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

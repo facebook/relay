@@ -1,0 +1,44 @@
+==================================== INPUT ====================================
+//- excluded_src/component.js
+
+graphql`query componentQuery {
+  node(id: "123") {
+    ... on User {
+      name
+    }
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "excluded_src": "test_project"
+   },
+   "excludes": [
+      "**/excluded_src"
+   ],
+   "projects": {
+      "test_project": {
+         "schema": "schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema.graphql
+
+type Query {
+   node(id: ID!): Node
+}
+
+interface Node {
+   id: ID!
+}
+
+type User implements Node {
+   id: ID!
+   name: String
+}
+==================================== OUTPUT ===================================
+Config `<TEST_DIR>/relay.config.json` is invalid:
+ - The `source` at `<TEST_DIR>/excluded_src` matches an exclude pattern `**/excluded_src`.

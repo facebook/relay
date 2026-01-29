@@ -4,7 +4,7 @@
 name = "schema-diff"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -17,7 +17,7 @@ common = { path = "../common" }
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 relay-config = { path = "../relay-config" }
-rustc-hash = "1.1.0"
+rustc-hash = "2.1.1"
 schema = { path = "../schema" }

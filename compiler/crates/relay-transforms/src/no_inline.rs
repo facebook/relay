@@ -11,6 +11,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -26,8 +27,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
-use crate::ValidationMessage;
 use crate::MATCH_CONSTANTS;
+use crate::ValidationMessage;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
@@ -74,6 +75,7 @@ pub fn attach_no_inline_directives_to_fragments(
                 name: WithLocation::new(fragment.name.location, *NO_INLINE_DIRECTIVE_NAME),
                 arguments: vec![create_parent_documents_arg(parent_sources)],
                 data: None,
+                location: Location::generated(),
             })
         }
     }
@@ -136,7 +138,7 @@ impl<'f, 'p> RequiredNoInlineValidator<'f, 'p> {
     }
 }
 
-impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
+impl Validator for RequiredNoInlineValidator<'_, '_> {
     const NAME: &'static str = "RequiredNoInlineValidator";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7a0be220ee0ccec98d9d78d2768944ba>>
+ * @generated SignedSource<<015f5d0f887cfdca2bff8cd762cc2a55>>
  */
 
 mod apply_fragment_arguments;
@@ -24,6 +24,20 @@ async fn deletes_unreferenced_fragments() {
     let input = include_str!("apply_fragment_arguments/fixtures/deletes-unreferenced-fragments.graphql");
     let expected = include_str!("apply_fragment_arguments/fixtures/deletes-unreferenced-fragments.expected");
     test_fixture(transform_fixture, file!(), "deletes-unreferenced-fragments.graphql", "apply_fragment_arguments/fixtures/deletes-unreferenced-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn empty_selection_constant_include_false_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/empty-selection-constant-include-false-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/empty-selection-constant-include-false-argument.expected");
+    test_fixture(transform_fixture, file!(), "empty-selection-constant-include-false-argument.graphql", "apply_fragment_arguments/fixtures/empty-selection-constant-include-false-argument.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn empty_selection_constant_skip_true_argument() {
+    let input = include_str!("apply_fragment_arguments/fixtures/empty-selection-constant-skip-true-argument.graphql");
+    let expected = include_str!("apply_fragment_arguments/fixtures/empty-selection-constant-skip-true-argument.expected");
+    test_fixture(transform_fixture, file!(), "empty-selection-constant-skip-true-argument.graphql", "apply_fragment_arguments/fixtures/empty-selection-constant-skip-true-argument.expected", input, expected).await;
 }
 
 #[tokio::test]

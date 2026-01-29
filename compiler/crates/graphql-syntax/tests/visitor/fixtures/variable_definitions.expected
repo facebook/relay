@@ -1,0 +1,44 @@
+==================================== INPUT ====================================
+query WithVariables(
+  $id: ID!
+  $size: Int = 100
+  $filter: FilterInput
+  $items: [String!]!
+  $enabled: Boolean = false
+) @queryDirective {
+  node(id: $id) {
+    ... on Image {
+      url(size: $size)
+    }
+  }
+  search(filter: $filter, items: $items) {
+    results @include(if: $enabled) {
+      id
+    }
+  }
+}
+==================================== OUTPUT ===================================
+visit_operation: Query WithVariables
+visit_directive: @queryDirective at Query
+visit_linked_field: node
+visit_argument: id
+visit_variable: $id
+visit_inline_fragment: on Image
+visit_scalar_field: url
+visit_argument: size
+visit_variable: $size
+visit_linked_field: search
+visit_argument: filter
+visit_variable: $filter
+visit_argument: items
+visit_variable: $items
+visit_linked_field: results
+visit_directive: @include at Field
+visit_argument: if
+visit_variable: $enabled
+visit_scalar_field: id
+visit_variable_definition: $id
+visit_variable_definition: $size
+visit_variable_definition: $filter
+visit_variable_definition: $items
+visit_variable_definition: $enabled

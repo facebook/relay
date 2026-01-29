@@ -1,12 +1,12 @@
 query nestedConditions2Query($c1: Boolean!, $c2: Boolean!, $c3: Boolean!, $c4: Boolean!, $c5: Boolean!, $c6: Boolean!, $c7: Boolean!) {
   node {
     ... @include(if: $c1){
-        ...nestedConditions2_NestedFragment @include(if: $c2)
-        ...nestedConditions2_NestedFragment2 @skip(if: $c2)
+        ...nestedConditions2_NestedFragment @include(if: $c2) @alias
+        ...nestedConditions2_NestedFragment2 @skip(if: $c2) @alias
         ...@skip(if: $c3) {
           ...@skip(if: $c4) @include(if: $c5) {
-            ...nestedConditions2_NestedFragment @skip(if: $c6)
-            ...nestedConditions2_NestedFragment2 @skip(if: $c6) @include(if: $c7)
+            ...nestedConditions2_NestedFragment @skip(if: $c6) @alias(as: "nestedConditions2_NestedFragment_nested")
+            ...nestedConditions2_NestedFragment2 @skip(if: $c6) @include(if: $c7) @alias(as: "nestedConditions2_NestedFragment_nested2")
           }
         }
     }

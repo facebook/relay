@@ -1,0 +1,10 @@
+# expected-to-throw
+
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    User: name
+    ... on User @alias {
+      name
+    }
+  }
+}

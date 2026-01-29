@@ -188,7 +188,9 @@ fragment MyFrag on Actor {
 In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullable `name`.
 
 <FbInternalOnly>
+
 Example diff showing the adoption of this strategy: D24370183
+
 </FbInternalOnly>
 
 ### Why not implement this at the schema/server level?

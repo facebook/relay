@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8c14682af51e2e92008232caffb1066d>>
+ * @generated SignedSource<<ccd1452c39f1571f8018d417f5e30ae2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type withProvidedVariablesTest4Fragment1$fragmentType: Fra
 export type withProvidedVariablesTest4Fragment1$data = {|
   +friends: ?{|
     +count: ?number,
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +name?: ?string,
       |},

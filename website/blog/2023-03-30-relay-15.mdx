@@ -62,7 +62,7 @@ Typesafe updaters now support missing field handlers. Previously, if you selecte
 
 In this release, we add support for missing field handlers in typesafe updaters, meaning that if a missing field handler is set up for node (as in [this example](https://relay.dev/docs/next/guided-tour/reusing-cached-data/filling-in-missing-data/#internaldocs-banner)), you will be able to update the user's name with this missing field handler.
 
-In order to support this, the signature of [missing field handlers](https://relay.dev/docs/guided-tour/reusing-cached-data/filling-in-missing-data) has been changed. The `record` argument to the handler used to recieve a `Record` type (which is an untyped grab-bag of data). It now receives a `ReadOnlyRecordProxy`. Furthermore, the field argument of type `NormalizationLinkedField` is now `CommonLinkedField`, which is a type containing the properties found in both `ReaderLinkedField` and `NormalizationLinkedField`.
+In order to support this, the signature of [missing field handlers](https://relay.dev/docs/guided-tour/reusing-cached-data/filling-in-missing-data) has been changed. The `record` argument to the handler used to receive a `Record` type (which is an untyped grab-bag of data). It now receives a `ReadOnlyRecordProxy`. Furthermore, the field argument of type `NormalizationLinkedField` is now `CommonLinkedField`, which is a type containing the properties found in both `ReaderLinkedField` and `NormalizationLinkedField`.
 
 ### Flow type improvements
 

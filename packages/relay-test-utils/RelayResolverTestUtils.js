@@ -34,18 +34,18 @@ const {
  * expect(actual).toEqual(expectedValue)
  * ```
  **/
-function testResolver<D, Ret>(
-  resolver: ({$data: D, $fragmentRefs: any, $fragmentSpreads: any}) => Ret,
+function testResolver<D: ?{+$fragmentType?: unknown, ...}, Ret>(
+  resolver: ({$data?: D, $fragmentRefs: any, $fragmentSpreads: any}) => Ret,
   // indexed_access is not yet enabled for this code base. Once it is, this can
   // become: `Key['$data']`
-  fragmentData: $Diff<D, {$fragmentType: mixed}>,
+  fragmentData: NoInfer<Omit<NonNullable<D>, '$fragmentType'>>,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
-  // $FlowFixMe: a test utility, so... YOLO!!
+  // $FlowFixMe[incompatible-type]: a test utility, so... YOLO!!
   ResolverFragments.readFragment = () => fragmentData;
   const result = resolver(
     // This will be ignored since we mock the function it gets passed to.
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-type]
     null,
   );
   ResolverFragments.readFragment = readFragment;

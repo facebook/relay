@@ -16,7 +16,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let mut type_shard_count = fnv::FnvHashMap::default();
     type_shard_count.insert("Query".intern(), 2);
     let directives = print_directives(&schema);
-    let types = print_types_directives_as_shards(&schema, 4, type_shard_count)
-        .join("\n=======Shard=======\n\n");
+    let sep = "\n=======Shard=======\n\n";
+    let types = print_types_directives_as_shards(&schema, 4, type_shard_count.clone()).join(sep);
+
     Ok(format!("{}{}", directives, types))
 }

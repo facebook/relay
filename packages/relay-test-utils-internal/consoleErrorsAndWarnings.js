@@ -18,7 +18,7 @@ export type WillFireOptions = {
   optional?: boolean,
 };
 
-type API = $ReadOnly<{
+type API = Readonly<{
   disallowMessages: () => void,
   expectMessageWillFire: (string, void | WillFireOptions) => void,
   expectMessage: <T>(string, () => T) => T,

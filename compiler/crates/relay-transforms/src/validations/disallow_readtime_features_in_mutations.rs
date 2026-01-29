@@ -71,20 +71,20 @@ impl<'program> DisallowReadtimeFeaturesInMutations<'program> {
     }
 
     fn validate_field(&self, field: &impl Field) -> DiagnosticsResult<()> {
-        if !self.allow_required_for_this_mutation {
-            if let Some(directive) = field.directives().named(*REQUIRED_DIRECTIVE_NAME) {
-                let action = directive
-                    .arguments
-                    .named(*ACTION_ARGUMENT)
-                    .and_then(|arg| arg.value.item.get_constant());
-                if let Some(ConstantValue::Enum(action)) = action {
-                    if *action == *THROW_ACTION {
-                        return Err(vec![Diagnostic::error(
-                            ValidationMessage::RequiredInMutation,
-                            directive.name.location,
-                        )]);
-                    }
-                }
+        if !self.allow_required_for_this_mutation
+            && let Some(directive) = field.directives().named(*REQUIRED_DIRECTIVE_NAME)
+        {
+            let action = directive
+                .arguments
+                .named(*ACTION_ARGUMENT)
+                .and_then(|arg| arg.value.item.get_constant());
+            if let Some(ConstantValue::Enum(action)) = action
+                && *action == *THROW_ACTION
+            {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::RequiredInMutation,
+                    directive.location,
+                )]);
             }
         }
         if !self.allow_resolvers_for_this_mutation

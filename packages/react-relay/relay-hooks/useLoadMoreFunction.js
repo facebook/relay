@@ -22,20 +22,21 @@ import type {
   Variables,
 } from 'relay-runtime';
 
+const getConnectionState = require('./getConnectionState');
 const useFetchTrackingRef = require('./useFetchTrackingRef');
 const useIsMountedRef = require('./useIsMountedRef');
 const useIsOperationNodeActive = require('./useIsOperationNodeActive');
+const useLoadMoreFunction_EXPERIMENTAL = require('./useLoadMoreFunction_EXPERIMENTAL');
 const useRelayEnvironment = require('./useRelayEnvironment');
 const invariant = require('invariant');
 const {useCallback, useEffect, useState} = require('react');
 const {
   __internal: {fetchQuery},
-  ConnectionInterface,
+  RelayFeatureFlags,
   createOperationDescriptor,
   getPaginationVariables,
   getRefetchMetadata,
   getSelector,
-  getValueAtPath,
 } = require('relay-runtime');
 const warning = require('warning');
 
@@ -50,10 +51,10 @@ export type LoadMoreFn<TVariables: Variables> = (
 export type UseLoadMoreFunctionArgs = {
   direction: Direction,
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
   fragmentIdentifier: string,
-  fragmentData: mixed,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
+  fragmentData: unknown,
+  connectionPathInFragmentData: ReadonlyArray<string | number>,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   componentDisplayName: string,
@@ -62,6 +63,20 @@ export type UseLoadMoreFunctionArgs = {
 };
 
 hook useLoadMoreFunction<TVariables: Variables>(
+  args: UseLoadMoreFunctionArgs,
+): [LoadMoreFn<TVariables>, boolean, () => void] {
+  if (RelayFeatureFlags.ENABLE_ACTIVITY_COMPATIBILITY) {
+    // $FlowFixMe[react-rule-hook] - the condition is static
+    // $FlowFixMe[react-rule-hook-conditional]
+    // $FlowFixMe[incompatible-type]
+    return useLoadMoreFunction_EXPERIMENTAL(args);
+  }
+  // $FlowFixMe[react-rule-hook] - the condition is static
+  // $FlowFixMe[react-rule-hook-conditional]
+  return useLoadMoreFunction_CURRENT(args);
+}
+
+hook useLoadMoreFunction_CURRENT<TVariables: Variables>(
   args: UseLoadMoreFunctionArgs,
 ): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {
@@ -126,6 +141,8 @@ hook useLoadMoreFunction<TVariables: Variables>(
     };
   }, [disposeFetch]);
 
+  const isRequestInvalid = fragmentData == null || isParentQueryActive;
+
   const loadMore = useCallback(
     (
       count: number,
@@ -154,11 +171,8 @@ hook useLoadMoreFunction<TVariables: Variables>(
       }
 
       const fragmentSelector = getSelector(fragmentNode, fragmentRef);
-      if (
-        isFetchingRef.current === true ||
-        fragmentData == null ||
-        isParentQueryActive
-      ) {
+
+      if (isFetchingRef.current === true || isRequestInvalid) {
         if (fragmentSelector == null) {
           warning(
             false,
@@ -259,92 +273,13 @@ hook useLoadMoreFunction<TVariables: Variables>(
       disposeFetch,
       completeFetch,
       isFetchingRef,
-      isParentQueryActive,
-      fragmentData,
+      isRequestInvalid,
       fragmentNode.name,
       fragmentRef,
       componentDisplayName,
     ],
   );
   return [loadMore, hasMore, disposeFetch];
-}
-
-function getConnectionState(
-  direction: Direction,
-  fragmentNode: ReaderFragment,
-  fragmentData: mixed,
-  connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-): {
-  cursor: ?string,
-  hasMore: boolean,
-} {
-  const {
-    EDGES,
-    PAGE_INFO,
-    HAS_NEXT_PAGE,
-    HAS_PREV_PAGE,
-    END_CURSOR,
-    START_CURSOR,
-  } = ConnectionInterface.get();
-  const connection = getValueAtPath(fragmentData, connectionPathInFragmentData);
-  if (connection == null) {
-    return {cursor: null, hasMore: false};
-  }
-
-  invariant(
-    typeof connection === 'object',
-    'Relay: Expected connection in fragment `%s` to have been `null`, or ' +
-      'a plain object with %s and %s properties. Instead got `%s`.',
-    fragmentNode.name,
-    EDGES,
-    PAGE_INFO,
-    connection,
-  );
-
-  const edges = connection[EDGES];
-  const pageInfo = connection[PAGE_INFO];
-  if (edges == null || pageInfo == null) {
-    return {cursor: null, hasMore: false};
-  }
-
-  invariant(
-    Array.isArray(edges),
-    'Relay: Expected connection in fragment `%s` to have a plural `%s` field. ' +
-      'Instead got `%s`.',
-    fragmentNode.name,
-    EDGES,
-    edges,
-  );
-  invariant(
-    typeof pageInfo === 'object',
-    'Relay: Expected connection in fragment `%s` to have a `%s` field. ' +
-      'Instead got `%s`.',
-    fragmentNode.name,
-    PAGE_INFO,
-    pageInfo,
-  );
-
-  const cursor =
-    direction === 'forward'
-      ? pageInfo[END_CURSOR] ?? null
-      : pageInfo[START_CURSOR] ?? null;
-  invariant(
-    cursor === null || typeof cursor === 'string',
-    'Relay: Expected page info for connection in fragment `%s` to have a ' +
-      'valid `%s`. Instead got `%s`.',
-    fragmentNode.name,
-    START_CURSOR,
-    cursor,
-  );
-
-  let hasMore;
-  if (direction === 'forward') {
-    hasMore = cursor != null && pageInfo[HAS_NEXT_PAGE] === true;
-  } else {
-    hasMore = cursor != null && pageInfo[HAS_PREV_PAGE] === true;
-  }
-
-  return {cursor, hasMore};
 }
 
 module.exports = useLoadMoreFunction;

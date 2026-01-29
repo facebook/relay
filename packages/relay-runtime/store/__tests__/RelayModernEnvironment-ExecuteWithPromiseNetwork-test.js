@@ -23,8 +23,12 @@ const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() with Promise network', () => {
@@ -60,20 +64,20 @@ describe('execute() with Promise network', () => {
       foo: 'bar', // should be filtered from network fetch
     });
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
     fetch = jest.fn(
       () =>
         new Promise((resolve, reject) => {
-          deferred = {resolve, reject};
+          deferred = {reject, resolve};
         }),
     );
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create((fetch: $FlowFixMe)),
+      network: RelayNetwork.create(fetch as $FlowFixMe),
       store,
     });
   });
@@ -114,8 +118,8 @@ describe('execute() with Promise network', () => {
     deferred.resolve({
       data: {
         me: {
-          id: '842472',
           __typename: 'User',
+          id: '842472',
           name: 'Joe',
         },
       },
@@ -152,8 +156,8 @@ describe('execute() with Promise network', () => {
     const payload = {
       data: {
         me: {
-          id: '842472',
           __typename: 'User',
+          id: '842472',
           name: 'Joe',
         },
       },

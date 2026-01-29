@@ -1,0 +1,138 @@
+==================================== INPUT ====================================
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
+
+type Query {
+  user(id: ID!): User
+  users(first: Int = 10, after: String): UserConnection
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): CreateUserPayload
+}
+
+type User implements Node {
+  id: ID!
+  name: String!
+  email: String
+  posts(first: Int): PostConnection
+}
+
+interface Node {
+  id: ID!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  content: String
+  author: User!
+}
+
+type UserConnection {
+  edges: [UserEdge]
+  pageInfo: PageInfo!
+}
+
+type UserEdge {
+  node: User
+  cursor: String!
+}
+
+type PostConnection {
+  edges: [PostEdge]
+  pageInfo: PageInfo!
+}
+
+type PostEdge {
+  node: Post
+  cursor: String!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  endCursor: String
+}
+
+input CreateUserInput {
+  name: String!
+  email: String
+}
+
+type CreateUserPayload {
+  user: User
+}
+
+enum Role {
+  ADMIN
+  USER
+  GUEST
+}
+
+union SearchResult = User | Post
+
+scalar DateTime
+
+directive @auth(role: Role!) on FIELD_DEFINITION
+
+type Subscription {
+  userUpdated(id: ID!): User
+}
+==================================== OUTPUT ===================================
+visit_type_system_definition: SchemaDefinition
+visit_type_system_definition: type Query
+visit_field_definition: user
+visit_input_value_definition: id
+visit_field_definition: users
+visit_input_value_definition: first
+visit_input_value_definition: after
+visit_type_system_definition: type Mutation
+visit_field_definition: createUser
+visit_input_value_definition: input
+visit_type_system_definition: type User
+visit_field_definition: id
+visit_field_definition: name
+visit_field_definition: email
+visit_field_definition: posts
+visit_input_value_definition: first
+visit_type_system_definition: interface Node
+visit_field_definition: id
+visit_type_system_definition: type Post
+visit_field_definition: id
+visit_field_definition: title
+visit_field_definition: content
+visit_field_definition: author
+visit_type_system_definition: type UserConnection
+visit_field_definition: edges
+visit_field_definition: pageInfo
+visit_type_system_definition: type UserEdge
+visit_field_definition: node
+visit_field_definition: cursor
+visit_type_system_definition: type PostConnection
+visit_field_definition: edges
+visit_field_definition: pageInfo
+visit_type_system_definition: type PostEdge
+visit_field_definition: node
+visit_field_definition: cursor
+visit_type_system_definition: type PageInfo
+visit_field_definition: hasNextPage
+visit_field_definition: endCursor
+visit_type_system_definition: input CreateUserInput
+visit_input_value_definition: name
+visit_input_value_definition: email
+visit_type_system_definition: type CreateUserPayload
+visit_field_definition: user
+visit_type_system_definition: enum Role
+visit_enum_value_definition: ADMIN
+visit_enum_value_definition: USER
+visit_enum_value_definition: GUEST
+visit_type_system_definition: union SearchResult
+visit_type_system_definition: scalar DateTime
+visit_type_system_definition: directive @auth
+visit_input_value_definition: role
+visit_type_system_definition: type Subscription
+visit_field_definition: userUpdated
+visit_input_value_definition: id

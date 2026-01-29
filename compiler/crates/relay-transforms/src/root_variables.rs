@@ -29,13 +29,19 @@ use super::RelayResolverMetadata;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 
 pub type VariableMap = HashMap<VariableName, Variable>;
-type Visited = FragmentDefinitionNameMap<VariableMap>;
+pub enum VariableMapEntry {
+    // The variables for this entry are still being populated as a result of a
+    // cyclic fragment dependency.
+    Pending,
+    Populated(VariableMap),
+}
+pub type Visited = FragmentDefinitionNameMap<VariableMapEntry>;
 
 pub struct InferVariablesVisitor<'program> {
     /// Cache fragments as they are transformed to avoid duplicate processing.
     /// Because @argument values don't matter (only variable names/types),
     /// each reachable fragment only has to be checked once.
-    visited_fragments: Visited,
+    pub visited_fragments: Visited,
     program: &'program Program,
 }
 
@@ -87,6 +93,7 @@ struct VariablesVisitor<'a, 'b> {
     program: &'a Program,
     local_variables: HashSet<VariableName>,
     transitive_local_variables: &'b HashSet<VariableName>,
+    cycle_detected: bool,
     errors: Vec<Diagnostic>,
 }
 
@@ -103,6 +110,7 @@ impl<'a, 'b> VariablesVisitor<'a, 'b> {
             program,
             local_variables,
             transitive_local_variables,
+            cycle_detected: false,
             errors: Default::default(),
         }
     }
@@ -116,15 +124,27 @@ impl VariablesVisitor<'_, '_> {
     /// to reanalyze variable usage.
     fn infer_fragment_variables(&mut self, fragment: &FragmentDefinition) -> VariableMap {
         if let Some(map) = self.visited_fragments.get(&fragment.name.item) {
-            map.clone()
+            match map {
+                VariableMapEntry::Pending => {
+                    // We have encountered a cycle! For the purposes of the
+                    // parent traversal, we can safely return an empty map since
+                    // the Pending fragment is already being processed and its
+                    // variables will get added.
+                    //
+                    // However, this traversal is invalid, since it does not
+                    // include the dependencies of the Pending fragment. We
+                    // record this here, and consumers of this visitor can
+                    // check if a cycle was encountered and avoid caching
+                    // results which encountered cycles.
+                    self.cycle_detected = true;
+                    Default::default()
+                }
+                VariableMapEntry::Populated(map) => map.clone(),
+            }
         } else {
-            // Break cycles by initially caching a version that is empty.
-            // If the current fragment is reached again, it won't have any
-            // root variables to add to its parents. The traversal below will
-            // find any root variables and update the cached version of the
-            // fragment.
+            // Populate the cache with a pending entry so we can detect if we encounter a cycle.
             self.visited_fragments
-                .insert(fragment.name.item, Default::default());
+                .insert(fragment.name.item, VariableMapEntry::Pending);
 
             // Avoid collecting local variables usages as root variables
             let local_variables = fragment
@@ -151,8 +171,20 @@ impl VariablesVisitor<'_, '_> {
             );
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
-            self.visited_fragments
-                .insert(fragment.name.item, result.clone());
+
+            if visitor.cycle_detected {
+                // If a cycle was detected, the result may be missing some
+                // variables, so we won't cache it. Instead, we'll clean up our
+                // Pending flag and force other callers to do their own traversal.
+                self.visited_fragments.remove(&fragment.name.item);
+            } else {
+                // If no cycle was detected, this result can safely be reused by
+                // other traversals, so we'll cache it for later use.
+                self.visited_fragments.insert(
+                    fragment.name.item,
+                    VariableMapEntry::Populated(result.clone()),
+                );
+            }
             result
         }
     }
@@ -208,20 +240,20 @@ impl VariablesVisitor<'_, '_> {
     }
 }
 
-impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
+impl Visitor for VariablesVisitor<'_, '_> {
     const NAME: &'static str = "VariablesVisitor";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
 
     fn visit_directive(&mut self, directive: &graphql_ir::Directive) {
-        if directive.name.item == RelayResolverMetadata::directive_name() {
-            if let Some(relay_resolver_metadata) = RelayResolverMetadata::from(directive) {
-                for arg in relay_resolver_metadata.field_arguments.iter() {
-                    if let Value::Variable(var) = &arg.value.item {
-                        if self.is_root_variable(var.name.item) {
-                            self.record_root_variable_usage(&var.name, &var.type_);
-                        }
-                    }
+        if directive.name.item == RelayResolverMetadata::directive_name()
+            && let Some(relay_resolver_metadata) = RelayResolverMetadata::from(directive)
+        {
+            for arg in relay_resolver_metadata.field_arguments.iter() {
+                if let Value::Variable(var) = &arg.value.item
+                    && self.is_root_variable(var.name.item)
+                {
+                    self.record_root_variable_usage(&var.name, &var.type_);
                 }
             }
         }
@@ -239,15 +271,13 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
         // recover the expected type from the corresponding argument definitions.
         if !fragment.variable_definitions.is_empty() {
             for arg in spread.arguments.iter() {
-                if let Value::Variable(var) = &arg.value.item {
-                    if let Some(def) = fragment
+                if let Value::Variable(var) = &arg.value.item
+                    && let Some(def) = fragment
                         .variable_definitions
                         .named(VariableName(arg.name.item.0))
-                    {
-                        if self.is_root_variable(var.name.item) {
-                            self.record_root_variable_usage(&var.name, &def.type_);
-                        }
-                    }
+                    && self.is_root_variable(var.name.item)
+                {
+                    self.record_root_variable_usage(&var.name, &def.type_);
                 }
             }
         }

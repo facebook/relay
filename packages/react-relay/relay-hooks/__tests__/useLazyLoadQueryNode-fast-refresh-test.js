@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -19,8 +20,9 @@ import type {
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,
@@ -28,12 +30,12 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToBeRendered(
-  renderFn: JestMockFn<Array<mixed>, any & React$Node>,
+async function expectToBeRendered(
+  renderFn: JestMockFn<Array<unknown>, any & React.Node>,
   readyState: ?SelectorData,
 ) {
   // Ensure useEffect is called before other timers
-  ReactTestRenderer.act(() => {
+  await act(() => {
     jest.runAllImmediates();
   });
   expect(renderFn).toBeCalledTimes(1);
@@ -47,8 +49,10 @@ function expectToHaveFetched(
   cacheConfig: {
     force?: ?boolean,
     liveConfigId?: ?string,
-    metadata?: {[key: string]: mixed},
+    metadata?: {[key: string]: unknown},
     onSubscribe?: () => void,
+    onResume?: (pauseTimeMs: number) => void,
+    onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
     poll?: ?number,
     transactionId?: ?string,
   },
@@ -97,13 +101,14 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
           id
           name
           ...useLazyLoadQueryNodeFastRefreshTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     // $FlowFixMe[incompatible-use]
-    renderFn = jest.fn((result: mixed) => result?.node?.name ?? 'Empty');
+    renderFn = jest.fn((result: unknown) => result?.node?.name ?? 'Empty');
   });
 
   afterEach(() => {
@@ -111,7 +116,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     jest.clearAllTimers();
   });
 
-  it('force a refetch in fast refresh', () => {
+  it('force a refetch in fast refresh', async () => {
     // $FlowFixMe[cannot-resolve-module] (site=www)
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
@@ -127,21 +132,24 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     };
     ReactRefreshRuntime.register(V1, 'Renderer');
 
-    const instance = ReactTestRenderer.create(
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="Fallback">
-          <V1 variables={variables} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    let instance;
+    await act(() => {
+      instance = ReactTestingLibrary.render(
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Fallback">
+            <V1 variables={variables} />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+      );
+    });
 
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance?.container.textContent).toEqual('Fallback');
     expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
-    ReactTestRenderer.act(() =>
+    await act(() =>
       environment.mock.resolve(gqlQuery, {
         data: {
           node: {
@@ -154,9 +162,9 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     );
 
     const data = environment.lookup(query.fragment).data;
-    // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-    expectToBeRendered(renderFn, data);
+    await expectToBeRendered(renderFn, data);
 
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
@@ -173,15 +181,15 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     }
     // Trigger a fast fresh
     ReactRefreshRuntime.register(V2, 'Renderer');
-    ReactTestRenderer.act(() => {
+    await act(() => {
       ReactRefreshRuntime.performReactRefresh();
     });
     // It should start a new fetch in fast refresh
     expectToHaveFetched(environment, query, {});
     expect(renderFn).toBeCalledTimes(1);
-    expect(instance.toJSON()).toEqual('Fallback');
+    expect(instance?.container.textContent).toEqual('Fallback');
     // It should render with the result of the new fetch
-    ReactTestRenderer.act(() =>
+    await act(() =>
       environment.mock.resolve(gqlQuery, {
         data: {
           node: {
@@ -192,6 +200,6 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
         },
       }),
     );
-    expect(instance.toJSON()).toEqual('Bob');
+    expect(instance?.container.textContent).toEqual('Bob');
   });
 });

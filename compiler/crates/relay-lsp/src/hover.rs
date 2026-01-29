@@ -8,10 +8,10 @@
 //! Utilities for providing the hover feature
 
 use intern::Lookup;
-use lsp_types::request::HoverRequest;
-use lsp_types::request::Request;
 use lsp_types::LanguageString;
 use lsp_types::MarkedString;
+use lsp_types::request::HoverRequest;
+use lsp_types::request::Request;
 use resolution_path::ResolvePosition;
 use serde::Serialize;
 
@@ -39,7 +39,7 @@ fn argument_definition_hover_info(directive_name: &str) -> Option<MarkedString> 
 `@argumentDefinitions` is a directive used to specify arguments taken by a fragment.
 
 ---
-@see: https://relay.dev/docs/en/graphql-in-relay.html#argumentdefinitions
+@see: https://relay.dev/docs/api-reference/graphql-and-directives/#argumentdefinitions
 "#,
         ),
         "arguments" => Some(
@@ -47,7 +47,7 @@ fn argument_definition_hover_info(directive_name: &str) -> Option<MarkedString> 
 `@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
 
 ---
-@see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
+@see: https://relay.dev/docs/api-reference/graphql-and-directives/#arguments
 "#,
         ),
         "uncheckedArguments_DEPRECATED" => Some(
@@ -56,7 +56,7 @@ DEPRECATED version of `@arguments` directive.
 `@arguments` is a directive used to pass arguments to a fragment that was defined using `@argumentDefinitions`.
 
 ---
-@see: https://relay.dev/docs/en/graphql-in-relay.html#arguments
+@see: https://relay.dev/docs/api-reference/graphql-and-directives/#arguments
 "#,
         ),
         _ => None,
@@ -114,9 +114,9 @@ fn get_open_schema_explorer_command_link(
 
 fn get_open_schema_explorer_command(params: &GraphQLSchemaExplorerParams<'_>) -> String {
     // see https://docs.rs/percent-encoding/2.1.0/percent_encoding/
-    use percent_encoding::utf8_percent_encode;
     use percent_encoding::AsciiSet;
     use percent_encoding::CONTROLS;
+    use percent_encoding::utf8_percent_encode;
 
     const FRAGMENT: AsciiSet = CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
 

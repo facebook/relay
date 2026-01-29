@@ -1,0 +1,78 @@
+==================================== INPUT ====================================
+query EnquotedAlias {
+  "1$ali\"as": escaped_quote_alias
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:59,
+    definitions: [
+        OperationDefinition {
+            location: enquoted_alias_with_escape.graphql:0:58,
+            operation: Some(
+                (
+                    Token {
+                        span: 0:5,
+                        kind: Identifier,
+                    },
+                    Query,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 6:19,
+                    token: Token {
+                        span: 6:19,
+                        kind: Identifier,
+                    },
+                    value: "EnquotedAlias",
+                },
+            ),
+            variable_definitions: None,
+            directives: [],
+            selections: List {
+                span: 20:58,
+                start: Token {
+                    span: 20:21,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 24:56,
+                        alias: Some(
+                            Alias {
+                                span: 24:56,
+                                alias: Identifier {
+                                    span: 24:35,
+                                    token: Token {
+                                        span: 24:35,
+                                        kind: StringLiteral,
+                                    },
+                                    value: "1$ali\\\"as",
+                                },
+                                colon: Token {
+                                    span: 35:36,
+                                    kind: Colon,
+                                },
+                            },
+                        ),
+                        name: Identifier {
+                            span: 37:56,
+                            token: Token {
+                                span: 37:56,
+                                kind: Identifier,
+                            },
+                            value: "escaped_quote_alias",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 57:58,
+                    kind: CloseBrace,
+                },
+            },
+            description: None,
+        },
+    ],
+}

@@ -9,8 +9,8 @@ use std::fs;
 use std::path::Path;
 use std::path::PathBuf;
 
-use common::sync::ParallelIterator;
 use common::PerfLogEvent;
+use common::sync::ParallelIterator;
 use lazy_static::lazy_static;
 use log::debug;
 use md5::Digest;
@@ -20,13 +20,13 @@ use regex::Regex;
 use relay_codegen::QueryID;
 use relay_transforms::Programs;
 
+use crate::Artifact;
+use crate::ArtifactContent;
+use crate::OperationPersister;
 use crate::config::ArtifactForPersister;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
-use crate::Artifact;
-use crate::ArtifactContent;
-use crate::OperationPersister;
 
 lazy_static! {
     static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();
@@ -139,10 +139,10 @@ fn extract_persist_id(path: &PathBuf, text_hash: &str) -> Option<String> {
     }
 
     // If the existing hash doesn't match the hash of the new query test, abort.
-    if let Some(existing_hash) = extract_relay_hash(&content) {
-        if existing_hash != text_hash {
-            return None;
-        }
+    if let Some(existing_hash) = extract_relay_hash(&content)
+        && existing_hash != text_hash
+    {
+        return None;
     }
 
     extract_request_id(&content)

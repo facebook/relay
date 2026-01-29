@@ -17,6 +17,28 @@ const ReactRelayContext = require('./../ReactRelayContext');
 const invariant = require('invariant');
 const {useContext} = require('react');
 
+/**
+ * Hook used to access a Relay environment that was set by a [`RelayEnvironmentProvider`](../relay-environment-provider):
+ *
+ * @example
+ * const React = require('React');
+ *
+ * const {useRelayEnvironment} = require('react-relay');
+ *
+ * function MyComponent() {
+ *   const environment = useRelayEnvironment();
+ *
+ *   const handler = useCallback(() => {
+ *     // For example, can be used to pass the environment to functions
+ *     // that require a Relay environment.
+ *     commitMutation(environment, ...);
+ *   }, [environment])
+ *
+ *   return (...);
+ * }
+ *
+ * module.exports = MyComponent;
+ */
 hook useRelayEnvironment(): IEnvironment {
   const context = useContext(ReactRelayContext);
   invariant(

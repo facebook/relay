@@ -107,6 +107,7 @@ Document {
                         kind: CloseBrace,
                     },
                 },
+                description: None,
             },
         ),
     ],

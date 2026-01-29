@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<efc7c13ba34b24c5fd991f3db40bec76>>
+ * @generated SignedSource<<d943b02286108fdd22c775ed101b2cd0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,10 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentResourceTest3Fragment$fragmentType } from "./FragmentResourceTest3Fragment.graphql";
 export type FragmentResourceTest3Query$variables = {|
-  ids: $ReadOnlyArray<string>,
+  ids: ReadonlyArray<string>,
 |};
 export type FragmentResourceTest3Query$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +__typename: string,
     +$fragmentSpreads: FragmentResourceTest3Fragment$fragmentType,
   |}>,

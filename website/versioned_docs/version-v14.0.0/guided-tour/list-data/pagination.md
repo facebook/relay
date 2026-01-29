@@ -10,13 +10,8 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbPaginationUsingUseTransition from './fb/FbPaginationUsingUseTransition.md';
 
 To actually perform pagination over the connection, we need use the `loadNext` function to fetch the next page of items, which is available from `usePaginationFragment`:
-
-<FbInternalOnly>
-  <FbPaginationUsingUseTransition />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -89,7 +84,6 @@ Let's distill what's happening here:
 
 </OssOnly>
 
-
 Often, you will also want to access information about whether there are more items available to load. To do this, you can use the `hasNext` value, also available from `usePaginationFragment`:
 
 ```js
@@ -136,7 +130,5 @@ module.exports = FriendsListComponent;
 ```
 
 * `hasNext` is a boolean which indicates if the connection has more items available. This information can be useful for determining if different UI controls should be rendered. In our specific case, we only render the `Button` if there are more friends available in the connection.
-
-
 
 <DocsRating />

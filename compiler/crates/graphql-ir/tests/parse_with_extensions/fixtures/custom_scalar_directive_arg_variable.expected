@@ -44,7 +44,7 @@ extend type Query {
                     },
                     type_: NonNull(
                         Named(
-                            Scalar(8),
+                            Scalar(9),
                         ),
                     ),
                     default_value: None,
@@ -88,7 +88,7 @@ extend type Query {
                                                 },
                                                 type_: NonNull(
                                                     Named(
-                                                        Scalar(8),
+                                                        Scalar(9),
                                                     ),
                                                 ),
                                             },
@@ -97,6 +97,7 @@ extend type Query {
                                 },
                             ],
                             data: None,
+                            location: custom_scalar_directive_arg_variable.graphql:116:149,
                         },
                     ],
                     selections: [
@@ -146,7 +147,7 @@ extend type Query {
                                                 },
                                                 type_: NonNull(
                                                     Named(
-                                                        Scalar(8),
+                                                        Scalar(9),
                                                     ),
                                                 ),
                                             },
@@ -155,6 +156,7 @@ extend type Query {
                                 },
                             ],
                             data: None,
+                            location: custom_scalar_directive_arg_variable.graphql:204:237,
                         },
                     ],
                 },

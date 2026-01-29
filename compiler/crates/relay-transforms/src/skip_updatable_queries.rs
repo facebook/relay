@@ -30,7 +30,7 @@ impl<'s> SkipUpdatableQueries<'s> {
     }
 }
 
-impl<'s> Transformer for SkipUpdatableQueries<'s> {
+impl Transformer<'_> for SkipUpdatableQueries<'_> {
     const NAME: &'static str = "SkipUpdatableQueriesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;

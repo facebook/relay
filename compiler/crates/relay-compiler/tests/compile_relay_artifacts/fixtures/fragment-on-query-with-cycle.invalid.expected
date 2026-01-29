@@ -1,21 +1,21 @@
 ==================================== INPUT ====================================
 # expected-to-throw
 fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(id: {type: "ID!"}) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(id: {type: "ID!"}) {
   node(id: $id) {
     ... on User {
       id
       name
-      ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
+      ...fragmentOnQueryWithCycle_Profile
+        @arguments(includeProfile: true)
+        @alias
     }
   }
 }
 
 fragment fragmentOnQueryWithCycle_Profile on User
-  @argumentDefinitions(
-    includeProfile: {type: "Boolean!", defaultValue: false}
-  ) {
+@argumentDefinitions(includeProfile: {type: "Boolean!", defaultValue: false}) {
   id
   name
   profilePicture(size: $pictureSize) @include(if: $includeProfile) {
@@ -44,15 +44,15 @@ fragment fragmentOnQueryWithCycle_Profile on User
     1 │ # expected-to-throw
     2 │ fragment fragmentOnQueryWithCycle_RefetchableFragment on Query
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    3 │   @refetchable(queryName: "RefetchableFragmentQuery")
+    3 │ @refetchable(queryName: "RefetchableFragmentQuery")
 
   ℹ︎ other member of the cycle
 
   fragment-on-query-with-cycle.invalid.graphql:9:10
     8 │       name
-    9 │       ...fragmentOnQueryWithCycle_Profile @arguments(includeProfile: true)
+    9 │       ...fragmentOnQueryWithCycle_Profile
       │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   10 │     }
+   10 │         @arguments(includeProfile: true)
 
   ℹ︎ other member of the cycle
 

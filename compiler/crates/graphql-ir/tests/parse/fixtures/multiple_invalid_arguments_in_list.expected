@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query TestQuery($someBool: Boolean, $someOtherBool: Boolean) {
+  nodes(ids: [$someBool, $someOtherBool]) {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable of type 'Boolean' cannot be used where 'ID!' is expected.
+
+  multiple_invalid_arguments_in_list.graphql:4:15
+    3 │ query TestQuery($someBool: Boolean, $someOtherBool: Boolean) {
+    4 │   nodes(ids: [$someBool, $someOtherBool]) {
+      │               ^^^^^^^^^
+    5 │     __typename
+
+  ℹ︎ Variable `$someBool` is defined as 'Boolean'
+
+  multiple_invalid_arguments_in_list.graphql:3:17
+    2 │ 
+    3 │ query TestQuery($someBool: Boolean, $someOtherBool: Boolean) {
+      │                 ^^^^^^^^^
+    4 │   nodes(ids: [$someBool, $someOtherBool]) {
+
+
+✖︎ Variable of type 'Boolean' cannot be used where 'ID!' is expected.
+
+  multiple_invalid_arguments_in_list.graphql:4:26
+    3 │ query TestQuery($someBool: Boolean, $someOtherBool: Boolean) {
+    4 │   nodes(ids: [$someBool, $someOtherBool]) {
+      │                          ^^^^^^^^^^^^^^
+    5 │     __typename
+
+  ℹ︎ Variable `$someOtherBool` is defined as 'Boolean'
+
+  multiple_invalid_arguments_in_list.graphql:3:37
+    2 │ 
+    3 │ query TestQuery($someBool: Boolean, $someOtherBool: Boolean) {
+      │                                     ^^^^^^^^^^^^^^
+    4 │   nodes(ids: [$someBool, $someOtherBool]) {

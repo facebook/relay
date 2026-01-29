@@ -1,0 +1,15 @@
+query FooQuery @raw_response_type {
+  me {
+    firstName @catch
+    ...FriendFragment
+  }
+}
+
+
+fragment FriendFragment on User {
+  name
+  lastName @catch
+  profilePicture2 {
+    test_enums
+  }
+}

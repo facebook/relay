@@ -54,10 +54,10 @@ class BadReferenceTest_ extends React.Component<{
   ...
 }> {
   render(): React.Node {
-    (this.props.badref.id: string);
-    // $FlowExpectedError
+    this.props.badref.id as string;
+    // $FlowExpectedError[prop-missing]
     this.props.badref.name;
-    // $FlowExpectedError The notref fragment was not used.
+    // $FlowExpectedError[incompatible-type]  The notref fragment was not used.
     return <NotReferencedTest notref={this.props.badref} />;
   }
 }
@@ -85,13 +85,13 @@ class SingularTest extends React.Component<{
   ...
 }> {
   render(): React.Node {
-    (nullthrows(this.props.user.name): string);
-    // $FlowExpectedError
+    nullthrows(this.props.user.name) as string;
+    // $FlowExpectedError[incompatible-use]
     this.props.nullableUser.name;
-    // $FlowExpectedError
+    // $FlowExpectedError[incompatible-use]
     this.props.optionalUser.name;
-    (nullthrows(nullthrows(this.props.nullableUser).name): string);
-    (nullthrows(nullthrows(this.props.optionalUser).name): string);
+    nullthrows(nullthrows(this.props.nullableUser).name) as string;
+    nullthrows(nullthrows(this.props.optionalUser).name) as string;
     return null;
   }
 }
@@ -111,10 +111,9 @@ class PluralTest extends React.Component<{
 }> {
   render(): React.Node {
     const names = this.props.users.map(user => user.name).filter(Boolean);
-    // $FlowExpectedError
-    (names: Array<string>);
-    // $FlowExpectedError
-    (names: Array<number>);
+    names as Array<string>;
+    // $FlowExpectedError[incompatible-type]
+    names as Array<number>;
     return null;
   }
 }
@@ -136,7 +135,7 @@ declare var oneOfUsersRef: {
   ...
 };
 
-declare var usersRef: $ReadOnlyArray<{
+declare var usersRef: ReadonlyArray<{
   +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 }>;
@@ -151,21 +150,21 @@ function cb(): void {}
 <SingularTestFragment
   onClick={cb}
   string="x"
-  // $FlowExpectedError - can't pass null for user
+  // $FlowExpectedError[incompatible-type]  - can't pass null for user
   user={null}
   nullableUser={null}
 />;
-// $FlowExpectedError - user is required
+// $FlowExpectedError[incompatible-type]  - user is required
 <SingularTestFragment onClick={cb} string="x" nullableUser={null} />;
 <SingularTestFragment
   onClick={cb}
   string="x"
-  // $FlowExpectedError - can't pass non-user ref for user
+  // $FlowExpectedError[incompatible-type]  - can't pass non-user ref for user
   user={nonUserRef}
   nullableUser={null}
 />;
 <SingularTestFragment
-  // $FlowExpectedError - `cb` prop is not a function
+  // $FlowExpectedError[incompatible-type]  - `cb` prop is not a function
   onClick="cb"
   string="x"
   user={aUserRef}
@@ -173,7 +172,7 @@ function cb(): void {}
 />;
 <SingularTestFragment
   onClick={cb}
-  // $FlowExpectedError - `string` prop is not a string
+  // $FlowExpectedError[incompatible-type]  - `string` prop is not a string
   string={1}
   user={aUserRef}
   nullableUser={null}
@@ -199,12 +198,11 @@ function cb(): void {}
   optionalUser={aUserRef}
 />;
 
-// $FlowExpectedError - onClick is required
+// $FlowExpectedError[incompatible-type]  - onClick is required
 <SingularTestFragment
   string="x"
   user={aUserRef}
   nullableUser={null}
-  // $FlowExpectedError - optional, not nullable!
   optionalUser={null}
 />;
 
@@ -223,17 +221,17 @@ declare var aComplexUserRef: {
   optionalUser={aComplexUserRef}
 />;
 
-// $FlowExpectedError - can't pass null for user
+// $FlowExpectedError[incompatible-type]  - can't pass null for user
 <PluralTestFragment users={null} nullableUsers={null} />;
-// $FlowExpectedError - users is required
+// $FlowExpectedError[incompatible-type]  - users is required
 <PluralTestFragment nullableUsers={null} />;
-// $FlowExpectedError - can't pass non-user refs for user
+// $FlowExpectedError[incompatible-type]  - can't pass non-user refs for user
 <PluralTestFragment users={[nonUserRef]} nullableUsers={null} />;
 
 <PluralTestFragment users={usersRef} nullableUsers={null} />;
 
 <PluralTestFragment
-  users={([oneOfUsersRef]: Array<typeof oneOfUsersRef>)}
+  users={[oneOfUsersRef] as Array<typeof oneOfUsersRef>}
   nullableUsers={null}
 />;
 <PluralTestFragment users={[oneOfUsersRef]} nullableUsers={null} />;
@@ -247,7 +245,6 @@ declare var aComplexUserRef: {
 <PluralTestFragment
   users={usersRef}
   nullableUsers={null}
-  // $FlowExpectedError - optional, not nullable!
   optionalUsers={null}
 />;
 
@@ -259,7 +256,7 @@ const AnyTestContainer = createFragmentContainer(AnyTest, {});
 <AnyTestContainer anything={42} />;
 <AnyTestContainer anything={null} />;
 <AnyTestContainer anything={() => {}} />;
-// $FlowExpectedError - any other prop can not be passed
+// $FlowExpectedError[incompatible-type]  - any other prop can not be passed
 <AnyTestContainer anything={null} anythingElse={42} />;
-// $FlowExpectedError - anything has to be passed
+// $FlowExpectedError[incompatible-type]  - anything has to be passed
 <AnyTestContainer />;

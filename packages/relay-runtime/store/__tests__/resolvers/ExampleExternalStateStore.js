@@ -30,7 +30,7 @@ class Store {
         this._state += 1;
         break;
       default:
-        (action.type: empty);
+        action.type as empty;
     }
     this._subscriptions.forEach(cb => cb());
   }

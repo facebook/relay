@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f96f8df7e669806da7a905ce72747279>>
+ * @generated SignedSource<<f8ebdf82495a3596d695bd582491a44b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ declare export opaque type RelayMockPayloadGeneratorTest5Fragment$fragmentType: 
 export type RelayMockPayloadGeneratorTest5Fragment$data = {|
   +actor: ?({|
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +id: string,
@@ -220,7 +220,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0caeda7ac9d7c75061766462726bf298";
+  (node/*: any*/).hash = "f00962ad9a873757b70472af4c68956a";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

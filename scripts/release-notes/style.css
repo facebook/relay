@@ -56,6 +56,11 @@ h2 {
   padding: 0;
 }
 
+.categories-picker {
+  margin: 0;
+  padding: 0;
+}
+
 .category {
   margin: 0;
   padding: 0;
@@ -112,9 +117,24 @@ h2 {
   position: relative;
 }
 
+.copy_prompt {
+  font-style: italic;
+  font-size: 1em;
+  color: gray;
+  margin-bottom: 20px;
+}
+
 .release_notes_content {
   position: sticky;
   top: 0;
   overflow-y: scroll;
   font-family: monospace;
+}
+
+.release_notes_content ul {
+  padding: 0;
+  margin: 0;
+}
+.release_notes_content li {
+  list-style-type: none;
 }

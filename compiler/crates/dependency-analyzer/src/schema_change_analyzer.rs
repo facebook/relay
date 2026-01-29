@@ -9,9 +9,10 @@ use std::collections::HashSet;
 
 use graphql_ir::*;
 use rustc_hash::FxHashSet;
-use schema::definitions::Type;
+use schema::InputObjectID;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::definitions::Type;
 use schema_diff::check::IncrementalBuildSchemaChange;
 
 use crate::ExecutableDefinitionNameSet;
@@ -29,6 +30,9 @@ struct SchemaChangeDefinitionFinder<'a, 'b> {
     current_executable: &'a ExecutableDefinition,
     schema: &'b SDLSchema,
     schema_changes: FxHashSet<IncrementalBuildSchemaChange>,
+    /// Track InputObjects visited by a given definition to avoid infinite
+    /// recursion when checking nested types
+    visited_input_objects: FxHashSet<InputObjectID>,
 }
 
 impl SchemaChangeDefinitionFinder<'_, '_> {
@@ -46,9 +50,15 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             current_executable: &definitions[0],
             schema,
             schema_changes,
+            visited_input_objects: FxHashSet::default(),
         };
         for def in definitions.iter() {
             finder.current_executable = def;
+
+            // Ensure we reset the visited input objects for each definition since
+            // we want to ensure we traverse into each seen input type at least once
+            // per definition.
+            finder.visited_input_objects.clear();
             match def {
                 ExecutableDefinition::Operation(operation) => finder.visit_operation(operation),
                 ExecutableDefinition::Fragment(fragment) => finder.visit_fragment(fragment),
@@ -66,6 +76,26 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
                 ExecutableDefinitionName::FragmentDefinitionName(node.name.item)
             }
         }
+    }
+
+    fn add_type_changes_from_value(&mut self, value: &Value) {
+        match value {
+            Value::Variable(variable) => self.add_type_changes(variable.type_.inner()),
+            Value::Object(object) => {
+                object
+                    .iter()
+                    .for_each(|argument| self.add_type_changes_from_argument(argument));
+            }
+            Value::List(list) => {
+                list.iter()
+                    .for_each(|value| self.add_type_changes_from_value(value));
+            }
+            Value::Constant(_) => (),
+        }
+    }
+
+    fn add_type_changes_from_argument(&mut self, argument: &Argument) {
+        self.add_type_changes_from_value(&argument.value.item);
     }
 
     fn add_type_changes(&mut self, type_: Type) {
@@ -112,14 +142,34 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
                         .insert(self.get_name_from_executable());
                 }
             }
-            Type::InputObject(_) | Type::Scalar(_) => (),
+            Type::InputObject(id) => {
+                // When an input type is referenced by a definition, not only do
+                // we include the generated type for that input type, but we
+                // also include the generated type for any input types that are
+                // referenced by that input type. So, we want to treat a
+                // document as "changed" if any input types/enums that are
+                // _reachable_ from the definition have changed.
+
+                // To avoid the risk of infinite recursion, we track visited
+                // input types and avoid recursing into a type more than once
+                // per definition. This is safe sice the initiatial traversal of
+                // the input type will ensure the definition gets added to
+                // `changed_definitions` if needed.
+                if self.visited_input_objects.insert(id) {
+                    let input_object = self.schema.input_object(id);
+                    for field in input_object.fields.iter() {
+                        self.add_type_changes(field.type_.inner());
+                    }
+                }
+            }
+            Type::Scalar(_) => (),
         }
     }
 }
 
 impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
     const NAME: &'static str = "DependencyAnalyzerSchemaChangeDefinitionFinder";
-    const VISIT_ARGUMENTS: bool = false;
+    const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = false;
 
     fn visit_linked_field(&mut self, field: &LinkedField) {
@@ -139,6 +189,11 @@ impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
             self.add_type_changes(type_);
         }
         self.default_visit_inline_fragment(fragment);
+    }
+
+    fn visit_argument(&mut self, argument: &Argument) {
+        self.add_type_changes_from_argument(argument);
+        self.default_visit_argument(argument);
     }
 
     fn visit_scalar_field(&mut self, field: &ScalarField) {

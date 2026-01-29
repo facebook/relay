@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de1623c63548f9082e2e54a2063d938f>>
+ * @generated SignedSource<<86e78e986e692e1e021ded761a9a0389>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,14 +20,20 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { WeakModel____relay_model_instance$data } from "./WeakModel____relay_model_instance.graphql";
 import {edge_to_null_weak_model as queryEdgeToNullWeakModelResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToNullWeakModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToNullWeakModelResolverType: () => ?WeakModel);
+(queryEdgeToNullWeakModelResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?WeakModel);
 import {first_name as weakModelFirstNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
 // Type assertion validating that `weakModelFirstNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (weakModelFirstNameResolverType: (
   __relay_model_instance: WeakModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import type { WeakModel } from "../RelayResolverNullableModelClientEdge-test.js";
 export type RelayResolverNullableModelClientEdgeTest_WeakModel_Query$variables = {||};
@@ -61,7 +67,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_null_weak_model",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_null_weak_model,
           "path": "edge_to_null_weak_model",
           "normalizationInfo": {
             "kind": "WeakModel",
@@ -87,7 +93,7 @@ var node/*: ClientRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "first_name",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./WeakModel____relay_model_instance.graphql'), require('./../RelayResolverNullableModelClientEdge-test').first_name, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./WeakModel____relay_model_instance.graphql'), require('../RelayResolverNullableModelClientEdge-test').first_name, '__relay_model_instance', true),
               "path": "edge_to_null_weak_model.first_name"
             }
           ],

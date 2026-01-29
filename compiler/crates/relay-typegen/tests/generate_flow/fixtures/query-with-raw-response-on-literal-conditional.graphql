@@ -1,7 +1,7 @@
 query ExampleQuery($id: ID!) @raw_response_type {
   node(id: $id) {
     username
-    ...FriendFragment
+    ...FriendFragment @alias
     ... @include(if: false) {
       friends(first: 0) {
         count

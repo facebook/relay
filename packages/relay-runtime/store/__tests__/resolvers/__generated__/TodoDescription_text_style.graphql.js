@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<084478a42918e37aabf6f3535c970f4b>>
+ * @generated SignedSource<<d7569abd3e4583103aff92e2df2628e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,17 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoDescription____relay_model_instance$data } from "./TodoDescription____relay_model_instance.graphql";
 import type { FragmentType } from "relay-runtime";
 import {color as todoDescriptionColorResolverType} from "../TodoDescription.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionColorResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-) => ?mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?unknown);
 declare export opaque type TodoDescription_text_style$fragmentType: FragmentType;
 export type TodoDescription_text_style$data = {|
-  +color: $NonMaybeType<ReturnType<typeof todoDescriptionColorResolverType>>,
+  +color: NonNullable<ReturnType<typeof todoDescriptionColorResolverType>>,
   +$fragmentType: TodoDescription_text_style$fragmentType,
 |};
 export type TodoDescription_text_style$key = {
@@ -56,11 +59,10 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayResolver",
         "name": "color",
-        "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./TodoDescription____relay_model_instance.graphql'), require('./../TodoDescription').color, '__relay_model_instance', true),
+        "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./TodoDescription____relay_model_instance.graphql'), require('../TodoDescription').color, '__relay_model_instance', true),
         "path": "color"
       },
-      "action": "THROW",
-      "path": "color"
+      "action": "THROW"
     }
   ],
   "type": "TodoDescription",

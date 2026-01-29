@@ -76,6 +76,7 @@ Field(
                 item: "User",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,
@@ -84,6 +85,8 @@ Field(
             source_hash: ResolverSourceHash(
                 "12e28b8739ff3ab018186a28de3ca726",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

@@ -1,0 +1,3 @@
+query EnquotedAlias {
+  "1$ali\"as": escaped_quote_alias
+}

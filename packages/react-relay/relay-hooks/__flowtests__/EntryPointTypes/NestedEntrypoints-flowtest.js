@@ -29,7 +29,7 @@ type NestedEntrypointComponentProps = EntryPointProps<{}>;
 const NestedEntrypointComponent = (_props: NestedEntrypointComponentProps) =>
   null;
 
-type NestedEntrypointPreloadParams = $ReadOnly<{
+type NestedEntrypointPreloadParams = Readonly<{
   subEntrypointPreloadParam: string,
 }>;
 
@@ -38,16 +38,16 @@ type NestedEntryPointType = EntryPoint<
   typeof NestedEntrypointComponent,
 >;
 
-const NestedEntryPoint = ({
+const NestedEntryPoint = {
   getPreloadProps({subEntrypointPreloadParam: _subEntrypointPreloadParam}) {
     return {};
   },
   root: mockJSResource(NestedEntrypointComponent),
-}: NestedEntryPointType);
+} as NestedEntryPointType;
 
 // Define the parent entrypoint's component
 
-type PreloadedEntrypoints = $ReadOnly<{
+type PreloadedEntrypoints = Readonly<{
   nestedComponent: PreloadedEntryPoint<typeof NestedEntrypointComponent>,
 }>;
 
@@ -61,7 +61,7 @@ const ParentEntrypointComponent = (_props: ParentEntrypointComponentProps) =>
  * INCORRECT params passed into the nested entrypoints.
  */
 
-type BadParentEntrypointParams = $ReadOnly<{}>;
+type BadParentEntrypointParams = Readonly<{}>;
 
 ({
   getPreloadProps(_params: BadParentEntrypointParams) {
@@ -69,7 +69,7 @@ type BadParentEntrypointParams = $ReadOnly<{}>;
       entryPoints: {
         nestedComponent: NestedRelayEntryPoint({
           /**
-           $FlowExpectedError The entryPointParams here should be of type
+           $FlowExpectedError[incompatible-type] The entryPointParams here should be of type
             NestedEntrypointPreloadParams, but it does not contain subEntrypointPreloadParam
           */
           entryPoint: NestedEntryPoint,
@@ -79,14 +79,14 @@ type BadParentEntrypointParams = $ReadOnly<{}>;
     };
   },
   root: mockJSResource(ParentEntrypointComponent),
-}: EntryPoint<BadParentEntrypointParams, typeof ParentEntrypointComponent>);
+}) as EntryPoint<BadParentEntrypointParams, typeof ParentEntrypointComponent>;
 
 /**
  * Create a parent entrypoint with the component with
  * CORRECT params passed into the nested entrypoints.
  */
 
-type GoodParentEntrypointParams = $ReadOnly<{}>;
+type GoodParentEntrypointParams = Readonly<{}>;
 
 ({
   getPreloadProps(_params: GoodParentEntrypointParams) {
@@ -103,4 +103,4 @@ type GoodParentEntrypointParams = $ReadOnly<{}>;
     };
   },
   root: mockJSResource(ParentEntrypointComponent),
-}: EntryPoint<GoodParentEntrypointParams, typeof ParentEntrypointComponent>);
+}) as EntryPoint<GoodParentEntrypointParams, typeof ParentEntrypointComponent>;

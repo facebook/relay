@@ -6,8 +6,8 @@
  */
 
 use common::SourceLocationKey;
-use dependency_analyzer::get_reachable_ast;
 use dependency_analyzer::ReachableAst;
+use dependency_analyzer::get_reachable_ast;
 use fixture_tests::Fixture;
 use graphql_syntax::*;
 use intern::Lookup;

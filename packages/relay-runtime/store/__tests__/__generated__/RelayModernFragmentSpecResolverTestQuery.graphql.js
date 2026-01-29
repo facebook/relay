@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f3c1312bfab787bae713b29b3bf5269e>>
+ * @generated SignedSource<<e8517856d878604a57e0ce7d123db283>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import type { RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType
 export type RelayModernFragmentSpecResolverTestQuery$variables = {|
   fetchSize: boolean,
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayModernFragmentSpecResolverTestQuery$data = {|
   +node: ?{|
@@ -189,7 +189,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "861d571e1856374cfbff7ce6564c306c";
+  (node/*: any*/).hash = "927b2880628e050a5b8104216923a40b";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

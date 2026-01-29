@@ -66,6 +66,84 @@ fragment ChildFragment2 on User
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:116:130,
+                                item: FragmentDefinitionName(
+                                    "ChildFragment1",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:167:178,
+                                        item: VariableName(
+                                            "pictureSize",
+                                        ),
+                                    },
+                                    type_: List(
+                                        Named(
+                                            Scalar(0),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:200:226,
+                                        item: VariableName(
+                                            "arg_with_enabled_provider0",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(3),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [
+                                        Directive {
+                                            name: WithLocation {
+                                                location: use_fragment_spread_with_provider.graphql:247:275,
+                                                item: DirectiveName(
+                                                    "__ProvidedVariableMetadata",
+                                                ),
+                                            },
+                                            arguments: [],
+                                            data: Some(
+                                                ProvidedVariableMetadata {
+                                                    module_name: "foo_gk_module.js",
+                                                    original_variable_name: VariableName(
+                                                        "arg_with_enabled_provider0",
+                                                    ),
+                                                    fragment_source_location: Standalone {
+                                                        path: "use_fragment_spread_with_provider.graphql",
+                                                    },
+                                                },
+                                            ),
+                                            location: use_fragment_spread_with_provider.graphql:247:275,
+                                        },
+                                    ],
+                                },
+                            ],
+                            type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:142:161,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: use_fragment_spread_with_provider.graphql:141:280,
+                                },
+                            ],
+                        },
+                    ),
                     directives: [],
                 },
                 FragmentSpread {
@@ -76,6 +154,69 @@ fragment ChildFragment2 on User
                         ),
                     },
                     arguments: [],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: use_fragment_spread_with_provider.graphql:389:403,
+                                item: FragmentDefinitionName(
+                                    "ChildFragment2",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:440:466,
+                                        item: VariableName(
+                                            "arg_with_enabled_provider0",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(3),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [
+                                        Directive {
+                                            name: WithLocation {
+                                                location: use_fragment_spread_with_provider.graphql:487:515,
+                                                item: DirectiveName(
+                                                    "__ProvidedVariableMetadata",
+                                                ),
+                                            },
+                                            arguments: [],
+                                            data: Some(
+                                                ProvidedVariableMetadata {
+                                                    module_name: "foo_gk_module.js",
+                                                    original_variable_name: VariableName(
+                                                        "arg_with_enabled_provider0",
+                                                    ),
+                                                    fragment_source_location: Standalone {
+                                                        path: "use_fragment_spread_with_provider.graphql",
+                                                    },
+                                                },
+                                            ),
+                                            location: use_fragment_spread_with_provider.graphql:487:515,
+                                        },
+                                    ],
+                                },
+                            ],
+                            type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: use_fragment_spread_with_provider.graphql:415:434,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: use_fragment_spread_with_provider.graphql:414:520,
+                                },
+                            ],
+                        },
+                    ),
                     directives: [],
                 },
             ],
@@ -138,6 +279,7 @@ fragment ChildFragment2 on User
                                     },
                                 },
                             ),
+                            location: use_fragment_spread_with_provider.graphql:247:275,
                         },
                     ],
                 },
@@ -154,6 +296,7 @@ fragment ChildFragment2 on User
                     },
                     arguments: [],
                     data: None,
+                    location: use_fragment_spread_with_provider.graphql:141:280,
                 },
             ],
             selections: [
@@ -270,6 +413,7 @@ fragment ChildFragment2 on User
                                     },
                                 },
                             ),
+                            location: use_fragment_spread_with_provider.graphql:487:515,
                         },
                     ],
                 },
@@ -286,6 +430,7 @@ fragment ChildFragment2 on User
                     },
                     arguments: [],
                     data: None,
+                    location: use_fragment_spread_with_provider.graphql:414:520,
                 },
             ],
             selections: [

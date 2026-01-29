@@ -389,6 +389,13 @@ impl SDLSchema {
         }
     }
 
+    pub fn get_enums_par_iter(&self) -> impl ParallelIterator<Item = &Enum> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.get_enums_par_iter(),
+        }
+    }
+
     pub fn get_objects(&self) -> impl Iterator<Item = &Object> {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
@@ -405,7 +412,7 @@ impl SDLSchema {
 
     pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
-            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::FlatBuffer(schema) => schema.has_directive(directive_name),
             SDLSchema::InMemory(schema) => schema.has_directive(directive_name),
         }
     }

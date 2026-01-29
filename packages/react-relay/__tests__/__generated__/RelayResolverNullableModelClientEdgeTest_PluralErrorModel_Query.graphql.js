@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d0214e9864d498d1aa4a2751140ede9f>>
+ * @generated SignedSource<<498ec81ccc8cf51aa234802ccdde2673>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,14 +20,18 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import {edge_to_plural_models_that_throw as queryEdgeToPluralModelsThatThrowResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToPluralModelsThatThrowResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToPluralModelsThatThrowResolverType: () => ?$ReadOnlyArray<?{|
+(queryEdgeToPluralModelsThatThrowResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?ReadonlyArray<?{|
   +id: DataID,
 |}>);
 export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query$data = {|
-  +edge_to_plural_models_that_throw: ?$ReadOnlyArray<?{|
+  +edge_to_plural_models_that_throw: ?ReadonlyArray<?{|
     +__typename: "ErrorModel",
   |}>,
 |};
@@ -67,8 +71,8 @@ return {
               "name": "ErrorModel__id"
             },
             "kind": "RelayResolver",
-            "name": "edge_to_plural_models_that_throw",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
             "path": "edge_to_plural_models_that_throw.__relay_model_instance"
           }
         },
@@ -78,7 +82,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_plural_models_that_throw",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_plural_models_that_throw,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_plural_models_that_throw,
           "path": "edge_to_plural_models_that_throw"
         },
         "linkedField": {

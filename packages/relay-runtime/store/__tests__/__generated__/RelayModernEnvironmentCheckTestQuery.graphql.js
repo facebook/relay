@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<50035f6e4b5902ef4431ca18431d0be9>>
+ * @generated SignedSource<<4abbbd5402a5632c80e7bb799bb7ecf3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayModernEnvironmentCheckTestQuery$variables = {||};
 export type RelayModernEnvironmentCheckTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
           +$fragmentSpreads: RelayModernEnvironmentCheckTestFragment$fragmentType,

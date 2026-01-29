@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a48c53da834b284641e681ca142a2671>>
+ * @generated SignedSource<<08e3a35a1ab1ae3d9c5b726e1c6e2fdb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType } from "./RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment.graphql";
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables = {|
-  size: $ReadOnlyArray<?number>,
+  size: ReadonlyArray<?number>,
 |};
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data = {|
   +me: ?{|

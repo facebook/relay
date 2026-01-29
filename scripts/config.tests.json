@@ -23,9 +23,23 @@
         "packages/relay-test-utils-internal/schema-extensions"
       ],
       "customScalarTypes": {
-        "OpaqueScalarType": {"name": "OpaqueScalarType", "path": "../OpaqueScalarType"}
+        "OpaqueScalarType": {
+          "name": "OpaqueScalarType",
+          "path": "../OpaqueScalarType"
+        }
       },
       "jsModuleFormat": "commonjs",
+      "moduleImportConfig": {
+        "dynamicModuleProvider": {
+          "mode": "Custom",
+          "statement": "() => require('./.<$module>')"
+        },
+        "operationModuleProvider": {
+          "mode": "Custom",
+          "statement": "() => require('<$module>')"
+        },
+        "surface": "resolvers"
+      },
       "schemaConfig": {
         "nonNodeIdFields": {
           "allowedIdTypes": {
@@ -43,21 +57,26 @@
         }
       },
       "featureFlags": {
-        "enable_relay_resolver_transform": true,
         "no_inline": {
           "kind": "enabled"
         },
         "actor_change_support": {
           "kind": "enabled"
         },
-        "enable_fragment_aliases": {
+        "relay_resolver_enable_interface_output_type": {
           "kind": "enabled"
         },
-        "emit_normalization_nodes_for_client_edges": true,
-        "relay_resolver_enable_interface_output_type": { "kind": "enabled" }
+        "enable_exec_time_resolvers_directive": true,
+        "allow_output_type_resolvers": {
+          "kind": "enabled"
+        }
       },
       "language": "flow",
-      "experimentalEmitSemanticNullabilityTypes": true
+      "resolverContextType": {
+        "name": "TestResolverContextType",
+        "path": "packages/relay-runtime/mutations/__tests__/TestResolverContextType"
+      },
+      "eagerEsModules": false
     }
   },
   "isDevVariableName": "__DEV__"

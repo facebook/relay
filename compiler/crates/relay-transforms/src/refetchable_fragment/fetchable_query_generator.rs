@@ -30,16 +30,17 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-use super::build_fragment_metadata_as_directive;
-use super::build_fragment_spread;
-use super::build_operation_variable_definitions;
-use super::build_used_global_variables;
-use super::validation_message::ValidationMessage;
+use super::CONSTANTS;
 use super::QueryGenerator;
 use super::RefetchRoot;
 use super::RefetchableIdentifierInfo;
 use super::RefetchableMetadata;
-use super::CONSTANTS;
+use super::build_fragment_metadata_as_directive;
+use super::build_fragment_spread;
+use super::build_operation_variable_definitions;
+use super::build_used_global_variables;
+use super::uses_prefetchable_pagination_in_connection;
+use super::validation_message::ValidationMessage;
 use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(
@@ -60,6 +61,11 @@ fn build_refetch_operation(
         let (fetch_field_id, id_arg) =
             get_fetch_field_id_and_id_arg(fragment, schema, query_type, fetch_field_name)?;
 
+        let fetch_token_field = match schema_config.enable_token_field {
+            true => Some(schema.fetch_token_field()),
+            false => None,
+        };
+
         let fragment = Arc::new(FragmentDefinition {
             name: fragment.name,
             variable_definitions: fragment.variable_definitions.clone(),
@@ -78,12 +84,15 @@ fn build_refetch_operation(
                         identifier_query_variable_name: schema_config
                             .node_interface_id_variable_name,
                     }),
+                    is_prefetchable_pagination: uses_prefetchable_pagination_in_connection(
+                        fragment,
+                    ),
                 },
             ),
             selections: enforce_selections_with_id_field(
                 fragment,
                 identifier_field_id,
-                schema.fetch_token_field(),
+                fetch_token_field,
             ),
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);
@@ -145,10 +154,10 @@ fn get_fetchable_field_name(
 
     if let Some(fetchable) = fetchable_directive {
         let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
-        if let Some(field_name_arg) = field_name_arg {
-            if let Some(value) = field_name_arg.value.get_string_literal() {
-                return Ok(Some(value));
-            }
+        if let Some(field_name_arg) = field_name_arg
+            && let Some(value) = field_name_arg.value.get_string_literal()
+        {
+            return Ok(Some(value));
         }
         return Err(vec![Diagnostic::error(
             ValidationMessage::InvalidRefetchDirectiveDefinition {
@@ -192,14 +201,15 @@ fn get_fetch_field_id_and_id_arg<'s>(
     let fetch_field_id = schema.named_field(query_type, fetch_field_name);
     if let Some(fetch_field_id) = fetch_field_id {
         let fetch_field = schema.field(fetch_field_id);
-        if let Some(inner_type) = fetch_field.type_.non_list_type() {
-            if inner_type == fragment.type_condition {
-                let mut arg_iter = fetch_field.arguments.iter();
-                if let Some(id_arg) = arg_iter.next() {
-                    if !id_arg.type_.is_list() && schema.is_id(id_arg.type_.inner()) {
-                        return Ok((fetch_field_id, id_arg));
-                    }
-                }
+        if let Some(inner_type) = fetch_field.type_.non_list_type()
+            && inner_type == fragment.type_condition
+        {
+            let mut arg_iter = fetch_field.arguments.iter();
+            if let Some(id_arg) = arg_iter.next()
+                && !id_arg.type_.is_list()
+                && schema.is_id(id_arg.type_.inner())
+            {
+                return Ok((fetch_field_id, id_arg));
             }
         }
     }
@@ -223,7 +233,7 @@ fn has_field(selections: &[Selection], field_id: FieldID) -> bool {
 fn enforce_selections_with_id_field(
     fragment: &FragmentDefinition,
     identifier_field_id: FieldID,
-    fetch_token_field_id: FieldID,
+    fetch_token_field_id: Option<FieldID>,
 ) -> Vec<Selection> {
     let mut next_selections = fragment.selections.clone();
     if !has_field(&next_selections, identifier_field_id) {
@@ -234,14 +244,16 @@ fn enforce_selections_with_id_field(
             directives: vec![],
         })));
     }
-    if !has_field(&next_selections, fetch_token_field_id) {
+    if let Some(fetch_token_field_id) = fetch_token_field_id
+        && !has_field(&next_selections, fetch_token_field_id)
+    {
         next_selections.push(Selection::ScalarField(Arc::new(ScalarField {
             alias: None,
-            definition: WithLocation::generated(fetch_token_field_id),
+            definition: WithLocation::new(fragment.name.location, fetch_token_field_id),
             arguments: vec![],
             directives: vec![],
         })));
-    }
+    };
     next_selections
 }
 

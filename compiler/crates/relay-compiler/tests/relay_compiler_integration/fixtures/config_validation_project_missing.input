@@ -1,0 +1,23 @@
+//- src/component.js
+graphql`query componentQuery {
+  me {
+    name
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "nonexistent_project"
+   },
+   "projects": {
+      "actual_project": {
+         "schema": "./schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

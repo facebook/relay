@@ -1,5 +1,3 @@
-# Because there are no implementing types, "all implementing types impl Node"
-# is true, so we generated a Node refetch query.
 fragment RefetchableFragmentFoo on RefetchableInterfaceFoo
   @refetchable(queryName: "RefetchableFragmentFooQuery") {
   id

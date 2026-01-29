@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f301a7eddce444b16edc6938d7fbfc3>>
+ * @generated SignedSource<<efd898763e79a5ac5626ec87a1d6cc15>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type commitMutationTest4Query$variables = {||};
 export type commitMutationTest4Query$data = {|
   +node: ?{|
     +topLevelComments?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +id: string,
         |},

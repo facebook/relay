@@ -1,0 +1,133 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+import {DataID} from "relay-runtime";
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function cat_id(cat: CatFlowType): DataID {
+  return '';
+}
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 399:405,
+                    token: Token {
+                        span: 399:405,
+                        kind: Identifier,
+                    },
+                    value: "cat_id",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 425:431,
+                            token: Token {
+                                span: 425:431,
+                                kind: Identifier,
+                            },
+                            value: "ID",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 399:405,
+            },
+            type_: WithLocation {
+                location: Cat.js:310:313,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 399:405,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 399:405,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: Cat.js:399:405,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "a9744194670e59356ad37913eff9defe",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Cat {
+  cat_id: ID @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "cat_id", import_path: "Cat.js") @resolver_source_hash(value: "a9744194670e59356ad37913eff9defe") @semanticNonNull
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 310:313,
+                token: Token {
+                    span: 310:313,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: Cat.js:310:313,
+            root_fragment: WithLocation {
+                location: Cat.js:310:313,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: Cat.js:310:313,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "a9744194670e59356ad37913eff9defe",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "a9744194670e59356ad37913eff9defe") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

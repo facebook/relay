@@ -15,6 +15,7 @@ import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  LogFunction,
   MissingFieldHandler,
   MutationParameters,
   OperationDescriptor,
@@ -33,6 +34,7 @@ import type {
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const RelayRecordSourceSelectorProxy = require('../mutations/RelayRecordSourceSelectorProxy');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReader = require('./RelayReader');
 const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
@@ -60,8 +62,10 @@ type PendingUpdater = {
 const _global: typeof global | $FlowFixMe =
   typeof global !== 'undefined'
     ? global
-    : typeof window !== 'undefined'
-      ? window
+    : // $FlowFixMe[cannot-resolve-name]
+      typeof window !== 'undefined'
+      ? // $FlowFixMe[cannot-resolve-name]
+        window
       : undefined;
 
 const applyWithGuard =
@@ -82,8 +86,9 @@ const applyWithGuard =
 class RelayPublishQueue implements PublishQueue {
   _store: Store;
   _handlerProvider: ?HandlerProvider;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   _getDataID: GetDataID;
+  _log: ?LogFunction;
 
   _hasStoreSnapshot: boolean;
   // True if the next `run()` should apply the backup and rerun all optimistic
@@ -111,7 +116,8 @@ class RelayPublishQueue implements PublishQueue {
     store: Store,
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
+    log: LogFunction,
   ) {
     this._hasStoreSnapshot = false;
     this._handlerProvider = handlerProvider || null;
@@ -123,6 +129,7 @@ class RelayPublishQueue implements PublishQueue {
     this._gcHold = null;
     this._getDataID = getDataID;
     this._missingFieldHandlers = missingFieldHandlers;
+    this._log = log;
   }
 
   /**
@@ -206,11 +213,11 @@ class RelayPublishQueue implements PublishQueue {
   /**
    * Execute all queued up operations from the other public methods.
    */
-  run(
-    sourceOperation?: OperationDescriptor,
-  ): $ReadOnlyArray<RequestDescriptor> {
+  run(sourceOperation?: OperationDescriptor): ReadonlyArray<RequestDescriptor> {
     const runWillClearGcHold =
       // $FlowFixMe[incompatible-type]
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/4oq3zi07. */
       this._appliedOptimisticUpdates === 0 && !!this._gcHold;
     const runIsANoop =
       // this._pendingBackupRebase is true if an applied optimistic
@@ -219,24 +226,27 @@ class RelayPublishQueue implements PublishQueue {
       this._pendingOptimisticUpdates.size === 0 &&
       !runWillClearGcHold;
 
-    if (__DEV__) {
-      warning(
-        !runIsANoop,
-        'RelayPublishQueue.run was called, but the call would have been a noop.',
-      );
-      warning(
-        this._isRunning !== true,
-        'A store update was detected within another store update. Please ' +
-          "make sure new store updates aren't being executed within an " +
-          'updater function for a different update.',
-      );
-      this._isRunning = true;
-    }
+    warning(
+      !runIsANoop,
+      'RelayPublishQueue.run was called, but the call would have been a noop.',
+    );
+    RelayFeatureFlags.DISALLOW_NESTED_UPDATES
+      ? invariant(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        )
+      : warning(
+          this._isRunning !== true,
+          'A store update was detected within another store update. Please ' +
+            "make sure new store updates aren't being executed within an " +
+            'updater function for a different update.',
+        );
+    this._isRunning = true;
 
     if (runIsANoop) {
-      if (__DEV__) {
-        this._isRunning = false;
-      }
+      this._isRunning = false;
       return [];
     }
 
@@ -268,9 +278,7 @@ class RelayPublishQueue implements PublishQueue {
         this._gcHold = null;
       }
     }
-    if (__DEV__) {
-      this._isRunning = false;
-    }
+    this._isRunning = false;
     return this._store.notify(sourceOperation, invalidatedStore);
   }
 
@@ -292,6 +300,7 @@ class RelayPublishQueue implements PublishQueue {
       this._getDataID,
       this._handlerProvider,
       this._missingFieldHandlers,
+      this._log,
     );
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
@@ -355,6 +364,7 @@ class RelayPublishQueue implements PublishQueue {
           this._getDataID,
           this._handlerProvider,
           this._missingFieldHandlers,
+          this._log,
         );
         applyWithGuard(
           updater,
@@ -388,6 +398,7 @@ class RelayPublishQueue implements PublishQueue {
       this._getDataID,
       this._handlerProvider,
       this._missingFieldHandlers,
+      this._log,
     );
 
     // $FlowFixMe[unclear-type] see explanation above.
@@ -451,7 +462,16 @@ function lookupSelector(
   source: RecordSource,
   selector: SingularReaderSelector,
 ): ?SelectorData {
-  const selectorData = RelayReader.read(source, selector).data;
+  const selectorData = RelayReader.read(
+    source,
+    selector,
+    // The reader here is used to read the selector data for the updater.
+    // It is normal to not use all data in the update, so we don't pass
+    // the logger to skip tracking usages.
+    null,
+    undefined,
+    undefined,
+  ).data;
   if (__DEV__) {
     const deepFreeze = require('../util/deepFreeze');
     if (selectorData) {

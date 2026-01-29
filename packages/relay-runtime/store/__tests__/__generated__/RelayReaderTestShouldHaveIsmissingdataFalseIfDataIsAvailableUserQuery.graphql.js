@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0e7b08d7afc7172ea3a005edfb27107f>>
+ * @generated SignedSource<<df993d7654dabeedcad9a3427b48c212>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture.graphql";
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables = {|
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data = {|
   +me: ?{|

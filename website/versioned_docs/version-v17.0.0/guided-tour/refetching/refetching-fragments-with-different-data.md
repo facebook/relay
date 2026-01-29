@@ -10,8 +10,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRefetchingFragments from './fb/FbRefetchingFragments.md';
-import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
 import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
 When referring to **"refetching a fragment"**, we mean fetching a *different* version of the data than the one was originally rendered by the fragment. For example, this might be to change a currently selected item, to render a different list of items than the one being shown, or more generally to transition the currently rendered content to show new or different content.
@@ -21,10 +19,6 @@ Conceptually, this means fetching and rendering the currently rendered fragment 
 ## Using `useRefetchableFragment`
 
 To do so, we can also use the [`useRefetchableFragment`](../../../api-reference/use-refetchable-fragment/) Hook in combination with the `@refetchable` directive, which will automatically generate a query to refetch the fragment under, and which we can fetch using the `refetch` function:
-
-<FbInternalOnly>
-  <FbRefetchingFragments />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -91,10 +85,6 @@ Note that this same behavior also applies to using the `refetch` function from [
 ### If you need to avoid Suspense
 
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
-
-<FbInternalOnly>
-  <FbAvoidSuspenseCaution />
-</FbInternalOnly>
 
 <OssOnly>
   <OssAvoidSuspenseNote />

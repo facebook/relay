@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bb904bed48dcb57f8a666fc0d20779bf>>
+ * @generated SignedSource<<0b4e5d9f1b6038fac312f7b010fff792>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { RelayResolverInterfaceTestAnimalLegsFragment$fragmentType } from "./RelayResolverInterfaceTestAnimalLegsFragment.graphql";
 import {fish as queryFishResolverType} from "../../../relay-runtime/store/__tests__/resolvers/FishResolvers.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryFishResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryFishResolverType: () => ?{|
+(queryFishResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 export type RelayResolverInterfaceTestFishLegsQuery$variables = {||};
@@ -71,8 +75,8 @@ return {
               "name": "Fish__id"
             },
             "kind": "RelayResolver",
-            "name": "fish",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Fish__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').Fish, 'id', true),
             "path": "fish.__relay_model_instance"
           }
         },
@@ -82,7 +86,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "fish",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/FishResolvers').fish,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/FishResolvers').fish,
           "path": "fish"
         },
         "linkedField": {

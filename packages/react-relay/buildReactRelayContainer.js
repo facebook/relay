@@ -28,15 +28,15 @@ const {getFragment} = require('relay-runtime');
 const {useContext} = React;
 
 type ContainerCreator = (
-  Component: React$ComponentType<any>,
+  Component: component(...any),
   fragments: FragmentMap,
-) => React$ComponentType<any>;
+) => component(...any);
 
 /**
  * Helper to create the Relay HOCs with ref forwarding, setting the displayName
  * and reading the React context.
  */
-function buildReactRelayContainer<TBase: React$ComponentType<any>>(
+function buildReactRelayContainer<TBase: component(...empty)>(
   ComponentClass: TBase,
   fragmentSpec: GeneratedNodeMap,
   createContainerWithFragments: ContainerCreator,
@@ -55,8 +55,8 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   function ForwardRef(
     props: any,
     ref:
-      | ((null | React$ElementRef<TBase>) => mixed)
-      | {-current: null | React$ElementRef<TBase>, ...},
+      | ((null | React.ElementRef<TBase>) => unknown)
+      | {-current: null | React.ElementRef<TBase>, ...},
   ) {
     // $FlowFixMe[react-rule-hook]
     const context = useContext(ReactRelayContext);
@@ -82,15 +82,15 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
     );
   }
   ForwardRef.displayName = containerName;
-  const ForwardContainer = React.forwardRef(ForwardRef);
+  const ForwardContainer = (React as $FlowFixMe).forwardRef(ForwardRef);
 
   if (__DEV__) {
     // Used by RelayModernTestUtils
-    (ForwardContainer: any).__ComponentClass = ComponentClass;
+    (ForwardContainer as any).__ComponentClass = ComponentClass;
     ForwardContainer.displayName = containerName;
   }
 
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return ForwardContainer;
 }
 

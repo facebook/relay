@@ -2,7 +2,7 @@
 # expected-to-throw
 query connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery($id: ID!) {
   node(id: $id) {
-    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
+    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment @alias
   }
 }
 
@@ -14,14 +14,15 @@ query connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery(
   node(id: $id) {
     ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
       @arguments(count: $count, cursor: $cursor)
+      @alias
   }
 }
 
 fragment connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment on Feedback
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 2}
-    cursor: {type: "ID"}
-  ) {
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 2}
+  cursor: {type: "ID"}
+) {
   id
   comments(after: $cursor, first: $count, orderby: "date")
     @connection(
@@ -39,17 +40,17 @@ fragment connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment on Fe
 ==================================== ERROR ====================================
 ✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery' references undefined variable: '$commentsKey'.
 
-  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
-   27 │       key: "FeedbackFragment_comments"
-   28 │       dynamicKey_UNSTABLE: $commentsKey
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:29:28
+   28 │       key: "FeedbackFragment_comments"
+   29 │       dynamicKey_UNSTABLE: $commentsKey
       │                            ^^^^^^^^^^^^
-   29 │       filters: ["orderby"]
+   30 │       filters: ["orderby"]
 
 
 ✖︎ Operation 'connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery' references undefined variable: '$commentsKey'.
 
-  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:28:28
-   27 │       key: "FeedbackFragment_comments"
-   28 │       dynamicKey_UNSTABLE: $commentsKey
+  connection-with-dynamic-key-missing-variable-definition.invalid.graphql:29:28
+   28 │       key: "FeedbackFragment_comments"
+   29 │       dynamicKey_UNSTABLE: $commentsKey
       │                            ^^^^^^^^^^^^
-   29 │       filters: ["orderby"]
+   30 │       filters: ["orderby"]

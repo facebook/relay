@@ -21,7 +21,6 @@ fragment MyFragmentSecond on User {
   address @catch(to: RESULT) @__CatchMetadataDirective
   # CatchMetadataDirective {
   #     to: Result,
-  #     path: "address",
   # }
    {
     street

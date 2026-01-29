@@ -41,7 +41,7 @@ hook useSubscription<TVariables, TData, TRawResponse>(
     TVariables,
     TData,
     TRawResponse,
-  > = requestSubscriptionFn ?? (requestSubscription: $FlowFixMe);
+  > = requestSubscriptionFn ?? (requestSubscription as $FlowFixMe);
   const environment = useRelayEnvironment();
   useEffect(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters

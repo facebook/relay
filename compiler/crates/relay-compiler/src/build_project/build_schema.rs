@@ -12,20 +12,19 @@ use common::PerfLogEvent;
 use fnv::FnvHashMap;
 use relay_config::ProjectName;
 use relay_docblock::validate_resolver_schema;
-use schema::parse_schema_with_extensions;
 use schema::SDLSchema;
 use schema::SchemaDocuments;
-use schema_validate_lib::validate;
+use schema::parse_schema_with_extensions;
 use schema_validate_lib::SchemaValidationOptions;
+use schema_validate_lib::validate;
 
 use super::build_resolvers_schema::build_resolver_types_schema_documents;
 use super::build_resolvers_schema::extend_schema_with_field_ir;
 use super::build_resolvers_schema::extract_docblock_ir;
-use super::build_resolvers_schema::ExtractedDocblockIr;
+use crate::GraphQLAsts;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::ProjectConfig;
-use crate::GraphQLAsts;
 
 pub fn build_schema(
     compiler_state: &CompilerState,
@@ -34,10 +33,10 @@ pub fn build_schema(
     graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     log_event: &impl PerfLogEvent,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
-    if let Some(schema) = compiler_state.schema_cache.get(&project_config.name) {
-        if !compiler_state.project_has_pending_schema_changes(project_config.name) {
-            return Ok(schema.clone());
-        }
+    if let Some(schema) = compiler_state.schema_cache.get(&project_config.name)
+        && !compiler_state.project_has_pending_schema_changes(project_config.name)
+    {
+        return Ok(schema.clone());
     }
     build_schema_impl(
         compiler_state,
@@ -68,11 +67,7 @@ fn build_schema_impl(
 
     // Collect Relay Resolver schema IR
     let resolver_schema_data = log_event.time("collect_resolver_schema_time", || {
-        if project_config.feature_flags.enable_relay_resolver_transform {
-            extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
-        } else {
-            Ok(ExtractedDocblockIr::default())
-        }
+        extract_docblock_ir(config, compiler_state, project_config, graphql_asts_map)
     })?;
 
     // Convert resolver schema to AST and append it to extension ASTs
@@ -132,10 +127,10 @@ fn get_extension_sources<'a>(
     if let Some(project_extensions) = compiler_state.extensions.get(&project_config.name) {
         extensions.extend(project_extensions.get_sources_with_location());
     }
-    if let Some(base_project_name) = project_config.base {
-        if let Some(base_project_extensions) = compiler_state.extensions.get(&base_project_name) {
-            extensions.extend(base_project_extensions.get_sources_with_location());
-        }
+    if let Some(base_project_name) = project_config.base
+        && let Some(base_project_extensions) = compiler_state.extensions.get(&base_project_name)
+    {
+        extensions.extend(base_project_extensions.get_sources_with_location());
     }
     extensions
 }
@@ -149,7 +144,7 @@ fn maybe_validate_schema(
     }
 
     validate(
-        &schema,
+        schema,
         SchemaValidationOptions {
             allow_introspection_names: true,
         },

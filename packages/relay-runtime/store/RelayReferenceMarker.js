@@ -30,35 +30,16 @@ import type {
 } from './RelayStoreTypes';
 
 const getOperation = require('../util/getOperation');
-const RelayConcreteNode = require('../util/RelayConcreteNode');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
-const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
+const getOutputTypeRecordIDs = require('./live-resolvers/getOutputTypeRecordIDs');
 const {getLocalVariables} = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
-const {
-  ACTOR_CHANGE,
-  CONDITION,
-  CLIENT_COMPONENT,
-  CLIENT_EXTENSION,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  MODULE_IMPORT,
-  LINKED_HANDLE,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-  RELAY_RESOLVER,
-  RELAY_LIVE_RESOLVER,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-} = RelayConcreteNode;
-const {getStorageKey, getModuleOperationKey} = RelayStoreUtils;
+const {getReadTimeResolverStorageKey, getStorageKey, getModuleOperationKey} =
+  RelayStoreUtils;
 
 function mark(
   recordSource: RecordSource,
@@ -66,6 +47,7 @@ function mark(
   references: DataIDSet,
   operationLoader: ?OperationLoader,
   shouldProcessClientComponents: ?boolean,
+  useExecTimeResolvers: ?boolean,
 ): void {
   const {dataID, node, variables} = selector;
   const marker = new RelayReferenceMarker(
@@ -74,6 +56,7 @@ function mark(
     references,
     operationLoader,
     shouldProcessClientComponents,
+    useExecTimeResolvers,
   );
   marker.mark(node, dataID);
 }
@@ -87,6 +70,7 @@ class RelayReferenceMarker {
   _recordSource: RecordSource;
   _references: DataIDSet;
   _variables: Variables;
+  _useExecTimeResolvers: boolean;
   _shouldProcessClientComponents: ?boolean;
 
   constructor(
@@ -95,9 +79,11 @@ class RelayReferenceMarker {
     references: DataIDSet,
     operationLoader: ?OperationLoader,
     shouldProcessClientComponents: ?boolean,
+    useExecTimeResolvers: ?boolean,
   ) {
     this._operationLoader = operationLoader ?? null;
     this._operationName = null;
+    this._useExecTimeResolvers = useExecTimeResolvers ?? false;
     this._recordSource = recordSource;
     this._references = references;
     this._variables = variables;
@@ -120,7 +106,7 @@ class RelayReferenceMarker {
     this._traverseSelections(node.selections, record);
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayReferenceMarker(): Undefined variable `%s`.',
@@ -130,24 +116,24 @@ class RelayReferenceMarker {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     record: Record,
   ): void {
     selections.forEach(selection => {
       /* eslint-disable no-fallthrough */
       switch (selection.kind) {
-        case ACTOR_CHANGE:
+        case 'ActorChange':
           // TODO: T89695151 Support multi-actor record sources in RelayReferenceMarker.js
           this._traverseLink(selection.linkedField, record);
           break;
-        case LINKED_FIELD:
+        case 'LinkedField':
           if (selection.plural) {
             this._traversePluralLink(selection, record);
           } else {
             this._traverseLink(selection, record);
           }
           break;
-        case CONDITION:
+        case 'Condition':
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),
           );
@@ -155,7 +141,7 @@ class RelayReferenceMarker {
             this._traverseSelections(selection.selections, record);
           }
           break;
-        case INLINE_FRAGMENT:
+        case 'InlineFragment':
           if (selection.abstractKey == null) {
             const typeName = RelayModernRecord.getType(record);
             if (
@@ -179,7 +165,7 @@ class RelayReferenceMarker {
             this._traverseSelections(selection.selections, record);
           }
           break;
-        case FRAGMENT_SPREAD:
+        case 'FragmentSpread':
           const prevVariables = this._variables;
           this._variables = getLocalVariables(
             this._variables,
@@ -189,7 +175,7 @@ class RelayReferenceMarker {
           this._traverseSelections(selection.fragment.selections, record);
           this._variables = prevVariables;
           break;
-        case LINKED_HANDLE:
+        case 'LinkedHandle':
           // The selections for a "handle" field are the same as those of the
           // original linked field where the handle was applied. Reference marking
           // therefore requires traversing the original field selections against
@@ -210,42 +196,40 @@ class RelayReferenceMarker {
             this._traverseLink(handleField, record);
           }
           break;
-        case DEFER:
-        case STREAM:
+        case 'Defer':
+        case 'Stream':
           this._traverseSelections(selection.selections, record);
           break;
-        case SCALAR_FIELD:
-        case SCALAR_HANDLE:
+        case 'ScalarField':
+        case 'ScalarHandle':
           break;
-        case TYPE_DISCRIMINATOR: {
+        case 'TypeDiscriminator': {
           const typeName = RelayModernRecord.getType(record);
           const typeID = generateTypeID(typeName);
           this._references.add(typeID);
           break;
         }
-        case MODULE_IMPORT:
+        case 'ModuleImport':
           this._traverseModuleImport(selection, record);
           break;
-        case CLIENT_EXTENSION:
+        case 'ClientExtension':
           this._traverseSelections(selection.selections, record);
           break;
-        case CLIENT_COMPONENT:
+        case 'ClientComponent':
           if (this._shouldProcessClientComponents === false) {
             break;
           }
           this._traverseSelections(selection.fragment.selections, record);
           break;
-        case RELAY_RESOLVER:
+        case 'RelayResolver':
+        case 'RelayLiveResolver':
           this._traverseResolverField(selection, record);
           break;
-        case RELAY_LIVE_RESOLVER:
-          this._traverseResolverField(selection, record);
-          break;
-        case CLIENT_EDGE_TO_CLIENT_OBJECT:
+        case 'ClientEdgeToClientObject':
           this._traverseClientEdgeToClientObject(selection, record);
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayReferenceMarker: Unknown AST node `%s`.',
@@ -259,6 +243,10 @@ class RelayReferenceMarker {
     field: NormalizationClientEdgeToClientObject,
     record: Record,
   ): void {
+    if (this._useExecTimeResolvers) {
+      this._traverseLink(field.linkedField, record);
+      return;
+    }
     const dataID = this._traverseResolverField(field.backingField, record);
     if (dataID == null) {
       return;
@@ -267,16 +255,17 @@ class RelayReferenceMarker {
     if (resolverRecord == null) {
       return;
     }
+    const {linkedField} = field;
     if (field.backingField.isOutputType) {
       // Mark all @outputType record IDs
       const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
       if (outputTypeRecordIDs != null) {
         for (const dataID of outputTypeRecordIDs) {
           this._references.add(dataID);
+          this._traverse(linkedField, dataID);
         }
       }
     } else {
-      const {linkedField} = field;
       const concreteType = linkedField.concreteType;
       if (concreteType == null) {
         // TODO: Handle retaining abstract client edges to client types.
@@ -311,7 +300,10 @@ class RelayReferenceMarker {
     field: NormalizationResolverField | NormalizationLiveResolverField,
     record: Record,
   ): ?DataID {
-    const storageKey = getStorageKey(field, this._variables);
+    if (this._useExecTimeResolvers) {
+      return;
+    }
+    const storageKey = getReadTimeResolverStorageKey(field, this._variables);
     const dataID = RelayModernRecord.getLinkedRecordID(record, storageKey);
 
     // If the resolver value has been created, we should retain it.
@@ -326,7 +318,6 @@ class RelayReferenceMarker {
       // Mark the contents of the resolver's data dependencies.
       this._traverseSelections([fragment], record);
     }
-
     return dataID;
   }
 

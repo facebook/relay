@@ -1,0 +1,14 @@
+query MyQuery @raw_response_type {
+  me {
+    id @catch
+    name
+    ...AnotherFragment
+  }
+}
+
+
+fragment AnotherFragment on User {
+  profilePicture(preset: LARGE) {
+      uri
+    }
+}

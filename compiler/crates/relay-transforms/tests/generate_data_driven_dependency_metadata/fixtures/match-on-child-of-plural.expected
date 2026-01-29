@@ -52,6 +52,7 @@ fragment ActorsRendererFragment on Node @__RelayDataDrivenDependencyMetadata
         #             "ActorsRendererFragment",
         #         ),
         #     ),
+        #     read_time_resolvers: false,
         #     fragment_name: FragmentDefinitionName(
         #         "PlainUserNameRenderer_name",
         #     ),
@@ -76,6 +77,7 @@ fragment ActorsRendererFragment on Node @__RelayDataDrivenDependencyMetadata
         #             "ActorsRendererFragment",
         #         ),
         #     ),
+        #     read_time_resolvers: false,
         #     fragment_name: FragmentDefinitionName(
         #         "MarkdownUserNameRenderer_name",
         #     ),

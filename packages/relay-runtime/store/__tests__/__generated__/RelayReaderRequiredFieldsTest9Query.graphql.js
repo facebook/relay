@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14e54916501bd5a1475411ac01da8d11>>
+ * @generated SignedSource<<622901df59872f7c98576f9ecf69378d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRequiredFieldsTest9Query$variables = {||};
 export type RelayReaderRequiredFieldsTest9Query$data = {|
   +me: ?{|
-    +emailAddresses: $ReadOnlyArray<?string>,
+    +emailAddresses: ReadonlyArray<?string>,
   |},
 |};
 export type RelayReaderRequiredFieldsTest9Query = {|
@@ -56,8 +56,7 @@ return {
           {
             "kind": "RequiredField",
             "field": (v0/*: any*/),
-            "action": "LOG",
-            "path": "me.emailAddresses"
+            "action": "LOG"
           }
         ],
         "storageKey": null

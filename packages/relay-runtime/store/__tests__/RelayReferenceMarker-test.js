@@ -11,32 +11,24 @@
 
 'use strict';
 
+import type {RecordSourceJSON} from '../RelayStoreTypes';
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 import RelayNetwork from '../../network/RelayNetwork';
 import {graphql} from '../../query/GraphQLTag';
-import RelayFeatureFlags from '../../util/RelayFeatureFlags';
-import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
 import RelayModernEnvironment from '../RelayModernEnvironment';
 import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
 import {createNormalizationSelector} from '../RelayModernSelector';
+import RelayModernStore from '../RelayModernStore';
 import RelayRecordSource from '../RelayRecordSource';
 import {mark} from '../RelayReferenceMarker';
-import {ROOT_ID} from '../RelayStoreUtils';
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
+import {RELAY_READ_TIME_RESOLVER_KEY_PREFIX, ROOT_ID} from '../RelayStoreUtils';
 
 describe('RelayReferenceMarker', () => {
   let source;
 
   beforeEach(() => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
@@ -102,7 +94,9 @@ describe('RelayReferenceMarker', () => {
               name
             }
           }
-          ...RelayReferenceMarkerTest1Fragment @arguments(size: $size)
+          ...RelayReferenceMarkerTest1Fragment
+            @dangerously_unaliased_fixme
+            @arguments(size: $size)
         }
       }
     `;
@@ -148,7 +142,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks "handle" nodes for queries', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         __typename: 'User',
@@ -236,7 +230,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks "handle" nodes with key and filters for queries', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         __typename: 'User',
@@ -357,7 +351,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks referenced records for client field', () => {
-    const data = {
+    const data: RecordSourceJSON = {
       '1': {
         __id: '1',
         id: '1',
@@ -414,7 +408,7 @@ describe('RelayReferenceMarker', () => {
         node(id: $id) {
           id
           __typename
-          ...RelayReferenceMarkerTest2Fragment
+          ...RelayReferenceMarkerTest2Fragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -502,16 +496,17 @@ describe('RelayReferenceMarker', () => {
       BarQuery = graphql`
         query RelayReferenceMarkerTest5Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest3Fragment
+            ...RelayReferenceMarkerTest3Fragment @dangerously_unaliased_fixme
           }
         }
       `;
       loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
-          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn((moduleName: mixed) =>
+        load: jest.fn((moduleName: unknown) =>
           // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
@@ -520,7 +515,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist and match a supported type (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -570,7 +565,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist and match a supported type (2)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -622,7 +617,7 @@ describe('RelayReferenceMarker', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -665,7 +660,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -715,7 +710,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the match field/record exist but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -754,7 +749,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the match field/record exist but do not match a supported type', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -792,7 +787,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the match field is non-existent (null)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -819,7 +814,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the match field is not fetched (undefined)', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -846,15 +841,18 @@ describe('RelayReferenceMarker', () => {
   });
   describe('Relay Resolver', () => {
     it('with no fragments is retained', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
-          counter_no_fragment: {
-            __ref: 'client:root:counter_no_fragment',
+          // $FlowFixMe[invalid-computed-prop]
+          [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`]: {
+            __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`,
           },
         },
-        'client:root:counter_no_fragment': {},
+        // $FlowFixMe[invalid-computed-prop]
+        [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`]:
+          {},
       };
       const nodes = {
         FooQuery: graphql`
@@ -868,10 +866,11 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
-          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn((moduleName: mixed) =>
+        load: jest.fn((moduleName: unknown) =>
           // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
@@ -888,24 +887,26 @@ describe('RelayReferenceMarker', () => {
       );
       expect(Array.from(references).sort()).toEqual([
         'client:root',
-        'client:root:counter_no_fragment',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_no_fragment`,
       ]);
     });
     it('with fragment dependency is retained', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
           me: {__ref: '1'},
-          counter: {
-            __ref: 'client:root:counter',
+          // $FlowFixMe[invalid-computed-prop]
+          [`${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`]: {
+            __ref: `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`,
           },
         },
         '1': {
           __id: '1',
           __typename: 'User',
         },
-        'client:root:counter': {},
+        // $FlowFixMe[invalid-computed-prop]
+        [`client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`]: {},
       };
       const nodes = {
         FooQuery: graphql`
@@ -919,10 +920,11 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
-          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn((moduleName: mixed) =>
+        load: jest.fn((moduleName: unknown) =>
           // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
@@ -940,11 +942,11 @@ describe('RelayReferenceMarker', () => {
       expect(Array.from(references).sort()).toEqual([
         '1',
         'client:root',
-        'client:root:counter',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter`,
       ]);
     });
     it('with @edgeTo client object is retained', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         'client:root': {
           __id: 'client:root',
           __typename: 'Query',
@@ -969,16 +971,17 @@ describe('RelayReferenceMarker', () => {
       const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
-          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn((moduleName: mixed) =>
+        load: jest.fn((moduleName: unknown) =>
           // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
       };
 
-      const store = new LiveResolverStore(source, {
+      const store = new RelayModernStore(source, {
         gcReleaseBufferSize: 0,
       });
       const environment = new RelayModernEnvironment({
@@ -1014,7 +1017,7 @@ describe('RelayReferenceMarker', () => {
         'client:AstrologicalSign:Taurus',
         'client:AstrologicalSign:Virgo',
         'client:root',
-        'client:root:all_astrological_signs',
+        `client:root:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}all_astrological_signs`,
       ]);
     });
   });
@@ -1057,16 +1060,17 @@ describe('RelayReferenceMarker', () => {
       BarQuery = graphql`
         query RelayReferenceMarkerTest6Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest4Fragment
+            ...RelayReferenceMarkerTest4Fragment @dangerously_unaliased_fixme
           }
         }
       `;
       loader = {
         get: jest.fn(
-          // $FlowFixMe[invalid-computed-prop]
-          (moduleName: mixed) => nodes[String(moduleName).replace(/\$.*/, '')],
+          (moduleName: unknown) =>
+            // $FlowFixMe[invalid-computed-prop]
+            nodes[String(moduleName).replace(/\$.*/, '')],
         ),
-        load: jest.fn((moduleName: mixed) =>
+        load: jest.fn((moduleName: unknown) =>
           // $FlowFixMe[invalid-computed-prop]
           Promise.resolve(nodes[String(moduleName).replace(/\$.*/, '')]),
         ),
@@ -1075,7 +1079,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists and matches a @module selection (plaintext)', () => {
       // When the type matches PlainUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1125,7 +1129,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists and matches a @module selection (markdown)', () => {
       // When the type matches MarkdownUserNameRenderer
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1177,7 +1181,7 @@ describe('RelayReferenceMarker', () => {
       // The field returned the MarkdownUserNameRenderer type, but the module for that branch
       // has not been loaded. The assumption is that the data cannot have been processed in that
       // case and therefore the markdown field is missing in the store.
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1220,7 +1224,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists but a scalar field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1270,7 +1274,7 @@ describe('RelayReferenceMarker', () => {
 
     it('marks references when the field/record exists but a linked field is missing', () => {
       // the `data` field for the MarkdownUserNameRenderer is missing
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1309,7 +1313,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when the field/record exists but do not match any @module selection', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1347,7 +1351,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('throws if no operation loader is provided', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           id: '1',
@@ -1411,14 +1415,16 @@ describe('RelayReferenceMarker', () => {
       Query = graphql`
         query RelayReferenceMarkerTest7Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest5Fragment @defer(label: "TestFragment")
+            ...RelayReferenceMarkerTest5Fragment
+              @dangerously_unaliased_fixme
+              @defer(label: "TestFragment")
           }
         }
       `;
     });
 
     it('marks references when deferred selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1448,7 +1454,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when deferred selections are not fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1487,14 +1493,14 @@ describe('RelayReferenceMarker', () => {
       Query = graphql`
         query RelayReferenceMarkerTest8Query($id: ID!) {
           node(id: $id) {
-            ...RelayReferenceMarkerTest6Fragment
+            ...RelayReferenceMarkerTest6Fragment @dangerously_unaliased_fixme
           }
         }
       `;
     });
 
     it('marks references when streamed selections are fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',
@@ -1524,7 +1530,7 @@ describe('RelayReferenceMarker', () => {
     });
 
     it('marks references when streamed selections are not fetched', () => {
-      const storeData = {
+      const storeData: RecordSourceJSON = {
         '1': {
           __id: '1',
           __typename: 'Feedback',

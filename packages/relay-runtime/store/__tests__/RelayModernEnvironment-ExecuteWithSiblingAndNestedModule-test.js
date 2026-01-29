@@ -35,8 +35,12 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
@@ -45,11 +49,11 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
     environmentType => {
       describe(environmentType, () => {
         let callbacks: {
-          +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-          +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
-          +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-          +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-          +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+          +complete: JestMockFn<ReadonlyArray<unknown>, unknown>,
+          +error: JestMockFn<ReadonlyArray<Error>, unknown>,
+          +next: JestMockFn<ReadonlyArray<unknown>, unknown>,
+          +start?: JestMockFn<ReadonlyArray<unknown>, unknown>,
+          +unsubscribe?: JestMockFn<ReadonlyArray<unknown>, unknown>,
         };
         let complete;
         let dataSource;
@@ -62,9 +66,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let operation;
         let operationCallback;
         let operationLoader: {
-          get: (reference: mixed) => ?NormalizationRootNode,
+          get: (reference: unknown) => ?NormalizationRootNode,
           load: JestMockFn<
-            $ReadOnlyArray<mixed>,
+            ReadonlyArray<unknown>,
             Promise<?NormalizationRootNode>,
           >,
         };
@@ -78,14 +82,14 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let resolveFragments;
 
         beforeEach(() => {
-          resolveFragments = ([]: Array<
+          resolveFragments = [] as Array<
             | any
             | ((
                 result?:
                   | Promise<NormalizationSplitOperation>
                   | NormalizationSplitOperation,
               ) => void),
-          >);
+          >;
           setFlags(RelayFeatureFlags);
           markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql');
           plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql');
@@ -142,9 +146,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           variables = {id: '1'};
           operation = createOperationDescriptor(query, variables);
 
-          complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-          error = jest.fn<$ReadOnlyArray<Error>, mixed>();
-          next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+          complete = jest.fn<ReadonlyArray<unknown>, unknown>();
+          error = jest.fn<ReadonlyArray<Error>, unknown>();
+          next = jest.fn<ReadonlyArray<unknown>, unknown>();
           callbacks = {complete, error, next};
           fetch = (
             _query: RequestParameters,
@@ -157,12 +161,12 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
             });
           };
           operationLoader = {
+            get: jest.fn(),
             load: jest.fn(moduleName => {
               return new Promise(resolve => {
                 resolveFragments.push(resolve);
               });
             }),
-            get: jest.fn(),
           };
           source = RelayRecordSource.create();
           logger = jest.fn<[LogEvent], void>();
@@ -180,8 +184,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new RelayModernEnvironment({
                   network: RelayNetwork.create(fetch),
-                  store,
                   operationLoader,
+                  store,
                 });
 
           const operationSnapshot = environment.lookup(operation.fragment);
@@ -194,27 +198,27 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const payload = {
             data: {
               node: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
                 outerRendererA: {
-                  __typename: 'MarkdownUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'MarkdownUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
+                  __typename: 'MarkdownUserNameRenderer',
                   markdown: 'markdown payload',
                   user: {
                     id: '2',
-                    name: 'Mark',
                     innerRenderer: null,
+                    name: 'Mark',
                   },
                 },
                 outerRendererB: {
-                  __typename: 'PlainUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'PlainUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql',
+                  __typename: 'PlainUserNameRenderer',
                   data: {
                     id: 'data-2',
                     text: 'plaintext!',
@@ -244,7 +248,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const outerRendererASelector = nullthrows(
             getSingularSelector(
               markdownRendererFragment,
-              (operationSnapshot.data?.node: any)?.outerRendererA,
+              (operationSnapshot.data?.node as any)?.outerRendererA,
             ),
           );
           const outerRendererASnapshot = environment.lookup(
@@ -257,7 +261,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const outerRendererBSelector = nullthrows(
             getSingularSelector(
               plaintextRendererFragment,
-              (operationSnapshot.data?.node: any)?.outerRendererB,
+              (operationSnapshot.data?.node as any)?.outerRendererB,
             ),
           );
           const outerRendererBSnapshot = environment.lookup(
@@ -325,24 +329,23 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const payload = {
             data: {
               node: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
                 outerRendererA: {
-                  __typename: 'MarkdownUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'MarkdownUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
+                  __typename: 'MarkdownUserNameRenderer',
                   markdown: 'markdown payload',
                   user: {
                     id: '2',
-                    name: 'outerRendererA',
                     innerRenderer: {
-                      __typename: 'PlainUserNameRenderer',
                       __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name:
                         'PlainUserNameRenderer.react',
                       __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name:
                         'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql',
+                      __typename: 'PlainUserNameRenderer',
                       data: {
                         id: 'data-inner',
                         text: 'plaintext-inner!',
@@ -352,14 +355,15 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                         name: 'innerRenderer',
                       },
                     },
+                    name: 'outerRendererA',
                   },
                 },
                 outerRendererB: {
-                  __typename: 'PlainUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'PlainUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql',
+                  __typename: 'PlainUserNameRenderer',
                   data: {
                     id: 'data-2',
                     text: 'plaintext!',
@@ -389,7 +393,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const outerRendererASelector = nullthrows(
             getSingularSelector(
               markdownRendererFragment,
-              (operationSnapshot.data?.node: any)?.outerRendererA,
+              (operationSnapshot.data?.node as any)?.outerRendererA,
             ),
           );
           const outerRendererASnapshot = environment.lookup(
@@ -402,7 +406,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const outerRendererBSelector = nullthrows(
             getSingularSelector(
               plaintextRendererFragment,
-              (operationSnapshot.data?.node: any)?.outerRendererB,
+              (operationSnapshot.data?.node as any)?.outerRendererB,
             ),
           );
           const outerRendererBSnapshot = environment.lookup(
@@ -476,7 +480,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const innerSelector = nullthrows(
             getSingularSelector(
               plaintextRendererFragment,
-              (nextOuterRendererASnapshot.data?.user: $FlowFixMe)
+              (nextOuterRendererASnapshot.data?.user as $FlowFixMe)
                 ?.innerRenderer,
             ),
           );
@@ -497,29 +501,29 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const payload = {
             data: {
               node: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
                 outerRendererA: {
-                  __typename: 'MarkdownUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'MarkdownUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
+                  __typename: 'MarkdownUserNameRenderer',
                   markdown: 'markdown payload',
                   user: {
                     id: '2',
-                    name: 'outerRendererA',
                     innerRenderer: {
                       __typename: 'MarkdownUserNameRenderer',
                     },
+                    name: 'outerRendererA',
                   },
                 },
                 outerRendererB: {
-                  __typename: 'PlainUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'PlainUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql',
+                  __typename: 'PlainUserNameRenderer',
                   data: {
                     id: 'data-2',
                     text: 'plaintext!',
@@ -584,29 +588,29 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const payload = {
             data: {
               node: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
                 outerRendererA: {
-                  __typename: 'MarkdownUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'MarkdownUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererA:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql',
+                  __typename: 'MarkdownUserNameRenderer',
                   markdown: 'markdown payload',
                   user: {
                     id: '2',
-                    name: 'outerRendererA',
                     innerRenderer: {
                       __typename: 'MarkdownUserNameRenderer',
                     },
+                    name: 'outerRendererA',
                   },
                 },
                 outerRendererB: {
-                  __typename: 'PlainUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'PlainUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery_rendererB:
                     'RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql',
+                  __typename: 'PlainUserNameRenderer',
                   data: {
                     id: 'data-2',
                     text: 'plaintext!',
@@ -625,7 +629,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           const outerRendererASelector = nullthrows(
             getSingularSelector(
               markdownRendererFragment,
-              (operationSnapshot.data?.node: any)?.outerRendererA,
+              (operationSnapshot.data?.node as any)?.outerRendererA,
             ),
           );
           const outerRendererASnapshot = environment.lookup(

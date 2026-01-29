@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+//- User_foo.js
+// Test that @returnFragment requires the enable_shadow_resolvers feature flag.
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ * @returnFragment SomeExternalFragment
+ */
+
+//- UserFragment.js
+graphql`fragment UserFragment on User {
+  foo
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+==================================== OUTPUT ===================================
+✖︎ The @returnFragment docblock tag requires the 'enable_shadow_resolvers' feature flag to be enabled.
+
+  User_foo.js:4:20
+    3 │  * @RelayResolver User.foo: RelayResolverValue
+    4 │  * @returnFragment SomeExternalFragment
+      │                    ^^^^^^^^^^^^^^^^^^^^
+    5 │

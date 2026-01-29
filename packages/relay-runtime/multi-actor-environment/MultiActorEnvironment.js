@@ -55,7 +55,7 @@ const RelayModernStore = require('../store/RelayModernStore');
 const RelayRecordSource = require('../store/RelayRecordSource');
 const ActorSpecificEnvironment = require('./ActorSpecificEnvironment');
 
-export type MultiActorEnvironmentConfig = $ReadOnly<{
+export type MultiActorEnvironmentConfig = Readonly<{
   createConfigNameForActor?: ?(actorIdentifier: ActorIdentifier) => string,
   createNetworkForActor: (actorIdentifier: ActorIdentifier) => INetwork,
   createStoreForActor?: ?(actorIdentifier: ActorIdentifier) => Store,
@@ -64,13 +64,14 @@ export type MultiActorEnvironmentConfig = $ReadOnly<{
   handlerProvider?: HandlerProvider,
   isServer?: ?boolean,
   logFn?: ?LogFunction,
-  missingFieldHandlers?: ?$ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers?: ?ReadonlyArray<MissingFieldHandler>,
   normalizeResponse?: NormalizeResponseFunction,
   operationLoader?: ?OperationLoader,
   relayFieldLogger?: ?RelayFieldLogger,
   scheduler?: ?TaskScheduler,
   shouldProcessClientComponents?: ?boolean,
   treatMissingFieldsAsNull?: boolean,
+  deferDeduplicatedFields?: boolean,
 }>;
 
 class MultiActorEnvironment implements IMultiActorEnvironment {
@@ -83,7 +84,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_handlerProvider: HandlerProvider;
   +_isServer: boolean;
   +_logFn: LogFunction;
-  +_missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  +_missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
   +_normalizeResponse: NormalizeResponseFunction;
   +_operationExecutions: Map<string, ActiveState>;
   +_operationLoader: ?OperationLoader;
@@ -91,6 +92,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   +_scheduler: ?TaskScheduler;
   +_shouldProcessClientComponents: ?boolean;
   +_treatMissingFieldsAsNull: boolean;
+  +_deferDeduplicatedFields: boolean;
 
   constructor(config: MultiActorEnvironmentConfig) {
     this._actorEnvironments = new Map();
@@ -106,6 +108,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
     this._relayFieldLogger = config.relayFieldLogger ?? defaultRelayFieldLogger;
     this._shouldProcessClientComponents = config.shouldProcessClientComponents;
     this._treatMissingFieldsAsNull = config.treatMissingFieldsAsNull ?? false;
+    this._deferDeduplicatedFields = config.deferDeduplicatedFields ?? false;
     this._isServer = config.isServer ?? false;
     this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._createStoreForActor = config.createStoreForActor;
@@ -175,7 +178,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
   _checkSelectorAndHandleMissingFields(
     actorEnvironment: IActorEnvironment,
     operation: OperationDescriptor,
-    handlers: $ReadOnlyArray<MissingFieldHandler>,
+    handlers: ReadonlyArray<MissingFieldHandler>,
   ): OperationAvailability {
     const targets: Map<ActorIdentifier, MutableRecordSource> = new Map([
       [actorEnvironment.actorIdentifier, RelayRecordSource.create()],
@@ -471,6 +474,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
           return this.forActor(actorIdentifier).getStore();
         },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+        deferDeduplicatedFields: this._deferDeduplicatedFields,
         updater,
         log: this._logFn,
         normalizeResponse: this._normalizeResponse,

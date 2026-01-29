@@ -1,0 +1,9 @@
+query fragmentAliasWithInline_Query {
+  ...fragmentAliasWithInline_fragment @alias
+}
+
+fragment fragmentAliasWithInline_fragment on Query @inline {
+  me {
+    id
+  }
+}

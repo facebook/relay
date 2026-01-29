@@ -1,0 +1,9 @@
+query MyQuery @catch {
+  name
+}
+
+%extensions%
+
+extend type Query {
+  name: String @semanticNonNull
+}

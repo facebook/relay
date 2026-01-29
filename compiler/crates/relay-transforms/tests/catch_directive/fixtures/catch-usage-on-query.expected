@@ -12,7 +12,6 @@ query Foo {
     name @catch @__CatchMetadataDirective
     # CatchMetadataDirective {
     #     to: Result,
-    #     path: "me.name",
     # }
     
   }

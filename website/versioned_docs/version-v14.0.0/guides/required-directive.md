@@ -119,7 +119,9 @@ fragment MyFrag on Actor {
 In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullable `name`.
 
 <FbInternalOnly>
+
 Example diff showing the adoption of this strategy: D24370183
+
 </FbInternalOnly>
 
 ### Why not implement this at the schema/server level?
@@ -136,6 +138,7 @@ Basically every value returned by Relay is nullable. This is intentional since w
 
 _Extracted from [this comment thread](https://fb.workplace.com/groups/cometeng/permalink/937671436726844/?comment_id=937681186725869)._
 _Further discussion in [this comment thread](https://fb.workplace.com/groups/cometeng/permalink/937671436726844/?comment_id=938335873327067)._
+
 </FbInternalOnly>
 
 ### Can `(action: NONE)` be the default?

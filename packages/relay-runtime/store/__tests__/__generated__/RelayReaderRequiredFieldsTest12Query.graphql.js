@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<993fbbe7df7eb9b5a3fdff1dca69eb73>>
+ * @generated SignedSource<<e55f3ce3e260fe7c432a9f991df3f96d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,8 +59,7 @@ return {
               {
                 "kind": "RequiredField",
                 "field": (v0/*: any*/),
-                "action": "LOG",
-                "path": "maybeNodeInterface.name"
+                "action": "LOG"
               }
             ],
             "type": "NonNodeNoID",

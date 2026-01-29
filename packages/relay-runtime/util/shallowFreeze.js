@@ -12,7 +12,7 @@
 'use strict';
 
 // Shallow freeze to prevent Relay from mutating the value in recycleNodesInto or deepFreezing the value
-module.exports = function shallowFreeze(value: mixed) {
+module.exports = function shallowFreeze(value: unknown) {
   if (
     typeof value === 'object' &&
     value != null &&

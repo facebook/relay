@@ -13,17 +13,20 @@ use std::path::Path;
 
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
-use graphql_ir::reexport::Intern;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use graphql_ir::reexport::Intern;
 use indexmap::IndexMap;
-use intern::string_key::StringKey;
 use intern::Lookup;
-use relay_config::DynamicModuleProvider;
+use intern::string_key::StringKey;
+use relay_config::ModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
+use crate::CodegenBuilder;
+use crate::CodegenVariant;
+use crate::JsModuleFormat;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
@@ -34,6 +37,7 @@ use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
 use crate::ast::RequestParameters;
+use crate::ast::ResolverJSFunction;
 use crate::ast::ResolverModuleReference;
 use crate::build_ast::build_fragment;
 use crate::build_ast::build_operation;
@@ -49,9 +53,6 @@ use crate::object;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
-use crate::CodegenBuilder;
-use crate::CodegenVariant;
-use crate::JsModuleFormat;
 
 pub fn print_operation(
     schema: &SDLSchema,
@@ -169,22 +170,25 @@ impl<'p> Printer<'p> {
             self.project_config,
             &mut top_level_statements,
         );
-        Some(printer.print(provided_variables, self.dedupe))
+        Some(printer.print(
+            provided_variables,
+            self.should_dedupe(operation.name.item.0),
+        ))
     }
 
     pub fn print_updatable_query(
         &mut self,
         schema: &SDLSchema,
-        fragment: &FragmentDefinition,
+        fragment_definition: &FragmentDefinition,
     ) -> String {
         let mut fragment_builder = CodegenBuilder::new(
             schema,
             CodegenVariant::Reader,
             &mut self.builder,
             self.project_config,
-            fragment.name.map(|x| x.0),
+            fragment_definition.name.map(|x| x.0),
         );
-        let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
+        let fragment = Primitive::Key(fragment_builder.build_fragment(fragment_definition, true));
         let key = self.builder.intern(Ast::Object(object! {
             fragment: fragment,
             kind: Primitive::String(CODEGEN_CONSTANTS.updatable_query),
@@ -196,7 +200,7 @@ impl<'p> Printer<'p> {
             self.project_config,
             &mut top_level_statements,
         );
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(fragment_definition.name.item.0))
     }
 
     pub fn print_request(
@@ -225,7 +229,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_preloadable_request(
@@ -245,7 +249,7 @@ impl<'p> Printer<'p> {
         );
         let key = build_preloadable_request(&mut self.builder, request_parameters);
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_operation(
@@ -262,7 +266,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_fragment(
@@ -279,7 +283,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(fragment.name.item.0))
     }
 
     pub fn print_request_params(
@@ -298,7 +302,7 @@ impl<'p> Printer<'p> {
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
-        printer.print(key, self.dedupe)
+        printer.print(key, self.should_dedupe(operation.name.item.0))
     }
 
     pub fn print_resolvers_schema(
@@ -309,6 +313,15 @@ impl<'p> Printer<'p> {
         let key = build_resolvers_schema(&mut self.builder, schema, self.project_config);
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
+    }
+
+    fn should_dedupe(&self, name: StringKey) -> bool {
+        self.dedupe
+            && !self
+                .project_config
+                .feature_flags
+                .disable_deduping_common_structures_in_artifacts
+                .is_enabled_for(name)
     }
 }
 
@@ -322,6 +335,7 @@ pub struct JSONPrinter<'b> {
     js_module_format: JsModuleFormat,
     top_level_statements: &'b mut TopLevelStatements,
     skip_printing_nulls: bool,
+    relativize_js_module_paths: bool,
 }
 
 impl<'b> JSONPrinter<'b> {
@@ -336,6 +350,7 @@ impl<'b> JSONPrinter<'b> {
             duplicates: Default::default(),
             builder,
             js_module_format: project_config.js_module_format,
+            relativize_js_module_paths: project_config.relativize_js_module_paths,
             eager_es_modules: project_config.typegen_config.eager_es_modules,
             skip_printing_nulls: project_config
                 .feature_flags
@@ -367,7 +382,7 @@ impl<'b> JSONPrinter<'b> {
                 )
                 .unwrap();
             }
-            write!(&mut with_variables, "return {};\n}})()", result).unwrap();
+            write!(&mut with_variables, "return {result};\n}})()").unwrap();
             with_variables
         }
     }
@@ -428,7 +443,7 @@ impl<'b> JSONPrinter<'b> {
                 self.variable_definitions.insert(key, variable);
                 v
             };
-            return write!(f, "(v{}/*: any*/)", v).unwrap();
+            return write!(f, "(v{v}/*: any*/)").unwrap();
         }
 
         let ast = self.builder.lookup(key);
@@ -446,7 +461,7 @@ impl<'b> JSONPrinter<'b> {
                         }
                         f.push('\n');
                         print_indentation(f, next_indent);
-                        write!(f, "\"{}\": ", key).unwrap();
+                        write!(f, "\"{key}\": ").unwrap();
                         self.print_primitive(f, value, next_indent, is_dedupe_var)
                             .unwrap();
                         f.push(',');
@@ -506,10 +521,10 @@ impl<'b> JSONPrinter<'b> {
                 f.push('\"');
                 Ok(())
             }
-            Primitive::String(key) => write!(f, "\"{}\"", key),
+            Primitive::String(key) => write!(f, "\"{key}\""),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
-            Primitive::Int(value) => write!(f, "{}", value),
-            Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
+            Primitive::Int(value) => write!(f, "{value}"),
+            Primitive::Variable(variable_name) => write!(f, "{variable_name}"),
             Primitive::Key(key) => {
                 self.print_ast(f, *key, indent, is_dedupe_var);
                 Ok(())
@@ -533,12 +548,14 @@ impl<'b> JSONPrinter<'b> {
                     ),
                     GraphQLModuleDependency::Path { name, path } => (name, path),
                 };
+                // TODO(sbarag): this specific codepath needs to force-relativize under commonjs.
+                // There are likely others.
                 self.write_js_dependency(
                     f,
-                    ModuleImportName::Default(format!("{}_graphql", variable_name).intern()),
+                    ModuleImportName::Default(format!("{variable_name}_graphql").intern()),
                     Cow::Owned(format!(
                         "{}.graphql",
-                        get_module_path(self.js_module_format, *key)
+                        self.get_module_path(*key, ModuleOrigin::Artifact)
                     )),
                 )
             }
@@ -546,7 +563,7 @@ impl<'b> JSONPrinter<'b> {
                 .write_js_dependency(
                     f,
                     import_name.clone(),
-                    get_module_path(self.js_module_format, *path),
+                    self.get_module_path(*path, ModuleOrigin::SourceFile),
                 ),
             Primitive::ResolverModuleReference(ResolverModuleReference {
                 field_type,
@@ -555,7 +572,7 @@ impl<'b> JSONPrinter<'b> {
                 self.write_resolver_module_reference(f, resolver_function_name.clone(), field_type)
             }
             Primitive::DynamicImport { provider, module } => match provider {
-                DynamicModuleProvider::JSResource => {
+                ModuleProvider::JSResource => {
                     self.top_level_statements.insert(
                         "JSResource".to_string(),
                         TopLevelStatement::ImportStatement(JSModuleDependency {
@@ -563,12 +580,12 @@ impl<'b> JSONPrinter<'b> {
                             import_name: ModuleImportName::Default("JSResource".intern()),
                         }),
                     );
-                    write!(f, "() => JSResource('m#{}')", module)
+                    write!(f, "() => JSResource('m#{module}')")
                 }
-                DynamicModuleProvider::Custom { statement } => {
+                ModuleProvider::Custom { statement } => {
                     f.push_str(&statement.lookup().replace(
                         "<$module>",
-                        &get_module_path(self.js_module_format, *module),
+                        &self.get_module_path(*module, ModuleOrigin::SourceFile),
                     ));
                     Ok(())
                 }
@@ -576,13 +593,13 @@ impl<'b> JSONPrinter<'b> {
             Primitive::RelayResolverModel {
                 graphql_module_path,
                 graphql_module_name,
-                js_module,
+                resolver_fn,
                 injected_field_name_details,
             } => self.write_relay_resolver_model(
                 f,
                 *graphql_module_name,
                 *graphql_module_path,
-                js_module,
+                resolver_fn,
                 injected_field_name_details.as_ref().copied(),
             ),
         }
@@ -601,8 +618,7 @@ impl<'b> JSONPrinter<'b> {
             ModuleImportName::Named { name, .. } => {
                 write!(
                     f,
-                    "{{ resolverFunctionName: \"{}\", fieldType: \"{}\" }}",
-                    name, field_type
+                    "{{ resolverFunctionName: \"{name}\", fieldType: \"{field_type}\" }}"
                 )
             }
         }
@@ -631,14 +647,14 @@ impl<'b> JSONPrinter<'b> {
                     import_name: module_import_name,
                 }),
             );
-            write!(f, "{}", key)
+            write!(f, "{key}")
         } else {
             match module_import_name {
                 ModuleImportName::Default(_) => {
-                    write!(f, "require('{}')", path)
+                    write!(f, "require('{path}')")
                 }
                 ModuleImportName::Named { name, .. } => {
-                    write!(f, "require('{}').{}", path, name)
+                    write!(f, "require('{path}').{name}")
                 }
             }
         }
@@ -649,7 +665,7 @@ impl<'b> JSONPrinter<'b> {
         f: &mut String,
         graphql_module_name: StringKey,
         graphql_module_path: StringKey,
-        js_module: &JSModuleDependency,
+        resolver_fn: &ResolverJSFunction,
         injected_field_name_details: Option<(StringKey, bool)>,
     ) -> FmtResult {
         let relay_runtime_experimental = "relay-runtime/experimental";
@@ -666,53 +682,83 @@ impl<'b> JSONPrinter<'b> {
         write!(f, "(")?;
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(format!("{}_graphql", graphql_module_name).intern()),
+            ModuleImportName::Default(format!("{graphql_module_name}_graphql").intern()),
             Cow::Owned(format!(
                 "{}.graphql",
-                get_module_path(self.js_module_format, graphql_module_path)
+                self.get_module_path(graphql_module_path, ModuleOrigin::Artifact)
             )),
         )?;
         write!(f, ", ")?;
-        self.write_js_dependency(
-            f,
-            js_module.import_name.clone(),
-            get_module_path(self.js_module_format, js_module.path),
-        )?;
+        match resolver_fn {
+            ResolverJSFunction::Module(js_module) => self.write_js_dependency(
+                f,
+                js_module.import_name.clone(),
+                self.get_module_path(js_module.path, ModuleOrigin::SourceFile),
+            )?,
+            ResolverJSFunction::PropertyLookup(property) => {
+                write_arrow_fn(f, &["o"], &format!("o.{property}"))?
+            }
+        }
         if let Some((field_name, is_required_field)) = injected_field_name_details {
-            write!(f, ", '{}'", field_name)?;
-            write!(f, ", {}", is_required_field)?;
+            write!(f, ", '{field_name}'")?;
+            write!(f, ", {is_required_field}")?;
         }
         write!(f, ")")
     }
-}
 
-pub fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
-    match js_module_format {
-        JsModuleFormat::CommonJS => {
-            let path = Path::new(key.lookup());
-            let extension = path.extension();
-            if let Some(extension) = extension {
-                if extension == "ts" || extension == "tsx" || extension == "js" {
+    fn get_module_path(&self, key: StringKey, origin: ModuleOrigin) -> Cow<'static, str> {
+        match self.js_module_format {
+            JsModuleFormat::CommonJS => {
+                let path = Path::new(key.lookup());
+                let extension = path.extension();
+
+                let has_path_prefix =
+                    path.starts_with("./") || path.starts_with("../") || path.starts_with("/");
+                // Files generated by Relay must always be relativized, since authors aren't
+                // expected to predict the output path.
+                let should_relativize = matches!(origin, ModuleOrigin::Artifact)
+                    || (self.relativize_js_module_paths && !has_path_prefix);
+
+                if let Some(extension) = extension
+                    && (extension == "ts" || extension == "tsx" || extension == "js")
+                {
                     let path_without_extension = path.with_extension("");
 
                     let path_without_extension = path_without_extension
                         .to_str()
                         .expect("could not convert `path_without_extension` to a str");
-                    if path_without_extension.starts_with("@") {
+
+                    if path_without_extension.starts_with('@') {
                         return Cow::Owned(format!("{}", path_without_extension));
-                    } else {
+                    } else if should_relativize {
                         return Cow::Owned(format!("./{}", path_without_extension));
+                    } else {
+                        return Cow::Owned(path_without_extension.to_string());
                     }
                 }
+                if key.borrow().to_string().starts_with("@") {
+                    Cow::Owned(format!("{}", key.borrow()))
+                } else {
+                    Cow::Owned(format!("./{}", key.borrow()))
+                }
             }
-            if key.borrow().to_string().starts_with("@") {
-                Cow::Owned(format!("{}", key.borrow()))
-            } else {
-                Cow::Owned(format!("./{}", key.borrow()))
-            }
+            JsModuleFormat::Haste => Cow::Borrowed(key.lookup()),
         }
-        JsModuleFormat::Haste => Cow::Borrowed(key.lookup()),
     }
+}
+
+/// Describes
+#[derive(Debug)]
+enum ModuleOrigin {
+    /// A file maintained outside of Relay.
+    SourceFile,
+    /// A file generated by the Relay compiler.
+    Artifact,
+}
+
+fn write_arrow_fn(f: &mut String, params: &[&str], body: &str) -> FmtResult {
+    write!(f, "({}) => {}", params.join(", "), body)?;
+    Ok(())
 }
 
 fn write_static_storage_key(
@@ -721,7 +767,7 @@ fn write_static_storage_key(
     field_name: StringKey,
     args_key: AstKey,
 ) -> FmtResult {
-    write!(f, "\"{}(", field_name)?;
+    write!(f, "\"{field_name}(")?;
     let args = builder.lookup(args_key).assert_array();
     for arg_key in args {
         let arg = builder.lookup(arg_key.assert_key()).assert_object();
@@ -731,7 +777,7 @@ fn write_static_storage_key(
             .expect("Expected `name` to exist")
             .value;
         let name = name.assert_string();
-        write!(f, "{}:", name)?;
+        write!(f, "{name}:")?;
         write_argument_value(f, builder, arg)?;
         f.push(',');
     }
@@ -799,7 +845,7 @@ fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry
                 .expect("Expected `name` to exist")
                 .value;
             let name = name.assert_string();
-            write!(f, "\\\"{}\\\":", name)?;
+            write!(f, "\\\"{name}\\\":")?;
             write_argument_value(f, builder, field)?;
             f.push(',');
         }
@@ -814,10 +860,10 @@ fn write_argument_value(f: &mut String, builder: &AstBuilder, arg: &[ObjectEntry
 fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive) -> FmtResult {
     match value {
         Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
-        Primitive::String(key) => write!(f, "\\\"{}\\\"", key),
+        Primitive::String(key) => write!(f, "\\\"{key}\\\""),
         Primitive::Float(value) => write!(f, "{}", value.as_float()),
-        Primitive::Int(value) => write!(f, "{}", value),
-        Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
+        Primitive::Int(value) => write!(f, "{value}"),
+        Primitive::Variable(variable_name) => write!(f, "{variable_name}"),
         Primitive::Key(key) => {
             let ast = builder.lookup(*key);
             match ast {
@@ -836,7 +882,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
                 Ast::Object(obj) => {
                     f.push('{');
                     for ObjectEntry { key: name, value } in obj {
-                        write!(f, "\\\"{}\\\":", name)?;
+                        write!(f, "\\\"{name}\\\":")?;
                         write_constant_value(f, builder, value)?;
                         f.push(',');
                     }

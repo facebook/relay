@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cf633fc58f6534c0c966a6c4c17ab90e>>
+ * @generated SignedSource<<aa0b69ffd74418641d1b374820b11672>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType: FragmentType;
 export type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$data = {|
   +newsFeed: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +feedback?: ?{|
           +author: ?{|

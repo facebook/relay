@@ -1,4 +1,3 @@
-# expected-to-throw
 fragment MyFragment on User @throwOnFieldError {
   some_field @required(action: THROW)
 }

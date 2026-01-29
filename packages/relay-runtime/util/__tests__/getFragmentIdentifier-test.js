@@ -51,7 +51,7 @@ describe('getFragmentIdentifier', () => {
     gqlSingularQuery = graphql`
       query getFragmentIdentifierTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
-          ...getFragmentIdentifierTestUserFragment
+          ...getFragmentIdentifierTestUserFragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -62,6 +62,7 @@ describe('getFragmentIdentifier', () => {
       ) {
         node(id: $id) {
           ...getFragmentIdentifierTestUserFragmentWithArgs
+            @dangerously_unaliased_fixme
             @arguments(scaleLocal: $scale)
         }
       }
@@ -229,7 +230,7 @@ describe('getFragmentIdentifier Optimized', () => {
     gqlSingularQuery = graphql`
       query getFragmentIdentifierTest1UserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
-          ...getFragmentIdentifierTest1UserFragment
+          ...getFragmentIdentifierTest1UserFragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -241,6 +242,7 @@ describe('getFragmentIdentifier Optimized', () => {
       ) {
         node(id: $id) {
           ...getFragmentIdentifierTest1UserFragmentWithArgs
+            @dangerously_unaliased_fixme
             @arguments(scaleLocal: $scale)
         }
       }

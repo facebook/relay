@@ -53,7 +53,7 @@ impl<'a> StaticArgValidator<'a> {
     }
 }
 
-impl<'a> Validator for StaticArgValidator<'a> {
+impl Validator for StaticArgValidator<'_> {
     const NAME: &'static str = "StaticArgValidator";
     // Eliding default argument checks as we're overriding specific argument checks for certain types
     const VALIDATE_ARGUMENTS: bool = false;

@@ -29,7 +29,7 @@ export opaque type Local3DPayload<
 function createPayloadFor3DField<+DocumentName: string, +Response: {...}>(
   name: DocumentName,
   operation: JSResourceReference<NormalizationSplitOperation>,
-  component: JSResourceReference<mixed>,
+  component: JSResourceReference<unknown>,
   response: Response,
 ): Local3DPayload<DocumentName, Response> {
   const data = {

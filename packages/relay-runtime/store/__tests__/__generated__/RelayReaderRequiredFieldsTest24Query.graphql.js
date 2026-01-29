@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<917615fb2bcdd1bee8054f922fcf509f>>
+ * @generated SignedSource<<7d99ed93f753b69bab3c222364ebd17b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReaderRequiredFieldsTest6Fragment$fragmentType } from "./RelayReaderRequiredFieldsTest6Fragment.graphql";
 export type RelayReaderRequiredFieldsTest24Query$variables = {||};
 export type RelayReaderRequiredFieldsTest24Query$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +$fragmentSpreads: RelayReaderRequiredFieldsTest6Fragment$fragmentType,
   |}>,
 |};

@@ -37,8 +37,13 @@ const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const QueryUserNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql');
 const {graphql} = require('relay-runtime');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {expectToWarn, expectToWarnMany} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
@@ -54,8 +59,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let next;
     let operation;
     let operationLoader: {
-      get: (reference: mixed) => ?NormalizationRootNode,
-      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+      get: (reference: unknown) => ?NormalizationRootNode,
+      load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
     };
     let operationCallback;
     let query;
@@ -88,19 +93,19 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {id: '1'};
         operation = createOperationDescriptor(
-          ((query: any): ConcreteRequest),
+          query as any as ConcreteRequest,
           variables,
         );
         selector = createReaderSelector(
-          ((fragment: any): ReaderFragment),
+          fragment as any as ReaderFragment,
           '1',
           {},
           operation.request,
         );
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -113,20 +118,20 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         };
         operationLoader = {
+          get: jest.fn(),
           load: jest.fn(moduleName => {
             return new Promise(resolve => {
               resolveFragment = resolve;
             });
           }),
-          get: jest.fn(),
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
 
         environment = new RelayModernEnvironment({
           network: RelayNetwork.create(fetch),
-          store,
           operationLoader,
+          store,
         });
 
         const multiActorEnvironment = new MultiActorEnvironment({
@@ -139,8 +144,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
                 network: RelayNetwork.create(fetch),
-                store,
                 operationLoader,
+                store,
               });
 
         const operationSnapshot = environment.lookup(operation.fragment);
@@ -157,8 +162,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const payload = {
           data: {
             node: {
-              id: '1',
               __typename: 'User',
+              id: '1',
             },
           },
         };
@@ -187,8 +192,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         dataSource.next({
           data: {
             node: {
-              id: '1',
               __typename: 'User',
+              id: '1',
             },
           },
         });
@@ -200,13 +205,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         dataSource.next({
           data: {
-            id: '1',
-            name: 'joe',
-            __typename: 'User',
             __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'User.react',
             __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+            __typename: 'User',
+            id: '1',
+            name: 'joe',
           },
           label:
             'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
@@ -247,8 +252,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         dataSource.next({
           data: {
             node: {
-              id: '1',
               __typename: 'User',
+              id: '1',
             },
           },
         });
@@ -260,13 +265,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         dataSource.next({
           data: {
-            id: '1',
-            name: 'joe',
-            __typename: 'User',
             __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'User.react',
             __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
               'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+            __typename: 'User',
+            id: '1',
+            name: 'joe',
           },
           label:
             'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
@@ -298,20 +303,20 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           {
             data: {
               node: {
-                id: '1',
                 __typename: 'User',
+                id: '1',
               },
             },
           },
           {
             data: {
-              id: '1',
-              name: 'joe',
-              __typename: 'User',
               __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
                 'User.react',
               __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
                 'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+              __typename: 'User',
+              id: '1',
+              name: 'joe',
             },
             label:
               'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$defer$RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user',
@@ -328,6 +333,168 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
         expect(operationLoader.get).toBeCalledTimes(1);
         operationCallback.mockClear();
+      });
+
+      it('warns if executed in non-streaming mode and processes both defer and 3D', () => {
+        const initialSnapshot = environment.lookup(selector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment.execute({operation}).subscribe(callbacks);
+        jest
+          .spyOn(operationLoader, 'get')
+          .mockImplementationOnce(() => QueryUserNormalizationFragment);
+
+        expectToWarn(
+          'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery` contains @defer/@stream ' +
+            'directives but was executed in non-streaming mode. See ' +
+            'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+          () => {
+            dataSource.next([
+              {
+                data: {
+                  node: {
+                    __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+                      'User.react',
+                    __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery:
+                      'RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql',
+                    __typename: 'User',
+                    id: '1',
+                    name: 'joe',
+                  },
+                },
+                extensions: {
+                  is_final: true,
+                },
+              },
+            ]);
+          },
+        );
+
+        expect(callbacks.error).not.toBeCalled();
+        expect(callback).toHaveBeenCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data).toEqual({
+          id: '1',
+          name: 'joe',
+        });
+        expect(operationLoader.get).toBeCalledTimes(1);
+        operationCallback.mockClear();
+      });
+
+      it('warns if nested defer is executed in non-streaming mode and processes deferred selections', () => {
+        const query = graphql`
+          query RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery(
+            $id: ID!
+          ) {
+            node(id: $id) {
+              ...RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user
+                @defer(
+                  label: "RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user"
+                )
+                @module(name: "User.react")
+            }
+          }
+        `;
+        const fragment = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user on User {
+            id
+            ...RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment
+              @defer
+          }
+        `;
+        const fragmentInner = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInnerUserFragment on User {
+            name
+            ...RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment
+              @defer
+          }
+        `;
+        const fragmentInnerInner2 = graphql`
+          fragment RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedInner2UserFragment on User {
+            lastName
+          }
+        `;
+        variables = {id: '1'};
+        operation = createOperationDescriptor(query, variables);
+        selector = createReaderSelector(fragment, '1', {}, operation.request);
+
+        const initialSnapshot = environment.lookup(selector);
+        const callback = jest.fn<[Snapshot], void>();
+        environment.subscribe(initialSnapshot, callback);
+
+        environment.execute({operation}).subscribe(callbacks);
+        jest
+          .spyOn(operationLoader, 'get')
+          .mockImplementationOnce(() =>
+            require('./__generated__/RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery_user$normalization.graphql.js'),
+          );
+
+        expectToWarnMany(
+          [
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+            'RelayModernEnvironment: Operation `RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery` contains @defer/@stream ' +
+              'directives but was executed in non-streaming mode. See ' +
+              'https://fburl.com/relay-incremental-delivery-non-streaming-warning.',
+          ],
+          () => {
+            dataSource.next([
+              {
+                data: {
+                  node: {
+                    __module_component_RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery:
+                      'User.react',
+                    __module_operation_RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery:
+                      'RelayModernEnvironmentExecuteWithDeferAndModuleTestNestedQuery$normalization.graphql',
+                    __typename: 'User',
+                    id: '1',
+                    lastName: 'eoj',
+                    name: 'joe',
+                  },
+                },
+                extensions: {
+                  is_final: true,
+                },
+              },
+            ]);
+          },
+        );
+
+        expect(callbacks.error).not.toBeCalled();
+        expect(callback).toHaveBeenCalledTimes(1);
+        const snapshot = callback.mock.calls[0][0];
+        expect(snapshot.isMissingData).toBe(false);
+        expect(snapshot.data?.id).toEqual('1');
+        expect(operationLoader.get).toBeCalledTimes(1);
+        operationCallback.mockClear();
+
+        const innerSelector = createReaderSelector(
+          fragmentInner,
+          '1',
+          {},
+          operation.request,
+        );
+        const innerSnapshot = environment.lookup(innerSelector);
+        expect(innerSnapshot.isMissingData).toBe(false);
+        expect(innerSnapshot.data?.name).toEqual('joe');
+
+        const innerInner2Selector = createReaderSelector(
+          fragmentInnerInner2,
+          '1',
+          {},
+          operation.request,
+        );
+        const innerInner2Snapshot = environment.lookup(innerInner2Selector);
+        expect(innerInner2Snapshot.isMissingData).toBe(false);
+        expect(innerInner2Snapshot.data).toEqual({
+          lastName: 'eoj',
+        });
       });
     });
   },

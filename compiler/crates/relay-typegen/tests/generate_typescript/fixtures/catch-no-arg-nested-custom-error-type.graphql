@@ -1,0 +1,8 @@
+# relay:custom_error_type AComedyOfErrors /all/the/worlds/a/stage
+
+query FooQuery {
+  me {
+    firstName @catch
+    lastName
+  }
+}

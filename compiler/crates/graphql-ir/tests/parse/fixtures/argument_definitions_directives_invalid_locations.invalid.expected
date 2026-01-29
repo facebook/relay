@@ -14,7 +14,7 @@ fragment InvalidArgumentDirectives on User
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ Directive 'customDirective' not supported in this location
+✖︎ Directive 'customDirective' not supported in this location. Supported location(s): FIELD, FRAGMENT_SPREAD
 
   argument_definitions_directives_invalid_locations.invalid.graphql:9:7
     8 │       "@configurable" # this one is okay

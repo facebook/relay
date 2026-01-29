@@ -6,20 +6,17 @@
  */
 
 use std::fmt::Write as _;
-use std::fs::create_dir_all;
 use std::fs::File;
+use std::fs::create_dir_all;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;
 use std::path::PathBuf;
-use std::sync::atomic::AtomicUsize;
 use std::sync::Mutex;
 
-use common::sync::Ordering::Acquire;
 use dashmap::DashSet;
+use log::debug;
 use log::info;
-use serde::Serialize;
-use serde::Serializer;
 use sha1::Digest;
 use sha1::Sha1;
 
@@ -108,7 +105,10 @@ impl ArtifactWriter for ArtifactFileWriter {
             Ok(_) => {
                 self.removed.lock().unwrap().push(path);
             }
-            _ => info!("tried to delete already deleted file: {:?}", path),
+            Err(error) => {
+                info!("tried to delete already deleted file: {path:?}");
+                debug!("[artifact_writer] error when deleting file: {error:?}");
+            }
         }
         Ok(())
     }
@@ -123,212 +123,11 @@ impl ArtifactWriter for ArtifactFileWriter {
     }
 }
 
-#[derive(Serialize)]
-struct CodegenRecords {
-    pub removed: Vec<ArtifactDeletionRecord>,
-    pub changed: Vec<ArtifactUpdateRecord>,
-}
-
-#[derive(Serialize)]
-struct ArtifactDeletionRecord {
-    pub path: PathBuf,
-}
-
-#[derive(Serialize)]
-struct ArtifactUpdateRecord {
-    pub path: PathBuf,
-    #[serde(serialize_with = "from_utf8")]
-    pub data: Vec<u8>,
-}
-
-fn from_utf8<S>(slice: &[u8], s: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    s.serialize_str(std::str::from_utf8(slice).unwrap())
-}
-
-pub struct ArtifactDifferenceWriter {
-    codegen_records: Mutex<CodegenRecords>,
-    codegen_filepath: PathBuf,
-    verify_changes_against_filesystem: bool,
-}
-
-impl ArtifactDifferenceWriter {
-    pub fn new(
-        codegen_filepath: PathBuf,
-        verify_changes_against_filesystem: bool,
-    ) -> ArtifactDifferenceWriter {
-        ArtifactDifferenceWriter {
-            codegen_filepath,
-            codegen_records: Mutex::new(CodegenRecords {
-                changed: Vec::new(),
-                removed: Vec::new(),
-            }),
-            verify_changes_against_filesystem,
-        }
-    }
-}
-
-impl ArtifactWriter for ArtifactDifferenceWriter {
-    fn should_write(
-        &self,
-        path: &Path,
-        content: &[u8],
-        hash: Option<String>,
-    ) -> Result<bool, BuildProjectError> {
-        let op = |error| BuildProjectError::WriteFileError {
-            file: path.to_owned(),
-            source: error,
-        };
-        if !self.verify_changes_against_filesystem {
-            Ok(true)
-        } else if let Some(file_hash) = hash {
-            hash_is_different(file_hash, content).map_err(op)
-        } else {
-            content_is_different(path, content).map_err(op)
-        }
-    }
-
-    fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
-        self.codegen_records
-            .lock()
-            .unwrap()
-            .changed
-            .push(ArtifactUpdateRecord {
-                path,
-                data: content,
-            });
-        Ok(())
-    }
-
-    fn remove(&self, path: PathBuf) -> BuildProjectResult {
-        if path.exists() {
-            self.codegen_records
-                .lock()
-                .unwrap()
-                .removed
-                .push(ArtifactDeletionRecord { path });
-        }
-        Ok(())
-    }
-
-    fn finalize(&self) -> crate::errors::Result<()> {
-        (|| {
-            let mut file = File::create(&self.codegen_filepath)?;
-            file.write_all(serde_json::to_string(&self.codegen_records)?.as_bytes())
-        })()
-        .map_err(|error| crate::errors::Error::WriteFileError {
-            file: self.codegen_filepath.clone(),
-            source: error,
-        })
-    }
-}
-
-#[derive(Serialize)]
-struct ArtifactUpdateShardedRecord {
-    pub path: PathBuf,
-    pub index: usize,
-}
-
-#[derive(Serialize)]
-struct CodegenShardedRecords {
-    pub removed: Vec<ArtifactDeletionRecord>,
-    pub changed: Vec<ArtifactUpdateShardedRecord>,
-}
-pub struct ArtifactDifferenceShardedWriter {
-    codegen_records: Mutex<CodegenShardedRecords>,
-    codegen_filepath: PathBuf,
-    codegen_shard_directory: PathBuf,
-    verify_changes_against_filesystem: bool,
-    codegen_index: AtomicUsize,
-}
-
-impl ArtifactDifferenceShardedWriter {
-    pub fn new(
-        codegen_filepath: PathBuf,
-        codegen_shard_directory: PathBuf,
-        verify_changes_against_filesystem: bool,
-    ) -> Self {
-        Self {
-            codegen_filepath,
-            codegen_records: Mutex::new(CodegenShardedRecords {
-                changed: Vec::new(),
-                removed: Vec::new(),
-            }),
-            codegen_shard_directory,
-            verify_changes_against_filesystem,
-            codegen_index: AtomicUsize::new(0),
-        }
-    }
-}
-
-impl ArtifactWriter for ArtifactDifferenceShardedWriter {
-    fn should_write(
-        &self,
-        path: &Path,
-        content: &[u8],
-        hash: Option<String>,
-    ) -> Result<bool, BuildProjectError> {
-        let op = |error| BuildProjectError::WriteFileError {
-            file: path.to_owned(),
-            source: error,
-        };
-        if !self.verify_changes_against_filesystem {
-            Ok(true)
-        } else if let Some(file_hash) = hash {
-            hash_is_different(file_hash, content).map_err(op)
-        } else {
-            content_is_different(path, content).map_err(op)
-        }
-    }
-
-    fn write(&self, path: PathBuf, content: Vec<u8>) -> BuildProjectResult {
-        let index = self.codegen_index.fetch_add(1, Acquire);
-        (|| {
-            let mut file = File::create(self.codegen_shard_directory.join(index.to_string()))?;
-            file.write_all(&content)
-        })()
-        .map_err(|error| BuildProjectError::WriteFileError {
-            file: path.to_owned(),
-            source: error,
-        })?;
-        self.codegen_records
-            .lock()
-            .unwrap()
-            .changed
-            .push(ArtifactUpdateShardedRecord { path, index });
-        Ok(())
-    }
-
-    fn remove(&self, path: PathBuf) -> BuildProjectResult {
-        if path.exists() {
-            self.codegen_records
-                .lock()
-                .unwrap()
-                .removed
-                .push(ArtifactDeletionRecord { path });
-        }
-        Ok(())
-    }
-
-    fn finalize(&self) -> crate::errors::Result<()> {
-        (|| {
-            let mut file = File::create(&self.codegen_filepath)?;
-            file.write_all(serde_json::to_string(&self.codegen_records)?.as_bytes())
-        })()
-        .map_err(|error| crate::errors::Error::WriteFileError {
-            file: self.codegen_filepath.clone(),
-            source: error,
-        })
-    }
-}
-
 fn ensure_file_directory_exists(file_path: &Path) -> io::Result<()> {
-    if let Some(file_directory) = file_path.parent() {
-        if !file_directory.exists() {
-            create_dir_all(file_directory)?;
-        }
+    if let Some(file_directory) = file_path.parent()
+        && !file_directory.exists()
+    {
+        create_dir_all(file_directory)?;
     }
 
     Ok(())
@@ -428,7 +227,7 @@ impl ArtifactWriter for ArtifactValidationWriter {
 
 fn write_outdated_artifacts(output: &mut String, title: &str, artifacts: &DashSet<PathBuf>) {
     if !artifacts.is_empty() {
-        writeln!(output, "{}", title).unwrap();
+        writeln!(output, "{title}").unwrap();
         artifacts.iter().for_each(|artifact_path| {
             writeln!(output, " - {:#?}", artifact_path.as_path()).unwrap()
         });

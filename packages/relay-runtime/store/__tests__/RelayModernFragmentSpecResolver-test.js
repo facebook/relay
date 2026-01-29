@@ -83,7 +83,9 @@ describe('RelayModernFragmentSpecResolver', () => {
       ) {
         node(id: $id) {
           ...RelayModernFragmentSpecResolverTestQueryUserFragment
+            @dangerously_unaliased_fixme
           ...RelayModernFragmentSpecResolverTestQueryUsersFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -874,7 +876,9 @@ describe('RelayModernFragmentSpecResolver', () => {
           ) {
             node(id: $id) {
               ...RelayModernFragmentSpecResolverTestQueryUserFragment
+                @dangerously_unaliased_fixme
               ...RelayModernFragmentSpecResolverTestQueryUsersFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;

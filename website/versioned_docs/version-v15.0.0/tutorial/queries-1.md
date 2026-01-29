@@ -69,11 +69,11 @@ const NewsfeedQuery = graphql`
 
 Let’s break this down:
 
-* To embed GraphQL within Javascript, we put a string literal <span class="color1">marked with the <code>graphql``</code> tag</span>. This tag allows the Relay compiler to find and compile the GraphQL within a Javascript codebase.
-* Our GraphQL string consists of a <span class="color2">query declaration</span> with the keyword `query` and then a query name.
+* To embed GraphQL within Javascript, we put a string literal <span className="color1">marked with the <code>graphql``</code> tag</span>. This tag allows the Relay compiler to find and compile the GraphQL within a Javascript codebase.
+* Our GraphQL string consists of a <span className="color2">query declaration</span> with the keyword `query` and then a query name.
 * Inside the query declaration are *fields*, which specify what information to query for*:*
-    * Some fields are *<span class="color3">scalar fields</span>* that retrieve a string, number, or other unit of information.
-    * Other fields are *<span class="color4">edges</span>* that let us traverse from one node in the graph to another. When a field is an edge, it’s followed by another block `{ }` containing fields for the node at the other end of the edge. Here, the `poster` field is an edge that goes from a Story to a Person who posted it. Once we’ve traversed to the Person, we can include fields about the Person such as their `name`.
+    * Some fields are *<span className="color3">scalar fields</span>* that retrieve a string, number, or other unit of information.
+    * Other fields are *<span className="color4">edges</span>* that let us traverse from one node in the graph to another. When a field is an edge, it’s followed by another block `{ }` containing fields for the node at the other end of the edge. Here, the `poster` field is an edge that goes from a Story to a Person who posted it. Once we’ve traversed to the Person, we can include fields about the Person such as their `name`.
 
 This illustrates the part of the graph that this query is asking for:
 

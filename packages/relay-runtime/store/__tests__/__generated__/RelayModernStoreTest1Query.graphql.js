@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8645349c6f6b388cf6aca8ae954919b8>>
+ * @generated SignedSource<<2a2aa2885453b029c647d153155c3342>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayModernStoreTest1Fragment$fragmentType } from "./RelayModernStoreTest1Fragment.graphql";
 export type RelayModernStoreTest1Query$variables = {|
   id: string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayModernStoreTest1Query$data = {|
   +node: ?{|
@@ -164,7 +164,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "7fdabede719577afaae8855a27396b98";
+  (node/*: any*/).hash = "04b19cd56ddc2656fb74b7223e570e06";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

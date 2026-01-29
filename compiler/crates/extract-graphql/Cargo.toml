@@ -4,7 +4,7 @@
 name = "extract-graphql"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -19,4 +19,4 @@ graphql-syntax = { path = "../graphql-syntax" }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }
-tokio = { version = "1.37.0", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

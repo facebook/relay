@@ -17,10 +17,9 @@ use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::List;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 
-use crate::in_memory::InMemorySchema;
 use crate::Argument;
 use crate::ArgumentDefinitions;
 use crate::ArgumentValue;
@@ -37,6 +36,7 @@ use crate::Schema;
 use crate::Type;
 use crate::TypeReference;
 use crate::UnionID;
+use crate::in_memory::InMemorySchema;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(schema);
@@ -505,15 +505,15 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         match value {
             ConstantValue::String(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::String;
-                args.string_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.string_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::Int(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Int;
-                args.int_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.int_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::Float(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Float;
-                args.float_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.float_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::Boolean(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Bool;
@@ -521,7 +521,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             }
             ConstantValue::Enum(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::Enum;
-                args.enum_value = Some(self.bldr.create_string(&format!("{}", value)));
+                args.enum_value = Some(self.bldr.create_string(&format!("{value}")));
             }
             ConstantValue::List(value) => {
                 args.kind = schema_flatbuffer::ConstValueKind::List;
@@ -620,15 +620,15 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             schema_flatbuffer::TypeKind::Union => {
                 type_args.union_id = id;
             }
-            unknown => panic!("unknown TypeKind value: {:?}", unknown),
+            unknown => panic!("unknown TypeKind value: {unknown:?}"),
         }
         type_args
     }
 }
 
 fn get_mapped_location(location: DirectiveLocation) -> schema_flatbuffer::DirectiveLocation {
-    use schema_flatbuffer::DirectiveLocation as FDL;
     use DirectiveLocation as DL;
+    use schema_flatbuffer::DirectiveLocation as FDL;
     match location {
         DL::Query => FDL::Query,
         DL::Mutation => FDL::Mutation,

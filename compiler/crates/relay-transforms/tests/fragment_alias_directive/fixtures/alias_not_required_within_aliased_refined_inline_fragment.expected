@@ -24,6 +24,7 @@ query RelayReaderNamedFragmentsTest2Query {
     #     ),
     #     non_nullable: false,
     #     selection_type: Object(70),
+    #     wraps_spread: false,
     # }
      {
       ...RelayReaderNamedFragmentsTest_user

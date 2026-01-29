@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query queryWithModuleDirectiveAndArguments_NameRendererQuery($id: ID!, $cond: Boolean!) {
   node(id: $id) {
-    ...queryWithModuleDirectiveAndArguments_NameRendererFragment @arguments(local_cond: false)
+    ...queryWithModuleDirectiveAndArguments_NameRendererFragment @arguments(local_cond: false) @alias
   }
 }
 
@@ -125,14 +125,25 @@ fragment queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name on Plai
         "plural": false,
         "selections": [
           {
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "local_cond",
-                "value": false
-              }
-            ],
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "local_cond",
+                      "value": false
+                    }
+                  ],
+                  "kind": "FragmentSpread",
+                  "name": "queryWithModuleDirectiveAndArguments_NameRendererFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "queryWithModuleDirectiveAndArguments_NameRendererFragment"
           }
         ],

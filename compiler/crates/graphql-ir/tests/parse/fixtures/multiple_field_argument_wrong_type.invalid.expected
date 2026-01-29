@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query TestQuery($if: Boolean, $unless: Boolean) {
+  node(id: "4") {
+    ... on Comment {
+      firstName(if: $globalIf, unless: $unless)
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected variable `$globalIf` to be defined on the operation 'TestQuery'
+
+  multiple_field_argument_wrong_type.invalid.graphql:6:21
+    5 │     ... on Comment {
+    6 │       firstName(if: $globalIf, unless: $unless)
+      │                     ^^^^^^^^^
+    7 │     }
+
+  ℹ︎ The operation 'TestQuery' is defined here
+
+  multiple_field_argument_wrong_type.invalid.graphql:3:7
+    2 │ 
+    3 │ query TestQuery($if: Boolean, $unless: Boolean) {
+      │       ^^^^^^^^^
+    4 │   node(id: "4") {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6ff8e6f67c61293509ba016782dc028b>>
+ * @generated SignedSource<<b971fd6f1a343fe3eda2235f3800c176>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { UserAnotherClientEdgeResolver$key } from "./../resolvers/__generated__/UserAnotherClientEdgeResolver.graphql";
 import type { FragmentType, DataID } from "relay-runtime";
 import {another_client_edge as userAnotherClientEdgeResolverType} from "../resolvers/UserAnotherClientEdgeResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAnotherClientEdgeResolverType: (
   rootKey: UserAnotherClientEdgeResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -76,7 +79,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayResolver",
         "name": "another_client_edge",
-        "resolverModule": require('./../resolvers/UserAnotherClientEdgeResolver').another_client_edge,
+        "resolverModule": require('../resolvers/UserAnotherClientEdgeResolver').another_client_edge,
         "path": "another_client_edge"
       },
       "linkedField": {

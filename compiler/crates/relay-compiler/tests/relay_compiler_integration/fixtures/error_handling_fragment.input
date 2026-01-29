@@ -7,8 +7,7 @@ graphql`
 //- relay.config.json
 {
    "language": "flow",
-   "schema": "./schema.graphql",
-   "experimentalEmitSemanticNullabilityTypes": true
+   "schema": "./schema.graphql"
 }
 
 //- schema.graphql

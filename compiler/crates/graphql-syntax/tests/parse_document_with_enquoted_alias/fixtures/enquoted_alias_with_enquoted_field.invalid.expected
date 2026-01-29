@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query EnquotedAliasWithEnquotedFieldName {
+  "alias": "field_name"
+}
+==================================== ERROR ====================================
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  enquoted_alias_with_enquoted_field.invalid.graphql:4:12
+    3 │ query EnquotedAliasWithEnquotedFieldName {
+    4 │   "alias": "field_name"
+      │            ^^^^^^^^^^^^
+    5 │ }
+
+
+✖︎ Incomplete field alias, expected non-variable identifier (e.g. 'x' or 'Foo') but found string literal (e.g. '"..."')
+
+  enquoted_alias_with_enquoted_field.invalid.graphql:4:3
+    3 │ query EnquotedAliasWithEnquotedFieldName {
+    4 │   "alias": "field_name"
+      │   ^^^^^^^^
+    5 │ }

@@ -23,7 +23,7 @@ export type Subscription = {
 };
 
 type SubscriptionFn = {
-  (): mixed,
+  (): unknown,
   +unsubscribe?: void,
   +closed?: void,
   ...
@@ -34,11 +34,11 @@ type SubscriptionFn = {
  * .subscribe(). Each callback function is invoked when that event occurs.
  */
 export type Observer<-T> = {
-  +start?: ?(Subscription) => mixed,
-  +next?: ?(T) => mixed,
-  +error?: ?(Error) => mixed,
-  +complete?: ?() => mixed,
-  +unsubscribe?: ?(Subscription) => mixed,
+  +start?: ?(Subscription) => unknown,
+  +next?: ?(T) => unknown,
+  +error?: ?(Error) => unknown,
+  +complete?: ?() => unknown,
+  +unsubscribe?: ?(Subscription) => unknown,
 };
 
 /**
@@ -74,7 +74,7 @@ export interface Subscribable<+T> {
 export type ObservableFromValue<+T> = Subscribable<T> | Promise<T> | T;
 
 let hostReportError:
-  | ((Error, isUncaughtThrownError: boolean) => mixed)
+  | ((Error, isUncaughtThrownError: boolean) => unknown)
   | ((_error: Error, _isUncaughtThrownError: boolean) => void) = swallowError;
 
 /**
@@ -92,7 +92,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   +_source: Source<T>;
 
   static create<V>(source: Source<V>): RelayObservable<V> {
-    return new RelayObservable((source: any));
+    return new RelayObservable(source as any);
   }
 
   // Use RelayObservable.create()
@@ -103,7 +103,7 @@ class RelayObservable<+T> implements Subscribable<T> {
         throw new Error('Source must be a Function: ' + String(source));
       }
     }
-    (this: any)._source = source;
+    (this as any)._source = source;
   }
 
   /**
@@ -132,7 +132,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    *    stack traces.
    */
   static onUnhandledError(
-    callback: (Error, isUncaughtThrownError: boolean) => mixed,
+    callback: (Error, isUncaughtThrownError: boolean) => unknown,
   ): void {
     hostReportError = callback;
   }
@@ -247,7 +247,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    *
    * This is useful for cleanup such as resource finalization.
    */
-  finally(fn: () => mixed): RelayObservable<T> {
+  finally(fn: () => unknown): RelayObservable<T> {
     return RelayObservable.create(sink => {
       const subscription = this.subscribe(sink);
       return () => {
@@ -351,6 +351,8 @@ class RelayObservable<+T> implements Subscribable<T> {
       }
 
       function complete(this: ObservableContext) {
+        /* $FlowFixMe[incompatible-type] Error exposed after improved typing of
+         * Array.{includes,indexOf,lastIndexOf} */
         subscriptions.splice(subscriptions.indexOf(this._sub), 1);
         if (subscriptions.length === 0) {
           sink.complete();
@@ -445,9 +447,9 @@ class RelayObservable<+T> implements Subscribable<T> {
 }
 
 // Use declarations to teach Flow how to check isObservable.
-declare function isObservable<T>(obj: mixed): obj is Subscribable<T>;
+declare function isObservable<T>(obj: unknown): obj is Subscribable<T>;
 
-function isObservable(obj: mixed) {
+function isObservable(obj: unknown) {
   return (
     typeof obj === 'object' &&
     obj !== null &&
@@ -490,7 +492,7 @@ function subscribe<T>(
   // Relay to be used within will support property getters, and many minifier
   // tools still do not support ES5 syntax. Instead, we can use defineProperty.
   const withClosed: <O>(obj: O) => {...O, +closed: boolean} = (obj =>
-    Object.defineProperty(obj, 'closed', ({get: () => closed}: any)): any);
+    Object.defineProperty(obj, 'closed', {get: () => closed} as any)) as any;
 
   function doCleanup() {
     if (cleanup) {
@@ -614,11 +616,7 @@ if (__DEV__) {
   // Default implementation of HostReportErrors() in development builds.
   // Can be replaced by the host application environment.
   RelayObservable.onUnhandledError((error, isUncaughtThrownError) => {
-    declare function fail(string): void;
-    if (typeof fail === 'function') {
-      // In test environments (Jest), fail() immediately fails the current test.
-      fail(String(error));
-    } else if (isUncaughtThrownError) {
+    if (isUncaughtThrownError) {
       // Rethrow uncaught thrown errors on the next frame to avoid breaking
       // current logic.
       setTimeout(() => {

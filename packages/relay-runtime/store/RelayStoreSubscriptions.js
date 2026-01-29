@@ -18,6 +18,7 @@ import type {
   OperationDescriptor,
   RecordSource,
   RequestDescriptor,
+  ResolverContext,
   Snapshot,
   StoreSubscriptions,
 } from './RelayStoreTypes';
@@ -41,20 +42,38 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
   __log: ?LogFunction;
   _resolverCache: ResolverCache;
+  _resolverContext: ?ResolverContext;
+  // Stores `subscriptions` with stale snapshots, used for reducing the traversal
+  // that has to happen on `notify`
+  _staleSubscriptions: Set<Subscription>;
 
-  constructor(log?: ?LogFunction, resolverCache: ResolverCache) {
+  constructor(
+    log?: ?LogFunction,
+    resolverCache: ResolverCache,
+    resolverContext?: ResolverContext,
+  ) {
     this._subscriptions = new Set();
+    this._staleSubscriptions = new Set();
     this.__log = log;
     this._resolverCache = resolverCache;
+    this._resolverContext = resolverContext;
   }
 
   subscribe(
     snapshot: Snapshot,
     callback: (snapshot: Snapshot) => void,
   ): Disposable {
-    const subscription = {backup: null, callback, snapshot, stale: false};
+    const subscription: Subscription = {
+      backup: null,
+      callback,
+      snapshot,
+      stale: false,
+    };
     const dispose = () => {
       this._subscriptions.delete(subscription);
+      if (RelayFeatureFlags.OPTIMIZE_NOTIFY && subscription.stale) {
+        this._staleSubscriptions.delete(subscription);
+      }
     };
     this._subscriptions.add(subscription);
     return {dispose};
@@ -82,10 +101,12 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       const backup = RelayReader.read(
         source,
         snapshot.selector,
+        this.__log,
         this._resolverCache,
+        this._resolverContext,
       );
       const nextData = recycleNodesInto(snapshot.data, backup.data);
-      (backup: $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
+      (backup as $FlowFixMe).data = nextData; // backup owns the snapshot and can safely mutate
       subscription.backup = backup;
     });
   }
@@ -99,22 +120,26 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           // This subscription's data changed in the optimistic state. We will
           // need to re-read.
           subscription.stale = true;
+          if (RelayFeatureFlags.OPTIMIZE_NOTIFY) {
+            this._staleSubscriptions.add(subscription);
+          }
         }
         subscription.snapshot = {
           data: subscription.snapshot.data,
+          fieldErrors: backup.fieldErrors,
           isMissingData: backup.isMissingData,
           missingClientEdges: backup.missingClientEdges,
           missingLiveResolverFields: backup.missingLiveResolverFields,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
-          missingRequiredFields: backup.missingRequiredFields,
-          relayResolverErrors: backup.relayResolverErrors,
-          errorResponseFields: backup.errorResponseFields,
         };
       } else {
         // This subscription was created during the optimisitic state. We should
         // re-read.
         subscription.stale = true;
+        if (RelayFeatureFlags.OPTIMIZE_NOTIFY) {
+          this._staleSubscriptions.add(subscription);
+        }
       }
     });
   }
@@ -127,6 +152,27 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
   ) {
     const hasUpdatedRecords = updatedRecordIDs.size !== 0;
     this._subscriptions.forEach(subscription => {
+      const owner = this._updateSubscription(
+        source,
+        subscription,
+        updatedRecordIDs,
+        hasUpdatedRecords,
+        sourceOperation,
+      );
+      if (owner != null) {
+        updatedOwners.push(owner);
+      }
+    });
+  }
+
+  updateStaleSubscriptions(
+    source: RecordSource,
+    updatedRecordIDs: DataIDSet,
+    updatedOwners: Array<RequestDescriptor>,
+    sourceOperation?: OperationDescriptor,
+  ) {
+    const hasUpdatedRecords = updatedRecordIDs.size !== 0;
+    this._staleSubscriptions.forEach(subscription => {
       const owner = this._updateSubscription(
         source,
         subscription,
@@ -164,32 +210,39 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     }
     let nextSnapshot: Snapshot =
       hasOverlappingUpdates || !backup
-        ? RelayReader.read(source, snapshot.selector, this._resolverCache)
+        ? RelayReader.read(
+            source,
+            snapshot.selector,
+            this.__log,
+            this._resolverCache,
+            this._resolverContext,
+          )
         : backup;
     const nextData = recycleNodesInto(snapshot.data, nextSnapshot.data);
-    nextSnapshot = ({
+    nextSnapshot = {
       data: nextData,
+      fieldErrors: nextSnapshot.fieldErrors,
       isMissingData: nextSnapshot.isMissingData,
       missingClientEdges: nextSnapshot.missingClientEdges,
       missingLiveResolverFields: nextSnapshot.missingLiveResolverFields,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
-      missingRequiredFields: nextSnapshot.missingRequiredFields,
-      relayResolverErrors: nextSnapshot.relayResolverErrors,
-      errorResponseFields: nextSnapshot.errorResponseFields,
-    }: Snapshot);
+    } as Snapshot;
     if (__DEV__) {
       deepFreeze(nextSnapshot);
     }
     subscription.snapshot = nextSnapshot;
     subscription.stale = false;
+    if (RelayFeatureFlags.OPTIMIZE_NOTIFY && stale) {
+      this._staleSubscriptions.delete(subscription);
+    }
     if (nextSnapshot.data !== snapshot.data) {
       if (this.__log && RelayFeatureFlags.ENABLE_NOTIFY_SUBSCRIPTION) {
         this.__log({
           name: 'store.notify.subscription',
-          sourceOperation,
-          snapshot,
           nextSnapshot,
+          snapshot,
+          sourceOperation,
         });
       }
       callback(nextSnapshot);
@@ -205,6 +258,10 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       // With loose attribution enabled, we'll attribute this anyway.
       return snapshot.selector.owner;
     }
+  }
+
+  size(): number {
+    return this._subscriptions.size;
   }
 }
 

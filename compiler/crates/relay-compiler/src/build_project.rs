@@ -5,9 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-//! This module is responsible to build a single project. It does not handle
-//! watch mode or other state.
-
+//! The `build_project` module is responsible for building a single Relay project, and does not
+//! handle watch mode or other state.
+//!
+//! This module takes a `ProjectConfig` as input and returns a `Result` containing the built project,
+//! or an error if the build failed. The main entrypoint function `build_project` performs several steps including:
+//! * Reading the schema from the specified location
+//! * Processing the GraphQL documents in the project
+//! * Generating the necessary artifacts (e.g. generated files)
 mod artifact_generated_types;
 pub mod artifact_writer;
 mod build_ir;
@@ -30,21 +35,23 @@ pub use artifact_generated_types::ArtifactGeneratedTypes;
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::sync::*;
 use common::Diagnostic;
+use common::DirectiveName;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use common::WithDiagnostics;
-use dashmap::mapref::entry::Entry;
+use common::sync::*;
 use dashmap::DashSet;
+use dashmap::mapref::entry::Entry;
 use dependency_analyzer::get_ir_definition_references;
+use errors::try_all;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
-pub use generate_artifacts::generate_artifacts;
-pub use generate_artifacts::generate_preloadable_query_parameters_artifact;
 pub use generate_artifacts::Artifact;
 pub use generate_artifacts::ArtifactContent;
+pub use generate_artifacts::generate_artifacts;
+pub use generate_artifacts::generate_preloadable_query_parameters_artifact;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
@@ -58,9 +65,9 @@ use rayon::iter::IntoParallelRefIterator;
 use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
 use relay_config::ProjectName;
-use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
+use relay_transforms::apply_transforms;
 use relay_typegen::FragmentLocations;
 use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
@@ -68,14 +75,15 @@ use schema::SDLSchema;
 use schema_diff::check::IncrementalBuildSchemaChange;
 use schema_diff::check::SchemaChangeSafety;
 pub use source_control::source_control_for_root;
-pub use validate::validate;
 pub use validate::AdditionalValidations;
+pub use validate::validate;
+pub use validate::validate_reader;
 
 use self::log_program_stats::print_stats;
-pub use self::project_asts::find_duplicates;
-pub use self::project_asts::get_project_asts;
 pub use self::project_asts::ProjectAstData;
 pub use self::project_asts::ProjectAsts;
+pub use self::project_asts::find_duplicates;
+pub use self::project_asts::get_project_asts;
 use super::artifact_content;
 use crate::artifact_map::ArtifactMap;
 use crate::artifact_map::ArtifactSourceKey;
@@ -112,7 +120,7 @@ impl fmt::Debug for BuildMode {
             BuildMode::Full => write!(f, "Full"),
             BuildMode::Incremental => write!(f, "Incremental"),
             BuildMode::IncrementalWithSchemaChanges(changes) => {
-                write!(f, "IncrementalWithSchemaChanges({:?})", changes)
+                write!(f, "IncrementalWithSchemaChanges({changes:?})")
             }
         }
     }
@@ -227,23 +235,36 @@ fn build_raw_program_chunks(
     Ok((programs, source_hashes))
 }
 
+// OK(Vec<Diagnostic>) = Compilation can continue
+// Err(Vec<Diagnostic>) = Compilation must stop here
 pub fn validate_program(
     config: &Config,
     project_config: &ProjectConfig,
     program: &Program,
     log_event: &impl PerfLogEvent,
-) -> Result<Vec<Diagnostic>, BuildProjectError> {
+) -> Result<Vec<Diagnostic>, Vec<Diagnostic>> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result = validate(program, project_config, &config.additional_validations).map_or_else(
-        |errors| {
-            Err(BuildProjectError::ValidationErrors {
-                errors,
-                project_name: project_config.name,
-            })
-        },
-        |result| Ok(result.diagnostics),
-    );
+    let result = validate(program, project_config, &config.additional_validations)
+        .map(|result| result.diagnostics);
+
+    log_event.stop(timer);
+
+    result
+}
+
+// OK(Vec<Diagnostic>) = Compilation can continue
+// Err(Vec<Diagnostic>) = Compilation must stop here
+pub fn validate_reader_program(
+    config: &Config,
+    project_config: &ProjectConfig,
+    program: &Program,
+    log_event: &impl PerfLogEvent,
+) -> Result<Vec<Diagnostic>, Vec<Diagnostic>> {
+    let timer = log_event.start("validate_reader_time");
+    log_event.number("validate_reader_documents_count", program.document_count());
+    let result = validate_reader(program, project_config, &config.additional_validations)
+        .map(|result| result.diagnostics);
 
     log_event.stop(timer);
 
@@ -258,7 +279,8 @@ pub fn transform_program(
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
     custom_transforms_config: Option<&CustomTransformsConfig>,
-) -> Result<Programs, BuildProjectFailure> {
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
+) -> Result<Programs, Vec<Diagnostic>> {
     let timer = log_event.start("apply_transforms_time");
     let result = apply_transforms(
         project_config,
@@ -267,19 +289,15 @@ pub fn transform_program(
         perf_logger,
         Some(print_stats),
         custom_transforms_config,
-    )
-    .map_err(|errors| {
-        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-            errors,
-            project_name: project_config.name,
-        })
-    });
+        transferrable_refetchable_query_directives,
+    );
 
     log_event.stop(timer);
 
     result
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
@@ -364,25 +382,46 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
     let base_fragment_names = Arc::new(base_fragment_names);
-    let results: Vec<(Programs, Vec<Diagnostic>)> = programs
+    let validate_and_transform_all_timer = log_event.start("validate_and_transform_all_time");
+    let validation_results = programs
         .into_par_iter()
-        .map(|program| {
-            // Call validation rules that go beyond type checking.
-            // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
-            let diagnostics = validate_program(config, project_config, &program, log_event)?;
+        .map(
+            |program| -> Result<(Programs, Vec<Diagnostic>), Vec<Diagnostic>> {
+                // Call validation rules that go beyond type checking.
+                // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
+                let mut diagnostics =
+                    validate_program(config, project_config, &program, log_event)?;
 
-            let programs = transform_program(
-                project_config,
-                Arc::new(program),
-                Arc::clone(&base_fragment_names),
-                Arc::clone(&perf_logger),
-                log_event,
-                config.custom_transforms.as_ref(),
-            )?;
+                let programs = transform_program(
+                    project_config,
+                    Arc::new(program),
+                    Arc::clone(&base_fragment_names),
+                    Arc::clone(&perf_logger),
+                    log_event,
+                    config.custom_transforms.as_ref(),
+                    config.transferrable_refetchable_query_directives.clone(),
+                )?;
 
-            Ok((programs, diagnostics))
-        })
-        .collect::<Result<Vec<_>, BuildProjectFailure>>()?;
+                diagnostics.extend(validate_reader_program(
+                    config,
+                    project_config,
+                    &programs.reader,
+                    log_event,
+                )?);
+
+                Ok((programs, diagnostics))
+            },
+        )
+        .collect::<Vec<_>>();
+    log_event.stop(validate_and_transform_all_timer);
+
+    let results: Vec<(Programs, Vec<Diagnostic>)> =
+        try_all(validation_results).map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name,
+            })
+        })?;
 
     let len = results.len();
     let (programs, diagnostics) = results.into_iter().fold(
@@ -411,7 +450,7 @@ pub fn build_project(
     let build_time = log_event.start("build_project_time");
     let project_name = project_config.name;
     log_event.string("project", project_name.to_string());
-    info!("[{}] compiling...", project_name);
+    info!("[{project_name}] compiling...");
 
     // Construct a schema instance including project specific extensions.
     let schema = log_event

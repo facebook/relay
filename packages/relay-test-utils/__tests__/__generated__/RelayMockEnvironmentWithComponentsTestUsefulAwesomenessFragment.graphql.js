@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1e6161f4f9156ce13402bb1c24502067>>
+ * @generated SignedSource<<ba06aec0ba4a5cbc9f00300b72177f05>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type RelayMockEnvironmentWithComponentsTestUsefulAwesomene
 export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$data = {|
   +id: string,
   +name: ?string,
-  +websites: ?$ReadOnlyArray<?string>,
+  +websites: ?ReadonlyArray<?string>,
   +$fragmentType: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
 |};
 export type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$key = {

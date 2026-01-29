@@ -57,7 +57,7 @@ const query = graphql`
 
 // Only queries with an ID are preloadable
 const ID = '12345';
-(query.params: $FlowFixMe).id = ID;
+(query.params as $FlowFixMe).id = ID;
 
 const preloadableConcreteRequest: PreloadableConcreteRequest<loadQueryStoreBehaviorTestQuery> =
   {
@@ -69,8 +69,8 @@ const response: GraphQLSingularResponse = {
   data: {
     node: {
       __typename: 'User',
-      name: 'Zuck',
       id: '4',
+      name: 'Zuck',
     },
   },
   extensions: {
@@ -82,8 +82,8 @@ const updatedResponse: GraphQLSingularResponse = {
   data: {
     node: {
       __typename: 'User',
-      name: 'Mark',
       id: '4',
+      name: 'Mark',
     },
   },
   extensions: {
@@ -263,11 +263,11 @@ describe('when passed a PreloadableConcreteRequest', () => {
         });
 
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         sink.next(updatedResponse);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Mark');
       });
 
@@ -284,7 +284,7 @@ describe('when passed a PreloadableConcreteRequest', () => {
         dispose();
         sink.next(updatedResponse);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
       });
     });
@@ -298,16 +298,16 @@ describe('when passed a PreloadableConcreteRequest', () => {
         });
 
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         sink.next(updatedResponse);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         PreloadableQueryRegistry.set(ID, query);
 
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Mark');
       });
       it('should write updated data to the store when the query AST and network response are available', () => {
@@ -316,16 +316,16 @@ describe('when passed a PreloadableConcreteRequest', () => {
         });
 
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         PreloadableQueryRegistry.set(ID, query);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         sink.next(updatedResponse);
 
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Mark');
       });
 
@@ -342,11 +342,11 @@ describe('when passed a PreloadableConcreteRequest', () => {
         dispose();
         sink.next(updatedResponse);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         PreloadableQueryRegistry.set(ID, query);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
       });
 
@@ -363,11 +363,11 @@ describe('when passed a PreloadableConcreteRequest', () => {
         dispose();
         PreloadableQueryRegistry.set(ID, query);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         sink.next(updatedResponse);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
       });
 
@@ -383,15 +383,15 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
         PreloadableQueryRegistry.set(ID, query);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         dispose();
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         sink.next(updatedResponse);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
       });
 
@@ -407,15 +407,15 @@ describe('when passed a PreloadableConcreteRequest', () => {
 
         sink.next(updatedResponse);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         dispose();
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
         PreloadableQueryRegistry.set(ID, query);
         expect(
-          (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+          (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
         ).toEqual('Zuck');
       });
     });
@@ -447,11 +447,11 @@ describe('when passed a query AST', () => {
       });
 
       expect(
-        (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+        (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
       ).toEqual('Zuck');
       sink.next(updatedResponse);
       expect(
-        (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+        (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
       ).toEqual('Mark');
     });
 
@@ -463,7 +463,7 @@ describe('when passed a query AST', () => {
       dispose();
       sink.next(updatedResponse);
       expect(
-        (store.lookup(operation.fragment): $FlowFixMe)?.data?.node?.name,
+        (store.lookup(operation.fragment) as $FlowFixMe)?.data?.node?.name,
       ).toEqual('Zuck');
     });
   });

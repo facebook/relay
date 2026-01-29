@@ -1,0 +1,19 @@
+query MeQuery($include_firstname: Boolean!) {
+  me {
+    ...UserFragment @arguments(return_firstname: $include_firstname)
+  }
+}
+
+fragment UserFragment on User @argumentDefinitions(retu|rn_firstname: { type: "Boolean!" }) {
+  name @skip(if: $return_firstname)
+  ... @defer(if: $return_firstname) {
+    og_name: name
+  }
+  firstName(if: $return_firstname)
+}
+
+fragment CommentFragment on Comment {
+  author {
+    ...UserFragment @arguments(return_firstname: true)
+  }
+}

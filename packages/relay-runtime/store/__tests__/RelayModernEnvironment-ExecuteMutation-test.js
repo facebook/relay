@@ -105,6 +105,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             node(id: $id) {
               id
               ...RelayModernEnvironmentExecuteMutationTestCommentFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;
@@ -148,9 +149,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 network: RelayNetwork.create(fetch),
                 store,
               });
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
       });
 
@@ -189,10 +190,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual({
-          id: commentID,
           body: {
             text: 'Give Relay',
           },
+          id: commentID,
         });
       });
 
@@ -292,10 +293,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           data: {
             commentCreate: {
               comment: {
-                id: commentID,
                 body: {
                   text: 'Gave Relay',
                 },
+                id: commentID,
               },
             },
           },
@@ -306,10 +307,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual({
-          id: commentID,
           body: {
             text: 'Gave Relay',
           },
+          id: commentID,
         });
       });
 
@@ -336,7 +337,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               if (!body) {
                 throw new Error('Expected comment to have a body');
               }
-              const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+              const bodyValue: string = body.getValue('text') as $FlowFixMe;
               if (bodyValue == null) {
                 throw new Error('Expected comment body to have text');
               }
@@ -350,10 +351,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           data: {
             commentCreate: {
               comment: {
-                id: commentID,
                 body: {
                   text: 'Gave Relay', // server data is lowercase
                 },
+                id: commentID,
               },
             },
           },
@@ -364,10 +365,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual({
-          id: commentID,
           body: {
             text: 'GAVE RELAY', // converted to uppercase by updater
           },
+          id: commentID,
         });
       });
 
@@ -426,10 +427,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             optimisticResponse: {
               commentCreate: {
                 comment: {
-                  id: commentID,
                   body: {
                     text: 'Give Relay',
                   },
+                  id: commentID,
                 },
               },
             },
@@ -440,10 +441,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual({
-          id: commentID,
           body: {
             text: 'Give Relay',
           },
+          id: commentID,
         });
       });
 
@@ -477,10 +478,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           data: {
             commentCreate: {
               comment: {
-                id: commentID,
                 body: {
                   text: 'Gave Relay',
                 },
+                id: commentID,
               },
             },
           },
@@ -545,8 +546,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(1);
         expect(callback.mock.calls[0][0].data).toEqual({
-          id: commentID,
           body: undefined, // even if treatMissingFieldsAsNull is enabled, this is not filled with null since this is an optimistic update
+          id: commentID,
         });
         // and thus the snapshot has missing data
         expect(callback.mock.calls[0][0].isMissingData).toEqual(true);
@@ -570,10 +571,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               commentCreate: {
                 comment: {
-                  id: commentID,
                   body: {
                     text: 'Gave Relay',
                   },
+                  id: commentID,
                 },
               },
             },
@@ -605,10 +606,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
         expect(callback.mock.calls.length).toBe(2);
         expect(callback.mock.calls[1][0].data).toEqual({
-          id: commentID,
           body: {
             text: 'Gave Relay',
           },
+          id: commentID,
         });
       });
     });

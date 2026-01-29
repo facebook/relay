@@ -4,12 +4,12 @@
 name = "relay-test-schema"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 relay-schema = { path = "../relay-schema" }
 schema = { path = "../schema" }

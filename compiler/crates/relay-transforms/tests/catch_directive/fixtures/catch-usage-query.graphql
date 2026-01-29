@@ -1,0 +1,5 @@
+query FragFoo @catch(to: RESULT) {
+  me {
+    name
+  }
+}

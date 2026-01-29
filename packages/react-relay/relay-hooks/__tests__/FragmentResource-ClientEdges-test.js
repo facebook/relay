@@ -14,7 +14,7 @@
 const {
   getFragmentResourceForEnvironment,
 } = require('react-relay/relay-hooks/legacy/FragmentResource');
-const {RelayFeatureFlags, getFragment} = require('relay-runtime');
+const {getFragment} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   createOperationDescriptor,
@@ -28,19 +28,11 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 const BASIC_QUERY = graphql`
   query FragmentResourceClientEdgesTest1Query($id: ID!) {
     node(id: $id) {
       __typename
-      ...FragmentResourceClientEdgesTestFragment1
+      ...FragmentResourceClientEdgesTestFragment1 @dangerously_unaliased_fixme
     }
   }
 `;
@@ -75,14 +67,14 @@ describe('FragmentResource Client Edges behavior', () => {
     });
     fragmentNode = getFragment(BASIC_FRAGMENT);
     fragmentRef = {
-      __id: '1',
+      __fragmentOwner: query.request,
       __fragments: {
         FragmentResourceClientEdgesTestFragment1: {},
       },
-      __fragmentOwner: query.request,
+      __id: '1',
     };
 
-    release = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    release = jest.fn<ReadonlyArray<unknown>, unknown>();
     // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     // $FlowFixMe[method-unbinding]
     environment.retain.mockImplementation((...args) => {
@@ -121,8 +113,8 @@ describe('FragmentResource Client Edges behavior', () => {
     environment.mock.resolve(operation, {
       data: {
         node: {
-          id: '1337',
           __typename: 'User',
+          id: '1337',
           name: 'Bob',
         },
       },
@@ -133,6 +125,7 @@ describe('FragmentResource Client Edges behavior', () => {
     // the data across the client edge:
     // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     let result: $FlowFixMe; // it's an opaque type
+
     expect(() => {
       result = FragmentResource.read(
         fragmentNode,
@@ -156,7 +149,7 @@ describe('FragmentResource Client Edges behavior', () => {
       'componentDisplayName',
     );
     // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
-    expect((result.data: $FlowFixMe).client_edge.name).toBe('Bob');
+    expect((result.data as $FlowFixMe).client_edge.name).toBe('Bob');
     expect(environment.mock.getAllOperations().length).toBe(0);
   });
 
@@ -178,8 +171,8 @@ describe('FragmentResource Client Edges behavior', () => {
     environment.mock.resolve(operation, {
       data: {
         node: {
-          id: '1337',
           __typename: 'User',
+          id: '1337',
           name: 'Bob',
         },
       },
@@ -247,7 +240,7 @@ describe('FragmentResource Client Edges behavior', () => {
       // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
       // $FlowFixMe[cannot-write]
       global.clearTimeout = id => {
-        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+        // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         timeouts.delete(id);
       };
       function runAllTimeouts() {
@@ -276,8 +269,8 @@ describe('FragmentResource Client Edges behavior', () => {
       environment.mock.resolve(operation, {
         data: {
           node: {
-            id: '1337',
             __typename: 'User',
+            id: '1337',
             name: 'Bob',
           },
         },

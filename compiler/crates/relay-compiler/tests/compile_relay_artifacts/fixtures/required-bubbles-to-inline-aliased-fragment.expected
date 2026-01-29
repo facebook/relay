@@ -38,8 +38,7 @@ query requiredBubblesToInlineAliasedFragmentQuery {
                 ],
                 "storageKey": null
               },
-              "action": "NONE",
-              "path": "myAlias.me"
+              "action": "NONE"
             }
           ],
           "type": null,

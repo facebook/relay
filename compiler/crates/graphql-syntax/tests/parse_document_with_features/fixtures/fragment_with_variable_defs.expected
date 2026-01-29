@@ -74,6 +74,7 @@ Document {
                                     },
                                 ),
                                 directives: [],
+                                description: None,
                             },
                         ],
                         end: Token {
@@ -128,6 +129,7 @@ Document {
                         kind: CloseBrace,
                     },
                 },
+                description: None,
             },
         ),
     ],

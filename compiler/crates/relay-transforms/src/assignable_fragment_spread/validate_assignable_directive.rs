@@ -17,8 +17,8 @@ use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use schema::Schema;
 
-use super::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
+use super::ValidationMessage;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
@@ -36,7 +36,7 @@ struct AssignableDirective<'a> {
     program: &'a Program,
 }
 
-impl<'a> Validator for AssignableDirective<'a> {
+impl Validator for AssignableDirective<'_> {
     const NAME: &'static str = "AssignableDirective";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
@@ -84,7 +84,7 @@ impl<'a> Validator for AssignableDirective<'a> {
                     ValidationMessage::AssignableDisallowOtherDirectives {
                         disallowed_directive_name: directive.name.item.0,
                     },
-                    directive.name.location,
+                    directive.location,
                 ))
             }
         }

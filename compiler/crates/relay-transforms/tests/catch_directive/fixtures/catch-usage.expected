@@ -7,7 +7,6 @@ fragment FragFoo on User {
   name @catch(to: RESULT) @__CatchMetadataDirective
   # CatchMetadataDirective {
   #     to: Result,
-  #     path: "name",
   # }
   
 }

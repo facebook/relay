@@ -113,9 +113,9 @@ type MockFunctions = {
   +complete: (request: ConcreteRequest | OperationDescriptor) => void,
   +resolve: (
     request: ConcreteRequest | OperationDescriptor,
-    payload: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
+    payload: ReadonlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
   ) => void,
-  +getAllOperations: () => $ReadOnlyArray<OperationDescriptor>,
+  +getAllOperations: () => ReadonlyArray<OperationDescriptor>,
   +findOperation: (
     findFn: (operation: OperationDescriptor) => boolean,
   ) => OperationDescriptor,
@@ -187,8 +187,8 @@ function createMockEnvironment(
     ttl: MAX_TTL,
   });
 
-  let pendingRequests: $ReadOnlyArray<PendingRequest> = [];
-  let pendingOperations: $ReadOnlyArray<OperationDescriptor> = [];
+  let pendingRequests: ReadonlyArray<PendingRequest> = [];
+  let pendingOperations: ReadonlyArray<OperationDescriptor> = [];
   const queuePendingOperation = (
     query: GraphQLTaggedNode,
     variables: Variables,
@@ -199,7 +199,7 @@ function createMockEnvironment(
     );
     pendingOperations = pendingOperations.concat([operationDescriptor]);
   };
-  let resolversQueue: $ReadOnlyArray<OperationMockResolver> = [];
+  let resolversQueue: ReadonlyArray<OperationMockResolver> = [];
 
   const queueOperationResolver = (resolver: OperationMockResolver): void => {
     resolversQueue = resolversQueue.concat([resolver]);
@@ -222,7 +222,7 @@ function createMockEnvironment(
       cachedPayload = cache.get(cacheID, variables);
     }
     if (cachedPayload !== null) {
-      // $FlowFixMe[incompatible-call]
+      // $FlowFixMe[incompatible-type]
       return Observable.from<GraphQLSingularResponse>(cachedPayload);
     }
 
@@ -259,6 +259,11 @@ function createMockEnvironment(
         pendingRequests = pendingRequests.filter(
           pending => !areEqual(pending, nextRequest),
         );
+        const currentOperation = pendingOperations.find(
+          op =>
+            areEqual(op.request.node.params, request) &&
+            areEqual(op.request.variables, variables),
+        );
         pendingOperations = pendingOperations.filter(
           op => op !== currentOperation,
         );
@@ -270,10 +275,10 @@ function createMockEnvironment(
     input: ConcreteRequest | OperationDescriptor,
   ): ConcreteRequest {
     if (input.kind === 'Request') {
-      const request: ConcreteRequest = (input: $FlowFixMe);
+      const request: ConcreteRequest = input as $FlowFixMe;
       return request;
     } else {
-      const operationDescriptor: OperationDescriptor = (input: $FlowFixMe);
+      const operationDescriptor: OperationDescriptor = input as $FlowFixMe;
       invariant(
         pendingOperations.includes(operationDescriptor),
         'RelayModernMockEnvironment: Operation "%s" was not found in the list of pending operations',
@@ -286,13 +291,13 @@ function createMockEnvironment(
   // The same request may be made by multiple query renderers
   function getRequests(
     input: ConcreteRequest | OperationDescriptor,
-  ): $ReadOnlyArray<PendingRequest> {
+  ): ReadonlyArray<PendingRequest> {
     let concreteRequest: ConcreteRequest;
     let operationDescriptor: OperationDescriptor;
     if (input.kind === 'Request') {
-      concreteRequest = (input: $FlowFixMe);
+      concreteRequest = input as $FlowFixMe;
     } else {
-      operationDescriptor = (input: $FlowFixMe);
+      operationDescriptor = input as $FlowFixMe;
       concreteRequest = operationDescriptor.request.node;
     }
     const foundRequests = pendingRequests.filter(pending => {
@@ -329,6 +334,8 @@ function createMockEnvironment(
   function ensureValidPayload(payload: GraphQLSingularResponse) {
     invariant(
       typeof payload === 'object' &&
+        /* $FlowFixMe[invalid-compare] Error discovered during Constant
+         * Condition roll out. See https://fburl.com/workplace/5whu3i34. */
         payload !== null &&
         payload.hasOwnProperty('data'),
       'MockEnvironment(): Expected payload to be an object with a `data` key.',
@@ -374,6 +381,8 @@ function createMockEnvironment(
     const rejectError = typeof error === 'string' ? new Error(error) : error;
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       sink.error(rejectError);
     });
@@ -385,6 +394,8 @@ function createMockEnvironment(
   ): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       sink.next(ensureValidPayload(payload));
     });
@@ -393,6 +404,8 @@ function createMockEnvironment(
   const complete = (request: ConcreteRequest | OperationDescriptor): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       sink.complete();
     });
@@ -400,10 +413,12 @@ function createMockEnvironment(
 
   const resolve = (
     request: ConcreteRequest | OperationDescriptor,
-    response: $ReadOnlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
+    response: ReadonlyArray<GraphQLSingularResponse> | GraphQLSingularResponse,
   ): void => {
     getRequests(request).forEach(foundRequest => {
       const {sink} = foundRequest;
+      /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+       * roll out. See https://fburl.com/workplace/5whu3i34. */
       invariant(sink !== null, 'Sink should be defined.');
       const payloads = Array.isArray(response) ? response : [response];
       payloads.forEach(payload => {
@@ -433,7 +448,7 @@ function createMockEnvironment(
     return pendingOperation;
   };
 
-  // $FlowExpectedError[prop-missing]
+  // $FlowExpectedError[incompatible-type]
   const environment: RelayMockEnvironment = new Environment({
     configName: 'RelayModernMockEnvironment',
     network: Network.create(execute, execute),
@@ -482,6 +497,8 @@ function createMockEnvironment(
   );
 
   // $FlowFixMe[incompatible-type]
+  /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+   * roll out. See https://fburl.com/workplace/4oq3zi07. */
   if (global?.process?.env?.NODE_ENV === 'test') {
     // Mock all the functions with their original behavior
     mockDisposableMethod(environment, 'applyUpdate');

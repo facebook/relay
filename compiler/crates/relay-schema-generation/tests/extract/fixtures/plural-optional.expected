@@ -66,27 +66,29 @@ Strong(
                 },
             },
         ),
-        entity_type: GenericTypeAnnotation(
-            GenericTypeAnnotation {
-                id: Identifier(
-                    Identifier {
-                        name: "User",
-                        binding: None,
-                        type_annotation: None,
-                        loc: None,
-                        range: SourceRange {
-                            start: 232,
-                            end: 236,
+        entity_type: Some(
+            GenericTypeAnnotation(
+                GenericTypeAnnotation {
+                    id: Identifier(
+                        Identifier {
+                            name: "User",
+                            binding: None,
+                            type_annotation: None,
+                            loc: None,
+                            range: SourceRange {
+                                start: 232,
+                                end: 236,
+                            },
                         },
+                    ),
+                    type_parameters: None,
+                    loc: None,
+                    range: SourceRange {
+                        start: 232,
+                        end: 236,
                     },
-                ),
-                type_parameters: None,
-                loc: None,
-                range: SourceRange {
-                    start: 232,
-                    end: 236,
                 },
-            },
+            ),
         ),
         arguments: None,
         is_live: None,
@@ -149,27 +151,29 @@ Strong(
                 },
             },
         ),
-        entity_type: GenericTypeAnnotation(
-            GenericTypeAnnotation {
-                id: Identifier(
-                    Identifier {
-                        name: "User",
-                        binding: None,
-                        type_annotation: None,
-                        loc: None,
-                        range: SourceRange {
-                            start: 305,
-                            end: 309,
+        entity_type: Some(
+            GenericTypeAnnotation(
+                GenericTypeAnnotation {
+                    id: Identifier(
+                        Identifier {
+                            name: "User",
+                            binding: None,
+                            type_annotation: None,
+                            loc: None,
+                            range: SourceRange {
+                                start: 305,
+                                end: 309,
+                            },
                         },
+                    ),
+                    type_parameters: None,
+                    loc: None,
+                    range: SourceRange {
+                        start: 305,
+                        end: 309,
                     },
-                ),
-                type_parameters: None,
-                loc: None,
-                range: SourceRange {
-                    start: 305,
-                    end: 309,
                 },
-            },
+            ),
         ),
         arguments: None,
         is_live: None,
@@ -232,27 +236,29 @@ Strong(
                 },
             },
         ),
-        entity_type: GenericTypeAnnotation(
-            GenericTypeAnnotation {
-                id: Identifier(
-                    Identifier {
-                        name: "User",
-                        binding: None,
-                        type_annotation: None,
-                        loc: None,
-                        range: SourceRange {
-                            start: 379,
-                            end: 383,
+        entity_type: Some(
+            GenericTypeAnnotation(
+                GenericTypeAnnotation {
+                    id: Identifier(
+                        Identifier {
+                            name: "User",
+                            binding: None,
+                            type_annotation: None,
+                            loc: None,
+                            range: SourceRange {
+                                start: 379,
+                                end: 383,
+                            },
                         },
+                    ),
+                    type_parameters: None,
+                    loc: None,
+                    range: SourceRange {
+                        start: 379,
+                        end: 383,
                     },
-                ),
-                type_parameters: None,
-                loc: None,
-                range: SourceRange {
-                    start: 379,
-                    end: 383,
                 },
-            },
+            ),
         ),
         arguments: None,
         is_live: None,
@@ -324,27 +330,29 @@ Strong(
                 },
             },
         ),
-        entity_type: GenericTypeAnnotation(
-            GenericTypeAnnotation {
-                id: Identifier(
-                    Identifier {
-                        name: "User",
-                        binding: None,
-                        type_annotation: None,
-                        loc: None,
-                        range: SourceRange {
-                            start: 462,
-                            end: 466,
+        entity_type: Some(
+            GenericTypeAnnotation(
+                GenericTypeAnnotation {
+                    id: Identifier(
+                        Identifier {
+                            name: "User",
+                            binding: None,
+                            type_annotation: None,
+                            loc: None,
+                            range: SourceRange {
+                                start: 462,
+                                end: 466,
+                            },
                         },
+                    ),
+                    type_parameters: None,
+                    loc: None,
+                    range: SourceRange {
+                        start: 462,
+                        end: 466,
                     },
-                ),
-                type_parameters: None,
-                loc: None,
-                range: SourceRange {
-                    start: 462,
-                    end: 466,
                 },
-            },
+            ),
         ),
         arguments: None,
         is_live: None,

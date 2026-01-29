@@ -1,5 +1,33 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Aliased linked fields without arguments don't overwrite each other generate mock for query with aliased linked fields 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest69Query {
+  a: me {
+    id
+    name
+  }
+  b: me {
+    id
+    emailAddresses
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "a": {
+      "id": "<User-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">"
+    },
+    "b": {
+      "id": "<User-mock-id-2>",
+      "emailAddresses": "<mock-value-for-field-\\"emailAddresses\\">"
+    }
+  }
+}
+`;
+
 exports[`Query with @no_inline fragment spread with literal argument 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest58Query {
@@ -51,6 +79,188 @@ fragment RelayMockPayloadGeneratorTest_fragment61_yuQoQ on User {
       "__typename": "__MockObject",
       "id": "<mock-id-1>",
       "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias all data mocked 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isNamed": true,
+      "name": "<mock-value-for-field-\\"name\\">",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not FeedUnit 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isNamed": true,
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not Named 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not Named nor FeedUnit 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias not Named, using null 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
+    }
+  }
+}
+`;
+
+exports[`allows skipping abstract inline fragment for @alias string for __isNamed still includes it 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest68Query {
+  node(id: "my-id") {
+    __typename
+    id
+    ... on Named {
+      __isNamed: __typename
+      name
+    }
+    ... on FeedUnit {
+      __isFeedUnit: __typename
+      actorCount
+    }
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "__MockObject",
+      "id": "<mock-id-1>",
+      "__isNamed": true,
+      "name": "<mock-value-for-field-\\"name\\">",
+      "__isFeedUnit": true,
+      "actorCount": "<mock-value-for-field-\\"actorCount\\">"
     }
   }
 }
@@ -2729,9 +2939,14 @@ query RelayMockPayloadGeneratorTest43Query {
     __typename
     ... on User {
       id
+      ...RelayMockPayloadGeneratorTest43SubFragment @defer(label: "RelayMockPayloadGeneratorTest43Query$defer$RelayMockPayloadGeneratorTest43SubFragment")
     }
     id
   }
+}
+
+fragment RelayMockPayloadGeneratorTest43SubFragment on User {
+  name
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -2739,7 +2954,8 @@ query RelayMockPayloadGeneratorTest43Query {
   "data": {
     "node": {
       "__typename": "User",
-      "id": "<Node-mock-id-1>"
+      "id": "<Node-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">"
     }
   }
 }
@@ -2752,9 +2968,14 @@ query RelayMockPayloadGeneratorTest43Query {
     __typename
     ... on User {
       id
+      ...RelayMockPayloadGeneratorTest43SubFragment @defer(label: "RelayMockPayloadGeneratorTest43Query$defer$RelayMockPayloadGeneratorTest43SubFragment")
     }
     id
   }
+}
+
+fragment RelayMockPayloadGeneratorTest43SubFragment on User {
+  name
 }
 
 ~~~~~~~~~~ OUTPUT ~~~~~~~~~~
@@ -2763,9 +2984,51 @@ query RelayMockPayloadGeneratorTest43Query {
     "node": {
       "__typename": "User",
       "id": "<Node-mock-id-1>",
+      "name": "<mock-value-for-field-\\"name\\">",
       "client_name": "<mock-value-for-field-\\"client_name\\">",
       "client_code": 42
     }
   }
 }
+`;
+
+exports[`with @relay_test_operation with client extensions generate mock for client extensions with client generation enabled and generateWithDefer enabled 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest43Query {
+  node(id: "my-id") {
+    __typename
+    ... on User {
+      id
+      ...RelayMockPayloadGeneratorTest43SubFragment @defer(label: "RelayMockPayloadGeneratorTest43Query$defer$RelayMockPayloadGeneratorTest43SubFragment")
+    }
+    id
+  }
+}
+
+fragment RelayMockPayloadGeneratorTest43SubFragment on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+[
+  {
+    "data": {
+      "node": {
+        "__typename": "User",
+        "id": "<Node-mock-id-1>",
+        "client_name": "<mock-value-for-field-\\"client_name\\">",
+        "client_code": 42
+      }
+    }
+  },
+  {
+    "path": [
+      "node"
+    ],
+    "label": "RelayMockPayloadGeneratorTest43Query$defer$RelayMockPayloadGeneratorTest43SubFragment",
+    "data": {
+      "name": "<mock-value-for-field-\\"name\\">"
+    }
+  }
+]
 `;

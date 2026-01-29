@@ -79,11 +79,11 @@ fn remove_defer_stream_label(schema: &mut SDLSchema) {
         if let Some(directive) = schema.get_directive_mut(*directive_name) {
             let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
             for arg in next_args.iter_mut() {
-                if arg.name.item == *LABEL {
-                    if let TypeReference::NonNull(of) = &arg.type_ {
-                        arg.type_ = *of.clone()
-                    };
-                }
+                if arg.name.item == *LABEL
+                    && let TypeReference::NonNull(of) = &arg.type_
+                {
+                    arg.type_ = *of.clone()
+                };
             }
             directive.arguments = ArgumentDefinitions::new(next_args);
         }

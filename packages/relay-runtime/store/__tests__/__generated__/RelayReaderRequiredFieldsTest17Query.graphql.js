@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b00469bbb96882888fb38496c0b62cc5>>
+ * @generated SignedSource<<7c3bb25739980b79022d4f50d20d1511>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type RelayReaderRequiredFieldsTest17Query$variables = {|
 |};
 export type RelayReaderRequiredFieldsTest17Query$data = {|
   +me: ?{|
-    +emailAddresses?: $ReadOnlyArray<?string>,
+    +emailAddresses?: ReadonlyArray<?string>,
     +name: ?string,
   |},
 |};
@@ -78,8 +78,7 @@ return {
               {
                 "kind": "RequiredField",
                 "field": (v1/*: any*/),
-                "action": "LOG",
-                "path": "me.emailAddresses"
+                "action": "LOG"
               }
             ]
           },

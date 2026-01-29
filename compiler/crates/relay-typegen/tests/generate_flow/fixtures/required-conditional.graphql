@@ -1,0 +1,6 @@
+query FooQuery($condition: Boolean!) {
+  me {
+    firstName
+    lastName @required(action: LOG) @skip(if: $condition)
+  }
+}

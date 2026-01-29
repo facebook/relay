@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c2c05ec0d836f9fab77060b8dc4447e>>
+ * @generated SignedSource<<074e7dac8c97944de8b6ce60fd1eb626>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,6 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type useRefetchableFragmentNodeTest1Fragment$fragmentType: FragmentType;
 type useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables = any;
 export type useRefetchableFragmentNodeTest1Fragment$data = {|
-  +__token: string,
   +actor: ?{|
     +name: ?string,
   |},
@@ -77,13 +76,6 @@ var node/*: ReaderFragment*/ = {
       "args": null,
       "kind": "ScalarField",
       "name": "fetch_id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "__token",
       "storageKey": null
     }
   ],

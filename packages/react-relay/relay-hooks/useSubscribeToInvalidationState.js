@@ -26,7 +26,7 @@ const {useEffect, useRef} = require('react');
  * The subscription will automatically be disposed on unmount
  */
 hook useSubscribeToInvalidationState(
-  dataIDs: $ReadOnlyArray<DataID>,
+  dataIDs: ReadonlyArray<DataID>,
   callback: () => void,
 ): Disposable {
   const environment = useRelayEnvironment();

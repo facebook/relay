@@ -1,6 +1,6 @@
 query connectionWithDynamicKey_FeedbackQuery($id: ID!, $commentsKey: String) {
   node(id: $id) {
-    ...connectionWithDynamicKey_FeedbackFragment
+    ...connectionWithDynamicKey_FeedbackFragment @alias
   }
 }
 
@@ -11,7 +11,7 @@ query connectionWithDynamicKey_PaginationQuery(
   $cursor: ID!
 ) {
   node(id: $id) {
-    ...connectionWithDynamicKey_FeedbackFragment @arguments(count: $count, cursor: $cursor)
+    ...connectionWithDynamicKey_FeedbackFragment @alias @arguments(count: $count, cursor: $cursor)
   }
 }
 

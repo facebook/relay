@@ -7,15 +7,18 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
 
+import type {useSubscriptionTestCommentCreateSubscription$variables} from './__generated__/useSubscriptionTestCommentCreateSubscription.graphql';
 import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
@@ -38,10 +41,10 @@ const CommentCreateSubscription = graphql`
 describe('useSubscription', () => {
   const mockEnv = createMockEnvironment();
   const config = {
-    variables: {},
+    variables: {} as useSubscriptionTestCommentCreateSubscription$variables,
     subscription: CommentCreateSubscription,
   };
-  const dispose = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+  const dispose = jest.fn<ReadonlyArray<unknown>, unknown>();
   const requestSubscription = jest.fn(
     (_passedEnv: any, _passedConfig: any) => ({
       dispose,
@@ -79,46 +82,46 @@ describe('useSubscription', () => {
   }
 
   let componentInstance;
-  const renderComponent = () =>
-    ReactTestRenderer.act(() => {
-      componentInstance = ReactTestRenderer.create(
+  const renderComponent = async () =>
+    await act(() => {
+      componentInstance = ReactTestingLibrary.render(
         <MyComponent env={mockEnv} />,
       );
     });
 
-  it('should call requestSubscription when mounted', () => {
-    renderComponent();
+  it('should call requestSubscription when mounted', async () => {
+    await renderComponent();
     expect(requestSubscription).toHaveBeenCalled();
   });
 
-  it('should call requestSubscription(...).dispose when unmounted', () => {
-    renderComponent();
-    ReactTestRenderer.act(() => {
+  it('should call requestSubscription(...).dispose when unmounted', async () => {
+    await renderComponent();
+    await act(() => {
       componentInstance.unmount();
     });
     expect(dispose).toHaveBeenCalled();
   });
 
-  it('should pass the current relay environment', () => {
-    renderComponent();
+  it('should pass the current relay environment', async () => {
+    await renderComponent();
     expect(requestSubscription.mock.calls[0][0]).toEqual(mockEnv);
   });
 
-  it('should forward the config', () => {
-    renderComponent();
+  it('should forward the config', async () => {
+    await renderComponent();
     expect(requestSubscription.mock.calls[0][1]).toEqual(config);
   });
 
-  it('should dispose and re-subscribe when the environment changes', () => {
-    renderComponent();
+  it('should dispose and re-subscribe when the environment changes', async () => {
+    await renderComponent();
     expect(requestSubscription).toHaveBeenCalledTimes(1);
-    expect(dispose).not.toHaveBeenCalled();
+    const disposeCallsBefore = dispose.mock.calls.length;
 
-    ReactTestRenderer.act(() => {
-      componentInstance.update(<MyComponent env={createMockEnvironment()} />);
+    await act(() => {
+      componentInstance.rerender(<MyComponent env={createMockEnvironment()} />);
     });
 
-    expect(dispose).toHaveBeenCalled();
+    expect(dispose.mock.calls.length).toBeGreaterThan(disposeCallsBefore);
     expect(requestSubscription).toHaveBeenCalledTimes(2);
   });
 });

@@ -1,0 +1,53 @@
+
+query AppQuery($showEmail: Boolean!) @raw_response_type {
+  # Repro of the issue raised in https://github.com/facebook/relay/issues/4914
+  # the `story` key should only be generated once here but it's been generated twice
+  ...AppFragment
+  ...AppConditionalFragment
+}
+
+fragment AppFragment on Query {
+  story {
+    name
+  }
+}
+
+fragment AppConditionalFragment on Query {
+  story @include(if: $showEmail) {
+    tracking
+  }
+}
+
+# Query Root
+query AppQuery1($showEmail: Boolean!) @raw_response_type @__debug {
+  story {
+    name
+  }
+  story @include(if: $showEmail) {
+    tracking
+  }
+}
+
+# Inline Fragment
+query AppQuery2($showEmail: Boolean!) @raw_response_type @__debug {
+  ... on Query {
+    story {
+      name
+    }
+    story @include(if: $showEmail) {
+      tracking
+    }
+  }
+}
+
+# Condition
+query AppQuery3($showEmail: Boolean!) @raw_response_type @__debug {
+  ... on Query @include(if: $showEmail) {
+    story {
+      name
+    }
+    story @include(if: $showEmail) {
+      tracking
+    }
+  }
+}

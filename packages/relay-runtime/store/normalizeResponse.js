@@ -27,6 +27,7 @@ function normalizeResponse(
   selector: NormalizationSelector,
   typeName: string,
   options: NormalizationOptions,
+  useExecTimeResolvers: boolean,
 ): RelayResponsePayload {
   const {data, errors} = response;
   const source = RelayRecordSource.create();
@@ -38,6 +39,7 @@ function normalizeResponse(
     data,
     options,
     errors,
+    useExecTimeResolvers,
   );
   return {
     ...relayPayload,

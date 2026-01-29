@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fa68a05c518e06e02f5422577e744799>>
+ * @generated SignedSource<<3387d6019d487ace12a8690a20e2e40e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { StrongModel____relay_model_instance$data } from "./StrongModel____relay_model_instance.graphql";
 import {edge_to_strong_model_does_not_exist as queryEdgeToStrongModelDoesNotExistResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToStrongModelDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToStrongModelDoesNotExistResolverType: () => ?{|
+(queryEdgeToStrongModelDoesNotExistResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 import {name as strongModelNameResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
@@ -31,6 +35,8 @@ import {name as strongModelNameResolverType} from "../RelayResolverNullableModel
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (strongModelNameResolverType: (
   __relay_model_instance: StrongModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$variables = {||};
 export type RelayResolverNullableModelClientEdgeTest_StrongModel_Query$data = {|
@@ -74,8 +80,8 @@ return {
               "name": "StrongModel__id"
             },
             "kind": "RelayResolver",
-            "name": "edge_to_strong_model_does_not_exist",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
             "path": "edge_to_strong_model_does_not_exist.__relay_model_instance"
           }
         },
@@ -85,7 +91,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_strong_model_does_not_exist",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_strong_model_does_not_exist,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_strong_model_does_not_exist,
           "path": "edge_to_strong_model_does_not_exist"
         },
         "linkedField": {
@@ -106,7 +112,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel____relay_model_instance.graphql'), require('./../RelayResolverNullableModelClientEdge-test').name, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel____relay_model_instance.graphql'), require('../RelayResolverNullableModelClientEdge-test').name, '__relay_model_instance', true),
               "path": "edge_to_strong_model_does_not_exist.name"
             }
           ],

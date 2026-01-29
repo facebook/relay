@@ -110,7 +110,7 @@ fn validate_all_id_fields(
                 .type_
                 .inner()
                 .get_scalar_id()
-                .map_or(false, |scalar_id| {
+                .is_some_and(|scalar_id| {
                     !NON_STRING_SCALARS.contains(&program.schema.scalar(scalar_id).name.item)
                 })
         };

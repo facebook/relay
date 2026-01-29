@@ -1,0 +1,9 @@
+query ProdQueryWithArgument @relay_test_operation(DO_NOT_USE_use_in_production: true) {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+    }
+  }
+}
+# %extensions%

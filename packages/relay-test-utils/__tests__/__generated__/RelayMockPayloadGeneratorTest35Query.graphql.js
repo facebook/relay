@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e30361c9ad7468b7bba585f73351dc5c>>
+ * @generated SignedSource<<c2b63c369dae87cfed81e7bba17f20ef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type RelayMockPayloadGeneratorTest35Query$variables = {||};
 export type RelayMockPayloadGeneratorTest35Query$data = {|
   +node: ?{|
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +id: string,
           +name: ?string,

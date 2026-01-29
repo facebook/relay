@@ -10,10 +10,10 @@ jobs:
       run:
         working-directory: ./vscode-extension
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: 16.x
+          node-version: 20.x
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts

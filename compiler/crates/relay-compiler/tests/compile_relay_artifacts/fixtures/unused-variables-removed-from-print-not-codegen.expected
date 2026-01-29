@@ -2,7 +2,7 @@
 query unusedVariablesRemovedFromPrintNotCodegen_QueryWithUnusedVariablesQuery($id: ID!, $unusedFirst: Int, $unusedAfter: ID) {
   node(id: $id) {
     id
-    ...unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment @arguments(fetchConnection: false)
+    ...unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment @arguments(fetchConnection: false) @alias
   }
 }
 
@@ -66,14 +66,25 @@ fragment unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment on User
             "storageKey": null
           },
           {
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "fetchConnection",
-                "value": false
-              }
-            ],
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "fetchConnection",
+                      "value": false
+                    }
+                  ],
+                  "kind": "FragmentSpread",
+                  "name": "unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "unusedVariablesRemovedFromPrintNotCodegen_ConnectionFragment"
           }
         ],

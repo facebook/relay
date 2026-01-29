@@ -16,8 +16,8 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use colored::Colorize;
-use signedsource::sign_file;
 use signedsource::SIGNING_TOKEN;
+use signedsource::sign_file;
 
 #[derive(Debug, Parser)]
 #[clap(name = "fixture-tests", about = "Generates fixture tests.")]
@@ -64,30 +64,30 @@ fn main() {
             });
             if path.extension().unwrap() == EXPECTED_EXTENSION {
                 if let Some(ref previous) = test_case.expected {
-                    panic!("Conflicting fixture name, {:?} and {:?}", previous, path);
+                    panic!("Conflicting fixture name, {previous:?} and {path:?}");
                 }
                 test_case.expected = Some(path);
             } else {
                 if let Some(ref previous) = test_case.input {
-                    panic!("Conflicting fixture name, {:?} and {:?}", previous, path);
+                    panic!("Conflicting fixture name, {previous:?} and {path:?}");
                 }
                 test_case.input = Some(path);
             }
         }
         for test_case in test_cases.values_mut() {
-            if test_case.expected.is_none() {
-                if let Some(ref input) = test_case.input {
-                    let mut expected = input.clone();
-                    expected.set_extension(EXPECTED_EXTENSION);
-                    let fixer = match &opt.customized_snapshot_fixer {
+            if test_case.expected.is_none()
+                && let Some(ref input) = test_case.input
+            {
+                let mut expected = input.clone();
+                expected.set_extension(EXPECTED_EXTENSION);
+                let fixer = match &opt.customized_snapshot_fixer {
                         Some(customized) => customized.as_str().as_bytes(),
                         None => {
                             "\x40nocommit\nRun snapshot tests with UPDATE_SNAPSHOTS=1 to update this new file.\n".as_bytes()
                         }
                     };
-                    File::create(&expected).unwrap().write_all(fixer).unwrap();
-                    test_case.expected = Some(expected);
-                }
+                File::create(&expected).unwrap().write_all(fixer).unwrap();
+                test_case.expected = Some(expected);
             }
         }
         let mut test_cases: Vec<(_, _)> = test_cases.into_iter().collect();
@@ -109,8 +109,7 @@ async fn {0}() {{
                     test_case
                         .input
                         .unwrap_or_else(|| panic!(
-                            "Expected input for test {:?} to exist",
-                            test_case_name
+                            "Expected input for test {test_case_name:?} to exist"
                         ))
                         .file_name()
                         .and_then(|x| x.to_str())
@@ -118,8 +117,7 @@ async fn {0}() {{
                     test_case
                         .expected
                         .unwrap_or_else(|| panic!(
-                            "Expected output for test {:?} to exist",
-                            test_case_name
+                            "Expected output for test {test_case_name:?} to exist"
                         ))
                         .file_name()
                         .and_then(|x| x.to_str())
@@ -150,17 +148,12 @@ async fn {0}() {{
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * {signing_token}
+ * {SIGNING_TOKEN}
  */
 ",
-                signing_token = SIGNING_TOKEN,
             )
         } else if let Some(customized_header) = &opt.customized_header {
-            format!(
-                "// {signing_token}\n// {customized_header}\n",
-                signing_token = SIGNING_TOKEN,
-                customized_header = customized_header
-            )
+            format!("// {SIGNING_TOKEN}\n// {customized_header}\n")
         } else {
             format!(
                 "// {signing_token}
@@ -204,11 +197,8 @@ fn check_targets_file(test_dir: &Path) {
     if !targets_content.contains(&expected_substr) {
         eprintln!(
             "{}",
-            format!(
-                "WARNING: expected {:?} to contain substring {}",
-                targets_path, expected_substr
-            )
-            .yellow()
+            format!("WARNING: expected {targets_path:?} to contain substring {expected_substr}")
+                .yellow()
         );
     }
 }

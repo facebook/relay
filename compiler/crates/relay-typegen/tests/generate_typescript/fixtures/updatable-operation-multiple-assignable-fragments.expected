@@ -2,8 +2,8 @@
 query UpdatableQuery @updatable {
   me {
     actor {
-      ...Assignable_page
-      ...Assignable_node
+      ...Assignable_page @alias
+      ...Assignable_node @alias
       lastName
       name
     }
@@ -25,16 +25,20 @@ export type UpdatableQuery$data = {
     get actor(): {
       lastName: string | null | undefined;
       name: string | null | undefined;
+      get Assignable_node(): Record<PropertyKey, never> | null | undefined;
+      set Assignable_node(value: {
+        readonly __id: string;
+        readonly __isAssignable_node: string;
+        readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
+      } | null | undefined);
+      get Assignable_page(): Record<PropertyKey, never> | null | undefined;
+      set Assignable_page(value: {
+        readonly __typename: "Page";
+        readonly __id: string;
+        readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
+      } | null | undefined);
     } | null | undefined;
-    set actor(value: {
-      readonly __typename: "Page";
-      readonly __id: string;
-      readonly " $fragmentSpreads": FragmentRefs<"Assignable_page">;
-    } | {
-      readonly __id: string;
-      readonly __isAssignable_node: string;
-      readonly " $fragmentSpreads": FragmentRefs<"Assignable_node">;
-    } | null | undefined);
+    set actor(value: null | undefined);
   } | null | undefined;
   set me(value: null | undefined);
 };

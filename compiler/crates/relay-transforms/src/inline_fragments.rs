@@ -10,8 +10,6 @@ use std::sync::Arc;
 
 use common::Location;
 use fnv::FnvHashMap;
-use graphql_ir::node_identifier::LocationAgnosticHash;
-use graphql_ir::node_identifier::LocationAgnosticPartialEq;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
@@ -20,6 +18,8 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::node_identifier::LocationAgnosticHash;
+use graphql_ir::node_identifier::LocationAgnosticPartialEq;
 
 use crate::NoInlineFragmentSpreadMetadata;
 use crate::RelayLocationAgnosticBehavior;
@@ -119,7 +119,7 @@ impl<'s> InlineFragmentsTransform<'s> {
     }
 }
 
-impl<'s> Transformer for InlineFragmentsTransform<'s> {
+impl Transformer<'_> for InlineFragmentsTransform<'_> {
     const NAME: &'static str = "InlineFragmentsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

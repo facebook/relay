@@ -25,20 +25,20 @@ export type FullName = {first: string, last: string};
 /**
  * @RelayResolver
  */
-export function first(name: FullName): string {
+export function first(name: FullName): ?string {
   return name.first;
 }
 
 /**
  * @RelayResolver
  */
-export function last(name: FullName): string {
+export function last(name: FullName): ?string {
   return name.last;
 }
 
 /**
  * @RelayResolver
  */
-export function fullName(cat: CatFlowType): FullName {
+export function fullName(cat: CatFlowType): ?FullName {
   return {first: "Mr", last: "Cat"};
 }

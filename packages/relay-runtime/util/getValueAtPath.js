@@ -14,9 +14,9 @@
 const invariant = require('invariant');
 
 function getValueAtPath(
-  data: mixed,
-  path: $ReadOnlyArray<string | number>,
-): mixed {
+  data: unknown,
+  path: ReadonlyArray<string | number>,
+): unknown {
   let result = data;
   for (const key of path) {
     if (result == null) {

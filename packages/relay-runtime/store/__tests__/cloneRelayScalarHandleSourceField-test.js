@@ -30,7 +30,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
       }
     `;
     // Get the selections on `me.addresss`.
-    // $FlowFixMe
+    // $FlowFixMe[incompatible-use]
     selections = TestQuery.operation.selections[0].selections[0].selections;
   });
 
@@ -38,8 +38,8 @@ describe('cloneRelayScalarHandleSourceField()', () => {
     // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
-      (handleField: $FlowFixMe),
-      // $FlowFixMe[incompatible-call]
+      handleField as $FlowFixMe,
+      // $FlowFixMe[incompatible-type]
       selections,
       {},
     );
@@ -57,8 +57,8 @@ describe('cloneRelayScalarHandleSourceField()', () => {
 
     expect(() =>
       cloneRelayScalarHandleSourceField(
-        (handleField: $FlowFixMe),
-        // $FlowFixMe[incompatible-call]
+        handleField as $FlowFixMe,
+        // $FlowFixMe[incompatible-type]
         selections,
         {},
       ),

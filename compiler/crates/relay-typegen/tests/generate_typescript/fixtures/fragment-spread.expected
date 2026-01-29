@@ -10,8 +10,8 @@ fragment FragmentSpread on Node {
     ...PictureFragment
   }
   ... on User {
-    ...UserFrag1
-    ...UserFrag2
+    ...UserFrag1 @alias
+    ...UserFrag2 @alias
   }
 }
 
@@ -20,7 +20,7 @@ fragment ConcreateTypes on Viewer {
     __typename
     ... on Page {
       id
-      ...PageFragment
+      ...PageFragment @alias
     }
     ... on User {
       name
@@ -52,8 +52,10 @@ import { FragmentRefs } from "relay-runtime";
 export type ConcreateTypes$data = {
   readonly actor: {
     readonly __typename: "Page";
+    readonly PageFragment: {
+      readonly " $fragmentSpreads": FragmentRefs<"PageFragment">;
+    } | null | undefined;
     readonly id: string;
-    readonly " $fragmentSpreads": FragmentRefs<"PageFragment">;
   } | {
     readonly __typename: "User";
     readonly name: string | null | undefined;
@@ -71,6 +73,12 @@ export type ConcreateTypes$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread$data = {
+  readonly UserFrag1?: {
+    readonly " $fragmentSpreads": FragmentRefs<"UserFrag1">;
+  } | null | undefined;
+  readonly UserFrag2?: {
+    readonly " $fragmentSpreads": FragmentRefs<"UserFrag2">;
+  } | null | undefined;
   readonly fragAndField: {
     readonly uri: string | null | undefined;
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
@@ -79,7 +87,7 @@ export type FragmentSpread$data = {
   readonly justFrag: {
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
   } | null | undefined;
-  readonly " $fragmentSpreads": FragmentRefs<"OtherFragment" | "UserFrag1" | "UserFrag2">;
+  readonly " $fragmentSpreads": FragmentRefs<"OtherFragment">;
   readonly " $fragmentType": "FragmentSpread";
 };
 export type FragmentSpread$key = {
@@ -101,11 +109,6 @@ import { FragmentRefs } from "relay-runtime";
 export type PageFragment$data = {
   readonly __typename: "Page";
   readonly " $fragmentType": "PageFragment";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
-  readonly " $fragmentType": "PageFragment";
 };
 export type PageFragment$key = {
   readonly " $data"?: PageFragment$data;
@@ -115,11 +118,6 @@ export type PageFragment$key = {
 import { FragmentRefs } from "relay-runtime";
 export type PictureFragment$data = {
   readonly __typename: "Image";
-  readonly " $fragmentType": "PictureFragment";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
   readonly " $fragmentType": "PictureFragment";
 };
 export type PictureFragment$key = {
@@ -131,11 +129,6 @@ import { FragmentRefs } from "relay-runtime";
 export type UserFrag1$data = {
   readonly __typename: "User";
   readonly " $fragmentType": "UserFrag1";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
-  readonly " $fragmentType": "UserFrag1";
 };
 export type UserFrag1$key = {
   readonly " $data"?: UserFrag1$data;
@@ -145,11 +138,6 @@ export type UserFrag1$key = {
 import { FragmentRefs } from "relay-runtime";
 export type UserFrag2$data = {
   readonly __typename: "User";
-  readonly " $fragmentType": "UserFrag2";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
   readonly " $fragmentType": "UserFrag2";
 };
 export type UserFrag2$key = {

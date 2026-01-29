@@ -1,7 +1,7 @@
 # expected-to-throw
 query connectionWithDynamicKeyMissingVariableDefinitionFeedbackQuery($id: ID!) {
   node(id: $id) {
-    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
+    ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment @alias
   }
 }
 
@@ -13,14 +13,15 @@ query connectionWithDynamicKeyMissingVariableDefinitionPaginationQuery(
   node(id: $id) {
     ...connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment
       @arguments(count: $count, cursor: $cursor)
+      @alias
   }
 }
 
 fragment connectionWithDynamicKeyMissingVariableDefinitionFeedbackFragment on Feedback
-  @argumentDefinitions(
-    count: {type: "Int", defaultValue: 2}
-    cursor: {type: "ID"}
-  ) {
+@argumentDefinitions(
+  count: {type: "Int", defaultValue: 2}
+  cursor: {type: "ID"}
+) {
   id
   comments(after: $cursor, first: $count, orderby: "date")
     @connection(

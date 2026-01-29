@@ -56,8 +56,7 @@ extend type User {
               "name": "name",
               "storageKey": null
             },
-            "action": "NONE",
-            "path": "best_friend.name"
+            "action": "NONE"
           }
         ],
         "storageKey": null

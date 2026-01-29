@@ -1,0 +1,6 @@
+query TestQuery {
+  me {
+    # This field does not have @semanticNonNull, but using DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD should work
+    name @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+  }
+}

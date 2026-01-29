@@ -8,8 +8,8 @@
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
-use crate::writer::Writer;
 use crate::writer::AST;
+use crate::writer::Writer;
 
 #[derive(Default)]
 pub struct JavaScriptPrinter {

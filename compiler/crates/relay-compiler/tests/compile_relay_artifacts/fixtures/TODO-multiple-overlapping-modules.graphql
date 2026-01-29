@@ -1,0 +1,46 @@
+#TODO: This should fail
+query TODOMultipleOverlappingModulesQuery {
+  node(id: "<user-id>") {
+    ... on User {
+      ...TODOMultipleOverlappingModulesInner1 @alias(as: "modules1")
+      ...TODOMultipleOverlappingModulesInner2 @alias(as: "modules2")
+    }
+  }
+}
+fragment TODOMultipleOverlappingModulesInner1 on User {
+    nameRenderer {
+    ...TODOMultipleOverlappingModulesPlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+
+fragment TODOMultipleOverlappingModulesInner2 on User {
+    nameRenderer {
+    ...TODOMultipleOverlappingModulesPlainUserNameRenderer_name @module(name: "AnotherPlainUserNameRenderer.react")
+    ...TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name
+        @module(name: "AnotherMarkdownUserNameRenderer.react")
+    }
+}
+
+
+fragment TODOMultipleOverlappingModulesPlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    ... on PlainUserNameData {
+      text
+    }
+  }
+}
+
+fragment TODOMultipleOverlappingModulesMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+    ... on MarkdownUserNameData {
+      markup
+    }
+  }
+}

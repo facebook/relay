@@ -21,7 +21,7 @@ extend type User {
   fragment-with-defer-on-fragment-with-only-client-fields.invalid.graphql:5:21
     4 │     id
     5 │     ...UserFragment @defer(label: "DeferredFragmentLabel")
-      │                     ^^^^^^
+      │                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     6 │   }
 
   ℹ︎ related location

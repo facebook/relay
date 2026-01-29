@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+//- src/component.js
+
+graphql`query componentQuery {
+  node(id: "123") {
+    ... on User {
+      name
+    }
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "./schema.graphql",
+         "schemaExtensions": ["nonexistent_extensions"],
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema.graphql
+
+type Query {
+   node(id: ID!): Node
+}
+
+interface Node {
+   id: ID!
+}
+
+type User implements Node {
+   id: ID!
+   name: String
+}
+==================================== OUTPUT ===================================
+Config `<TEST_DIR>/relay.config.json` is invalid:
+ - The `schema extension file or directory` at `<TEST_DIR>/nonexistent_extensions` does not exist.

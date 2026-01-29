@@ -12,17 +12,22 @@
 'use strict';
 
 const nullthrows = require('nullthrows');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {getFragment, graphql} = require('relay-runtime/query/GraphQLTag');
+const {
+  LiveResolverCache,
+} = require('relay-runtime/store/live-resolvers/LiveResolverCache');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
 const {
   getSingularSelector,
 } = require('relay-runtime/store/RelayModernSelector');
+const RelayStore = require('relay-runtime/store/RelayModernStore');
 const {read} = require('relay-runtime/store/RelayReader');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
-const {RecordResolverCache} = require('relay-runtime/store/ResolverCache');
+const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
 const {
   disallowConsoleErrors,
   disallowWarnings,
@@ -30,14 +35,6 @@ const {
 
 disallowConsoleErrors();
 disallowWarnings();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 const BASIC_QUERY = graphql`
   query RelayReaderClientEdgesTest1Query {
@@ -127,30 +124,32 @@ const NULL_EDGE_QUERY = graphql`
 describe('RelayReader Client Edges behavior', () => {
   it('follows the client edge to an available record', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+      '1337': {
+        __id: '1337',
+        __typename: 'User',
+        id: '1337',
+        name: 'Bob',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
-      '1337': {
-        __id: '1337',
-        id: '1337',
-        __typename: 'User',
-        name: 'Bob',
-      },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = BASIC_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -159,7 +158,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -167,24 +166,26 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if the destination record is missing', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = BASIC_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -193,7 +194,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -201,12 +202,10 @@ describe('RelayReader Client Edges behavior', () => {
     const edge = missingClientEdges?.[0] ?? {};
     expect(edge.clientEdgeDestinationID).toBe('1337');
     expect(edge.request).toMatchObject({
-      kind: 'Request',
       fragment: {
-        kind: 'Fragment',
-        type: 'Query',
-        name: 'ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge',
         argumentDefinitions: [{name: 'id'}],
+        kind: 'Fragment',
+        name: 'ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge',
         selections: [
           {
             kind: 'LinkedField',
@@ -219,11 +218,13 @@ describe('RelayReader Client Edges behavior', () => {
             ],
           },
         ],
+        type: 'Query',
       },
+      kind: 'Request',
       operation: {
+        argumentDefinitions: [{name: 'id'}],
         kind: 'Operation',
         name: 'ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge',
-        argumentDefinitions: [{name: 'id'}],
         selections: [
           {
             kind: 'LinkedField',
@@ -239,13 +240,13 @@ describe('RelayReader Client Edges behavior', () => {
               },
               {
                 kind: 'InlineFragment',
-                type: 'User',
                 selections: [
                   {
                     kind: 'ScalarField',
                     name: 'name',
                   },
                 ],
+                type: 'User',
               },
             ],
           },
@@ -259,30 +260,32 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('works when the backing field is aliased', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+      '1337': {
+        __id: '1337',
+        __typename: 'User',
+        id: '1337',
+        name: 'Bob',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
-      '1337': {
-        __id: '1337',
-        id: '1337',
-        __typename: 'User',
-        name: 'Bob',
-      },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = QUERY_WITH_ALIAS;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -292,7 +295,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
       '1337',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -300,24 +303,26 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('gives a null client edge field when the backing field is null', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = NULL_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -325,7 +330,7 @@ describe('RelayReader Client Edges behavior', () => {
     expect(me?.null_client_edge).toBe(null);
     expect(Array.from(seenRecords).sort()).toEqual([
       '1',
-      'client:1:null_client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}null_client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length ?? 0).toEqual(0);
@@ -333,31 +338,33 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if a record beyond the destination record via a linked field is missing', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+      '1337': {
+        __id: '1337',
+        __typename: 'User',
+        author: {__ref: '1338'}, // missing
+        id: '1337',
+        name: 'Bob',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
-      '1337': {
-        __id: '1337',
-        id: '1337',
-        __typename: 'User',
-        name: 'Bob',
-        author: {__ref: '1338'}, // missing
-      },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = LINKED_FIELD_WITHIN_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -367,7 +374,7 @@ describe('RelayReader Client Edges behavior', () => {
       '1',
       '1337',
       '1338',
-      'client:1:client_edge',
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -375,37 +382,44 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if data is missing within a fragment spread in the destination record of a client edge', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+      '1337': {
+        __id: '1337',
+        __typename: 'User',
+        id: '1337',
+        // name is missing
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
-      '1337': {
-        __id: '1337',
-        id: '1337',
-        __typename: 'User',
-        // name is missing
-      },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = FRAGMENT_SPREAD_WITHIN_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
-    const {data: parentData} = read(source, operation.fragment, resolverCache);
+    const {data: parentData} = read(
+      source,
+      operation.fragment,
+      null,
+      resolverCache,
+    );
     const {data, seenRecords, missingClientEdges} = read(
       source,
       nullthrows(
         getSingularSelector(
           getFragment(FRAGMENT_ON_USER),
           // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
-          nullthrows((parentData: any).me.client_edge),
+          nullthrows((parentData as any).me.client_edge),
         ),
       ),
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -417,30 +431,32 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('returns a missing data request if data is missing within a client edge within a client edge', () => {
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+      '1337': {
+        __id: '1337',
+        __typename: 'User',
+        id: '1337',
+        // name is missing
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-      },
-      '1337': {
-        __id: '1337',
-        id: '1337',
-        __typename: 'User',
-        // name is missing
-      },
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = NESTED_CLIENT_EDGE_QUERY;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -450,8 +466,8 @@ describe('RelayReader Client Edges behavior', () => {
       '1',
       '1337',
       '1338',
-      'client:1337:another_client_edge',
-      'client:1:client_edge',
+      `client:1337:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}another_client_edge`,
+      `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -467,32 +483,34 @@ describe('RelayReader Client Edges behavior', () => {
     // client data. But for client edges, we can help using the client edge query, no matter
     // how that client edge was reached.
     const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        client_extension_linked_field: {__ref: '1338'},
+        id: '1',
+        name: 'Alice',
+      },
+      '1338': {
+        __id: '1338',
+        __typename: 'User',
+        id: '1338',
+        name: 'Bob',
+      },
       'client:root': {
         __id: 'client:root',
         __typename: '__Root',
         me: {__ref: '1'},
       },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        name: 'Alice',
-        client_extension_linked_field: {__ref: '1338'},
-      },
-      '1338': {
-        __id: '1338',
-        id: '1338',
-        __typename: 'User',
-        name: 'Bob',
-      },
       // 1337 (the client edge destination) is missing.
     });
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const FooQuery = CLIENT_EDGE_WITHIN_CLIENT_EXTENSION;
     const operation = createOperationDescriptor(FooQuery, {id: '1'});
     const {data, seenRecords, missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     // $FlowFixMe[unclear-type] - read() doesn't have the nice types of reading a fragment through the actual APIs:
@@ -502,7 +520,7 @@ describe('RelayReader Client Edges behavior', () => {
       '1',
       '1337',
       '1338',
-      'client:1338:client_edge',
+      `client:1338:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}client_edge`,
       'client:root',
     ]);
     expect(missingClientEdges?.length).toEqual(1);
@@ -510,23 +528,23 @@ describe('RelayReader Client Edges behavior', () => {
 
   it('propagates missing client edge data errors from the resolver up to the reader', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
       '1': {
         __id: '1',
-        id: '1',
         __typename: 'User',
+        id: '1',
         name: null,
       },
       '1337': {
         // `client_edge` points here
         __id: '1337',
-        id: '1337',
         __typename: 'User',
+        id: '1337',
         name: undefined, // The missing data
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
       },
     });
     const FooQuery = graphql`
@@ -538,10 +556,12 @@ describe('RelayReader Client Edges behavior', () => {
     `;
 
     const operation = createOperationDescriptor(FooQuery, {});
-    const resolverCache = new RecordResolverCache(() => source);
+    const store = new RelayStore(source);
+    const resolverCache = new LiveResolverCache(() => source, store);
     const {missingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     expect(missingClientEdges).toEqual([
@@ -559,6 +579,7 @@ describe('RelayReader Client Edges behavior', () => {
     const {missingClientEdges: stillMissingClientEdges} = read(
       source,
       operation.fragment,
+      null,
       resolverCache,
     );
     expect(stillMissingClientEdges).toEqual([

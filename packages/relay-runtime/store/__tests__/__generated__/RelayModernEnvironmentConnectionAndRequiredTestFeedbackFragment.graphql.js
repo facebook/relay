@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86b68cd8e9f2c83867683c7b3c40a5fe>>
+ * @generated SignedSource<<dc7877c6daa4fb027e333a8c7f19b735>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data = ?{|
   +comments: {|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +id: string,
       |},
@@ -156,8 +156,7 @@ return {
         ],
         "storageKey": "__RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment_comments_connection(orderby:\"date\")"
       },
-      "action": "LOG",
-      "path": "comments"
+      "action": "LOG"
     }
   ],
   "type": "Feedback",

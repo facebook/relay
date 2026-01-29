@@ -66,6 +66,12 @@ extend interface Node implements HasName {
   name: String
 }
 extend type User implements HasName
+
+type Bot {
+  id: ID!
+}
+
+extend union Actor = Bot
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
   query_type: Some(
@@ -202,6 +208,7 @@ Text Schema:Schema {
   type_map: {
     "Actor": Union(0),
     "Boolean": Scalar(3),
+    "Bot": Object(4),
     "ClientType": Object(3),
     "Float": Scalar(6),
     "HasName": Interface(1),
@@ -251,14 +258,17 @@ Text Schema:Schema {
                         ],
                     },
                 ],
+                description: None,
             },
             EnumValue {
                 value: "PUBLIC",
                 directives: [],
+                description: None,
             },
             EnumValue {
                 value: "PRIVATE",
                 directives: [],
+                description: None,
             },
         ],
         directives: [],
@@ -515,6 +525,25 @@ Text Schema:Schema {
         directives: [],
         parent_type: Some(
             Interface(0),
+        ),
+        description: None,
+        hack_source: None,
+    },
+    Field {
+        name: WithLocation {
+            location: kitchen-sink.graphql:961:963,
+            item: "id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(4),
         ),
         description: None,
         hack_source: None,
@@ -786,7 +815,9 @@ Text Schema:Schema {
         },
         is_extension: true,
         implementing_interfaces: [],
-        implementing_objects: [],
+        implementing_objects: [
+            ObjectID(1),
+        ],
         fields: [
             FieldID(10),
         ],
@@ -863,6 +894,22 @@ Text Schema:Schema {
         is_extension: true,
         fields: [
             FieldID(7),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
+    Object {
+        name: WithLocation {
+            location: kitchen-sink.graphql:953:956,
+            item: ObjectName(
+                "Bot",
+            ),
+        },
+        is_extension: true,
+        fields: [
+            FieldID(12),
         ],
         interfaces: [],
         directives: [],
@@ -1028,6 +1075,7 @@ Text Schema:Schema {
         members: [
             ObjectID(1),
             ObjectID(2),
+            ObjectID(4),
         ],
         directives: [],
         description: None,
@@ -1198,14 +1246,17 @@ enums: [
                         ],
                     },
                 ],
+                description: None,
             },
             EnumValue {
                 value: "PUBLIC",
                 directives: [],
+                description: None,
             },
             EnumValue {
                 value: "PRIVATE",
                 directives: [],
+                description: None,
             },
         ],
         directives: [],
@@ -1214,6 +1265,25 @@ enums: [
     },
 ]
 fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(0),
+            ),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(3),
+        ),
+        description: None,
+        hack_source: None,
+    },
     Field {
         name: WithLocation {
             location: <generated>:0:0,
@@ -1347,7 +1417,7 @@ fields: [
         ),
         directives: [],
         parent_type: Some(
-            Object(3),
+            Object(4),
         ),
         description: None,
         hack_source: None,
@@ -1391,7 +1461,7 @@ fields: [
         ),
         directives: [],
         parent_type: Some(
-            Object(3),
+            Object(4),
         ),
         description: None,
         hack_source: None,
@@ -1606,7 +1676,9 @@ interfaces: [
         },
         is_extension: true,
         implementing_interfaces: [],
-        implementing_objects: [],
+        implementing_objects: [
+            ObjectID(0),
+        ],
         fields: [
             FieldID(7),
         ],
@@ -1640,6 +1712,22 @@ interfaces: [
     },
 ]
 objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ObjectName(
+                "Bot",
+            ),
+        },
+        is_extension: true,
+        fields: [
+            FieldID(10),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+        hack_source: None,
+    },
     Object {
         name: WithLocation {
             location: <generated>:0:0,
@@ -1682,8 +1770,8 @@ objects: [
         },
         is_extension: false,
         fields: [
-            FieldID(10),
             FieldID(11),
+            FieldID(12),
         ],
         interfaces: [],
         directives: [],
@@ -1835,6 +1923,7 @@ unions: [
         members: [
             ObjectID(0),
             ObjectID(2),
+            ObjectID(3),
         ],
         directives: [],
         description: None,

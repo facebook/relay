@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7c5d632e9655b03baf5b566251e7b947>>
+ * @generated SignedSource<<c48cc81277aa200a828850439d605215>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,17 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { StrongModel__id$data } from "./StrongModel__id.graphql";
 import type { FragmentType } from "relay-runtime";
 import {StrongModel as strongModelRelayModelInstanceResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `strongModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (strongModelRelayModelInstanceResolverType: (
   id: StrongModel__id$data['id'],
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => unknown);
 declare export opaque type StrongModel____relay_model_instance$fragmentType: FragmentType;
 export type StrongModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof strongModelRelayModelInstanceResolverType>>,
+  +__relay_model_instance: NonNullable<ReturnType<typeof strongModelRelayModelInstanceResolverType>>,
   +$fragmentType: StrongModel____relay_model_instance$fragmentType,
 |};
 export type StrongModel____relay_model_instance$key = {
@@ -54,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./StrongModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').StrongModel, 'id', true),
       "path": "__relay_model_instance"
     }
   ],

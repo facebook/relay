@@ -40,7 +40,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
     }
 }
 
-impl<'s> SkipClientExtensionsTransform<'s> {
+impl SkipClientExtensionsTransform<'_> {
     fn is_client_directive(&self, name: DirectiveName) -> bool {
         // Return true if:
         // - directive is a custom internal directive used to hold
@@ -52,7 +52,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
     }
 }
 
-impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
+impl Transformer<'_> for SkipClientExtensionsTransform<'_> {
     const NAME: &'static str = "SkipClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;
@@ -93,10 +93,10 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        if let Some(type_condition) = fragment.type_condition {
-            if self.program.schema.is_extension_type(type_condition) {
-                return Transformed::Delete;
-            }
+        if let Some(type_condition) = fragment.type_condition
+            && self.program.schema.is_extension_type(type_condition)
+        {
+            return Transformed::Delete;
         }
         self.default_transform_inline_fragment(fragment)
     }

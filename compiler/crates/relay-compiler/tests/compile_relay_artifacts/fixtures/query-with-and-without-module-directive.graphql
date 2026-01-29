@@ -1,7 +1,7 @@
 # expected-to-throw
 query queryWithAndWithoutModuleDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithAndWithoutModuleDirective_NameRendererFragment
+    ...queryWithAndWithoutModuleDirective_NameRendererFragment @alias
   }
 }
 
@@ -9,10 +9,11 @@ fragment queryWithAndWithoutModuleDirective_NameRendererFragment on User {
   id
   nameRenderer {
     ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+      @alias
       @module(name: "MarkdownUserNameRenderer.react")
   }
   without_module: nameRenderer {
-    ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name
+    ...queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name @alias
   }
 }
 

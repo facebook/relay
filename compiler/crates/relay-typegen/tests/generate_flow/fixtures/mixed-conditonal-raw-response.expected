@@ -1,0 +1,176 @@
+==================================== INPUT ====================================
+query AppQuery($showEmail: Boolean!) @raw_response_type {
+  # Repro of the issue raised in https://github.com/facebook/relay/issues/4914
+  # the `story` key should only be generated once here but it's been generated twice
+  ...AppFragment
+  ...AppConditionalFragment
+}
+
+fragment AppFragment on Query {
+  story {
+    name
+  }
+}
+
+fragment AppConditionalFragment on Query {
+  story @include(if: $showEmail) {
+    tracking
+  }
+}
+
+# Query Root
+query AppQuery1($showEmail: Boolean!) @raw_response_type @__debug {
+  story {
+    name
+  }
+  story @include(if: $showEmail) {
+    tracking
+  }
+}
+
+# Inline Fragment
+query AppQuery2($showEmail: Boolean!) @raw_response_type @__debug {
+  ... on Query {
+    story {
+      name
+    }
+    story @include(if: $showEmail) {
+      tracking
+    }
+  }
+}
+
+# Condition
+query AppQuery3($showEmail: Boolean!) @raw_response_type @__debug {
+  ... on Query @include(if: $showEmail) {
+    story {
+      name
+    }
+    story @include(if: $showEmail) {
+      tracking
+    }
+  }
+}
+==================================== OUTPUT ===================================
+import type { AppConditionalFragment$fragmentType } from "AppConditionalFragment.graphql";
+import type { AppFragment$fragmentType } from "AppFragment.graphql";
+export type AppQuery$variables = {|
+  showEmail: CustomBoolean,
+|};
+export type AppQuery$data = {|
+  +$fragmentSpreads: AppConditionalFragment$fragmentType & AppFragment$fragmentType,
+|};
+export type AppQuery$rawResponse = {|
+  +story: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
+  |},
+|};
+export type AppQuery = {|
+  rawResponse: AppQuery$rawResponse,
+  response: AppQuery$data,
+  variables: AppQuery$variables,
+|};
+-------------------------------------------------------------------------------
+export type AppQuery1$variables = {|
+  showEmail: CustomBoolean,
+|};
+export type AppQuery1$data = {|
+  +story: ?{|
+    +name?: ?string,
+    +tracking: ?string,
+  |},
+|};
+export type AppQuery1$rawResponse = {|
+  +story: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
+  |},
+|};
+export type AppQuery1 = {|
+  rawResponse: AppQuery1$rawResponse,
+  response: AppQuery1$data,
+  variables: AppQuery1$variables,
+|};
+-------------------------------------------------------------------------------
+export type AppQuery2$variables = {|
+  showEmail: CustomBoolean,
+|};
+export type AppQuery2$data = {|
+  +story: ?{|
+    +name?: ?string,
+    +tracking: ?string,
+  |},
+|};
+export type AppQuery2$rawResponse = {|
+  +story: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
+  |},
+|};
+export type AppQuery2 = {|
+  rawResponse: AppQuery2$rawResponse,
+  response: AppQuery2$data,
+  variables: AppQuery2$variables,
+|};
+-------------------------------------------------------------------------------
+export type AppQuery3$variables = {|
+  showEmail: CustomBoolean,
+|};
+export type AppQuery3$data = {|
+  +story?: ?{|
+    +name?: ?string,
+    +tracking: ?string,
+  |},
+|};
+export type AppQuery3$rawResponse = {|
+  +story?: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+  +story?: ?{|
+    +tracking: ?string,
+  |},
+|};
+export type AppQuery3 = {|
+  rawResponse: AppQuery3$rawResponse,
+  response: AppQuery3$data,
+  variables: AppQuery3$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type AppConditionalFragment$fragmentType: FragmentType;
+export type AppConditionalFragment$data = {|
+  +story?: ?{|
+    +tracking: ?string,
+  |},
+  +$fragmentType: AppConditionalFragment$fragmentType,
+|};
+export type AppConditionalFragment$key = {
+  +$data?: AppConditionalFragment$data,
+  +$fragmentSpreads: AppConditionalFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type AppFragment$fragmentType: FragmentType;
+export type AppFragment$data = {|
+  +story: ?{|
+    +name: ?string,
+  |},
+  +$fragmentType: AppFragment$fragmentType,
+|};
+export type AppFragment$key = {
+  +$data?: AppFragment$data,
+  +$fragmentSpreads: AppFragment$fragmentType,
+  ...
+};

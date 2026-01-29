@@ -23,14 +23,15 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use schema::Schema;
 
-use super::ensure_discriminated_union_is_created;
-use super::errors::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
+use super::ensure_discriminated_union_is_created;
+use super::errors::ValidationMessage;
+use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn transform_assignable_fragment_spreads_in_regular_queries(
     program: &Program,
@@ -58,12 +59,12 @@ struct AssignableFragmentSpread<'s> {
     path: Vec<PathSegment>,
 }
 
-impl<'s> AssignableFragmentSpread<'s> {
+impl AssignableFragmentSpread<'_> {
     /// 1. Validate that the assignable fragment does not have @skip/@defer, and
-    /// is not within an inline fragment with directives, and is nested in a linked field
+    ///    is not within an inline fragment with directives, and is nested in a linked field
     /// 2. Mark the enclosing linked field as containing an assignable fragment spread.
-    /// This later results in an __id (clientid_field) selection being added to the linked
-    /// field.
+    ///    This later results in an __id (clientid_field) selection being added to the linked
+    ///    field.
     fn validate_nesting_and_mark_enclosing_linked_field(
         &mut self,
         fragment_spread: &FragmentSpread,
@@ -137,7 +138,7 @@ enum ValidGeneratedFlowType {
     Any,
 }
 
-impl<'s> Transformer for AssignableFragmentSpread<'s> {
+impl Transformer<'_> for AssignableFragmentSpread<'_> {
     const NAME: &'static str = "AssignableFragmentTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -208,13 +209,19 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
             return Transformed::Keep;
         }
 
+        let dissallowed_directives = fragment_spread
+            .directives
+            .iter()
+            .filter(|directive| directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME)
+            .collect::<Vec<_>>();
+
         // Assignable fragments cannot have directives, but we error only on the first one
-        if let Some(directive) = fragment_spread.directives.first() {
+        if let Some(directive) = dissallowed_directives.first() {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::AssignableFragmentSpreadNoOtherDirectives {
                     disallowed_directive_name: directive.name.item.0,
                 },
-                directive.name.location,
+                directive.location,
             ));
         }
 
@@ -281,14 +288,12 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         if matches!(
             valid_generated_flow_type,
             ValidGeneratedFlowType::OnlyDiscriminatedUnion
+        ) && let Err(e) = ensure_discriminated_union_is_created(
+            &self.program.schema,
+            linked_field,
+            "an assignable fragment was spread in this linked field",
         ) {
-            if let Err(e) = ensure_discriminated_union_is_created(
-                &self.program.schema,
-                linked_field,
-                "an assignable fragment was spread in this linked field",
-            ) {
-                self.errors.extend(e);
-            }
+            self.errors.extend(e);
         }
 
         response

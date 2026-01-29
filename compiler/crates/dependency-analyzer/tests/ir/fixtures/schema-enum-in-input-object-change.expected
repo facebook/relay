@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+#
+# Test case: Enum change inside InputObject should affect queries using that InputObject
+# This test validates that when an enum used inside an input object changes,
+# queries that use variables of that input object type are marked as affected.
+
+query QueryWithInputContainingEnum($input: StorySearchInput!) {
+  me {
+    storySearch(query: $input) {
+      id
+    }
+  }
+}
+
+query QueryWithoutEnumInput($text: String) {
+  me {
+    storySearch(query: {text: $text}) {
+      id
+    }
+  }
+}
+
+fragment UnrelatedFragment on User {
+  name
+}
+
+%extensions%
+# Enum: StoryType
+==================================== OUTPUT ===================================
+Operation: QueryWithInputContainingEnum

@@ -11,6 +11,8 @@
 
 'use strict';
 import type {RelayMockEnvironment} from '../../relay-test-utils/RelayModernMockEnvironment';
+import type {NetworkWriteConfig} from '../ReactRelayTestMocker';
+import type {GeneratedNodeMap} from '../ReactRelayTypes';
 
 const RelayTestRenderer = require('../__mocks__/RelayTestRenderer');
 const {
@@ -21,7 +23,12 @@ const ReactRelayTestMocker = require('../ReactRelayTestMocker');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
-const RelayTestUtils = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 const ReactRelayTestMockerTestQuery = graphql`
   query ReactRelayTestMockerTestQuery {
@@ -41,7 +48,7 @@ const ReactRelayTestMockerTestNestedQuery = graphql`
     }
   }
 `;
-const ReactRelayTestMockerTest_meFragmentDefinition = {
+const ReactRelayTestMockerTest_meFragmentDefinition: GeneratedNodeMap = {
   me: graphql`
     fragment ReactRelayTestMockerTest_me on User {
       name
@@ -55,7 +62,6 @@ const ReactRelayTestMockerTestFragContainerTestQuery = graphql`
     }
   }
 `;
-const {createMockEnvironment} = RelayTestUtils;
 
 describe('ReactRelayTestMocker', () => {
   describe('generateId', () => {
@@ -93,7 +99,7 @@ describe('ReactRelayTestMocker', () => {
     });
 
     it('updates properly via default values', () => {
-      const testQueryDefault = {
+      const testQueryDefault: NetworkWriteConfig = {
         query: ReactRelayTestMockerTestQuery,
         payload: {data: payload},
       };
@@ -102,7 +108,7 @@ describe('ReactRelayTestMocker', () => {
 
       const nestedQuery = ReactRelayTestMockerTestNestedQuery;
 
-      const nestedQueryDefault = {
+      const nestedQueryDefault: NetworkWriteConfig = {
         query: ReactRelayTestMockerTestNestedQuery,
         payload: {
           data: {
@@ -164,17 +170,22 @@ describe('ReactRelayTestMocker', () => {
         />
       );
 
-      const tree = ReactTestRenderer.create(toRender);
+      let tree;
+      ReactTestRenderer.act(() => {
+        tree = ReactTestRenderer.create(toRender);
+      });
 
-      expect(JSON.stringify(tree.toJSON())).toEqual(
+      expect(JSON.stringify(tree?.toJSON())).toEqual(
         expect.stringContaining('My name is ' + name),
       );
 
-      expect(JSON.stringify(tree.toJSON())).toEqual(
+      expect(JSON.stringify(tree?.toJSON())).toEqual(
         expect.stringContaining('Birth month is 1'),
       );
 
-      tree.unmount();
+      ReactTestRenderer.act(() => {
+        tree.unmount();
+      });
       writer.unsetDefault(testQueryDefault);
       writer.unsetDefault(nestedQueryDefault);
     });
@@ -201,37 +212,49 @@ describe('ReactRelayTestMocker', () => {
         />
       );
 
-      let tree = ReactTestRenderer.create(toRender);
-      expect(tree.toJSON()).toMatchSnapshot();
-
-      writer.networkWrite({
-        query: ReactRelayTestMockerTestQuery,
-        payload: {data: payload},
+      let tree;
+      ReactTestRenderer.act(() => {
+        tree = ReactTestRenderer.create(toRender);
       });
-      jest.runAllTimers();
-      expect(JSON.stringify(tree.toJSON())).toEqual(
+      expect(tree?.toJSON()).toMatchSnapshot();
+      ReactTestRenderer.act(() => {
+        writer.networkWrite({
+          query: ReactRelayTestMockerTestQuery,
+          payload: {data: payload},
+        });
+      });
+      ReactTestRenderer.act(() => {
+        jest.runAllTimers();
+      });
+      expect(JSON.stringify(tree?.toJSON())).toEqual(
         expect.stringContaining('My name is ' + name),
       );
-      expect(tree.toJSON()).toMatchSnapshot();
-      tree.unmount();
-
-      // rerender to test error behavior
-      tree = ReactTestRenderer.create(toRender);
-
-      writer.networkWrite({
-        query: ReactRelayTestMockerTestQuery,
-        payload: {
-          data: null,
-          errors: [
-            {
-              message: 'Uh oh',
-            },
-          ],
-        },
+      expect(tree?.toJSON()).toMatchSnapshot();
+      ReactTestRenderer.act(() => {
+        tree.unmount();
+        // rerender to test error behavior
+        tree = ReactTestRenderer.create(toRender);
       });
-      jest.runAllTimers();
-      expect(tree.toJSON()).toMatchSnapshot();
-      tree.unmount();
+      ReactTestRenderer.act(() => {
+        writer.networkWrite({
+          query: ReactRelayTestMockerTestQuery,
+          payload: {
+            data: null,
+            errors: [
+              {
+                message: 'Uh oh',
+              },
+            ],
+          },
+        });
+      });
+      ReactTestRenderer.act(() => {
+        jest.runAllTimers();
+      });
+      expect(tree?.toJSON()).toMatchSnapshot();
+      ReactTestRenderer.act(() => {
+        tree.unmount();
+      });
     });
 
     it('properly updates a component wrapped in a fragment container', () => {
@@ -252,16 +275,19 @@ describe('ReactRelayTestMocker', () => {
         variables,
       });
 
-      const tree = ReactTestRenderer.create(
-        <RelayTestRenderer
-          environment={environment}
-          query={q}
-          variables={variables}>
-          <Component />
-        </RelayTestRenderer>,
-      );
+      let tree;
+      ReactTestRenderer.act(() => {
+        tree = ReactTestRenderer.create(
+          <RelayTestRenderer
+            environment={environment}
+            query={q}
+            variables={variables}>
+            <Component />
+          </RelayTestRenderer>,
+        );
+      });
 
-      expect(tree.toJSON()).toMatchSnapshot();
+      expect(tree?.toJSON()).toMatchSnapshot();
 
       const newPayload = {
         me: {
@@ -270,14 +296,14 @@ describe('ReactRelayTestMocker', () => {
           name: 'new name',
         },
       };
-
-      writer.dataWrite({
-        query: ReactRelayTestMockerTestFragContainerTestQuery,
-        payload: {data: newPayload},
-        variables,
+      ReactTestRenderer.act(() => {
+        writer.dataWrite({
+          query: ReactRelayTestMockerTestFragContainerTestQuery,
+          payload: {data: newPayload},
+          variables,
+        });
       });
-
-      expect(tree.toJSON()).toMatchSnapshot();
+      expect(tree?.toJSON()).toMatchSnapshot();
     });
   });
 });

@@ -10,20 +10,21 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::ops::Deref;
 
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use relay_config::TypegenConfig;
 use relay_config::TypegenLanguage;
 
-use crate::flow::FlowPrinter;
-use crate::javascript::JavaScriptPrinter;
-use crate::typescript::TypeScriptPrinter;
 use crate::FUTURE_ENUM_VALUE;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_TYPENAME;
+use crate::flow::FlowPrinter;
+use crate::javascript::JavaScriptPrinter;
+use crate::typescript::TypeScriptPrinter;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[allow(clippy::upper_case_acronyms)]
 pub enum AST {
     Union(SortedASTList),
     ReadOnlyArray(Box<AST>),
@@ -52,7 +53,7 @@ pub enum AST {
     AssertFunctionType(FunctionTypeAssertion),
     GenericType {
         outer: StringKey,
-        inner: Box<AST>,
+        inner: Vec<AST>,
     },
     PropertyType {
         type_: Box<AST>,
@@ -386,10 +387,13 @@ pub trait Writer: Write {
     fn write_any_type_definition(&mut self, name: &str) -> FmtResult;
 }
 
-pub(crate) fn new_writer_from_config(config: &TypegenConfig) -> Box<dyn Writer> {
+pub(crate) fn new_writer_from_config(
+    config: &TypegenConfig,
+    use_readonly_array_for_flow: bool,
+) -> Box<dyn Writer> {
     match config.language {
         TypegenLanguage::JavaScript => Box::<JavaScriptPrinter>::default(),
-        TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+        TypegenLanguage::Flow => Box::new(FlowPrinter::new(use_readonly_array_for_flow)),
         TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
     }
 }

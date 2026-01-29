@@ -70,7 +70,7 @@ impl<'program, 'feature> ActorChangeTransform<'program, 'feature> {
     }
 }
 
-impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature> {
+impl Transformer<'_> for ActorChangeTransform<'_, '_> {
     const NAME: &'static str = "ActorChangeTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -136,7 +136,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                                     .schema
                                     .get_type_name(viewer_field.type_.inner()),
                             },
-                            actor_change_directive.name.location,
+                            actor_change_directive.location,
                         ));
                         return Transformed::Keep;
                     } else {
@@ -151,7 +151,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                             field_name: schema_field.name.item,
                             type_name: self.program.schema.get_type_name(field_type),
                         },
-                        actor_change_directive.name.location,
+                        actor_change_directive.location,
                     ));
                     return Transformed::Keep;
                 }
@@ -173,6 +173,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                     ),
                     arguments: vec![],
                     data: None,
+                    location: actor_change_directive.location,
                 }],
                 selections: vec![Selection::LinkedField(Arc::new(LinkedField {
                     selections: next_selections,

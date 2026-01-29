@@ -11,7 +11,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type NonNullFragment$fragmentType: FragmentType;
 export type NonNullFragment$data = {|
   +firstName: ?string,
-  +screennames: ?$ReadOnlyArray<?{|
+  +screennames: ?ReadonlyArray<?{|
     +name: ?string,
     +service: string,
   |}>,

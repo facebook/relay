@@ -71,8 +71,8 @@ impl ExecutableDefinition {
 impl fmt::Debug for ExecutableDefinition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ExecutableDefinition::Operation(node) => f.write_fmt(format_args!("{:#?}", node)),
-            ExecutableDefinition::Fragment(node) => f.write_fmt(format_args!("{:#?}", node)),
+            ExecutableDefinition::Operation(node) => f.write_fmt(format_args!("{node:#?}")),
+            ExecutableDefinition::Fragment(node) => f.write_fmt(format_args!("{node:#?}")),
         }
     }
 }
@@ -85,6 +85,7 @@ pub struct OperationDefinition {
     pub variable_definitions: Option<List<VariableDefinition>>,
     pub directives: Vec<Directive>,
     pub selections: List<Selection>,
+    pub description: Option<StringNode>,
 }
 
 impl OperationDefinition {
@@ -133,6 +134,7 @@ pub struct FragmentDefinition {
     pub type_condition: TypeCondition,
     pub directives: Vec<Directive>,
     pub selections: List<Selection>,
+    pub description: Option<StringNode>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -143,6 +145,7 @@ pub struct VariableDefinition {
     pub type_: TypeAnnotation,
     pub default_value: Option<DefaultValue>,
     pub directives: Vec<Directive>,
+    pub description: Option<StringNode>,
 }
 
 // Primitive Types
@@ -158,6 +161,11 @@ impl fmt::Display for Alias {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_fmt(format_args!("{}", self.alias))
     }
+}
+
+pub enum IdentifierOrString {
+    Identifier(Identifier),
+    StringNode(StringNode),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -206,10 +214,10 @@ impl Selection {
 impl fmt::Debug for Selection {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::InlineFragment(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::LinkedField(node) => f.write_fmt(format_args!("{:#?}", node)),
-            Selection::ScalarField(node) => f.write_fmt(format_args!("{:#?}", node)),
+            Selection::FragmentSpread(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::InlineFragment(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::LinkedField(node) => f.write_fmt(format_args!("{node:#?}")),
+            Selection::ScalarField(node) => f.write_fmt(format_args!("{node:#?}")),
         }
     }
 }

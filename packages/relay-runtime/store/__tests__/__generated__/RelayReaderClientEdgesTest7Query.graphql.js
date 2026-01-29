@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d124d9e35d8fd50f075aa249f7e6d754>>
+ * @generated SignedSource<<374706acddfeb3e3f32f646af5b4fc33>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { UserNullClientEdgeResolver$key } from "./../resolvers/__generated__/UserNullClientEdgeResolver.graphql";
 import {null_client_edge as userNullClientEdgeResolverType} from "../resolvers/UserNullClientEdgeResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userNullClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userNullClientEdgeResolverType: (
   rootKey: UserNullClientEdgeResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -82,7 +85,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "null_client_edge",
-              "resolverModule": require('./../resolvers/UserNullClientEdgeResolver').null_client_edge,
+              "resolverModule": require('../resolvers/UserNullClientEdgeResolver').null_client_edge,
               "path": "me.null_client_edge"
             },
             "linkedField": {

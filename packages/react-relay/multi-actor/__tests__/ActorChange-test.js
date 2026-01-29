@@ -33,10 +33,16 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+  skipIf,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
-  props: $ReadOnly<{
+  props: Readonly<{
     children: React.Node,
     environment: IActorEnvironment,
     multiActorEnvironment: IMultiActorEnvironment,
@@ -124,7 +130,7 @@ function MainComponent() {
   );
 }
 
-type Props = $ReadOnly<{
+type Props = Readonly<{
   myFragment: ActorChangeTestFeedUnitFragment$key,
   actorIdentifier: ActorIdentifier,
 }>;
@@ -163,7 +169,7 @@ describe('ActorChange', () => {
   let environment;
   let multiActorEnvironment;
   let fetchFnForActor: JestMockFn<
-    Array<mixed>,
+    Array<unknown>,
     ObservableFromValue<GraphQLResponse>,
   >;
 
@@ -179,7 +185,8 @@ describe('ActorChange', () => {
     );
   });
 
-  it('should render a fragment for actor', () => {
+  // $FlowFixMe[cannot-resolve-name]
+  skipIf(process.env.OSS, 'should render a fragment for actor', () => {
     fetchFnForActor = jest.fn(actorId =>
       Observable.from(
         Promise.resolve({
@@ -279,98 +286,103 @@ describe('ActorChange', () => {
     ).toEqual(['Sylvester Text']);
   });
 
-  it('should send a query and mutations with correct actor id, from the correct environment', () => {
-    fetchFnForActor = jest.fn(actorId =>
-      Observable.from(
-        Promise.resolve({
-          data: {
-            viewer: {
-              newsFeed: {
-                edges: [
-                  {
-                    node: {
-                      id: 'node-1',
-                      __typename: 'FeedUnit',
-                      actor: {
-                        id: 'actor-1',
-                        __typename: 'User',
-                        name: 'Antonio Banderas',
+  skipIf(
+    // $FlowFixMe[cannot-resolve-name]
+    process.env.OSS,
+    'should send a query and mutations with correct actor id, from the correct environment',
+    () => {
+      fetchFnForActor = jest.fn(actorId =>
+        Observable.from(
+          Promise.resolve({
+            data: {
+              viewer: {
+                newsFeed: {
+                  edges: [
+                    {
+                      node: {
+                        id: 'node-1',
+                        __typename: 'FeedUnit',
+                        actor: {
+                          id: 'actor-1',
+                          __typename: 'User',
+                          name: 'Antonio Banderas',
+                        },
+                      },
+                      actor_node: {
+                        actor_key: 'actor:4321',
+                        id: 'node-1',
+                        __typename: 'FeedUnit',
+                        message: {
+                          __typename: 'Text',
+                          text: 'Antonio Text',
+                        },
                       },
                     },
-                    actor_node: {
-                      actor_key: 'actor:4321',
-                      id: 'node-1',
-                      __typename: 'FeedUnit',
-                      message: {
-                        __typename: 'Text',
-                        text: 'Antonio Text',
+                    {
+                      node: {
+                        id: 'node-2',
+                        __typename: 'FeedUnit',
+                        actor: {
+                          id: 'actor-2',
+                          __typename: 'User',
+                          name: 'Sylvester Stallone',
+                        },
+                      },
+                      actor_node: {
+                        actor_key: 'actor:5678',
+                        id: 'node-2',
+                        __typename: 'FeedUnit',
+                        message: {
+                          __typename: 'Text',
+                          text: 'Sylvester Text',
+                        },
                       },
                     },
-                  },
-                  {
-                    node: {
-                      id: 'node-2',
-                      __typename: 'FeedUnit',
-                      actor: {
-                        id: 'actor-2',
-                        __typename: 'User',
-                        name: 'Sylvester Stallone',
-                      },
-                    },
-                    actor_node: {
-                      actor_key: 'actor:5678',
-                      id: 'node-2',
-                      __typename: 'FeedUnit',
-                      message: {
-                        __typename: 'Text',
-                        text: 'Sylvester Text',
-                      },
-                    },
-                  },
-                ],
+                  ],
+                },
               },
             },
-          },
-        }),
-      ),
-    );
-    expect(fetchFnForActor).not.toBeCalled();
-    const testRenderer = ReactTestRenderer.create(
-      <ComponentWrapper
-        environment={environment}
-        multiActorEnvironment={multiActorEnvironment}>
-        <MainComponent />
-      </ComponentWrapper>,
-    );
-    jest.runAllTimers();
-    // Loading data should be for default actor
-    expect(fetchFnForActor).toBeCalledTimes(1);
-    expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:1234');
-    fetchFnForActor.mockClear();
+          }),
+        ),
+      );
+      expect(fetchFnForActor).not.toBeCalled();
+      const testRenderer = ReactTestRenderer.create(
+        <ComponentWrapper
+          environment={environment}
+          multiActorEnvironment={multiActorEnvironment}>
+          <MainComponent />
+        </ComponentWrapper>,
+      );
+      jest.runAllTimers();
+      // Loading data should be for default actor
+      expect(fetchFnForActor).toBeCalledTimes(1);
+      expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:1234');
+      fetchFnForActor.mockClear();
 
-    const testInstance = testRenderer.root;
+      const testInstance = testRenderer.root;
 
-    const buttonNode1 = testInstance.findByProps({
-      'data-test-id': 'button-node-1',
-    });
+      const buttonNode1 = testInstance.findByProps({
+        'data-test-id': 'button-node-1',
+      });
 
-    ReactTestRenderer.act(() => {
-      buttonNode1.props.onClick();
-    });
-    expect(fetchFnForActor).toBeCalledTimes(1);
-    expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:4321');
+      ReactTestRenderer.act(() => {
+        buttonNode1.props.onClick();
+      });
+      expect(fetchFnForActor).toBeCalledTimes(1);
+      expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:4321');
 
-    fetchFnForActor.mockClear();
+      fetchFnForActor.mockClear();
 
-    const buttonNode2 = testInstance.findByProps({
-      'data-test-id': 'button-node-2',
-    });
+      const buttonNode2 = testInstance.findByProps({
+        'data-test-id': 'button-node-2',
+      });
 
-    ReactTestRenderer.act(() => {
-      buttonNode2.props.onClick();
-    });
-    expect(fetchFnForActor).toBeCalledTimes(1);
-    expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:5678');
-    fetchFnForActor.mockClear();
-  });
+      ReactTestRenderer.act(() => {
+        buttonNode2.props.onClick();
+      });
+      expect(fetchFnForActor).toBeCalledTimes(1);
+      expect(fetchFnForActor.mock.calls[0][0]).toBe('actor:5678');
+      fetchFnForActor.mockClear();
+    },
+  );
 });

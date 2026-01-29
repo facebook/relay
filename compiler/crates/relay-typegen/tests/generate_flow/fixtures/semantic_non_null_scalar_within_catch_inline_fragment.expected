@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+fragment MyFragment on ClientUser {
+  ... @alias(as: "hello") @catch 
+  {
+    name
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}
+==================================== OUTPUT ===================================
+import type { FragmentType, Result } from "relay-runtime";
+declare export opaque type MyFragment$fragmentType: FragmentType;
+export type MyFragment$data = {|
+  +hello: Result<{|
+    +name: string,
+  |}, unknown>,
+  +$fragmentType: MyFragment$fragmentType,
+|};
+export type MyFragment$key = {
+  +$data?: MyFragment$data,
+  +$fragmentSpreads: MyFragment$fragmentType,
+  ...
+};

@@ -1,0 +1,17 @@
+# expected-to-throw
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query($someCondition: Boolean!) {
+  me {
+    ... @skip(if: $someCondition) {
+      # Extra inline fragment as indirection to validate that we aren't just
+      # checking the direct selections of the skipped inline fragment.
+      ... on User {
+        # This might not match due to the parent type condition
+        ...RelayReaderNamedFragmentsTest_user
+      }
+    }
+  }
+}

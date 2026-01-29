@@ -13,27 +13,27 @@
 const transformerWithOptions = require('./transformerWithOptions');
 
 describe('`development` option', () => {
-  it('tests the hash when `development` is set', () => {
+  it('tests the hash when `development` is set', async () => {
     expect(
-      transformerWithOptions(
+      await transformerWithOptions(
         {eagerEsModules: true},
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
   });
 
-  it('tests the hash when `isDevVariable` is set', () => {
+  it('tests the hash when `isDevVariable` is set', async () => {
     expect(
-      transformerWithOptions({
+      await transformerWithOptions({
         eagerEsModules: true,
         isDevVariableName: 'IS_DEV',
       })('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
   });
 
-  it('uses a custom build command in message', () => {
+  it('uses a custom build command in message', async () => {
     expect(
-      transformerWithOptions(
+      await transformerWithOptions(
         {
           buildCommand: 'relay-compiler',
           eagerEsModules: true,
@@ -43,9 +43,9 @@ describe('`development` option', () => {
     ).toMatchSnapshot();
   });
 
-  it('does not test the hash when `development` is not set', () => {
+  it('does not test the hash when `development` is not set', async () => {
     expect(
-      transformerWithOptions(
+      await transformerWithOptions(
         {eagerEsModules: true},
         'production',
       )('graphql`fragment TestFrag on Node { id }`'),

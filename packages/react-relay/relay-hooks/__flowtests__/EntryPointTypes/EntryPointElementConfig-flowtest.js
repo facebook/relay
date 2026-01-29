@@ -19,7 +19,7 @@ import type {
   EntryPointProps,
 } from '../../EntryPointTypes.flow';
 
-type MyComponentOtherProps = $ReadOnly<{
+type MyComponentOtherProps = Readonly<{
   foo: string,
 }>;
 
@@ -27,7 +27,7 @@ type MyComponentProps = EntryPointProps<{}, {}, MyComponentOtherProps, {}>;
 
 const MyComponent = (_props: MyComponentProps) => null;
 
-type PreloadParams = $ReadOnly<{}>;
+type PreloadParams = Readonly<{}>;
 
 type MyComponentEntryPointType = EntryPoint<PreloadParams, typeof MyComponent>;
 
@@ -42,9 +42,9 @@ type OtherProps = MyComponentProps['props'];
 opaque type __SUBTYPE_CHECK_1__: OtherProps = MyComponentEntryPointProps;
 opaque type __SUBTYPE_CHECK_2__: MyComponentEntryPointProps = OtherProps;
 
-({foo: ''}: OtherProps);
+({foo: ''}) as OtherProps;
 
-({foo: ''}: MyComponentEntryPointProps);
+({foo: ''}) as MyComponentEntryPointProps;
 
-// $FlowExpectedError[incompatible-cast]
-({foo: null}: MyComponentEntryPointProps);
+// $FlowExpectedError[incompatible-type]
+({foo: null}) as MyComponentEntryPointProps;

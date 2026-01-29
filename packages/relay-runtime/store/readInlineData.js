@@ -38,8 +38,8 @@ declare function readInlineData<TFragmentType: FragmentType, TData>(
 
 function readInlineData(
   fragment: GraphQLTaggedNode,
-  fragmentRef: mixed,
-): mixed {
+  fragmentRef: unknown,
+): unknown {
   const inlineDataFragment = getInlineDataFragment(fragment);
   if (fragmentRef == null) {
     return fragmentRef;

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8e0341bf38ecf7a722ac413f3e30a062>>
+ * @generated SignedSource<<7507fc6eafa586cea26267bc25667d34>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,17 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { Cat__id$data } from "./Cat__id.graphql";
 import type { FragmentType } from "relay-runtime";
 import {Cat as catRelayModelInstanceResolverType} from "../CatResolvers.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `catRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (catRelayModelInstanceResolverType: (
   id: Cat__id$data['id'],
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => unknown);
 declare export opaque type Cat____relay_model_instance$fragmentType: FragmentType;
 export type Cat____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof catRelayModelInstanceResolverType>>,
+  +__relay_model_instance: NonNullable<ReturnType<typeof catRelayModelInstanceResolverType>>,
   +$fragmentType: Cat____relay_model_instance$fragmentType,
 |};
 export type Cat____relay_model_instance$key = {
@@ -54,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./Cat__id.graphql'), require('./../CatResolvers').Cat, 'id', true),
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./Cat__id.graphql'), require('../CatResolvers').Cat, 'id', true),
       "path": "__relay_model_instance"
     }
   ],

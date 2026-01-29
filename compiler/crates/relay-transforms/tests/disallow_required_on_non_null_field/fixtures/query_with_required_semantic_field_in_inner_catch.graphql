@@ -1,0 +1,17 @@
+query MyQuery {
+  some_field {
+    some_other_field: some_field @catch(to: RESULT) {
+      im_not_null @required(action: THROW)
+    }
+  }
+}
+
+# %extensions%
+extend type Query {
+  some_field: SomeRecord
+}
+
+type SomeRecord {
+  some_field: SomeRecord
+  im_not_null: Int @semanticNonNull
+}

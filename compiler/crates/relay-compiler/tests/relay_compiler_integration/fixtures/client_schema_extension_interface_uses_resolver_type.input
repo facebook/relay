@@ -35,10 +35,7 @@ export function boss() {
   "schema": "schema.graphql",
   "schemaExtensions": [
     "schema-extensions"
-  ],
-  "featureFlags": {
-    "enable_relay_resolver_transform": true
-  }
+  ]
 }
 
 //- schema.graphql

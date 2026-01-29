@@ -50,8 +50,8 @@ fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "Re
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   id
-  __token
 }

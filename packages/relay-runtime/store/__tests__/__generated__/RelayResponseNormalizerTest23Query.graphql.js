@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7a4e0668a4efed74d1afe0b497c51456>>
+ * @generated SignedSource<<b47c49a0ad499b488a7321c3311d9165>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,9 +25,9 @@ export type RelayResponseNormalizerTest23Query$data = {|
   +node: ?{|
     +__typename: string,
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
-          +emailAddresses: ?$ReadOnlyArray<?string>,
+          +emailAddresses: ?ReadonlyArray<?string>,
           +id: string,
         |},
       |}>,

@@ -48,14 +48,19 @@ query RelayReaderNamedFragmentsTest2Query {
       "selections": [
         {
           "fragment": {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "RelayReaderNamedFragmentsTest_maybe_node_interface"
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "RelayReaderNamedFragmentsTest_maybe_node_interface"
+              }
+            ],
+            "type": "MaybeNodeInterface",
+            "abstractKey": "__isMaybeNodeInterface"
           },
-          "kind": "AliasedFragmentSpread",
-          "name": "aliased_fragment",
-          "type": "MaybeNodeInterface",
-          "abstractKey": "__isMaybeNodeInterface"
+          "kind": "AliasedInlineFragmentSpread",
+          "name": "aliased_fragment"
         }
       ],
       "storageKey": "node(id:\"1\")"

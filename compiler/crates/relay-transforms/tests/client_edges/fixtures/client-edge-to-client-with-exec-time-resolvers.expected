@@ -1,0 +1,65 @@
+==================================== INPUT ====================================
+query TestQuery @exec_time_resolvers {
+  client_me {
+    best_friend {
+      id
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on ClientUser {
+  __typename
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+type ClientUser {
+  best_friend: ClientOnlyType @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+
+extend type Query {
+  client_me: ClientUser
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on ClientUser {
+  __typename
+}
+
+query TestQuery @exec_time_resolvers {
+  client_me {
+    ... @__ClientEdgeMetadataDirective
+    # ClientObject {
+    #     type_name: Some(
+    #         ObjectName(
+    #             "ClientOnlyType",
+    #         ),
+    #     ),
+    #     unique_id: 0,
+    #     model_resolvers: [],
+    # }
+     {
+      ...BestFriendResolverFragment_name @__RelayResolverMetadata
+      # RelayResolverMetadata {
+      #     field_id: FieldID(527),
+      #     import_path: "BestFriendResolver",
+      #     import_name: None,
+      #     field_alias: None,
+      #     field_path: "client_me.best_friend",
+      #     field_arguments: [],
+      #     live: false,
+      #     output_type_info: EdgeTo,
+      #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
+      # }
+      
+      best_friend {
+        id
+      }
+    }
+  }
+}

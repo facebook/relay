@@ -29,7 +29,7 @@ test('send a network request with actor specific params', () => {
   const fetchFn = jest.fn(() => new Promise(jest.fn()));
   const multiActorEnvironment = new MultiActorEnvironment({
     // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-    // $FlowFixMe[incompatible-call] error found when enabling Flow LTI mode
+    // $FlowFixMe[incompatible-type] error found when enabling Flow LTI mode
     createNetworkForActor: () => create(fetchFn),
     logFn: jest.fn(),
     relayFieldLogger: jest.fn(),

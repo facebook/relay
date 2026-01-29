@@ -64,6 +64,7 @@ describe('FragmentResource with Operation Tracker and Suspense behavior', () => 
         node(id: $id) {
           __typename
           ...FragmentResourceWithOperationTrackerSuspenseTestFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

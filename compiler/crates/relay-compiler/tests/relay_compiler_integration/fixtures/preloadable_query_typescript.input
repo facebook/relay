@@ -8,9 +8,8 @@ graphql`
 {
   "language": "typescript",
   "schema": "./schema.graphql",
-  "eagerEsModules": true,
-  "persistConfig": { 
-    "file": "./operations.json" 
+  "persistConfig": {
+    "file": "./operations.json"
   }
 }
 

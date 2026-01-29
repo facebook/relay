@@ -1,13 +1,13 @@
 ==================================== INPUT ====================================
 query testQuery {
   node(id: 4) {
-    ...FragmentWithJSONProvidedVar,
+    ...FragmentWithJSONProvidedVar @alias
   }
 }
 
 fragment FragmentWithJSONProvidedVar on User
-  @argumentDefinitions(
-    additionalParameters: {type: "JSON", provider: "includeNameProvider"}
+@argumentDefinitions(
+  additionalParameters: {type: "JSON", provider: "includeNameProvider"}
 ) {
   profilePicture2(additionalParameters: $additionalParameters) {
     __typename
@@ -19,7 +19,9 @@ import type { JSON } from "TypeDefsFile";
 export type testQuery$variables = {||};
 export type testQuery$data = {|
   +node: ?{|
-    +$fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
+    +FragmentWithJSONProvidedVar: ?{|
+      +$fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
+    |},
   |},
 |};
 export type testQuery = {|

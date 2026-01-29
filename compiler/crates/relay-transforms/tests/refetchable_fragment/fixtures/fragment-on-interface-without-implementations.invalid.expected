@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment RefetchableFragment on NoImplementation
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  id
+}
+
+
+# %extensions%
+
+interface NoImplementation {
+    id: ID!
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @refetchable on fragment 'RefetchableFragment', only supported are fragments on:
+ - the Viewer type
+ - the Query type
+ - the Node interface, object types that implement the Node interface, interfaces whose implementing objects all implement Node, and unions whose members all implement Node
+ - server objects and interfaces with the @fetchable directive
+
+  fragment-on-interface-without-implementations.invalid.graphql:3:10
+    2 │ 
+    3 │ fragment RefetchableFragment on NoImplementation
+      │          ^^^^^^^^^^^^^^^^^^^
+    4 │   @refetchable(queryName: "RefetchableFragmentQuery") {

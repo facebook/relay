@@ -16,10 +16,8 @@ use common::NamedItem;
 use common::ObjectName;
 use common::WithLocation;
 use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
-use docblock_shared::LIVE_ARGUMENT_NAME;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_INSTANCE_FIELD;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
@@ -37,27 +35,32 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use graphql_ir::associated_data_impl;
 use graphql_syntax::OperationKind;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
 use relay_schema::definitions::ResolverType;
 use schema::DirectiveValue;
+use schema::FieldID;
 use schema::ObjectID;
 use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
-use crate::refetchable_fragment::RefetchableFragment;
-use crate::refetchable_fragment::REFETCHABLE_NAME;
-use crate::relay_resolvers::get_bool_argument_is_true;
-use crate::RequiredMetadataDirective;
-use crate::ValidationMessage;
 use crate::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use crate::REQUIRED_DIRECTIVE_NAME;
+use crate::RequiredMetadataDirective;
+use crate::ValidationMessage;
+use crate::match_::MATCH_CONSTANTS;
+use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::refetchable_fragment::RefetchableFragment;
+use crate::relay_resolvers::ResolverInfo;
+use crate::relay_resolvers::get_bool_argument_is_true;
+use crate::relay_resolvers::get_resolver_info;
 
 lazy_static! {
     // This gets attached to the generated query
@@ -65,6 +68,7 @@ lazy_static! {
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
+    pub static ref EXEC_TIME_RESOLVERS_DIRECTIVE_NAME: DirectiveName = DirectiveName("exec_time_resolvers".intern());
 }
 
 /// Directive added to inline fragments created by the transform. The inline
@@ -90,8 +94,9 @@ associated_data_impl!(ClientEdgeMetadataDirective);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ClientEdgeModelResolver {
+    pub model_field_id: FieldID,
     pub type_name: WithLocation<ObjectName>,
-    pub is_live: bool,
+    pub resolver_info: ResolverInfo,
 }
 
 /// Metadata directive attached to generated queries
@@ -103,7 +108,7 @@ associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
 pub struct ClientEdgeMetadata<'a> {
     /// The field which defines the graph relationship (currently always a Resolver)
-    pub backing_field: Selection,
+    pub backing_field: &'a Selection,
     /// Models the client edge field and its selections
     pub linked_field: &'a LinkedField,
     /// Additional metadata about the client edge
@@ -132,14 +137,10 @@ impl<'a> ClientEdgeMetadata<'a> {
                 fragment.selections.len() == 2,
                 "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
             );
-            let mut backing_field = fragment
-                .selections.first()
-                .expect("Client Edge inline fragments have exactly two selections").clone();
 
-            let backing_field_directives = backing_field.directives().iter().filter(|directive|
-                directive.name.item != RequiredMetadataDirective::directive_name()
-            ).cloned().collect();
-            backing_field.set_directives(backing_field_directives);
+            let backing_field = fragment
+                .selections.first()
+                .expect("Client Edge inline fragments have exactly two selections");
 
             let linked_field = match fragment.selections.get(1) {
                 Some(Selection::LinkedField(linked_field)) => linked_field,
@@ -158,8 +159,20 @@ pub fn client_edges(
     program: &Program,
     project_config: &ProjectConfig,
     base_fragment_names: &FragmentDefinitionNameSet,
+    validate_exec_time_resolvers: bool,
 ) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesTransform::new(program, project_config, base_fragment_names);
+    let fragments_in_exec_time_operations = if validate_exec_time_resolvers {
+        collect_fragments_in_exec_time_operations(program)
+    } else {
+        Default::default()
+    };
+
+    let mut transform = ClientEdgesTransform::new(
+        program,
+        project_config,
+        base_fragment_names,
+        fragments_in_exec_time_operations,
+    );
     let mut next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -177,6 +190,63 @@ pub fn client_edges(
     }
 }
 
+fn collect_fragments_in_exec_time_operations(program: &Program) -> FragmentDefinitionNameSet {
+    let mut collector = FragmentCollector {
+        program,
+        fragments: Default::default(),
+    };
+
+    for operation in program.operations() {
+        let has_exec_time_resolvers = operation
+            .directives
+            .named(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME)
+            .is_some();
+
+        if has_exec_time_resolvers {
+            collector.collect_fragments_in_selections(&operation.selections);
+        }
+    }
+
+    collector.fragments
+}
+
+struct FragmentCollector<'p> {
+    fragments: FragmentDefinitionNameSet,
+    program: &'p Program,
+}
+
+impl<'p> FragmentCollector<'p> {
+    fn collect_fragments_in_selections(&mut self, selections: &[Selection]) {
+        for selection in selections {
+            match selection {
+                Selection::FragmentSpread(fragment_spread) => {
+                    // Traverse into the fragment's selections
+                    let fragment_name = fragment_spread.fragment.item;
+                    if !self.fragments.contains(&fragment_name) {
+                        self.fragments.insert(fragment_spread.fragment.item);
+                        if let Some(fragment_def) = self.program.fragment(fragment_name) {
+                            self.fragments.insert(fragment_name);
+                            self.collect_fragments_in_selections(&fragment_def.selections);
+                        }
+                    }
+                }
+                Selection::LinkedField(field) => {
+                    self.collect_fragments_in_selections(&field.selections);
+                }
+                Selection::InlineFragment(fragment) => {
+                    self.collect_fragments_in_selections(&fragment.selections);
+                }
+                Selection::ScalarField(_) => {
+                    // Scalar fields don't contain fragment spreads
+                }
+                Selection::Condition(condition) => {
+                    self.collect_fragments_in_selections(&condition.selections);
+                }
+            }
+        }
+    }
+}
+
 struct ClientEdgesTransform<'program, 'pc> {
     path: Vec<&'program str>,
     document_name: Option<WithLocation<ExecutableDefinitionName>>,
@@ -188,6 +258,8 @@ struct ClientEdgesTransform<'program, 'pc> {
     project_config: &'pc ProjectConfig,
     next_key: u32,
     base_fragment_names: &'program FragmentDefinitionNameSet,
+    has_exec_time_resolvers: bool,
+    fragments_in_exec_time_operations: FragmentDefinitionNameSet,
 }
 
 impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
@@ -195,6 +267,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         program: &'program Program,
         project_config: &'pc ProjectConfig,
         base_fragment_names: &'program FragmentDefinitionNameSet,
+        fragments_in_exec_time_operations: FragmentDefinitionNameSet,
     ) -> Self {
         Self {
             program,
@@ -207,6 +280,8 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             next_key: 0,
             project_config,
             base_fragment_names,
+            has_exec_time_resolvers: false,
+            fragments_in_exec_time_operations,
         }
     }
 
@@ -229,7 +304,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
 
         match num {
             0 => OperationDefinitionName(name_root),
-            n => OperationDefinitionName(format!("{}_{}", name_root, n).intern()),
+            n => OperationDefinitionName(format!("{name_root}_{n}").intern()),
         }
     }
 
@@ -248,7 +323,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             // source, and thus will be placed in the same `__generated__`
             // directory. Based on this assumption they import the file using `./`.
             document_name.location,
-            FragmentDefinitionName(format!("Refetchable{}", generated_query_name).intern()),
+            FragmentDefinitionName(format!("Refetchable{generated_query_name}").intern()),
         );
 
         let synthetic_refetchable_fragment = FragmentDefinition {
@@ -316,15 +391,12 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             *REQUIRED_DIRECTIVE_NAME,
             *CHILDREN_CAN_BUBBLE_METADATA_KEY,
             RequiredMetadataDirective::directive_name(),
+            MATCH_CONSTANTS.match_directive_name,
         ];
 
         let other_directives = directives
             .iter()
-            .filter(|directive| {
-                !allowed_directive_names
-                    .iter()
-                    .any(|item| directive.name.item == *item)
-            })
+            .filter(|directive| !allowed_directive_names.contains(&directive.name.item))
             .collect::<Vec<_>>();
 
         for directive in other_directives {
@@ -332,7 +404,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 ValidationMessage::ClientEdgeUnsupportedDirective {
                     directive_name: directive.name.item,
                 },
-                directive.name.location,
+                directive.location,
             ));
         }
     }
@@ -350,7 +422,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         if let Some(directive) = waterfall_directive {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                directive.name.location,
+                directive.location,
             ));
         }
 
@@ -467,17 +539,19 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             .schema
             .named_field(model, *RELAY_RESOLVER_MODEL_INSTANCE_FIELD)?;
         let model_field = self.program.schema.field(model_field_id);
-        let resolver_directive = model_field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
-        let is_live = resolver_directive.map_or(false, |resolver_directive| {
-            resolver_directive
-                .arguments
-                .iter()
-                .any(|arg| arg.name.0 == LIVE_ARGUMENT_NAME.0)
-        });
-        Some(ClientEdgeModelResolver {
-            type_name: object.name,
-            is_live,
-        })
+        get_resolver_info(&self.program.schema, model_field, object.name.location)
+            .and_then(|resolver_info_result| match resolver_info_result {
+                Ok(resolver_info) => Some(resolver_info),
+                Err(diagnstics) => {
+                    self.errors.extend(diagnstics);
+                    None
+                }
+            })
+            .map(|resolver_info| ClientEdgeModelResolver {
+                model_field_id,
+                type_name: object.name,
+                resolver_info,
+            })
     }
 
     fn get_edge_to_server_object_metadata_directive(
@@ -487,6 +561,12 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
         waterfall_directive: Option<&Directive>,
         selections: Vec<Selection>,
     ) -> ClientEdgeMetadataDirective {
+        if field_type.type_.is_list() {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeToServerObjectList,
+                field_type.name.location,
+            ));
+        }
         // Client Edges to server objects must be annotated with @waterfall
         if waterfall_directive.is_none() {
             self.errors.push(Diagnostic::error_with_data(
@@ -542,7 +622,7 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             if let Some(directive) = waterfall_directive {
                 self.errors.push(Diagnostic::error_with_data(
                     ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                    directive.name.location,
+                    directive.location,
                 ));
             }
             return self.default_transform_linked_field(field);
@@ -559,6 +639,11 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
             .replace_or_else(|| field.selections.clone());
 
         let metadata_directive = if is_edge_to_client_object {
+            // Server-to-client edges are not compatible with exec time resolvers
+            // A server-to-client edge is when we extend an existing server type with a client field
+            if self.has_exec_time_resolvers {
+                self.validte_server_to_client_edges_for_exec_time(field);
+            }
             match self.get_edge_to_client_object_metadata_directive(
                 field,
                 edge_to_type,
@@ -569,6 +654,13 @@ impl<'program, 'pc> ClientEdgesTransform<'program, 'pc> {
                 None => return Transformed::Keep,
             }
         } else {
+            // Client-to-server edges are not compatible with exec time resolvers
+            if self.has_exec_time_resolvers {
+                self.errors.push(Diagnostic::error(
+                    ValidationMessage::ClientEdgeToServerWithExecTimeResolvers,
+                    field.definition.location,
+                ));
+            }
             self.get_edge_to_server_object_metadata_directive(
                 field_type,
                 field.definition.location,
@@ -605,7 +697,20 @@ fn create_inline_fragment_for_client_edge(
     }
 
     let transformed_field = Arc::new(LinkedField {
+        selections: selections.clone(),
+        ..field.clone()
+    });
+
+    let backing_field_directives = field
+        .directives()
+        .iter()
+        .filter(|directive| directive.name.item != RequiredMetadataDirective::directive_name())
+        .cloned()
+        .collect();
+
+    let backing_field = Arc::new(LinkedField {
         selections,
+        directives: backing_field_directives,
         ..field.clone()
     });
 
@@ -613,14 +718,15 @@ fn create_inline_fragment_for_client_edge(
         type_condition: None,
         directives: inline_fragment_directives,
         selections: vec![
+            // NOTE: This creates 2^H selecitons where H is the depth of nested client edges
+            Selection::LinkedField(Arc::clone(&backing_field)),
             Selection::LinkedField(Arc::clone(&transformed_field)),
-            Selection::LinkedField(transformed_field),
         ],
         spread_location: Location::generated(),
     }
 }
 
-impl Transformer for ClientEdgesTransform<'_, '_> {
+impl Transformer<'_> for ClientEdgesTransform<'_, '_> {
     const NAME: &'static str = "ClientEdgesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -630,7 +736,20 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.document_name = Some(fragment.name.map(|name| name.into()));
+
+        // Check if this fragment is used within an exec time resolver operation
+        let fragment_in_exec_time_operation = self
+            .fragments_in_exec_time_operations
+            .contains(&fragment.name.item);
+
+        let previous_exec_time_resolvers = self.has_exec_time_resolvers;
+        self.has_exec_time_resolvers =
+            previous_exec_time_resolvers || fragment_in_exec_time_operation;
+
         let new_fragment = self.default_transform_fragment(fragment);
+
+        // Restore the previous state
+        self.has_exec_time_resolvers = previous_exec_time_resolvers;
         self.document_name = None;
         new_fragment
     }
@@ -640,7 +759,17 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.document_name = Some(operation.name.map(|name| name.into()));
+
+        // Check if this operation has the @exec_time_resolvers directive
+        self.has_exec_time_resolvers = operation
+            .directives
+            .named(*EXEC_TIME_RESOLVERS_DIRECTIVE_NAME)
+            .is_some();
+
         let new_operation = self.default_transform_operation(operation);
+
+        // Reset the flag after processing the operation
+        self.has_exec_time_resolvers = false;
         self.document_name = None;
         new_operation
     }
@@ -683,10 +812,37 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
-                directive.name.location,
+                directive.location,
             ));
         }
+        if self.has_exec_time_resolvers {
+            let field_type: &schema::Field = self.program.schema.field(field.definition().item);
+            let resolver_directive = field_type.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
+            let is_client_edge = field_type.is_extension && resolver_directive.is_some();
+            if is_client_edge {
+                self.validte_server_to_client_edges_for_exec_time(field)
+            }
+        }
+
         self.default_transform_scalar_field(field)
+    }
+}
+
+impl ClientEdgesTransform<'_, '_> {
+    fn validte_server_to_client_edges_for_exec_time<T: graphql_ir::Field>(&mut self, field: &T) {
+        // Server-to-client fields are not compatible with exec time resolvers
+        // A server-to-client edge is when we extend an existing server type with a client field
+        let field_type: &schema::Field = self.program.schema.field(field.definition().item);
+        let is_server_field = field_type
+            .parent_type
+            .is_some_and(|parent_type| !self.program.schema.is_extension_type(parent_type))
+            && field_type.parent_type != self.program.schema.query_type();
+        if is_server_field {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ServerEdgeToClientWithExecTimeResolvers,
+                field.alias_or_name_location(),
+            ));
+        }
     }
 }
 
@@ -698,6 +854,7 @@ fn make_refetchable_directive(query_name: OperationDefinitionName) -> Directive 
             value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name.0))),
         }],
         data: None,
+        location: Location::generated(),
     }
 }
 
@@ -713,7 +870,7 @@ pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Pro
 #[derive(Default)]
 struct ClientEdgesCleanupTransform;
 
-impl Transformer for ClientEdgesCleanupTransform {
+impl Transformer<'_> for ClientEdgesCleanupTransform {
     const NAME: &'static str = "ClientEdgesCleanupTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -724,7 +881,7 @@ impl Transformer for ClientEdgesCleanupTransform {
                 let new_selection = metadata.backing_field;
 
                 Transformed::Replace(
-                    self.transform_selection(&new_selection)
+                    self.transform_selection(new_selection)
                         .unwrap_or_else(|| new_selection.clone()),
                 )
             }

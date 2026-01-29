@@ -12,12 +12,12 @@ use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_syntax::parse_executable;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
 use relay_config::ProjectName;
-use relay_docblock::parse_docblock_ast;
 use relay_docblock::ParseOptions;
+use relay_docblock::parse_docblock_ast;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let js_features = extract_graphql::extract(fixture.content);
@@ -74,6 +74,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                             allow_resolver_non_nullable_return_type: if fixture
                                 .content
                                 .contains("// relay:allow_resolver_non_nullable_return_type")
+                            {
+                                &FeatureFlag::Enabled
+                            } else {
+                                &FeatureFlag::Disabled
+                            },
+                            enable_legacy_verbose_resolver_syntax: if fixture
+                                .content
+                                .contains("// relay:allow_legacy_verbose_syntax")
                             {
                                 &FeatureFlag::Enabled
                             } else {

@@ -67,6 +67,7 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 #                 "cursor",
 #             ),
 #             is_stream_connection: false,
+#             is_prefetchable_pagination: false,
 #         },
 #     ],
 # )
@@ -84,6 +85,7 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   id

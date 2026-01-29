@@ -1,9 +1,9 @@
 fragment fragmentOnNodeInterface_RefetchableFragment on Node
-  @refetchable(queryName: "RefetchableFragmentQuery") {
+@refetchable(queryName: "RefetchableFragmentQuery") {
   global_id
   ... on User {
     name
-    ...fragmentOnNodeInterface_ProfilePicture
+    ...fragmentOnNodeInterface_ProfilePicture @alias
   }
 }
 

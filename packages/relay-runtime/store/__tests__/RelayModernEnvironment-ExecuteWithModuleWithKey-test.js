@@ -36,17 +36,19 @@ const nullthrows = require('nullthrows');
 const {
   cannotReadPropertyOfUndefined__DEPRECATED,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with @module', () => {
   let callbacks: {
-    +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
-    +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+    +complete: JestMockFn<ReadonlyArray<unknown>, unknown>,
+    +error: JestMockFn<ReadonlyArray<Error>, unknown>,
+    +next: JestMockFn<ReadonlyArray<unknown>, unknown>,
+    +start?: JestMockFn<ReadonlyArray<unknown>, unknown>,
+    +unsubscribe?: JestMockFn<ReadonlyArray<unknown>, unknown>,
   };
   let complete;
   let dataSource;
@@ -59,8 +61,8 @@ describe('execute() a query with @module', () => {
   let operation;
   let operationCallback;
   let operationLoader: {
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    get: (reference: unknown) => ?NormalizationRootNode,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let query;
   let resolveFragment;
@@ -124,9 +126,9 @@ describe('execute() a query with @module', () => {
       },
     };
 
-    complete = jest.fn<$ReadOnlyArray<mixed>, mixed>();
-    error = jest.fn<$ReadOnlyArray<Error>, mixed>();
-    next = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    complete = jest.fn<ReadonlyArray<unknown>, unknown>();
+    error = jest.fn<ReadonlyArray<Error>, unknown>();
+    next = jest.fn<ReadonlyArray<unknown>, unknown>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -139,25 +141,25 @@ describe('execute() a query with @module', () => {
       });
     };
     operationLoader = {
+      get: jest.fn(),
       load: jest.fn(moduleName => {
         return new Promise(resolve => {
           resolveFragment = resolve;
         });
       }),
-      get: jest.fn(),
     };
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create(fetch),
-      store,
-      operationLoader,
       handlerProvider: name => {
         switch (name) {
           case 'markup_handler':
             return MarkupHandler;
         }
       },
+      network: RelayNetwork.create(fetch),
+      operationLoader,
+      store,
     });
     const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn<[Snapshot], void>();
@@ -169,18 +171,18 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -202,15 +204,13 @@ describe('execute() a query with @module', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRenderer: {
-          __id: 'client:1:nameRendererNoSupportedArg',
+          __fragmentOwner: operation.request,
           __fragmentPropName: 'name',
-
           __fragments: {
             RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name:
               {},
           },
-
-          __fragmentOwner: operation.request,
+          __id: 'client:1:nameRendererNoSupportedArg',
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -219,7 +219,7 @@ describe('execute() a query with @module', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.nameRenderer,
+        (operationSnapshot.data?.node as any)?.nameRenderer,
       ),
     );
     const matchSnapshot = environment.lookup(matchSelector);
@@ -237,20 +237,20 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -265,7 +265,7 @@ describe('execute() a query with @module', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.nameRenderer,
+        (operationSnapshot.data?.node as any)?.nameRenderer,
       ),
     );
     // initial results tested above
@@ -303,20 +303,20 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -332,7 +332,7 @@ describe('execute() a query with @module', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.nameRenderer,
+        (operationSnapshot.data?.node as any)?.nameRenderer,
       ),
     );
 
@@ -355,19 +355,19 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -395,19 +395,19 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               id: 'data-1',
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -436,18 +436,18 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -473,18 +473,18 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -500,18 +500,18 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -532,18 +532,18 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -552,7 +552,7 @@ describe('execute() a query with @module', () => {
       // Invalid fragment node, no 'selections' field
       // This is to make sure that users implementing operationLoader
       // incorrectly still get reasonable error handling
-      return Promise.resolve(({}: any));
+      return Promise.resolve({} as any);
     });
     dataSource.next(payload);
     jest.runAllTimers();
@@ -568,19 +568,19 @@ describe('execute() a query with @module', () => {
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'User',
+          id: '1',
           nameRenderer: {
-            __typename: 'MarkdownUserNameRenderer',
             __module_component_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'MarkdownUserNameRenderer.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery__nameRenderer:
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
-            markdown: 'markdown payload',
+            __typename: 'MarkdownUserNameRenderer',
             data: {
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
+            markdown: 'markdown payload',
           },
         },
       },
@@ -595,7 +595,7 @@ describe('execute() a query with @module', () => {
     const matchSelector = nullthrows(
       getSingularSelector(
         markdownRendererFragment,
-        (operationSnapshot.data?.node: any)?.nameRenderer,
+        (operationSnapshot.data?.node as any)?.nameRenderer,
       ),
     );
     // initial results tested above

@@ -8,9 +8,9 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::PerfLogger;
 use common::SourceLocationKey;
-use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::FragmentDefinition;
@@ -20,27 +20,28 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
+use graphql_ir::build_ir_with_extra_features;
 use graphql_syntax::parse_executable_with_error_recovery_and_parser_features;
 use graphql_text_printer::print_full_operation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use lsp_types::request::Request;
 use lsp_types::Url;
+use lsp_types::request::Request;
+use relay_compiler::ProjectName;
 use relay_compiler::config::ProjectConfig;
 use relay_compiler::get_parser_features;
-use relay_compiler::ProjectName;
-use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
+use relay_transforms::apply_transforms;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
 use serde::Deserialize;
 use serde::Serialize;
 
+use crate::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
 use crate::server::LSPState;
-use crate::LSPRuntimeError;
 
 pub(crate) enum GraphQLExecuteQuery {}
 
@@ -55,7 +56,7 @@ pub(crate) struct GraphQLExecuteQueryParams {
 impl GraphQLExecuteQueryParams {
     fn get_url(&self) -> Option<Url> {
         if let Some(path) = &self.document_path {
-            Url::parse(&format!("file://{}", path)).ok()
+            Url::parse(&format!("file://{path}")).ok()
         } else {
             None
         }
@@ -79,7 +80,7 @@ impl Request for GraphQLExecuteQuery {
 /// This function will return the program that contains only operation
 /// and all referenced fragments.
 /// We can use it to print the full query text
-fn get_operation_only_program(
+pub fn get_operation_only_program(
     operation: Arc<OperationDefinition>,
     fragments: Vec<Arc<FragmentDefinition>>,
     program: &Program,
@@ -141,6 +142,7 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
     program: Arc<Program>,
     perf_logger: Arc<TPerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> Result<Programs, String> {
     apply_transforms(
         project_config,
@@ -149,8 +151,9 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
         perf_logger,
         None,
         custom_transforms_config,
+        transferrable_refetchable_query_directives,
     )
-    .map_err(|errors| format!("{:?}", errors))
+    .map_err(|errors| format!("{errors:?}"))
 }
 
 fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> Option<String> {
@@ -177,35 +180,37 @@ fn build_operation_ir_with_fragments(
         definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
+            allow_non_overlapping_abstract_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
             relay_mode: Some(graphql_ir::RelayMode),
             default_anonymous_operation_name: Some("anonymous".intern()),
             allow_custom_scalar_literals: true, // for compatibility
         },
     )
-    .map_err(|errors| format!("{:?}", errors))?;
+    .map_err(|errors| format!("{errors:?}"))?;
 
-    if let Some(operation) = ir.iter().find_map(|item| {
+    match ir.iter().find_map(|item| {
         if let ExecutableDefinition::Operation(operation) = item {
             Some(Arc::new(operation.clone()))
         } else {
             None
         }
     }) {
-        let fragments = ir
-            .iter()
-            .filter_map(|item| {
-                if let ExecutableDefinition::Fragment(fragment) = item {
-                    Some(Arc::new(fragment.clone()))
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
+        Some(operation) => {
+            let fragments = ir
+                .iter()
+                .filter_map(|item| {
+                    if let ExecutableDefinition::Fragment(fragment) = item {
+                        Some(Arc::new(fragment.clone()))
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<_>>();
 
-        Ok((operation, fragments))
-    } else {
-        Err("Unable to find an operation.".to_string())
+            Ok((operation, fragments))
+        }
+        _ => Err("Unable to find an operation.".to_string()),
     }
 }
 
@@ -225,8 +230,7 @@ pub(crate) fn get_query_text<
         .find(|project_config| project_config.name == project_name)
         .ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!(
-                "Unable to get project config for project {}.",
-                project_name
+                "Unable to get project config for project {project_name}."
             ))
         })?;
 
@@ -253,20 +257,24 @@ pub(crate) fn get_query_text<
     let operation_name = operation.name.item.0;
     let program = state.get_program(&project_name.into())?;
 
-    let query_text =
-        if let Some(program) = get_operation_only_program(operation, fragments, &program) {
+    let query_text = match get_operation_only_program(operation, fragments, &program) {
+        Some(program) => {
             let programs = transform_program(
                 project_config,
                 Arc::new(program),
                 Arc::clone(&state.perf_logger),
                 state.config.custom_transforms.as_ref(),
+                state
+                    .config
+                    .transferrable_refetchable_query_directives
+                    .clone(),
             )
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
             print_full_operation_text(programs, operation_name).unwrap_or(original_text)
-        } else {
-            original_text
-        };
+        }
+        _ => original_text,
+    };
 
     Ok(query_text)
 }

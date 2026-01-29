@@ -1,0 +1,305 @@
+==================================== INPUT ====================================
+fragment fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture @alias
+    }
+  }
+}
+
+fragment fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+%project_config%
+{
+  "jsModuleFormat": "commonjs",
+  "language": "flow"
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "kind": "FragmentSpread",
+        "name": "fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "size"
+      }
+    ],
+    "kind": "Operation",
+    "name": "RefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "size",
+                    "variableName": "size"
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profilePicture",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "31dcd57f42128b8d975e6224202a17c9",
+    "id": null,
+    "metadata": {},
+    "name": "RefetchableFragmentQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query RefetchableFragmentQuery(
+  $id: ID!
+  $size: [Int]
+) {
+  ...fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment_1Bmzm5
+}
+
+fragment fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+fragment fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment_1Bmzm5 on Query {
+  node(id: $id) {
+    __typename
+    ... on User {
+      id
+      name
+      ...fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture
+    }
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "size",
+          "variableName": "size"
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profilePicture",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "uri",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+import RefetchableFragmentQuery_graphql from './RefetchableFragmentQuery.graphql';
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "id"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "size"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [],
+      "operation": RefetchableFragmentQuery_graphql
+    }
+  },
+  "name": "fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Variable",
+          "name": "id",
+          "variableName": "id"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "id",
+              "storageKey": null
+            },
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "name",
+              "storageKey": null
+            },
+            {
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture"
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "AliasedInlineFragmentSpread",
+              "name": "fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture"
+            }
+          ],
+          "type": "User",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}

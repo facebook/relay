@@ -40,12 +40,8 @@ pub fn is_signed(data: &str) -> bool {
 /// the signing token, so the token should be placed inside a comment in order
 /// for signing to not change code semantics.
 pub fn sign_file(data: &str) -> String {
-    try_sign_file(data).unwrap_or_else(|| {
-        panic!(
-            "sign_file(...): Cannot sign file without token {}",
-            NEWTOKEN
-        )
-    })
+    try_sign_file(data)
+        .unwrap_or_else(|| panic!("sign_file(...): Cannot sign file without token {NEWTOKEN}"))
 }
 
 pub fn try_sign_file(data: &str) -> Option<String> {

@@ -23,12 +23,15 @@ import type {OperationDescriptor, RequestDescriptor} from './RelayStoreTypes';
 
 const deepFreeze = require('../util/deepFreeze');
 const getRequestIdentifier = require('../util/getRequestIdentifier');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const {hasCycle} = require('../util/stableCopy');
 const {getOperationVariables} = require('./RelayConcreteVariables');
 const {
   createNormalizationSelector,
   createReaderSelector,
 } = require('./RelayModernSelector');
 const {ROOT_ID} = require('./RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * Creates an instance of the `OperationDescriptor` type defined in
@@ -48,6 +51,13 @@ function createOperationDescriptor<TQuery: OperationType>(
     request.params.providedVariables,
     variables,
   );
+  if (RelayFeatureFlags.ENABLE_CYLE_DETECTION_IN_VARIABLES) {
+    invariant(
+      !hasCycle(operationVariables),
+      'Cycle detected in variables passed to operation `%s`.',
+      request.operation.name,
+    );
+  }
   const requestDescriptor = createRequestDescriptor(
     request,
     operationVariables,

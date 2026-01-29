@@ -22,17 +22,17 @@ function getPendingOperationsForFragment(
   fragmentOwner: RequestDescriptor,
 ): {
   promise: Promise<void>,
-  pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+  pendingOperations: ReadonlyArray<RequestDescriptor>,
 } | null {
-  let pendingOperations: $ReadOnlyArray<RequestDescriptor> = [];
+  let pendingOperations: ReadonlyArray<RequestDescriptor> = [];
   let promise = getPromiseForActiveRequest(environment, fragmentOwner);
 
   if (promise != null) {
     pendingOperations = [fragmentOwner];
   } else {
-    const result = environment
-      .getOperationTracker()
-      .getPendingOperationsAffectingOwner(fragmentOwner);
+    const operationTracker = environment.getOperationTracker();
+    const result =
+      operationTracker.getPendingOperationsAffectingOwner(fragmentOwner);
 
     pendingOperations = result?.pendingOperations ?? [];
     promise = result?.promise ?? null;

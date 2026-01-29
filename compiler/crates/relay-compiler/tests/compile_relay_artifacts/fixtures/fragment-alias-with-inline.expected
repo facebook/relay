@@ -1,0 +1,112 @@
+==================================== INPUT ====================================
+query fragmentAliasWithInline_Query {
+  ...fragmentAliasWithInline_fragment @alias
+}
+
+fragment fragmentAliasWithInline_fragment on Query @inline {
+  me {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "fragmentAliasWithInline_Query",
+    "selections": [
+      {
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "kind": "InlineDataFragmentSpread",
+              "name": "fragmentAliasWithInline_fragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "User",
+                  "kind": "LinkedField",
+                  "name": "me",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "id",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "args": null,
+              "argumentDefinitions": []
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "AliasedInlineFragmentSpread",
+        "name": "fragmentAliasWithInline_fragment"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "fragmentAliasWithInline_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "d61369ceb0518e016fbb86f46dd0adaf",
+    "id": null,
+    "metadata": {},
+    "name": "fragmentAliasWithInline_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query fragmentAliasWithInline_Query {
+  ...fragmentAliasWithInline_fragment
+}
+
+fragment fragmentAliasWithInline_fragment on Query {
+  me {
+    id
+  }
+}
+
+
+{
+  "kind": "InlineDataFragment",
+  "name": "fragmentAliasWithInline_fragment"
+}

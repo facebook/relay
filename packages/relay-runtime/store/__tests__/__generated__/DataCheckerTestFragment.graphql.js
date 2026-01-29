@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<eccfcb051b7adeb2b1a6e188ebfd7a28>>
+ * @generated SignedSource<<edff0b9d99d97249ba2ea353bc20b1c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type DataCheckerTestFragment$fragmentType: FragmentType;
 export type DataCheckerTestFragment$data = {|
   +firstName: ?string,
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +cursor: ?string,
       +node: ?{|
         +firstName: ?string,

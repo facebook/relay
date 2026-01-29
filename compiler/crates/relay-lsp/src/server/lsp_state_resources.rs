@@ -15,20 +15,8 @@ use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::debug;
+use log::error;
 use rayon::iter::ParallelIterator;
-use relay_compiler::build_project::get_project_asts;
-use relay_compiler::build_project::BuildMode;
-use relay_compiler::build_project::ProjectAstData;
-use relay_compiler::build_project::ProjectAsts;
-use relay_compiler::build_raw_program;
-use relay_compiler::build_schema;
-use relay_compiler::compiler_state::CompilerState;
-use relay_compiler::config::Config;
-use relay_compiler::config::ProjectConfig;
-use relay_compiler::errors::BuildProjectError;
-use relay_compiler::errors::Error;
-use relay_compiler::transform_program;
-use relay_compiler::validate_program;
 use relay_compiler::ArtifactSourceKey;
 use relay_compiler::BuildProjectFailure;
 use relay_compiler::FileSource;
@@ -38,6 +26,20 @@ use relay_compiler::FileSourceSubscriptionNextChange;
 use relay_compiler::GraphQLAsts;
 use relay_compiler::ProjectName;
 use relay_compiler::SourceControlUpdateStatus;
+use relay_compiler::build_project::BuildMode;
+use relay_compiler::build_project::ProjectAstData;
+use relay_compiler::build_project::ProjectAsts;
+use relay_compiler::build_project::get_project_asts;
+use relay_compiler::build_project::validate_reader_program;
+use relay_compiler::build_raw_program;
+use relay_compiler::build_schema;
+use relay_compiler::compiler_state::CompilerState;
+use relay_compiler::config::Config;
+use relay_compiler::config::ProjectConfig;
+use relay_compiler::errors::BuildProjectError;
+use relay_compiler::errors::Error;
+use relay_compiler::transform_program;
+use relay_compiler::validate_program;
 use schema::SDLSchema;
 use schema_diff::check::SchemaChangeSafety;
 use schema_documentation::SchemaDocumentation;
@@ -46,9 +48,9 @@ use tokio::task::JoinHandle;
 
 use super::lsp_state::ProjectStatus;
 use super::lsp_state::Task;
+use crate::LSPState;
 use crate::status_updater::set_ready_status;
 use crate::status_updater::update_in_progress_status;
-use crate::LSPState;
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<
@@ -214,7 +216,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 .lsp_state
                 .project_status
                 .iter()
-                .any(|r| r.value() == &ProjectStatus::Activated)
+                .any(|r| matches!(r.value(), ProjectStatus::Activated { .. }))
         {
             debug!("LSP server detected changes...");
 
@@ -274,10 +276,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 {
                     return true;
                 }
-                if let Some(base) = project_config.base {
-                    if compiler_state.project_has_pending_changes(base) {
-                        return true;
-                    }
+                if let Some(base) = project_config.base
+                    && compiler_state.project_has_pending_changes(base)
+                {
+                    return true;
                 }
                 compiler_state.project_has_pending_changes(project_config.name)
             })
@@ -313,9 +315,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         compiler_state: &CompilerState,
         graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<ProjectName, BuildProjectFailure> {
-        self.lsp_state
-            .project_status
-            .insert(project_config.name.into(), ProjectStatus::Completed);
         let log_event = self.lsp_state.perf_logger.create_event("build_lsp_project");
         let project_name = project_config.name;
         let build_time = log_event.start("build_lsp_project_time");
@@ -329,15 +328,33 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 graphql_asts_map,
                 &log_event,
             )
-        })?;
+        });
+
+        // mark the project as completed no matter if the schema build succeeded or not such that
+        // the `when_completed` token can be awaited whether the project succeeds to build or not.
+        if let Some(ProjectStatus::Activated { when_completed }) = self
+            .lsp_state
+            .project_status
+            .insert(project_config.name.into(), ProjectStatus::Completed)
+        {
+            match when_completed.set(()) {
+                Ok(()) => {}
+                Err(tokio::sync::SetOnceError(())) => {
+                    // We don't expect this as the project should be set to completed after the first (try to) build the schema.
+                    error!("Project status was already set to completed");
+                }
+            }
+        }
+
+        let schema = schema?;
 
         let ProjectAstData {
             project_asts,
             base_fragment_names,
         } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
-        // This will kick-off the validation for all synced sources
-        self.lsp_state.schedule_task(Task::ValidateSyncedSources);
+        // This will kick-off the validation of all synced documents
+        self.lsp_state.schedule_task(Task::SyncedDocuments);
 
         self.build_programs(
             project_config,
@@ -530,16 +547,54 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             project_config,
             &base_program,
             log_event,
-        )?;
+        )
+        .map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name: project_config.name,
+            })
+        })?;
 
-        transform_program(
+        let transformed_programs = transform_program(
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),
             Arc::clone(&self.lsp_state.perf_logger),
             log_event,
             self.lsp_state.config.custom_transforms.as_ref(),
-        )?;
+            self.lsp_state
+                .config
+                .transferrable_refetchable_query_directives
+                .clone(),
+        )
+        .map_err(|diagnostics| {
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors: diagnostics,
+                project_name: project_config.name,
+            })
+        })?;
+
+        match validate_reader_program(
+            &self.lsp_state.config,
+            project_config,
+            &transformed_programs.reader,
+            log_event,
+        ) {
+            // Non-blocking validation errors
+            Ok(diagnostics) => Err(BuildProjectFailure::Error(
+                BuildProjectError::ValidationErrors {
+                    errors: diagnostics,
+                    project_name: project_config.name,
+                },
+            )),
+            // Compilation-blocking validation errors
+            Err(diagnostics) => Err(BuildProjectFailure::Error(
+                BuildProjectError::ValidationErrors {
+                    errors: diagnostics,
+                    project_name: project_config.name,
+                },
+            )),
+        }?;
         Ok(())
     }
 

@@ -1,0 +1,60 @@
+query TestRootField($id: ID!) {
+  node(id: $id) @live {
+    id
+  }
+}
+
+query TestFragmentSpread($id: ID!) {
+  node(id: $id) {
+    id
+    ... on User @live {
+      birthdate {
+        day
+      }
+    }
+  }
+}
+
+query TestInlineFragment($id: ID!) {
+  node(id: $id) {
+    id
+    ... UserBirthdate @live
+  }
+}
+
+query TestCondition1($id: ID!) {
+  node(id: $id) @include(if: true) @live {
+    id
+  }
+}
+
+query TestCondition2($id: ID!) {
+  node(id: $id) @include(if: true) {
+    id
+    ... UserBirthdate @live
+  }
+}
+
+query TestCondition3($id: ID!) {
+  node(id: $id) {
+    id
+    ... UserBirthdate @include(if: true) @live
+  }
+}
+
+fragment UserBirthdate on User {
+  birthdate {
+    day
+  }
+}
+
+query TestLinkedField($id: ID!) {
+  node(id: $id) {
+    id
+    ... on User {
+      birthdate @live {
+        day
+      }
+    }
+  }
+}

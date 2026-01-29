@@ -132,14 +132,16 @@ where
 }
 
 /// Similar to `try_map` but performs the transform in parallel.
-pub fn par_try_map<T: Sync + Send, E: Sync + Send, U: Sync + Send, I, F: Sync + Send>(
+pub fn par_try_map<
+    T: Sync + Send,
+    E: Sync + Send,
+    U: Sync + Send,
+    I: IntoParallelIterator<Item = U> + IntoIterator<Item = U>,
+    F: Sync + Send + Fn(U) -> Result<T, Vec<E>>,
+>(
     items: I,
     f: F,
-) -> Result<Vec<T>, Vec<E>>
-where
-    I: IntoParallelIterator<Item = U> + IntoIterator<Item = U>,
-    F: Fn(U) -> Result<T, Vec<E>>,
-{
+) -> Result<Vec<T>, Vec<E>> {
     let results: Vec<Result<T, Vec<E>>> = par_iter(items).map(f).collect();
     let mut errors = Vec::new();
     let mut values = Vec::with_capacity(results.len());

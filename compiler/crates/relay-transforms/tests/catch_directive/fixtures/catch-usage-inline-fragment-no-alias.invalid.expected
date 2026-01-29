@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment FragFoo on User {
+  # Oops! Not valid without @alias
+  ... on User @catch(to: RESULT)  {
+    name
+  }
+}
+==================================== ERROR ====================================
+✖︎ Unexpected `@catch` on unaliased inline fragment.
+
+  catch-usage-inline-fragment-no-alias.invalid.graphql:4:3
+    3 │   # Oops! Not valid without @alias
+    4 │   ... on User @catch(to: RESULT)  {
+      │   ^^^
+    5 │     name

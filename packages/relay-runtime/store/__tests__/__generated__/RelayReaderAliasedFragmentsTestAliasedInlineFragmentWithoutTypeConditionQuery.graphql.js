@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<592fb071da6a8c9365872feb31ecd07e>>
+ * @generated SignedSource<<70e8d3e11aa27a34d595ac1f1215d8fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,8 +62,7 @@ return {
                 {
                   "kind": "RequiredField",
                   "field": (v0/*: any*/),
-                  "action": "NONE",
-                  "path": "me.aliased_fragment.name"
+                  "action": "NONE"
                 }
               ],
               "type": null,

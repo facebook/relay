@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea18e54b43afcfffd8bac36c7b22eba2>>
+ * @generated SignedSource<<8736f36d225048bcf5394be3138252eb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest3Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest3Fragment$data = {|
-  +allPhones: ?$ReadOnlyArray<?{|
+  +allPhones: ?ReadonlyArray<?{|
     +phoneNumber: ?{|
       +displayNumber: ?string,
     |},
@@ -40,7 +40,7 @@ export type RelayMockPayloadGeneratorTest3Fragment$data = {|
     +year: ?number,
   |},
   +customId: string,
-  +emailAddresses: ?$ReadOnlyArray<?string>,
+  +emailAddresses: ?ReadonlyArray<?string>,
   +id: string,
   +name: ?string,
   +profile_picture?: ?{|

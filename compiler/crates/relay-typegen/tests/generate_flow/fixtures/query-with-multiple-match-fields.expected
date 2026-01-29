@@ -3,14 +3,14 @@ query Test @raw_response_type {
   node(id: "1") {
     ... on User {
       username
-      ...NameRendererFragment
+      ...NameRendererFragment @alias
     }
   }
   viewer {
     actor {
       ... on User {
         name
-        ...AnotherNameRendererFragment
+        ...AnotherNameRendererFragment @alias
       }
     }
   }
@@ -56,13 +56,17 @@ import type { PlainUserNameRenderer_name$normalization } from "PlainUserNameRend
 export type Test$variables = {||};
 export type Test$data = {|
   +node: ?{|
+    +NameRendererFragment?: ?{|
+      +$fragmentSpreads: NameRendererFragment$fragmentType,
+    |},
     +username?: ?string,
-    +$fragmentSpreads: NameRendererFragment$fragmentType,
   |},
   +viewer: ?{|
     +actor: ?{|
+      +AnotherNameRendererFragment?: ?{|
+        +$fragmentSpreads: AnotherNameRendererFragment$fragmentType,
+      |},
       +name?: ?string,
-      +$fragmentSpreads: AnotherNameRendererFragment$fragmentType,
     |},
   |},
 |};

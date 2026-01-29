@@ -62,6 +62,7 @@ describe('execute() a query with @stream', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -98,19 +99,16 @@ describe('execute() a query with @stream', () => {
       },
     };
 
-    function getDataID(
-      data: {[string]: mixed},
-      typename: string | $TEMPORARY$string<'MessagingParticipant'>,
-    ) {
+    function getDataID(data: {+[string]: unknown}, typename: string) {
       if (typename === 'MessagingParticipant') {
         return `${typename}:${String(data.id)}`;
       }
       return data.id;
     }
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -124,7 +122,7 @@ describe('execute() a query with @stream', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      getDataID: getDataID,
+      getDataID,
       network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {

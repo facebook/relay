@@ -1,0 +1,108 @@
+==================================== INPUT ====================================
+//- src/UpdateUserMutation.js
+graphql`
+  mutation UpdateUserMutation($input: UpdateUserInput!) {
+    updateUser(input: $input) {
+      name
+      status
+    }
+  }
+`;
+
+//- src/MeQuery.js
+graphql`
+  query MeQuery {
+    me {
+      id
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  me: User
+  users: [User!]!
+}
+
+type Mutation {
+  updateUser(input: UpdateUserInput!): User
+  deleteUser(id: ID!): Boolean
+  createPost(input: CreatePostInput!): Post
+}
+
+input UpdateUserInput {
+  id: ID!
+  name: String
+  email: String
+  status: UserStatus
+}
+
+input CreatePostInput {
+  title: String!
+  content: String!
+}
+
+type User {
+  id: ID!
+  name: String
+  email: String
+  status: UserStatus
+  role: UserRole
+}
+
+type Post {
+  id: ID!
+  title: String
+  content: String
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  GUEST
+}
+==================================== OUTPUT ===================================
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
+}
+
+input UpdateUserInput {
+  email: String
+  id: ID!
+  name: String
+  status: UserStatus
+}
+
+type Mutation {
+  updateUser(input: UpdateUserInput!): User
+}
+
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+  status: UserStatus
+}

@@ -25,7 +25,7 @@ const MIN_SHIFT: u32 = 7;
 const U32_BITS: usize = 32;
 const MIN_SIZE: u32 = 1 << MIN_SHIFT;
 const NUM_SIZES: usize = U32_BITS - MIN_SHIFT as usize;
-const MAX_INDEX: u32 = std::u32::MAX - MIN_SIZE;
+const MAX_INDEX: u32 = u32::MAX - MIN_SIZE;
 
 // Memory consistency assertions provide a lot of checking of the internals,
 // but have a huge runtime cost.  Be warned!  These are really for active
@@ -156,8 +156,10 @@ impl<'a, T> Ref<'a, T> {
 
     /// Re-create ref from biased index.
     pub unsafe fn from_index(index: u32) -> Self {
-        // OK because MIN_SIZE must be > 0 for algorithmic correctness.
-        Self::from_raw(NonZeroU32::new_unchecked(index + MIN_SIZE))
+        unsafe {
+            // OK because MIN_SIZE must be > 0 for algorithmic correctness.
+            Self::from_raw(NonZeroU32::new_unchecked(index + MIN_SIZE))
+        }
     }
 
     /// Internal value of ref; only use this if you know what you're
@@ -207,7 +209,7 @@ fn bucket_capacity(a: usize) -> usize {
 fn index(i: u32) -> (usize, usize) {
     memory_consistency_assert!(i >= MIN_SIZE);
     memory_consistency_assert!(i - MIN_SIZE <= MAX_INDEX);
-    memory_consistency_assert!(i as u64 <= std::usize::MAX as u64);
+    memory_consistency_assert!(i as u64 <= usize::MAX as u64);
     let a = i.leading_zeros() as usize;
     memory_consistency_assert!(a < NUM_SIZES, "{} < {}", a, NUM_SIZES);
     let b = (i & ((bucket_capacity(0) as u32 - 1) >> a)) as usize;
@@ -665,8 +667,8 @@ mod tests {
 
     use parking_lot::Condvar;
     use parking_lot::Mutex;
-    use rand::thread_rng;
     use rand::Rng;
+    use rand::rng;
 
     use super::*;
 
@@ -703,7 +705,7 @@ mod tests {
         let (a, b) = index(MIN_SIZE);
         assert_eq!(a, NUM_SIZES - 1);
         assert_eq!(b, 0);
-        let (a, b) = index(std::u32::MAX);
+        let (a, b) = index(u32::MAX);
         assert_eq!(a, 0);
         assert_eq!(b, (1 << 31) - 1);
         assert_eq!(b, bucket_capacity(0) - 1);
@@ -805,7 +807,7 @@ mod tests {
             let len = len.clone();
             consumers.push(thread::spawn(move || {
                 const I: u32 = N * 3 / 2;
-                let mut rng = thread_rng();
+                let mut rng = rng();
                 let mut next_poke = 1500;
                 let mut next_seek = 1000;
                 let mut n_seen = 0;
@@ -813,7 +815,11 @@ mod tests {
                     let n = len.load(Ordering::Acquire);
                     if n > 0 {
                         // First reader always checks latest completed add.
-                        let i = if r == 0 { n - 1 } else { rng.gen_range(0..n) };
+                        let i = if r == 0 {
+                            n - 1
+                        } else {
+                            rng.random_range(0..n)
+                        };
                         let s = arena.get(mk_ref(i));
                         assert_eq!(s, &format!("{}", i));
                         if r == 0 {
@@ -898,12 +904,12 @@ mod tests {
             let avail = avail.clone();
             let progress = progress.clone();
             consumers.push(thread::spawn(move || {
-                let mut rng = thread_rng();
+                let mut rng = rng();
                 let mut next_poke = 150;
                 let mut next_seek = 10;
                 let mut n_seen = 0;
                 for ii in 0..I {
-                    let i = rng.gen_range(0..N);
+                    let i = rng.random_range(0..N);
                     let expect = avail[i as usize].load(Ordering::Acquire);
                     if expect < N {
                         let s = arena.get(mk_ref(i));

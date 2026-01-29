@@ -32,13 +32,15 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 
-use super::ValidationMessage;
 use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
+use super::ValidationMessage;
+use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
         *UPDATABLE_DIRECTIVE,
+        *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME,
         // TODO have a global list of directives...?
         DirectiveName("fb_owner".intern()),
     ];
@@ -266,7 +268,7 @@ impl<'a> UpdatableDirective<'a> {
     }
 }
 
-impl<'a> Validator for UpdatableDirective<'a> {
+impl Validator for UpdatableDirective<'_> {
     const NAME: &'static str = "UpdatableDirective";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = true;
@@ -304,7 +306,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
                     disallowed_directive_name: directive.name.item.0,
                     outer_type_plural: self.executable_definition_info.unwrap().type_plural,
                 },
-                directive.name.location,
+                directive.location,
             )])
         } else {
             Ok(())

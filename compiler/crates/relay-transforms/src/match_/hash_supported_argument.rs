@@ -17,8 +17,8 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;
@@ -45,7 +45,7 @@ struct HashSupportedArgumentTransform<'a> {
     errors: Vec<Diagnostic>,
 }
 
-impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
+impl Transformer<'_> for HashSupportedArgumentTransform<'_> {
     const NAME: &'static str = "HashSupportedArgumentTransform";
 
     const VISIT_ARGUMENTS: bool = false;
@@ -64,8 +64,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
             Transformed::Replace(Selection::LinkedField(linked_field)) => linked_field,
             Transformed::Delete | Transformed::Replace(_) => {
                 panic!(
-                    "unexpected transformed_field in HashSupportedArgumentTransform: {:?}",
-                    transformed_field
+                    "unexpected transformed_field in HashSupportedArgumentTransform: {transformed_field:?}"
                 )
             }
         };
@@ -110,7 +109,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
     }
 }
 
-impl<'a> HashSupportedArgumentTransform<'a> {
+impl HashSupportedArgumentTransform<'_> {
     /// Returns true iff the field is supplied with a `supported` arg and that
     /// arg has a type of `[string]` (potentially non-nullable somewhere).
     fn has_match_supported_arg(&self, field: &LinkedField) -> bool {
@@ -128,10 +127,10 @@ impl<'a> HashSupportedArgumentTransform<'a> {
             .named(MATCH_CONSTANTS.supported_arg)
             .expect("field has supported arg, but missing from the schema");
 
-        if let TypeReference::List(item_type) = supported_arg_def.type_.nullable_type() {
-            if let TypeReference::Named(item_type_name) = item_type.nullable_type() {
-                return self.schema.is_string(*item_type_name);
-            }
+        if let TypeReference::List(item_type) = supported_arg_def.type_.nullable_type()
+            && let TypeReference::Named(item_type_name) = item_type.nullable_type()
+        {
+            return self.schema.is_string(*item_type_name);
         }
         false
     }

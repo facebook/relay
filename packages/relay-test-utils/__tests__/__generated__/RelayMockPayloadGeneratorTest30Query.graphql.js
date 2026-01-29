@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<af794838bee6b42dcd874803222326f2>>
+ * @generated SignedSource<<d61348f44b3fc3c9649951316e369d9d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayMockPayloadGeneratorTest30Query$variables = {||};
 export type RelayMockPayloadGeneratorTest30Query$data = {|
   +node: ?{|
-    +emailAddresses?: ?$ReadOnlyArray<?string>,
+    +emailAddresses?: ?ReadonlyArray<?string>,
     +id?: string,
   |},
 |};

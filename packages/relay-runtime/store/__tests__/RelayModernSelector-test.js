@@ -56,8 +56,8 @@ describe('RelayModernSelector', () => {
         $cond: Boolean!
       ) {
         node(id: $id) {
-          ...RelayModernSelectorTestUserFragment
-          ...RelayModernSelectorTestUsersFragment
+          ...RelayModernSelectorTestUserFragment @dangerously_unaliased_fixme
+          ...RelayModernSelectorTestUsersFragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -81,7 +81,7 @@ describe('RelayModernSelector', () => {
       }
     `;
     const dataID = ROOT_ID;
-    variables = {id: '4', size: null, cond: false};
+    variables = {cond: false, id: '4', size: null};
     operationVariables = variables;
     const requestDescriptor = createRequestDescriptor(UserQuery, variables);
     const fragment = createReaderSelector(
@@ -103,22 +103,24 @@ describe('RelayModernSelector', () => {
 
     environment.commitPayload(operationDescriptor, {
       node: {
-        id: '4',
         __typename: 'User',
+        id: '4',
         name: 'Zuck',
       },
     });
-    zuck = (environment.lookup(
-      createReaderSelector(
-        UserQuery.fragment,
-        ROOT_ID,
-        {id: '4'},
-        operationDescriptor.request,
-      ),
-    ).data: $FlowFixMe).node;
+    zuck = (
+      environment.lookup(
+        createReaderSelector(
+          UserQuery.fragment,
+          ROOT_ID,
+          {id: '4'},
+          operationDescriptor.request,
+        ),
+      ).data as $FlowFixMe
+    ).node;
     variables = {
-      size: null,
       cond: false,
+      size: null,
     };
   });
 
@@ -153,7 +155,7 @@ describe('RelayModernSelector', () => {
     it('returns a selector', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
-      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
 
       const selector = getSingularSelector(UserFragment, zuck);
       expect(selector).toEqual(
@@ -166,11 +168,11 @@ describe('RelayModernSelector', () => {
       const queryNode = UserQuery;
       // Pass owner with different variables
       owner = createOperationDescriptor(queryNode, {
+        cond: true,
         id: '4',
         size: 16,
-        cond: true,
       });
-      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
 
       const selector = getSingularSelector(UserFragment, zuck);
       expect(selector).toEqual(
@@ -178,8 +180,8 @@ describe('RelayModernSelector', () => {
           UserFragment,
           '4',
           {
-            size: 16,
             cond: true,
+            size: 16,
           },
           owner.request,
         ),
@@ -213,7 +215,7 @@ describe('RelayModernSelector', () => {
     it('returns selectors', () => {
       const queryNode = UserQuery;
       owner = createOperationDescriptor(queryNode, operationVariables);
-      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
 
       const selector = getPluralSelector(UserFragment, [zuck]);
       expect(selector).toEqual({
@@ -228,11 +230,11 @@ describe('RelayModernSelector', () => {
       const queryNode = UserQuery;
       // Pass owner with different variables
       owner = createOperationDescriptor(queryNode, {
+        cond: true,
         id: '4',
         size: 16,
-        cond: true,
       });
-      zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+      zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
 
       const selector = getPluralSelector(UserFragment, [zuck]);
       expect(selector).toEqual({
@@ -242,8 +244,8 @@ describe('RelayModernSelector', () => {
             UserFragment,
             '4',
             {
-              size: 16,
               cond: true,
+              size: 16,
             },
             owner.request,
           ),
@@ -283,9 +285,9 @@ describe('RelayModernSelector', () => {
       const selectors = getSelectorsFromObject(
         {user: UserFragment},
         {
-          user: zuck,
-          foo: 'foo',
           bar: 42,
+          foo: 'foo',
+          user: zuck,
         },
       );
       expect(selectors).toEqual({
@@ -354,7 +356,7 @@ describe('RelayModernSelector', () => {
       beforeEach(() => {
         const queryNode = UserQuery;
         owner = createOperationDescriptor(queryNode, operationVariables);
-        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+        zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
       });
 
       it('returns singular selectors', () => {
@@ -376,11 +378,11 @@ describe('RelayModernSelector', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
+          cond: true,
           id: '4',
           size: 16,
-          cond: true,
         });
-        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+        zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
         const selectors = getSelectorsFromObject(
           {user: UserFragment},
           {user: zuck},
@@ -390,8 +392,8 @@ describe('RelayModernSelector', () => {
             UserFragment,
             '4',
             {
-              size: 16,
               cond: true,
+              size: 16,
             },
             owner.request,
           ),
@@ -422,11 +424,11 @@ describe('RelayModernSelector', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
+          cond: true,
           id: '4',
           size: 16,
-          cond: true,
         });
-        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+        zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
         const selectors = getSelectorsFromObject(
           {user: UsersFragment},
           {user: [zuck]},
@@ -439,8 +441,8 @@ describe('RelayModernSelector', () => {
                 UsersFragment,
                 '4',
                 {
-                  size: 16,
                   cond: true,
+                  size: 16,
                 },
                 owner.request,
               ),
@@ -479,9 +481,9 @@ describe('RelayModernSelector', () => {
       const dataIDs = getDataIDsFromObject(
         {user: UserFragment},
         {
-          user: zuck,
-          foo: 'foo',
           bar: 42,
+          foo: 'foo',
+          user: zuck,
         },
       );
       expect(dataIDs).toEqual({
@@ -522,8 +524,8 @@ describe('RelayModernSelector', () => {
     const inputVariables = {
       cond: true,
       id: '4',
-      size: 42,
       other: 'whatevs',
+      size: 42,
     };
 
     it('throws for invalid inputs', () => {
@@ -556,8 +558,8 @@ describe('RelayModernSelector', () => {
       variables = getVariablesFromObject(
         {user: UserFragment},
         {
-          foo: 'foo',
           bar: 42,
+          foo: 'foo',
         },
       );
       expect(variables).toEqual({});
@@ -596,7 +598,7 @@ describe('RelayModernSelector', () => {
       beforeEach(() => {
         const queryNode = UserQuery;
         owner = createOperationDescriptor(queryNode, inputVariables);
-        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+        zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
       });
 
       it('returns variables for singular props', () => {
@@ -610,11 +612,11 @@ describe('RelayModernSelector', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
+          cond: false,
           id: '4',
           size: 16,
-          cond: false,
         });
-        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+        zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
         variables = getVariablesFromObject({user: UserFragment}, {user: zuck});
         expect(variables).toEqual({
           cond: false,
@@ -636,11 +638,11 @@ describe('RelayModernSelector', () => {
         const queryNode = UserQuery;
         // Pass owner with different variables
         owner = createOperationDescriptor(queryNode, {
+          cond: false,
           id: '4',
           size: 16,
-          cond: false,
         });
-        zuck = (environment.lookup(owner.fragment).data: $FlowFixMe).node;
+        zuck = (environment.lookup(owner.fragment).data as $FlowFixMe).node;
         variables = getVariablesFromObject(
           {user: UsersFragment},
           {user: [zuck]},
@@ -722,17 +724,17 @@ describe('RelayModernSelector', () => {
       /*$FlowFixMe[unclear-type]*/
       const fakeAstNode: Object = {};
       const clientEdgeTraversalInfoA = {
-        readerClientEdge: fakeAstNode,
         clientEdgeDestinationID: 'a',
+        readerClientEdge: fakeAstNode,
       };
       const clientEdgeTraversalInfoB = {
-        readerClientEdge: fakeAstNode,
         clientEdgeDestinationID: 'b',
+        readerClientEdge: fakeAstNode,
       };
       const clientEdgeTraversalInfoANewNode = {
-        /*$FlowFixMe[unclear-type]*/
-        readerClientEdge: ({}: Object),
         clientEdgeDestinationID: 'a',
+        /*$FlowFixMe[unclear-type]*/
+        readerClientEdge: {} as Object,
       };
       const baseSelector = createReaderSelector(
         UserFragment,

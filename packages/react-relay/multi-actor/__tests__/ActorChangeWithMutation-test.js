@@ -39,10 +39,15 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
-  props: $ReadOnly<{
+  props: Readonly<{
     children: React.Node,
     environment: IActorEnvironment,
     multiActorEnvironment: IMultiActorEnvironment,
@@ -136,7 +141,7 @@ type ActorTestRenderFn = ({
   changeNameFn: (actorID: string, newName: string) => void,
 }) => void;
 
-type Props = $ReadOnly<{
+type Props = Readonly<{
   fragmentKey: ActorChangeWithMutationTestFragment$key,
   render: ActorTestRenderFn,
 }>;
@@ -214,16 +219,18 @@ describe('ActorChange', () => {
     });
     const renderViewerActorName = jest.fn<[?string], void>();
 
-    ReactTestRenderer.create(
-      <ComponentWrapper
-        environment={environment}
-        multiActorEnvironment={multiActorEnvironment}>
-        <MainComponent
-          renderViewerActorName={renderViewerActorName}
-          renderActorInTheList={renderFn}
-        />
-      </ComponentWrapper>,
-    );
+    ReactTestRenderer.act(() => {
+      ReactTestRenderer.create(
+        <ComponentWrapper
+          environment={environment}
+          multiActorEnvironment={multiActorEnvironment}>
+          <MainComponent
+            renderViewerActorName={renderViewerActorName}
+            renderActorInTheList={renderFn}
+          />
+        </ComponentWrapper>,
+      );
+    });
 
     dataSource.next({
       data: {

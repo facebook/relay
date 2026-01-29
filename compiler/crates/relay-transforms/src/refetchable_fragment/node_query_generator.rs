@@ -33,16 +33,17 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-use super::build_fragment_metadata_as_directive;
-use super::build_fragment_spread;
-use super::build_operation_variable_definitions;
-use super::build_used_global_variables;
-use super::validation_message::ValidationMessage;
+use super::CONSTANTS;
 use super::QueryGenerator;
 use super::RefetchRoot;
 use super::RefetchableIdentifierInfo;
 use super::RefetchableMetadata;
-use super::CONSTANTS;
+use super::build_fragment_metadata_as_directive;
+use super::build_fragment_spread;
+use super::build_operation_variable_definitions;
+use super::build_used_global_variables;
+use super::uses_prefetchable_pagination_in_connection;
+use super::validation_message::ValidationMessage;
 use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(
@@ -66,30 +67,23 @@ fn build_refetch_operation(
         Some(node_interface_id) => {
             let eligible = match fragment.type_condition {
                 Type::Interface(id) => {
-                    id == node_interface_id
-                        || schema
-                            .interface(id)
-                            .implementing_objects
-                            .iter()
-                            .all(|&object_id| {
+                    id == node_interface_id || {
+                        let implementing_objects = &schema.interface(id).implementing_objects;
+                        !implementing_objects.is_empty()
+                            && implementing_objects.iter().all(|&object_id| {
                                 schema
                                     .object(object_id)
                                     .interfaces
-                                    .iter()
-                                    .any(|interface_id| *interface_id == node_interface_id)
+                                    .contains(&node_interface_id)
                             })
+                    }
                 }
-                Type::Object(id) => schema
-                    .object(id)
-                    .interfaces
-                    .iter()
-                    .any(|interface_id| *interface_id == node_interface_id),
+                Type::Object(id) => schema.object(id).interfaces.contains(&node_interface_id),
                 Type::Union(id) => schema.union(id).members.iter().all(|&object_id| {
                     schema
                         .object(object_id)
                         .interfaces
-                        .iter()
-                        .any(|interface_id| *interface_id == node_interface_id)
+                        .contains(&node_interface_id)
                 }),
                 _ => false,
             };
@@ -111,7 +105,7 @@ fn build_refetch_operation(
                 .iter()
                 .find(|&&id| schema.field(id).name.item == id_name)
                 .unwrap_or_else(|| {
-                    panic!("Expected `Node` to contain a field named `{:}`.", id_name)
+                    panic!("Expected `Node` to contain a field named `{id_name:}`.")
                 });
 
             let fragment = Arc::new(FragmentDefinition {
@@ -125,6 +119,9 @@ fn build_refetch_operation(
                             identifier_query_variable_name: schema_config
                                 .node_interface_id_variable_name,
                         }),
+                        is_prefetchable_pagination: uses_prefetchable_pagination_in_connection(
+                            fragment,
+                        ),
                     },
                 ),
                 used_global_variables: build_used_global_variables(
@@ -197,10 +194,10 @@ fn get_node_field_id_and_id_arg<'s>(
     if let Some(node_field_id) = node_field_id {
         let node_field = schema.field(node_field_id);
         let mut arg_iter = node_field.arguments.iter();
-        if let Some(id_arg) = arg_iter.next() {
-            if arg_iter.len() == 0 {
-                return Ok((node_field_id, id_arg));
-            }
+        if let Some(id_arg) = arg_iter.next()
+            && arg_iter.len() == 0
+        {
+            return Ok((node_field_id, id_arg));
         }
     }
     Err(vec![Diagnostic::error(

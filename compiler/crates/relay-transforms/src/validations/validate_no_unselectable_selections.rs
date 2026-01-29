@@ -90,7 +90,7 @@ impl<'a, 'b> UnselectableSelections<'a, 'b> {
     }
 }
 
-impl<'a, 'b> Validator for UnselectableSelections<'a, 'b> {
+impl Validator for UnselectableSelections<'_, '_> {
     const NAME: &'static str = "UnselectableSelections";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+//- src/FooQuery.js
+graphql`
+  query FooQuery {
+    me {
+      name
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- full_schema.graphql
+type Query {
+  me: User
+  other: User
+  settings: Settings
+}
+
+type User {
+  id: ID!
+  name: String
+  age: Int
+  email: String
+}
+
+type Settings {
+  theme: String
+  notifications: Boolean
+}
+==================================== OUTPUT ===================================
+type Query {
+  me: User
+}
+
+type User {
+  id: ID!
+  name: String
+}

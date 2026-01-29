@@ -29,7 +29,7 @@ impl LSPStatusReporter {
         let sender_clone = sender.clone();
         Self {
             sender,
-            diagnostic_reporter: DiagnosticReporter::new(root_dir, sender_clone),
+            diagnostic_reporter: DiagnosticReporter::new(root_dir, Some(sender_clone)),
         }
     }
 }

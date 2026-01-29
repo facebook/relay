@@ -14,9 +14,9 @@
 const {VIEWER_ID, VIEWER_TYPE} = require('./ViewerPattern');
 
 function defaultGetDataID(
-  fieldValue: {[string]: mixed},
+  fieldValue: {+[string]: unknown},
   typeName: string,
-): mixed {
+): unknown {
   if (typeName === VIEWER_TYPE) {
     return fieldValue.id == null ? VIEWER_ID : fieldValue.id;
   }

@@ -46,7 +46,7 @@ export type GraphQLTaggedNode =
  * Runtime function to correspond to the `graphql` tagged template function.
  * All calls to this function should be transformed by the plugin.
  */
-function graphql(strings: $ReadOnlyArray<string>): any {
+function graphql(strings: ReadonlyArray<string>): any {
   invariant(
     false,
     'graphql: Unexpected invocation at runtime. Either the Babel transform ' +
@@ -65,7 +65,7 @@ function getNode(
   | ConcreteUpdatableQuery {
   let node = taggedNode;
   if (typeof node === 'function') {
-    node = (node(): ReaderFragment | ConcreteRequest);
+    node = node() as ReaderFragment | ConcreteRequest;
     warning(
       false,
       'RelayGraphQLTag: node `%s` unexpectedly wrapped in a function.',
@@ -82,6 +82,8 @@ function isFragment(node: GraphQLTaggedNode): boolean {
   const fragment = getNode(node);
   return (
     typeof fragment === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     fragment !== null &&
     fragment.kind === RelayConcreteNode.FRAGMENT
   );
@@ -91,6 +93,8 @@ function isRequest(node: GraphQLTaggedNode): boolean {
   const request = getNode(node);
   return (
     typeof request === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     request !== null &&
     request.kind === RelayConcreteNode.REQUEST
   );
@@ -100,6 +104,8 @@ function isUpdatableQuery(node: GraphQLTaggedNode): boolean {
   const updatableQuery = getNode(node);
   return (
     typeof updatableQuery === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     updatableQuery !== null &&
     updatableQuery.kind === RelayConcreteNode.UPDATABLE_QUERY
   );
@@ -109,6 +115,8 @@ function isInlineDataFragment(node: GraphQLTaggedNode): boolean {
   const fragment = getNode(node);
   return (
     typeof fragment === 'object' &&
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     fragment !== null &&
     fragment.kind === RelayConcreteNode.INLINE_DATA_FRAGMENT
   );
@@ -121,7 +129,7 @@ function getFragment(taggedNode: GraphQLTaggedNode): ReaderFragment {
     'GraphQLTag: Expected a fragment, got `%s`.',
     JSON.stringify(fragment),
   );
-  return (fragment: any);
+  return fragment as any;
 }
 
 function getPaginationFragment(
@@ -131,6 +139,8 @@ function getPaginationFragment(
   const refetch = fragment.metadata?.refetch;
   const connection = refetch?.connection;
   if (
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/5whu3i34. */
     refetch === null ||
     typeof refetch !== 'object' ||
     connection === null ||
@@ -138,7 +148,7 @@ function getPaginationFragment(
   ) {
     return null;
   }
-  return (fragment: any);
+  return fragment as any;
 }
 
 function getRefetchableFragment(
@@ -146,10 +156,12 @@ function getRefetchableFragment(
 ): ReaderRefetchableFragment | null {
   const fragment = getFragment(taggedNode);
   const refetch = fragment.metadata?.refetch;
+  /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+   * roll out. See https://fburl.com/workplace/5whu3i34. */
   if (refetch === null || typeof refetch !== 'object') {
     return null;
   }
-  return (fragment: any);
+  return fragment as any;
 }
 
 function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
@@ -159,7 +171,7 @@ function getRequest(taggedNode: GraphQLTaggedNode): ConcreteRequest {
     'GraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(request),
   );
-  return (request: any);
+  return request as any;
 }
 
 function getUpdatableQuery(
@@ -171,7 +183,7 @@ function getUpdatableQuery(
     'GraphQLTag: Expected a request, got `%s`.',
     JSON.stringify(updatableQuery),
   );
-  return (updatableQuery: any);
+  return updatableQuery as any;
 }
 
 function getInlineDataFragment(
@@ -183,20 +195,20 @@ function getInlineDataFragment(
     'GraphQLTag: Expected an inline data fragment, got `%s`.',
     JSON.stringify(fragment),
   );
-  return (fragment: any);
+  return fragment as any;
 }
 
 module.exports = {
   getFragment,
+  getInlineDataFragment,
   getNode,
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
   getUpdatableQuery,
-  getInlineDataFragment,
   graphql,
   isFragment,
+  isInlineDataFragment,
   isRequest,
   isUpdatableQuery,
-  isInlineDataFragment,
 };

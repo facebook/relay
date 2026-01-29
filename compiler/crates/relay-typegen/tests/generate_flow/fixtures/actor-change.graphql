@@ -1,10 +1,14 @@
-fragment ActorFragment on User {
+fragment ActorUserFragment on User {
   name
   profilePicture {
     uri
     width
     height
   }
+}
+
+fragment ActorFragment on Actor {
+  ...ActorUserFragment @alias
 }
 
 fragment ViewerFragment on Viewer {

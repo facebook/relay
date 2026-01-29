@@ -1,8 +1,8 @@
 query UpdatableQuery @updatable {
   me {
     actor {
-      ...Assignable_page
-      ...Assignable_node
+      ...Assignable_page @alias
+      ...Assignable_node @alias
       lastName
       name
     }

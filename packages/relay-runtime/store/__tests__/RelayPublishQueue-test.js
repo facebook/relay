@@ -133,7 +133,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('runs an `storeUpdater` and applies the changes to the store', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -155,7 +155,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('runs an `selectorStoreUpdater` and applies the changes to the store', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
         {
@@ -184,7 +184,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('handles aliases correctly when used with optimistic update', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const payload = normalizeRelayPayload(
         operationDescriptorAliased.root,
         {
@@ -213,7 +213,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `storeUpdater` when reverted in the same run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -233,7 +233,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `selectorStoreUpdater` when reverted in the same run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
         {
@@ -265,7 +265,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `storeUpdater` when reverted in a subsequent run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -283,7 +283,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('unpublishes changes from `selectorStoreUpdater` when reverted in a subsequent run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
         {
@@ -314,7 +314,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies multiple updaters in the same run()', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
         {
@@ -348,7 +348,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies updates in subsequent run()s (payload then updater)', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
         {
@@ -381,7 +381,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies updates in subsequent run()s (updater then updater)', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const optimisticUpdate = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -409,7 +409,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('applies updates in subsequent run()s (payload then payload)', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // First set `name`.
       const nameMutation = graphql`
         mutation RelayPublishQueueTest3Mutation($input: ActorNameChangeInput!) {
@@ -500,7 +500,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('rebases changes when an earlier change is reverted', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const payload = normalizeRelayPayload(
         operationDescriptor.root,
         {
@@ -543,7 +543,7 @@ describe('RelayPublishQueue', () => {
     });
 
     it('rebases multiple changes on the same value', () => {
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const incrementPopulation = {
         storeUpdater: storeProxy => {
           const mpk = storeProxy.get('mpk');
@@ -583,7 +583,7 @@ describe('RelayPublishQueue', () => {
 
     it('unpublishes previously rebased changes when reverted', () => {
       // Test that backups are created correctly during a rebase
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const mutation1 = {
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -637,7 +637,7 @@ describe('RelayPublishQueue', () => {
     it('reverts executed changes', () => {
       const publish = jest.spyOn(store, 'publish');
       const restore = jest.spyOn(store, 'restore');
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Run the updates
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -670,7 +670,7 @@ describe('RelayPublishQueue', () => {
     it('reverts partially executed/unexecuted changes', () => {
       const publish = jest.spyOn(store, 'publish');
       const restore = jest.spyOn(store, 'restore');
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Run the first update
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -702,7 +702,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts unexecuted changes', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Apply but don't run the updates
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -728,7 +728,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts addition of new fields', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const zuck = storeProxy.get('4');
@@ -746,7 +746,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts addition of linked field', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const date = storeProxy.create('fookey', 'Date');
@@ -766,7 +766,7 @@ describe('RelayPublishQueue', () => {
 
     it('reverts addition of linked fields', () => {
       store.publish = jest.fn(store.publish.bind(store));
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           const phone1 = storeProxy.create('fookey1', 'Phone');
@@ -800,7 +800,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const publishSource = new RelayRecordSource();
       const ActorQuery = graphql`
         query RelayPublishQueueTest1Query {
@@ -833,7 +833,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       graphql`
         fragment RelayPublishQueueTest1Fragment on User {
           username
@@ -1066,7 +1066,7 @@ describe('RelayPublishQueue', () => {
       };
       const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Set name to 'MARK' *without* running the update
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -1123,7 +1123,7 @@ describe('RelayPublishQueue', () => {
       };
       const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -1181,7 +1181,7 @@ describe('RelayPublishQueue', () => {
       };
       const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Set name to 'MARK'
       const mutation = {
         storeUpdater: storeProxy => {
@@ -1240,7 +1240,7 @@ describe('RelayPublishQueue', () => {
         },
       });
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
 
       const increaseVolumeUpdater = {
         storeUpdater: storeProxy => {
@@ -1286,7 +1286,7 @@ describe('RelayPublishQueue', () => {
       };
       const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const buggyUpdater = storeProxy => {
         invariant(false, 'buggy updater throwing error');
       };
@@ -1345,7 +1345,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       graphql`
         fragment RelayPublishQueueTest2Fragment on User {
           username
@@ -1412,7 +1412,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       graphql`
         fragment RelayPublishQueueTest3Fragment on User {
           username
@@ -1486,7 +1486,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
 
       const source = new RelayRecordSource();
       const user = RelayModernRecord.create('1364586419', 'User');
@@ -1511,7 +1511,7 @@ describe('RelayPublishQueue', () => {
       beforeEach(() => {
         source = new RelayRecordSource({});
         store = new RelayModernStore(source);
-        queue = new RelayPublishQueue(store, null, defaultGetDataID);
+        queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
         const nameQuery = graphql`
           query RelayPublishQueueTest11Query {
             me {
@@ -1593,7 +1593,7 @@ describe('RelayPublishQueue', () => {
       };
       const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Set name to 'MARK', running the update immediately
       queue.applyUpdate({
         storeUpdater: storeProxy => {
@@ -1637,7 +1637,7 @@ describe('RelayPublishQueue', () => {
       };
       const source = new RelayRecordSource(simpleClone(initialData));
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       // Set name to 'MARK'
       const mutation = {
         storeUpdater: storeProxy => {
@@ -1687,7 +1687,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       queue.commitUpdate(storeProxy => {
         const user = storeProxy.create('1364586419', 'User');
         user.setValue('Jan', 'name');
@@ -1717,7 +1717,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       queue.commitUpdate(storeProxy => {
         storeProxy.invalidateStore();
       });
@@ -1742,7 +1742,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       queue.commitUpdate(storeProxy => {
         const user = storeProxy.create('1364586419', 'User');
         user.setValue('Jan', 'name');
@@ -1772,7 +1772,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       expectWarningWillFire(
         'RelayPublishQueue.run was called, but the call would have been a noop.',
       );
@@ -1793,7 +1793,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       queue.applyUpdate({
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
@@ -1817,7 +1817,7 @@ describe('RelayPublishQueue', () => {
         restore,
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const mutation = {
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
@@ -1847,7 +1847,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
 
       const NameQuery = graphql`
         query RelayPublishQueueTest10Query {
@@ -1882,7 +1882,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const mutation = {
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
@@ -1904,7 +1904,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       expectWarningWillFire(
         'RelayPublishQueue.run was called, but the call would have been a noop.',
       );
@@ -1926,7 +1926,7 @@ describe('RelayPublishQueue', () => {
         restore: jest.fn(),
         snapshot: jest.fn(() => []),
       };
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       const mutation = {
         storeUpdater: storeProxy => {
           storeProxy.create('4', 'User');
@@ -1953,7 +1953,7 @@ describe('RelayPublishQueue', () => {
     it('should warn if run() is called during a run()', () => {
       const source = new RelayRecordSource();
       const store = new RelayModernStore(source);
-      const queue = new RelayPublishQueue(store, null, defaultGetDataID);
+      const queue = new RelayPublishQueue(store, null, defaultGetDataID, null);
       let runInUpdaterOnce = false;
       queue.applyUpdate({
         storeUpdater: storeProxy => {

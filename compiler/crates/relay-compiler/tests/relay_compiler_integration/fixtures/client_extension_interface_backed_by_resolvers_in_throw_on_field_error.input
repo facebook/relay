@@ -1,0 +1,37 @@
+//- foo.js
+graphql`fragment fooFragment on MyInterface @throwOnFieldError {
+  id
+  name
+}`
+
+/**
+ * @RelayResolver ClientUser implements MyInterface
+ * A strong type
+ */
+
+ /**
+  * @RelayResolver ClientUser.name: String
+  * Resolver that returns name
+  */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ]
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+}
+
+//- schema-extensions/extension.graphql
+
+interface MyInterface {
+  id: ID!
+  name: String
+}

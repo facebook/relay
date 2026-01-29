@@ -23,7 +23,7 @@ export function Cat(id: DataID): Cat {
 /**
  * @RelayResolver
  */
-export function full_name(key: CatIsHungryFragment$key): string {
+export function full_name(key: CatIsHungryFragment$key): ?string {
   const cat = readFragment(graphql`
     fragment CatIsHungryFragment on Cat {
       first_name

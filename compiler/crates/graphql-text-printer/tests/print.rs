@@ -8,9 +8,9 @@
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
-use graphql_syntax::parse_executable_with_features;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_features;
 use graphql_text_printer::print_ir;
 use relay_test_schema::TEST_SCHEMA;
 
@@ -22,6 +22,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         ParserFeatures {
             fragment_argument_capability:
                 FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
+            allow_string_literal_alias: false,
         },
     )
     .unwrap();

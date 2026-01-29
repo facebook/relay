@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver User.edge_to_union: UserNameRenderer
+ */
+==================================== OUTPUT ===================================
+extend type User {
+  edge_to_union: UserNameRenderer @relay_resolver(has_output_type: true, import_name: "edge_to_union", import_path: "/path/to/test/fixture/terse-relay-resolver-union.js") @resolver_source_hash(value: "3927b6f8f403335c1b9db85c3b13dc2b")
+}

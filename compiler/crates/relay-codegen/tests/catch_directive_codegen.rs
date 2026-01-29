@@ -7,19 +7,21 @@
 
 use std::sync::Arc;
 
+use common::FeatureFlag;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
+use relay_codegen::JsModuleFormat;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
-use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::catch_directive;
+use relay_transforms::fragment_alias_directive;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
@@ -34,7 +36,8 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    catch_directive(&program, true)
+    fragment_alias_directive(&program, &FeatureFlag::Disabled)
+        .and_then(|next_program| catch_directive(&next_program))
         .map(|next_program| {
             next_program
                 .fragments()

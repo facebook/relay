@@ -35,7 +35,7 @@ function constant_dependent(
     (constant_dependent._relayResolverTestCallCount ?? 0) + 1;
   return (user.constant ?? NaN) + 1;
 }
-constant_dependent._relayResolverTestCallCount = (undefined: number | void);
+constant_dependent._relayResolverTestCallCount = undefined as number | void;
 
 module.exports = {
   constant_dependent,

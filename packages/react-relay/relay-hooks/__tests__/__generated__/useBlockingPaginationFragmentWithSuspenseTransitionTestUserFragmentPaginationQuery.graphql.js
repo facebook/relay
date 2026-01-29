@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a2697c49dfa412af7762ed7f58176386>>
+ * @generated SignedSource<<c66227b00387b63b41d40f6db685904c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentP
   id: string,
   isViewerFriendLocal?: ?boolean,
   last?: ?number,
-  orderby?: ?$ReadOnlyArray<?string>,
+  orderby?: ?ReadonlyArray<?string>,
 |};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data = {|
   +node: ?{|

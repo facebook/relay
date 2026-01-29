@@ -29,9 +29,9 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -228,7 +228,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_fragment(mut self, fragment: &FragmentDefinition) -> FmtResult {
         let fragment_name = fragment.name.item;
         let type_condition_name = self.schema.get_type_name(fragment.type_condition);
-        write!(self.writer, "fragment {}", fragment_name)?;
+        write!(self.writer, "fragment {fragment_name}")?;
         if fragment
             .directives
             .named(DirectiveName("argumentDefinitions".intern()))
@@ -236,7 +236,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         {
             self.print_variable_definitions(&fragment.variable_definitions)?;
         }
-        write!(self.writer, " on {}", type_condition_name)?;
+        write!(self.writer, " on {type_condition_name}")?;
 
         self.print_directives(
             &fragment.directives,
@@ -266,8 +266,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             write!(self.writer, "}}")?;
         } else {
             panic!(
-                "Cannot print empty selections for {}. Please, check transforms that may produce invalid selections.",
-                name
+                "Cannot print empty selections for {name}. Please, check transforms that may produce invalid selections."
             );
         }
         Ok(())
@@ -317,7 +316,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         conditions: Option<Vec<&Condition>>,
     ) -> FmtResult {
         let fragment_name = field.fragment.item;
-        write!(self.writer, "...{}", fragment_name)?;
+        write!(self.writer, "...{fragment_name}")?;
         self.print_directives(&field.directives, conditions, None)?;
         if !field.arguments.is_empty() {
             self.print_optional_space()?;
@@ -428,14 +427,14 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "@{}", directive.name.item)?;
         self.print_arguments(&directive.arguments)?;
 
-        if self.options.debug_directive_data {
-            if let Some(data) = &directive.data {
-                for debug_line in format!("{:#?}", data).lines() {
-                    self.print_new_line(false)?;
-                    write!(self.writer, "# {}", debug_line)?;
-                }
+        if self.options.debug_directive_data
+            && let Some(data) = &directive.data
+        {
+            for debug_line in format!("{data:#?}").lines() {
                 self.print_new_line(false)?;
+                write!(self.writer, "# {debug_line}")?;
             }
+            self.print_new_line(false)?;
         }
 
         Ok(())
@@ -456,7 +455,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             write!(self.writer, "(if")?;
             self.print_colon_separator()?;
             match &condition.value {
-                ConditionValue::Constant(value) => write!(self.writer, "{}", value),
+                ConditionValue::Constant(value) => write!(self.writer, "{value}"),
                 ConditionValue::Variable(variable) => self.print_variable(variable.name.item),
             }?;
             write!(self.writer, ")")?;
@@ -605,16 +604,16 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
 
     fn print_constant_value(&mut self, constant_val: &ConstantValue) -> FmtResult {
         match &constant_val {
-            ConstantValue::String(val) => write!(self.writer, "\"{}\"", val),
-            ConstantValue::Float(val) => write!(self.writer, "{}", val),
-            ConstantValue::Int(val) => write!(self.writer, "{}", val),
-            ConstantValue::Boolean(val) => write!(self.writer, "{}", val),
+            ConstantValue::String(val) => write!(self.writer, "\"{val}\""),
+            ConstantValue::Float(val) => write!(self.writer, "{val}"),
+            ConstantValue::Int(val) => write!(self.writer, "{val}"),
+            ConstantValue::Boolean(val) => write!(self.writer, "{val}"),
             ConstantValue::Null() => write!(self.writer, "null"),
             ConstantValue::Enum(val) => {
                 if self.options.json_format {
-                    write!(self.writer, "\"{}\"", val)
+                    write!(self.writer, "\"{val}\"")
                 } else {
-                    write!(self.writer, "{}", val)
+                    write!(self.writer, "{val}")
                 }
             }
             ConstantValue::Object(object) => {
@@ -661,13 +660,13 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         alias: &Option<WithLocation<StringKey>>,
         name: StringKey,
     ) -> FmtResult {
-        if let Some(alias) = alias {
-            if alias.item != name {
-                write!(self.writer, "{}", alias.item)?;
-                self.print_colon_separator()?;
-            }
+        if let Some(alias) = alias
+            && alias.item != name
+        {
+            write!(self.writer, "{}", alias.item)?;
+            self.print_colon_separator()?;
         }
-        write!(self.writer, "{}", name)
+        write!(self.writer, "{name}")
     }
 
     fn print_argument(&mut self, argument: &Argument) -> FmtResult {
@@ -699,7 +698,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     }
 
     fn print_variable(&mut self, variable: VariableName) -> FmtResult {
-        write!(self.writer, "${}", variable)
+        write!(self.writer, "${variable}")
     }
 
     fn print_default_value(&mut self, value: &ConstantValue) -> FmtResult {

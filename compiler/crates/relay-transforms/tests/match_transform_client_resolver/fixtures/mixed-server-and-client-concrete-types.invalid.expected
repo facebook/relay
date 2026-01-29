@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on Persona {
+  id
+  basicUser {
+    ...ClientUser_Fragment @module(name: "ClientUser.react")
+    ...SpecialUser_Fragment @module(name: "SpecialUser.react")
+  }
+}
+
+fragment ClientUser_Fragment on ClientUser {
+  id
+  userInfo {
+    data
+  }
+}
+
+fragment SpecialUser_Fragment on SpecialUser {
+  id
+  userInfo {
+    data
+  }
+}
+
+%extensions%
+interface BasicUser {
+    userInfo: UserInfo
+}
+
+interface UserInfo {
+    data: String
+}
+
+type Persona implements Named {
+  id: ID!
+  name: String
+  basicUser: BasicUser
+}
+
+type ClientUser implements BasicUser @__RelayResolverModel {
+  id: ID!
+}
+
+type SpecialUser implements BasicUser {
+  id: ID!
+  userInfo: UserInfo
+  js(module: String!, id: String, branch: String): JSDependency
+}
+
+extend type ClientUser {
+  userInfo: UserInfo @relay_resolver(fragment_name: "ClientUser_Fragment", import_path: "UserInfoResolver")
+}
+==================================== ERROR ====================================
+✖︎ Invalid fragment spread '...ClientUser_Fragment'. Fragments for interface 'BasicUser' should be backed by relay resolver models.
+
+  mixed-server-and-client-concrete-types.invalid.graphql:5:8
+    4 │   basicUser {
+    5 │     ...ClientUser_Fragment @module(name: "ClientUser.react")
+      │        ^^^^^^^^^^^^^^^^^^^
+    6 │     ...SpecialUser_Fragment @module(name: "SpecialUser.react")

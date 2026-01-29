@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! This module provides functionality for working with file sources in the Relay compiler.
+//!
+//! A file source represents a source code file that contains GraphQL code, such as files with `.graphql` or `.js` extensions (the
+//! extension can be set in the relay compiler config). The `FileSource` struct represents a connection to a file source,
+//! and provides methods for reading and parsing the contents of the file.
 mod external_file_source;
 mod extract_graphql;
 mod file_categorizer;
@@ -22,8 +27,8 @@ use std::sync::Arc;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use external_file_source::ExternalFileSource;
-pub use file_categorizer::categorize_files;
 pub use file_categorizer::FileCategorizer;
+pub use file_categorizer::categorize_files;
 pub use file_group::FileGroup;
 use graphql_watchman::WatchmanFileSourceResult;
 use graphql_watchman::WatchmanFileSourceSubscription;
@@ -37,13 +42,13 @@ pub use watchman_client::prelude::Clock;
 use watchman_file_source::WatchmanFileSource;
 
 pub use self::external_file_source::ExternalFileSourceResult;
-pub use self::extract_graphql::extract_javascript_features_from_file;
-pub use self::extract_graphql::source_for_location;
 pub use self::extract_graphql::FsSourceReader;
 pub use self::extract_graphql::LocatedDocblockSource;
 pub use self::extract_graphql::LocatedGraphQLSource;
 pub use self::extract_graphql::LocatedJavascriptSourceFeatures;
 pub use self::extract_graphql::SourceReader;
+pub use self::extract_graphql::extract_javascript_features_from_file;
+pub use self::extract_graphql::source_for_location;
 use self::walk_dir_file_source::WalkDirFileSource;
 use self::walk_dir_file_source::WalkDirFileSourceResult;
 use crate::compiler_state::CompilerState;
@@ -88,11 +93,10 @@ impl FileSource {
                 if let Err(err) = &result {
                     perf_logger_event.string(
                         "external_file_source_create_compiler_state_error",
-                        format!("{:?}", err),
+                        format!("{err:?}"),
                     );
                     warn!(
-                        "Unable to create state from external source: {:?}. Sending a full watchman query...",
-                        err
+                        "Unable to create state from external source: {err:?}. Sending a full watchman query..."
                     );
                     let watchman_file_source =
                         WatchmanFileSource::connect(&file_source.config, perf_logger_event).await?;

@@ -5,20 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::str::FromStr;
+use std::vec;
+
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
+use graphql_ir::associated_data_impl;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::CatchTo;
+use crate::catch_directive::catchable_node::CatchableNode;
 use crate::connections::ConnectionConstants;
 use crate::connections::ConnectionInterface;
 use crate::util::extract_variable_name;
@@ -72,6 +77,7 @@ pub struct ConnectionMetadata {
     pub before: Option<StringKey>,
     pub after: Option<StringKey>,
     pub is_stream_connection: bool,
+    pub is_prefetchable_pagination: bool,
 }
 
 /// Builds the connection metadata that will be attached
@@ -81,6 +87,7 @@ pub fn build_connection_metadata(
     connection_constants: ConnectionConstants,
     path: &Option<Vec<StringKey>>,
     is_stream_connection: bool,
+    is_prefetchable_pagination: bool,
 ) -> ConnectionMetadata {
     let first_arg = connection_field
         .arguments
@@ -89,6 +96,22 @@ pub fn build_connection_metadata(
         .arguments
         .named(connection_constants.last_arg_name);
 
+    let catch_metadata = connection_field.catch_metadata().unwrap();
+
+    // This checks if there's a catch and that catch is not null
+    let is_catch_to_result = match catch_metadata {
+        // catch does exist
+        Some(catch_metadata) => {
+            match catch_metadata.to {
+                // catch is not null
+                Some(arg) => arg != CatchTo::Null,
+                // catch has no argument - default is Result
+                None => true,
+            }
+        }
+        None => false,
+    };
+
     let direction = match (first_arg, last_arg) {
         (Some(_), Some(_)) => connection_constants.direction_bidirectional,
         (Some(_), None) => connection_constants.direction_forward,
@@ -96,6 +119,19 @@ pub fn build_connection_metadata(
         (None, None) => unreachable!(
             "Expected presence of first or last args on connection to have been previously validated."
         ),
+    };
+
+    // We look for the path in connections to determine hasNext.
+    // This path needs to include the value field to be correct for Result<> types
+    let connection_path = match path {
+        Some(path) => {
+            let mut interim_path = path.clone();
+            if is_catch_to_result {
+                interim_path.push(StringKey::from_str("value").unwrap());
+            }
+            Some(interim_path)
+        }
+        None => path.clone(),
     };
 
     ConnectionMetadata {
@@ -116,8 +152,9 @@ pub fn build_connection_metadata(
             )
         }),
         direction,
-        path: path.clone(),
+        path: connection_path,
         is_stream_connection,
+        is_prefetchable_pagination,
     }
 }
 

@@ -25,11 +25,15 @@ function createError(
     String(messageParams[index++]),
   );
   const err = new Error(message);
-  const error = Object.assign((err: any), {
+  // messageParams[2] is the operation name
+  const operation = messageParams[2] ?? null;
+  // $FlowFixMe[unsafe-object-assign]
+  const error = Object.assign(err as any, {
     name,
     messageFormat,
     messageParams,
     type,
+    operation,
     taalOpcodes: [2, 2], // skip frame (code=2) twice
   });
   // In V8, Error objects keep the closure scope chain alive until the

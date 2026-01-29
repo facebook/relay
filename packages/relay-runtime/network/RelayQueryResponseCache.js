@@ -17,7 +17,7 @@ import type {
   GraphQLSingularResponse,
 } from './RelayNetworkTypes';
 
-const stableCopy = require('../util/stableCopy');
+const {stableCopy} = require('../util/stableCopy');
 const invariant = require('invariant');
 
 type Response = {
@@ -77,16 +77,16 @@ class RelayQueryResponseCache {
               ...payload.extensions,
               cacheTimestamp: response.fetchTime,
             },
-          }: GraphQLSingularResponse),
+          }) as GraphQLSingularResponse,
       );
     }
-    return ({
+    return {
       ...response.payload,
       extensions: {
         ...response.payload.extensions,
         cacheTimestamp: response.fetchTime,
       },
-    }: GraphQLSingularResponse);
+    } as GraphQLSingularResponse;
   }
 
   set(queryID: string, variables: Variables, payload: GraphQLResponse): void {

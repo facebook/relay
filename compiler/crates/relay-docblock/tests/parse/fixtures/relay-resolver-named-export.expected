@@ -58,6 +58,7 @@ Field(
                     ),
                 },
             ),
+            return_fragment: None,
             output_type: None,
             description: Some(
                 WithLocation {

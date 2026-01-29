@@ -7,18 +7,21 @@
 
 use std::sync::Arc;
 
-use common::sync::try_join;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::PerfLogEvent;
 use common::PerfLogger;
+use common::sync::try_join;
 use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
+use raw_text::set_raw_text;
 use relay_config::ProjectConfig;
+use validate_operation_variables::ValidateVariablesOptions;
 
 use super::*;
+use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::apply_custom_transforms::apply_after_custom_transforms;
 use crate::apply_custom_transforms::apply_before_custom_transforms;
-use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;
@@ -30,7 +33,7 @@ use crate::match_::hash_supported_argument;
 use crate::relay_resolvers_abstract_types::relay_resolvers_abstract_types;
 use crate::skip_updatable_queries::skip_updatable_queries;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Programs {
     pub source: Arc<Program>,
     pub reader: Arc<Program>,
@@ -46,6 +49,7 @@ pub fn apply_transforms<TPerfLogger>(
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> DiagnosticsResult<Programs>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -70,6 +74,7 @@ where
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
                 custom_transforms_config,
+                transferrable_refetchable_query_directives.clone(),
             )?;
 
             try_join(
@@ -122,6 +127,7 @@ where
                 Arc::clone(&base_fragment_names),
                 Arc::clone(&perf_logger),
                 custom_transforms_config,
+                transferrable_refetchable_query_directives.clone(),
             )
         },
     )?;
@@ -142,12 +148,16 @@ fn apply_common_transforms(
     base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_common_transforms");
     log_event.string("project", project_config.name.to_string());
 
+    // raw_text stores the operation text before transforms and should be executed first
+    let mut program = log_event.time("raw_text", || set_raw_text(&program))?;
+
     let custom_transforms = &custom_transforms_config.and_then(|c| c.common_transforms.as_ref());
-    let mut program = apply_before_custom_transforms(
+    program = apply_before_custom_transforms(
         &program,
         custom_transforms,
         project_config,
@@ -155,6 +165,16 @@ fn apply_common_transforms(
         &log_event,
         None,
     )?;
+
+    program = log_event.time("fragment_alias_directive", || {
+        fragment_alias_directive(
+            &program,
+            &project_config
+                .feature_flags
+                .enforce_fragment_alias_where_ambiguous,
+        )
+    })?;
+
     program = log_event.time("relay_resolvers_abstract_types", || {
         relay_resolvers_abstract_types(&program, &project_config.feature_flags)
     })?;
@@ -163,6 +183,7 @@ fn apply_common_transforms(
             &program,
             &project_config.schema_config.connection_interface,
             &project_config.schema_config.defer_stream_interface,
+            false,
         )
     });
     program = log_event.time("mask", || mask(&program));
@@ -184,7 +205,13 @@ fn apply_common_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, project_config, &base_fragment_names, false)
+        transform_refetchable_fragment(
+            &program,
+            project_config,
+            &base_fragment_names,
+            false,
+            transferrable_refetchable_query_directives,
+        )
     })?;
 
     program = log_event.time("relay_actor_change_transform", || {
@@ -250,44 +277,22 @@ fn apply_reader_transforms(
         None,
     )?;
 
-    program = log_event.time("fragment_alias_directive", || {
-        fragment_alias_directive(
-            &program,
-            project_config
-                .feature_flags
-                .enable_fragment_aliases
-                .is_fully_enabled(),
-            // NOTE: We purposefully don't run validation in this arm of the
-            // transform pipeline, and instead we expect it to run in the
-            // typegen arm. In this arm we've already run refetchable fragment
-            // transform which creates some synthentic fragment spreads that we
-            // don't want to report.
-            false,
-        )
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
     })?;
 
-    program = log_event.time("required_directive", || required_directive(&program))?;
-
-    program = log_event.time("catch_directive", || {
-        catch_directive(
-            &program,
-            project_config
-                .feature_flags
-                .enable_catch_directive_transform
-                .is_fully_enabled(),
-        )
-    })?;
+    program = log_event.time("catch_directive", || catch_directive(&program))?;
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, false)
     })?;
 
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            project_config.name,
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
+        relay_resolvers(project_config.name, &program)
+    })?;
+
+    log_event.time("shadow_resolvers_transform", || {
+        shadow_resolvers_transform(&program, &project_config.feature_flags)
     })?;
 
     program = log_event.time("client_extensions", || client_extensions(&program));
@@ -361,20 +366,25 @@ fn apply_operation_transforms(
         None,
     )?;
 
+    program = log_event.time("remove_aliased_inline_fragments", || {
+        remove_aliased_inline_fragments(&program)
+    });
+
     program = log_event.time("skip_updatable_queries", || {
         skip_updatable_queries(&program)
     });
 
     program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
+        client_edges(&program, project_config, &base_fragment_names, true)
     })?;
     program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            project_config.name,
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
+        relay_resolvers(project_config.name, &program)
     })?;
+
+    log_event.time("shadow_resolvers_transform", || {
+        shadow_resolvers_transform(&program, &project_config.feature_flags)
+    })?;
+
     if project_config.resolvers_schema_module.is_some() {
         program = log_event.time(
             "generate_relay_resolvers_root_fragment_split_operation",
@@ -617,7 +627,12 @@ fn apply_operation_text_transforms(
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
-        validate_operation_variables(&program)
+        validate_operation_variables(
+            &program,
+            ValidateVariablesOptions {
+                remove_unused_variables: true,
+            },
+        )
     })?;
     program = log_event.time("skip_client_directives", || {
         skip_client_directives(&program)
@@ -652,6 +667,7 @@ fn apply_typegen_transforms(
     base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
+    transferrable_refetchable_query_directives: Vec<DirectiveName>,
 ) -> DiagnosticsResult<Arc<Program>> {
     let log_event = perf_logger.create_event("apply_typegen_transforms");
     log_event.string("project", project_config.name.to_string());
@@ -669,16 +685,21 @@ fn apply_typegen_transforms(
     program = log_event.time("fragment_alias_directive", || {
         fragment_alias_directive(
             &program,
-            project_config
+            &project_config
                 .feature_flags
-                .enable_fragment_aliases
-                .is_fully_enabled(),
-            project_config
-                .feature_flags
-                .enforce_fragment_alias_where_ambiguous
-                .is_fully_enabled(),
+                .enforce_fragment_alias_where_ambiguous,
         )
     })?;
+
+    // Split edge fragment for prefetchable pagination
+    program = log_event.time("transform_connections_typegen", || {
+        transform_connections(
+            &program,
+            &project_config.schema_config.connection_interface,
+            &project_config.schema_config.defer_stream_interface,
+            true,
+        )
+    });
 
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
@@ -692,16 +713,10 @@ fn apply_typegen_transforms(
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
     })?;
-    program = log_event.time("required_directive", || required_directive(&program))?;
-    program = log_event.time("catch_directive", || {
-        catch_directive(
-            &program,
-            project_config
-                .feature_flags
-                .enable_catch_directive_transform
-                .is_fully_enabled(),
-        )
+    program = log_event.time("required_directive", || {
+        required_directive(&program, &project_config.feature_flags)
     })?;
+    program = log_event.time("catch_directive", || catch_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
         generate_relay_resolvers_model_fragments(
             project_config.name,
@@ -721,10 +736,6 @@ fn apply_typegen_transforms(
         },
     )?;
 
-    program = log_event.time("client_edges", || {
-        client_edges(&program, project_config, &base_fragment_names)
-    })?;
-
     program = log_event.time(
         "transform_assignable_fragment_spreads_in_regular_queries",
         || transform_assignable_fragment_spreads_in_regular_queries(&program),
@@ -737,16 +748,27 @@ fn apply_typegen_transforms(
         annotate_updatable_fragment_spreads(&program)
     });
 
-    program = log_event.time("relay_resolvers", || {
-        relay_resolvers(
-            project_config.name,
-            &program,
-            project_config.feature_flags.enable_relay_resolver_transform,
-        )
+    program = log_event.time("client_edges", || {
+        client_edges(&program, project_config, &base_fragment_names, false)
     })?;
+
+    program = log_event.time("relay_resolvers", || {
+        relay_resolvers(project_config.name, &program)
+    })?;
+
+    log_event.time("shadow_resolvers_transform", || {
+        shadow_resolvers_transform(&program, &project_config.feature_flags)
+    })?;
+
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {
-        transform_refetchable_fragment(&program, project_config, &base_fragment_names, true)
+        transform_refetchable_fragment(
+            &program,
+            project_config,
+            &base_fragment_names,
+            true,
+            transferrable_refetchable_query_directives,
+        )
     })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)

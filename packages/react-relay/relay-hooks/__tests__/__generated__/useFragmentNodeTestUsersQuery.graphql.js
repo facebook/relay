@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9768e08a054f9d0bfd3fc57e8d12b755>>
+ * @generated SignedSource<<88e555b016e49e26a4e0d9b690a72703>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,11 +20,11 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { useFragmentNodeTestUsersFragment$fragmentType } from "./useFragmentNodeTestUsersFragment.graphql";
 export type useFragmentNodeTestUsersQuery$variables = {|
-  ids: $ReadOnlyArray<string>,
+  ids: ReadonlyArray<string>,
   scale: number,
 |};
 export type useFragmentNodeTestUsersQuery$data = {|
-  +nodes: ?$ReadOnlyArray<?{|
+  +nodes: ?ReadonlyArray<?{|
     +$fragmentSpreads: useFragmentNodeTestUsersFragment$fragmentType,
   |}>,
 |};

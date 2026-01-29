@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6a07a0613287459204a27bf01dd58957>>
+ * @generated SignedSource<<5ec8b0c37bb522eacd198077e8366770>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -43,10 +43,10 @@ export type readUpdatableQueryTestRegularQuery$data = {|
   |},
   +node2: ?{|
     +name?: ?string,
-    +parents?: $ReadOnlyArray<{|
+    +parents?: ReadonlyArray<{|
       +id: string,
       +name: ?string,
-      +parents: $ReadOnlyArray<{|
+      +parents: ReadonlyArray<{|
         +id: string,
       |}>,
     |}>,
@@ -352,7 +352,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bb6d520f1d382edceed7c6abb54ac6bb";
+  (node/*: any*/).hash = "46eea2f5976dc4bcb1af1d5b7479d9b8";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

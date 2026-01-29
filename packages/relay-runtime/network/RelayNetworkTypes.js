@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {OperationAvailability} from '../store/RelayStoreTypes';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type RelayObservable, {ObservableFromValue} from './RelayObservable';
@@ -23,9 +24,9 @@ export interface INetwork {
   +execute: ExecuteFunction;
 }
 
-export type LogRequestInfoFunction = mixed => void;
+export type LogRequestInfoFunction = unknown => void;
 
-export type PayloadData = {[key: string]: mixed};
+export type PayloadData = {+[key: string]: unknown};
 
 export type PayloadError = interface {
   message: string,
@@ -39,7 +40,7 @@ export type PayloadError = interface {
   severity?: 'CRITICAL' | 'ERROR' | 'WARNING',
 };
 
-export type PayloadExtensions = {[key: string]: mixed, ...};
+export type PayloadExtensions = {[key: string]: unknown, ...};
 
 /**
  * The shape of a GraphQL response as dictated by the
@@ -81,7 +82,7 @@ export type GraphQLSingularResponse =
 
 export type GraphQLResponse =
   | GraphQLSingularResponse
-  | $ReadOnlyArray<GraphQLSingularResponse>;
+  | ReadonlyArray<GraphQLSingularResponse>;
 
 /**
  * A function that pre-process the response at the network layer. This
@@ -104,6 +105,8 @@ export type ExecuteFunction = (
   logRequestInfo?: ?LogRequestInfoFunction,
   encryptedVariables?: ?string,
   preprocessResponse?: ?preprocessResponseFunction,
+  // Run datachecker on the current operation and returns the OperationAvailability
+  checkOperation?: () => OperationAvailability,
 ) => RelayObservable<GraphQLResponse>;
 
 /**
@@ -131,4 +134,4 @@ export type SubscribeFunction = (
 ) => RelayObservable<GraphQLResponse>;
 
 export type Uploadable = File | Blob;
-export type UploadableMap = {[key: string]: Uploadable};
+export type UploadableMap = {+[key: string]: Uploadable};

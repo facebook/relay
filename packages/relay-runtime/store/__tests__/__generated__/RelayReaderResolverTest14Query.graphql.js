@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<676a859c5112d5c227b5eabf2289ac72>>
+ * @generated SignedSource<<c1590940e8c32b5d60b14c9d5d8c5737>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,11 +20,14 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ThrowBeforeReadResolver$key } from "./../resolvers/__generated__/ThrowBeforeReadResolver.graphql";
 import {throw_before_read as queryThrowBeforeReadResolverType} from "../resolvers/ThrowBeforeReadResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryThrowBeforeReadResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryThrowBeforeReadResolverType: (
   rootKey: ThrowBeforeReadResolver$key,
-) => ?mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?unknown);
 export type RelayReaderResolverTest14Query$variables = {||};
 export type RelayReaderResolverTest14Query$data = {|
   +throw_before_read: ?ReturnType<typeof queryThrowBeforeReadResolverType>,
@@ -52,7 +55,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "throw_before_read",
-        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver').throw_before_read,
+        "resolverModule": require('../resolvers/ThrowBeforeReadResolver').throw_before_read,
         "path": "throw_before_read"
       }
     ],

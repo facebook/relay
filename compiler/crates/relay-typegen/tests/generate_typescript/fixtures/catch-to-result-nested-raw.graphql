@@ -1,0 +1,6 @@
+query FooQuery @raw_response_type {
+  me {
+    firstName
+    lastName @catch
+  }
+}

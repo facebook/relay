@@ -11,7 +11,7 @@ use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
-use relay_config::DynamicModuleProvider;
+use relay_config::ModuleProvider;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {
@@ -98,6 +98,12 @@ pub enum GraphQLModuleDependency {
 }
 
 #[derive(Eq, PartialEq, Hash, Debug)]
+pub enum ResolverJSFunction {
+    Module(JSModuleDependency),
+    PropertyLookup(String),
+}
+
+#[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
     Variable(StringKey),
@@ -116,13 +122,13 @@ pub enum Primitive {
     // skip_printing_nulls is enabled
     SkippableNull,
     DynamicImport {
-        provider: DynamicModuleProvider,
+        provider: ModuleProvider,
         module: StringKey,
     },
     RelayResolverModel {
         graphql_module_name: StringKey,
         graphql_module_path: StringKey,
-        js_module: JSModuleDependency,
+        resolver_fn: ResolverJSFunction,
         injected_field_name_details: Option<(StringKey, bool)>,
     },
 }
@@ -189,7 +195,7 @@ pub struct RequestParameters<'a> {
     pub text: Option<String>,
 }
 
-impl<'a> RequestParameters<'a> {
+impl RequestParameters<'_> {
     pub fn is_client_request(&self) -> bool {
         self.id.is_none() && self.text.is_none()
     }

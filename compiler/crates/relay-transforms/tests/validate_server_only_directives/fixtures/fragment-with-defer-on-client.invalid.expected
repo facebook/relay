@@ -34,7 +34,7 @@ interface ClientUser {
   fragment-with-defer-on-client.invalid.graphql:13:25
    12 │   foo {
    13 │     ...DeferredFragment @defer(label: "DeferredFragmentLabel")
-      │                         ^^^^^^
+      │                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    14 │   }
 
   ℹ︎ related location

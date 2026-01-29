@@ -20,7 +20,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer @inline {
   module-on-inline-data.invalid.graphql:6:7
     5 │     ...MarkdownUserNameRenderer_name
     6 │       @module(name: "MarkdownUserNameRenderer.react")
-      │       ^^^^^^^
+      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     7 │   }
 
   ℹ︎ @inline directive location

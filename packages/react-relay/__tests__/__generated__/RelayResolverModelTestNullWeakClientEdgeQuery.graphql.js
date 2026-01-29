@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3b405f2f5d45372047ed472a6ba2a316>>
+ * @generated SignedSource<<0b17246624744ff48879a2aaae2b1cd2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,12 +22,14 @@ import type { DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType: (
   args: {|
     todoID: string,
   |},
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -39,12 +41,15 @@ import {text_with_prefix as todoDescriptionTextWithPrefixResolverType} from "../
   args: {|
     prefix: string,
   |},
+  context: TestResolverContextType,
 ) => ?string);
 import {fancy_description_null as todoModelFancyDescriptionNullResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionNullResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?TodoDescription);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestNullWeakClientEdgeQuery$variables = {|
@@ -107,15 +112,15 @@ return {
         "modelResolvers": {
           "TodoModel": {
             "alias": null,
-            "args": [],
+            "args": null,
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",
               "name": "TodoModel__id"
             },
             "kind": "RelayLiveResolver",
-            "name": "todo_model",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "todo_model.__relay_model_instance"
           }
         },
@@ -125,7 +130,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
           "path": "todo_model"
         },
         "linkedField": {
@@ -150,7 +155,7 @@ return {
                 },
                 "kind": "RelayResolver",
                 "name": "fancy_description_null",
-                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_null, '__relay_model_instance', true),
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description_null, '__relay_model_instance', true),
                 "path": "todo_model.fancy_description_null",
                 "normalizationInfo": {
                   "kind": "WeakModel",
@@ -176,7 +181,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "text_with_prefix",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text_with_prefix, '__relay_model_instance', true),
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text_with_prefix, '__relay_model_instance', true),
                     "path": "todo_model.fancy_description_null.text_with_prefix"
                   }
                 ],

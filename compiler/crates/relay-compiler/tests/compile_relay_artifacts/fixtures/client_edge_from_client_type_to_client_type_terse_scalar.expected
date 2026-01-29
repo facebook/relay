@@ -65,8 +65,8 @@ extend type ClientViewer {
                       "name": "ClientType__id"
                     },
                     "kind": "RelayResolver",
-                    "name": "client_edge",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('ClientType__id.graphql'), require('<generated>').ClientType, 'id', true),
+                    "name": "__relay_model_instance",
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('ClientType__id.graphql'), require('UserModelResolver').ClientType, 'id', true),
                     "path": "client_viewer.client_edge.__relay_model_instance"
                   }
                 },

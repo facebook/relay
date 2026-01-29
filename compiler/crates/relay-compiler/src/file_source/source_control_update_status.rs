@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
 use std::sync::atomic::AtomicI8;
 use std::sync::atomic::Ordering;
-use std::sync::Arc;
 
 #[derive(Clone, Default, Debug)]
 /// This structure is representing the state of the current source control update.

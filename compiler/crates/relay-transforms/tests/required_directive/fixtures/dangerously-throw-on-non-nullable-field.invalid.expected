@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query MyQuery {
+  me {
+    # Error: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD used on non-null field
+    id @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+  }
+}
+==================================== ERROR ====================================
+✖︎ @required with action DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD is not allowed on non-nullable fields. Use action THROW instead.
+
+  dangerously-throw-on-non-nullable-field.invalid.graphql:6:26
+    5 │     # Error: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD used on non-null field
+    6 │     id @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+      │                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    7 │   }

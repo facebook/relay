@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<aabffac0bd94a9088f0f8dbf8327fe0c>>
+ * @generated SignedSource<<47f76140deeacf45ee24386e211a2d9b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserNamePassthroughResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserNamePassthroughResolver.graphql";
 import {name_passthrough as userNamePassthroughResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserNamePassthroughResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userNamePassthroughResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userNamePassthroughResolverType: (
   rootKey: UserNamePassthroughResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayMockPayloadGeneratorTest57Query$variables = {||};
 export type RelayMockPayloadGeneratorTest57Query$data = {|
@@ -62,7 +65,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "name_passthrough",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserNamePassthroughResolver').name_passthrough,
+            "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/UserNamePassthroughResolver').name_passthrough,
             "path": "me.name_passthrough"
           }
         ],

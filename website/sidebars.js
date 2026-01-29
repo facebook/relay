@@ -12,97 +12,99 @@
 
 const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
+// Note for files from "guided-tour/":
 // Some advanced information not covered in the new tutorial that
 // we need to stick somewhere until the rest of the Guides and API
 // Reference are rewritten.
-const GuidesRescuedFromOldTutorial = [
-  {
-    'Reusing Cached Data for Rendering': [
-      'guided-tour/reusing-cached-data/introduction',
-      'guided-tour/reusing-cached-data/fetch-policies',
-      'guided-tour/reusing-cached-data/presence-of-data',
-      'guided-tour/reusing-cached-data/staleness-of-data',
-      'guided-tour/reusing-cached-data/rendering-partially-cached-data',
-      'guided-tour/reusing-cached-data/filling-in-missing-data',
-    ],
-  },
-  ...fbContent({
-    internal: ['guided-tour/list-data/fb/blocking-pagination'],
-    external: [],
-  }),
-  'guided-tour/list-data/advanced-pagination',
-  ...fbContent({
-    internal: ['guided-tour/fb/advanced-data-fetching'],
-    external: [
-      // TODO(T85915654): Release entrypoints guide externally
-    ],
-  }),
-  {
-    'Managing Data Outside React': [
-      // These were already commented out
-      // 'guided-tour/managing-data-outside-react/prefetching-queries',
-      // 'guided-tour/managing-data-outside-react/subscribing-to-queries',
-      // 'guided-tour/managing-data-outside-react/reading-queries',
-      // 'guided-tour/managing-data-outside-react/reading-fragments',
-      'guided-tour/managing-data-outside-react/retaining-queries',
-    ],
-  },
-  'guided-tour/updating-data/graphql-subscriptions',
-  {
-    'Updating Data': [
-      'guided-tour/list-data/updating-connections',
-      'guided-tour/updating-data/imperatively-modifying-store-data',
-      'guided-tour/updating-data/imperatively-modifying-linked-fields',
-      'guided-tour/updating-data/typesafe-updaters-faq',
-      'guided-tour/updating-data/local-data-updates',
-      'guided-tour/updating-data/client-only-data',
-    ],
-  },
-];
 
-const Guides = fbContent({
-  internal: [
-    'guides/graphql-server-specification',
-    'guides/compiler',
-    'guides/fb/updating-the-graphql-schema',
-    'guides/fb/flow-typing',
-    'guides/fb/writing-subscriptions',
-    'guides/testing-relay-components',
-    'guides/testing-relay-with-preloaded-queries',
-    'guides/required-directive',
-    'guides/alias-directive',
-    'guides/client-schema-extensions',
-    'guides/type-emission',
-    'guided-tour/rendering/error-states',
-    'guides/fb/client-mutation-id-and-actor-id',
-    GuidesRescuedFromOldTutorial,
+const Guides = {
+  'Fetching Data': [
     {
-      EntryPoints: [
-        'guides/fb/entrypoints/entrypoints',
-        'guides/fb/entrypoints/using-entrypoints',
-        'guides/fb/entrypoints/using-entrypoints-at-facebook',
-        'guides/fb/entrypoints/migrating-from-lazy-fetching',
-        'guides/fb/entrypoints/entrypoints-faq',
+      Pagination: [
+        'guided-tour/list-data/connections',
+        'guided-tour/list-data/pagination',
+        'guided-tour/list-data/advanced-pagination',
+        ...fbContent({
+          internal: ['guided-tour/list-data/fb/blocking-pagination'],
+          external: [],
+        }),
       ],
-      'Web-Only': [
-        'guides/fb/incremental-data-delivery',
-        'guides/fb/data-driven-dependencies',
-        'guides/fb/image-prefetching',
-        'guides/fb/comet-route-prefetching',
-        'guides/fb/web-query-preloading',
-        'guides/fb/production-graphql-endpoint-in-sandboxes',
-        'guides/fb/react-flight',
-      ],
-      'React-Native-Only': ['guides/fb/native-fetch'],
     },
+    ...fbContent({
+      internal: [
+        {
+          Subscriptions: [
+            'guided-tour/updating-data/graphql-subscriptions',
+            'guides/fb/writing-subscriptions',
+          ],
+        },
+      ],
+      external: ['guided-tour/updating-data/graphql-subscriptions'],
+    }),
+    'guides/alias-directive',
+    {
+      'Data Driven Dependencies': [
+        'guides/data-driven-dependencies/introduction',
+        'guides/data-driven-dependencies/server-3d',
+        'guides/data-driven-dependencies/client-3d',
+        'guides/data-driven-dependencies/configuration',
+      ],
+    },
+    ...fbContent({
+      internal: [
+        {
+          // TODO(T85915654): Release entrypoints guide externally
+          EntryPoints: [
+            'guides/fb/entrypoints/entrypoints',
+            'guides/fb/entrypoints/using-entrypoints',
+            'guides/fb/entrypoints/using-entrypoints-at-facebook',
+            'guides/fb/entrypoints/migrating-from-lazy-fetching',
+            'guides/fb/entrypoints/entrypoints-faq',
+          ],
+          'Web-Only': [
+            'guides/fb/incremental-data-delivery',
+            'guides/fb/image-prefetching',
+            'guides/fb/web-query-preloading',
+            'guides/fb/production-graphql-endpoint-in-sandboxes',
+            'guides/fb/react-flight',
+          ],
+          'React-Native-Only': ['guides/fb/native-fetch'],
+        },
+      ],
+      external: [],
+    }),
   ],
-  external: [
-    'guides/graphql-server-specification',
-    'guides/compiler',
-    'guides/type-emission',
-    'guides/persisted-queries',
-    'guides/network-layer',
-    'guides/client-schema-extensions',
+  'Error Handling': [
+    'guides/required-directive',
+    'guides/catch-directive',
+    'guides/throw-on-field-error-directive',
+    'guided-tour/rendering/error-states',
+    'guides/semantic-nullability',
+  ],
+  'Updating Data': [
+    'guided-tour/updating-data/introduction',
+    'guided-tour/updating-data/graphql-mutations',
+    'guided-tour/updating-data/updating-connections',
+    'guided-tour/updating-data/imperatively-modifying-store-data',
+    'guided-tour/updating-data/imperatively-modifying-linked-fields',
+    'guided-tour/updating-data/typesafe-updaters-faq',
+    'guided-tour/updating-data/local-data-updates',
+    'guided-tour/updating-data/client-only-data',
+    ...fbContent({
+      internal: ['guides/fb/client-mutation-id-and-actor-id'],
+      external: [],
+    }),
+  ],
+  Caching: [
+    'guided-tour/reusing-cached-data/introduction',
+    'guided-tour/reusing-cached-data/fetch-policies',
+    'guided-tour/reusing-cached-data/presence-of-data',
+    'guided-tour/reusing-cached-data/staleness-of-data',
+    'guided-tour/reusing-cached-data/rendering-partially-cached-data',
+    'guided-tour/reusing-cached-data/filling-in-missing-data',
+    'guided-tour/managing-data-outside-react/retaining-queries',
+  ],
+  'Client Side Data': [
     {
       'Relay Resolvers': [
         'guides/relay-resolvers/introduction',
@@ -111,6 +113,7 @@ const Guides = fbContent({
         'guides/relay-resolvers/defining-fields',
         'guides/relay-resolvers/return-types',
         'guides/relay-resolvers/field-arguments',
+        'guides/relay-resolvers/context',
         'guides/relay-resolvers/derived-fields',
         'guides/relay-resolvers/live-fields',
         'guides/relay-resolvers/suspense',
@@ -120,19 +123,28 @@ const Guides = fbContent({
         'guides/relay-resolvers/limitations',
       ],
     },
-    'guides/testing-relay-components',
-    'guides/testing-relay-with-preloaded-queries',
-    'guides/required-directive',
-    'guides/alias-directive',
-    'guided-tour/rendering/error-states',
-    GuidesRescuedFromOldTutorial,
-    // TODO(T84797602) release incremental data delivery externally
-    // 'guides/incremental-data-delivery',
-    // TODO release these in OSS
-    // 'guides/data-driven-dependencies',
-    // 'guides/image-prefetching',
+    'guides/client-schema-extensions',
   ],
-});
+  'GraphQL Server and Network': [
+    'guides/graphql-server-specification',
+    ...fbContent({
+      internal: ['guides/fb/updating-the-graphql-schema'],
+      external: ['guides/persisted-queries', 'guides/network-layer'],
+    }),
+  ],
+  Typing: [
+    ...fbContent({
+      internal: ['guides/fb/flow-typing'],
+    }),
+    'guides/type-emission',
+  ],
+  Codemods: ['guides/codemods'],
+  // TODO(T84797602) release incremental data delivery externally
+  // 'guides/incremental-data-delivery',
+  // TODO release these in OSS
+  // 'guides/data-driven-dependencies',
+  // 'guides/image-prefetching',
+};
 
 // N.B. these IDs are path relative to the docs root + id.
 // They do not always correspond to the slug, e.g. with /fb/ in the id.
@@ -140,6 +152,20 @@ module.exports = {
   docs: [
     'home',
     {
+      'Get Started': [
+        'getting-started/quick-start',
+        'getting-started/babel-plugin',
+        'getting-started/compiler',
+        'getting-started/compiler-config',
+        'getting-started/lint-rules',
+        'editor-support',
+        {
+          'Best Practices': [
+            'getting-started/production',
+            'tutorial/organizing-mutations-queries-and-subscriptions',
+          ],
+        },
+      ],
       Tutorial: [
         'tutorial/intro',
         'tutorial/graphql',
@@ -153,16 +179,8 @@ module.exports = {
           label: 'Interfaces & Polymorphism',
         },
         'tutorial/refetchable-fragments',
-        'tutorial/connections-pagination',
-        'tutorial/mutations-updates',
-        'tutorial/organizing-mutations-queries-and-subscriptions',
       ],
-      Installation: [
-        'getting-started/prerequisites',
-        'getting-started/installation-and-setup',
-        'editor-support',
-      ],
-      Guides,
+      'Feature Guides': Guides,
       'API Reference': [
         {
           'Relay Hooks': [
@@ -184,6 +202,7 @@ module.exports = {
             }),
             'api-reference/hooks/use-mutation',
             'api-reference/hooks/use-subscription',
+            'api-reference/hooks/use-prefetchable-forward-pagination-fragment',
           ],
           'Entrypoint APIs': [
             'api-reference/entrypoint-apis/use-entrypoint-loader',
@@ -191,10 +210,15 @@ module.exports = {
             'api-reference/entrypoint-apis/entrypoint-container',
           ],
           'Relay Runtime': [
+            'api-reference/relay-runtime/relay-environment',
             'api-reference/relay-runtime/fetch-query',
             'api-reference/relay-runtime/store',
+            'api-reference/relay-runtime/field-logger',
             'api-reference/relay-runtime/commit-mutation',
             'api-reference/relay-runtime/request-subscription',
+            'api-reference/relay-runtime/observe-fragment',
+            'api-reference/relay-runtime/wait-for-fragment-data',
+            'api-reference/relay-runtime/runtime-config',
           ],
         },
         {
@@ -204,21 +228,16 @@ module.exports = {
           ],
         },
         'api-reference/graphql/graphql-directives',
-        'api-reference/legacy-apis/legacy-apis',
       ],
-      'Migration and Compatibility': [
-        'migration-and-compatibility/upgrading-to-relay-hooks',
-        'migration-and-compatibility/suspense-compatibility',
-        'migration-and-compatibility/relay-hooks-and-legacy-container-apis',
-      ],
-    },
-    {
-      Debugging: [
+      'Testing and Debugging': [
+        'guides/testing-relay-components',
+        'guides/testing-relay-with-preloaded-queries',
         ...fbContent({
           internal: [
             'debugging/fb/debugging-and-troubleshooting',
             'debugging/relay-devtools',
             'debugging/fb/network-logger',
+            'debugging/fb/performance-logger',
             'debugging/inconsistent-typename-error',
             'debugging/declarative-mutation-directives',
             'debugging/fb/debugging-suspense',
@@ -234,6 +253,7 @@ module.exports = {
             'debugging/why-null',
           ],
         }),
+        'error-reference/unknown-field',
       ],
       'Principles and Architecture': [
         'principles-and-architecture/thinking-in-graphql',
@@ -243,7 +263,6 @@ module.exports = {
         'principles-and-architecture/runtime-architecture',
         'principles-and-architecture/videos',
       ],
-      'Error reference': ['error-reference/unknown-field'],
     },
     'community/learning-resources',
     'glossary/glossary',

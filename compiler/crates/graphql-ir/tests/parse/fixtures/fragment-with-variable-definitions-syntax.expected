@@ -97,6 +97,7 @@ fragment Foo($localId: ID!) on User {
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-variable-definitions-syntax.graphql:32:126,
                 },
             ],
             selections: [
@@ -234,6 +235,35 @@ fragment Foo($localId: ID!) on User {
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment-with-variable-definitions-syntax.graphql:286:289,
+                                item: FragmentDefinitionName(
+                                    "Foo",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment-with-variable-definitions-syntax.graphql:290:298,
+                                        item: VariableName(
+                                            "localId",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(4),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(70),
+                            directives: [],
+                        },
+                    ),
                     directives: [],
                 },
             ],

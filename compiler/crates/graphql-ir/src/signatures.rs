@@ -8,39 +8,45 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
 
+use ::intern::Lookup;
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
+use common::NamedItem;
 use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
-use errors::try2;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::Lookup;
+use errors::try3;
 use lazy_static::lazy_static;
-use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use schema::suggestion_list::GraphQLSuggestions;
 
+use crate::VariableName;
 use crate::associated_data_impl;
+use crate::build::ValidationLevel;
 use crate::build::build_constant_value;
+use crate::build::build_directives;
 use crate::build::build_type_annotation;
 use crate::build::build_variable_definitions;
-use crate::build::ValidationLevel;
 use crate::build_directive;
 use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::MachineMetadataKey;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::ConstantValue;
+use crate::ir::FragmentDefinition;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
-use crate::VariableName;
+use crate::ir::alias_arg_as;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
@@ -61,6 +67,15 @@ pub struct ProvidedVariableMetadata {
 }
 
 impl ProvidedVariableMetadata {
+    /// Returns true if the provider module's path is a bare identifier (i.e.
+    /// doesn't start with './' nor '../' nor '/'), otherwise false.
+    pub fn is_bare(&self) -> bool {
+        let module_name = self.module_name.lookup();
+        !(module_name.starts_with("./")
+            || module_name.starts_with("../")
+            || module_name.starts_with("/"))
+    }
+
     /// Return a path to the provider module, based on the fragment location
     /// where this provider is used.
     pub fn module_path(&self) -> PathBuf {
@@ -81,11 +96,36 @@ associated_data_impl!(ProvidedVariableMetadata);
 /// would depend on having checked its body! Since recursive fragments
 /// are allowed, we break the cycle by first computing signatures
 /// and using these to type check fragment spreads in selections.
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct FragmentSignature {
     pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
+    pub directives: Vec<crate::Directive>,
+}
+
+impl FragmentSignature {
+    // Get the alias of this fragment signature from the optional `@alias` directive.
+    // If the `as` argument is not specified, the fragment name is used as the fallback.
+    pub fn alias(&self) -> DiagnosticsResult<Option<WithLocation<StringKey>>> {
+        if let Some(directive) = self.directives.named(DirectiveName(intern!("alias"))) {
+            Ok(alias_arg_as(directive)?
+                .or_else(|| Some(WithLocation::new(directive.name.location, self.name.item.0))))
+        } else {
+            Ok(None)
+        }
+    }
+}
+
+impl From<&FragmentDefinition> for FragmentSignature {
+    fn from(fragment: &FragmentDefinition) -> Self {
+        Self {
+            name: fragment.name,
+            variable_definitions: fragment.variable_definitions.clone(),
+            type_condition: fragment.type_condition,
+            directives: fragment.directives.clone(),
+        }
+    }
 }
 
 pub fn build_signatures(
@@ -149,6 +189,7 @@ fn build_fragment_signature(
                 .location
                 .with_span(fragment.type_condition.type_.span),
         )
+        .metadata_for_machine(MachineMetadataKey::UnknownType, type_name.lookup())
         .into()),
     };
     let argument_definition_directives = fragment
@@ -196,7 +237,15 @@ fn build_fragment_signature(
         })
         .unwrap_or_else(|| Ok(Default::default()));
 
-    let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
+    let directives = build_directives(
+        schema,
+        &fragment.directives,
+        graphql_syntax::DirectiveLocation::FragmentDefinition,
+        fragment.location,
+    );
+
+    let (type_condition, variable_definitions, directives) =
+        try3(type_condition, variable_definitions, directives)?;
 
     Ok(FragmentSignature {
         name: WithLocation::from_span(
@@ -206,6 +255,7 @@ fn build_fragment_signature(
         ),
         type_condition,
         variable_definitions,
+        directives,
     })
 }
 
@@ -299,6 +349,7 @@ fn build_fragment_variable_definitions(
                             ),
                             arguments: Vec::new(),
                             data: None,
+                            location: fragment.location.with_span(unused_local_variable_arg.span)
                         });
                     }
 
@@ -333,6 +384,7 @@ fn build_fragment_variable_definitions(
                                 original_variable_name: VariableName(variable_name.value),
                                 fragment_source_location: fragment.location.source_location(),
                             })),
+                            location: fragment.location.with_span(provider_arg.span),
                         });
                     }
 

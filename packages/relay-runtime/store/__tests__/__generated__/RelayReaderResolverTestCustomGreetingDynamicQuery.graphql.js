@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e089922dbab564b81af5e26cc44f9a9c>>
+ * @generated SignedSource<<c46dbd8f6bc355593185065ad47040d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,6 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserCustomGreetingResolver$key } from "./../resolvers/__generated__/UserCustomGreetingResolver.graphql";
 import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/UserCustomGreetingResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userCustomGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCustomGreetingResolverType: (
@@ -27,6 +28,7 @@ import {custom_greeting as userCustomGreetingResolverType} from "../resolvers/Us
   args: {|
     salutation: string,
   |},
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
@@ -113,7 +115,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
+            "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.dynamic_greeting"
           },
           {
@@ -122,7 +124,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
+            "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.greetz"
           },
           {
@@ -131,7 +133,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
+            "resolverModule": require('../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.willkommen"
           }
         ],

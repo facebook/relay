@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dfcf59e021b31c5f67e3413cb8787629>>
+ * @generated SignedSource<<12958b9dcecc55e9041cd855d09ea630>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType: FragmentType;
 export type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +name: ?string,
       |},

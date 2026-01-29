@@ -17,7 +17,7 @@ const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvide
 const useRelayActorEnvironment = require('./useRelayActorEnvironment');
 const React = require('react');
 
-export opaque type ActorChangePoint<TFragmentRef> = $ReadOnly<{
+export opaque type ActorChangePoint<TFragmentRef> = Readonly<{
   __fragmentRef: TFragmentRef,
   __viewer: ActorIdentifier,
 }>;
@@ -32,7 +32,7 @@ type ActorChangeProps<TFragmentRef> = {
 
 function ActorChange<TFragmentRef>(
   props: ActorChangeProps<TFragmentRef>,
-): React.Element<typeof RelayEnvironmentProvider> {
+): React.MixedElement {
   const actorEnvironment = useRelayActorEnvironment(
     props.actorChangePoint.__viewer,
   );

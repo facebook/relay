@@ -111,9 +111,9 @@ impl<'a> SelectionParent<'a> {
 mod tests {
     use common::SourceLocationKey;
     use common::Span;
-    use graphql_syntax::parse_executable_with_features;
     use graphql_syntax::FragmentArgumentSyntaxKind;
     use graphql_syntax::ParserFeatures;
+    use graphql_syntax::parse_executable_with_features;
     use intern::string_key::Intern;
     use intern::string_key::StringKey;
     use relay_test_schema::get_test_schema;
@@ -133,6 +133,7 @@ mod tests {
             ParserFeatures {
                 fragment_argument_capability:
                     FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
+                allow_string_literal_alias: false,
             },
         )
         .unwrap();

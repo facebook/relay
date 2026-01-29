@@ -11,7 +11,7 @@
 
 'use strict';
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {OperationDescriptor, RelayContext, Variables} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useRefetchableFragmentNodeOriginal = require('../legacy/useRefetchableFragmentNode');
@@ -27,7 +27,12 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
+
+injectPromisePolyfill__DEPRECATED();
 
 const {useLayoutEffect, useTransition, useMemo, useState} = React;
 
@@ -97,7 +102,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectFragmentResults(
-      expectedYields: $ReadOnlyArray<{
+      expectedYields: ReadonlyArray<{
         data: $FlowFixMe,
         isPending: boolean,
       }>,
@@ -138,7 +143,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     function expectFragmentIsPendingOnRefetch(
       renderer: any,
       expected: {
-        data: mixed,
+        data: unknown,
         refetchQuery?: OperationDescriptor,
         refetchVariables: Variables,
       },
@@ -211,6 +216,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         ) {
           node(id: $id) {
             ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -242,7 +248,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = (props: {user: mixed}) => null;
+      Renderer = (props: {user: unknown}) => null;
 
       const Container = (props: {
         userRef?: {...},
@@ -281,7 +287,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useRefetchableFragmentNode does not use them, instead it uses
         // the variables from the fragment owner.
-        const relayContext = useMemo(() => ({environment}), []);
+        const relayContext = useMemo((): RelayContext => ({environment}), []);
         return (
           <ReactRelayContext.Provider value={relayContext}>
             {children}
@@ -311,7 +317,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
               <Container owner={query} {...props} />
             </ContextProvider>
           </React.Suspense>,
-          // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+          // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
           {unstable_isConcurrent: isConcurrent},
         );
       };
@@ -390,7 +396,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       describe('multiple refetches', () => {
         let fetchSpy;
         beforeEach(() => {
-          fetchSpy = jest.fn<Array<any>, mixed>();
+          fetchSpy = jest.fn<Array<any>, unknown>();
           const internalRuntime = require('relay-runtime').__internal;
           const originalFetchQueryDeduped = internalRuntime.fetchQueryDeduped;
           jest

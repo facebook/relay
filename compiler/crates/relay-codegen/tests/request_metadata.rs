@@ -10,7 +10,6 @@ use common::DirectiveName;
 use common::SourceLocationKey;
 use common::WithLocation;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
@@ -19,12 +18,13 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Value;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
+use relay_codegen::JsModuleFormat;
 use relay_codegen::build_request_params;
 use relay_codegen::print_fragment;
 use relay_codegen::print_request;
-use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_test_schema::TEST_SCHEMA;
 
@@ -60,6 +60,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                                     ),
                                 }],
                                 data: None,
+                                location: operation.name.location,
                             }],
                             ..operation.clone()
                         };

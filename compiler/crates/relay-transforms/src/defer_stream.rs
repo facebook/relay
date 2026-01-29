@@ -35,9 +35,9 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use relay_config::DeferStreamInterface;
 use schema::Schema;
 use thiserror::Error;
@@ -95,7 +95,7 @@ impl DeferStreamTransform<'_> {
                         },
                         prev.name.location,
                     )
-                    .annotate("related location", directive.name.location),
+                    .annotate("related location", directive.location),
                 );
             }
             None => {
@@ -155,6 +155,7 @@ impl DeferStreamTransform<'_> {
             name: defer.name,
             arguments: next_arguments,
             data: None,
+            location: defer.location,
         };
 
         Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
@@ -264,6 +265,7 @@ impl DeferStreamTransform<'_> {
             name: stream.name,
             arguments: next_arguments,
             data: None,
+            location: stream.location,
         };
 
         Ok(get_next_selection(replace_directive(
@@ -273,7 +275,7 @@ impl DeferStreamTransform<'_> {
     }
 }
 
-impl<'s> Transformer for DeferStreamTransform<'s> {
+impl Transformer<'_> for DeferStreamTransform<'_> {
     const NAME: &'static str = "DeferStreamTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -307,16 +309,14 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
             if let Some(label) = directive
                 .arguments
                 .named(self.defer_stream_interface.label_arg)
+                && let Some(label) = label.value.item.get_string_literal()
+                && label.lookup().contains("$defer$")
             {
-                if let Some(label) = label.value.item.get_string_literal() {
-                    if label.lookup().contains("$defer$") {
-                        return self.default_transform_inline_fragment(inline_fragment);
-                    }
-                }
+                return self.default_transform_inline_fragment(inline_fragment);
             }
             self.errors.push(Diagnostic::error(
                 ValidationMessage::InvalidDeferOnInlineFragment,
-                directive.name.location,
+                directive.location,
             ));
         }
 
@@ -351,7 +351,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
                 ValidationMessage::InvalidStreamOnScalarField {
                     field_name: scalar_field.alias_or_name(&self.program.schema),
                 },
-                directive.name.location,
+                directive.location,
             ));
         }
         self.default_transform_scalar_field(scalar_field)
@@ -392,7 +392,7 @@ fn transform_label(
     directive_name: DirectiveName,
     label: StringKey,
 ) -> StringKey {
-    format!("{}${}${}", parent_name, directive_name, label).intern()
+    format!("{parent_name}${directive_name}${label}").intern()
 }
 
 fn get_literal_string_argument(
@@ -408,7 +408,7 @@ fn get_literal_string_argument(
                     arg_name: arg.name.item,
                     directive_name: directive.name.item,
                 },
-                directive.name.location,
+                directive.location,
             ))
         }
     } else {

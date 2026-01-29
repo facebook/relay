@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3d960d7d9db38a325a728084b82cc638>>
+ * @generated SignedSource<<acc079c81351a966f3eff0ac8f1a157f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type UserBestFriendGreetingResolver$fragmentType: FragmentType;
 export type UserBestFriendGreetingResolver$data = {|
   +friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +cursor: ?string,
       +node: ?{|
         +name: ?string,

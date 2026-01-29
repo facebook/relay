@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NameRendererFragment on User {
+  id
+  nameRenderable @match(key: $key) {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected the 'key' argument of @match to be a literal string starting with the document name, e.g. 'NameRendererFragment_<localName>'.
+
+  relay-match-with-non-literal-key.invalid.graphql:4:30
+    3 │   id
+    4 │   nameRenderable @match(key: $key) {
+      │                              ^^^^
+    5 │     ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")

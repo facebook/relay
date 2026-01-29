@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a2c94e5a9091fec95899603295127b90>>
+ * @generated SignedSource<<ce24691de836cbd17f6f9c94fa0da9fa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,10 +22,13 @@ import type { DataID } from "relay-runtime";
 import type { UserAnotherClientEdgeResolver$key } from "./UserAnotherClientEdgeResolver.graphql";
 import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
 import {another_client_edge as userAnotherClientEdgeResolverType} from "../UserAnotherClientEdgeResolver.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAnotherClientEdgeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAnotherClientEdgeResolverType: (
   rootKey: UserAnotherClientEdgeResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -34,6 +37,8 @@ import {client_edge as userClientEdgeResolverType} from "../UserClientEdgeResolv
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolverType: (
   rootKey: UserClientEdgeResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -103,7 +108,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../UserClientEdgeResolver').client_edge,
+              "resolverModule": require('../UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -129,7 +134,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "another_client_edge",
-                    "resolverModule": require('./../UserAnotherClientEdgeResolver').another_client_edge,
+                    "resolverModule": require('../UserAnotherClientEdgeResolver').another_client_edge,
                     "path": "me.client_edge.another_client_edge"
                   },
                   "linkedField": {

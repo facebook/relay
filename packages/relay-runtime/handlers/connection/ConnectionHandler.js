@@ -67,7 +67,12 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
   const serverPageInfo =
     serverConnection && serverConnection.getLinkedRecord(PAGE_INFO);
   if (!serverConnection) {
-    record.setValue(null, payload.handleKey);
+    record.setValue(
+      null,
+      payload.handleKey,
+      undefined,
+      record.getErrors(payload.fieldKey),
+    );
     return;
   }
   // In rare cases the handleKey field may be unset even though the client
@@ -161,7 +166,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
         //         end cursor from the server matches the end cursor from the
         //         client then we're just filling out the rest of this page.
         if (isAddingEdgesAfterCurrentPage || isFillingOutCurrentPage) {
-          const nodeIDs = new Set<mixed>();
+          const nodeIDs = new Set<unknown>();
           mergeEdges(prevEdges, nextEdges, nodeIDs);
           mergeEdges(serverEdges, nextEdges, nodeIDs);
         } else {
@@ -180,7 +185,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           clientPageInfo &&
           args.before === clientPageInfo.getValue(START_CURSOR)
         ) {
-          const nodeIDs = new Set<mixed>();
+          const nodeIDs = new Set<unknown>();
           mergeEdges(serverEdges, nextEdges, nodeIDs);
           mergeEdges(prevEdges, nextEdges, nodeIDs);
         } else {
@@ -375,7 +380,7 @@ function insertEdgeAfter(
   if (cursor == null) {
     nextEdges = edges.concat(newEdge);
   } else {
-    nextEdges = ([]: Array<?RecordProxy>);
+    nextEdges = [] as Array<?RecordProxy>;
     let foundCursor = false;
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];
@@ -479,7 +484,7 @@ function insertEdgeBefore(
   if (cursor == null) {
     nextEdges = [newEdge].concat(edges);
   } else {
-    nextEdges = ([]: Array<?RecordProxy>);
+    nextEdges = [] as Array<?RecordProxy>;
     let foundCursor = false;
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];
@@ -579,7 +584,7 @@ function buildConnectionEdge(
 function mergeEdges(
   sourceEdges: Array<?RecordProxy>,
   targetEdges: Array<?RecordProxy>,
-  nodeIDs: Set<mixed>,
+  nodeIDs: Set<unknown>,
 ): void {
   const {NODE} = ConnectionInterface.get();
 

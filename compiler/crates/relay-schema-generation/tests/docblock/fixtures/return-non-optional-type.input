@@ -1,0 +1,101 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+import type CatFlowType from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export type FullName = {first: string, last: string};
+
+/**
+ * @RelayResolver
+ */
+export function fullName(cat: CatFlowType): FullName {
+  return {first: "Mr", last: "Cat"};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function name(cat: CatFlowType): string {
+  return "cat";
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_name(cat: CatFlowType): LiveState<string> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function plural_name(cat: CatFlowType): Array<string> {
+  return "cat";
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_plural_name(cat: CatFlowType): LiveState<Array<string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_plural_maybe_name(cat: CatFlowType): LiveState<Array<?string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_maybe_plural_name(cat: CatFlowType): LiveState<?Array<string>> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function live_maybe_plural_maybe_name(cat: CatFlowType): LiveState<?Array<?string>> {
+  return {};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function plural_maybe_name(cat: CatFlowType): Array<?string> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function maybe_plural_name(cat: CatFlowType): ?Array<string> {
+  return {};
+}
+
+/**
+ * @RelayResolver
+ */
+export function maybe_plural_maybe_name(cat: CatFlowType): ?Array<?string> {
+  return {};
+}

@@ -18,6 +18,7 @@ import type {
   FragmentType,
   HandleFieldPayload,
   HasUpdatableSpread,
+  LogFunction,
   MissingFieldHandler,
   RecordProxy,
   RecordSource,
@@ -52,13 +53,15 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   _getDataID: GetDataID;
   _invalidatedStore: boolean;
   _idsMarkedForInvalidation: DataIDSet;
-  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: ReadonlyArray<MissingFieldHandler>;
+  _log: LogFunction;
 
   constructor(
     mutator: RelayRecordSourceMutator,
     getDataID: GetDataID,
     handlerProvider?: ?HandlerProvider,
-    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+    missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
+    log: ?LogFunction,
   ) {
     this.__mutator = mutator;
     this._handlerProvider = handlerProvider || null;
@@ -67,6 +70,7 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     this._invalidatedStore = false;
     this._idsMarkedForInvalidation = new Set();
     this._missingFieldHandlers = missingFieldHandlers;
+    this._log = log ?? (LogEvent => {});
   }
 
   publishSource(

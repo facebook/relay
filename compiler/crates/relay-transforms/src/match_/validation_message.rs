@@ -6,7 +6,10 @@
  */
 
 use common::ArgumentName;
+use common::InterfaceName;
+use common::ObjectName;
 use common::ScalarName;
+use common::UnionName;
 use graphql_ir::ExecutableDefinitionName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
@@ -17,6 +20,11 @@ use thiserror::Error;
 pub enum ValidationMessage {
     #[error("Invalid @match selection: all selections should be fragment spreads with @module.")]
     InvalidMatchNotAllSelectionsFragmentSpreadWithModule,
+
+    #[error(
+        "Invalid @match selection: @alias may not be applied to fragment spreads within @match."
+    )]
+    InvalidAliasWithinMatch,
 
     #[error("'{name}' should be defined on the server schema.")]
     MissingServerSchemaDefinition { name: StringKey },
@@ -108,7 +116,31 @@ pub enum ValidationMessage {
     InvalidMatchNoModuleSelection,
 
     #[error(
-        "@match on a field without the `supported` argument is a no-op, please remove the `@match`."
+        "@match without a `key` argument and on a field without the `supported` argument is a no-op, please remove the `@match`."
     )]
     InvalidMatchWithNoSupportedArgument,
+
+    #[error(
+        "Invalid fragment spread '...{spread_name}'. Fragments for interface '{parent_interface}' should be backed by relay resolver models."
+    )]
+    MissingRelayResolverModelForInterface {
+        spread_name: FragmentDefinitionName,
+        parent_interface: InterfaceName,
+    },
+
+    #[error(
+        "Invalid fragment spread '...{spread_name}'. Fragments for union '{parent_union}' should be backed by relay resolver models."
+    )]
+    MissingRelayResolverModelForUnion {
+        spread_name: FragmentDefinitionName,
+        parent_union: UnionName,
+    },
+
+    #[error(
+        "Invalid fragment spread '...{spread_name}'. Object '{object}' should be backed by a relay resolver model."
+    )]
+    MissingRelayResolverModelForObject {
+        spread_name: FragmentDefinitionName,
+        object: ObjectName,
+    },
 }

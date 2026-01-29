@@ -55,6 +55,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       ) {
         node(id: $id) {
           ...RelayModernFragmentSpecResolverRequiredFieldNoLoggerTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

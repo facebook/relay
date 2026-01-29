@@ -10,7 +10,7 @@ query TestQuery {
 export type TestQuery$variables = {||};
 export type TestQuery$data = {|
   +me: ?{|
-    +neighbors: $ReadOnlyArray<?{|
+    +neighbors: ReadonlyArray<?{|
       +name: string,
     |}>,
   |},

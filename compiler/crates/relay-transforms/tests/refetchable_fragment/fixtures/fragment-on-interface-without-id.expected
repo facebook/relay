@@ -32,6 +32,7 @@ fragment RefetchableFragment on AllConcreteTypesImplementNode @refetchable(query
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   count

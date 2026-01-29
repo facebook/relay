@@ -24,7 +24,6 @@ const {
   useFragment,
 } = require('react-relay');
 const TestRenderer = require('react-test-renderer');
-const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -42,14 +41,16 @@ const {
 const {
   LiveColorSubscriptions,
 } = require('relay-runtime/store/__tests__/resolvers/TodoDescription');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
@@ -59,13 +60,8 @@ function logFn(event: LogEvent): void {
 }
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   logEvents = [];
   resetStore(logFn);
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 function EnvironmentWrapper({
@@ -88,7 +84,7 @@ describe.each([['New', useFragment]])(
     let environment;
     let store;
     beforeEach(() => {
-      store = new LiveResolverStore(RelayRecordSource.create(), {
+      store = new RelayModernStore(RelayRecordSource.create(), {
         log: logFn,
       });
       environment = new RelayModernEnvironment({
@@ -145,12 +141,15 @@ describe.each([['New', useFragment]])(
     test('should read title of the model', () => {
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoRootComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('Test todo - red');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoRootComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Test todo - red');
     });
 
     test('should render `null` model.', () => {
@@ -171,12 +170,15 @@ describe.each([['New', useFragment]])(
 
         return data?.todo_model_null.id;
       }
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoNullComponent />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual(null);
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoNullComponent />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual(null);
     });
 
     test('read plural resolver field', () => {
@@ -229,12 +231,15 @@ describe.each([['New', useFragment]])(
 
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithPluralResolverComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('Test todo - red');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithPluralResolverComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Test todo - red');
     });
 
     test('read live @weak resolver field', () => {
@@ -263,17 +268,21 @@ describe.each([['New', useFragment]])(
 
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithPluralResolverComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('Test todo - red');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithPluralResolverComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Test todo - red');
 
       TestRenderer.act(() => {
         completeTodo('todo-1');
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('Test todo - green');
     });
 
@@ -303,12 +312,15 @@ describe.each([['New', useFragment]])(
       }
       addTodo('Test todo');
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(0);
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithPluralResolverComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('Test todo - red');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithPluralResolverComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Test todo - red');
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
 
       TestRenderer.act(() => {
@@ -317,6 +329,7 @@ describe.each([['New', useFragment]])(
       });
       expect(LiveColorSubscriptions.activeSubscriptions.length).toBe(1);
 
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('Test todo - green');
 
       TestRenderer.act(() => {
@@ -324,6 +337,7 @@ describe.each([['New', useFragment]])(
         jest.runAllImmediates();
       });
 
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual(null);
       // Run GC to will remove "orphan" records and unsubscribe if they have live resolver subscriptions
       store.scheduleGC();
@@ -353,17 +367,21 @@ describe.each([['New', useFragment]])(
 
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithFieldWithArgumentsComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('[x] Test todo');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithFieldWithArgumentsComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('[x] Test todo');
 
       TestRenderer.act(() => {
         changeDescription('todo-1', 'Changed todo description text');
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('[x] Changed todo description text');
     });
 
@@ -393,12 +411,15 @@ describe.each([['New', useFragment]])(
       }
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('NULL!');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('NULL!');
     });
 
     // Ensure we don't:
@@ -423,12 +444,15 @@ describe.each([['New', useFragment]])(
 
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('Loading...');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithNullWeakClientEdge todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('Loading...');
     });
 
     test('null items in list of @weak models', () => {
@@ -458,20 +482,23 @@ describe.each([['New', useFragment]])(
 
         return fancyDescriptions
           .map(item =>
-            item == null ? 'ITEM IS NULL' : item.text ?? 'TEXT IS NULL',
+            item == null ? 'ITEM IS NULL' : (item.text ?? 'TEXT IS NULL'),
           )
           .join(', ');
       }
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithNullablePluralResolverComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithNullablePluralResolverComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
 
       // TODO: T184433715 We currently break with the GraphQL spec and filter out null items in lists.
-      expect(renderer.toJSON()).toEqual('Test todo');
+      expect(renderer?.toJSON()).toEqual('Test todo');
     });
 
     test('read a field with its own root fragment', () => {
@@ -493,12 +520,15 @@ describe.each([['New', useFragment]])(
 
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('TODO-1');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('TODO-1');
     });
 
     test('read a field with its own root fragment defined using legacy non-terse syntax', () => {
@@ -522,12 +552,15 @@ describe.each([['New', useFragment]])(
 
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('TODO-1');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithFieldWithRootFragmentComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('TODO-1');
     });
 
     test('read interface field', () => {
@@ -576,13 +609,16 @@ describe.each([['New', useFragment]])(
 
       addTodo('Test todo');
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <TodoComponentWithInterfaceComponent todoID="todo-1" />
-        </EnvironmentWrapper>,
-      );
-      // $FlowFixMe[incompatible-call] Yes, it is compatible...
-      const response = JSON.parse(renderer.toJSON() ?? '{}');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <TodoComponentWithInterfaceComponent todoID="todo-1" />
+          </EnvironmentWrapper>,
+        );
+      });
+      // $FlowFixMe[incompatible-type] Yes, it is compatible...
+      const response = JSON.parse(renderer?.toJSON() ?? '{}');
       jest.runAllImmediates();
 
       // This incorrectly currently reads out just the typename from resolvers which
@@ -625,17 +661,21 @@ describe.each([['New', useFragment]])(
         }
         return `${data.mutable_entity.type}:${data.mutable_entity.props.battery}`;
       }
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <GetMutableEntity />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('human:0');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <GetMutableEntity />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('human:0');
 
       TestRenderer.act(() => {
         setIsHuman(false);
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('robot:0');
 
       TestRenderer.act(() => {
@@ -643,6 +683,7 @@ describe.each([['New', useFragment]])(
         setIsHuman(true);
         jest.runAllImmediates();
       });
+      // $FlowFixMe[incompatible-use]
       expect(renderer.toJSON()).toEqual('human:0');
 
       TestRenderer.act(() => {
@@ -664,12 +705,15 @@ describe.each([['New', useFragment]])(
         return `${data.mutable_entity.type}:${data.mutable_entity.props.battery}`;
       }
 
-      const renderer = TestRenderer.create(
-        <EnvironmentWrapper environment={environment}>
-          <GetMutableEntity />
-        </EnvironmentWrapper>,
-      );
-      expect(renderer.toJSON()).toEqual('robot:0');
+      let renderer;
+      TestRenderer.act(() => {
+        renderer = TestRenderer.create(
+          <EnvironmentWrapper environment={environment}>
+            <GetMutableEntity />
+          </EnvironmentWrapper>,
+        );
+      });
+      expect(renderer?.toJSON()).toEqual('robot:0');
 
       expect(() => {
         chargeBattery();

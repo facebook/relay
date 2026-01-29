@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+fragment MyFragment on Node  {
+  id
+  ... on User @catch(to: RESULT) @alias {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "kind": "CatchField",
+      "field": {
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "name",
+              "storageKey": null
+            }
+          ],
+          "type": "User",
+          "abstractKey": null
+        },
+        "kind": "AliasedInlineFragmentSpread",
+        "name": "User"
+      },
+      "to": "RESULT"
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}

@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+fragment User on User {
+  ...UserName @dangerously_unaliased_fixme
+}
+
+fragment UserName on User @inline {
+  name
+}
+==================================== OUTPUT ===================================
+fragment User on User {
+  ... @__InlineDirectiveMetadata
+  # InlineDirectiveMetadata {
+  #     fragment_name: FragmentDefinitionName(
+  #         "UserName",
+  #     ),
+  #     arguments: [],
+  #     variable_definitions: [],
+  #     used_global_variables: [],
+  # }
+   {
+    ... on User {
+      name
+    }
+  }
+}
+
+fragment UserName on User @inline {
+  name
+}

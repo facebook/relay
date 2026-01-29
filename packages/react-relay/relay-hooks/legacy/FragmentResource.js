@@ -22,7 +22,6 @@ import type {
   RequestDescriptor,
   Snapshot,
 } from 'relay-runtime';
-import type {MissingLiveResolverField} from 'relay-runtime/store/RelayStoreTypes';
 
 const LRUCache = require('../LRUCache');
 const {getQueryResourceForEnvironment} = require('../QueryResource');
@@ -46,8 +45,8 @@ export type FragmentResource = FragmentResourceImpl;
 type FragmentResourceCache = Cache<
   | {
       kind: 'pending',
-      pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-      promise: Promise<mixed>,
+      pendingOperations: ReadonlyArray<RequestDescriptor>,
+      promise: Promise<unknown>,
       result: FragmentResult,
     }
   | {kind: 'done', result: FragmentResult}
@@ -64,11 +63,11 @@ interface IMap<K, V> {
   set(key: K, value: V): IMap<K, V>;
 }
 
-type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
+type SingularOrPluralSnapshot = Snapshot | ReadonlyArray<Snapshot>;
 
-opaque type FragmentResult: {data: mixed, ...} = {
+opaque type FragmentResult: {data: unknown, ...} = {
   cacheKey: string,
-  data: mixed,
+  data: unknown,
   isMissingData: boolean,
   snapshot: SingularOrPluralSnapshot | null,
   storeEpoch: number,
@@ -98,7 +97,7 @@ function hasMissingClientEdges(snapshot: SingularOrPluralSnapshot): boolean {
 
 function missingLiveResolverFields(
   snapshot: SingularOrPluralSnapshot,
-): ?$ReadOnlyArray<MissingLiveResolverField> {
+): ?ReadonlyArray<DataID> {
   if (Array.isArray(snapshot)) {
     return snapshot
       .map(s => s.missingLiveResolverFields)
@@ -218,7 +217,7 @@ class FragmentResourceImpl {
    */
   read(
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     componentDisplayName: string,
     fragmentKey?: string,
   ): FragmentResult {
@@ -238,7 +237,7 @@ class FragmentResourceImpl {
    */
   readWithIdentifier(
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     fragmentIdentifier: string,
     componentDisplayName: string,
     fragmentKey?: ?string,
@@ -308,7 +307,7 @@ class FragmentResourceImpl {
         !missingLiveResolverFields(cachedValue.result.snapshot)?.length
       ) {
         this._throwOrLogErrorsInSnapshot(
-          // $FlowFixMe[incompatible-call]
+          // $FlowFixMe[incompatible-type]
           cachedValue.result.snapshot,
         );
 
@@ -341,14 +340,15 @@ class FragmentResourceImpl {
         'to `%s`. If the parent fragment only fetches the fragment conditionally ' +
         '- with e.g. `@include`, `@skip`, or inside a `... on SomeType { }` ' +
         'spread  - then the fragment reference will not exist. ' +
-        'In this case, pass `null` if the conditions for evaluating the ' +
-        'fragment are not met (e.g. if the `@include(if)` value is false.)',
+        'This issue can generally be fixed by adding `@alias` after `...%s`.\n' +
+        'See https://relay.dev/docs/next/guides/alias-directive/',
       fragmentNode.name,
       fragmentNode.name,
       componentDisplayName,
       fragmentNode.name,
       fragmentKey == null ? 'a fragment reference' : `the \`${fragmentKey}\``,
       componentDisplayName,
+      fragmentNode.name,
     );
 
     let fragmentResult = null;
@@ -449,10 +449,10 @@ class FragmentResourceImpl {
       );
     const parentQueryPromiseResultPromise = parentQueryPromiseResult?.promise; // for refinement
     const missingResolverFieldPromises =
-      missingLiveResolverFields(snapshot)?.map(({liveStateID}) => {
+      missingLiveResolverFields(snapshot)?.map(liveStateID => {
         const store = environment.getStore();
 
-        // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
+        // $FlowFixMe[prop-missing] This is expected to be a RelayModernStore
         return store.getLiveResolverPromise(liveStateID);
       }) ?? [];
 
@@ -527,7 +527,7 @@ class FragmentResourceImpl {
   _performClientEdgeQuery(
     queryResource: QueryResource,
     fragmentNode: ReaderFragment,
-    fragmentRef: mixed,
+    fragmentRef: unknown,
     request: ConcreteRequest,
     clientEdgeDestinationID: DataID,
   ): {queryResult: QueryResult, requestDescriptor: RequestDescriptor} {
@@ -559,28 +559,16 @@ class FragmentResourceImpl {
   _throwOrLogErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
-        handlePotentialSnapshotErrors(
-          this._environment,
-          s.missingRequiredFields,
-          s.relayResolverErrors,
-          s.errorResponseFields,
-          s.selector.node.metadata?.throwOnFieldError ?? false,
-        );
+        handlePotentialSnapshotErrors(this._environment, s.fieldErrors);
       });
     } else {
-      handlePotentialSnapshotErrors(
-        this._environment,
-        snapshot.missingRequiredFields,
-        snapshot.relayResolverErrors,
-        snapshot.errorResponseFields,
-        snapshot.selector.node.metadata?.throwOnFieldError ?? false,
-      );
+      handlePotentialSnapshotErrors(this._environment, snapshot.fieldErrors);
     }
   }
 
   readSpec(
     fragmentNodes: {[string]: ReaderFragment, ...},
-    fragmentRefs: {[string]: mixed, ...},
+    fragmentRefs: {[string]: unknown, ...},
     componentDisplayName: string,
   ): {[string]: FragmentResult, ...} {
     const result: {[string]: FragmentResult} = {};
@@ -773,9 +761,7 @@ class FragmentResourceImpl {
       missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
-      missingRequiredFields: currentSnapshot.missingRequiredFields,
-      relayResolverErrors: currentSnapshot.relayResolverErrors,
-      errorResponseFields: currentSnapshot.errorResponseFields,
+      fieldErrors: currentSnapshot.fieldErrors,
     };
     if (updatedData !== renderData) {
       const result = getFragmentResult(
@@ -818,7 +804,7 @@ class FragmentResourceImpl {
     fragmentResult: FragmentResult,
   ): {
     promise: Promise<void>,
-    pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+    pendingOperations: ReadonlyArray<RequestDescriptor>,
   } | null {
     const pendingOperationsResult = getPendingOperationsForFragment(
       this._environment,
@@ -854,7 +840,7 @@ class FragmentResourceImpl {
 
   _updatePluralSnapshot(
     cacheKey: string,
-    baseSnapshots: $ReadOnlyArray<Snapshot>,
+    baseSnapshots: ReadonlyArray<Snapshot>,
     latestSnapshot: Snapshot,
     idx: number,
     storeEpoch: number,

@@ -1,0 +1,13 @@
+query MeQuery($include_firstname: Boolean!) {
+  me {
+    name @skip(if: $include_firstname)
+    firstName(if: $include_fir|stname)
+  }
+}
+
+query OtherQueryWithSameArgQuery($include_firstname: Boolean!) {
+  me {
+    name @skip(if: $include_firstname)
+    firstName(if: $include_fir|stname)
+  }
+}

@@ -760,6 +760,7 @@ describe('validateOptimisticResponse', () => {
           actorNameChange(input: $input) {
             actor {
               ...validateMutationTestEntityFragement
+                @dangerously_unaliased_fixme
             }
           }
         }

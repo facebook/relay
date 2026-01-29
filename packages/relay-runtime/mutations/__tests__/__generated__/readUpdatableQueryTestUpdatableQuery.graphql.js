@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<df3090c6517dc324c1c8f20f1decd3cc>>
+ * @generated SignedSource<<f8d1a944cd7bd9d37d021fe9ff7302be>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,14 +62,14 @@ export type readUpdatableQueryTestUpdatableQuery$data = {|
   get node2(): ?({|
     +__typename: "User",
     name: ?string,
-    get parents(): $ReadOnlyArray<{|
+    get parents(): ReadonlyArray<{|
       name: ?string,
-      get parents(): $ReadOnlyArray<{|
+      get parents(): ReadonlyArray<{|
         name: ?string,
       |}>,
       set parents(value: []): void,
     |}>,
-    set parents(value: $ReadOnlyArray<{
+    set parents(value: ReadonlyArray<{
       +__typename: "User",
       +__id: string,
       +$fragmentSpreads: readUpdatableQueryTest_user$fragmentType,

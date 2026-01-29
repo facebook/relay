@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+query MyQuery @catch {
+  name
+}
+
+%extensions%
+
+extend type Query {
+  name: String @semanticNonNull
+}
+==================================== OUTPUT ===================================
+import type { Result } from "relay-runtime";
+export type MyQuery$variables = {||};
+export type MyQuery$data = Result<{|
+  +name: string,
+|}, unknown>;
+export type MyQuery = {|
+  response: MyQuery$data,
+  variables: MyQuery$variables,
+|};

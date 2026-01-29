@@ -124,6 +124,47 @@ fragment ChildFragment on Query
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment-with-literal-object-arguments.graphql:180:193,
+                                item: FragmentDefinitionName(
+                                    "ChildFragment",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment-with-literal-object-arguments.graphql:226:231,
+                                        item: VariableName(
+                                            "query",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            InputObject(17),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(0),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment-with-literal-object-arguments.graphql:206:225,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment-with-literal-object-arguments.graphql:205:263,
+                                },
+                            ],
+                        },
+                    ),
                     directives: [],
                 },
             ],
@@ -166,6 +207,7 @@ fragment ChildFragment on Query
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-literal-object-arguments.graphql:205:263,
                 },
             ],
             selections: [

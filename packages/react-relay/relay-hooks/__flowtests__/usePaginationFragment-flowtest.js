@@ -48,60 +48,54 @@ type ExpectedReturnType<
 
 // Nullability of returned data type is correct
 // $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-cast]
+// $FlowFixMe[incompatible-type]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[react-rule-hook]
-(usePaginationFragment(
+usePaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
-): ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariablesSubset, QueryVariables, NonNullableData>;
 
 // $FlowFixMe[react-rule-hook]
-(usePaginationFragment(
+usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NullableData>;
 
-// $FlowExpectedError: can't cast nullable to non-nullable
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-cast]
-(usePaginationFragment(
+// $FlowFixMe[incompatible-type] can't cast nullable to non-nullable
+usePaginationFragment(
   refetchableFragmentInput,
   keyNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>;
 
-// $FlowExpectedError: actual type of returned data is correct
 // $FlowFixMe[react-rule-hook]
 // $FlowFixMe[incompatible-exact]
 // $FlowFixMe[prop-missing]
-// $FlowFixMe[incompatible-cast]
-(usePaginationFragment(
+// $FlowFixMe[incompatible-type] actual type of returned data is correct
+usePaginationFragment(
   refetchableFragmentInput,
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   keyAnotherNonNullable,
-): ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>);
-// $FlowExpectedError
+) as ExpectedReturnType<QueryVariables, QueryVariablesSubset, NonNullableData>;
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[incompatible-cast]
-(usePaginationFragment(
+// $FlowFixMe[incompatible-type]
+usePaginationFragment(
   refetchableFragmentInput,
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   keyAnotherNullable,
-): ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>);
+) as ExpectedReturnType<QueryVariables, QueryVariables, NonNullableData>;
 
-// $FlowExpectedError: Key should not be a user provided object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type] Key should not be a user provided object
 usePaginationFragment(refetchableFragmentInput, {abc: 123});
 
-// $FlowExpectedError: Key should not be an empty object
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type] Key should not be an empty object
 usePaginationFragment(refetchableFragmentInput, {});
 
-// $FlowExpectedError: Key should be the `<name>$key` type from generated flow
 // $FlowFixMe[react-rule-hook]
-// $FlowFixMe[prop-missing]
+// $FlowFixMe[incompatible-type] Key should be the `<name>$key` type from generated flow
 usePaginationFragment(refetchableFragmentInput, fragmentData);
 
 // Refetch function options:
@@ -113,12 +107,12 @@ const {refetch} = usePaginationFragment(
   refetchableFragmentInput,
   keyNonNullable,
 );
-// $FlowExpectedError: internal option
+// $FlowExpectedError[incompatible-type] : internal option
 refetch(variables, {
   __environment: environment,
 });
 
-// $FlowExpectedError: doesn't exist
+// $FlowExpectedError[incompatible-type] : doesn't exist
 refetch(variables, {
   NON_EXIST: 'NON_EXIST',
 });
@@ -135,17 +129,17 @@ const {loadNext} = usePaginationFragment(
 // Accepts extraVariables
 loadNext(10, {
   // $FlowFixMe[prop-missing]
-  // $FlowFixMe[incompatible-call]
+  // $FlowFixMe[incompatible-type]
   UNSTABLE_extraVariables: extraVariables,
 });
 
 // $FlowFixMe[prop-missing]
 loadNext(10, {
-  // $FlowExpectedError: doesn't accept variables not available in the Flow type
+  // $FlowExpectedError[incompatible-type] : doesn't accept variables not available in the Flow type
   UNSTABLE_extraVariables: invalidVariables,
 });
 
-// $FlowExpectedError: doesn't exist
+// $FlowExpectedError[incompatible-type] : doesn't exist
 loadNext(10, {
   UNSTABLE_foo: invalidVariables,
 });

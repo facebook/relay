@@ -25,7 +25,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
   rootKey: relayResolver_PopStarNameResolverFragment_name$key,
-) => ?$ReadOnlyArray<?mixed>);
+) => ?ReadonlyArray<?unknown>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|

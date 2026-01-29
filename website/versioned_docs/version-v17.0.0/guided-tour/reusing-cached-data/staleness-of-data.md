@@ -9,7 +9,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbPushViews from './fb/FbPushViews.md';
 
 Assuming our data is [present in the store](../presence-of-data/), we still need to consider the staleness of such data.
 
@@ -61,8 +60,6 @@ This is useful for a lot of use cases, but there are some times when we'd like t
 * When invalidating data that is already visible in the current page. Since no navigation is occurring, we won't re-evaluate the queries for the current page, so even if some data is stale, it won't be immediately refetched and we will be showing stale data.
 * When invalidating data that is rendered on a previous view that was never unmounted; since the view wasn't unmounted, if we navigate back, the queries for that view won't be re-evaluated, meaning that even if some is stale, it won't be refetched and we will be showing stale data.
 
-<FbPushViews />
-
 To support these use cases, Relay exposes the `useSubscribeToInvalidationState` hook:
 
 ```js
@@ -91,7 +88,6 @@ function ProfilePage(props) {
 * `useSubscribeToInvalidationState` takes an array of ids, and a callback. Whenever any of the records for those ids are marked as stale, the provided callback will fire.
 * Inside the callback, we can react accordingly and refetch and/or update any current views that are rendering stale data. As an example, we could re-execute the top-level `usePreloadedQuery` by keeping the `preloadedQuery` in state and setting a new one here; since that query is stale at that point, the query will be refetched even if the data is cached in the store.
 
-
 ## Query Cache Expiration Time
 
 In addition, the query cache expiration time affects whether certain operations (i.e. a query and variables) can be fulfilled with data that is already present in the store, i.e. whether the data for a query has become stale.
@@ -110,7 +106,5 @@ const store = new Store(source, {queryCacheExpirationTime: 5 * 60 * 1000 });
 ```
 
 If the query cache expiration time is not provided, staleness checks only look at whether the referenced records have been invalidated.
-
-
 
 <DocsRating />

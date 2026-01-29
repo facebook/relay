@@ -37,5 +37,5 @@ fragment OtherDeferredFragment on User {
   fragment-with-defer-duplicate-label.invalid.graphql:13:28
    12 │   ...DeferredFragment @defer(label: "deferred")
    13 │   ...OtherDeferredFragment @defer(label: "deferred")
-      │                            ^^^^^^
+      │                            ^^^^^^^^^^^^^^^^^^^^^^^^^
    14 │ }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<da501a17b91d1232af38c1d5588cf7b3>>
+ * @generated SignedSource<<5069bedfe0dd09be51e14237d383a2aa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,15 +21,21 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState, DataID } from "relay-runtime";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
 import {live_external_greeting as queryLiveExternalGreetingResolverType} from "../LiveExternalGreeting.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveExternalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolverType: (
   rootKey: LiveExternalGreetingFragment$key,
+  args: void,
+  context: TestResolverContextType,
 ) => LiveState<?string>);
 import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolverType} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveUserSuspendsWhenOddResolverType: () => LiveState<?{|
+(queryLiveUserSuspendsWhenOddResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?{|
   +id: DataID,
 |}>);
 export type LiveResolversTestUnsubscribesWhenSuspendsQuery$variables = {||};
@@ -72,7 +78,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_suspends_when_odd",
-          "resolverModule": require('./../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
+          "resolverModule": require('../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
           "path": "user"
         },
         "linkedField": {
@@ -104,7 +110,7 @@ return {
         },
         "kind": "RelayLiveResolver",
         "name": "live_external_greeting",
-        "resolverModule": require('./../LiveExternalGreeting').live_external_greeting,
+        "resolverModule": require('../LiveExternalGreeting').live_external_greeting,
         "path": "greeting"
       }
     ],

@@ -109,9 +109,13 @@ describe('missing data detection', () => {
       query RelayModernEnvironmentTypeRefinementTestParentQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestAbstractActorFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -121,7 +125,9 @@ describe('missing data detection', () => {
       query RelayModernEnvironmentTypeRefinementTestConcreteQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -131,7 +137,9 @@ describe('missing data detection', () => {
       query RelayModernEnvironmentTypeRefinementTestAbstractQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestAbstractActorFragment
+            @dangerously_unaliased_fixme
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -208,7 +216,7 @@ describe('missing data detection', () => {
   function commitPayload(operation: OperationDescriptor, payload: $FlowFixMe) {
     environment.retain(operation);
     environment.commitPayload(operation, payload);
-    (environment.getStore(): $FlowFixMe).scheduleGC();
+    (environment.getStore() as $FlowFixMe).scheduleGC();
     jest.runAllTimers();
   }
 
@@ -225,12 +233,12 @@ describe('missing data detection', () => {
     // with missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test User',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -244,8 +252,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
@@ -253,12 +261,12 @@ describe('missing data detection', () => {
     // add missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: 'Test',
+        name: 'Test User',
       },
     });
     const fragmentSnapshot2 = environment.lookup(
@@ -271,8 +279,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot2.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: 'Test',
+      name: 'Test User',
     });
     expect(fragmentSnapshot2.isMissingData).toBe(false);
     expect(environment.check(operation).status).toBe('available');
@@ -289,12 +297,12 @@ describe('missing data detection', () => {
     // with missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'Page', // not User
-        name: 'Test Page',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test Page',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -308,8 +316,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test Page',
       missing: undefined,
+      name: 'Test Page',
     });
     expect(fragmentSnapshot.isMissingData).toBe(false);
     expect(environment.check(concreteOperation).status).toBe('available');
@@ -318,12 +326,12 @@ describe('missing data detection', () => {
     // add missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'Page',
-        name: 'Test Page',
+        id: 'abc',
         missing: 'Test',
+        name: 'Test Page',
       },
     });
     const fragmentSnapshot2 = environment.lookup(
@@ -336,8 +344,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot2.data).toEqual({
       id: 'abc',
-      name: 'Test Page',
       missing: 'Test',
+      name: 'Test Page',
     });
     expect(fragmentSnapshot2.isMissingData).toBe(false);
     expect(environment.check(concreteOperation).status).toBe('available');
@@ -357,12 +365,12 @@ describe('missing data detection', () => {
     // with missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test User',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -376,8 +384,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
@@ -385,12 +393,12 @@ describe('missing data detection', () => {
     // add missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: 'Test',
+        name: 'Test User',
       },
     });
     const fragmentSnapshot2 = environment.lookup(
@@ -403,8 +411,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot2.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: 'Test',
+      name: 'Test User',
     });
     expect(fragmentSnapshot2.isMissingData).toBe(false);
     expect(environment.check(operation).status).toBe('available');
@@ -418,12 +426,12 @@ describe('missing data detection', () => {
     );
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'Page', // not User
-        name: 'Test Page',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test Page',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -454,12 +462,12 @@ describe('missing data detection', () => {
     // with missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test User',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -473,8 +481,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
@@ -482,12 +490,12 @@ describe('missing data detection', () => {
     // add missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: 'Test',
+        name: 'Test User',
       },
     });
     const fragmentSnapshot2 = environment.lookup(
@@ -500,8 +508,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot2.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: 'Test',
+      name: 'Test User',
     });
     expect(fragmentSnapshot2.isMissingData).toBe(false);
     expect(environment.check(operation).status).toBe('available');
@@ -513,12 +521,12 @@ describe('missing data detection', () => {
     // with missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         // __isActor: 'User', // no value: means that on server, User no longer implements Actor
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test User',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -532,8 +540,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(false);
     expect(environment.check(abstractOperation).status).toBe('available');
@@ -542,12 +550,12 @@ describe('missing data detection', () => {
   it('abstract spread missing only the discriminator reads data and counts data as missing', () => {
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true, // deleted from store below
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: 'nope not missing!',
+        name: 'Test User',
       },
     });
     environment.commitUpdate(store => {
@@ -566,8 +574,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: 'nope not missing!',
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
@@ -595,12 +603,12 @@ describe('missing data detection', () => {
     );
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true, // deleted from store below
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // user field is missing too
+        name: 'Test User',
       },
     });
     // delete the discriminator field to simulate a consistency update that causes the field
@@ -621,8 +629,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(abstractOperation).status).toBe('missing');
@@ -653,12 +661,12 @@ describe('missing data detection', () => {
     // with missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test User',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -672,8 +680,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
@@ -681,12 +689,12 @@ describe('missing data detection', () => {
     // add missing value
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true,
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: 'Test',
+        name: 'Test User',
       },
     });
     const fragmentSnapshot2 = environment.lookup(
@@ -699,8 +707,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot2.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: 'Test',
+      name: 'Test User',
     });
     expect(fragmentSnapshot2.isMissingData).toBe(false);
     expect(environment.check(operation).status).toBe('available');
@@ -712,12 +720,12 @@ describe('missing data detection', () => {
     );
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         // __isActor: 'User', // no value: means that on server, User no longer implements Actor
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // explicitly set to missing value
+        name: 'Test User',
       },
     });
     const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
@@ -731,8 +739,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(false);
     expect(environment.check(abstractOperation).status).toBe('available');
@@ -742,12 +750,12 @@ describe('missing data detection', () => {
   it('abstract inline fragment missing only the discriminator reads data and counts data as missing', () => {
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true, // deleted from store below
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: 'nope not missing!',
+        name: 'Test User',
       },
     });
     // delete the discriminator field to simulate a consistency update that causes the field
@@ -768,8 +776,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: 'nope not missing!',
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(operation).status).toBe('missing');
@@ -797,12 +805,12 @@ describe('missing data detection', () => {
     );
     commitPayload(operation, {
       userOrPage: {
-        id: 'abc',
         __isActor: true, // deleted from store below
         __isNode: true,
         __typename: 'User',
-        name: 'Test User',
+        id: 'abc',
         missing: undefined, // user field is missing too
+        name: 'Test User',
       },
     });
     // delete the discriminator field to simulate a consistency update that causes the field
@@ -823,8 +831,8 @@ describe('missing data detection', () => {
     );
     expect(fragmentSnapshot.data).toEqual({
       id: 'abc',
-      name: 'Test User',
       missing: undefined,
+      name: 'Test User',
     });
     expect(fragmentSnapshot.isMissingData).toBe(true);
     expect(environment.check(abstractOperation).status).toBe('missing');
@@ -881,11 +889,11 @@ describe('missing data detection', () => {
       commitPayload(operation, {
         viewer: {
           actor: {
-            __typename: 'User',
             __isActor: 'User',
+            __typename: 'User',
             id: 'abc',
-            name: undefined, // missing
             lastName: undefined, // missing
+            name: undefined, // missing
           },
         },
       });
@@ -896,11 +904,11 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        name: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {RelayModernEnvironmentTypeRefinementTest2Fragment: {}},
+        __id: 'abc',
+        id: 'abc',
+        name: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -919,11 +927,11 @@ describe('missing data detection', () => {
       commitPayload(operation, {
         viewer: {
           actor: {
-            __typename: 'User',
             __isActor: 'User',
+            __typename: 'User',
             id: 'abc',
-            name: 'Mark',
             lastName: 'Zuck',
+            name: 'Mark',
           },
         },
       });
@@ -941,11 +949,11 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        name: 'Mark',
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {RelayModernEnvironmentTypeRefinementTest2Fragment: {}},
+        __id: 'abc',
+        id: 'abc',
+        name: 'Mark',
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -970,11 +978,11 @@ describe('missing data detection', () => {
       commitPayload(operation, {
         viewer: {
           actor: {
-            __typename: 'User',
             __isActor: 'User',
+            __typename: 'User',
             id: 'abc',
-            name: undefined, // missing
             lastName: undefined, // missing
+            name: undefined, // missing
           },
         },
       });
@@ -992,11 +1000,11 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        name: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {RelayModernEnvironmentTypeRefinementTest2Fragment: {}},
+        __id: 'abc',
+        id: 'abc',
+        name: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(true);
       const innerFragmentSnapshot = environment.lookup(
@@ -1021,6 +1029,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest2Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest3Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1044,8 +1053,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // lastName: undefined, // not evaluated
           // url: undefined, // not evaluated
@@ -1058,15 +1067,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest4Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1086,8 +1095,8 @@ describe('missing data detection', () => {
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // lastName: undefined, // not evaluated
           // url: undefined, // not evaluated
@@ -1106,15 +1115,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest4Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1134,8 +1143,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // lastName: undefined, // not evaluated
           // url: undefined, // not evaluated
@@ -1155,15 +1164,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest4Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1182,8 +1191,8 @@ describe('missing data detection', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // lastName: undefined, // not evaluated
           // url: undefined, // not evaluated
@@ -1204,15 +1213,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest4Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1237,6 +1246,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest3Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest5Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1245,6 +1255,7 @@ describe('missing data detection', () => {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest6Fragment
+            @dangerously_unaliased_fixme
         }
       `;
       NestedNamedFragment = graphql`
@@ -1259,8 +1270,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1274,15 +1285,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest6Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1302,8 +1313,8 @@ describe('missing data detection', () => {
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1323,15 +1334,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest6Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1351,8 +1362,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1373,15 +1384,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest6Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1400,8 +1411,8 @@ describe('missing data detection', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1423,15 +1434,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest6Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1456,6 +1467,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest4Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest7Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1480,8 +1492,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1495,15 +1507,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest8Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1523,8 +1535,8 @@ describe('missing data detection', () => {
       // the fields are missing since the server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1544,15 +1556,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest8Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1572,8 +1584,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1594,15 +1606,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest8Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1621,8 +1633,8 @@ describe('missing data detection', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1644,15 +1656,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest8Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1677,6 +1689,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest5Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest9Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1685,6 +1698,7 @@ describe('missing data detection', () => {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest10Fragment
+            @dangerously_unaliased_fixme
         }
       `;
       NestedUserFragment = graphql`
@@ -1699,8 +1713,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1714,15 +1728,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest10Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1741,8 +1755,8 @@ describe('missing data detection', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1761,15 +1775,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest10Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1794,6 +1808,7 @@ describe('missing data detection', () => {
         query RelayModernEnvironmentTypeRefinementTest6Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest11Fragment
+              @dangerously_unaliased_fixme
           }
         }
       `;
@@ -1818,8 +1833,8 @@ describe('missing data detection', () => {
       // typical case, server doesn't evaluate anything under the non-matched parent
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1833,15 +1848,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest12Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(
@@ -1860,8 +1875,8 @@ describe('missing data detection', () => {
       // somehow we have all the data
       commitPayload(operation, {
         userOrPage: {
-          __typename: 'User',
           __isNode: 'User', // selected by the auto-generated `... on Node { id }` fragment
+          __typename: 'User',
           id: 'abc', // selected by the auto-generated `... on Node { id }` fragment
           // __isActor: 'User', // on server, User no longer implements Actor
           // lastName: undefined, // not evaluated
@@ -1880,15 +1895,15 @@ describe('missing data detection', () => {
         ),
       );
       expect(fragmentSnapshot.data).toEqual({
-        id: 'abc',
-        lastName: undefined,
-        __id: 'abc',
         __fragmentOwner: operation.request,
         __fragments: {
           RelayModernEnvironmentTypeRefinementTest12Fragment: {
             $isWithinUnmatchedTypeRefinement: true,
           },
         },
+        __id: 'abc',
+        id: 'abc',
+        lastName: undefined,
       });
       expect(fragmentSnapshot.isMissingData).toBe(false); // known to not impl Actor
       const innerFragmentSnapshot = environment.lookup(

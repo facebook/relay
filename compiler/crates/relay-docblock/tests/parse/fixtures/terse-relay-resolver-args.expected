@@ -85,6 +85,7 @@ Field(
                                 ),
                                 default_value: None,
                                 directives: [],
+                                description: None,
                                 span: 39:46,
                             },
                         ],
@@ -119,6 +120,7 @@ Field(
                     ),
                 },
             ),
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,
@@ -127,6 +129,8 @@ Field(
             source_hash: ResolverSourceHash(
                 "ff0b47b51f0011ae9def59af3e3792a3",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

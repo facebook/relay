@@ -16,10 +16,10 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Value;
-use graphql_text_printer::print_value;
 use graphql_text_printer::PrinterOptions;
-use intern::string_key::Intern;
+use graphql_text_printer::print_value;
 use intern::Lookup;
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 

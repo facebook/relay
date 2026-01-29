@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<87a302731d608b8f9dc75e40214c8c1d>>
+ * @generated SignedSource<<c026ef7de4303e4e4f9cbaae568a79eb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -58,14 +58,12 @@ var node/*: ReaderFragment*/ = {
               "name": "lastName",
               "storageKey": null
             },
-            "action": "LOG",
-            "path": "me.lastName"
+            "action": "LOG"
           }
         ],
         "storageKey": null
       },
-      "action": "LOG",
-      "path": "me"
+      "action": "LOG"
     }
   ],
   "type": "Query",

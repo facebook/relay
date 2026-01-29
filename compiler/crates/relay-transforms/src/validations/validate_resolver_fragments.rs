@@ -18,26 +18,30 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use graphql_ir::Variable;
-use schema::SDLSchema;
 use schema::Schema;
 
-use crate::relay_resolvers::get_argument_value;
+use crate::INLINE_DIRECTIVE_NAME;
+use crate::RelayDirective;
 use crate::ValidationMessage;
+use crate::relay_resolvers::get_argument_value;
 
 pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
-    ValidateResolverFragments::new(&program.schema).validate_program(program)
+    ValidateResolverFragments::new(program).validate_program(program)
 }
 
-struct ValidateResolverFragments {
+struct ValidateResolverFragments<'a> {
+    program: &'a Program,
     resolver_fragments: FragmentDefinitionNameSet,
     current_fragment: Option<FragmentDefinition>,
 }
 
-impl ValidateResolverFragments {
-    fn new(schema: &SDLSchema) -> Self {
-        let validator = Self {
+impl<'a> ValidateResolverFragments<'a> {
+    fn new(program: &'a Program) -> Self {
+        Self {
+            program,
             current_fragment: None,
-            resolver_fragments: schema
+            resolver_fragments: program
+                .schema
                 .fields()
                 .filter_map(|field| {
                     if !field.is_extension {
@@ -59,13 +63,11 @@ impl ValidateResolverFragments {
                         })
                 })
                 .collect::<FragmentDefinitionNameSet>(),
-        };
-
-        validator
+        }
     }
 }
 
-impl Validator for ValidateResolverFragments {
+impl<'a> Validator for ValidateResolverFragments<'a> {
     const NAME: &'static str = "ValidateResolverFragments";
     const VALIDATE_ARGUMENTS: bool = true;
     const VALIDATE_DIRECTIVES: bool = true;
@@ -87,13 +89,27 @@ impl Validator for ValidateResolverFragments {
     }
 
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> DiagnosticsResult<()> {
-        Err(vec![Diagnostic::error(
-            format!(
-                "Using fragment spread `...{}` is not supported in the Relay resolvers fragments. The runtime API for reading the data of these fragments is not implemented, yet.",
-                spread.fragment.item
-            ),
-            spread.fragment.location,
-        )])
+        let fragment_definition = self.program.fragment(spread.fragment.item);
+        if let Some(fragment_def) = fragment_definition {
+            if fragment_def
+                .directives
+                .named(*INLINE_DIRECTIVE_NAME)
+                .is_some()
+                || RelayDirective::is_unmasked_fragment_spread(spread)
+            {
+                return Ok(());
+            }
+
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::UnsupportedFragmentSpreadInResolverFragment,
+                    spread.fragment.location,
+                )
+                .annotate("Fragment is defined", fragment_def.name.location),
+            ]);
+        }
+
+        Ok(())
     }
 
     fn validate_variable(&mut self, variable: &Variable) -> DiagnosticsResult<()> {

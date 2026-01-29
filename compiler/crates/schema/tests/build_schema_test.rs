@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0a030b4a01ee463bfd4bd071a0aa1930>>
+ * @generated SignedSource<<9c6f20c0829029363ad806936843eef3>>
  */
 
 mod build_schema;
@@ -38,6 +38,13 @@ async fn extend_object_before_define() {
     let input = include_str!("build_schema/fixtures/extend-object-before-define.graphql");
     let expected = include_str!("build_schema/fixtures/extend-object-before-define.expected");
     test_fixture(transform_fixture, file!(), "extend-object-before-define.graphql", "build_schema/fixtures/extend-object-before-define.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn extend_union_before_define() {
+    let input = include_str!("build_schema/fixtures/extend-union-before-define.graphql");
+    let expected = include_str!("build_schema/fixtures/extend-union-before-define.expected");
+    test_fixture(transform_fixture, file!(), "extend-union-before-define.graphql", "build_schema/fixtures/extend-union-before-define.expected", input, expected).await;
 }
 
 #[tokio::test]

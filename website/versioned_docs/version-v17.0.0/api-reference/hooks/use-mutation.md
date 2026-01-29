@@ -9,7 +9,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbUseMutationParameter from './fb/FbUseMutationParameter.md';
 
 ## `useMutation`
 
@@ -67,8 +66,6 @@ function LikeButton() {
 * `commitMutationFn`: `<T: MutationParameters>(IEnvironment, MutationConfig<T>): Disposable`. *_[Optional]_* A function with the same signature as [`commitMutation`](../commit-mutation), which will be called in its stead. Defaults to `commitMutation`.
 
 </OssOnly>
-
-<FbUseMutationParameter />
 
 ### Return Value
 

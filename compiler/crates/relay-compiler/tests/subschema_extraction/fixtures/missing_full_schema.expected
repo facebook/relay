@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+//- src/Query.js
+graphql`
+  query Query {
+    me {
+      id
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+==================================== ERROR ====================================
+Failed to canonicalize full schema path: NotFound

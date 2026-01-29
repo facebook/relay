@@ -3,7 +3,7 @@ fragment fragmentOnNodeInterface_RefetchableFragment on Node
   id
   ... on User {
     name
-    ...fragmentOnNodeInterface_ProfilePicture
+    ...fragmentOnNodeInterface_ProfilePicture @alias
   }
 }
 

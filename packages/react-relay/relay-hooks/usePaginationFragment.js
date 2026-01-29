@@ -16,8 +16,6 @@ import type {Options} from './useRefetchableFragmentInternal';
 import type {
   Disposable,
   FragmentType,
-  GraphQLResponse,
-  Observer,
   RefetchableFragment,
   Variables,
 } from 'relay-runtime';
@@ -28,16 +26,17 @@ const useRelayEnvironment = require('./useRelayEnvironment');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useCallback, useDebugValue, useState} = require('react');
 const {
+  RelayFeatureFlags,
   getFragment,
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
 
-type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: mixed, ...}> =
+type RefetchVariables<TVariables, TKey: ?{+$fragmentSpreads: unknown, ...}> =
   // NOTE: This type ensures that the type of the returned variables is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? Partial<TVariables>
     : TVariables;
 
@@ -46,7 +45,7 @@ type RefetchFnBase<TVars, TOptions> = (
   options?: TOptions,
 ) => Disposable;
 
-type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
+export type RefetchFn<TVariables, TKey, TOptions = Options> = RefetchFnBase<
   RefetchVariables<TVariables, TKey>,
   TOptions,
 >;
@@ -55,7 +54,7 @@ export type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This type ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -145,6 +144,7 @@ hook usePaginationFragment<
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({
       fragment: fragmentNode.name,
       data: fragmentData,
@@ -155,7 +155,7 @@ hook usePaginationFragment<
     });
   }
   return {
-    // $FlowFixMe[incompatible-return]
+    // $FlowFixMe[incompatible-type]
     data: fragmentData,
     loadNext,
     loadPrevious,
@@ -163,19 +163,13 @@ hook usePaginationFragment<
     hasPrevious,
     isLoadingNext,
     isLoadingPrevious,
+    // $FlowFixMe[incompatible-type]
     refetch: refetchPagination,
   };
 }
 
 hook useLoadMore<TVariables: Variables>(
-  args: $Diff<
-    UseLoadMoreFunctionArgs,
-    {
-      observer: Observer<GraphQLResponse>,
-      onReset: () => void,
-      ...
-    },
-  >,
+  args: Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>,
 ): [LoadMoreFn<TVariables>, boolean, boolean, () => void] {
   const environment = useRelayEnvironment();
   const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
@@ -196,6 +190,9 @@ hook useLoadMore<TVariables: Variables>(
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),
     error: () => setIsLoadingMore(false),
+    unsubscribe: RelayFeatureFlags.ENABLE_USE_PAGINATION_IS_LOADING_FIX
+      ? () => setIsLoadingMore(false)
+      : undefined,
   };
   const handleReset = () => setIsLoadingMore(false);
   const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({

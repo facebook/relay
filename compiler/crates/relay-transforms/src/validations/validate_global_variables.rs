@@ -15,8 +15,8 @@ use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use intern::Lookup;
 
-use crate::root_variables::InferVariablesVisitor;
 use crate::DIRECTIVE_SPLIT_OPERATION;
+use crate::root_variables::InferVariablesVisitor;
 
 pub fn validate_global_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateGlobalVariables::new(program).validate_program(program)

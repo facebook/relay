@@ -20,21 +20,21 @@ use graphql_ir::Selection;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use graphql_ir::Value;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use schema::Field;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
-use crate::connections::extract_connection_directive;
 use crate::connections::ConnectionConstants;
 use crate::connections::ConnectionInterface;
-use crate::handle_fields::extract_handle_field_directive_args_for_connection;
+use crate::connections::extract_connection_directive;
 use crate::handle_fields::CONNECTION_HANDLER_ARG_NAME;
 use crate::handle_fields::DYNAMIC_KEY_ARG_NAME;
 use crate::handle_fields::FILTERS_ARG_NAME;
 use crate::handle_fields::KEY_ARG_NAME;
+use crate::handle_fields::extract_handle_field_directive_args_for_connection;
 
 pub fn validate_connections(
     program: &Program,
@@ -423,7 +423,7 @@ impl<'s> ConnectionValidation<'s> {
                         Some(alias) => alias.item,
                         None => connection_schema_field.name.item,
                     };
-                    let postfix = format!("_{}", field_alias_or_name);
+                    let postfix = format!("_{field_alias_or_name}");
                     if !string_val.lookup().ends_with(postfix.as_str()) {
                         return Err(vec![
                             Diagnostic::error(
@@ -461,7 +461,7 @@ impl<'s> ConnectionValidation<'s> {
                         connection_field_name: connection_schema_field.name.item,
                         key_arg_name: *KEY_ARG_NAME,
                     },
-                    connection_directive.name.location,
+                    connection_directive.location,
                 )]);
             }
         }
@@ -584,22 +584,22 @@ impl<'s> ConnectionValidation<'s> {
                 }
                 _ => None,
             });
-        if let Some(page_info_selection) = page_info_selection {
-            if page_info_selection.alias.is_some() {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnsupportedAliasingInStreamConnection {
-                        field_name: self.connection_interface.page_info,
-                    },
-                    page_info_selection.definition.location,
-                )]);
-            }
+        if let Some(page_info_selection) = page_info_selection
+            && page_info_selection.alias.is_some()
+        {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::UnsupportedAliasingInStreamConnection {
+                    field_name: self.connection_interface.page_info,
+                },
+                page_info_selection.definition.location,
+            )]);
         }
 
         Ok(())
     }
 }
 
-impl<'s> Validator for ConnectionValidation<'s> {
+impl Validator for ConnectionValidation<'_> {
     const NAME: &'static str = "ConnectionValidation";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;

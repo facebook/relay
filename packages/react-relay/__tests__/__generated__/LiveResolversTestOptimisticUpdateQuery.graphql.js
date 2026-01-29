@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ffc2873ef88b906c1df2b3b2822557ca>>
+ * @generated SignedSource<<4ce8df86da9640f07c72fd372c91e70f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { LiveCounterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LiveCounterResolver.graphql";
 import {counter as queryCounterResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolverType: (
   rootKey: LiveCounterResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => LiveState<?number>);
 export type LiveResolversTestOptimisticUpdateQuery$variables = {||};
 export type LiveResolversTestOptimisticUpdateQuery$data = {|
@@ -53,7 +56,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "counter",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterResolver').counter,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/LiveCounterResolver').counter,
         "path": "counter"
       }
     ],

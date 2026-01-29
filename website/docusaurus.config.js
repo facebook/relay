@@ -15,6 +15,7 @@ const {
   fbContent,
   isInternal,
 } = require('docusaurus-plugin-internaldocs-fb/internal');
+const {themes: prismThemes} = require('prism-react-renderer');
 
 module.exports = {
   title: 'Relay',
@@ -26,6 +27,12 @@ module.exports = {
   projectName: 'relay',
   scripts: [],
   favicon: 'img/favicon.png',
+  future: {
+    experimental_faster: true,
+    v4: {
+      removeLegacyPostBuildHeadAttribute: true,
+    },
+  },
   customFields: {
     users: [
       {
@@ -43,11 +50,11 @@ module.exports = {
         description: 'Used on artsy.net, and the React Native iOS app, Eigen.',
       },
       {
-        caption: 'Entria',
-        image: '/img/logos/entria.png',
-        infoLink: 'https://github.com/entria',
+        caption: 'Woovi',
+        image: '/img/logos/woovi.png',
+        infoLink: 'http://woovi.com/',
         pinned: true,
-        description: 'Powers feedback.house',
+        description: 'Used on woovi.com',
       },
       {
         caption: 'Facebook',
@@ -127,12 +134,6 @@ module.exports = {
         description: 'Used at autoguru.com.au, and affiliates',
       },
       {
-        caption: 'Foton',
-        image: '/img/logos/foton.png',
-        infoLink: 'https://fotontech.io',
-        pinned: false,
-      },
-      {
         caption: 'M1 Finance',
         image: '/img/logos/m1finance.png',
         infoLink: 'https://www.m1finance.com/',
@@ -154,12 +155,6 @@ module.exports = {
         caption: 'Habilelabs',
         image: '/img/logos/habilelabs.png',
         infoLink: 'http://www.habilelabs.io/',
-        pinned: false,
-      },
-      {
-        caption: 'Quanto',
-        image: '/img/logos/quanto.png',
-        infoLink: 'https://www.contaquanto.com.br/',
         pinned: false,
       },
       {
@@ -196,6 +191,18 @@ module.exports = {
         caption: 'Réa',
         image: '/img/logos/rea.png',
         infoLink: 'https://www.rea-app.fr/',
+        pinned: false,
+      },
+      {
+        caption: 'Steep Wellness',
+        image: '/img/logos/steep.png',
+        infoLink: 'https://steepapp.com',
+        pinned: false,
+      },
+      {
+        caption: 'GigSmart',
+        image: '/img/logos/gigsmart.png',
+        infoLink: 'https://gigsmart.com',
         pinned: false,
       },
     ],
@@ -245,6 +252,7 @@ module.exports = {
             './src/css/prism.css',
             './src/css/customTheme.css',
             './src/css/custom.css',
+            './src/css/jsonSchema.css',
           ],
         },
         gtag: {
@@ -257,6 +265,7 @@ module.exports = {
     ],
   ],
   plugins: [
+    require.resolve('./plugins/webpack-alias'),
     [
       '@docusaurus/plugin-client-redirects',
       {
@@ -280,11 +289,15 @@ module.exports = {
             ],
           },
           {
-            to: '/docs/getting-started/step-by-step-guide/',
+            // Update on next versioned docs release
+            // to: '/docs/getting-started/quick-start',
+            to: '/docs/',
             from: ['/docs/en/quick-start-guide', '/docs/quick-start-guide'],
           },
           {
-            to: '/docs/getting-started/step-by-step-guide/',
+            // Update on next versioned docs release
+            // to: '/docs/getting-started/quick-start',
+            to: '/docs/',
             from: [
               '/docs/en/experimental/step-by-step',
               '/docs/experimental/step-by-step',
@@ -355,6 +368,10 @@ module.exports = {
           {
             to: '/compiler-explorer',
             from: ['/compiler-playground'],
+          },
+          {
+            to: '/docs/getting-started/quick-start/',
+            from: ['/docs/guided-tour/'],
           },
         ],
       },
@@ -454,7 +471,7 @@ module.exports = {
     },
     prism: {
       theme: require('./prismTheme'),
-      darkTheme: require('prism-react-renderer/themes/dracula'),
+      darkTheme: prismThemes.dracula,
       defaultLanguage: 'javascript',
       magicComments: [
         {

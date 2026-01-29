@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e5ce67892300244ee980e5c621474c5b>>
+ * @generated SignedSource<<ad1700cdf76dac3ead1f0b2faa858529>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuer
 export type RelayReaderTestReadsHandleFieldsForQueryRootFragmentsUserFriendsQuery$data = {|
   +node: ?{|
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +id: string,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<19bffd76c064c76bef1f2108353724b1>>
+ * @generated SignedSource<<884f289d16217b8cae932ebeb6a182f2>>
  */
 
 mod to_schema;
@@ -244,10 +244,17 @@ async fn terse_relay_resolver_semantic_non_null() {
 }
 
 #[tokio::test]
-async fn terse_relay_resolver_with_output_type() {
-    let input = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.js");
-    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.expected");
-    test_fixture(transform_fixture, file!(), "terse-relay-resolver-with-output-type.js", "to_schema/fixtures/terse-relay-resolver-with-output-type.expected", input, expected).await;
+async fn terse_relay_resolver_union() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-union.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-union.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-union.js", "to_schema/fixtures/terse-relay-resolver-union.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn terse_relay_resolver_with_output_type_invalid() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.invalid.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.invalid.expected");
+    test_fixture(transform_fixture, file!(), "terse-relay-resolver-with-output-type.invalid.js", "to_schema/fixtures/terse-relay-resolver-with-output-type.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

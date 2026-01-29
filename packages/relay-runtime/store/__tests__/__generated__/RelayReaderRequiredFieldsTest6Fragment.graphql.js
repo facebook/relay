@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b3065d19a50d402dd15b6e011e5ebfda>>
+ * @generated SignedSource<<9b08fc2ffa40f64453c61726b8d0adfc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,11 +20,11 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderRequiredFieldsTest6Fragment$fragmentType: FragmentType;
-export type RelayReaderRequiredFieldsTest6Fragment$data = $ReadOnlyArray<?{|
+export type RelayReaderRequiredFieldsTest6Fragment$data = ReadonlyArray<?{|
   +username: string,
   +$fragmentType: RelayReaderRequiredFieldsTest6Fragment$fragmentType,
 |}>;
-export type RelayReaderRequiredFieldsTest6Fragment$key = $ReadOnlyArray<{
+export type RelayReaderRequiredFieldsTest6Fragment$key = ReadonlyArray<{
   +$data?: RelayReaderRequiredFieldsTest6Fragment$data,
   +$fragmentSpreads: RelayReaderRequiredFieldsTest6Fragment$fragmentType,
   ...
@@ -48,8 +48,7 @@ var node/*: ReaderFragment*/ = {
         "name": "username",
         "storageKey": null
       },
-      "action": "LOG",
-      "path": "username"
+      "action": "LOG"
     }
   ],
   "type": "User",

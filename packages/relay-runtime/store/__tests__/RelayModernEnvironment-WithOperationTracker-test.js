@@ -25,8 +25,12 @@ const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each([true, false])(
@@ -38,8 +42,8 @@ describe.each([true, false])(
     let QueryOperation2;
     let MutationOperation;
     let operationLoader: {
-      get: (reference: mixed) => ?NormalizationRootNode,
-      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+      get: (reference: unknown) => ?NormalizationRootNode,
+      load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
     };
 
     beforeEach(() => {
@@ -309,7 +313,7 @@ describe.each([true, false])(
       );
 
       invariant(result != null, 'Expected to have promise for operation');
-      const promiseCallback = jest.fn<[void], mixed>();
+      const promiseCallback = jest.fn<[void], unknown>();
       // $FlowFixMe[unused-promise]
       result.promise.then(promiseCallback);
       expect(promiseCallback).not.toBeCalled();
@@ -498,6 +502,7 @@ describe.each([true, false])(
           @relay_test_operation {
             node(id: $id) {
               ...RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;

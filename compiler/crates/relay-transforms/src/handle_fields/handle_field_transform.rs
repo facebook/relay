@@ -45,7 +45,7 @@ impl HandleFieldTransform {
     ) {
         let handle_values = extract_values_from_handle_field_directive(handle_directive);
         if let Some(filters) = handle_values.filters {
-            arguments.retain(|arg| filters.iter().any(|f| *f == arg.name.item.0));
+            arguments.retain(|arg| filters.contains(&arg.name.item.0));
         } else {
             arguments.clear();
         };
@@ -58,7 +58,7 @@ impl HandleFieldTransform {
     }
 }
 
-impl Transformer for HandleFieldTransform {
+impl Transformer<'_> for HandleFieldTransform {
     const NAME: &'static str = "HandleFieldTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -69,8 +69,7 @@ impl Transformer for HandleFieldTransform {
         if let Some(handle_directive) = handle_field_directives.next() {
             if let Some(other_handle_directive) = handle_field_directives.next() {
                 panic!(
-                    "Expected at most one handle directive, got `{:?}` and `{:?}`.",
-                    handle_directive, other_handle_directive
+                    "Expected at most one handle directive, got `{handle_directive:?}` and `{other_handle_directive:?}`."
                 );
             }
             let mut transformed_field = match transformed_field {
@@ -79,8 +78,7 @@ impl Transformer for HandleFieldTransform {
                 }
                 Transformed::Keep => field.clone(),
                 _ => panic!(
-                    "HandleFieldTransform got unexpected transform result: `{:?}`.",
-                    transformed_field
+                    "HandleFieldTransform got unexpected transform result: `{transformed_field:?}`."
                 ),
             };
             self.update_arguments(
@@ -100,8 +98,7 @@ impl Transformer for HandleFieldTransform {
         if let Some(handle_directive) = handle_field_directives.next() {
             if let Some(other_handle_directive) = handle_field_directives.next() {
                 panic!(
-                    "Expected at most one handle directive, got `{:?}` and `{:?}`.",
-                    handle_directive, other_handle_directive
+                    "Expected at most one handle directive, got `{handle_directive:?}` and `{other_handle_directive:?}`."
                 );
             }
             let mut transformed_field = match transformed_field {
@@ -110,8 +107,7 @@ impl Transformer for HandleFieldTransform {
                 }
                 Transformed::Keep => field.clone(),
                 _ => panic!(
-                    "HandleFieldTransform got unexpected transform result: `{:?}`.",
-                    transformed_field
+                    "HandleFieldTransform got unexpected transform result: `{transformed_field:?}`."
                 ),
             };
             self.update_arguments(

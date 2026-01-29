@@ -17,10 +17,18 @@ fragment ChildFragment on User
   }
 }
 ==================================== ERROR ====================================
-✖︎ Variable was defined as type 'Environment!' but used where a variable of type '[Environment!]!' is expected.
+✖︎ Variable of type 'Environment!' cannot be used where '[Environment!]!' is expected.
 
   fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql:13:26
    12 │   # the singular -> list promotion only works for literal values
    13 │   checkins(environments: $environment) {
       │                          ^^^^^^^^^^^^
    14 │     # expected error
+
+  ℹ︎ Variable `$environment` is defined as 'Environment!'
+
+  fragment-with-literal-enum-arguments-into-enum-list-indirect.invalid.graphql:10:24
+    9 │ fragment ChildFragment on User
+   10 │   @argumentDefinitions(environment: {type: "Environment!"}) {
+      │                        ^^^^^^^^^^^
+   11 │   # variables of a non-list type cannot flow into list types,

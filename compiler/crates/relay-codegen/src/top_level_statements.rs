@@ -63,7 +63,7 @@ impl std::fmt::Display for TopLevelStatements {
         let mut statements = self.0.values().collect::<Vec<_>>();
         statements.sort();
         for statement in statements {
-            write!(f, "{}", statement)?;
+            write!(f, "{statement}")?;
         }
 
         Ok(())

@@ -1,0 +1,9 @@
+query MyQuery @throwOnFieldError {
+  client_field @catch
+}
+
+# %extensions%
+
+extend type Query {
+  client_field: String!
+}

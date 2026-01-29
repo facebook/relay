@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<681933700db2255151299a7a8c82c6bd>>
+ * @generated SignedSource<<02cb2d2d39e4dc014fbd31a92ad39b59>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { LiveCounterWithPossibleMissingFragmentDataResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LiveCounterWithPossibleMissingFragmentDataResolverFragment.graphql";
 import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWithPossibleMissingFragmentDataResolverType} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveCounterWithPossibleMissingFragmentDataResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveCounterWithPossibleMissingFragmentDataResolverType: (
   rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
+  args: void,
+  context: TestResolverContextType,
 ) => LiveState<?number>);
 export type LiveResolversTestWithGCQuery$variables = {||};
 export type LiveResolversTestWithGCQuery$data = {|
@@ -53,7 +56,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "live_counter_with_possible_missing_fragment_data",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver').live_counter_with_possible_missing_fragment_data,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver').live_counter_with_possible_missing_fragment_data,
         "path": "live_counter_with_possible_missing_fragment_data"
       }
     ],

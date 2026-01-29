@@ -1,0 +1,7 @@
+# expected-to-throw
+fragment FragFoo on User {
+  # Oops! Not valid without @alias
+  ... on User @catch(to: RESULT)  {
+    name
+  }
+}

@@ -36,8 +36,16 @@ extend type Story {
   stream-connection-on-client.invalid.graphql:7:9
     6 │       clientComments(first: 10)
     7 │         @stream_connection(
-      │         ^^^^^^^^^^^^^^^^^^
+      │         ^^^^^^^^^^^^^^^^^^^
     8 │           key: "NodeQuery_clientComments"
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │           initial_count: 0
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │           label: "comments"
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   11 │         ) {
+      │ ^^^^^^^^^
+   12 │         edges {
 
   ℹ︎ related location
 

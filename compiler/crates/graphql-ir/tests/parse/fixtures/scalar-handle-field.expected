@@ -53,6 +53,7 @@ fragment ScalarHandleField on User {
                                 },
                             ],
                             data: None,
+                            location: scalar-handle-field.graphql:48:84,
                         },
                         Directive {
                             name: WithLocation {
@@ -80,6 +81,7 @@ fragment ScalarHandleField on User {
                                 },
                             ],
                             data: None,
+                            location: scalar-handle-field.graphql:89:126,
                         },
                     ],
                 },

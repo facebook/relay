@@ -71,6 +71,7 @@ impl Diagnostic {
             severity,
             data: Vec::new(),
             machine_readable: BTreeMap::new(),
+            message_type_name: std::any::type_name::<T>().to_string(),
         }))
     }
 
@@ -95,6 +96,7 @@ impl Diagnostic {
             related_information: Vec::new(),
             data,
             machine_readable: BTreeMap::new(),
+            message_type_name: std::any::type_name::<T>().to_string(),
         }))
     }
 
@@ -142,6 +144,7 @@ impl Diagnostic {
             related_information: Vec::new(),
             data,
             machine_readable: BTreeMap::new(),
+            message_type_name: std::any::type_name::<T>().to_string(),
         }))
     }
 
@@ -184,7 +187,7 @@ impl Diagnostic {
         self
     }
 
-    pub fn message(&self) -> &impl DiagnosticDisplay {
+    pub fn message(&self) -> &(impl DiagnosticDisplay + use<>) {
         &self.0.message
     }
 
@@ -192,7 +195,7 @@ impl Diagnostic {
         self.0.location
     }
 
-    pub fn get_data(&self) -> &[impl DiagnosticDisplay] {
+    pub fn get_data(&self) -> &[impl DiagnosticDisplay + use<>] {
         &self.0.data
     }
 
@@ -210,6 +213,10 @@ impl Diagnostic {
         } else {
             Some(self.0.machine_readable.clone())
         }
+    }
+
+    pub fn message_type_name(&self) -> &str {
+        &self.0.message_type_name
     }
 
     /// Override the location. This should only be used for exceptional situations.
@@ -295,6 +302,10 @@ where
 struct DiagnosticData {
     /// Human readable error message.
     message: Box<dyn DiagnosticDisplay>,
+
+    /// Type name for the message. It is obtained by std::any::type_name during runtime
+    /// Save it for debug or logging purposes.
+    message_type_name: String,
 
     /// The primary location of this diagnostic.
     location: Location,

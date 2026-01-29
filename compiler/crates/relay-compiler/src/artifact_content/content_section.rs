@@ -20,9 +20,9 @@ pub enum ContentSection {
 impl std::fmt::Display for ContentSection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
         match self {
-            ContentSection::CommentAnnotations(section) => write!(f, "{}", section),
-            ContentSection::Docblock(section) => write!(f, "{}", section),
-            ContentSection::Generic(section) => write!(f, "{}", section),
+            ContentSection::CommentAnnotations(section) => write!(f, "{section}"),
+            ContentSection::Docblock(section) => write!(f, "{section}"),
+            ContentSection::Generic(section) => write!(f, "{section}"),
         }
     }
 }
@@ -50,7 +50,7 @@ pub struct CommentAnnotationsSection(String);
 
 impl Write for CommentAnnotationsSection {
     fn write_str(&mut self, str: &str) -> FmtResult {
-        write!(self.0, "{}", str)
+        write!(self.0, "{str}")
     }
 }
 
@@ -60,7 +60,7 @@ impl std::fmt::Display for CommentAnnotationsSection {
             if line.is_empty() {
                 writeln!(f)?;
             } else {
-                writeln!(f, "// {}", line)?;
+                writeln!(f, "// {line}")?;
             }
         }
         Ok(())
@@ -72,7 +72,7 @@ pub struct DocblockSection(String);
 
 impl Write for DocblockSection {
     fn write_str(&mut self, str: &str) -> FmtResult {
-        write!(self.0, "{}", str)
+        write!(self.0, "{str}")
     }
 }
 
@@ -84,7 +84,7 @@ impl std::fmt::Display for DocblockSection {
                 if line.is_empty() {
                     writeln!(f, " *")?;
                 } else {
-                    writeln!(f, " * {}", line)?;
+                    writeln!(f, " * {line}")?;
                 }
             }
             writeln!(f, " */")
@@ -99,7 +99,7 @@ pub struct GenericSection(String);
 
 impl Write for GenericSection {
     fn write_str(&mut self, str: &str) -> FmtResult {
-        write!(self.0, "{}", str)
+        write!(self.0, "{str}")
     }
 }
 

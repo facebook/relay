@@ -9,9 +9,10 @@ crates/graphql-ir/tests/parse_with_provider
 crates/graphql-ir/tests/parse
 crates/graphql-syntax/tests/advance_schema_document
 crates/graphql-syntax/tests/parse_document
+crates/graphql-syntax/tests/parse_document_with_enquoted_alias
 crates/graphql-syntax/tests/parse_document_with_features
-crates/graphql-syntax/tests/parse_executable_document_with_error_recovery
 crates/graphql-syntax/tests/parse_executable_document
+crates/graphql-syntax/tests/parse_executable_document_with_error_recovery
 crates/graphql-syntax/tests/parse_schema_document
 crates/graphql-syntax/tests/print
 crates/graphql-text-printer/tests/compact
@@ -35,10 +36,13 @@ crates/relay-codegen/tests/required_directive_codegen
 crates/relay-compiler/tests/compile_relay_artifacts
 crates/relay-compiler/tests/compile_relay_artifacts_with_custom_id
 crates/relay-compiler/tests/relay_compiler_integration
+crates/relay-compiler/tests/subschema_extraction
 crates/relay-docblock/tests/parse
 crates/relay-docblock/tests/to_schema
 crates/relay-lsp/tests/find_field_usages
 crates/relay-lsp/tests/hover
+crates/relay-lsp/tests/rename
+crates/relay-lsp/tests/type_information
 crates/relay-schema-generation/tests/docblock
 crates/relay-schema-generation/tests/extract
 crates/relay-transforms/tests/apply_fragment_arguments
@@ -65,8 +69,9 @@ crates/relay-transforms/tests/generate_typename
 crates/relay-transforms/tests/inline_data_fragment
 crates/relay-transforms/tests/inline_fragments
 crates/relay-transforms/tests/mask
+crates/relay-transforms/tests/match_transform_client_only
+crates/relay-transforms/tests/match_transform_client_resolver
 crates/relay-transforms/tests/match_transform
-crates/relay-transforms/tests/match_transform_local
 crates/relay-transforms/tests/provided_variable_fragment_transform
 crates/relay-transforms/tests/refetchable_fragment
 crates/relay-transforms/tests/relay_actor_change
@@ -84,6 +89,7 @@ crates/relay-transforms/tests/transform_connections
 crates/relay-transforms/tests/validate_connections_schema
 crates/relay-transforms/tests/validate_connections
 crates/relay-transforms/tests/validate_deprecated_fields
+crates/relay-transforms/tests/validate_fragment_alias_conflict
 crates/relay-transforms/tests/validate_global_variables
 crates/relay-transforms/tests/validate_global_variable_names
 crates/relay-transforms/tests/validate_no_double_underscore_alias
@@ -91,6 +97,7 @@ crates/relay-transforms/tests/validate_no_unselectable_selections
 crates/relay-transforms/tests/validate_module_names
 crates/relay-transforms/tests/validate_relay_directives
 crates/relay-transforms/tests/validate_required_arguments
+crates/relay-transforms/tests/validate_client_schema_extensions_use_catch
 crates/relay-transforms/tests/validate_server_only_directives
 crates/relay-transforms/tests/validate_static_args
 crates/relay-transforms/tests/validate_unused_variables

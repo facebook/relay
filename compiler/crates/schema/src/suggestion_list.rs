@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 use strsim::damerau_levenshtein;
 
 use crate::SDLSchema;
@@ -266,7 +266,7 @@ pub fn did_you_mean(suggestions: &[StringKey]) -> String {
         }
     };
 
-    format!(" Did you mean {}?", suggestions_string)
+    format!(" Did you mean {suggestions_string}?")
 }
 
 #[cfg(test)]

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1bf677c2dce1ab8d280c6c13a30fdc6c>>
+ * @generated SignedSource<<af6eee8e801384cdf672e88ec0bf83f7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables = {|
-  size: $ReadOnlyArray<?number>,
+  size: ReadonlyArray<?number>,
 |};
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data = {|
   +me: ?{|

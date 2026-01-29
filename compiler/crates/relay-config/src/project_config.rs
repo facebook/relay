@@ -6,11 +6,10 @@
  */
 
 use std::fmt;
+use std::path::MAIN_SEPARATOR;
 use std::path::Path;
 use std::path::PathBuf;
-use std::path::MAIN_SEPARATOR;
 use std::sync::Arc;
-use std::usize;
 
 use common::DirectiveName;
 use common::FeatureFlags;
@@ -19,43 +18,49 @@ use common::SourceLocationKey;
 use common::WithLocation;
 use fmt::Debug;
 use fnv::FnvBuildHasher;
+use globset::GlobSet;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use regex::Regex;
-use serde::de::Error;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
+use serde::de::Error;
 use serde_json::Value;
 
+use crate::JsModuleFormat;
+use crate::ProjectName;
+use crate::TypegenConfig;
+use crate::TypegenLanguage;
 use crate::connection_interface::ConnectionInterface;
 use crate::defer_stream_interface::DeferStreamInterface;
 use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::resolvers_schema_module_config::ResolversSchemaModuleConfig;
-use crate::JsModuleFormat;
-use crate::ProjectName;
-use crate::TypegenConfig;
-use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+/// Configuration for remote persistence of GraphQL documents.
+#[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct RemotePersistConfig {
-    /// URL to send a POST request to to persist.
+    /// URL that the document should be persisted to via a POST request.
     pub url: String,
-    /// The document will be in a POST parameter `text`. This map can contain
+    /// Additional parameters to include in the POST request.
+    ///
+    /// The main document will be in a POST parameter `text`. This map can contain
     /// additional parameters to send.
     #[serde(default)]
     pub params: FnvIndexMap<String, String>,
 
-    /// Additional headers to send
+    /// Additional headers to include in the POST request.
     #[serde(default)]
     pub headers: FnvIndexMap<String, String>,
 
+    /// Number of concurrent requests that can be made to the server.
     #[serde(
         default,
         rename = "concurrency",
@@ -63,6 +68,7 @@ pub struct RemotePersistConfig {
     )]
     pub semaphore_permits: Option<usize>,
 
+    /// Whether to include the query text in the persisted document.
     #[serde(default)]
     pub include_query_text: bool,
 }
@@ -80,36 +86,43 @@ where
     Ok(Some(permits))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[derive(JsonSchema)]
 pub enum LocalPersistAlgorithm {
+    #[default]
     MD5,
     SHA1,
     SHA256,
 }
 
-impl Default for LocalPersistAlgorithm {
-    // For backwards compatibility
-    fn default() -> Self {
-        Self::MD5
-    }
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Configuration for local persistence of GraphQL documents.
+///
+/// This struct contains settings that control how GraphQL documents are persisted locally.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields)]
 pub struct LocalPersistConfig {
+    /// The file path where the persisted documents will be written.
     pub file: PathBuf,
 
+    /// The algorithm to use for hashing the operation text.
     #[serde(default)]
     pub algorithm: LocalPersistAlgorithm,
 
+    /// Whether to include the query text in the persisted document.
     #[serde(default)]
     pub include_query_text: bool,
 }
 
-#[derive(Debug, Serialize, Clone)]
+/// Configuration for how the Relay Compiler should persist GraphQL queries.
+#[derive(Debug, Serialize, Clone, JsonSchema)]
 #[serde(untagged)]
 pub enum PersistConfig {
+    /// This variant represents a remote persistence configuration, where GraphQL queries are sent to a remote endpoint for persistence.
     Remote(RemotePersistConfig),
+    /// This variant represents a local persistence configuration, where GraphQL queries are persisted to a local JSON file.
+    ///
+    /// When this variant is used, the compiler will attempt to read the local file as a hash map,
+    /// add new queries to the map, and then serialize and write the resulting map to the configured path.
     Local(LocalPersistConfig),
 }
 
@@ -141,11 +154,10 @@ impl<'de> Deserialize<'de> for PersistConfig {
                 Err(local_error) => {
                     let error_message = format!(
                         r#"Persist configuration cannot be parsed as a remote configuration due to:
-- {:?}.
+- {remote_error:?}.
 
 It also cannot be a local persist configuration due to:
-- {:?}."#,
-                        remote_error, local_error
+- {local_error:?}."#
                     );
 
                     Err(Error::custom(error_message))
@@ -155,9 +167,12 @@ It also cannot be a local persist configuration due to:
     }
 }
 
-#[derive(Clone, Debug)]
+/// Specifies the type of location of a GraphQL schema, and the path to the schema location.
+#[derive(Clone, Debug, JsonSchema)]
 pub enum SchemaLocation {
+    /// A single file containing the schema.
     File(PathBuf),
+    /// A directory containing multiple schema files.
     Directory(PathBuf),
 }
 
@@ -175,9 +190,14 @@ impl Debug for ExtraArtifactsConfig {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct SchemaConfig {
+    /// Configuration for connection field names in the schema.
+    ///
+    /// **Important**: When you configure this option in the compiler, you must also configure
+    /// the Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.
+    /// See: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>
     #[serde(default)]
     pub connection_interface: ConnectionInterface,
 
@@ -198,6 +218,10 @@ pub struct SchemaConfig {
     /// The name of the directive indicating fields that cannot be selected
     #[serde(default = "default_unselectable_directive_name")]
     pub unselectable_directive_name: DirectiveName,
+
+    /// If we should select __token field on fetchable types
+    #[serde(default = "default_enable_token_field")]
+    pub enable_token_field: bool,
 }
 
 fn default_node_interface_id_field() -> StringKey {
@@ -212,6 +236,10 @@ fn default_unselectable_directive_name() -> DirectiveName {
     DirectiveName("unselectable".intern())
 }
 
+fn default_enable_token_field() -> bool {
+    false
+}
+
 impl Default for SchemaConfig {
     fn default() -> Self {
         Self {
@@ -221,34 +249,72 @@ impl Default for SchemaConfig {
             node_interface_id_variable_name: default_node_interface_id_variable_name(),
             non_node_id_fields: None,
             unselectable_directive_name: default_unselectable_directive_name(),
+            enable_token_field: default_enable_token_field(),
         }
     }
 }
 
+type CustomArtifactFilePath = Box<dyn Fn(&PathBuf) -> PathBuf + Send + Sync>;
+
+/// Configuration for a Relay project.
+///
+/// This struct contains various settings and options that control how Relay compiles and generates code for a project.
 pub struct ProjectConfig {
+    /// The name of the project.
     pub name: ProjectName,
+    /// The base project configuration to inherit from.
     pub base: Option<ProjectName>,
+    /// The output directory for extra artifacts.
     pub extra_artifacts_output: Option<PathBuf>,
+    /// The configuration for extra artifacts.
     pub extra_artifacts_config: Option<ExtraArtifactsConfig>,
+    /// A list of glob patterns specifying file extensions to exclude from compilation.
+    pub excludes_extensions: Option<GlobSet>,
+    /// The output directory for compiled artifacts.
     pub output: Option<PathBuf>,
+    /// Whether to shard output into separate files.
     pub shard_output: bool,
+    /// A regular expression to strip from file paths when sharding output.
     pub shard_strip_regex: Option<Regex>,
+    /// A list of schema extensions to include in the project.
     pub schema_extensions: Vec<PathBuf>,
+    /// Whether the project is enabled.
     pub enabled: bool,
+    /// The name of the schema to use for this project.
+    pub schema_name: Option<StringKey>,
+    /// The location of the schema for this project.
     pub schema_location: SchemaLocation,
+    /// The schema configuration for this project.
     pub schema_config: SchemaConfig,
+    /// The typegen configuration for this project.
     pub typegen_config: TypegenConfig,
+    /// The persist configuration for this project.
     pub persist: Option<PersistConfig>,
+    /// Whether to include variable names in comments.
     pub variable_names_comment: bool,
+    /// Additional metadata for the project.
     pub extra: serde_json::Value,
+    /// Feature flags for the project.
     pub feature_flags: Arc<FeatureFlags>,
+    /// Regular expression to match test files.
     pub test_path_regex: Option<Regex>,
+    /// Rollout configuration for the project.
     pub rollout: Rollout,
+    /// Format for JavaScript modules.
     pub js_module_format: JsModuleFormat,
+    /// Configuration for module imports.
     pub module_import_config: ModuleImportConfig,
+    /// Configuration for diagnostic reports.
     pub diagnostic_report_config: DiagnosticReportConfig,
+    /// Configuration for resolvers schema module.
     pub resolvers_schema_module: Option<ResolversSchemaModuleConfig>,
+    /// Command to run after code generation.
     pub codegen_command: Option<String>,
+    /// Custom function to get the path for an artifact.
+    pub get_custom_path_for_artifact: Option<CustomArtifactFilePath>,
+    /// Treats JS module paths as relative to './' when true, and leaves JS
+    /// module paths unmodified when false.
+    pub relativize_js_module_paths: bool,
 }
 
 impl Default for ProjectConfig {
@@ -259,12 +325,14 @@ impl Default for ProjectConfig {
             base: None,
             extra_artifacts_output: None,
             extra_artifacts_config: None,
+            excludes_extensions: None,
             output: None,
             shard_output: false,
             shard_strip_regex: None,
             schema_extensions: vec![],
             enabled: true,
             schema_location: SchemaLocation::File(PathBuf::default()),
+            schema_name: None,
             schema_config: Default::default(),
             typegen_config: Default::default(),
             persist: None,
@@ -277,6 +345,8 @@ impl Default for ProjectConfig {
             diagnostic_report_config: Default::default(),
             resolvers_schema_module: Default::default(),
             codegen_command: Default::default(),
+            get_custom_path_for_artifact: None,
+            relativize_js_module_paths: true,
         }
     }
 }
@@ -288,12 +358,14 @@ impl Debug for ProjectConfig {
             base,
             extra_artifacts_output,
             extra_artifacts_config,
+            excludes_extensions,
             output,
             shard_output,
             shard_strip_regex,
             schema_extensions,
             enabled,
             schema_location,
+            schema_name,
             schema_config,
             typegen_config,
             persist,
@@ -307,6 +379,8 @@ impl Debug for ProjectConfig {
             diagnostic_report_config,
             resolvers_schema_module,
             codegen_command,
+            get_custom_path_for_artifact: _,
+            relativize_js_module_paths,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -314,11 +388,13 @@ impl Debug for ProjectConfig {
             .field("output", output)
             .field("extra_artifacts_config", extra_artifacts_config)
             .field("extra_artifacts_output", extra_artifacts_output)
+            .field("excludes_extensions", excludes_extensions)
             .field("shard_output", shard_output)
             .field("shard_strip_regex", shard_strip_regex)
             .field("schema_extensions", schema_extensions)
             .field("enabled", enabled)
             .field("schema_location", schema_location)
+            .field("schema_name", schema_name)
             .field("schema_config", schema_config)
             .field("typegen_config", typegen_config)
             .field("persist", persist)
@@ -332,12 +408,14 @@ impl Debug for ProjectConfig {
             .field("diagnostic_report_config", diagnostic_report_config)
             .field("resolvers_schema_module", resolvers_schema_module)
             .field("codegen_command", codegen_command)
+            .field("relativize_js_module_paths", relativize_js_module_paths)
             .finish()
     }
 }
 
 impl ProjectConfig {
-    /// This function will create a correct path for an artifact based on the project configuration
+    /// Gets the correct path for a generated artifact based on its originating source file's
+    /// location, and the project's configuration.
     pub fn create_path_for_artifact(
         &self,
         source_file: SourceLocationKey,
@@ -367,13 +445,14 @@ impl ProjectConfig {
         }
     }
 
+    /// Generates a path for an artifact file based on a definition name and its location.
     pub fn artifact_path_for_definition(
         &self,
         definition_name: WithLocation<impl Into<StringKey>>,
     ) -> PathBuf {
         let source_location = definition_name.location.source_location();
         let artifact_name = definition_name.item.into();
-        if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
+        let path = if let Some(extra_artifacts_config) = &self.extra_artifacts_config {
             let filename =
                 (extra_artifacts_config.filename_for_artifact)(source_location, artifact_name);
 
@@ -381,11 +460,17 @@ impl ProjectConfig {
         } else {
             self.path_for_language_specific_artifact(
                 source_location,
-                format!("{}.graphql", artifact_name),
+                format!("{artifact_name}.graphql"),
             )
+        };
+        if let Some(get_custom_path_for_artifact) = &self.get_custom_path_for_artifact {
+            get_custom_path_for_artifact(&path)
+        } else {
+            path
         }
     }
 
+    /// Generates a path for an artifact file that is specific to the programming language being used.
     pub fn path_for_language_specific_artifact(
         &self,
         source_file: SourceLocationKey,
@@ -393,9 +478,9 @@ impl ProjectConfig {
     ) -> PathBuf {
         let filename = match &self.typegen_config.language {
             TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-                format!("{}.js", artifact_file_name)
+                format!("{artifact_file_name}.js")
             }
-            TypegenLanguage::TypeScript => format!("{}.ts", artifact_file_name),
+            TypegenLanguage::TypeScript => format!("{artifact_file_name}.ts"),
         };
 
         self.create_path_for_artifact(source_file, filename)
@@ -412,20 +497,17 @@ impl ProjectConfig {
             JsModuleFormat::CommonJS => {
                 let importing_artifact_directory = importing_artifact_path.parent().unwrap_or_else(||{
                     panic!(
-                        "expected importing_artifact_path: {:?} to have a parent path, maybe it's not a file?",
-                        importing_artifact_path
+                        "expected importing_artifact_path: {importing_artifact_path:?} to have a parent path, maybe it's not a file?"
                     );
                 });
                 let target_module_directory = target_module_path.parent().unwrap_or_else(||{
                     panic!(
-                        "expected target_module_path: {:?} to have a parent path, maybe it's not a file?",
-                        target_module_path
+                        "expected target_module_path: {target_module_path:?} to have a parent path, maybe it's not a file?"
                     );
                 });
                 let target_module_file_name = target_module_path.file_name().unwrap_or_else(|| {
                     panic!(
-                        "expected target_module_path: {:?} to have a file name",
-                        target_module_path
+                        "expected target_module_path: {target_module_path:?} to have a file name"
                     )
                 });
                 let relative_path =

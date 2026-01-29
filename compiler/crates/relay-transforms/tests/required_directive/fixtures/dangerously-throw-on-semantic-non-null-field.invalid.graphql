@@ -1,0 +1,13 @@
+# expected-to-throw
+#
+# Test: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD cannot be used on semantically non-null fields
+# Property: Fields marked with @semanticNonNull (e.g., composer: User @semanticNonNull) should not allow DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD action
+# Expected: Error suggesting to use THROW instead
+
+query MyQuery {
+  opera {
+    composer @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD) {
+      name
+    }
+  }
+}

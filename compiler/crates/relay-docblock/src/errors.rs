@@ -12,9 +12,9 @@ use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
-use crate::untyped_representation::AllowedFieldName;
 use crate::ON_INTERFACE_FIELD;
 use crate::ON_TYPE_FIELD;
+use crate::untyped_representation::AllowedFieldName;
 
 #[derive(
     Clone,
@@ -144,6 +144,11 @@ pub enum IrParsingErrorMessages {
         "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
     )]
     UnexpectedOutputType { field_name: StringKey },
+
+    #[error(
+        "Legacy verbose resolver syntax (@onType, @onInterface, @fieldName) is deprecated. Use the terse syntax instead: @RelayResolver ParentType.fieldName: ReturnType"
+    )]
+    LegacyVerboseSyntaxDeprecated,
 }
 
 #[derive(
@@ -203,6 +208,11 @@ pub enum SchemaValidationErrorMessages {
         resolver_field_name: StringKey,
         actual_return_type: StringKey,
     },
+
+    #[error(
+        "Relay Resolvers that return weak types defined in client schema extensions are not supported. Prefer defining the return type using a `@weak` Relay Resolver type: https://relay.dev/docs/next/guides/relay-resolvers/defining-types/#defining-a-weak-type"
+    )]
+    ClientEdgeToClientWeakType,
 }
 
 #[derive(

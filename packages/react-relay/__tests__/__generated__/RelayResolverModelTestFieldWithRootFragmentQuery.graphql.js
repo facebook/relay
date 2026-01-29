@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bc16381134873b969c31618f0fd3be4e>>
+ * @generated SignedSource<<258b0f877f9d5363b434e257efc9bd4b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,12 +21,14 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { TodoModelCapitalizedID$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModelCapitalizedID.graphql";
 import {todo_model as queryTodoModelResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoModelResolverType: (
   args: {|
     todoID: string,
   |},
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -35,6 +37,8 @@ import {capitalized_id as todoModelCapitalizedIdResolverType} from "../../../rel
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelCapitalizedIdResolverType: (
   rootKey: TodoModelCapitalizedID$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayResolverModelTestFieldWithRootFragmentQuery$variables = {|
   id: string,
@@ -87,15 +91,15 @@ return {
         "modelResolvers": {
           "TodoModel": {
             "alias": null,
-            "args": [],
+            "args": null,
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",
               "name": "TodoModel__id"
             },
             "kind": "RelayLiveResolver",
-            "name": "todo_model",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "todo_model.__relay_model_instance"
           }
         },
@@ -105,7 +109,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel').todo_model,
           "path": "todo_model"
         },
         "linkedField": {
@@ -126,7 +130,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "capitalized_id",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id,
+              "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').capitalized_id,
               "path": "todo_model.capitalized_id"
             }
           ],

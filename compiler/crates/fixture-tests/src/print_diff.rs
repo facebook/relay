@@ -16,15 +16,15 @@ pub(crate) fn print_diff(expected: &str, actual: &str) {
             Both(context, _context) => {
                 // Print 1 line of context
                 let prev_is_change = line_index > 0 && is_change(&changes[line_index - 1]);
-                let next_is_change = changes.get(line_index + 1).map_or(false, is_change);
+                let next_is_change = changes.get(line_index + 1).is_some_and(is_change);
                 if prev_is_change || next_is_change {
-                    format!("| {}", context).dimmed()
+                    format!("| {context}").dimmed()
                 } else {
                     continue;
                 }
             }
-            Left(removed) => format!("- {}", removed).red(),
-            Right(added) => format!("+ {}", added).green(),
+            Left(removed) => format!("- {removed}").red(),
+            Right(added) => format!("+ {added}").green(),
         };
         println!("{:4} {}", line_index + 1, formatted_line);
     }

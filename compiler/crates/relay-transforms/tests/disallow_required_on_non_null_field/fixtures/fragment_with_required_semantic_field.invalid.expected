@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-# expected-to-throw
 fragment MyFragment on User @throwOnFieldError {
   some_field @required(action: THROW)
 }
@@ -8,11 +7,11 @@ fragment MyFragment on User @throwOnFieldError {
 extend type User {
   some_field: Int @semanticNonNull
 }
-==================================== ERROR ====================================
-✖︎ Unexpected `@throwOnFieldError` directive. The `@throwOnFieldError` directive is not supported unless experimental_emit_semantic_nullability_types is enabled.
+==================================== OUTPUT ===================================
+OK; warnings: ℹ Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` or `@catch` selection. Such fields are already non-null and do not need the `@required` directive.
 
-  fragment_with_required_semantic_field.invalid.graphql:2:29
-    1 │ # expected-to-throw
-    2 │ fragment MyFragment on User @throwOnFieldError {
-      │                             ^^^^^^^^^^^^^^^^^^
-    3 │   some_field @required(action: THROW)
+  fragment_with_required_semantic_field.invalid.graphql:2:14
+    1 │ fragment MyFragment on User @throwOnFieldError {
+    2 │   some_field @required(action: THROW)
+      │              ^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │ }

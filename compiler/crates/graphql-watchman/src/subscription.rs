@@ -9,9 +9,9 @@ use std::process::Command;
 
 use log::debug;
 use serde_bser::value::Value;
-use watchman_client::prelude::*;
 use watchman_client::Subscription as WatchmanSubscription;
 use watchman_client::SubscriptionData;
+use watchman_client::prelude::*;
 
 use crate::WatchmanFile;
 

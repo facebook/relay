@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<40317e714e5cb9a352d44ac9057da374>>
+ * @generated SignedSource<<a2dce50b98c838928410b79e1411c3c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type ReactRelayPaginationContainerTestUserQuery$variables = {|
   count: number,
   id: string,
   isViewerFriend?: ?boolean,
-  orderby?: ?$ReadOnlyArray<?string>,
+  orderby?: ?ReadonlyArray<?string>,
 |};
 export type ReactRelayPaginationContainerTestUserQuery$data = {|
   +node: ?{|
@@ -276,7 +276,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "50a3bd82c5fad5ead1ce004df8427725";
+  (node/*: any*/).hash = "f780c50ab163e4a29c81eb497cfd5d1b";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

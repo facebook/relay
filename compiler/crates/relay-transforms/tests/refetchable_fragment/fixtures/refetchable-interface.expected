@@ -74,10 +74,10 @@ fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "Re
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   id
-  __token
 }
 
 fragment RefetchableFragment2 on RefetchableInterface2 @refetchable(queryName: "RefetchableFragmentQuery2") @__RefetchableMetadata
@@ -94,9 +94,9 @@ fragment RefetchableFragment2 on RefetchableInterface2 @refetchable(queryName: "
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   __typename
   not_id
-  __token
 }

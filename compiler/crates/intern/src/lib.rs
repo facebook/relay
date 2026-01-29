@@ -63,9 +63,9 @@
 //! static reference to the interned object referred to by `my_id`.
 //! ```
 //! # #[macro_use]
-//! use intern::intern_struct;
 //! use intern::InternId;
 //! use intern::InternSerdes;
+//! use intern::intern_struct;
 //! use serde_derive::Deserialize;
 //! use serde_derive::Serialize;
 //!

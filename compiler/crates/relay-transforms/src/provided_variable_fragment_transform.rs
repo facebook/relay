@@ -36,9 +36,10 @@ use crate::util::format_provided_variable_name;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
-///     \[provided_variable_name\] --> __pv__\[module_name\]
+///    \[provided_variable_name\] --> __pv__\[module_name\]
 ///  - Remove provided variables from (local) argument definitions
 ///  - Add provided variables to list of used global variables
+///
 /// apply_fragment_arguments depends on provide_variable_fragment_transform
 pub fn provided_variable_fragment_transform(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = ProvidedVariableFragmentTransform::new(&program.schema);
@@ -189,7 +190,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
     }
 }
 
-impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
+impl Transformer<'_> for ProvidedVariableFragmentTransform<'_> {
     const NAME: &'static str = "ProvidedVariableFragmentTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;

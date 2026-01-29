@@ -1,6 +1,6 @@
 query queryWithConditionalModule_NameRendererQuery($id: ID!, $fetchModule: Boolean!) {
   node(id: $id) {
-    ...queryWithConditionalModule_NameRendererFragment
+    ...queryWithConditionalModule_NameRendererFragment @alias
   }
 }
 

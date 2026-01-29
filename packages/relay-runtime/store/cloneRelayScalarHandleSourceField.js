@@ -31,7 +31,7 @@ const invariant = require('invariant');
  */
 function cloneRelayScalarHandleSourceField(
   handleField: NormalizationScalarHandle,
-  selections: $ReadOnlyArray<NormalizationSelection>,
+  selections: ReadonlyArray<NormalizationSelection>,
   variables: Variables,
 ): NormalizationScalarField {
   const sourceField = selections.find(

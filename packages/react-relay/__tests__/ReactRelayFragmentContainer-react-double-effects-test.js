@@ -31,7 +31,6 @@ let gqlFragment;
 let variables;
 let renderSpy;
 
-// TODO(T83890478): enable once double invoked effects lands in xplat
 describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
   beforeEach(() => {
     // Set up feature flags
@@ -40,7 +39,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     // Set up mocks
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+    renderSpy = jest.fn<ReadonlyArray<unknown>, unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -50,6 +49,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
       ) {
         node(id: $id) {
           ...ReactRelayFragmentContainerReactDoubleEffectsTestUserFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -96,10 +96,13 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
       return user.name;
     };
 
-    const FragmentContainer = createContainer(FragmentComponent, {
-      // eslint-disable-next-line relay/graphql-naming
-      user: gqlFragment,
-    });
+    const FragmentContainer = createContainer<any, typeof FragmentComponent>(
+      FragmentComponent,
+      {
+        // eslint-disable-next-line relay/graphql-naming
+        user: gqlFragment,
+      },
+    );
 
     let instance;
     const data = environment.lookup(query.fragment).data;
@@ -110,7 +113,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
             <FragmentContainer user={data?.node} />
           </RelayEnvironmentProvider>
         </React.StrictMode>,
-        // $FlowFixMe
+        // $FlowFixMe[incompatible-type]
         {unstable_isConcurrent: true, unstable_strictMode: true},
       );
     });
@@ -123,6 +126,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
 
     // Assert render state of component after double invoked effects
     expect(renderLogs).toEqual([
+      'render: Alice',
       'render: Alice',
       'commit: Alice',
       'cleanup: Alice',
@@ -144,6 +148,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
 
     // Assert render state of component after double invoked effects
     expect(renderLogs).toEqual([
+      'render: Alice Updated',
       'render: Alice Updated',
       'cleanup: Alice',
       'commit: Alice Updated',

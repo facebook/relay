@@ -1,0 +1,18 @@
+#expected-to-throw
+query TestQuery @exec_time_resolvers {
+  me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

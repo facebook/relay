@@ -4,9 +4,10 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @flow strict-local
+ * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -15,8 +16,9 @@ const loadQueryModule = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useQueryLoader = require('../useQueryLoader');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {
   Network,
   Observable,
@@ -34,7 +36,7 @@ const query = graphql`
 `;
 
 const preloadableConcreteRequest = {
-  kind: 'PreloadableConcreteRequest',
+  kind: 'PreloadableConcreteRequest' as const,
   params: query.params,
 };
 
@@ -52,7 +54,7 @@ const response = {
 
 // Only queries with an ID are preloadable
 const ID = '12345';
-(query.params: $FlowFixMe).id = ID;
+(query.params as $FlowFixMe).id = ID;
 
 const variables = {id: '4'};
 
@@ -104,7 +106,10 @@ beforeEach(() => {
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
-          const executeUnsubscribeFn = jest.fn<$ReadOnlyArray<mixed>, mixed>();
+          const executeUnsubscribeFn = jest.fn<
+            ReadonlyArray<unknown>,
+            unknown,
+          >();
           return {unsubscribe: executeUnsubscribeFn};
         });
       return executeObservable;
@@ -112,7 +117,7 @@ beforeEach(() => {
 });
 
 describe('when loading and disposing same query multiple times', () => {
-  it('loads correctly when ast is loaded in between calls to load and initial query ref is disposed', () => {
+  it('loads correctly when ast is loaded in between calls to load and initial query ref is disposed', async () => {
     let loadedQuery;
     let queryLoaderCallback;
 
@@ -146,34 +151,34 @@ describe('when loading and disposing same query multiple times', () => {
       );
     };
     let instance;
-    const render = () => {
-      ReactTestRenderer.act(() => {
-        instance = ReactTestRenderer.create(
+    const render = async () => {
+      await act(() => {
+        instance = ReactTestingLibrary.render(
           <RelayEnvironmentProvider environment={environment}>
             <Container />
           </RelayEnvironmentProvider>,
         );
       });
     };
-    render();
+    await render();
     if (!instance) {
       throw new Error('Expected renderer instance to be defined');
     }
 
-    ReactTestRenderer.act(() => {
+    await act(() => {
       queryLoaderCallback(variables);
       // Provide the query module ast
       PreloadableQueryRegistry.set(ID, query);
       queryLoaderCallback(variables);
     });
-    expect(instance.toJSON()).toEqual('Loading');
+    expect(instance.container.textContent).toEqual('Loading');
 
-    ReactTestRenderer.act(() => {
+    await act(() => {
       sink.next(response);
       sink.complete();
       jest.runAllImmediates();
     });
 
-    expect(instance.toJSON()).toEqual('4');
+    expect(instance.container.textContent).toEqual('4');
   });
 });

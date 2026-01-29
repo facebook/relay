@@ -13,7 +13,6 @@
 
 const {getRequest} = require('../../../query/GraphQLTag');
 const {createReaderSelector} = require('../../../store/RelayModernSelector');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   createOperationDescriptor,
@@ -26,14 +25,6 @@ const {
 
 disallowWarnings();
 disallowConsoleErrors();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 describe('Relay Resolver', () => {
   it('works with refetchable fragments', () => {
@@ -134,11 +125,10 @@ describe('Relay Resolver', () => {
 
     environment.commitPayload(operation, {});
 
-    // $FlowFixMe[unclear-type]
-    const {data, relayResolverErrors}: any = environment.lookup(
-      operation.fragment,
-    );
-    expect(relayResolverErrors).toHaveLength(0);
+    const {data, fieldErrors} = environment.lookup(operation.fragment);
+    expect(fieldErrors).toBe(null);
+
+    // $FlowFixMe[incompatible-use] Lookup is untyped
     expect(data.hello_optional_world).toEqual('Hello, Default!');
   });
 });

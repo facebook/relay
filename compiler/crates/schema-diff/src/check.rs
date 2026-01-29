@@ -35,10 +35,10 @@ pub enum IncrementalBuildSchemaChange {
 impl fmt::Debug for IncrementalBuildSchemaChange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            IncrementalBuildSchemaChange::Enum(name) => write!(f, "enum({})", name),
-            IncrementalBuildSchemaChange::Object(name) => write!(f, "object({})", name),
-            IncrementalBuildSchemaChange::Union(name) => write!(f, "union({})", name),
-            IncrementalBuildSchemaChange::Interface(name) => write!(f, "interface({})", name),
+            IncrementalBuildSchemaChange::Enum(name) => write!(f, "enum({name})"),
+            IncrementalBuildSchemaChange::Object(name) => write!(f, "object({name})"),
+            IncrementalBuildSchemaChange::Union(name) => write!(f, "union({name})"),
+            IncrementalBuildSchemaChange::Interface(name) => write!(f, "interface({name})"),
         }
     }
 }
@@ -55,7 +55,7 @@ impl fmt::Debug for SchemaChangeSafety {
         match self {
             SchemaChangeSafety::Unsafe => write!(f, "Unsafe"),
             SchemaChangeSafety::SafeWithIncrementalBuild(changes) => {
-                write!(f, "SafeWithIncrementalBuild({:?})", changes)
+                write!(f, "SafeWithIncrementalBuild({changes:?})")
             }
             SchemaChangeSafety::Safe => write!(f, "Safe"),
         }
@@ -142,11 +142,14 @@ impl SchemaChange {
                             needs_incremental_build
                                 .insert(IncrementalBuildSchemaChange::Enum(name));
                         }
+                        DefinitionChange::UnionChanged { name, .. }
+                        | DefinitionChange::UnionRemoved(name) => {
+                            needs_incremental_build
+                                .insert(IncrementalBuildSchemaChange::Union(name));
+                        }
 
                         // unsafe changes
-                        DefinitionChange::UnionChanged { .. }
-                        | DefinitionChange::UnionRemoved(_)
-                        | DefinitionChange::ScalarRemoved(_)
+                        DefinitionChange::ScalarRemoved(_)
                         | DefinitionChange::InputObjectChanged { .. }
                         | DefinitionChange::InputObjectRemoved(_)
                         | DefinitionChange::InterfaceRemoved(_)
@@ -195,10 +198,7 @@ fn is_object_add_safe(name: StringKey, schema: &SDLSchema, schema_config: &Schem
             return false;
         }
     } else {
-        panic!(
-            "The object '{}' was not found in the schema during schema change detection.",
-            name
-        );
+        panic!("The object '{name}' was not found in the schema during schema change detection.");
     }
     true
 }

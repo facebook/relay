@@ -1,0 +1,78 @@
+==================================== INPUT ====================================
+query EnquotedAlias {
+  "1$alias": simple_alias,
+}
+==================================== OUTPUT ===================================
+ExecutableDocument {
+    span: 0:51,
+    definitions: [
+        OperationDefinition {
+            location: simple_enquoted_alias.graphql:0:50,
+            operation: Some(
+                (
+                    Token {
+                        span: 0:5,
+                        kind: Identifier,
+                    },
+                    Query,
+                ),
+            ),
+            name: Some(
+                Identifier {
+                    span: 6:19,
+                    token: Token {
+                        span: 6:19,
+                        kind: Identifier,
+                    },
+                    value: "EnquotedAlias",
+                },
+            ),
+            variable_definitions: None,
+            directives: [],
+            selections: List {
+                span: 20:50,
+                start: Token {
+                    span: 20:21,
+                    kind: OpenBrace,
+                },
+                items: [
+                    ScalarField {
+                        span: 24:47,
+                        alias: Some(
+                            Alias {
+                                span: 24:47,
+                                alias: Identifier {
+                                    span: 24:33,
+                                    token: Token {
+                                        span: 24:33,
+                                        kind: StringLiteral,
+                                    },
+                                    value: "1$alias",
+                                },
+                                colon: Token {
+                                    span: 33:34,
+                                    kind: Colon,
+                                },
+                            },
+                        ),
+                        name: Identifier {
+                            span: 35:47,
+                            token: Token {
+                                span: 35:47,
+                                kind: Identifier,
+                            },
+                            value: "simple_alias",
+                        },
+                        arguments: None,
+                        directives: [],
+                    },
+                ],
+                end: Token {
+                    span: 49:50,
+                    kind: CloseBrace,
+                },
+            },
+            description: None,
+        },
+    ],
+}

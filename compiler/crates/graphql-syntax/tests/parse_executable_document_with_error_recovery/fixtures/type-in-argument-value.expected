@@ -123,6 +123,7 @@ ExecutableDocument {
                     kind: Empty,
                 },
             },
+            description: None,
         },
     ],
 }

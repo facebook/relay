@@ -13,10 +13,18 @@ fragment Foo on User @argumentDefinitions(
   id
 }
 ==================================== ERROR ====================================
-✖︎ Variable was defined as type 'ID' but used where a variable of type 'ID!' is expected.
+✖︎ Variable of type 'ID' cannot be used where 'ID!' is expected.
 
   fragment_with_arguments_incorrect_nullability.invalid.graphql:6:30
     5 │ ) {
     6 │   ...Foo @arguments(localId: $id)
       │                              ^^^
     7 │ }
+
+  ℹ︎ Variable `$id` is defined as 'ID'
+
+  fragment_with_arguments_incorrect_nullability.invalid.graphql:4:3
+    3 │ fragment TestFragment on User @argumentDefinitions(
+    4 │   id: {type: "ID"}
+      │   ^^
+    5 │ ) {

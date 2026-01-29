@@ -29,9 +29,9 @@ const {
   isScalarAndEqual,
 } = require('relay-runtime');
 
-type ContainerProps = $FlowFixMeProps;
+type ContainerProps = $FlowFixMe;
 type ContainerState = {
-  data: {[key: string]: mixed, ...},
+  data: {[key: string]: unknown, ...},
   prevProps: ContainerProps,
   prevPropsContext: RelayContext,
   relayProp: RelayProp,
@@ -46,13 +46,11 @@ type ContainerState = {
  */
 function createContainerWithFragments<
   Props: {...},
-  TComponent: React.ComponentType<Props>,
+  TComponent: component(...Props),
 >(
   Component: TComponent,
   fragments: FragmentMap,
-): React.ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
-> {
+): component(...$RelayProps<React.ElementConfig<TComponent>, RelayProp>) {
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
@@ -123,8 +121,8 @@ function createContainerWithFragments<
 
         return {
           data: resolver.resolve(),
-          prevPropsContext: relayContext,
           prevProps: nextProps,
+          prevPropsContext: relayContext,
           relayProp: getRelayProp(relayContext.environment),
           resolver,
         };
@@ -267,18 +265,11 @@ function getRelayProp(environment: IEnvironment) {
  * `fragmentSpec` is memoized once per environment, rather than once per
  * instance of the container constructed/rendered.
  */
-function createContainer<
-  Props: {...},
-  Instance,
-  TComponent: React.AbstractComponent<Props, Instance>,
->(
+function createContainer<Props: {...}, TComponent: component(...Props)>(
   Component: TComponent,
   fragmentSpec: GeneratedNodeMap,
-): React.AbstractComponent<
-  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
-  Instance,
-> {
-  // $FlowFixMe[incompatible-return]
+): component(...$RelayProps<Props, RelayProp>) {
+  // $FlowFixMe[incompatible-type]
   return buildReactRelayContainer(
     Component,
     fragmentSpec,

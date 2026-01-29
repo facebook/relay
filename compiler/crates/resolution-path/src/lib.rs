@@ -188,7 +188,7 @@ pub trait ResolvePosition<'a>: Sized {
     type Parent;
     fn resolve(&'a self, parent: Self::Parent, position: Span) -> ResolutionPath<'a>;
     fn contains(&'a self, position: Span) -> bool;
-    fn path(&'a self, parent: Self::Parent) -> Path<&Self, Self::Parent> {
+    fn path(&'a self, parent: Self::Parent) -> Path<&'a Self, Self::Parent> {
         Path {
             inner: self,
             parent,

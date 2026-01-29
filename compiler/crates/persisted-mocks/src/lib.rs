@@ -6,11 +6,11 @@
  */
 
 use relay_codegen::QueryID;
-use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
-use relay_compiler::config::Config;
 use relay_compiler::Artifact;
 use relay_compiler::ArtifactContent;
 use relay_compiler::ProjectConfig;
+use relay_compiler::build_project::generate_extra_artifacts::default_generate_extra_artifacts_fn;
+use relay_compiler::config::Config;
 use relay_transforms::Programs;
 use schema::SDLSchema;
 

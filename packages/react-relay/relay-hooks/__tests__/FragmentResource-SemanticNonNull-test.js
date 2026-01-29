@@ -12,11 +12,7 @@
 'use strict';
 
 import {getFragmentResourceForEnvironment} from '../legacy/FragmentResource';
-import {
-  RelayFeatureFlags,
-  createOperationDescriptor,
-  graphql,
-} from 'relay-runtime';
+import {createOperationDescriptor, graphql} from 'relay-runtime';
 import RelayNetwork from 'relay-runtime/network/RelayNetwork';
 import RelayModernEnvironment from 'relay-runtime/store/RelayModernEnvironment';
 import RelayModernStore from 'relay-runtime/store/RelayModernStore';
@@ -28,8 +24,6 @@ let query;
 let FragmentResource;
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
-
   const source = RelayRecordSource.create({
     'client:root': {
       __id: 'client:root',
@@ -68,7 +62,9 @@ beforeEach(() => {
         node(id: $id) {
           __typename
           ...FragmentResourceSemanticNonNullTestFragment1
+            @dangerously_unaliased_fixme
           ...FragmentResourceSemanticNonNullTestFragment2
+            @dangerously_unaliased_fixme
         }
       }
     `,
@@ -95,7 +91,7 @@ test('Throws if a field has error with explicit error handling enabled', () => {
       componentDisplayName,
     );
   }).toThrowError(
-    'Relay: Unexpected response payload - this object includes an errors property in which you can access the underlying errors',
+    'Relay: Unexpected response payload - check server logs for details.',
   );
 });
 

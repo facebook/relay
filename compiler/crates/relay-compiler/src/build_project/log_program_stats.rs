@@ -25,7 +25,7 @@ pub fn print_stats(extra_info: &str, program: &Program) {
     if *LOG_AST_STATS {
         let mut visitor = IRStatsVisitor::default();
         let stats = visitor.visit_program(program);
-        println!("{}", extra_info);
+        println!("{extra_info}");
         stats.print_stats();
         println!();
     }

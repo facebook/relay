@@ -14,9 +14,7 @@ graphql`query fooCustomScalarLiteralArgQuery($arg: CustomScalarType! = "foobar",
 {
    "language": "flow",
    "schema": "./schema.graphql",
-   "eagerEsModules": true,
    "featureFlags": {
-      "enable_relay_resolver_transform": true,
       "enable_relay_resolver_mutations": true,
       "enable_strict_custom_scalars": true
    },

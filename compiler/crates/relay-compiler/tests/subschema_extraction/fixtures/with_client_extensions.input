@@ -1,0 +1,43 @@
+# Test: client schema extensions are filtered out during subschema extraction
+# The 'settings' field and 'Settings' type are client extensions and should NOT appear in the output
+
+//- src/TestQuery.js
+graphql`
+  query TestQuery {
+    user {
+      id
+      settings {
+        theme
+      }
+    }
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "schemaExtensions": ["./schema-extensions"],
+   "src": "./src"
+}
+
+//- schema.graphql
+type Query { _: ID }
+
+//- schema-extensions/client.graphql
+extend type User {
+  settings: Settings
+}
+
+type Settings {
+  theme: String
+}
+
+//- full_schema.graphql
+type Query {
+  user: User
+}
+
+type User {
+  id: ID!
+}

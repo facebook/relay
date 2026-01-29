@@ -1,6 +1,6 @@
 query queryWithMatchDirectiveWithExtraArgument_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithMatchDirectiveWithExtraArgument_NameRendererFragment
+    ...queryWithMatchDirectiveWithExtraArgument_NameRendererFragment @alias
   }
 }
 

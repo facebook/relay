@@ -1,0 +1,19 @@
+query MeQuery($include_firstname: Boolean!) {
+  me {
+    ...UserFragment(return_firstname: $include_firstname)
+  }
+}
+
+fragment UserFragment($return_firstname: Boolean!) on User {
+  name @skip(if: $return_firstname)
+  ... @defer(if: $return_fi|rstname) {
+    og_name: name
+  }
+  firstName(if: $return_firstname)
+}
+
+fragment CommentFragment on Comment {
+  author {
+    ...UserFragment(return_firstname: true)
+  }
+}

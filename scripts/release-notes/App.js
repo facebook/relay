@@ -38,40 +38,38 @@ const CATEGORIES_NAMES = {
 
 const REPO_URL = 'https://github.com/facebook/relay';
 
-const CommitCard = ({
+function CommitCard({
   message,
   summary,
   author,
   date,
   selectedCategory,
   onCategoryChange,
-}) => {
-  const handleClick = event => {
-    const category = CATEGORIES.findIndex(cat => cat[0] === selectedCategory);
-    let nextCategory;
-    if (event.type === 'contextmenu') {
-      event.preventDefault();
-      nextCategory = -1;
-    } else {
-      nextCategory = category + 1;
-      if (nextCategory == CATEGORIES.length) {
-        nextCategory = -1; // Reset selected category
-      }
-    }
-    onCategoryChange(nextCategory > -1 ? CATEGORIES[nextCategory][0] : null);
-  };
-
+  fullHash,
+  diff,
+}) {
   return (
-    <button
-      className={`commit ${selectedCategory}`}
-      onClick={handleClick}
-      onContextMenu={handleClick}
-      title={message}>
-      <p className="summary">{summary}</p>
-      <p className="author">{author}</p>
-    </button>
+    <div className={`commit ${selectedCategory}`} title={message}>
+      <p className="summary">
+        <a href={`${REPO_URL}/commit/${fullHash}`} target="_blank">
+          {summary}
+        </a>
+      </p>
+      <p className="author">
+        {author}
+        {diff && (
+          <>
+            {' '}
+            <a href={`https://www.internalfb.com/diff/${diff}`} target="_blank">
+              {diff}
+            </a>
+          </>
+        )}
+      </p>
+      <CategoryPicker onPick={category => onCategoryChange(category)} />
+    </div>
   );
-};
+}
 
 // eslint-disable-next-line no-unused-vars
 function App({commits, lastRelease}) {
@@ -109,6 +107,8 @@ function App({commits, lastRelease}) {
                 summary={commit.summary}
                 author={commit.author}
                 date={commit.date}
+                fullHash={commit.fullHash}
+                diff={commit.diff}
                 selectedCategory={selectedCategories[commit.hash]}
                 onCategoryChange={category => {
                   setSelectedCategories({
@@ -121,6 +121,9 @@ function App({commits, lastRelease}) {
           })}
         </section>
         <section className="release_notes">
+          <div className="copy_prompt">
+            (Copy paste the below Markdown into the release notes)
+          </div>
           <GeneratedReleaseNotes
             lastRelease={lastRelease}
             commits={commits}
@@ -139,6 +142,20 @@ function Categories() {
         return (
           <li className={`category ${category}`} key={category}>
             {category}
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+function CategoryPicker({onPick}) {
+  return (
+    <ul className="categories-picker">
+      {CATEGORIES.map(([category]) => {
+        return (
+          <li className="category" key={category}>
+            <button onClick={() => onPick(category)}>{category}</button>
           </li>
         );
       })}
@@ -180,16 +197,13 @@ function GeneratedReleaseNotes({commits, selectedCategories, lastRelease}) {
 
   return (
     <div className="release_notes_content">
-      <h1>
-        Version {nextReleaseVersion(lastRelease, hasBreakingChanges, hasNewApi)}{' '}
-        Release Notes
-      </h1>
+      {`# Version ${nextReleaseVersion(lastRelease, hasBreakingChanges, hasNewApi)} Release Notes\n`}
       <div>
         {Array.from(categorizedCommits).map(([category, commits]) => {
           if (commits.length) {
             return (
               <div key={category}>
-                <h2>{CATEGORIES_NAMES[category]}</h2>
+                {`## ${CATEGORIES_NAMES[category]}`}
                 <CommitList commits={commits} />
               </div>
             );
@@ -197,8 +211,10 @@ function GeneratedReleaseNotes({commits, selectedCategories, lastRelease}) {
             return null;
           }
         })}
-        <h3>Non-categorized commits</h3>
-        <CommitList commits={nonCategorizedCommits} />
+        <div>
+          {`## Non-categorized commits\n`}
+          <CommitList commits={nonCategorizedCommits} />
+        </div>
       </div>
     </div>
   );
@@ -208,13 +224,16 @@ function CommitList({commits}) {
   return (
     <ul>
       {commits.map(commit => {
+        const summary = commit.summary.replace(/^- /, ''); // Avoid commit messages that render as indented list items.
+        const link = `${REPO_URL}/commit/${commit.fullHash}`;
         return (
           <li key={commit.hash}>
-            [
-            <a href={`${REPO_URL}/commit/${commit.hash}`} target="_blank">
-              {commit.hash}
+            {' - '}
+            {capitalize(summary)} by {commit.author} ([
+            <a href={link} target="_blank">
+              commit
             </a>
-            ]: {capitalize(commit.summary)} by {commit.author}
+            ]({link}))
           </li>
         );
       })}

@@ -4,7 +4,7 @@ fragment fragmentOnViewer_RefetchableFragment on Viewer
   actor {
     id
     name
-    ...fragmentOnViewer_ProfilePicture
+    ...fragmentOnViewer_ProfilePicture @alias
   }
 }
 
@@ -253,8 +253,19 @@ fragment fragmentOnViewer_RefetchableFragment on Viewer {
           "storageKey": null
         },
         {
-          "args": null,
-          "kind": "FragmentSpread",
+          "fragment": {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "fragmentOnViewer_ProfilePicture"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          "kind": "AliasedInlineFragmentSpread",
           "name": "fragmentOnViewer_ProfilePicture"
         }
       ],

@@ -25,7 +25,7 @@ const {useEffect, useState, useMemo} = React;
 
 hook useIsOperationNodeActive(
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
 ): boolean {
   const environment = useRelayEnvironment();
   const observable = useMemo(() => {

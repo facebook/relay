@@ -30,8 +30,12 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe('execute() a query with @module on a field with a nullable concrete type', () => {
@@ -47,8 +51,8 @@ describe('execute() a query with @module on a field with a nullable concrete typ
   let operation;
   let operationCallback;
   let operationLoader: {
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    get: (reference: unknown) => ?NormalizationRootNode,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let query;
   let resolveFragment;
@@ -81,9 +85,9 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<any | [Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<any | [Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
     fetch = (
       _query: RequestParameters,
@@ -96,19 +100,19 @@ describe('execute() a query with @module on a field with a nullable concrete typ
       });
     };
     operationLoader = {
+      get: jest.fn(),
       load: jest.fn(moduleName => {
         return new Promise(resolve => {
           resolveFragment = resolve;
         });
       }),
-      get: jest.fn(),
     };
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
       network: RelayNetwork.create(fetch),
-      store,
       operationLoader,
+      store,
     });
     const operationSnapshot = environment.lookup(operation.fragment);
     operationCallback = jest.fn<[Snapshot], void>();
@@ -120,16 +124,16 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'Feedback',
           author: {
-            id: '2',
             __module_component_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
               'FeedbackAuthor.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
               'RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql',
+            id: '2',
             name: 'Alice',
           },
+          id: '1',
         },
       },
     };
@@ -151,15 +155,13 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     expect(operationSnapshot.data).toEqual({
       node: {
         author: {
-          __id: '2',
+          __fragmentOwner: operation.request,
           __fragmentPropName: 'author',
-
           __fragments: {
             RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author:
               {},
           },
-
-          __fragmentOwner: operation.request,
+          __id: '2',
           __module_component: 'FeedbackAuthor.react',
         },
       },
@@ -168,7 +170,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     const matchSelector = nullthrows(
       getSingularSelector(
         authorFragment,
-        (operationSnapshot.data?.node: any)?.author,
+        (operationSnapshot.data?.node as any)?.author,
       ),
     );
     const matchSnapshot = environment.lookup(matchSelector);
@@ -184,16 +186,16 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     const payload = {
       data: {
         node: {
-          id: '1',
           __typename: 'Feedback',
           author: {
-            id: '2',
             __module_component_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
               'FeedbackAuthor.react',
             __module_operation_RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery:
               'RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql',
+            id: '2',
             name: 'Alice',
           },
+          id: '1',
         },
       },
     };
@@ -208,7 +210,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
     const matchSelector = nullthrows(
       getSingularSelector(
         authorFragment,
-        (operationSnapshot.data?.node: any)?.author,
+        (operationSnapshot.data?.node as any)?.author,
       ),
     );
     // initial results tested above

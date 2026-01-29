@@ -1,0 +1,9 @@
+query updatableFragmentSpreadWithDangerouslyUnaliasedFixmeQuery {
+  me {
+    ...updatableFragmentSpreadWithDangerouslyUnaliasedFixme_user @dangerously_unaliased_fixme
+  }
+}
+
+fragment updatableFragmentSpreadWithDangerouslyUnaliasedFixme_user on User @updatable {
+  firstName
+}

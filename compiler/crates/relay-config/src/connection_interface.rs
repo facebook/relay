@@ -7,11 +7,16 @@
 
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
 /// Configuration where Relay should expect some fields in the schema.
-#[derive(Debug, Serialize, Deserialize)]
+///
+/// **Important**: When you configure this option in the compiler, you must also configure
+/// the Relay runtime to match by calling `ConnectionInterface.inject()` with the same values.
+/// See: <https://relay.dev/docs/api-reference/runtime-config/#connectioninterface>
+#[derive(Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ConnectionInterface {
     pub cursor: StringKey,

@@ -56,15 +56,14 @@ pub enum DefinitionChange {
 impl fmt::Debug for DefinitionChange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DefinitionChange::EnumChanged { name } => write!(f, "EnumChanged {:?}.", name,),
+            DefinitionChange::EnumChanged { name } => write!(f, "EnumChanged {name:?}.",),
             DefinitionChange::UnionChanged {
                 added,
                 removed,
                 name,
             } => write!(
                 f,
-                "UnionChanged {:?}: added:{:?} removed:{:?}",
-                name, added, removed,
+                "UnionChanged {name:?}: added:{added:?} removed:{removed:?}",
             ),
             DefinitionChange::InputObjectChanged {
                 added,
@@ -72,8 +71,7 @@ impl fmt::Debug for DefinitionChange {
                 name,
             } => write!(
                 f,
-                "InputObjectChanged {:?}: added:{:?} removed:{:?}",
-                name, added, removed
+                "InputObjectChanged {name:?}: added:{added:?} removed:{removed:?}"
             ),
             DefinitionChange::InterfaceChanged {
                 added,
@@ -82,8 +80,7 @@ impl fmt::Debug for DefinitionChange {
                 ..
             } => write!(
                 f,
-                "InterfaceChanged {:?}: added:{:?} removed:{:?}",
-                name, added, removed,
+                "InterfaceChanged {name:?}: added:{added:?} removed:{removed:?}",
             ),
             DefinitionChange::ObjectChanged {
                 name,
@@ -94,23 +91,22 @@ impl fmt::Debug for DefinitionChange {
                 interfaces_removed,
             } => write!(
                 f,
-                "ObjectChanged {:?}: added:{:?} removed:{:?} changed: {:?}; interface: added:{:?} removed:{:?}",
-                name, added, removed, changed, interfaces_added, interfaces_removed
+                "ObjectChanged {name:?}: added:{added:?} removed:{removed:?} changed: {changed:?}; interface: added:{interfaces_added:?} removed:{interfaces_removed:?}"
             ),
-            DefinitionChange::EnumAdded(name) => write!(f, "EnumAdded {:?}", name),
-            DefinitionChange::EnumRemoved(name) => write!(f, "EnumRemoved {:?}", name),
-            DefinitionChange::UnionAdded(name) => write!(f, "UnionAdded {:?}", name),
-            DefinitionChange::UnionRemoved(name) => write!(f, "UnionRemoved {:?}", name),
-            DefinitionChange::ScalarAdded(name) => write!(f, "ScalarAdded {:?}", name),
-            DefinitionChange::ScalarRemoved(name) => write!(f, "ScalarRemoved {:?}", name),
-            DefinitionChange::InputObjectAdded(name) => write!(f, "InputObjectAdded {:?}", name),
+            DefinitionChange::EnumAdded(name) => write!(f, "EnumAdded {name:?}"),
+            DefinitionChange::EnumRemoved(name) => write!(f, "EnumRemoved {name:?}"),
+            DefinitionChange::UnionAdded(name) => write!(f, "UnionAdded {name:?}"),
+            DefinitionChange::UnionRemoved(name) => write!(f, "UnionRemoved {name:?}"),
+            DefinitionChange::ScalarAdded(name) => write!(f, "ScalarAdded {name:?}"),
+            DefinitionChange::ScalarRemoved(name) => write!(f, "ScalarRemoved {name:?}"),
+            DefinitionChange::InputObjectAdded(name) => write!(f, "InputObjectAdded {name:?}"),
             DefinitionChange::InputObjectRemoved(name) => {
-                write!(f, "InputObjectRemoved {:?}", name)
+                write!(f, "InputObjectRemoved {name:?}")
             }
-            DefinitionChange::InterfaceAdded(name) => write!(f, "InterfaceAdded {:?}", name),
-            DefinitionChange::InterfaceRemoved(name) => write!(f, "InterfaceRemoved {:?}", name),
-            DefinitionChange::ObjectAdded(name) => write!(f, "ObjectAdded {:?}", name),
-            DefinitionChange::ObjectRemoved(name) => write!(f, "ObjectRemoved {:?}", name),
+            DefinitionChange::InterfaceAdded(name) => write!(f, "InterfaceAdded {name:?}"),
+            DefinitionChange::InterfaceRemoved(name) => write!(f, "InterfaceRemoved {name:?}"),
+            DefinitionChange::ObjectAdded(name) => write!(f, "ObjectAdded {name:?}"),
+            DefinitionChange::ObjectRemoved(name) => write!(f, "ObjectRemoved {name:?}"),
         }
     }
 }
@@ -177,7 +173,7 @@ impl fmt::Display for SchemaChange {
             SchemaChange::None => write!(f, "None"),
             SchemaChange::GenericChange => write!(f, "GenericChange"),
             SchemaChange::InvalidSchema => write!(f, "InvalidSchema"),
-            SchemaChange::DefinitionChanges(changes) => write!(f, "{:?}", changes),
+            SchemaChange::DefinitionChanges(changes) => write!(f, "{changes:?}"),
         }
     }
 }
@@ -188,7 +184,7 @@ impl fmt::Debug for SchemaChange {
             SchemaChange::None => write!(f, "None"),
             SchemaChange::GenericChange => write!(f, "GenericChange"),
             SchemaChange::InvalidSchema => write!(f, "InvalidSchema"),
-            SchemaChange::DefinitionChanges(changes) => write!(f, "{:?}", changes),
+            SchemaChange::DefinitionChanges(changes) => write!(f, "{changes:?}"),
         }
     }
 }

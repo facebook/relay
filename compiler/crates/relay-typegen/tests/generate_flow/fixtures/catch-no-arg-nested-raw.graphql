@@ -1,0 +1,6 @@
+query MyQuery @raw_response_type {
+  me {
+    id @catch
+    name
+  }
+}

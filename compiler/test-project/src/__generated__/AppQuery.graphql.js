@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a55377ccde8cd5c41e914b95c668b64b>>
+ * @generated SignedSource<<ecdf928eb3f2acad2a9c0245a8e0263d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -98,4 +98,4 @@ return {
 
 node.hash = "942e72826c882d3a02cb0cfbf267dd83";
 
-module.exports = node;
+export default node;

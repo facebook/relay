@@ -33,8 +33,12 @@ const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdat
 const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization = require('./__generated__/RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user$normalization.graphql');
 const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_nestedModule_user$normalization = require('./__generated__/RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_nestedModule_user$normalization.graphql');
 const RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization = require('./__generated__/RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$normalization.graphql');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const observationFragment = graphql`
@@ -50,8 +54,8 @@ describe('execute() a query with @module if the module fragment is available syn
   let environment;
   let dataSource;
   let operationLoader: {
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    get: (reference: unknown) => ?NormalizationRootNode,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let store;
   let source;
@@ -115,9 +119,9 @@ describe('execute() a query with @module if the module fragment is available syn
       }
     `;
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
 
     // set up a subscription for the observation fragment.
@@ -169,8 +173,8 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
   let environment;
   let dataSource;
   let operationLoader: {
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    get: (reference: unknown) => ?NormalizationRootNode,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let store;
   let source;
@@ -242,9 +246,9 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
       }
     `;
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
 
     // set up a subscription for the observation fragment.
@@ -307,8 +311,8 @@ describe('execute() a query with nested @module fragments, where the inner @modu
   let environment;
   let dataSource;
   let operationLoader: {
-    get: (reference: mixed) => ?NormalizationRootNode,
-    load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+    get: (reference: unknown) => ?NormalizationRootNode,
+    load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
   };
   let store;
   let source;
@@ -382,9 +386,9 @@ describe('execute() a query with nested @module fragments, where the inner @modu
       operation.request,
     );
 
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
-    next = jest.fn<[GraphQLResponse], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
+    next = jest.fn<[GraphQLResponse], unknown>();
     callbacks = {complete, error, next};
 
     // set up a subscription for the observation fragment.

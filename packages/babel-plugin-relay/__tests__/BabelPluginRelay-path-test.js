@@ -11,7 +11,7 @@
 'use strict';
 
 describe('`development` option', () => {
-  function transformOnPlatform(platform: string) {
+  async function transformOnPlatform(platform: string) {
     jest.resetModules();
 
     Object.defineProperty(process, 'platform', {
@@ -28,17 +28,19 @@ describe('`development` option', () => {
 
     const transformerWithOptions = require('./transformerWithOptions');
 
-    return transformerWithOptions(
-      {
-        artifactDirectory: '/test/artifacts',
-      },
-      'development',
+    return (
+      await transformerWithOptions(
+        {
+          artifactDirectory: '/test/artifacts',
+        },
+        'development',
+      )
     )('graphql`fragment TestFrag on Node { id }`');
   }
 
-  it('tests the handling of file path', () => {
-    const codeOnPosix = transformOnPlatform('linux');
-    const codeOnNonPosix = transformOnPlatform('win32');
+  it('tests the handling of file path', async () => {
+    const codeOnPosix = await transformOnPlatform('linux');
+    const codeOnNonPosix = await transformOnPlatform('win32');
 
     expect(codeOnNonPosix).toEqual(codeOnPosix);
     expect(codeOnPosix).toMatchSnapshot();

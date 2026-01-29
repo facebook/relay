@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+fragment FragFoo on User {
+  ... on User @catch(to: RESULT) @alias {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+fragment FragFoo on User {
+  ... on User @catch(to: RESULT) @alias @__FragmentAliasMetadata
+  # FragmentAliasMetadata {
+  #     alias: WithLocation {
+  #         location: catch-usage-inline-fragment-with-alias.graphql:60:66,
+  #         item: "User",
+  #     },
+  #     type_condition: Some(
+  #         Object(70),
+  #     ),
+  #     non_nullable: true,
+  #     selection_type: Object(70),
+  #     wraps_spread: false,
+  # }
+   @__CatchMetadataDirective
+  # CatchMetadataDirective {
+  #     to: Result,
+  # }
+   {
+    name
+  }
+}

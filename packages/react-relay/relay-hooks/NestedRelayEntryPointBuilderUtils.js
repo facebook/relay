@@ -12,7 +12,7 @@
 'use strict';
 
 import type {
-  InternalEntryPointRepresentation,
+  EntryPoint,
   ThinNestedEntryPointParams,
 } from './EntryPointTypes.flow';
 
@@ -25,14 +25,8 @@ import type {
  * to construct a `ThinNestedEntryPointParams` is by calling this function.
  */
 declare function NestedRelayEntryPoint<TEntryPointParams>(
-  $ReadOnly<{
-    entryPoint: InternalEntryPointRepresentation<
-      TEntryPointParams,
-      $FlowFixMe,
-      $FlowFixMe,
-      $FlowFixMe,
-      $FlowFixMe,
-    >,
+  params: Readonly<{
+    entryPoint: EntryPoint<TEntryPointParams, $FlowFixMe>,
     entryPointParams: TEntryPointParams,
   }>,
 ): ThinNestedEntryPointParams;

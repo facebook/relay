@@ -63,6 +63,12 @@ use tokio::sync::Mutex;
 
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));
+    // It's possible that a test will change the current directory leading to a
+    // race condition where if an async test is running at the same time as
+    // another test is trying to check the workspace root, it will get the wrong
+    // value. To mitigate that risk we compute the workspace root only
+    // once, before any tests run, and reuse that value for all tests.
+    pub static ref WORKSPACE_ROOT: PathBuf = workspace_root();
 }
 
 /// Passed to the `transform_fixture` from the test as the input to transform.
@@ -101,6 +107,11 @@ pub async fn test_fixture<T, U, V>(
     U: std::fmt::Display,
     V: std::fmt::Display,
 {
+    // It's possible that a test will change the current directory leading to a
+    // race condition where if an async test is running at the same time as
+    // another test is trying to check the workspace root, it will get the wrong
+    // value. To mitigate that risk we compute the workspace root early.
+    let workspace_root = WORKSPACE_ROOT.clone();
     let fixture = Fixture {
         file_name: input_file_name,
         content: input,
@@ -145,26 +156,29 @@ pub async fn test_fixture<T, U, V>(
             panic!(
                 "Expected transform to succeed but it failed with, use 'expected-to-throw' if this is expected. Error:
 #############################################################################
-{}
+{error}
 #############################################################################
-",
-                error
+"
             );
         }
         _ => {}
     };
 
     let actual = format!("{}\n", actual.trim_end());
+    let expected_file_path = workspace_root
+        .join(source_file_path)
+        .with_file_name(expected_file_name);
+    assert_file_contains(&actual, expected_file_path, expected)
+}
+
+pub fn assert_file_contains(actual: &str, expected_file_path: PathBuf, expected: &str) {
     if actual != expected {
         {
             let _guard = LOCK.lock();
-            print_diff::print_diff(expected, &actual);
+            print_diff::print_diff(expected, actual);
         }
 
         if env::var_os("UPDATE_SNAPSHOTS").is_some() {
-            let expected_file_path = workspace_root()
-                .join(source_file_path)
-                .with_file_name(expected_file_name);
             File::create(&expected_file_path)
                 .unwrap_or_else(|e| {
                     panic!(
@@ -185,11 +199,19 @@ pub async fn test_fixture<T, U, V>(
 
 fn workspace_root() -> PathBuf {
     if let Ok(cargo) = std::env::var("CARGO") {
-        let stdout = Command::new(cargo)
+        let output_result = Command::new(cargo)
             .args(["locate-project", "--workspace", "--message-format=plain"])
-            .output()
-            .unwrap()
-            .stdout;
+            .output();
+        let stdout = match output_result {
+            Ok(output) => output.stdout,
+            Err(err) => {
+                panic!(
+                    "Failed to locate project from within {:?}: {:?}",
+                    std::env::current_dir(),
+                    err
+                )
+            }
+        };
         let workspace_cargo_toml = PathBuf::from(&std::str::from_utf8(&stdout).unwrap().trim());
         workspace_cargo_toml.parent().unwrap().to_path_buf()
     } else {

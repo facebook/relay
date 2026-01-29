@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c9b11494c80c0a6a1ee1861b2f7f148a>>
+ * @generated SignedSource<<9260d2f53d0ef75e100dfce9161fd9c6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,22 +22,27 @@ import type { DataID } from "relay-runtime";
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { QueryAllAstrologicalSignsResolver$key } from "./../resolvers/__generated__/QueryAllAstrologicalSignsResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../resolvers/AstrologicalSignNameResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {all_astrological_signs as queryAllAstrologicalSignsResolverType} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolverType: (
   rootKey: QueryAllAstrologicalSignsResolver$key,
-) => ?$ReadOnlyArray<{|
+  args: void,
+  context: TestResolverContextType,
+) => ?ReadonlyArray<{|
   +id: DataID,
 |}>);
 export type ClientEdgeToClientObjectTest2Query$variables = {||};
 export type ClientEdgeToClientObjectTest2Query$data = {|
-  +all_astrological_signs: ?$ReadOnlyArray<{|
+  +all_astrological_signs: ?ReadonlyArray<{|
     +name: ?string,
   |}>,
 |};
@@ -78,7 +83,7 @@ return {
           },
           "kind": "RelayResolver",
           "name": "all_astrological_signs",
-          "resolverModule": require('./../resolvers/QueryAllAstrologicalSignsResolver').all_astrological_signs,
+          "resolverModule": require('../resolvers/QueryAllAstrologicalSignsResolver').all_astrological_signs,
           "path": "all_astrological_signs"
         },
         "linkedField": {
@@ -99,7 +104,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
+              "resolverModule": require('../resolvers/AstrologicalSignNameResolver').name,
               "path": "all_astrological_signs.name"
             }
           ],

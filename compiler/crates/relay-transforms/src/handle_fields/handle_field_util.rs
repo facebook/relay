@@ -7,6 +7,7 @@
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::Location;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -45,8 +46,8 @@ pub struct HandleFieldDirectiveValues {
 }
 
 /// We have two handler keys, "handler" in connection, and "handle" in everywhere else
-/// Speicific helpers are created separately for connection
-
+/// Specific helpers are created separately for connection
+///
 /// Helper to extract handle field arguments that are present
 /// on the directive, without any validation or assumption of
 /// correctness of values.
@@ -140,6 +141,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
         name: WithLocation::generated(*HANDLE_FIELD_DIRECTIVE_NAME),
         arguments: directive_arguments,
         data: None,
+        location: Location::generated(),
     }
 }
 

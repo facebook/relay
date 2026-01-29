@@ -7,14 +7,16 @@
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::FeatureFlag;
 use common::FeatureFlags;
 use common::NamedItem;
+use docblock_shared::HAS_OUTPUT_TYPE_ARGUMENT_NAME;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_MODEL_DIRECTIVE_NAME;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
-use errors::try2;
 use errors::try_all;
+use errors::try3;
 use schema::Object;
 use schema::SDLSchema;
 use schema::Schema;
@@ -27,8 +29,9 @@ pub fn validate_resolver_schema(
     schema: &SDLSchema,
     feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<()> {
-    try2(
+    try3(
         validate_strong_resolver_types(schema),
+        validate_output_type_resolver_types(schema, &feature_flags.allow_output_type_resolvers),
         validate_mutation_resolvers(schema, feature_flags.enable_relay_resolver_mutations),
     )?;
 
@@ -47,6 +50,41 @@ fn validate_strong_resolver_types(schema: &SDLSchema) -> DiagnosticsResult<()> {
                 )
             }),
     )?;
+    Ok(())
+}
+
+fn validate_output_type_resolver_types(
+    schema: &SDLSchema,
+    allow_output_type_resolvers: &FeatureFlag,
+) -> DiagnosticsResult<()> {
+    try_all(schema.fields().map(|field| -> DiagnosticsResult<()> {
+        if let Some(resolver_directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
+            if resolver_directive
+                .arguments
+                .named(*HAS_OUTPUT_TYPE_ARGUMENT_NAME)
+                .is_some()
+            {
+                if let Some(obj_id) = field.type_.inner().get_object_id() {
+                    if schema
+                        .object(obj_id)
+                        .directives
+                        .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
+                        .is_none()
+                    {
+                        if !allow_output_type_resolvers.is_enabled_for(field.name.item) {
+                            return DiagnosticsResult::Err(vec![Diagnostic::error(
+                                SchemaValidationErrorMessages::ClientEdgeToClientWeakType,
+                                field.name.location,
+                            )]);
+                        }
+                    }
+                }
+            }
+        };
+
+        Ok(())
+    }))?;
+
     Ok(())
 }
 
@@ -125,7 +163,7 @@ fn is_valid_mutation_resolver_return_type(type_: &TypeReference<Type>) -> bool {
         TypeReference::NonNull(non_null_type) => {
             // note: this should be unreachable since we already disallow relay resolvers to return non-nullable types
             // - implement this anyway in case that changes in the future
-            return is_valid_mutation_resolver_return_type(non_null_type.as_ref());
+            is_valid_mutation_resolver_return_type(non_null_type.as_ref())
         }
     }
 }

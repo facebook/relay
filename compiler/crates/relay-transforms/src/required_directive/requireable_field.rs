@@ -14,11 +14,12 @@ use graphql_ir::Field;
 use graphql_ir::LinkedField;
 use graphql_ir::ScalarField;
 use intern::string_key::StringKey;
+use schema::FieldID;
 use schema::SDLSchema;
 
-use super::validation_message::ValidationMessage;
 use super::ACTION_ARGUMENT;
 use super::REQUIRED_DIRECTIVE_NAME;
+use super::validation_message::RequiredDirectiveValidationMessage;
 use crate::RequiredAction;
 
 #[derive(Clone, Copy)]
@@ -43,6 +44,7 @@ pub trait RequireableField {
             Ok(None)
         }
     }
+    fn field_id(&self) -> FieldID;
 }
 
 impl RequireableField for ScalarField {
@@ -51,6 +53,9 @@ impl RequireableField for ScalarField {
     }
     fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
         WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
+    }
+    fn field_id(&self) -> FieldID {
+        self.definition.item
     }
 }
 
@@ -61,6 +66,10 @@ impl RequireableField for LinkedField {
     fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey> {
         WithLocation::new(self.alias_or_name_location(), self.alias_or_name(schema))
     }
+
+    fn field_id(&self) -> FieldID {
+        self.definition.item
+    }
 }
 
 fn get_action_argument(
@@ -69,8 +78,8 @@ fn get_action_argument(
     let maybe_action_arg = required_directive.arguments.named(*ACTION_ARGUMENT);
     let action_arg = maybe_action_arg.ok_or_else(|| {
         Diagnostic::error(
-            ValidationMessage::RequiredActionArgumentRequired,
-            required_directive.name.location,
+            RequiredDirectiveValidationMessage::ActionArgumentRequired,
+            required_directive.location,
         )
     })?;
 

@@ -11,15 +11,13 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 
 use common::Span;
+use create_name_suggestion::DefinitionNameSuffix;
 use create_name_suggestion::create_default_name;
 use create_name_suggestion::create_default_name_with_index;
 use create_name_suggestion::create_impactful_name;
 use create_name_suggestion::create_name_wrapper;
-use create_name_suggestion::DefinitionNameSuffix;
 use graphql_syntax::ExecutableDefinition;
 use intern::Lookup;
-use lsp_types::request::CodeActionRequest;
-use lsp_types::request::Request;
 use lsp_types::CodeAction;
 use lsp_types::CodeActionOrCommand;
 use lsp_types::Diagnostic;
@@ -29,6 +27,8 @@ use lsp_types::TextDocumentPositionParams;
 use lsp_types::TextEdit;
 use lsp_types::Url;
 use lsp_types::WorkspaceEdit;
+use lsp_types::request::CodeActionRequest;
+use lsp_types::request::Request;
 use resolution_path::FragmentDefinitionPath;
 use resolution_path::IdentParent;
 use resolution_path::IdentPath;
@@ -44,7 +44,7 @@ use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
 use crate::utils::is_file_uri_in_dir;
 
-pub(crate) fn on_code_action(
+pub fn on_code_action(
     state: &impl GlobalState,
     params: <CodeActionRequest as Request>::Params,
 ) -> LSPRuntimeResult<<CodeActionRequest as Request>::Result> {
@@ -55,7 +55,7 @@ pub(crate) fn on_code_action(
     }
 
     if let Some(diagnostic) = state.get_diagnostic_for_range(&uri, params.range) {
-        let code_actions = get_code_actions_from_diagnostics(&uri, diagnostic);
+        let code_actions = get_code_actions_from_diagnostic(&uri, diagnostic);
         if code_actions.is_some() {
             return Ok(code_actions);
         }
@@ -78,7 +78,7 @@ pub(crate) fn on_code_action(
     Ok(Some(result))
 }
 
-fn get_code_actions_from_diagnostics(
+pub fn get_code_actions_from_diagnostic(
     url: &Url,
     diagnostic: Diagnostic,
 ) -> Option<Vec<CodeActionOrCommand>> {
@@ -310,7 +310,7 @@ mod tests {
     use lsp_types::Url;
     use serde_json::json;
 
-    use crate::code_action::get_code_actions_from_diagnostics;
+    use crate::code_action::get_code_actions_from_diagnostic;
 
     #[test]
     fn test_get_code_actions_from_diagnostics() {
@@ -330,7 +330,7 @@ mod tests {
             ..Default::default()
         };
         let url = Url::parse("file://relay.js").unwrap();
-        let code_actions = get_code_actions_from_diagnostics(&url, diagnostic);
+        let code_actions = get_code_actions_from_diagnostic(&url, diagnostic);
 
         assert_eq!(
             code_actions

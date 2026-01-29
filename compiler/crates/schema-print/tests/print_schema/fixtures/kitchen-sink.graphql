@@ -3,6 +3,7 @@ directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
 directive @extern_type(schema: String, name: String) on INTERFACE
 directive @fetchable(field_name: String) on OBJECT
 directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @repeats(id: String) repeatable on FIELD_DEFINITION
 
 schema {
   query: Query
@@ -35,7 +36,7 @@ type XIGStory
   @fetchable(field_name: "id")
   @source(schema: "instagram", name: "Story") {
   id: ID
-  name: String
+  name: String @repeats(id: "one") @repeats(id: "two")
 }
 
 union Actor @source(schema: "instagram", name: "Story") = User | Page

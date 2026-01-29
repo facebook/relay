@@ -31,10 +31,10 @@ use schema::Type;
 use serde::Deserialize;
 use serde::Serialize;
 
-use crate::location::transform_relay_location_on_disk_to_lsp_location;
-use crate::server::GlobalState;
 use crate::LSPRuntimeError;
 use crate::LSPRuntimeResult;
+use crate::location::transform_relay_location_on_disk_to_lsp_location;
+use crate::server::GlobalState;
 
 // This implementation of FindFieldUsages find matching fields in:
 //   - exact type matches
@@ -106,9 +106,9 @@ pub fn get_usages(
     type_name: StringKey,
     field_name: StringKey,
 ) -> LSPRuntimeResult<Vec<(String, IRLocation)>> {
-    let type_ = schema.get_type(type_name).ok_or_else(|| {
-        LSPRuntimeError::UnexpectedError(format!("Type {} not found!", type_name))
-    })?;
+    let type_ = schema
+        .get_type(type_name)
+        .ok_or_else(|| LSPRuntimeError::UnexpectedError(format!("Type {type_name} not found!")))?;
     let mut usage_finder = FieldUsageFinder::new(schema, type_, field_name);
     usage_finder.visit_program(program);
 
@@ -119,7 +119,7 @@ pub fn get_usages(
             result.push((label.to_string(), *location));
         } else {
             for (idx, location) in locations.into_iter().enumerate() {
-                result.push((format!("{} - {}", label, idx), location));
+                result.push((format!("{label} - {idx}"), location));
             }
         }
     }

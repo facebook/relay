@@ -18,7 +18,6 @@ const {
 } = require('react-relay/relay-hooks/QueryResource');
 const {
   __internal: {fetchQuery},
-  RelayFeatureFlags,
   getFragment,
 } = require('relay-runtime');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
@@ -32,14 +31,6 @@ const {
 
 disallowWarnings();
 disallowConsoleErrors();
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 const FRAGMENT_1 = graphql`
   fragment QueryResourceClientEdgesTestUser1Fragment on User {

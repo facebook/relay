@@ -1,0 +1,14 @@
+# expected-to-throw
+query validateArrayArgumentsUsageInFragmentsWithClientEdgeReadsQuery($id: ID!) {
+  ...validateArrayArgumentsUsageInFragmentsWithClientEdgeReads_fragment
+}
+
+fragment validateArrayArgumentsUsageInFragmentsWithClientEdgeReads_fragment on Query {
+  client_nodes(ids: $id)
+}
+
+# %extensions%
+
+extend type Query {
+  client_nodes(ids: [String!]!): String
+}

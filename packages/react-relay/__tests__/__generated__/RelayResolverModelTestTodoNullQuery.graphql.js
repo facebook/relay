@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4daaee3d43416e3b43ccb215acf9fe4f>>
+ * @generated SignedSource<<9edf424e72a960b724f97061f861ceda>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import {todo_model_null as queryTodoModelNullResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryTodoModelNullResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryTodoModelNullResolverType: () => ?{|
+(queryTodoModelNullResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 export type RelayResolverModelTestTodoNullQuery$variables = {||};
@@ -78,8 +82,8 @@ return {
               "name": "TodoModel__id"
             },
             "kind": "RelayLiveResolver",
-            "name": "todo_model_null",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "todo_model_null.__relay_model_instance"
           }
         },
@@ -89,7 +93,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "todo_model_null",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').todo_model_null,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').todo_model_null,
           "path": "todo_model_null"
         },
         "linkedField": (v0/*: any*/)

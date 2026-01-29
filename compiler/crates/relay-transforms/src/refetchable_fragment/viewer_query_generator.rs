@@ -20,15 +20,16 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use super::CONSTANTS;
+use super::QueryGenerator;
+use super::RefetchRoot;
+use super::RefetchableMetadata;
 use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
 use super::build_used_global_variables;
+use super::uses_prefetchable_pagination_in_connection;
 use super::validation_message::ValidationMessage;
-use super::QueryGenerator;
-use super::RefetchRoot;
-use super::RefetchableMetadata;
-use super::CONSTANTS;
 use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(
@@ -51,6 +52,7 @@ fn build_refetch_operation(
                 operation_name: query_name,
                 path: vec![CONSTANTS.viewer_field_name],
                 identifier_info: None,
+                is_prefetchable_pagination: uses_prefetchable_pagination_in_connection(fragment),
             },
         ),
         used_global_variables: build_used_global_variables(
@@ -80,16 +82,16 @@ fn get_viewer_field_id(
 ) -> DiagnosticsResult<FieldID> {
     let viewer_type = schema.get_type(CONSTANTS.viewer_type_name);
     let viewer_field_id = schema.named_field(query_type, CONSTANTS.viewer_field_name);
-    if let Some(viewer_type) = viewer_type {
-        if let Some(viewer_field_id) = viewer_field_id {
-            let viewer_field = schema.field(viewer_field_id);
-            if viewer_type.is_object()
-                && viewer_type == viewer_field.type_.inner()
-                && viewer_type == fragment.type_condition
-                && viewer_field.arguments.is_empty()
-            {
-                return Ok(viewer_field_id);
-            }
+    if let Some(viewer_type) = viewer_type
+        && let Some(viewer_field_id) = viewer_field_id
+    {
+        let viewer_field = schema.field(viewer_field_id);
+        if viewer_type.is_object()
+            && viewer_type == viewer_field.type_.inner()
+            && viewer_type == fragment.type_condition
+            && viewer_field.arguments.is_empty()
+        {
+            return Ok(viewer_field_id);
         }
     }
     Err(vec![Diagnostic::error(

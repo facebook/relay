@@ -15,11 +15,11 @@ use std::path::PathBuf;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 
+use crate::InternId;
+use crate::InternSerdes;
 use crate::idhasher::BuildIdHasher;
 use crate::intern_struct;
 use crate::string;
-use crate::InternId;
-use crate::InternSerdes;
 
 intern_struct! {
     /// A path whose path components are interned.

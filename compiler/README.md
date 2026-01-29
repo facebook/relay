@@ -1,10 +1,8 @@
-# Rust Compiler Rewrite
+# Rust Compiler
 
-This directory contains an experimental rewrite of the Relay compiler in Rust.
-The code is still extremely new and incomplete. The components may work
-individually, but are not yet fully integrated and may have bugs.
-
-Goals of this project include:
+This directory contains the implementation of the Relay compiler in Rust.
+The Relay compiler was previously written in JavaScript and was re-written
+in Rust for several benefits including:
 
 - Fast compilation that scales to massive projects like
   [the new facebook.com](https://developers.facebook.com/videos/2019/building-the-new-facebookcom-with-react-graphql-and-relay/).

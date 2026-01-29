@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03cbc84be1e0fb9c3986ea29a3e335db>>
+ * @generated SignedSource<<f6b0fb96d14d00de4161b2bd277e3d0a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ declare export opaque type ReactRelayPaginationContainerFlowtest_viewer$fragment
 export type ReactRelayPaginationContainerFlowtest_viewer$data = {|
   +account_user: ?{|
     +friends: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +__typename: "User",
         |},

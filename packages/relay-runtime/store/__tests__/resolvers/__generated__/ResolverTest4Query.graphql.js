@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3790f2252c4bb388f9632fa6120d1ffc>>
+ * @generated SignedSource<<482e1bf9f224d1e562feb8d57dfd9158>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,12 +19,14 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import {hello_optional_world as queryHelloOptionalWorldResolverType} from "../HelloWorldOptionalResolver.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloOptionalWorldResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloOptionalWorldResolverType: (
   args: {|
     world: ?string,
   |},
+  context: TestResolverContextType,
 ) => ?string);
 export type ResolverTest4Query$variables = {||};
 export type ResolverTest4Query$data = {|
@@ -52,7 +54,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello_optional_world",
-            "resolverModule": require('./../HelloWorldOptionalResolver').hello_optional_world,
+            "resolverModule": require('../HelloWorldOptionalResolver').hello_optional_world,
             "path": "hello_optional_world"
           }
         ]

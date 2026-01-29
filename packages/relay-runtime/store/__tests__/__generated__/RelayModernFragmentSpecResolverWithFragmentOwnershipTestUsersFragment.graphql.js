@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f9ee58cb8a49bdc272a98f849d24ea1d>>
+ * @generated SignedSource<<a2f7fa23c07f64f5884ebf8d99191ebd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType: FragmentType;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data = $ReadOnlyArray<{|
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data = ReadonlyArray<{|
   +id: string,
   +name: ?string,
   +profilePicture?: ?{|
@@ -30,7 +30,7 @@ export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragmen
   +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   +$fragmentType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
 |}>;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$key = $ReadOnlyArray<{
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$key = ReadonlyArray<{
   +$data?: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$data,
   +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
   ...

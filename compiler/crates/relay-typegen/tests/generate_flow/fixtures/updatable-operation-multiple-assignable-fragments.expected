@@ -2,8 +2,8 @@
 query UpdatableQuery @updatable {
   me {
     actor {
-      ...Assignable_page
-      ...Assignable_node
+      ...Assignable_page @alias
+      ...Assignable_node @alias
       lastName
       name
     }
@@ -26,18 +26,22 @@ export type UpdatableQuery$data = {|
     get actor(): ?{|
       lastName: ?string,
       name: ?string,
+      get Assignable_node(): ?{||},
+      set Assignable_node(value: ?{
+        +__id: string,
+        +__isAssignable_node: string,
+        +$fragmentSpreads: Assignable_node$fragmentType,
+        ...
+      }): void,
+      get Assignable_page(): ?{||},
+      set Assignable_page(value: ?{
+        +__typename: "Page",
+        +__id: string,
+        +$fragmentSpreads: Assignable_page$fragmentType,
+        ...
+      }): void,
     |},
-    set actor(value: ?({
-      +__typename: "Page",
-      +__id: string,
-      +$fragmentSpreads: Assignable_page$fragmentType,
-      ...
-    } | {
-      +__id: string,
-      +__isAssignable_node: string,
-      +$fragmentSpreads: Assignable_node$fragmentType,
-      ...
-    })): void,
+    set actor(value: null | void): void,
   |},
   set me(value: null | void): void,
 |};

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<560e11fb1bcfe70ea2dc5a656d17514e>>
+ * @generated SignedSource<<e3e8730d9471e2c6ca5b0285faa06e90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,12 +21,12 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { RelayReferenceMarkerTest1Fragment$fragmentType } from "./RelayReferenceMarkerTest1Fragment.graphql";
 export type RelayReferenceMarkerTest1Query$variables = {|
   id?: ?string,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayReferenceMarkerTest1Query$data = {|
   +node: ?{|
     +__typename: string,
-    +actors?: ?$ReadOnlyArray<?{|
+    +actors?: ?ReadonlyArray<?{|
       +name: ?string,
     |}>,
     +id: string,
@@ -270,7 +270,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c93bd2646732b404b960bb12692d825a";
+  (node/*: any*/).hash = "4aafabe534bb518cb3c2f17ba46c0a5b";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

@@ -11,9 +11,9 @@ use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
 use graphql_ir::build;
-use graphql_syntax::parse_executable_with_features;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_features;
 use relay_test_schema::TEST_SCHEMA;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -21,6 +21,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let features = ParserFeatures {
         fragment_argument_capability:
             FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
+        allow_string_literal_alias: false,
     };
     let ast = parse_executable_with_features(fixture.content, source_location, features).unwrap();
     let mut sources = FnvHashMap::default();

@@ -24,7 +24,7 @@ function getRefetchMetadata(
   fragmentNode: ReaderFragment,
   componentDisplayName: string,
 ): {
-  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  fragmentRefPathInResponse: ReadonlyArray<string | number>,
   identifierInfo: ?RefetchableIdentifierInfo,
   refetchableRequest: ConcreteRequest,
   refetchMetadata: ReaderRefetchMetadata,
@@ -50,10 +50,11 @@ function getRefetchMetadata(
   );
 
   // handle both commonjs and es modules
-  const refetchableRequest: ConcreteRequest | string =
-    (refetchMetadata: $FlowFixMe).operation.default
-      ? (refetchMetadata: $FlowFixMe).operation.default
-      : refetchMetadata.operation;
+  const refetchableRequest: ConcreteRequest | string = (
+    refetchMetadata as $FlowFixMe
+  ).operation.default
+    ? (refetchMetadata as $FlowFixMe).operation.default
+    : refetchMetadata.operation;
   const fragmentRefPathInResponse = refetchMetadata.fragmentPathInResult;
   invariant(
     typeof refetchableRequest !== 'string',

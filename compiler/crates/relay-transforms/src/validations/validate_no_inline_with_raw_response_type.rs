@@ -20,9 +20,9 @@ use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 
-use crate::no_inline::is_raw_response_type_enabled;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use crate::no_inline::RAW_RESPONSE_TYPE_NAME;
+use crate::no_inline::is_raw_response_type_enabled;
 
 /// To generate full raw response types, we need to also generate raw response types for
 /// @no_inline fragment normalization files. So raw_response_type argument is required
@@ -50,7 +50,7 @@ impl<'a> NoInlineRawResponseTypeValidator<'a> {
     }
 }
 
-impl<'a> Validator for NoInlineRawResponseTypeValidator<'a> {
+impl Validator for NoInlineRawResponseTypeValidator<'_> {
     const NAME: &'static str = "NoInlineRawResponseTypeValidator";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
@@ -71,21 +71,21 @@ impl<'a> Validator for NoInlineRawResponseTypeValidator<'a> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
-            if !is_raw_response_type_enabled(directive) {
-                return Err(vec![
-                    Diagnostic::error(
-                        ValidationMessage::RequiredRawResponseTypeOnNoInline {
-                            fragment_name: fragment.name.item,
-                        },
-                        fragment.name.location,
-                    )
-                    .annotate(
-                        "The query with @raw_response_type",
-                        self.current_query_location,
-                    ),
-                ]);
-            }
+        if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME)
+            && !is_raw_response_type_enabled(directive)
+        {
+            return Err(vec![
+                Diagnostic::error(
+                    ValidationMessage::RequiredRawResponseTypeOnNoInline {
+                        fragment_name: fragment.name.item,
+                    },
+                    fragment.name.location,
+                )
+                .annotate(
+                    "The query with @raw_response_type",
+                    self.current_query_location,
+                ),
+            ]);
         }
         self.default_validate_fragment(fragment)
     }

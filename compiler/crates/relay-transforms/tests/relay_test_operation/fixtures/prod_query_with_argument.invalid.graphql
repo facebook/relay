@@ -1,0 +1,7 @@
+# expected-to-throw
+query ProdQueryWithArgumentInvalid @relay_test_operation(DO_NOT_USE_use_in_production: false) {
+  node(id: "test-id") {
+    id
+  }
+}
+# %extensions%

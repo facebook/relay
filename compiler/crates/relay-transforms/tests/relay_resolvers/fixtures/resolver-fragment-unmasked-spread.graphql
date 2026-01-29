@@ -1,0 +1,23 @@
+fragment Foo_user on User {
+  pop_star_name
+  # it should be fine to use this fragment spread here
+  ...UnmaskedFragment
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  # This should be allowed since UnmaskedFragment has @relay(mask: false)
+  ...UnmaskedFragment @relay(mask: false)
+}
+
+fragment UnmaskedFragment on User {
+  address {
+    street
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}

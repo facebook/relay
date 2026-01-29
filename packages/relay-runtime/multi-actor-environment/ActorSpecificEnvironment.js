@@ -46,7 +46,7 @@ const RelayOperationTracker = require('../store/RelayOperationTracker');
 const RelayPublishQueue = require('../store/RelayPublishQueue');
 const registerEnvironmentWithDevTools = require('../util/registerEnvironmentWithDevTools');
 
-export type ActorSpecificEnvironmentConfig = $ReadOnly<{
+export type ActorSpecificEnvironmentConfig = Readonly<{
   actorIdentifier: ActorIdentifier,
   configName: ?string,
   defaultRenderPolicy: RenderPolicy,
@@ -56,7 +56,7 @@ export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   network: INetwork,
   relayFieldLogger: RelayFieldLogger,
   store: Store,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {
@@ -69,7 +69,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
   +actorIdentifier: ActorIdentifier;
   +configName: ?string;
   +multiActorEnvironment: IMultiActorEnvironment;
-  +options: mixed;
+  +options: unknown;
   relayFieldLogger: RelayFieldLogger;
 
   constructor(config: ActorSpecificEnvironmentConfig) {
@@ -87,6 +87,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       config.handlerProvider,
       defaultGetDataID,
       config.missingFieldHandlers,
+      this.__log,
     );
     this._defaultRenderPolicy = config.defaultRenderPolicy;
     // TODO:T92305692 Remove `options` in favor of directly using `actorIdentifier` on the environment
@@ -100,7 +101,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
     if (__DEV__) {
       const {inspect} = require('../store/StoreInspector');
-      (this: $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
+      (this as $FlowFixMe).DEBUG_inspect = (dataID: ?string) =>
         inspect(this, dataID);
     }
 

@@ -336,7 +336,9 @@ import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/interna
 Besides fragments on types that implement `Node`, you can also refetch fragments that are on `Viewer` (since the viewer is assumed to be stable throughout a session) and that are at the top level of a query (since there’s no field above them that could change identity).
 
 <FbInternalOnly>
+
 Meta only: Ents marked with [`GraphQLFetchable](https://fb.workplace.com/groups/graphql.fyi/permalink/1539541276187011/)` can also be refetched.]]
+
 </FbInternalOnly>
 
 </details>

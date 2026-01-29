@@ -36,13 +36,13 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
+use crate::SplitOperationMetadata;
+use crate::ValidationMessage;
 use crate::generate_relay_resolvers_model_fragments::directives_with_artifact_source;
 use crate::get_normalization_operation_name;
 use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
-use crate::SplitOperationMetadata;
-use crate::ValidationMessage;
-use crate::RESOLVER_BELONGS_TO_BASE_SCHEMA_DIRECTIVE;
 
 fn generate_fat_selections_from_type(
     schema: &SDLSchema,
@@ -449,7 +449,7 @@ pub(crate) fn generate_name_for_nested_object_operation(
 ) -> WithLocation<OperationDefinitionName> {
     let parent_type = field
         .parent_type
-        .unwrap_or_else(|| panic!("Expected parent type for field {:?}.", field));
+        .unwrap_or_else(|| panic!("Expected parent type for field {field:?}."));
 
     let name = project_name
         .generate_name_for_object_and_field(schema.get_type_name(parent_type), field.name.item);
@@ -589,8 +589,7 @@ fn with_additional_parent_type<T>(
     let len = parent_types.len();
     assert!(
         !parent_types.contains(&additional_parent_type),
-        "parent_types already contains {:?}",
-        additional_parent_type
+        "parent_types already contains {additional_parent_type:?}"
     );
 
     parent_types.insert(additional_parent_type);
@@ -599,8 +598,7 @@ fn with_additional_parent_type<T>(
     let successfully_removed = parent_types.remove(&additional_parent_type);
     assert!(
         successfully_removed,
-        "parent_types unexpectedly did not contain {:?}",
-        additional_parent_type
+        "parent_types unexpectedly did not contain {additional_parent_type:?}"
     );
     assert!(
         parent_types.len() == len,

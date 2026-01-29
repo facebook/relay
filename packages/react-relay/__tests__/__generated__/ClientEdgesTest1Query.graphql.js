@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<81f18004077386e0f6976bef9b7a8cc6>>
+ * @generated SignedSource<<9c3e3f18ca539c837de80b065e0dafee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,12 +20,14 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import {client_node as userClientNodeResolverType} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userClientNodeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientNodeResolverType: (
   args: {|
     id: string,
   |},
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -86,7 +88,7 @@ return {
               "fragment": null,
               "kind": "RelayResolver",
               "name": "client_node",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver').client_node,
+              "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeNodeResolver').client_node,
               "path": "me.client_node"
             },
             "linkedField": {

@@ -65,3 +65,9 @@ extend interface Node implements HasName {
   name: String
 }
 extend type User implements HasName
+
+type Bot {
+  id: ID!
+}
+
+extend union Actor = Bot

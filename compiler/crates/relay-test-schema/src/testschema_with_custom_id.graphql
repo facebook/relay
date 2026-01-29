@@ -933,7 +933,7 @@ type PlainUserRenderer {
 }
 
 union UserNameRenderer =
-    PlainUserNameRenderer
+  | PlainUserNameRenderer
   | MarkdownUserNameRenderer
   | CustomNameRenderer
 

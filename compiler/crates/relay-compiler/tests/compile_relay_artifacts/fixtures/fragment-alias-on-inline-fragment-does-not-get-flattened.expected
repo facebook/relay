@@ -35,8 +35,7 @@ query fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery {
                     "name": "name",
                     "storageKey": null
                   },
-                  "action": "NONE",
-                  "path": "me.aliased_fragment.name"
+                  "action": "NONE"
                 }
               ],
               "type": "User",

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ab42932b32e0ff6fe93da1ad82758435>>
+ * @generated SignedSource<<7fbb57f3d1e3ca63e516660ee802b8dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,24 +21,30 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import {live_todo_description as queryLiveTodoDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveTodoDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveTodoDescriptionResolverType: (
   args: {|
     todoID: string,
   |},
+  context: TestResolverContextType,
 ) => LiveState<?TodoDescription>);
 import {color as todoDescriptionColorResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionColorResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionColorResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
-) => ?mixed);
+  args: void,
+  context: TestResolverContextType,
+) => ?unknown);
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 // Type assertion validating that `todoDescriptionTextResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverModelTestWeakLiveFieldQuery$variables = {|
@@ -109,7 +115,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_todo_description",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').live_todo_description,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').live_todo_description,
           "path": "live_todo_description",
           "normalizationInfo": {
             "kind": "WeakModel",
@@ -131,7 +137,7 @@ return {
               "fragment": (v2/*: any*/),
               "kind": "RelayResolver",
               "name": "text",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', true),
               "path": "live_todo_description.text"
             },
             {
@@ -140,7 +146,7 @@ return {
               "fragment": (v2/*: any*/),
               "kind": "RelayResolver",
               "name": "color",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').color, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').color, '__relay_model_instance', true),
               "path": "live_todo_description.color"
             }
           ],

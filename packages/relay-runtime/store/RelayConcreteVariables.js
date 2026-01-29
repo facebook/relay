@@ -71,7 +71,7 @@ function getFragmentVariables(
         variables[definition.name] = rootVariables[definition.name];
         break;
       default:
-        (definition: empty);
+        definition as empty;
         invariant(
           false,
           'RelayConcreteVariables: Unexpected node kind `%s` in fragment `%s`.',
@@ -96,7 +96,7 @@ function getOperationVariables(
   providedVariables: ?ProvidedVariablesType,
   variables: Variables,
 ): Variables {
-  const operationVariables: {[string]: mixed} = {};
+  const operationVariables: {[string]: unknown} = {};
   operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
     if (variables[def.name] != null) {
@@ -115,8 +115,8 @@ function getOperationVariables(
 
 function getLocalVariables(
   currentVariables: Variables,
-  argumentDefinitions: ?$ReadOnlyArray<NormalizationLocalArgumentDefinition>,
-  args: ?$ReadOnlyArray<NormalizationArgument>,
+  argumentDefinitions: ?ReadonlyArray<NormalizationLocalArgumentDefinition>,
+  args: ?ReadonlyArray<NormalizationArgument>,
 ): Variables {
   if (argumentDefinitions == null) {
     return currentVariables;
@@ -132,7 +132,7 @@ function getLocalVariables(
 }
 
 module.exports = {
-  getLocalVariables,
   getFragmentVariables,
+  getLocalVariables,
   getOperationVariables,
 };

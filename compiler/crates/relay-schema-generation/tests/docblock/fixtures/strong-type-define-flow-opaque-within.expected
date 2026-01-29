@@ -1,0 +1,182 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- Cat.js
+
+export opaque type CatFlowType = {id: string}
+
+/**
+ * @RelayResolver
+ */
+export function Cat(id: DataID): CatFlowType {
+  return {};
+}
+
+
+/**
+ * @RelayResolver
+ */
+export function name(cat: CatFlowType): ?string {
+  return "cat";
+}
+
+
+//- Cat-fields.js
+
+import type {CatFlowType} from 'Cat';
+
+/**
+ * @RelayResolver
+ */
+export function age(cat: CatFlowType): ?number {
+  return 2;
+}
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 372:376,
+                    token: Token {
+                        span: 372:376,
+                        kind: Identifier,
+                    },
+                    value: "name",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 397:403,
+                            token: Token {
+                                span: 397:403,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 372:376,
+            },
+            type_: WithLocation {
+                location: Cat.js:282:285,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat.js:372:376,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "7bd696850a88d12b6ebff3689599d699",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Cat {
+  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "name", import_path: "Cat.js") @resolver_source_hash(value: "7bd696850a88d12b6ebff3689599d699")
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 82:85,
+                    token: Token {
+                        span: 82:85,
+                        kind: Identifier,
+                    },
+                    value: "age",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 106:112,
+                            token: Token {
+                                span: 106:112,
+                                kind: Identifier,
+                            },
+                            value: "Float",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 82:85,
+            },
+            type_: WithLocation {
+                location: Cat.js:282:285,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: None,
+            live: None,
+            location: Cat-fields.js:82:85,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "179d2d09d0726f713ad290a603cc35c6",
+            ),
+            type_confirmed: true,
+            property_lookup_name: None,
+        },
+    ),
+)
+extend type Cat {
+  age: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "age", import_path: "Cat-fields.js") @resolver_source_hash(value: "179d2d09d0726f713ad290a603cc35c6")
+}
+
+
+Type(
+    StrongObjectResolver(
+        StrongObjectIr {
+            type_name: Identifier {
+                span: 282:285,
+                token: Token {
+                    span: 282:285,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: Cat.js:282:285,
+            root_fragment: WithLocation {
+                location: Cat.js:282:285,
+                item: FragmentDefinitionName(
+                    "Cat__id",
+                ),
+            },
+            description: None,
+            deprecated: None,
+            live: None,
+            semantic_non_null: None,
+            location: Cat.js:282:285,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "7bd696850a88d12b6ebff3689599d699",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+type Cat @__RelayResolverModel {
+  id: ID! @__RelayResolverModelGeneratedIDField
+  __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "Cat.js", inject_fragment_data: "id") @resolver_source_hash(value: "7bd696850a88d12b6ebff3689599d699") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

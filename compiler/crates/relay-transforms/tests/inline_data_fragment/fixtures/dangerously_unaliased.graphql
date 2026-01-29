@@ -1,0 +1,7 @@
+fragment User on User {
+  ...UserName @dangerously_unaliased_fixme
+}
+
+fragment UserName on User @inline {
+  name
+}

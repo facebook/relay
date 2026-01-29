@@ -14,10 +14,10 @@ use common::SourceLocationKey;
 use common::TextSource;
 use graphql_cli::DiagnosticPrinter;
 use intern::intern::Lookup;
-use schema::build_schema_with_extensions;
 use schema::SDLSchema;
-use schema_validate_lib::validate;
+use schema::build_schema_with_extensions;
 use schema_validate_lib::SchemaValidationOptions;
+use schema_validate_lib::validate;
 
 #[derive(Parser)]
 #[clap(name = "schema-validate", about = "Binary to Validate GraphQL Schema.")]
@@ -61,7 +61,7 @@ fn build_schema_from_path(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
     let path = Path::new(schema_file);
     let extensions: &[(&str, SourceLocationKey)] = &[];
 
-    return if path.is_file() {
+    if path.is_file() {
         build_schema_with_extensions(&[path_to_schema_source(path)], extensions)
     } else {
         let paths = path
@@ -81,7 +81,7 @@ fn build_schema_from_path(schema_file: &str) -> DiagnosticsResult<SDLSchema> {
             .collect();
 
         build_schema_with_extensions(&sdls, extensions)
-    };
+    }
 }
 
 fn path_to_schema_source(path: &Path) -> (String, SourceLocationKey) {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0612be7579d4f6404f10ba4c2be3d727>>
+ * @generated SignedSource<<48d4e4c5398d88f3f134c8ea71eea335>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,19 +20,21 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import {many_todos as queryManyTodosResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryManyTodosResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryManyTodosResolverType: (
   args: {|
-    todo_ids: $ReadOnlyArray<?string>,
+    todo_ids: ReadonlyArray<?string>,
   |},
-) => ?$ReadOnlyArray<?Query__many_todos$normalization>);
+  context: TestResolverContextType,
+) => ?ReadonlyArray<?Query__many_todos$normalization>);
 import type { Query__many_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyTodosQuery$variables = {|
-  todos: $ReadOnlyArray<?string>,
+  todos: ReadonlyArray<?string>,
 |};
 export type RelayResolversWithOutputTypeTestManyTodosQuery$data = {|
-  +many_todos: ?$ReadOnlyArray<?{|
+  +many_todos: ?ReadonlyArray<?{|
     +$fragmentSpreads: RelayResolversWithOutputTypeTestFragment$fragmentType,
   |}>,
 |};
@@ -104,7 +106,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "many_todos",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos').many_todos,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos').many_todos,
           "path": "many_todos",
           "normalizationInfo": {
             "kind": "OutputType",

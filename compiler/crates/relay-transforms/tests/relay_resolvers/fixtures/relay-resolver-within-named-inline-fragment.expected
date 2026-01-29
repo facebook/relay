@@ -30,6 +30,7 @@ fragment Foo_user on Node {
   #     ),
   #     non_nullable: false,
   #     selection_type: Object(70),
+  #     wraps_spread: false,
   # }
    {
     ...PopStarNameResolverFragment_name @__RelayResolverMetadata
@@ -43,6 +44,8 @@ fragment Foo_user on Node {
     #     live: false,
     #     output_type_info: Legacy,
     #     fragment_data_injection_mode: None,
+    #     type_confirmed: false,
+    #     resolver_type: ResolverModule,
     # }
     
   }

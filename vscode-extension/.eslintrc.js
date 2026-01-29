@@ -25,6 +25,7 @@ module.exports = {
         'operator-linebreak': 'off',
         '@typescript-eslint/indent': 'off',
         '@typescript-eslint/object-curly-spacing': 'off',
+        '@typescript-eslint/brace-style': 'off',
         'object-curly-newline': 'off',
         'arrow-parens': 'off',
 
@@ -37,6 +38,7 @@ module.exports = {
           {functions: false},
         ],
         'class-methods-use-this': 'off',
+        'max-classes-per-file': 'off',
       },
     },
   ],

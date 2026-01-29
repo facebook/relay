@@ -17,7 +17,6 @@ use common::NamedItem;
 use common::WithLocation;
 use docblock_shared::RELAY_RESOLVER_DIRECTIVE_NAME;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
-use graphql_ir::transform_list;
 use graphql_ir::Condition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
@@ -28,6 +27,7 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
+use graphql_ir::transform_list;
 use schema::FieldID;
 use schema::InterfaceID;
 use schema::Schema;
@@ -134,14 +134,12 @@ impl RelayResolverAbstractTypesTransform<'_> {
             .directives
             .iter()
             .find(|directive| directive.name.0 == RELAY_RESOLVER_DIRECTIVE_NAME.0)
-        {
-            if resolver_directive
+            && resolver_directive
                 .arguments
                 .named(ArgumentName(*ROOT_FRAGMENT_FIELD))
                 .is_some()
-            {
-                return true;
-            }
+        {
+            return true;
         }
         // Any of the implementing objects' corresponding field is a resolver field
         let selection_name = interface_field.name.item;
@@ -349,7 +347,7 @@ impl RelayResolverAbstractTypesTransform<'_> {
     }
 }
 
-impl Transformer for RelayResolverAbstractTypesTransform<'_> {
+impl Transformer<'_> for RelayResolverAbstractTypesTransform<'_> {
     const NAME: &'static str = "RelayResolverAbstractTypesTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

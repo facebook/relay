@@ -9,361 +9,748 @@
  * @oncall relay
  */
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const {createReaderSelector} = require('../RelayModernSelector');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const RelayReaderCatchFieldsTest0Query = require('./__mocks__/RelayReaderCatchFieldsTest0Query.graphql.js');
-const RelayReaderCatchFieldsTest1Query = require('./__mocks__/RelayReaderCatchFieldsTest1Query.graphql.js');
-const RelayReaderCatchFieldsTest2Query = require('./__mocks__/RelayReaderCatchFieldsTest2Query.graphql.js');
 
 describe('RelayReader @catch', () => {
-  describe('when catch is enabled', () => {
-    beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = true;
+  it('if scalar has @catch(to: NULL) - scalar value should be null, and nothing should throw or catch', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+      },
     });
 
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
-    const wasCatchEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE;
-    it('if scalar has @catch(to: NULL) - scalar value should be null, and nothing should throw or catch', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-        },
-      });
-
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest0Query {
-      //     me {
-      //       lastName @catch(to: NULL)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest0Query,
-        {id: '1'},
-      );
-      const {data} = read(source, operation.fragment);
-      expect(data).toEqual({me: {lastName: null}});
-    });
-
-    it('if scalar has catch to RESULT - scalar value should provide the error', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-          __errors: {
-            lastName: [
-              {
-                message: 'There was an error!',
-                path: ['me', 'lastName'],
-              },
-            ],
-          },
-        },
-      });
-
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me {
-      //       lastName @catch(to: RESULT)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest1Query,
-        {id: '1'},
-      );
-      const {data, errorResponseFields} = read(source, operation.fragment);
-      expect(data).toEqual({
-        me: {
-          lastName: {
-            ok: false,
-            errors: [
-              {
-                message: 'There was an error!',
-                path: ['me', 'lastName'],
-              },
-            ],
-          },
-        },
-      });
-
-      expect(errorResponseFields).toEqual([
-        {
-          path: 'me.lastName',
-          to: 'RESULT',
-          error: {
-            message: 'There was an error!',
-            path: ['me', 'lastName'],
-          },
-          owner: 'RelayReaderCatchFieldsTest1Query',
-        },
-      ]);
-    });
-
-    it('if scalar has catch to RESULT with nested required', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-        },
-      });
-
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me @catch {
-      //       lastName @required(action: THROW)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest2Query,
-        {id: '1'},
-      );
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
-      expect(data).toEqual({
-        me: null,
-      });
-
-      expect(missingRequiredFields).toBeNull();
-      expect(errorResponseFields).toEqual([
-        {
-          owner: 'RelayReaderCatchFieldsTest2Query',
-          path: 'me.lastName',
-          error: {
-            message:
-              "Relay: Missing @required value at path 'me.lastName' in 'RelayReaderCatchFieldsTest2Query'.",
-          },
-          to: 'RESULT',
-        },
-      ]);
-    });
-    afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
-
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE =
-        wasCatchEnabled;
-    });
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTest00Query {
+        me {
+          lastName @catch(to: NULL)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(fieldErrors).toEqual(null);
+    expect(data).toEqual({me: {lastName: null}});
   });
-  describe('when catch is disabled', () => {
-    beforeAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING = true;
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE = false;
+
+  it('if scalar has catch to RESULT - scalar value should provide the error', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
     });
 
-    const wasFieldErrorHandlingEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING;
-    const wasCatchEnabled =
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE;
-    it('if scalar has @catch(to: NULL) - scalar value should be null, and nothing should throw or catch', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTest01Query {
+        me {
+          lastName @catch(to: RESULT)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        lastName: {
+          ok: false,
+          errors: [
+            {
+              path: ['me', 'lastName'],
+            },
+          ],
         },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-        },
-      });
-
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest0Query {
-      //     me {
-      //       lastName @catch(to: NULL)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest0Query,
-        {id: '1'},
-      );
-      const {data} = read(source, operation.fragment);
-      expect(data).toEqual({me: {lastName: null}});
+      },
     });
 
-    it('if scalar has @catch(to: RESULT) - scalar value should provide the value as a CatchField object', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner: 'RelayReaderCatchFieldsTest01Query',
+        shouldThrow: false,
+      },
+    ]);
+  });
+
+  it('if preceding scalar sibling has error, catch to RESULT should not catch that error', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        firstName: 'Elizabeth',
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
         },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-          __errors: {
-            lastName: [
-              {
-                message: 'There was an error!',
-                path: ['me', 'lastName'],
-              },
-            ],
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestSiblingErrorQuery {
+        me {
+          lastName # this field is in an error state and should not be caught
+          firstName @catch(to: RESULT)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        lastName: null,
+        firstName: {
+          ok: true,
+          value: 'Elizabeth',
+        },
+      },
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.lastName',
+        error: {
+          message: 'There was an error!',
+          path: ['me', 'lastName'],
+        },
+        owner: 'RelayReaderCatchFieldsTestSiblingErrorQuery',
+        kind: 'relay_field_payload.error',
+        shouldThrow: false,
+        handled: false,
+      },
+    ]);
+  });
+
+  it('if preceding scalar sibling has a logged missing required field, an THROW required field inside a subsequent @catch should not delete that log', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        firstName: null,
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery {
+        alsoMe: me {
+          lastName @required(action: LOG)
+        }
+        me @catch(to: RESULT) {
+          # Despite being more destructive, the THROW here should not overwrite
+          # the LOG, since it gets caught.
+          firstName @required(action: THROW)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      alsoMe: null,
+      me: {
+        ok: false,
+        errors: [
+          {
+            message:
+              "Relay: Missing @required value at path 'me.firstName' in 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery'.",
           },
-        },
-      });
+        ],
+      },
+    });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me {
-      //       lastName @catch(to: RESULT)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest1Query,
-        {id: '1'},
-      );
-      const {data, errorResponseFields} = read(source, operation.fragment);
-      expect(data).toEqual({
-        me: {
-          lastName: null,
-        },
-      });
+    expect(fieldErrors).toEqual([
+      {
+        kind: 'missing_required_field.log',
+        fieldPath: 'alsoMe.lastName',
+        owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
+      },
+      {
+        fieldPath: 'me.firstName',
+        handled: true,
+        kind: 'missing_required_field.throw',
+        owner: 'RelayReaderCatchFieldsTestSiblingLogRequiredErrorQuery',
+      },
+    ]);
+  });
 
-      expect(errorResponseFields).toEqual([
-        {
-          path: 'me.lastName',
-          error: {
-            message: 'There was an error!',
+  it('@catch(to: NULL) catching a @required(action: THROW) returns null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        firstName: null,
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery {
+        me @catch(to: NULL) {
+          firstName @required(action: THROW)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: null,
+    });
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.firstName',
+        handled: true,
+        kind: 'missing_required_field.throw',
+        owner: 'RelayReaderCatchFieldsTestRequiredCatchToNullErrorQuery',
+      },
+    ]);
+  });
+
+  it('@catch(to: NULL) catching missing data returns null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        // firstName is not defined here
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery {
+        me @catch(to: NULL) {
+          firstName
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
+
+    expect(data).toEqual({me: null});
+
+    // We still need to ensure that we will suspend if there is a request in flight.
+    expect(isMissingData).toEqual(true);
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.firstName',
+        kind: 'missing_expected_data.log',
+        owner: 'RelayReaderCatchFieldsTestCatchMissingToNullErrorQuery',
+      },
+    ]);
+  });
+
+  it('@catch(to: NULL) on query catching missing data returns null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        // firstName is not defined here
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery
+      @catch(to: NULL) {
+        me {
+          firstName
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
+
+    expect(data).toEqual(null);
+
+    // We still need to ensure that we will suspend if there is a request in flight.
+    expect(isMissingData).toEqual(true);
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.firstName',
+        kind: 'missing_expected_data.log',
+        owner: 'RelayReaderCatchFieldsTestCatchMissingInQueryToNullErrorQuery',
+      },
+    ]);
+  });
+
+  it('@catch(to: RESULT) on query catching missing data returns error', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        // firstName is not defined here
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchMissingInQueryToResultErrorQuery
+      @catch {
+        me {
+          firstName
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
+
+    expect(data).toEqual({errors: [{path: ['me', 'firstName']}], ok: false});
+
+    // We still need to ensure that we will suspend if there is a request in flight.
+    expect(isMissingData).toEqual(true);
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.firstName',
+        kind: 'missing_expected_data.log',
+        owner:
+          'RelayReaderCatchFieldsTestCatchMissingInQueryToResultErrorQuery',
+      },
+    ]);
+  });
+
+  it('@catch(to: NULL) on fragment catching missing data returns null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        // firstName is not defined here
+      },
+    });
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchToNullQuery {
+        ...RelayReaderCatchFieldsTestCatchToNullFragment
+      }
+    `;
+
+    const FooFragment = graphql`
+      fragment RelayReaderCatchFieldsTestCatchToNullFragment on Query
+      @catch(to: NULL) {
+        me {
+          firstName
+        }
+      }
+    `;
+
+    const owner = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      createReaderSelector(FooFragment, 'client:root', {}, owner.request),
+    );
+
+    expect(data).toEqual(null);
+
+    // We still need to ensure that we will suspend if there is a request in flight.
+    expect(isMissingData).toEqual(true);
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.firstName',
+        kind: 'missing_expected_data.log',
+        owner: 'RelayReaderCatchFieldsTestCatchToNullFragment',
+      },
+    ]);
+  });
+
+  it('@catch(to: RESULT) on fragment catching missing data returns error', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        // firstName is not defined here
+      },
+    });
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchToResultQuery {
+        ...RelayReaderCatchFieldsTestCatchToResultFragment
+      }
+    `;
+
+    const FooFragment = graphql`
+      fragment RelayReaderCatchFieldsTestCatchToResultFragment on Query @catch {
+        me {
+          firstName
+        }
+      }
+    `;
+
+    const owner = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      createReaderSelector(FooFragment, 'client:root', {}, owner.request),
+    );
+
+    expect(data).toEqual({ok: false, errors: [{path: ['me', 'firstName']}]});
+
+    // We still need to ensure that we will suspend if there is a request in flight.
+    expect(isMissingData).toEqual(true);
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.firstName',
+        kind: 'missing_expected_data.log',
+        owner: 'RelayReaderCatchFieldsTestCatchToResultFragment',
+      },
+    ]);
+  });
+
+  it('@catch(to: NULL) on aliased inline fragment catching missing data returns null', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        // firstName is not defined here
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery {
+        me {
+          ... @catch(to: NULL) @alias(as: "myAlias") {
+            firstName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
+
+    expect(data).toEqual({me: {myAlias: null}});
+
+    // We still need to ensure that we will suspend if there is a request in flight.
+    expect(isMissingData).toEqual(true);
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.myAlias.firstName',
+        kind: 'missing_expected_data.log',
+        owner:
+          'RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToNullErrorQuery',
+      },
+    ]);
+  });
+
+  it('@catch(to: RESULT) on aliased inline fragment catching missing data returns error', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        // firstName is not defined here
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery {
+        me {
+          ... @catch(to: RESULT) @alias(as: "myAlias") {
+            firstName
+          }
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {});
+    const {data, fieldErrors, isMissingData} = read(
+      source,
+      operation.fragment,
+      null,
+    );
+
+    expect(data).toEqual({
+      me: {myAlias: {ok: false, errors: [{path: ['myAlias', 'firstName']}]}},
+    });
+
+    // We still need to ensure that we will suspend if there is a request in flight.
+    expect(isMissingData).toEqual(true);
+
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.myAlias.firstName',
+        kind: 'missing_expected_data.log',
+        owner:
+          'RelayReaderCatchFieldsTestCatchMissingInInlineFragmentToResultErrorQuery',
+      },
+    ]);
+  });
+
+  it('if scalar has catch to RESULT - but no error, response should reflect', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: 'Big Bird',
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTest09Query {
+        me {
+          lastName @catch(to: RESULT)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        lastName: {
+          ok: true,
+          value: 'Big Bird',
+        },
+      },
+    });
+
+    expect(fieldErrors).toBeNull();
+  });
+
+  it('if linked has catch to RESULT - but no error, response should reflect', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: 'Big Bird',
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTest010Query {
+        me @catch {
+          lastName
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        ok: true,
+        value: {
+          lastName: 'Big Bird',
+        },
+      },
+    });
+
+    expect(fieldErrors).toBeNull();
+  });
+
+  it('if linked has catch to RESULT - with error, response should reflect', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+        __errors: {
+          lastName: [
+            {
+              message: 'There was an error!',
+              path: ['me', 'lastName'],
+            },
+          ],
+        },
+      },
+    });
+
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTest07Query {
+        me @catch {
+          lastName
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        ok: false,
+        errors: [
+          {
             path: ['me', 'lastName'],
           },
-          owner: 'RelayReaderCatchFieldsTest1Query',
-        },
-      ]);
+        ],
+      },
     });
 
-    it('if scalar has catch to RESULT with nested required', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-        },
-      });
+    expect(fieldErrors).toEqual([
+      {
+        error: {message: 'There was an error!', path: ['me', 'lastName']},
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'relay_field_payload.error',
+        owner: 'RelayReaderCatchFieldsTest07Query',
+        shouldThrow: false,
+      },
+    ]);
+  });
 
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me @catch {
-      //       lastName @required(action: THROW)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest2Query,
-        {id: '1'},
-      );
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
-      expect(data).toEqual({
-        me: null,
-      });
-      expect(missingRequiredFields).toEqual({
-        action: 'THROW',
-        field: {owner: 'RelayReaderCatchFieldsTest2Query', path: 'me.lastName'},
-      });
-      expect(errorResponseFields).toBeNull();
+  it('if scalar has catch to RESULT with nested required', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        lastName: null,
+      },
     });
 
-    it('if scalar has catch to RESULT with nested required THROW - do nothing', () => {
-      const source = RelayRecordSource.create({
-        'client:root': {
-          __id: 'client:root',
-          __typename: '__Root',
-          me: {__ref: '1'},
-        },
-        '1': {
-          __id: '1',
-          id: '1',
-          __typename: 'User',
-          lastName: null,
-        },
-      });
-
-      // Mocking the query below with RelayReaderCatchFieldsTest0Query
-      // const FooQuery = graphql`
-      //   query RelayReaderCatchFieldsTest1Query {
-      //     me @catch {
-      //       lastName @required(action: THROW)
-      //     }
-      //   }
-      // `;
-      const operation = createOperationDescriptor(
-        RelayReaderCatchFieldsTest2Query,
-        {id: '1'},
-      );
-      const {data, errorResponseFields, missingRequiredFields} = read(
-        source,
-        operation.fragment,
-      );
-      expect(data).toEqual({
-        me: null,
-      });
-
-      expect(missingRequiredFields).toEqual({
-        action: 'THROW',
-        field: {owner: 'RelayReaderCatchFieldsTest2Query', path: 'me.lastName'},
-      });
-      expect(errorResponseFields).toBeNull();
+    const FooQuery = graphql`
+      query RelayReaderCatchFieldsTest02Query {
+        me @catch {
+          lastName @required(action: THROW)
+        }
+      }
+    `;
+    const operation = createOperationDescriptor(FooQuery, {id: '1'});
+    const {data, fieldErrors} = read(source, operation.fragment, null);
+    expect(data).toEqual({
+      me: {
+        errors: [
+          {
+            message:
+              "Relay: Missing @required value at path 'me.lastName' in 'RelayReaderCatchFieldsTest02Query'.",
+          },
+        ],
+        ok: false,
+      },
     });
-    afterAll(() => {
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING =
-        wasFieldErrorHandlingEnabled;
 
-      RelayFeatureFlags.ENABLE_FIELD_ERROR_HANDLING_CATCH_DIRECTIVE =
-        wasCatchEnabled;
-    });
+    expect(fieldErrors).toEqual([
+      {
+        fieldPath: 'me.lastName',
+        handled: true,
+        kind: 'missing_required_field.throw',
+        owner: 'RelayReaderCatchFieldsTest02Query',
+      },
+    ]);
   });
 });
-// RelayReaderCatchFieldsTest3Query

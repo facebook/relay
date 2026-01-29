@@ -22,7 +22,7 @@ type Props = {
   environment: $FlowFixMe,
   query: $FlowFixMe,
   variables: Variables,
-  children: React.Element<$FlowFixMe>,
+  children: ExactReactElement_DEPRECATED<$FlowFixMe>,
   ...
 };
 
@@ -42,7 +42,7 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
 
     const {query, environment, variables} = props;
 
-    const operation = getRequest((query: $FlowFixMe));
+    const operation = getRequest(query as $FlowFixMe);
     const operationDescriptor = createOperationDescriptor(operation, variables);
     const snapshot = environment.lookup(
       operationDescriptor.fragment,
@@ -57,7 +57,7 @@ class RelayTestRenderer extends React.Component<Props, $FlowFixMe> {
     this.setState({data: snapshot.data});
   };
 
-  render(): React.Element<typeof ReactRelayContext.Provider> {
+  render(): React.MixedElement {
     // $FlowFixMe[prop-missing] Suppressed after making React.Element fully opaque
     const childProps = this.props.children.props;
     const newProps = {...childProps, ...this.state.data};

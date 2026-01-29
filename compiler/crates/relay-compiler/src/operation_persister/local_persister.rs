@@ -20,11 +20,16 @@ use sha1::Digest;
 use sha1::Sha1;
 use sha2::Sha256;
 
-use crate::config::ArtifactForPersister;
 use crate::OperationPersister;
+use crate::config::ArtifactForPersister;
 
+/// A local persister that stores GraphQL documents in a file on disk.
+///
+/// This struct implements the `OperationPersister` trait, which defines the interface for persisting GraphQL operations.
 pub struct LocalPersister {
+    /// The configuration for the local persister.
     config: LocalPersistConfig,
+    /// A map of query IDs to query texts.
     query_map: DashMap<String, String>,
 }
 

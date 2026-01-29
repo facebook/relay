@@ -63,7 +63,7 @@ import userPopStarNameResolverType from "PopStarNameResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userPopStarNameResolverType: (
   rootKey: relayResolver_PopStarNameResolverFragment_name$key,
-) => ?mixed);
+) => ?unknown);
 declare export opaque type relayResolver_user$fragmentType: FragmentType;
 export type relayResolver_user$data = {|
   +pop_star_name: ?ReturnType<typeof userPopStarNameResolverType>,

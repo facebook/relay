@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<edb6daa068194c7b48cb6be148d2e1e6>>
+ * @generated SignedSource<<3ea2543ddff7963fe1c2bb18e548c009>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -61,8 +61,7 @@ return {
           ],
           "storageKey": null
         },
-        "action": "LOG",
-        "path": "me"
+        "action": "LOG"
       },
       {
         "args": null,

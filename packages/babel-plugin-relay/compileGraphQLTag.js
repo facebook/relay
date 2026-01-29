@@ -18,6 +18,7 @@ import type {
   OperationDefinitionNode,
 } from 'graphql';
 
+// $FlowFixMe[cannot-resolve-module]
 const crypto = require('crypto');
 const {print} = require('graphql');
 const {
@@ -25,6 +26,7 @@ const {
   join: joinPath,
   relative: relativePath,
   resolve: resolvePath,
+  // $FlowFixMe[cannot-resolve-module]
 } = require('path');
 
 const GENERATED = './__generated__/';
@@ -34,6 +36,7 @@ const GENERATED = './__generated__/';
  * cross-platform compatibility.
  */
 function posixifyPath(path: string): string {
+  // $FlowFixMe[cannot-resolve-name]
   return process.platform === 'win32' ? path.replace(/\\/g, '/') : path;
 }
 
@@ -65,13 +68,14 @@ function compileGraphQLTag(
     );
   }
 
-  const eagerEsModules = state.opts?.eagerEsModules ?? false;
+  const eagerEsModules = state.opts?.eagerEsModules ?? true;
   const isHasteMode = state.opts?.jsModuleFormat === 'haste';
   const isDevVariable = state.opts?.isDevVariableName;
   const artifactDirectory = state.opts?.artifactDirectory;
   const buildCommand = state.opts?.codegenCommand ?? 'relay-compiler';
   // Fallback is 'true'
   const isDevelopment =
+    // $FlowFixMe[cannot-resolve-name]
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
 
   return createNode(t, state, path, definition, {

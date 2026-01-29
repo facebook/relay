@@ -1,0 +1,59 @@
+//- foo.js
+graphql`
+  fragment foo on Viewer @refetchable(queryName: "RefetchableFragmentQuery")  {
+        posts(first: $count, after: $cursor) @connection(key:"refetch_posts", prefetchable_pagination: true) {
+            edges{
+                node {
+                    title
+                }
+            }
+        }
+  }`;
+
+graphql`
+  query fooQuery($count: Int, $cursor: String) {
+   me {
+      ...foo
+   }
+  }
+`
+
+//- relay.config.json
+{
+   "language": "flow",
+   "jsModuleFormat": "haste",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query {
+   me: Viewer
+   viewer: Viewer
+}
+
+type Viewer {
+   posts(first: Int, after: String): PostsConnection
+}
+
+type PostsConnection {
+  count: Int
+  edges: [PostEdge]
+  pageInfo: PageInfo
+}
+
+type PostEdge {
+  cursor: String
+  node: Page
+}
+
+type PageInfo {
+  hasPreviousPage: Boolean
+  hasNextPage: Boolean
+  endCursor: String
+  startCursor: String
+}
+
+type Page {
+    title: String
+    id: ID
+}

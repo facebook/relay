@@ -13,12 +13,12 @@ use common::Named;
 use common::NamedItem;
 use common::Span;
 use fnv::FnvHashSet;
+use graphql_ir::DIRECTIVE_ARGUMENTS;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
-use graphql_ir::DIRECTIVE_ARGUMENTS;
 use graphql_syntax::Argument;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::Directive;
@@ -34,12 +34,9 @@ use graphql_syntax::ScalarField;
 use graphql_syntax::Selection;
 use graphql_syntax::TokenKind;
 use graphql_syntax::Value;
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use log::debug;
-use lsp_types::request::Completion;
-use lsp_types::request::Request;
-use lsp_types::request::ResolveCompletionItem;
 use lsp_types::CompletionItem;
 use lsp_types::CompletionItemKind;
 use lsp_types::CompletionResponse;
@@ -47,6 +44,9 @@ use lsp_types::Documentation;
 use lsp_types::InsertTextFormat;
 use lsp_types::MarkupContent;
 use lsp_types::MarkupKind;
+use lsp_types::request::Completion;
+use lsp_types::request::Request;
+use lsp_types::request::ResolveCompletionItem;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
 use schema::InputObject;
@@ -58,12 +58,12 @@ use schema::Type;
 use schema::TypeReference;
 use schema::TypeWithFields;
 
+use crate::LSPRuntimeError;
+use crate::SchemaDocumentation;
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::node_resolution_info::TypePath;
 use crate::node_resolution_info::TypePathItem;
 use crate::server::GlobalState;
-use crate::LSPRuntimeError;
-use crate::SchemaDocumentation;
 
 #[derive(Debug, Clone)]
 pub enum CompletionKind {
@@ -257,15 +257,15 @@ impl CompletionRequestBuilder {
                             ..
                         } = node;
                         type_path.push(TypePathItem::LinkedField { name: name.value });
-                        if let Some(arguments) = arguments {
-                            if arguments.span.contains(position_span) {
-                                return self.build_request_from_arguments(
-                                    arguments,
-                                    position_span,
-                                    type_path,
-                                    ArgumentKind::Field,
-                                );
-                            }
+                        if let Some(arguments) = arguments
+                            && arguments.span.contains(position_span)
+                        {
+                            return self.build_request_from_arguments(
+                                arguments,
+                                position_span,
+                                type_path,
+                                ArgumentKind::Field,
+                            );
                         }
                         self.build_request_from_selection_or_directives(
                             selections,
@@ -335,15 +335,15 @@ impl CompletionRequestBuilder {
                             ..
                         } = node;
                         type_path.push(TypePathItem::ScalarField { name: name.value });
-                        if let Some(arguments) = arguments {
-                            if arguments.span.contains(position_span) {
-                                return self.build_request_from_arguments(
-                                    arguments,
-                                    position_span,
-                                    type_path,
-                                    ArgumentKind::Field,
-                                );
-                            }
+                        if let Some(arguments) = arguments
+                            && arguments.span.contains(position_span)
+                        {
+                            return self.build_request_from_arguments(
+                                arguments,
+                                position_span,
+                                type_path,
+                                ArgumentKind::Field,
+                            );
                         }
                         self.build_request_from_directives(
                             directives,
@@ -905,7 +905,7 @@ fn resolve_completion_items_for_input_object(
                 preselect: None,
                 sort_text: None,
                 filter_text: None,
-                insert_text: Some(format!("{}: $1", label)),
+                insert_text: Some(format!("{label}: $1")),
                 insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                 text_edit: None,
                 additional_text_edits: None,
@@ -945,7 +945,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     preselect: None,
                     sort_text: None,
                     filter_text: None,
-                    insert_text: Some(format!("{}: $1", label)),
+                    insert_text: Some(format!("{label}: $1")),
                     insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                     text_edit: None,
                     additional_text_edits: None,
@@ -1052,16 +1052,16 @@ fn resolve_completion_items_for_argument_value(
         }
     };
 
-    if !type_.is_list() {
-        if let Type::Enum(id) = type_.inner() {
-            let enum_ = schema.enum_(id);
-            completion_items.extend(
-                enum_
-                    .values
-                    .iter()
-                    .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
-            )
-        }
+    if !type_.is_list()
+        && let Type::Enum(id) = type_.inner()
+    {
+        let enum_ = schema.enum_(id);
+        completion_items.extend(
+            enum_
+                .values
+                .iter()
+                .map(|value| CompletionItem::new_simple(value.value.to_string(), "".into())),
+        )
     }
 
     completion_items
@@ -1083,7 +1083,7 @@ fn resolve_completion_items_for_fields<T: TypeWithFields + Named>(
             let is_deprecated = deprecated.is_some();
             let deprecated_reason = deprecated
                 .and_then(|deprecated| deprecated.reason)
-                .map(|reason| format!("Deprecated: {}", reason));
+                .map(|reason| format!("Deprecated: {reason}"));
             let args = create_arguments_snippets(field.arguments.iter(), schema);
             let insert_text = match (
                 existing_linked_field
@@ -1092,7 +1092,7 @@ fn resolve_completion_items_for_fields<T: TypeWithFields + Named>(
             ) {
                 (true, true) => None,
                 (true, false) => Some(format!("{}({})", field_name, args.join(", "))),
-                (false, true) => Some(format!("{} {{\n\t$1\n}}", field_name)),
+                (false, true) => Some(format!("{field_name} {{\n\t$1\n}}")),
                 (false, false) => Some(format!(
                     "{}({}) {{\n\t${}\n}}",
                     field_name,
@@ -1295,9 +1295,9 @@ fn create_arguments_snippets<T: ArgumentLike>(
     for arg in arguments {
         if let TypeReference::NonNull(type_) = arg.type_() {
             let value_snippet = match type_ {
-                t if t.is_list() => format!("[${}]", cursor_location),
-                t if schema.is_string(t.inner()) => format!("\"${}\"", cursor_location),
-                _ => format!("${}", cursor_location),
+                t if t.is_list() => format!("[${cursor_location}]"),
+                t if schema.is_string(t.inner()) => format!("\"${cursor_location}\""),
+                _ => format!("${cursor_location}"),
             };
             let str = format!("{}: {}", arg.name(), value_snippet);
             args.push(str);
@@ -1374,11 +1374,11 @@ fn make_markdown_table_documentation(
     Documentation::MarkupContent(MarkupContent {
         kind: MarkupKind::Markdown,
         value: [
-            format!("| **Field: {}** |", field_name),
+            format!("| **Field: {field_name}** |"),
             "| :--- |".to_string(),
-            format!("| {} |", field_description),
-            format!("| **Type: {}** |", type_name),
-            format!("| {} |", type_description),
+            format!("| {field_description} |"),
+            format!("| **Type: {type_name}** |"),
+            format!("| {type_description} |"),
         ]
         .join("\n"),
     })
@@ -1402,10 +1402,10 @@ fn get_abstract_type_suggestions(
         for interface_id in &object_type.interfaces {
             let interface_type = schema.interface(*interface_id);
 
-            if let Some(base_id) = base_interface_id {
-                if interface_id == base_id || !interface_type.interfaces.contains(base_id) {
-                    continue;
-                }
+            if let Some(base_id) = base_interface_id
+                && (interface_id == base_id || !interface_type.interfaces.contains(base_id))
+            {
+                continue;
             }
 
             if let Some(t) = schema.get_type(interface_type.name.item.0) {

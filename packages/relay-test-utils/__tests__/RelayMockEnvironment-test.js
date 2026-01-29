@@ -19,6 +19,7 @@ const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnv
 const useFragment = require('../../react-relay/relay-hooks/useFragment');
 const useLazyLoadQuery = require('../../react-relay/relay-hooks/useLazyLoadQuery');
 const usePreloadedQuery = require('../../react-relay/relay-hooks/usePreloadedQuery');
+const invariant = require('invariant');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {act} = require('react-test-renderer');
@@ -27,6 +28,11 @@ const {
   MockPayloadGenerator,
   createMockEnvironment,
 } = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
   const query = graphql`
@@ -74,13 +80,22 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
       data = usePreloadedQuery(query, props.prefetched);
       return data.node?.name;
     }
-    const renderer = TestRenderer.create(
-      <RelayEnvironmentProvider environment={mockEnvironment}>
-        <React.Suspense fallback="Fallback">
-          <Component prefetched={prefetched} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <RelayEnvironmentProvider environment={mockEnvironment}>
+          <React.Suspense fallback="Fallback">
+            <Component prefetched={prefetched} />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+        // $FlowFixMe[incompatible-type]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
+    invariant(renderer != null, 'should have been rendered');
+
     if (condition === SUSPENDED) {
       expect(renderer.toJSON()).toEqual('Fallback');
       expect(data).toBeUndefined();
@@ -142,7 +157,9 @@ describe('when generating multiple payloads for deferred data', () => {
       node(id: $id) {
         id
         ... on User {
-          ...RelayMockEnvironmentTestWithDeferFragment_user @defer
+          ...RelayMockEnvironmentTestWithDeferFragment_user
+            @dangerously_unaliased_fixme
+            @defer
         }
       }
     }
@@ -173,14 +190,24 @@ describe('when generating multiple payloads for deferred data', () => {
       const data = useFragment(fragment, props.user);
       return data?.name;
     }
-    const renderer = TestRenderer.create(
-      <RelayEnvironmentProvider environment={mockEnvironment}>
-        <React.Suspense fallback="Fallback">
-          <Component />
-        </React.Suspense>
-      </RelayEnvironmentProvider>,
-    );
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <RelayEnvironmentProvider environment={mockEnvironment}>
+          <React.Suspense fallback="Fallback">
+            <Component />
+          </React.Suspense>
+        </RelayEnvironmentProvider>,
+        // $FlowFixMe[incompatible-type]
+        {
+          unstable_isConcurrent: true,
+        },
+      );
+    });
+    invariant(renderer != null, 'should have been rendered');
 
+    /* $FlowFixMe[invalid-compare] Error discovered during Constant Condition
+     * roll out. See https://fburl.com/workplace/4oq3zi07. */
     const isSuspended = () => renderer.toJSON() === 'Fallback';
 
     const generateData = (resolvers: MockResolvers) => {

@@ -1,0 +1,10 @@
+# expected-to-throw
+query EmptyQuery($id: ID!) {
+  node(id: $id) {
+    ...Fragment
+  }
+}
+
+fragment Fragment on User {
+  lastName @skip(if: true)
+}

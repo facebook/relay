@@ -5,6 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! The status reporter module provides functionality for reporting the status of the Relay compiler.
+//!
+//! This module contains two implementations of the `StatusReporter` trait:
+//! * `ConsoleStatusReporter`: Reports the status to the console using the `log` crate.
+//! * `JSONStatusReporter`: Reports the status to a JSON file using the `serde_json` crate.
+use std::fs::OpenOptions;
+use std::io::Write;
 use std::path::PathBuf;
 
 use common::Diagnostic;
@@ -14,11 +21,11 @@ use log::error;
 use log::info;
 use log::warn;
 
+use crate::FsSourceReader;
+use crate::SourceReader;
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
 use crate::source_for_location;
-use crate::FsSourceReader;
-use crate::SourceReader;
 
 pub trait StatusReporter {
     fn build_starts(&self);
@@ -57,7 +64,7 @@ impl ConsoleStatusReporter {
                 info!("Compilation cancelled due to new changes.");
             }
             error => {
-                error!("{}", error);
+                error!("{error}");
             }
         }
     }
@@ -71,9 +78,12 @@ impl ConsoleStatusReporter {
 
     fn print_by_severity(&self, severity: DiagnosticSeverity, output: String) {
         match severity {
-            DiagnosticSeverity::ERROR => error!("{}", output),
-            DiagnosticSeverity::WARNING => warn!("{}", output),
-            _ => info!("{}", output),
+            DiagnosticSeverity::ERROR => error!("{output}"),
+            DiagnosticSeverity::WARNING => warn!("{output}"),
+            DiagnosticSeverity::HINT => {
+                // Opting to omit, not emit, hints in the CLI output.
+            }
+            _ => info!("{output}"),
         }
     }
 
@@ -90,14 +100,14 @@ impl ConsoleStatusReporter {
                         let formatted_output = match diagnostic.severity() {
                             DiagnosticSeverity::ERROR => {
                                 if self.is_multi_project {
-                                    format!("Error in the project `{}`: {}", project_name, output)
+                                    format!("Error in the project `{project_name}`: {output}")
                                 } else {
-                                    format!("Error: {}", output)
+                                    format!("Error: {output}")
                                 }
                             }
                             _ => {
                                 if self.is_multi_project {
-                                    format!("In the project `{}`: {}", project_name, output)
+                                    format!("In the project `{project_name}`: {output}")
                                 } else {
                                     output
                                 }
@@ -114,14 +124,14 @@ impl ConsoleStatusReporter {
             } => {
                 for error in errors {
                     if self.is_multi_project {
-                        error!("Error in the project `{}`: {}", project_name, error);
+                        error!("Error in the project `{project_name}`: {error}");
                     } else {
-                        error!("Error: {}", error);
+                        error!("Error: {error}");
                     }
                 }
             }
             _ => {
-                error!("{}", error);
+                error!("{error}");
             }
         }
     }
@@ -152,22 +162,76 @@ impl StatusReporter for ConsoleStatusReporter {
     }
 }
 
-pub struct JSONStatusReporter;
+pub struct JSONStatusReporter {
+    path: Option<PathBuf>,
+    base_reporter: Box<dyn StatusReporter + Send + Sync>,
+}
+
+impl JSONStatusReporter {
+    pub fn new(
+        path: Option<PathBuf>,
+        base_reporter: Box<dyn StatusReporter + Send + Sync>,
+    ) -> Self {
+        Self {
+            path,
+            base_reporter,
+        }
+    }
+}
 
 impl StatusReporter for JSONStatusReporter {
     fn build_starts(&self) {}
 
     fn build_completes(&self, diagnostics: &[Diagnostic]) {
-        println!(
-            "{{\"completed\":true,\"diagnostics\":{}}}",
-            serde_json::to_string(diagnostics).unwrap()
-        );
+        match &self.path {
+            Some(path) => {
+                self.base_reporter.build_completes(diagnostics);
+                let mut file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .truncate(true)
+                    .open(path)
+                    .unwrap();
+                writeln!(
+                    file,
+                    "{{\"completed\":true,\"diagnostics\":{}}}",
+                    serde_json::to_string(diagnostics).unwrap()
+                )
+                .unwrap();
+            }
+            None => {
+                println!(
+                    "{{\"completed\":true,\"diagnostics\":{}}}",
+                    serde_json::to_string(diagnostics).unwrap()
+                );
+            }
+        }
     }
 
     fn build_errors(&self, error: &Error) {
-        println!(
-            "{{\"completed\":false,\"error\":{}}}",
-            serde_json::to_string(error).unwrap()
-        );
+        match &self.path {
+            Some(path) => {
+                self.base_reporter.build_errors(error);
+
+                let mut file = OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .truncate(true)
+                    .open(path)
+                    .unwrap();
+                writeln!(
+                    file,
+                    "{{\"completed\":false,\"error\":{}}}",
+                    serde_json::to_string(error).unwrap()
+                )
+                .unwrap();
+            }
+            None => {
+                println!(
+                    "{{\"completed\":false,\"error\":{}}}",
+                    serde_json::to_string(error).unwrap()
+                );
+            }
+        }
     }
 }

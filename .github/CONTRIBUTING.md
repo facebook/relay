@@ -59,7 +59,7 @@ If you have a question on how to use Relay, please get in touch with community m
 
 We use [Prettier](https://prettier.io/) to format JavaScript code and [Rustfmt](https://rust-lang.github.io/rustfmt/) to format Rust code.
 
-To fix all JavaScript formatting errors run `yarn prettier`. To fix all Rust formatting errors, run `cargo fmt` from within `compiler/` followed by `./scipts/update-fixtures.sh` from the repository root to regenerated the unformatted generated tests.
+To fix all JavaScript formatting errors run `yarn prettier`. To fix all Rust formatting errors, run `cargo fmt` from within `compiler/` followed by `./scipts/update-fixtures.sh` from the repository root to regenerate the unformatted generated tests.
 
 ## Development process for non-FB developers
 
@@ -69,8 +69,12 @@ following steps should work for all Relay packages:
 1. Either trigger a build manually by running `yarn build` or keep a watcher running with `yarn build:watch`.
 1. Make your package of choice available to link: `cd dist/relay-compiler && yarn link`.
 1. Link the package into your project: `cd my/app && yarn link relay-compiler`.
-1. Because of symbolic links and how Node resolves dependencies, you will probably want to instruct Node to resolve
+1. Because of symbolic links and how Node resolves dependencies, you will probably want to instruct Node to
    preserve the links `yarn node --preserve-symlinks-main --preserve-symlinks ./node_modules/.bin/relay-compiler […]`.
+
+## VSCode
+
+This repository has configuration files in the `.vscode/` directory to make development in VSCode easier. This includes enumerating recommended extensions (Flow, Rust Analyzer, Prettier, etc.) and sensible default settings (enable auto formatting etc.) to use when developing in this repository as well as some defined [Tasks](https://code.visualstudio.com/docs/debugtest/tasks) to easily trigger common actions directly via the command pallet.
 
 ## License
 

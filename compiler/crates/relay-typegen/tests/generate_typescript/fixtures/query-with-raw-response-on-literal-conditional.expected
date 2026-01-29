@@ -2,7 +2,7 @@
 query ExampleQuery($id: ID!) @raw_response_type {
   node(id: $id) {
     username
-    ...FriendFragment
+    ...FriendFragment @alias
     ... @include(if: false) {
       friends(first: 0) {
         count
@@ -28,11 +28,13 @@ export type ExampleQuery$variables = {
 };
 export type ExampleQuery$data = {
   readonly node: {
+    readonly FriendFragment: {
+      readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
+    } | null | undefined;
     readonly friends?: {
       readonly count: number | null | undefined;
     } | null | undefined;
     readonly username: string | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
   } | null | undefined;
 };
 export type ExampleQuery$rawResponse = {

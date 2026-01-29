@@ -24,6 +24,7 @@ import type {
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
+  LogFunction,
   MissingFieldHandler,
   MutableRecordSource,
   NormalizationSelector,
@@ -34,7 +35,6 @@ import type {
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const getOperation = require('../util/getOperation');
-const RelayConcreteNode = require('../util/RelayConcreteNode');
 const {isClientID} = require('./ClientID');
 const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
 const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
@@ -50,25 +50,6 @@ export type Availability = {
   +mostRecentlyInvalidatedAt: ?number,
 };
 
-const {
-  ACTOR_CHANGE,
-  CONDITION,
-  CLIENT_COMPONENT,
-  CLIENT_EXTENSION,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  LINKED_HANDLE,
-  MODULE_IMPORT,
-  RELAY_RESOLVER,
-  RELAY_LIVE_RESOLVER,
-  SCALAR_FIELD,
-  SCALAR_HANDLE,
-  STREAM,
-  TYPE_DISCRIMINATOR,
-} = RelayConcreteNode;
 const {getModuleOperationKey, getStorageKey, getArgumentValues} =
   RelayStoreUtils;
 
@@ -87,11 +68,19 @@ function check(
   getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
   defaultActorIdentifier: ActorIdentifier,
   selector: NormalizationSelector,
-  handlers: $ReadOnlyArray<MissingFieldHandler>,
+  handlers: ReadonlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
   getDataID: GetDataID,
   shouldProcessClientComponents: ?boolean,
+  log: ?LogFunction,
+  useExecTimeResolvers: ?boolean,
 ): Availability {
+  if (log != null) {
+    log({
+      name: 'store.datachecker.start',
+      selector,
+    });
+  }
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
     getSourceForActor,
@@ -102,21 +91,31 @@ function check(
     operationLoader,
     getDataID,
     shouldProcessClientComponents,
+    log,
+    useExecTimeResolvers,
   );
-  return checker.check(node, dataID);
+  const result = checker.check(node, dataID);
+  if (log != null) {
+    log({
+      name: 'store.datachecker.end',
+      selector,
+    });
+  }
+  return result;
 }
 
 /**
  * @private
  */
 class DataChecker {
-  _handlers: $ReadOnlyArray<MissingFieldHandler>;
+  _handlers: ReadonlyArray<MissingFieldHandler>;
   _mostRecentlyInvalidatedAt: number | null;
   _mutator: RelayRecordSourceMutator;
   _operationLoader: OperationLoader | null;
   _recordSourceProxy: RelayRecordSourceProxy;
   _recordWasMissing: boolean;
   _source: RecordSource;
+  _useExecTimeResolvers: boolean;
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
   +_getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource;
@@ -128,6 +127,7 @@ class DataChecker {
     ActorIdentifier,
     [RelayRecordSourceMutator, RelayRecordSourceProxy],
   >;
+  _log: ?LogFunction;
 
   constructor(
     getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
@@ -136,10 +136,12 @@ class DataChecker {
     ) => MutableRecordSource,
     defaultActorIdentifier: ActorIdentifier,
     variables: Variables,
-    handlers: $ReadOnlyArray<MissingFieldHandler>,
+    handlers: ReadonlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
+    log: ?LogFunction,
+    useExecTimeResolvers: ?boolean,
   ) {
     this._getSourceForActor = getSourceForActor;
     this._getTargetForActor = getTargetForActor;
@@ -149,6 +151,7 @@ class DataChecker {
     const [mutator, recordSourceProxy] = this._getMutatorAndRecordProxyForActor(
       defaultActorIdentifier,
     );
+    this._useExecTimeResolvers = useExecTimeResolvers ?? false;
     this._mostRecentlyInvalidatedAt = null;
     this._handlers = handlers;
     this._mutator = mutator;
@@ -157,6 +160,7 @@ class DataChecker {
     this._recordWasMissing = false;
     this._variables = variables;
     this._shouldProcessClientComponents = shouldProcessClientComponents;
+    this._log = log;
   }
 
   _getMutatorAndRecordProxyForActor(
@@ -175,6 +179,7 @@ class DataChecker {
         this._getDataID,
         undefined,
         this._handlers,
+        this._log,
       );
       tuple = [mutator, recordSourceProxy];
       this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);
@@ -188,16 +193,16 @@ class DataChecker {
 
     return this._recordWasMissing === true
       ? {
-          status: 'missing',
           mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+          status: 'missing',
         }
       : {
-          status: 'available',
           mostRecentlyInvalidatedAt: this._mostRecentlyInvalidatedAt,
+          status: 'available',
         };
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'RelayAsyncLoader(): Undefined variable `%s`.',
@@ -213,7 +218,7 @@ class DataChecker {
   _handleMissingScalarField(
     field: NormalizationScalarField,
     dataID: DataID,
-  ): mixed {
+  ): unknown {
     if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
       return undefined;
     }
@@ -233,6 +238,15 @@ class DataChecker {
           return newValue;
         }
       }
+    }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'scalar',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
     }
     this._handleMissing();
   }
@@ -260,6 +274,15 @@ class DataChecker {
           return newValue;
         }
       }
+    }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'linked',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
     }
     this._handleMissing();
   }
@@ -294,12 +317,28 @@ class DataChecker {
         }
       }
     }
+    if (this._log != null) {
+      this._log({
+        name: 'store.datachecker.missing',
+        kind: 'pluralLinked',
+        dataID,
+        fieldName: field.name,
+        storageKey: getStorageKey(field, this._variables),
+      });
+    }
     this._handleMissing();
   }
 
   _traverse(node: NormalizationNode, dataID: DataID): void {
     const status = this._mutator.getStatus(dataID);
     if (status === UNKNOWN) {
+      if (this._log != null) {
+        this._log({
+          name: 'store.datachecker.missing',
+          kind: 'unknown_record',
+          dataID,
+        });
+      }
       this._handleMissing();
     }
 
@@ -318,25 +357,25 @@ class DataChecker {
   }
 
   _traverseSelections(
-    selections: $ReadOnlyArray<NormalizationSelection>,
+    selections: ReadonlyArray<NormalizationSelection>,
     dataID: DataID,
   ): void {
     selections.forEach(selection => {
       switch (selection.kind) {
-        case SCALAR_FIELD:
+        case 'ScalarField':
           this._checkScalar(selection, dataID);
           break;
-        case LINKED_FIELD:
+        case 'LinkedField':
           if (selection.plural) {
             this._checkPluralLink(selection, dataID);
           } else {
             this._checkLink(selection, dataID);
           }
           break;
-        case ACTOR_CHANGE:
+        case 'ActorChange':
           this._checkActorChange(selection.linkedField, dataID);
           break;
-        case CONDITION:
+        case 'Condition':
           const conditionValue = Boolean(
             this._getVariableValue(selection.condition),
           );
@@ -344,7 +383,7 @@ class DataChecker {
             this._traverseSelections(selection.selections, dataID);
           }
           break;
-        case INLINE_FRAGMENT: {
+        case 'InlineFragment': {
           const {abstractKey} = selection;
           if (abstractKey == null) {
             // concrete type refinement: only check data if the type exactly matches
@@ -381,7 +420,7 @@ class DataChecker {
           }
           break;
         }
-        case LINKED_HANDLE: {
+        case 'LinkedHandle': {
           // Handles have no selections themselves; traverse the original field
           // where the handle was set-up instead.
           const handleField = cloneRelayHandleSourceField(
@@ -396,7 +435,7 @@ class DataChecker {
           }
           break;
         }
-        case SCALAR_HANDLE: {
+        case 'ScalarHandle': {
           const handleField = cloneRelayScalarHandleSourceField(
             selection,
             selections,
@@ -406,14 +445,14 @@ class DataChecker {
           this._checkScalar(handleField, dataID);
           break;
         }
-        case MODULE_IMPORT:
+        case 'ModuleImport':
           this._checkModuleImport(selection, dataID);
           break;
-        case DEFER:
-        case STREAM:
+        case 'Defer':
+        case 'Stream':
           this._traverseSelections(selection.selections, dataID);
           break;
-        case FRAGMENT_SPREAD:
+        case 'FragmentSpread':
           const prevVariables = this._variables;
           this._variables = getLocalVariables(
             this._variables,
@@ -423,12 +462,12 @@ class DataChecker {
           this._traverseSelections(selection.fragment.selections, dataID);
           this._variables = prevVariables;
           break;
-        case CLIENT_EXTENSION:
+        case 'ClientExtension':
           const recordWasMissing = this._recordWasMissing;
           this._traverseSelections(selection.selections, dataID);
           this._recordWasMissing = recordWasMissing;
           break;
-        case TYPE_DISCRIMINATOR:
+        case 'TypeDiscriminator':
           const {abstractKey} = selection;
           const recordType = this._mutator.getType(dataID);
           invariant(
@@ -447,23 +486,25 @@ class DataChecker {
             this._handleMissing();
           } // else: if it does or doesn't implement, we don't need to check or skip anything else
           break;
-        case CLIENT_COMPONENT:
+        case 'ClientComponent':
           if (this._shouldProcessClientComponents === false) {
             break;
           }
           this._traverseSelections(selection.fragment.selections, dataID);
           break;
-        case RELAY_RESOLVER:
-          this._checkResolver(selection, dataID);
+        case 'RelayResolver':
+        case 'RelayLiveResolver':
+          if (!this._useExecTimeResolvers) {
+            this._checkResolver(selection, dataID);
+          }
           break;
-        case RELAY_LIVE_RESOLVER:
-          this._checkResolver(selection, dataID);
-          break;
-        case CLIENT_EDGE_TO_CLIENT_OBJECT:
-          this._checkResolver(selection.backingField, dataID);
+        case 'ClientEdgeToClientObject':
+          if (!this._useExecTimeResolvers) {
+            this._checkResolver(selection.backingField, dataID);
+          }
           break;
         default:
-          (selection: empty);
+          selection as empty;
           invariant(
             false,
             'RelayAsyncLoader(): Unexpected ast kind `%s`.',

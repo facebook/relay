@@ -19,17 +19,20 @@ const warning = require('warning');
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 let debugCache:
-  | Map<mixed, mixed>
-  | Map<() => mixed, mixed>
-  | WeakMap<interface {} | $ReadOnlyArray<mixed>, mixed>
-  | WeakMap<() => mixed, mixed> = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+  | Map<unknown, unknown>
+  | Map<() => unknown, unknown>
+  | WeakMap<interface {} | ReadonlyArray<unknown>, unknown>
+  | WeakMap<() => unknown, unknown> = WEAKMAP_SUPPORTED
+  ? new WeakMap()
+  : new Map();
 
 function withProvidedVariables(
   userSuppliedVariables: Variables,
   providedVariables: ?ProvidedVariablesType,
 ): Variables {
   if (providedVariables != null) {
-    const operationVariables: {[string]: mixed} = {};
+    const operationVariables: {[string]: unknown} = {};
+    // $FlowFixMe[unsafe-object-assign]
     Object.assign(operationVariables, userSuppliedVariables);
     Object.keys(providedVariables).forEach((varName: string) => {
       const providerFunction = providedVariables[varName].get;
@@ -63,10 +66,12 @@ function withProvidedVariables(
   }
 }
 
-withProvidedVariables.tests_only_resetDebugCache = ((__DEV__
-  ? () => {
-      debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
-    }
-  : undefined): void | (() => void));
+withProvidedVariables.tests_only_resetDebugCache = (
+  __DEV__
+    ? () => {
+        debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+      }
+    : undefined
+) as void | (() => void);
 
 module.exports = withProvidedVariables;

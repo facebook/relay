@@ -15,14 +15,14 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
-use graphql_ir::build_ir_in_relay_mode;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
+use graphql_ir::build_ir_in_relay_mode;
 use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
-use relay_codegen::print_provided_variables;
 use relay_codegen::JsModuleFormat;
+use relay_codegen::print_provided_variables;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 use relay_config::SchemaConfig;
@@ -55,7 +55,6 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     });
     let feature_flags = FeatureFlags {
         no_inline: FeatureFlag::Enabled,
-        enable_relay_resolver_transform: true,
         actor_change_support: FeatureFlag::Enabled,
         ..Default::default()
     };
@@ -68,7 +67,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
     let mut custom_scalar_types = FnvIndexMap::default();
     custom_scalar_types.insert(
         ScalarName("Boolean".intern()),
-        relay_config::CustomScalarType::Name("CustomBoolean".intern()),
+        relay_config::CustomType::Name("CustomBoolean".intern()),
     );
     let project_config = ProjectConfig {
         name: ProjectName::default(),
@@ -93,6 +92,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
         Arc::new(ConsoleLogger),
         None,
         None,
+        vec![],
     )
     .unwrap();
 

@@ -55,9 +55,21 @@ impl<'a> CharReader<'a> {
             column_index: 0,
         }
     }
+
+    pub fn get_line_index(&self) -> usize {
+        self.line_index
+    }
+
+    pub fn get_column_index(&self) -> usize {
+        self.column_index
+    }
+
+    pub fn get_chars(&self) -> Peekable<CharIndices<'a>> {
+        self.chars.clone()
+    }
 }
 
-impl<'a> Iterator for CharReader<'a> {
+impl Iterator for CharReader<'_> {
     type Item = (usize, char);
     fn next(&mut self) -> Option<Self::Item> {
         let pair = self.chars.next();
@@ -66,12 +78,11 @@ impl<'a> Iterator for CharReader<'a> {
                 // Line terminators: https://www.ecma-international.org/ecma-262/#sec-line-terminators
                 '\u{000A}' | '\u{000D}' | '\u{2028}' | '\u{2029}' => {
                     // <CRLF>
-                    if ch == '\u{000D}' {
-                        if let Some((_, ch)) = self.chars.peek() {
-                            if ch == &'\u{00A}' {
-                                return pair;
-                            }
-                        }
+                    if ch == '\u{000D}'
+                        && let Some((_, ch)) = self.chars.peek()
+                        && ch == &'\u{00A}'
+                    {
+                        return pair;
                     }
                     self.line_index += 1;
                     self.column_index = 0;
@@ -97,11 +108,11 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
         match c {
             'g' => {
                 for expected in ['r', 'a', 'p', 'h', 'q', 'l'] {
-                    if let Some((_, c)) = it.next() {
-                        if c != expected {
-                            consume_identifier(&mut it);
-                            continue 'code;
-                        }
+                    if let Some((_, c)) = it.next()
+                        && c != expected
+                    {
+                        consume_identifier(&mut it);
+                        continue 'code;
                     }
                 }
 
@@ -216,11 +227,11 @@ pub fn extract(input: &str) -> Vec<JavaScriptSourceFeature> {
     res
 }
 
-fn consume_escaped_char(it: &mut CharReader<'_>) {
+pub fn consume_escaped_char(it: &mut CharReader<'_>) {
     it.next();
 }
 
-fn consume_identifier(it: &mut CharReader<'_>) {
+pub fn consume_identifier(it: &mut CharReader<'_>) {
     while it.chars.peek().is_some() {
         match it.chars.peek() {
             Some((_, 'a'..='z' | 'A'..='Z' | '_' | '0'..='9')) => {
@@ -231,7 +242,7 @@ fn consume_identifier(it: &mut CharReader<'_>) {
     }
 }
 
-fn consume_line_comment(it: &mut CharReader<'_>) {
+pub fn consume_line_comment(it: &mut CharReader<'_>) {
     for (_, c) in it {
         match c {
             '\n' | '\r' => {
@@ -242,7 +253,7 @@ fn consume_line_comment(it: &mut CharReader<'_>) {
     }
 }
 
-fn consume_string(it: &mut CharReader<'_>, quote: char) {
+pub fn consume_string(it: &mut CharReader<'_>, quote: char) {
     while let Some((_, c)) = it.next() {
         match c {
             '\\' => {

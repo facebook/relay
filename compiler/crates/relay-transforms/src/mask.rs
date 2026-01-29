@@ -20,8 +20,8 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
-use indexmap::map::Entry;
 use indexmap::IndexMap;
+use indexmap::map::Entry;
 use schema::Schema;
 
 use crate::relay_directive::RelayDirective;
@@ -80,7 +80,7 @@ impl<'s> Mask<'s> {
     }
 }
 
-impl<'s> Transformer for Mask<'s> {
+impl Transformer<'_> for Mask<'_> {
     const NAME: &'static str = "MaskTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

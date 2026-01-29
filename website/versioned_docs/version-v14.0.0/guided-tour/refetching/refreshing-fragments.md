@@ -10,23 +10,19 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRefreshingUsingRealTimeFeatures from './fb/FbRefreshingUsingRealTimeFeatures.md';
-import FbRefreshingFragments from './fb/FbRefreshingFragments.md';
-import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
+
 import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
 When referring to **"refreshing a fragment"**, we mean fetching the *exact* same data that was originally rendered by the fragment, in order to get the most up-to-date version of that data from the server.
 
 ## Using real-time features
 
-<FbInternalOnly>
-  <FbRefreshingUsingRealTimeFeatures />
-</FbInternalOnly>
-
 <OssOnly>
+
 If we want to keep our data up to date with the latest version from the server, the first thing to consider is if it appropriate to use any real-time features, which can make it easier to automatically keep the data up to date without manually refreshing the data periodically.
 
 One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions/), which will require additional configuration on your server and [network layer](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions/#configuring-the-network-layer).
+
 </OssOnly>
 
 ## Using `useRefetchableFragment`
@@ -34,10 +30,6 @@ One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/guid
 In order to manually refresh the data for a fragment, we need a query to refetch the fragment under; remember, *fragments can't be fetched by themselves: they need to be part of a query,* so we can't just "fetch" the fragment again by itself.
 
 To do so, we can also use the [`useRefetchableFragment`](../../../api-reference/use-refetchable-fragment/) Hook in combination with the `@refetchable` directive, which will automatically generate a query to refetch the fragment under, and which we can fetch using the `refetch` function:
-
-<FbInternalOnly>
-  <FbRefreshingFragments />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -110,10 +102,6 @@ Note that this same behavior also applies to using the `refetch` function from [
 ### If you need to avoid Suspense
 
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
-
-<FbInternalOnly>
-  <FbAvoidSuspenseCaution />
-</FbInternalOnly>
 
 <OssOnly>
   <OssAvoidSuspenseNote />

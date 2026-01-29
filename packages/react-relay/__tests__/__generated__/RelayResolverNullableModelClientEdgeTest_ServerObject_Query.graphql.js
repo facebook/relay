@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<bba8d171254056f20e7b641765349c1d>>
+ * @generated SignedSource<<a87cdf47dd3933d5dc692bf52fe885cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import {edge_to_server_object_does_not_exist as queryEdgeToServerObjectDoesNotExistResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToServerObjectDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToServerObjectDoesNotExistResolverType: () => ?{|
+(queryEdgeToServerObjectDoesNotExistResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 export type RelayResolverNullableModelClientEdgeTest_ServerObject_Query$variables = {||};
@@ -55,7 +59,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_server_object_does_not_exist",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_server_object_does_not_exist,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_server_object_does_not_exist,
           "path": "edge_to_server_object_does_not_exist"
         },
         "linkedField": {

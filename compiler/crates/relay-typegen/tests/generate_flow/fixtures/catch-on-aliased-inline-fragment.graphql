@@ -1,0 +1,6 @@
+fragment MyFragment on User {
+  id
+  ... @catch(to: NULL) @alias(as: "myAlias") {
+    name
+  }
+}

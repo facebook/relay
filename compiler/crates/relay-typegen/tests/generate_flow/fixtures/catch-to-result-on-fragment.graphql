@@ -1,0 +1,4 @@
+fragment MyFragment on User @catch {
+  id
+  name
+}

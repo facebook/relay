@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+//- src/component.js
+graphql`query componentQuery {
+  me {
+    name
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "nonexistent_project"
+   },
+   "projects": {
+      "actual_project": {
+         "schema": "./schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+==================================== OUTPUT ===================================
+Config `<TEST_DIR>/relay.config.json` is invalid:
+ - Source dir `src` tries to use project `nonexistent_project`, but no such project exists.
+ - There is no source for the project `actual_project`, the `sources` map should contain at least one path mapping to this project name.

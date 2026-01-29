@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment TestFragment on Comment
+@argumentDefinitions(if: {type: "Boolean!"}, unless: {type: "Boolean!"}) {
+  # Comments have firstNames in our test schema I guess
+  firstName(if: $if, unless: $unless)
+}
+
+query TestQuery($globalIf: Boolean, $globalUnless: Boolean) {
+  node(id: "4") {
+    ...TestFragment @arguments(if: $globalIf, unless: $globalUnless)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable of type 'Boolean' cannot be used where 'Boolean!' is expected.
+
+  fragment-argument-type-mismatch.invalid.graphql:11:36
+   10 │   node(id: "4") {
+   11 │     ...TestFragment @arguments(if: $globalIf, unless: $globalUnless)
+      │                                    ^^^^^^^^^
+   12 │   }
+
+  ℹ︎ Variable `$globalIf` is defined as 'Boolean'
+
+  fragment-argument-type-mismatch.invalid.graphql:9:17
+    8 │ 
+    9 │ query TestQuery($globalIf: Boolean, $globalUnless: Boolean) {
+      │                 ^^^^^^^^^
+   10 │   node(id: "4") {
+
+
+✖︎ Variable of type 'Boolean' cannot be used where 'Boolean!' is expected.
+
+  fragment-argument-type-mismatch.invalid.graphql:11:55
+   10 │   node(id: "4") {
+   11 │     ...TestFragment @arguments(if: $globalIf, unless: $globalUnless)
+      │                                                       ^^^^^^^^^^^^^
+   12 │   }
+
+  ℹ︎ Variable `$globalUnless` is defined as 'Boolean'
+
+  fragment-argument-type-mismatch.invalid.graphql:9:37
+    8 │ 
+    9 │ query TestQuery($globalIf: Boolean, $globalUnless: Boolean) {
+      │                                     ^^^^^^^^^^^^^
+   10 │   node(id: "4") {

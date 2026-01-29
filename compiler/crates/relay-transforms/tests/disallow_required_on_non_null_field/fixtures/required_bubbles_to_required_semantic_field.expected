@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+query MyQuery @throwOnFieldError {
+  my_field @required(action: LOG) {
+    some_field @required(action: LOG)
+  }
+}
+
+# %extensions%
+extend type Query {
+  my_field: MyType @semanticNonNull
+}
+
+type MyType {
+  some_field: Int
+}
+==================================== OUTPUT ===================================
+OK

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1c36a7296c1a1d33e3ad450d0f699c8b>>
+ * @generated SignedSource<<0362728f34fbc4ac24be4b95570e76e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayResponseNormalizerTest9Query$variables = {|
 |};
 export type RelayResponseNormalizerTest9Query$data = {|
   +node: ?{|
-    +actors?: ?$ReadOnlyArray<?{|
+    +actors?: ?ReadonlyArray<?{|
       +$fragmentSpreads: RelayResponseNormalizerTest5Fragment$fragmentType,
     |}>,
   |},
@@ -188,7 +188,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f2dffeabae2388e74241a6adde2168d4";
+  (node/*: any*/).hash = "8c92153864fe205ace6fefbd5c53fdc4";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

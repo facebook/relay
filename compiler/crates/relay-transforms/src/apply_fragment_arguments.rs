@@ -18,9 +18,6 @@ use common::Location;
 use common::NamedItem;
 use common::SourceLocationKey;
 use common::WithLocation;
-use graphql_ir::associated_data_impl;
-use graphql_ir::transform_list;
-use graphql_ir::transform_list_multi;
 use graphql_ir::Condition;
 use graphql_ir::ConditionValue;
 use graphql_ir::ConstantValue;
@@ -44,24 +41,28 @@ use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::transform_list_multi;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use itertools::Itertools;
-use scope::format_local_variable;
 use scope::Scope;
+use scope::format_local_variable;
 use thiserror::Error;
 
 use super::get_applied_fragment_name;
-use crate::match_::SplitOperationMetadata;
-use crate::match_::DIRECTIVE_SPLIT_OPERATION;
-use crate::no_inline::is_raw_response_type_enabled;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::no_inline::PARENT_DOCUMENTS_ARG;
-use crate::util::get_normalization_operation_name;
 use crate::RawResponseGenerationMode;
 use crate::RelayResolverMetadata;
+use crate::match_::DIRECTIVE_SPLIT_OPERATION;
+use crate::match_::SplitOperationMetadata;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::PARENT_DOCUMENTS_ARG;
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::util::get_normalization_operation_name;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -118,7 +119,7 @@ pub fn apply_fragment_arguments(
             } => {
                 // The fragment ended up empty, do not add to result Program.
             }
-            PendingFragment::Pending => panic!("Unexpected case, {}", fragment_name),
+            PendingFragment::Pending => panic!("Unexpected case, {fragment_name}"),
         }
     }
 
@@ -168,7 +169,7 @@ struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     split_operations: StringKeyMap<(Option<OperationDefinition>, ProvidedVariablesMap)>,
 }
 
-impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
+impl Transformer<'_> for ApplyFragmentArgumentsTransform<'_, '_, '_> {
     const NAME: &'static str = "ApplyFragmentArgumentsTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
@@ -189,7 +190,22 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
             // this transform does not add the SplitOperation directive, so this
             //  should be equal to checking whether the result is a split operation
             self.provided_variables.clear();
-            transform_result
+
+            match transform_result {
+                Transformed::Keep => Transformed::Keep,
+                Transformed::Replace(new_operation) => Transformed::Replace(new_operation),
+                Transformed::Delete => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::EmptySelectionsInDocument {
+                            document: "query",
+                            name: operation.name.item.0,
+                        },
+                        operation.name.location,
+                    ));
+
+                    Transformed::Delete
+                }
+            }
         } else {
             let mut add_provided_variables = |new_operation: &mut OperationDefinition| {
                 new_operation.variable_definitions.append(
@@ -210,7 +226,17 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     add_provided_variables(&mut new_operation);
                     Transformed::Replace(new_operation)
                 }
-                Transformed::Delete => Transformed::Delete,
+                Transformed::Delete => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::EmptySelectionsInDocument {
+                            document: "query",
+                            name: operation.name.item.0,
+                        },
+                        operation.name.location,
+                    ));
+
+                    Transformed::Delete
+                }
             }
         }
     }
@@ -266,67 +292,69 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
             }
         }
 
-        if self.is_normalization {
-            if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
-                self.transform_no_inline_fragment(fragment, directive);
-                let transformed_arguments = spread
-                    .arguments
-                    .iter()
-                    .map(|arg| {
-                        let mut arg = self.transform_argument(arg).unwrap_or_else(|| arg.clone());
-                        arg.name.item.0 =
-                            format_local_variable(fragment.name.item, arg.name.item.0);
-                        arg
-                    })
-                    .collect();
-                let mut directives = Vec::with_capacity(spread.directives.len() + 1);
-                directives.extend(spread.directives.iter().cloned());
+        if self.is_normalization
+            && let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME)
+        {
+            self.transform_no_inline_fragment(fragment, directive);
+            let transformed_arguments = spread
+                .arguments
+                .iter()
+                .map(|arg| {
+                    let mut arg = self.transform_argument(arg).unwrap_or_else(|| arg.clone());
+                    arg.name.item.0 = format_local_variable(fragment.name.item, arg.name.item.0);
+                    arg
+                })
+                .collect();
+            let mut directives = Vec::with_capacity(spread.directives.len() + 1);
+            directives.extend(spread.directives.iter().cloned());
 
-                directives.push(
-                    NoInlineFragmentSpreadMetadata {
-                        location: fragment.name.location.source_location(),
-                    }
-                    .into(),
-                );
+            directives.push(
+                NoInlineFragmentSpreadMetadata {
+                    location: fragment.name.location.source_location(),
+                }
+                .into(),
+            );
 
-                let normalization_name =
-                    get_normalization_operation_name(fragment.name.item.0).intern();
-                let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
-                    arguments: transformed_arguments,
-                    directives,
-                    fragment: WithLocation::new(
-                        fragment.name.location,
-                        FragmentDefinitionName(normalization_name),
-                    ),
-                }));
-                // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
-                // type of the object matches the fragment's type condition. Rather than reimplement type refinement
-                // for fragment spreads, we wrap the fragment spread in an inline fragment (which may be inlined away)
-                // that ensures it will go through type-refinement at runtime.
-                return if fragment.type_condition.is_abstract_type() {
-                    Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
-                        directives: Default::default(),
-                        selections: vec![next_spread],
-                        type_condition: Some(fragment.type_condition),
-                        spread_location: Location::generated(),
-                    })))
-                } else {
-                    Transformed::Replace(next_spread)
-                };
-            }
+            let normalization_name =
+                get_normalization_operation_name(fragment.name.item.0).intern();
+            let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
+                arguments: transformed_arguments,
+                directives,
+                fragment: WithLocation::new(
+                    fragment.name.location,
+                    FragmentDefinitionName(normalization_name),
+                ),
+                signature: Some(fragment.as_ref().into()),
+            }));
+            // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
+            // type of the object matches the fragment's type condition. Rather than reimplement type refinement
+            // for fragment spreads, we wrap the fragment spread in an inline fragment (which may be inlined away)
+            // that ensures it will go through type-refinement at runtime.
+            return if fragment.type_condition.is_abstract_type() {
+                Transformed::Replace(Selection::InlineFragment(Arc::new(InlineFragment {
+                    directives: Default::default(),
+                    selections: vec![next_spread],
+                    type_condition: Some(fragment.type_condition),
+                    spread_location: Location::generated(),
+                })))
+            } else {
+                Transformed::Replace(next_spread)
+            };
         }
 
-        if let Some(applied_fragment) = self.apply_fragment(spread, fragment) {
-            let directives = self
-                .transform_directives(&spread.directives)
-                .replace_or_else(|| spread.directives.clone());
-            Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
-                fragment: applied_fragment.name,
-                arguments: Vec::new(),
-                directives,
-            })))
-        } else {
-            Transformed::Delete
+        match self.apply_fragment(spread, fragment) {
+            Some(applied_fragment) => {
+                let directives = self
+                    .transform_directives(&spread.directives)
+                    .replace_or_else(|| spread.directives.clone());
+                Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    fragment: applied_fragment.name,
+                    arguments: Vec::new(),
+                    directives,
+                    signature: Some(applied_fragment.as_ref().into()),
+                })))
+            }
+            _ => Transformed::Delete,
         }
     }
 
@@ -340,19 +368,19 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
     }
 
     fn transform_directive(&mut self, directive: &Directive) -> Transformed<Directive> {
-        if directive.name.item == RelayResolverMetadata::directive_name() {
-            if let Some(resolver_metadata) = RelayResolverMetadata::from(directive) {
-                return self
-                    .transform_arguments(&resolver_metadata.field_arguments)
-                    .map(|new_args| {
-                        RelayResolverMetadata {
-                            field_arguments: new_args,
-                            ..resolver_metadata.clone()
-                        }
-                        .into()
-                    })
-                    .into();
-            }
+        if directive.name.item == RelayResolverMetadata::directive_name()
+            && let Some(resolver_metadata) = RelayResolverMetadata::from(directive)
+        {
+            return self
+                .transform_arguments(&resolver_metadata.field_arguments)
+                .map(|new_args| {
+                    RelayResolverMetadata {
+                        field_arguments: new_args,
+                        ..resolver_metadata.clone()
+                    }
+                    .into()
+                })
+                .into();
         }
         self.default_transform_directive(directive)
     }
@@ -412,7 +440,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         TransformedValue::Keep
                     }
                     Some(other_binding) => {
-                        panic!("Invalid variable value for condition: {:?}", other_binding);
+                        panic!("Invalid variable value for condition: {other_binding:?}");
                     }
                 }
             }
@@ -443,7 +471,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
                     fragment.name.item, self.no_inline_feature
                 ),
-                directive.name.location,
+                directive.location,
             ));
         }
 
@@ -672,10 +700,10 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
         // If selections are empty, delete
         let selections = self.transform_selections(&condition.selections);
-        if let TransformedValue::Replace(selections) = &selections {
-            if selections.is_empty() {
-                return TransformedMulti::Delete;
-            }
+        if let TransformedValue::Replace(selections) = &selections
+            && selections.is_empty()
+        {
+            return TransformedMulti::Delete;
         }
 
         if selections.should_keep() && condition_value.should_keep() {
@@ -726,5 +754,15 @@ enum ValidationMessage {
     )]
     ProvidedVariableIncompatibleWithArguments {
         original_definition_name: VariableName,
+    },
+    #[error(
+        "After applying transforms to the {document} `{name}` selections of \
+        the `{name}` that would be sent to the server are empty. \
+        This is likely due to the use of `@skip`/`@include` directives with \
+        constant values that remove all selections in the {document}. "
+    )]
+    EmptySelectionsInDocument {
+        name: StringKey,
+        document: &'static str,
     },
 }

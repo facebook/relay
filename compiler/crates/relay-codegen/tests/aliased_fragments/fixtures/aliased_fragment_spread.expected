@@ -42,14 +42,19 @@ query RelayReaderNamedFragmentsTest2Query {
       "selections": [
         {
           "fragment": {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "RelayReaderNamedFragmentsTest_user"
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "RelayReaderNamedFragmentsTest_user"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
           },
-          "kind": "AliasedFragmentSpread",
-          "name": "aliased_fragment",
-          "type": "User",
-          "abstractKey": null
+          "kind": "AliasedInlineFragmentSpread",
+          "name": "aliased_fragment"
         }
       ],
       "storageKey": null

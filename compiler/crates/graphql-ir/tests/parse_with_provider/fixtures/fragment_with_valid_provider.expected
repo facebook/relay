@@ -92,6 +92,7 @@ fragment TestFragment on User
                                     },
                                 },
                             ),
+                            location: fragment_with_valid_provider.graphql:173:199,
                         },
                     ],
                 },
@@ -124,6 +125,7 @@ fragment TestFragment on User
                     },
                     arguments: [],
                     data: None,
+                    location: fragment_with_valid_provider.graphql:32:205,
                 },
             ],
             selections: [

@@ -9,7 +9,6 @@ use std::sync::Arc;
 
 use common::DirectiveName;
 use common::Location;
-use common::PointerAddress;
 use common::WithLocation;
 use fnv::FnvHashMap;
 use graphql_ir::Directive;
@@ -47,14 +46,11 @@ pub fn generate_typename(program: &Program, is_for_codegen: bool) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-// Note on correctness: the PointerAddress here is calculated from addresses of the input
-// context. Because those value are still referenced, that memory cannot be freed/
-// reused for the lifetime of the transform.
-type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
+type Seen<'a> = FnvHashMap<&'a InlineFragment, Transformed<Selection>>;
 
 struct GenerateTypenameTransform<'s> {
     program: &'s Program,
-    seen: Seen,
+    seen: Seen<'s>,
     is_for_codegen: bool,
     parent_type: Option<Type>,
 }
@@ -70,14 +66,14 @@ impl<'s> GenerateTypenameTransform<'s> {
     }
 }
 
-impl<'s> Transformer for GenerateTypenameTransform<'s> {
+impl<'s> Transformer<'s> for GenerateTypenameTransform<'s> {
     const NAME: &'static str = "GenerateTypenameTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_operation(
         &mut self,
-        operation: &OperationDefinition,
+        operation: &'s OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.parent_type = Some(operation.type_);
         self.default_transform_operation(operation)
@@ -85,7 +81,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
 
     fn transform_fragment(
         &mut self,
-        fragment: &FragmentDefinition,
+        fragment: &'s FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.parent_type = Some(fragment.type_condition);
         let schema = &self.program.schema;
@@ -115,7 +111,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         }
     }
 
-    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+    fn transform_linked_field(&mut self, field: &'s LinkedField) -> Transformed<Selection> {
         let schema = &self.program.schema;
         let field_definition = schema.field(field.definition.item);
         let parent_type = self.parent_type;
@@ -154,12 +150,14 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
         }
     }
 
-    fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        let key = PointerAddress::new(fragment);
-        if let Some(prev) = self.seen.get(&key) {
+    fn transform_inline_fragment(
+        &mut self,
+        fragment: &'s InlineFragment,
+    ) -> Transformed<Selection> {
+        if let Some(prev) = self.seen.get(fragment) {
             return prev.clone();
         }
-        self.seen.insert(key, Transformed::Delete);
+        self.seen.insert(fragment, Transformed::Delete);
         let parent_type = self.parent_type;
         if fragment.type_condition.is_some() {
             self.parent_type = fragment.type_condition;
@@ -204,7 +202,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                 })))
             }
         };
-        self.seen.insert(key, result.clone());
+        self.seen.insert(fragment, result.clone());
         result
     }
 
@@ -243,6 +241,7 @@ fn generate_abstract_key_field(
                 name: WithLocation::new(location, *TYPE_DISCRIMINATOR_DIRECTIVE_NAME),
                 arguments: vec![],
                 data: None,
+                location,
             }]
         } else {
             vec![]

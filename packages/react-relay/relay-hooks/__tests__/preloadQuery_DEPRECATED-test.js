@@ -11,7 +11,10 @@
 
 'use strict';
 
-import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
+import type {
+  GraphQLResponse,
+  INetwork,
+} from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const {
@@ -49,7 +52,7 @@ const query = graphql`
 query.params.id = '12345';
 
 const params = {
-  kind: 'PreloadableConcreteRequest',
+  kind: 'PreloadableConcreteRequest' as const,
   params: query.params,
 };
 
@@ -76,19 +79,37 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         let sink;
         let variables;
         let operation;
+        let checkOperation;
 
         beforeEach(() => {
           // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
-          fetch = jest.fn((_query, _variables, _cacheConfig) => {
+          fetch = jest.fn((_query, _variables, _cacheConfig, _4, _5) => {
             // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
             return Observable.create(_sink => {
               sink = _sink;
             });
           });
-
+          function wrapNetworkExecute(network: INetwork): INetwork {
+            return {
+              execute: (_1, _2, _3, _4, _5, _6, _7, _checkOperation) => {
+                checkOperation = _checkOperation;
+                return network.execute(
+                  _1,
+                  _2,
+                  _3,
+                  _4,
+                  _5,
+                  _6,
+                  _7,
+                  _checkOperation,
+                );
+              },
+            };
+          }
           const multiActorEnvironment = new MultiActorEnvironment({
             // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-            createNetworkForActor: _actorID => Network.create(fetch),
+            createNetworkForActor: _actorID =>
+              wrapNetworkExecute(Network.create(fetch)),
             createStoreForActor: _actorID =>
               new Store(new RecordSource(), {
                 gcReleaseBufferSize: 1,
@@ -99,7 +120,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
                   // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
-                  network: Network.create(fetch),
+                  network: wrapNetworkExecute(Network.create(fetch)),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
                   }),
@@ -111,7 +132,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           check = jest.fn((...args) =>
             environmentCheck.apply(environment, args),
           );
-          (environment: $FlowFixMe).check = check;
+          (environment as $FlowFixMe).check = check;
           variables = {id: '4'};
           operation = createOperationDescriptor(query, variables);
           PreloadableQueryRegistry.clear();
@@ -136,8 +157,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             // load data in store
             environment.commitPayload(operation, response.data);
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
             check.mockClear();
 
@@ -149,8 +170,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toEqual(expect.any(Observable));
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
-              source: 'network',
               fetchTime: null,
+              source: 'network',
             });
             expect(fetch).toBeCalledTimes(1);
             expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -180,8 +201,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toEqual(expect.any(Observable));
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
-              source: 'network',
               fetchTime: null,
+              source: 'network',
             });
             expect(fetch).toBeCalledTimes(1);
             expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -198,8 +219,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toEqual(expect.any(Observable));
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
-              source: 'network',
               fetchTime: null,
+              source: 'network',
             });
             expect(fetch).toBeCalledTimes(1);
             expect(fetch.mock.calls[0][0]).toBe(query.params);
@@ -296,8 +317,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
             environment.commitPayload(operation, response.data);
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
             check.mockClear();
             PreloadableQueryRegistry.set(
@@ -313,8 +334,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
+              fetchTime,
               source: 'cache',
-              fetchTime: fetchTime,
             });
             expect(check).toBeCalledTimes(1);
             expect(fetch).toBeCalledTimes(0);
@@ -327,8 +348,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
             environment.commitPayload(operation, response.data);
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
             check.mockClear();
             PreloadableQueryRegistry.set(
@@ -344,8 +365,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
+              fetchTime,
               source: 'cache',
-              fetchTime: fetchTime,
             });
             expect(check).toBeCalledTimes(1);
             expect(fetch).toBeCalledTimes(0);
@@ -359,8 +380,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
             environment.commitPayload(operation, response.data);
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
             check.mockClear();
             PreloadableQueryRegistry.set(
@@ -376,8 +397,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
+              fetchTime,
               source: 'cache',
-              fetchTime: fetchTime,
             });
             expect(check).toBeCalledTimes(1);
             expect(fetch).toBeCalledTimes(0);
@@ -390,8 +411,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
             environment.commitPayload(operation, response.data);
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
             check.mockClear();
 
@@ -403,8 +424,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
+              fetchTime,
               source: 'cache',
-              fetchTime: fetchTime,
             });
             expect(check).toBeCalledTimes(1);
             expect(fetch).toBeCalledTimes(0);
@@ -424,8 +445,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
             environment.commitPayload(operation, response.data);
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
             check.mockClear();
             PreloadableQueryRegistry.set(
@@ -443,8 +464,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(preloaded.source).toBe(null);
             expect(preloaded.status).toEqual({
               cacheConfig: {force: true},
+              fetchTime,
               source: 'cache',
-              fetchTime: fetchTime,
             });
           });
 
@@ -478,8 +499,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
             environment.commitPayload(operation, response.data);
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
             check.mockClear();
             PreloadableQueryRegistry.set(
@@ -518,8 +539,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
 
             const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
@@ -535,6 +556,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch.mock.calls[0][0]).toBe(query.params);
             expect(fetch.mock.calls[0][1]).toEqual(variables);
             expect(fetch.mock.calls[0][2]).toEqual({force: true});
+            expect(checkOperation && checkOperation()).toEqual({
+              fetchTime,
+              status: 'available',
+            });
 
             const [events, observer] = createObserver();
             if (preloaded.source) {
@@ -658,8 +683,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               query,
             );
             expect(environment.check(operation)).toEqual({
-              status: 'available',
               fetchTime,
+              status: 'available',
             });
 
             const preloaded = preloadQuery_DEPRECATED<$FlowFixMe, empty>(
@@ -816,12 +841,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             environmentType === 'MultiActorEnvironment'
               ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
               : new Environment({
+                  isServer: true,
                   // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
                   network: Network.create(fetch),
                   store: new Store(new RecordSource(), {
                     gcReleaseBufferSize: 1,
                   }),
-                  isServer: true,
                 });
           PreloadableQueryRegistry.clear();
         });
@@ -906,16 +931,17 @@ describe('Preload queries that use provided variables', () => {
     query preloadQueryDEPRECATEDTest_ProvidedVarQuery($id: ID!) {
       node(id: $id) {
         ...preloadQueryDEPRECATEDTest_ProvidedVarFragment
+          @dangerously_unaliased_fixme
       }
     }
   `;
 
   const variables = {id: 4};
   const generatedVariables = {
-    __relay_internal__pv__RelayProvider_returnsTruerelayprovider:
-      require('./RelayProvider_returnsTrue.relayprovider').get(),
     __relay_internal__pv__RelayProvider_returnsFalserelayprovider:
       require('./RelayProvider_returnsFalse.relayprovider').get(),
+    __relay_internal__pv__RelayProvider_returnsTruerelayprovider:
+      require('./RelayProvider_returnsTrue.relayprovider').get(),
     ...variables,
   };
 
@@ -924,7 +950,7 @@ describe('Preload queries that use provided variables', () => {
   queryWithProvidedVar.params.id = '12346';
 
   const paramsWithProvidedVar = {
-    kind: 'PreloadableConcreteRequest',
+    kind: 'PreloadableConcreteRequest' as const,
     params: queryWithProvidedVar.params,
   };
 
@@ -933,8 +959,8 @@ describe('Preload queries that use provided variables', () => {
       node: {
         __typename: 'User',
         id: '4',
-        name: 'testName',
         lastName: 'testLastName',
+        name: 'testName',
       },
     },
     extensions: {
@@ -976,8 +1002,8 @@ describe('Preload queries that use provided variables', () => {
     expect(preloaded.source).toEqual(expect.any(Observable));
     expect(preloaded.status).toEqual({
       cacheConfig: {force: true},
-      source: 'network',
       fetchTime: null,
+      source: 'network',
     });
     expect(fetch).toBeCalledTimes(1);
     expect(fetch.mock.calls[0][1]).toEqual(generatedVariables);

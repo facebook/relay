@@ -27,7 +27,6 @@ graphql`fragment SomeComponentFragment on User {
     "schema-extensions"
   ],
   "featureFlags": {
-    "enable_relay_resolver_transform": true,
     "enable_resolver_normalization_ast": true
   }
 }

@@ -43,13 +43,13 @@ export type FeedbackcommentComment = {|
 export type CommentCreateMutation$variables = {|
   first?: ?number,
   input: CommentCreateInput,
-  orderBy?: ?$ReadOnlyArray<string>,
+  orderBy?: ?ReadonlyArray<string>,
 |};
 export type CommentCreateMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +friends: ?{|
-        +edges: ?$ReadOnlyArray<?{|
+        +edges: ?ReadonlyArray<?{|
           +node: ?{|
             +__typename: "User",
             +id: string,
@@ -64,7 +64,7 @@ export type CommentCreateMutation$rawResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
       +friends: ?{|
-        +edges: ?$ReadOnlyArray<?{|
+        +edges: ?ReadonlyArray<?{|
           +node: ?{|
             +__typename: "User",
             +id: string,

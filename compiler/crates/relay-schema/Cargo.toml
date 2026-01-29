@@ -4,7 +4,7 @@
 name = "relay-schema"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2021"
+edition = "2024"
 repository = "https://github.com/facebook/relay"
 license = "MIT"
 
@@ -13,5 +13,5 @@ common = { path = "../common" }
 docblock-shared = { path = "../docblock-shared" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.4"
+lazy_static = "1.5"
 schema = { path = "../schema" }

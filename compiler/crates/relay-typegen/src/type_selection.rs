@@ -14,11 +14,11 @@ use relay_transforms::TypeConditionInfo;
 use schema::Type;
 use schema::TypeReference;
 
-use crate::writer::AST;
 use crate::JS_FIELD_NAME;
 use crate::KEY_CLIENTID;
 use crate::KEY_TYPENAME;
 use crate::SPREAD_KEY;
+use crate::writer::AST;
 
 #[derive(Debug, Clone)]
 pub(crate) enum TypeSelection {
@@ -137,6 +137,7 @@ pub(crate) struct TypeSelectionLinkedField {
     pub(crate) node_selections: TypeSelectionMap,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) is_result_type: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -146,6 +147,7 @@ pub(crate) struct TypeSelectionScalarField {
     pub(crate) value: AST,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
+    pub(crate) is_result_type: bool,
 }
 
 #[derive(Debug, Clone)]

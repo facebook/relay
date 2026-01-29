@@ -10,33 +10,24 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbRefreshingUsingRealTimeFeatures from './fb/FbRefreshingUsingRealTimeFeatures.md';
-import FbRefreshingQueriesUsingUseQueryLoader from './fb/FbRefreshingQueriesUsingUseQueryLoader.md';
-import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
-import FbRefreshingQueriesUsingUseLazyLoadQuery from './fb/FbRefreshingQueriesUsingUseLazyLoadQuery.md';
+
 import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';
 
 When referring to **"refreshing a query"**, we mean fetching the *exact* same data that was originally rendered by the query, in order to get the most up-to-date version of that data from the server.
 
 ## Using real-time features
 
-<FbInternalOnly>
-  <FbRefreshingUsingRealTimeFeatures />
-</FbInternalOnly>
-
 <OssOnly>
+
 If we want to keep our data up to date with the latest version from the server, the first thing to consider is if it appropriate to use any real-time features, which can make it easier to automatically keep the data up to date without manually refreshing the data periodically.
 
 One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions), which will require additional configuration on your server and [network layer](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions/#configuring-the-network-layer).
+
 </OssOnly>
 
 ## When using `useQueryLoader` / `loadQuery`
 
 To refresh a query using the [`useQueryLoader`](../../../api-reference/use-query-loader/) Hook described in our [Fetching Queries for Render](../../rendering/queries/#fetching-queries-for-render) section, we only need to call `loadQuery` again:
-
-<FbInternalOnly>
-  <FbRefreshingQueriesUsingUseQueryLoader />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -122,10 +113,6 @@ Let's distill what's going on here:
 
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
 
-<FbInternalOnly>
-  <FbAvoidSuspenseCaution />
-</FbInternalOnly>
-
 <OssOnly>
   <OssAvoidSuspenseNote />
 </OssOnly>
@@ -192,14 +179,9 @@ Let's distill what's going on here:
 * In the event handler, we first call `fetchQuery`, which will fetch the query and write the data to the local Relay store. When the `fetchQuery` network request completes, we call `loadQuery` so that we obtain an updated  `queryRef` that we then pass to `usePreloadedQuery` in order render the updated data, similar to the previous example.
 * At this point, when `loadQuery` is called, the data for the query should already be cached in the local Relay store, so we use `fetchPolicy` of `'store-only'` to avoid suspending and only read the already cached data.
 
-
 ## When using `useLazyLoadQuery`
 
 To refresh a query using the [`useLazyLoadQuery`](../../../api-reference/use-lazy-load-query/) Hook described in our [Lazily Fetching Queries during Render](../../rendering/queries/#lazily-fetching-queries-during-render) section, we can do the following:
-
-<FbInternalOnly>
-  <FbRefreshingQueriesUsingUseLazyLoadQuery />
-</FbInternalOnly>
 
 <OssOnly>
 
@@ -287,10 +269,6 @@ Let's distill what's going on here:
 ### If you need to avoid Suspense
 
 In some cases, you might want to avoid showing a Suspense fallback, which would hide the already rendered content. For these cases, you can use [`fetchQuery`](../../../api-reference/fetch-query/) instead, and manually keep track of a loading state:
-
-<FbInternalOnly>
-  <FbAvoidSuspenseCaution />
-</FbInternalOnly>
 
 <OssOnly>
   <OssAvoidSuspenseNote />

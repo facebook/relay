@@ -34,6 +34,9 @@ pub enum FragmentArgumentSyntaxKind {
 pub struct ParserFeatures {
     /// Whether and how to enable the experimental fragment variables definitions syntax
     pub fragment_argument_capability: FragmentArgumentSyntaxKind,
+
+    /// Allows string literals as field aliases, as in: `query { "alias": field }`
+    pub allow_string_literal_alias: bool,
 }
 
 impl ParserFeatures {
@@ -419,25 +422,25 @@ impl<'a> Parser<'a> {
         }
         match self.source(token) {
             "schema" => Ok(TypeSystemDefinition::SchemaDefinition(
-                self.parse_schema_definition()?,
+                self.parse_schema_definition(description)?,
             )),
             "scalar" => Ok(TypeSystemDefinition::ScalarTypeDefinition(
-                self.parse_scalar_type_definition()?,
+                self.parse_scalar_type_definition(description)?,
             )),
             "type" => Ok(TypeSystemDefinition::ObjectTypeDefinition(
-                self.parse_object_type_definition()?,
+                self.parse_object_type_definition(description)?,
             )),
             "interface" => Ok(TypeSystemDefinition::InterfaceTypeDefinition(
-                self.parse_interface_type_definition()?,
+                self.parse_interface_type_definition(description)?,
             )),
             "union" => Ok(TypeSystemDefinition::UnionTypeDefinition(
-                self.parse_union_type_definition()?,
+                self.parse_union_type_definition(description)?,
             )),
             "enum" => Ok(TypeSystemDefinition::EnumTypeDefinition(
-                self.parse_enum_type_definition()?,
+                self.parse_enum_type_definition(description)?,
             )),
             "input" => Ok(TypeSystemDefinition::InputObjectTypeDefinition(
-                self.parse_input_object_type_definition()?,
+                self.parse_input_object_type_definition(description)?,
             )),
             "directive" => Ok(TypeSystemDefinition::DirectiveDefinition(
                 self.parse_directive_definition(description, hack_source)?,
@@ -445,7 +448,7 @@ impl<'a> Parser<'a> {
             "extend" => self.parse_type_system_extension(),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token: `{}`", token_str),
+                    format!("Unexpected token: `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -477,7 +480,7 @@ impl<'a> Parser<'a> {
             "extend" => self.advance_type_system_extension(),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token: `{}`", token_str),
+                    format!("Unexpected token: `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -526,7 +529,7 @@ impl<'a> Parser<'a> {
             )),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token `{}`", token_str),
+                    format!("Unexpected token `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -561,7 +564,7 @@ impl<'a> Parser<'a> {
             "input" => self.advance_input_object_type_extension(),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected token `{}`", token_str),
+                    format!("Unexpected token `{token_str}`"),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -571,9 +574,12 @@ impl<'a> Parser<'a> {
     }
 
     /**
-     * SchemaDefinition : schema Directives? { OperationTypeDefinition+ }
+     * SchemaDefinition : Description? schema Directives? { OperationTypeDefinition+ }
      */
-    fn parse_schema_definition(&mut self) -> ParseResult<SchemaDefinition> {
+    fn parse_schema_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<SchemaDefinition> {
         let start = self.index();
         self.parse_keyword("schema")?;
         let directives = self.parse_constant_directives()?;
@@ -587,6 +593,7 @@ impl<'a> Parser<'a> {
         Ok(SchemaDefinition {
             directives,
             operation_types,
+            description,
             span,
         })
     }
@@ -685,8 +692,7 @@ impl<'a> Parser<'a> {
             token_str => {
                 let error = Diagnostic::error(
                     format!(
-                        "Expected one of `query`, `mutation`, `subscription`, got `{}`",
-                        token_str
+                        "Expected one of `query`, `mutation`, `subscription`, got `{token_str}`",
                     ),
                     Location::new(self.source_location, token.span),
                 );
@@ -708,8 +714,7 @@ impl<'a> Parser<'a> {
             token_str => {
                 let error = Diagnostic::error(
                     format!(
-                        "Expected one of `query`, `mutation`, `subscription`, got `{}`",
-                        token_str
+                        "Expected one of `query`, `mutation`, `subscription`, got `{token_str}`",
                     ),
                     Location::new(self.source_location, token.span),
                 );
@@ -719,7 +724,14 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_object_type_definition(&mut self) -> ParseResult<ObjectTypeDefinition> {
+    /**
+     * ObjectTypeDefinition :
+     *   - Description? type Name ImplementsInterfaces? Directives? FieldsDefinition?
+     */
+    fn parse_object_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<ObjectTypeDefinition> {
         let start = self.index();
         self.parse_keyword("type")?;
         let name = self.parse_identifier()?;
@@ -733,6 +745,7 @@ impl<'a> Parser<'a> {
             interfaces,
             directives,
             fields,
+            description,
             span,
         })
     }
@@ -746,7 +759,14 @@ impl<'a> Parser<'a> {
         Ok(self.current)
     }
 
-    fn parse_interface_type_definition(&mut self) -> ParseResult<InterfaceTypeDefinition> {
+    /**
+     * InterfaceTypeDefinition :
+     *   - Description? interface Name ImplementsInterfaces? Directives? FieldsDefinition?
+     */
+    fn parse_interface_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<InterfaceTypeDefinition> {
         let start = self.index();
         self.parse_keyword("interface")?;
         let name = self.parse_identifier()?;
@@ -760,6 +780,7 @@ impl<'a> Parser<'a> {
             interfaces,
             directives,
             fields,
+            description,
             span,
         })
     }
@@ -777,7 +798,10 @@ impl<'a> Parser<'a> {
      * UnionTypeDefinition :
      *   - Description? union Name Directives? UnionMemberTypes?
      */
-    fn parse_union_type_definition(&mut self) -> ParseResult<UnionTypeDefinition> {
+    fn parse_union_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<UnionTypeDefinition> {
         let start = self.index();
         self.parse_keyword("union")?;
         let name = self.parse_identifier()?;
@@ -789,6 +813,7 @@ impl<'a> Parser<'a> {
             name,
             directives,
             members,
+            description,
             span,
         })
     }
@@ -876,7 +901,10 @@ impl<'a> Parser<'a> {
      * EnumTypeDefinition :
      *   - Description? enum Name Directives? EnumValuesDefinition?
      */
-    fn parse_enum_type_definition(&mut self) -> ParseResult<EnumTypeDefinition> {
+    fn parse_enum_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<EnumTypeDefinition> {
         let start = self.index();
         self.parse_keyword("enum")?;
         let name = self.parse_identifier()?;
@@ -888,6 +916,7 @@ impl<'a> Parser<'a> {
             name,
             directives,
             values,
+            description,
             span,
         })
     }
@@ -967,7 +996,7 @@ impl<'a> Parser<'a> {
      */
     fn parse_enum_value_definition(&mut self) -> ParseResult<EnumValueDefinition> {
         let start = self.index();
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let directives = self.parse_constant_directives()?;
         let end = self.index();
@@ -975,6 +1004,7 @@ impl<'a> Parser<'a> {
         Ok(EnumValueDefinition {
             name,
             directives,
+            description,
             span,
         })
     }
@@ -1084,9 +1114,13 @@ impl<'a> Parser<'a> {
     }
 
     /**
-     * ScalarTypeDefinition : Description? scalar Name Directives?
+     * ScalarTypeDefinition :
+     *   - Description? scalar Name Directives?
      */
-    fn parse_scalar_type_definition(&mut self) -> ParseResult<ScalarTypeDefinition> {
+    fn parse_scalar_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<ScalarTypeDefinition> {
         let start = self.index();
         self.parse_keyword("scalar")?;
         let name = self.parse_identifier()?;
@@ -1096,6 +1130,7 @@ impl<'a> Parser<'a> {
         Ok(ScalarTypeDefinition {
             name,
             directives,
+            description,
             span,
         })
     }
@@ -1143,7 +1178,10 @@ impl<'a> Parser<'a> {
      * InputObjectTypeDefinition :
      *   - Description? input Name Directives? InputFieldsDefinition?
      */
-    fn parse_input_object_type_definition(&mut self) -> ParseResult<InputObjectTypeDefinition> {
+    fn parse_input_object_type_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<InputObjectTypeDefinition> {
         let start = self.index();
         self.parse_keyword("input")?;
         let name = self.parse_identifier()?;
@@ -1155,6 +1193,7 @@ impl<'a> Parser<'a> {
             name,
             directives,
             fields,
+            description,
             span,
         })
     }
@@ -1360,7 +1399,7 @@ impl<'a> Parser<'a> {
             "VARIABLE_DEFINITION" => Ok(DirectiveLocation::VariableDefinition),
             token_str => {
                 let error = Diagnostic::error(
-                    format!("Unexpected `{}`, expected a directive location.", token_str),
+                    format!("Unexpected `{token_str}`, expected a directive location."),
                     Location::new(self.source_location, token.span),
                 );
                 self.record_error(error);
@@ -1534,7 +1573,7 @@ impl<'a> Parser<'a> {
      */
     fn parse_input_value_def(&mut self) -> ParseResult<InputValueDefinition> {
         let start = self.index();
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_type_annotation()?;
@@ -1551,6 +1590,7 @@ impl<'a> Parser<'a> {
             type_,
             default_value,
             directives,
+            description,
             span,
         })
     }
@@ -1606,9 +1646,10 @@ impl<'a> Parser<'a> {
         Ok(self.current)
     }
 
-    /// FragmentDefinition : fragment FragmentName TypeCondition Directives? SelectionSet
+    /// FragmentDefinition : Description? fragment FragmentName TypeCondition Directives? SelectionSet
     fn parse_fragment_definition(&mut self) -> ParseResult<FragmentDefinition> {
         let start = self.index();
+        let description = self.parse_optional_description();
         let fragment = self.parse_keyword("fragment")?;
         let name = self.parse_identifier()?;
         let variable_definitions = if self.features.supports_variable_definition_syntax() {
@@ -1633,11 +1674,12 @@ impl<'a> Parser<'a> {
             type_condition,
             directives,
             selections,
+            description,
         })
     }
 
     /// OperationDefinition :
-    ///     OperationType Name? VariableDefinitions? Directives? SelectionSet
+    ///     Description? OperationType Name? VariableDefinitions? Directives? SelectionSet
     ///     SelectionSet
     fn parse_operation_definition(&mut self) -> ParseResult<OperationDefinition> {
         let start = self.index();
@@ -1652,8 +1694,11 @@ impl<'a> Parser<'a> {
                 variable_definitions: None,
                 directives: Vec::new(),
                 selections,
+                description: None,
             });
         }
+        // Check for description before operation type
+        let description = self.parse_optional_description();
         // Otherwise requires operation type and name
         let maybe_operation_token = self.peek();
         let operation = match (
@@ -1694,12 +1739,14 @@ impl<'a> Parser<'a> {
             variable_definitions,
             directives,
             selections,
+            description,
         })
     }
 
-    /// VariableDefinition : Variable : Type DefaultValue? Directives[Const]?
+    /// VariableDefinition : Description? Variable : Type DefaultValue? Directives[Const]?
     fn parse_variable_definition(&mut self) -> ParseResult<VariableDefinition> {
         let start = self.index();
+        let description = self.parse_optional_description();
         let name = self.parse_variable_identifier()?;
         let colon = self.parse_kind(TokenKind::Colon)?;
         let type_ = self.parse_type_annotation()?;
@@ -1717,6 +1764,7 @@ impl<'a> Parser<'a> {
             type_,
             default_value,
             directives,
+            description,
         })
     }
 
@@ -1792,7 +1840,6 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::Identifier => {
                 self.advance_identifier()?;
-                ()
             }
             TokenKind::OpenBracket => {
                 self.advance_kind(TokenKind::OpenBracket)?; // open
@@ -1906,7 +1953,7 @@ impl<'a> Parser<'a> {
         let token = self.peek();
         match token.kind {
             TokenKind::Spread => self.parse_spread(),
-            TokenKind::Identifier => self.parse_field(),
+            TokenKind::Identifier | TokenKind::StringLiteral => self.parse_field(),
             // hint for invalid spreads
             TokenKind::Period | TokenKind::PeriodPeriod => {
                 let error = Diagnostic::error(
@@ -1927,13 +1974,49 @@ impl<'a> Parser<'a> {
         }
     }
 
+    fn parse_name_or_string_literal(&mut self) -> ParseResult<IdentifierOrString> {
+        let token_kind = self.peek_token_kind();
+        if token_kind == TokenKind::Identifier {
+            return Ok(IdentifierOrString::Identifier(self.parse_identifier()?));
+        }
+
+        let token = self.parse_token();
+        if !self.features.allow_string_literal_alias {
+            self.record_error(Diagnostic::error(
+                SyntaxError::Expected(TokenKind::Identifier),
+                Location::new(self.source_location, token.span),
+            ));
+            return Err(());
+        }
+
+        match token.kind {
+            TokenKind::StringLiteral => Ok(IdentifierOrString::StringNode(
+                self.parse_string_literal(token, self.source(&token)),
+            )),
+            _ => {
+                self.record_error(Diagnostic::error(
+                    SyntaxError::Expected(TokenKind::StringLiteral),
+                    Location::new(self.source_location, token.span),
+                ));
+                Err(())
+            }
+        }
+    }
+
     /// Field : Alias? Name Arguments? Directives? SelectionSet?
     fn parse_field(&mut self) -> ParseResult<Selection> {
         let start = self.index();
-        let name = self.parse_identifier()?;
+        let maybe_alias = self.parse_name_or_string_literal()?;
         let (name, alias) = if self.peek_token_kind() == TokenKind::Colon {
             let colon = self.parse_kind(TokenKind::Colon)?;
-            let alias = name;
+            let alias = match maybe_alias {
+                IdentifierOrString::Identifier(node) => node,
+                IdentifierOrString::StringNode(node) => Identifier {
+                    span: node.token.span,
+                    token: node.token,
+                    value: node.value,
+                },
+            };
             let name = {
                 match self.peek_token_kind() {
                     TokenKind::Identifier => self.parse_identifier()?,
@@ -1960,8 +2043,18 @@ impl<'a> Parser<'a> {
                 }),
             )
         } else {
-            (name, None)
+            match maybe_alias {
+                IdentifierOrString::StringNode(node) => {
+                    self.record_error(Diagnostic::error(
+                        SyntaxError::Expected(TokenKind::Identifier),
+                        Location::new(self.source_location, node.token.span),
+                    ));
+                    (self.empty_identifier(), None)
+                }
+                IdentifierOrString::Identifier(node) => (node, None),
+            }
         };
+
         let arguments = self.parse_optional_arguments()?;
         let directives = self.parse_directives()?;
         if self.peek_token_kind() == TokenKind::OpenBrace {
@@ -2387,13 +2480,9 @@ impl<'a> Parser<'a> {
         let token = self.parse_token();
         let source = self.source(&token);
         match &token.kind {
-            TokenKind::StringLiteral => {
-                let value = source[1..source.len() - 1].to_string();
-                Ok(ConstantValue::String(StringNode {
-                    token,
-                    value: value.intern(),
-                }))
-            }
+            TokenKind::StringLiteral => Ok(ConstantValue::String(
+                self.parse_string_literal(token, source),
+            )),
             TokenKind::BlockStringLiteral => {
                 let value = clean_block_string_literal(source);
                 Ok(ConstantValue::String(StringNode {
@@ -2494,6 +2583,14 @@ impl<'a> Parser<'a> {
                 self.record_error(error);
                 Err(())
             }
+        }
+    }
+
+    fn parse_string_literal(&self, token: Token, source: &str) -> StringNode {
+        let value = source[1..source.len() - 1].to_string();
+        StringNode {
+            token,
+            value: value.intern(),
         }
     }
 
@@ -2896,9 +2993,9 @@ impl<'a> Parser<'a> {
     fn parse_token(&mut self) -> Token {
         // Skip over (and record) any invalid tokens until either a valid token or an EOF is encountered
         loop {
-            let kind = self.lexer.next().unwrap_or(TokenKind::EndOfFile);
+            let kind = self.lexer.next().unwrap_or(Ok(TokenKind::EndOfFile));
             match kind {
-                TokenKind::Error => {
+                Err(_) => {
                     if let Some(error_token_kind) = self.lexer.extras.error_token {
                         // Reset the error token
                         self.lexer.extras.error_token = None;
@@ -2922,7 +3019,7 @@ impl<'a> Parser<'a> {
                         self.record_error(error);
                     }
                 }
-                _ => {
+                Ok(kind) => {
                     self.end_index = self.current.span.end;
                     let span = self.lexer_span();
                     return std::mem::replace(&mut self.current, Token { kind, span });
@@ -2984,13 +3081,13 @@ fn clean_block_string_literal(source: &str) -> String {
 
     while formatted_lines
         .front()
-        .map_or(false, |line| line_is_whitespace(line))
+        .is_some_and(|line| line_is_whitespace(line))
     {
         formatted_lines.pop_front();
     }
     while formatted_lines
         .back()
-        .map_or(false, |line| line_is_whitespace(line))
+        .is_some_and(|line| line_is_whitespace(line))
     {
         formatted_lines.pop_back();
     }
@@ -3003,10 +3100,10 @@ fn get_common_indent(source: &str) -> usize {
     let lines = source.lines().skip(1);
     let mut common_indent: Option<usize> = None;
     for line in lines {
-        if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next() {
-            if common_indent.map_or(true, |indent| first_index < indent) {
-                common_indent = Some(first_index)
-            }
+        if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next()
+            && common_indent.is_none_or(|indent| first_index < indent)
+        {
+            common_indent = Some(first_index)
         }
     }
     common_indent.unwrap_or(0)
@@ -3026,7 +3123,7 @@ mod tests {
     use super::*;
 
     fn triple_quote(inner: &str) -> String {
-        format!("\"\"\"{}\"\"\"", inner)
+        format!("\"\"\"{inner}\"\"\"")
     }
 
     #[test]

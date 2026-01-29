@@ -11,7 +11,7 @@ use std::hash::Hash;
 
 pub trait AssociatedData: Send + Sync + fmt::Debug + AsAny {
     fn clone_box(&self) -> Box<dyn AssociatedData>;
-    fn eq_box(&self, other: &Box<dyn AssociatedData>) -> bool;
+    fn eq_box(&self, other: &dyn AssociatedData) -> bool;
     fn hash_box(&self) -> u64;
 }
 impl dyn AssociatedData {
@@ -27,7 +27,7 @@ impl Clone for Box<dyn AssociatedData> {
     }
 }
 
-impl PartialEq for Box<dyn AssociatedData> {
+impl PartialEq for dyn AssociatedData {
     fn eq(&self, other: &Self) -> bool {
         self.eq_box(other)
     }
@@ -58,7 +58,7 @@ macro_rules! associated_data_impl {
                 Box::new(self.clone())
             }
 
-            fn eq_box(&self, other: &Box<dyn $crate::AssociatedData>) -> bool {
+            fn eq_box(&self, other: &dyn $crate::AssociatedData) -> bool {
                 other
                     .downcast_ref::<Self>()
                     .map_or(false, |other| other == self)
@@ -77,12 +77,14 @@ macro_rules! associated_data_impl {
             }
         }
 
-        impl Into<$crate::Directive> for $name {
-            fn into(self) -> $crate::Directive {
+        impl From<$name> for $crate::Directive {
+            fn from(item: $name) -> Self {
                 $crate::Directive {
-                    name: $crate::reexport::WithLocation::generated(Self::directive_name()),
+                    name: $crate::reexport::WithLocation::generated($name::directive_name()),
                     arguments: Vec::new(),
-                    data: Some(Box::new(self)),
+                    data: Some(Box::new(item)),
+                    location: $crate::reexport::WithLocation::generated($name::directive_name())
+                        .location,
                 }
             }
         }

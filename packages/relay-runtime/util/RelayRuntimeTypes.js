@@ -40,7 +40,7 @@ export type Variables = {+[string]: $FlowFixMe};
 export type OperationType = {
   // TODO(T33395812) Make this an open object type
   +variables: Variables,
-  +response: mixed,
+  +response: unknown,
   +rawResponse?: {...},
 };
 
@@ -53,20 +53,23 @@ export type VariablesOf<T: OperationType> = T['variables'];
  *   state of any configured response cache.
  * - `poll`: causes a query to live update by polling at the specified interval
  *   in milliseconds. (This value will be passed to setTimeout.)
- * - `liveConfigId`: causes a query to live update by calling GraphQLLiveQuery,
- *   it represents a configuration of gateway when doing live query
- * - `onSubscribe`: Not in use.
+ * - `liveConfigId`: Makes a query live by sending through RTI stack.
+ * - `onSubscribe`: Callback to be called when a live query stream is started.
+ * - `onPause`: Callback to be called when a live query stream is paused, e.g. due to a network disconnection.
+ * - `onResume`: Callback to be called when a live query stream is resumed, e.g. from a network disconnection.
  * - `metadata`: user-supplied metadata.
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
  */
 export type CacheConfig = {
-  force?: ?boolean,
-  poll?: ?number,
-  liveConfigId?: ?string,
-  onSubscribe?: () => void,
-  metadata?: {[key: string]: mixed, ...},
-  transactionId?: ?string,
+  +force?: ?boolean,
+  +poll?: ?number,
+  +liveConfigId?: ?string,
+  +onSubscribe?: () => void,
+  +onResume?: (pauseTimeMs: number) => void,
+  +onPause?: (mqttConnectionIsOk: boolean, internetIsOk: boolean) => void,
+  +metadata?: {+[key: string]: unknown, ...},
+  +transactionId?: ?string,
 };
 
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
@@ -163,5 +166,16 @@ declare export opaque type Fragment<TFragmentType, +TData>: ReaderFragment;
 declare export opaque type RefetchableFragment<
   TFragmentType,
   +TData,
+  TVariables: Variables,
+>: Fragment<TFragmentType, TData>;
+
+/**
+ * Return type of graphql tag literals for `@refetchable` fragments
+ * with prefetchable pagination connections.
+ */
+declare export opaque type PrefetchableRefetchableFragment<
+  TFragmentType,
+  +TData,
+  +TEdgeData,
   TVariables: Variables,
 >: Fragment<TFragmentType, TData>;

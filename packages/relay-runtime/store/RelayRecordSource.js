@@ -19,8 +19,10 @@ import type {
   RecordSourceJSON,
 } from './RelayStoreTypes';
 
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayModernRecord = require('./RelayModernRecord');
 const RelayRecordState = require('./RelayRecordState');
+const {RELAY_RESOLVER_RECORD_TYPENAME} = require('./RelayStoreUtils');
 
 const {EXISTENT, NONEXISTENT, UNKNOWN} = RelayRecordState;
 
@@ -86,8 +88,16 @@ class RelayRecordSource implements MutableRecordSource {
   }
 
   toJSON(): RecordSourceJSON {
-    const obj: RecordSourceJSON = {};
+    const obj: {...RecordSourceJSON} = {};
     for (const [key, record] of this._records) {
+      // Filter out any Relay Resolver records
+      if (
+        RelayFeatureFlags.FILTER_OUT_RELAY_RESOLVER_RECORDS &&
+        record != null &&
+        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
+      ) {
+        continue;
+      }
       obj[key] = RelayModernRecord.toJSON<null | void>(record);
     }
     return obj;

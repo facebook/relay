@@ -57,6 +57,7 @@ fragment F2 on Query @argumentDefinitions(
                     },
                     arguments: [],
                     data: None,
+                    location: fragment_with_arguments_defaulting.graphql:31:177,
                 },
             ],
             selections: [
@@ -95,6 +96,47 @@ fragment F2 on Query @argumentDefinitions(
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment_with_arguments_defaulting.graphql:236:238,
+                                item: FragmentDefinitionName(
+                                    "F2",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment_with_arguments_defaulting.graphql:272:281,
+                                        item: VariableName(
+                                            "nonnullID",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(4),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(0),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment_with_arguments_defaulting.graphql:249:268,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment_with_arguments_defaulting.graphql:248:298,
+                                },
+                            ],
+                        },
+                    ),
                     directives: [],
                 },
             ],
@@ -137,6 +179,7 @@ fragment F2 on Query @argumentDefinitions(
                     },
                     arguments: [],
                     data: None,
+                    location: fragment_with_arguments_defaulting.graphql:248:298,
                 },
             ],
             selections: [

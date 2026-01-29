@@ -21,15 +21,19 @@ const {
   Environment,
   Network,
   RecordSource,
-  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
 const {
   addTodo,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 /**
  * CLIENT EDGE TO PLURAL LIVE STRONG CLIENT OBJECT
@@ -38,7 +42,7 @@ const {createMockEnvironment} = require('relay-test-utils');
 /**
  * @RelayResolver Query.edge_to_plural_live_objects_some_exist: [TodoModel]
  */
-export function edge_to_plural_live_objects_some_exist(): $ReadOnlyArray<{
+export function edge_to_plural_live_objects_some_exist(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: 'todo-1'}, {id: 'THERE_IS_NO_TODO_WITH_THIS_ID'}];
@@ -47,7 +51,7 @@ export function edge_to_plural_live_objects_some_exist(): $ReadOnlyArray<{
 /**
  * @RelayResolver Query.edge_to_plural_live_objects_none_exist: [TodoModel]
  */
-export function edge_to_plural_live_objects_none_exist(): $ReadOnlyArray<{
+export function edge_to_plural_live_objects_none_exist(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: 'NO_TODO_1'}, {id: 'NO_TODO_2'}];
@@ -163,7 +167,7 @@ export function edge_to_model_that_throws(): {id: DataID} {
 /**
  * @RelayResolver Query.edge_to_plural_models_that_throw: [ErrorModel]
  */
-export function edge_to_plural_models_that_throw(): $ReadOnlyArray<{
+export function edge_to_plural_models_that_throw(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: `${ERROR_ID}-1`}, {id: `${ERROR_ID}-2`}];
@@ -172,19 +176,11 @@ export function edge_to_plural_models_that_throw(): $ReadOnlyArray<{
 /**
  * @RelayResolver Query.edge_to_plural_models_some_throw: [ErrorModel]
  */
-export function edge_to_plural_models_some_throw(): $ReadOnlyArray<{
+export function edge_to_plural_models_some_throw(): ReadonlyArray<{
   id: DataID,
 }> {
   return [{id: ERROR_ID}, {id: 'a valid id!'}];
 }
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
 
 const logEvents: Array<LogEvent> = [];
 function logFn(event: LogEvent): void {
@@ -194,7 +190,7 @@ function logFn(event: LogEvent): void {
 function createEnvironment() {
   return new Environment({
     network: Network.create(jest.fn()),
-    store: new LiveResolverStore(RecordSource.create(), {
+    store: new RelayModernStore(RecordSource.create(), {
       log: logFn,
     }),
     log: logFn,
@@ -219,6 +215,7 @@ let environment;
 beforeEach(() => {
   environment = createEnvironment();
 });
+
 test('client edge to plural IDs, none have corresponding live object', () => {
   function TodoNullComponent() {
     const data = useClientQuery(
@@ -244,12 +241,15 @@ test('client edge to plural IDs, none have corresponding live object', () => {
       .join(',');
   }
 
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoNullComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('unknown,unknown');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('unknown,unknown');
 });
 
 test('client edge to plural IDs, some with no corresponding live object', () => {
@@ -278,12 +278,15 @@ test('client edge to plural IDs, some with no corresponding live object', () => 
   }
 
   addTodo('Test todo');
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoNullComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('todo-1 - Test todo,unknown');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('todo-1 - Test todo,unknown');
 });
 
 test('client edge to ID with no corresponding live object', () => {
@@ -313,12 +316,15 @@ test('client edge to ID with no corresponding live object', () => {
         return 'Todo was not null or undefined';
     }
   }
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <TodoNullComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Todo was null');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Todo was null');
 });
 
 test('client edge to ID with no corresponding weak object', () => {
@@ -345,12 +351,15 @@ test('client edge to ID with no corresponding weak object', () => {
         return 'Weak model was not null or undefined';
     }
   }
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <NullWeakModelComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Weak model was null');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <NullWeakModelComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Weak model was null');
 });
 
 test('client edge to ID with no corresponding strong object', () => {
@@ -377,12 +386,15 @@ test('client edge to ID with no corresponding strong object', () => {
         return 'strong model was not null or undefined';
     }
   }
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={environment}>
-      <NullStrongModelComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('strong model was null');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <NullStrongModelComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('strong model was null');
 });
 
 test('client edge to server ID with no corresponding server object', () => {
@@ -410,18 +422,21 @@ test('client edge to server ID with no corresponding server object', () => {
     }
   }
   const mock_environment = createMockEnvironment();
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={mock_environment}>
-      <NullServerObjectComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Loading...');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <NullServerObjectComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
     jest.runAllImmediates();
   });
   // TODO T169274655 should this be 'server object was null'?
-  expect(renderer.toJSON()).toEqual('server object was undefined');
+  expect(renderer?.toJSON()).toEqual('server object was undefined');
 });
 
 test('client edge to server ID with no corresponding server object (read only id)', () => {
@@ -449,18 +464,21 @@ test('client edge to server ID with no corresponding server object (read only id
     }
   }
   const mock_environment = createMockEnvironment();
-  const renderer = TestRenderer.create(
-    <EnvironmentWrapper environment={mock_environment}>
-      <NullServerObjectComponent />
-    </EnvironmentWrapper>,
-  );
-  expect(renderer.toJSON()).toEqual('Loading...');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={mock_environment}>
+        <NullServerObjectComponent />
+      </EnvironmentWrapper>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     mock_environment.mock.resolveMostRecentOperation({data: {node: null}});
     jest.runAllImmediates();
   });
   // TODO T169274655 should this be 'server object was null'?
-  expect(renderer.toJSON()).toEqual('server object was undefined');
+  expect(renderer?.toJSON()).toEqual('server object was undefined');
 });
 
 test('Errors thrown when reading the model a client edge points to are caught as resolver errors', () => {
@@ -475,16 +493,17 @@ test('Errors thrown when reading the model a client edge points to are caught as
     {},
   );
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([
+  expect(snapshot.fieldErrors).toEqual([
     {
       error: Error(ERROR_MESSAGE),
-      field: {
-        owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
-        path: 'edge_to_model_that_throws.__relay_model_instance',
-      },
+      owner: 'RelayResolverNullableModelClientEdgeTest_ErrorModel_Query',
+      fieldPath: 'edge_to_model_that_throws.__relay_model_instance',
+      kind: 'relay_resolver.error',
+      shouldThrow: false,
+      handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_model_that_throws).toBe(null);
 });
 
@@ -500,25 +519,25 @@ test('Errors thrown when reading plural client edge are caught as resolver error
     {},
   );
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([
+  expect(snapshot.fieldErrors).toEqual([
     {
       error: Error(ERROR_MESSAGE),
-      field: {
-        owner:
-          'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-        path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-      },
+      owner: 'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+      fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+      kind: 'relay_resolver.error',
+      shouldThrow: false,
+      handled: false,
     },
     {
       error: Error(ERROR_MESSAGE),
-      field: {
-        owner:
-          'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
-        path: 'edge_to_plural_models_that_throw.__relay_model_instance',
-      },
+      owner: 'RelayResolverNullableModelClientEdgeTest_PluralErrorModel_Query',
+      fieldPath: 'edge_to_plural_models_that_throw.__relay_model_instance',
+      kind: 'relay_resolver.error',
+      shouldThrow: false,
+      handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_plural_models_that_throw).toStrictEqual([null, null]);
 });
 
@@ -534,17 +553,18 @@ test('Errors thrown when reading plural client edge are caught as resolver error
     {},
   );
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([
+  expect(snapshot.fieldErrors).toEqual([
     {
       error: Error(ERROR_MESSAGE),
-      field: {
-        owner:
-          'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
-        path: 'edge_to_plural_models_some_throw.__relay_model_instance',
-      },
+      owner:
+        'RelayResolverNullableModelClientEdgeTest_PluralSomeErrorModel_Query',
+      fieldPath: 'edge_to_plural_models_some_throw.__relay_model_instance',
+      kind: 'relay_resolver.error',
+      shouldThrow: false,
+      handled: false,
     },
   ]);
-  const data: $FlowExpectedError = snapshot.data;
+  const data: $FlowFixMe = snapshot.data;
   expect(data.edge_to_plural_models_some_throw).toStrictEqual([
     null,
     {id: 'a valid id!'},

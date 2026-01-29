@@ -18,14 +18,19 @@ fragment fragmentAliasNotEnabled_fragment on Query {
     "selections": [
       {
         "fragment": {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "fragmentAliasNotEnabled_fragment"
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "fragmentAliasNotEnabled_fragment"
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
         },
-        "kind": "AliasedFragmentSpread",
-        "name": "fragmentAliasNotEnabled_fragment",
-        "type": "Query",
-        "abstractKey": null
+        "kind": "AliasedInlineFragmentSpread",
+        "name": "fragmentAliasNotEnabled_fragment"
       }
     ],
     "type": "Query",

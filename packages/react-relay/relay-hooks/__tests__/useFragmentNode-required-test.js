@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -14,9 +15,10 @@ import type {ReaderFragment} from '../../../relay-runtime/util/ReaderNode';
 import type {RequestDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const useFragmentNodeOriginal = require('../legacy/useFragmentNode');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
+const {act} = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
@@ -34,10 +36,10 @@ let renderSpy;
 
 hook useFragmentNode(
   fragmentNode: ReaderFragment,
-  fragmentRef: $TEMPORARY$object<{
+  fragmentRef: Readonly<{
     __fragmentOwner: RequestDescriptor,
-    __fragments: $TEMPORARY$object<{
-      useFragmentNodeRequiredTestUserFragment: $TEMPORARY$object<{...}>,
+    __fragments: Readonly<{
+      useFragmentNodeRequiredTestUserFragment: Readonly<{...}>,
     }>,
     __id: any,
   }>,
@@ -58,7 +60,7 @@ beforeEach(() => {
   jest.mock('warning');
   /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
    * enabling Flow LTI mode */
-  renderSpy = jest.fn<_, mixed>();
+  renderSpy = jest.fn<_, unknown>();
 
   // Set up environment and base data
   environment = createMockEnvironment();
@@ -67,7 +69,7 @@ beforeEach(() => {
   const gqlSingularQuery = graphql`
     query useFragmentNodeRequiredTestUserQuery($id: ID!) {
       node(id: $id) {
-        ...useFragmentNodeRequiredTestUserFragment
+        ...useFragmentNodeRequiredTestUserFragment @dangerously_unaliased_fixme
       }
     }
   `;
@@ -91,7 +93,7 @@ beforeEach(() => {
 
   const ContextProvider = ({
     children,
-  }: any | $TEMPORARY$object<{children: React.Node}>) => {
+  }: any | Readonly<{children: React.Node}>) => {
     return (
       <ReactRelayContext.Provider value={{environment}}>
         {children}
@@ -114,7 +116,7 @@ beforeEach(() => {
   };
 
   renderSingularFragment = () => {
-    return TestRenderer.create(
+    return ReactTestingLibrary.render(
       <ContextProvider>
         <SingularContainer />
       </ContextProvider>,
@@ -129,10 +131,12 @@ afterEach(() => {
   warning.mockClear();
 });
 
-it('should render singular fragment without error when data is available', () => {
+it('should render singular fragment without error when data is available', async () => {
   // $FlowFixMe[prop-missing]
   warning.mockClear();
-  renderSingularFragment();
+  await act(() => {
+    renderSingularFragment();
+  });
   expect(renderSpy).toHaveBeenCalledWith(
     expect.objectContaining({
       data: {
@@ -144,7 +148,7 @@ it('should render singular fragment without error when data is available', () =>
   expect(warning).not.toHaveBeenCalled();
 });
 
-it('should not warn on missing record when null bubbles to fragment root', () => {
+it('should not warn on missing record when null bubbles to fragment root', async () => {
   environment.commitPayload(singularQuery, {
     node: {
       __typename: 'User',
@@ -157,7 +161,9 @@ it('should not warn on missing record when null bubbles to fragment root', () =>
   // $FlowFixMe[prop-missing]
   warning.mockClear();
 
-  renderSingularFragment();
+  await act(() => {
+    renderSingularFragment();
+  });
   expect(renderSpy).toHaveBeenCalledWith(
     expect.objectContaining({
       data: null,

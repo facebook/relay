@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2a1161fc02bf8e3fcf82a67a1fc6454e>>
+ * @generated SignedSource<<264224bcbf3cac18840f289171287825>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import {edge_to_model_that_throws as queryEdgeToModelThatThrowsResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToModelThatThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToModelThatThrowsResolverType: () => ?{|
+(queryEdgeToModelThatThrowsResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 export type RelayResolverNullableModelClientEdgeTest_ErrorModel_Query$variables = {||};
@@ -67,8 +71,8 @@ return {
               "name": "ErrorModel__id"
             },
             "kind": "RelayResolver",
-            "name": "edge_to_model_that_throws",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
             "path": "edge_to_model_that_throws.__relay_model_instance"
           }
         },
@@ -78,7 +82,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_model_that_throws",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_model_that_throws,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_model_that_throws,
           "path": "edge_to_model_that_throws"
         },
         "linkedField": {

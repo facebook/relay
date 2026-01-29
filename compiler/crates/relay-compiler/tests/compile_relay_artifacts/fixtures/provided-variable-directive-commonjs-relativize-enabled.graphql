@@ -1,0 +1,23 @@
+query providedVariableDirectiveCommonjsRelativizeEnabledQuery {
+  me {
+    ...providedVariableDirectiveCommonjsRelativizeEnabledFragment
+  }
+}
+
+fragment providedVariableDirectiveCommonjsRelativizeEnabledFragment on User
+  @argumentDefinitions(
+    condA: {type: "Boolean!", provider: "bareProvider" },
+    condB: {type: "Boolean!", provider: "./relProvider" },
+    condC: {type: "Boolean!", provider: "../parentProvider" },
+  ) {
+  username @include(if: $condA)
+  name @include(if: $condB)
+  alternate_name @include(if: $condC)
+}
+
+%project_config%
+{
+  "jsModuleFormat": "commonjs",
+  "relativizeJsModulePaths": true,
+  "language": "flow"
+}

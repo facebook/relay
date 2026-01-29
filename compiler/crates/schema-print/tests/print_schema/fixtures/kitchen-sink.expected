@@ -4,6 +4,7 @@ directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
 directive @extern_type(schema: String, name: String) on INTERFACE
 directive @fetchable(field_name: String) on OBJECT
 directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+directive @repeats(id: String) repeatable on FIELD_DEFINITION
 
 schema {
   query: Query
@@ -36,7 +37,7 @@ type XIGStory
   @fetchable(field_name: "id")
   @source(schema: "instagram", name: "Story") {
   id: ID
-  name: String
+  name: String @repeats(id: "one") @repeats(id: "two")
 }
 
 union Actor @source(schema: "instagram", name: "Story") = User | Page
@@ -93,7 +94,7 @@ type UsernameQuery {
   fetch_user_name(user_id: ID @fbid): String
 }
 ==================================== OUTPUT ===================================
-directive @extern_type(schema: String, name: String) on INTERFACE
+directive @extern_type(name: String, schema: String) on INTERFACE
 
 directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
@@ -101,13 +102,15 @@ directive @fetchable(field_name: String) on OBJECT
 
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @ref_type(name: String, schema: String) on FIELD_DEFINITION
+
+directive @repeats(id: String) repeatable on FIELD_DEFINITION
 
 directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @source(name: String, schema: String) on OBJECT | INTERFACE | ENUM
 
-directive @extern_type(schema: String, name: String) on INTERFACE
+directive @extern_type(name: String, schema: String) on INTERFACE
 
 directive @fbid on ARGUMENT_DEFINITION | FIELD_DEFINITION | INPUT_FIELD_DEFINITION
 
@@ -115,21 +118,23 @@ directive @fetchable(field_name: String) on OBJECT
 
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @ref_type(name: String, schema: String) on FIELD_DEFINITION
+
+directive @repeats(id: String) repeatable on FIELD_DEFINITION
 
 directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @source(name: String, schema: String) on OBJECT | INTERFACE | ENUM
 
-union Actor @source(schema: "instagram", name: "Story") = User | Page
+union Actor @source(name: "Story", schema: "instagram") = User | Page
 
-enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
+enum AppStoreSectionContentTypeEnum @source(name: "Story", schema: "instagram") {
   DEFAULT @deprecated(reason: "test")
   CONCEPTS
   EARLY_ACCESS
 }
 
-input AppVersions @source(schema: "instagram", name: "Story") {
+input AppVersions @source(name: "Story", schema: "instagram") {
   app_id: ID!
   version_code: Int
 }
@@ -152,7 +157,7 @@ scalar String
 
 type User implements XIGHuman @fetchable(field_name: "id") {
   id: ID
-  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  story(id: ID = 1): XIGStory @ref_type(name: "Story", schema: "instagram")
   content_type(type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]): [AppStoreSectionContentTypeEnum]
   story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
 }
@@ -166,7 +171,7 @@ type UsernameQuery {
   fetch_user_name(user_id: ID @fbid): String
 }
 
-interface XIGHuman @source(schema: "instagram", name: "Human") {
+interface XIGHuman @source(name: "Human", schema: "instagram") {
   name: String
 }
 
@@ -180,7 +185,7 @@ input XIGStoryInput {
 
 scalar Float
 
-scalar ID @source(schema: "instagram", name: "Story")
+scalar ID @source(name: "Story", schema: "instagram")
 
 interface Node implements BaseNode {
   name: String!
@@ -201,9 +206,9 @@ input UserRequest {
   other_user_ids: [ID!] = [] @fbid
 }
 
-type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {
+type XIGStory @fetchable(field_name: "id") @source(name: "Story", schema: "instagram") {
   id: ID
-  name: String
+  name: String @repeats(id: "one") @repeats(id: "two")
 }
 
 

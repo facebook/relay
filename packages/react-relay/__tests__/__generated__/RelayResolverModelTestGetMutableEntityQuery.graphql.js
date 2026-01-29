@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<37153b011eadba493360d4d9d22f7598>>
+ * @generated SignedSource<<c8c2ece040e8c9091c98e87eed62afa6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {mutable_entity as queryMutableEntityResolverType} from "../../../relay-runtime/store/__tests__/resolvers/MutableModel.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryMutableEntityResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryMutableEntityResolverType: () => LiveState<?mixed>);
+(queryMutableEntityResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?unknown>);
 export type RelayResolverModelTestGetMutableEntityQuery$variables = {||};
 export type RelayResolverModelTestGetMutableEntityQuery$data = {|
   +mutable_entity: ?ReturnType<ReturnType<typeof queryMutableEntityResolverType>["read"]>,
@@ -49,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "mutable_entity",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/MutableModel').mutable_entity,
+            "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/MutableModel').mutable_entity,
             "path": "mutable_entity"
           }
         ]

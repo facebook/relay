@@ -27,13 +27,13 @@ const MutationTypes = Object.freeze({
   RANGE_DELETE: 'RANGE_DELETE',
   NODE_DELETE: 'NODE_DELETE',
 });
-export type MutationType = $Values<typeof MutationTypes>;
+export type MutationType = Values<typeof MutationTypes>;
 
 const RangeOperations = Object.freeze({
   APPEND: 'append',
   PREPEND: 'prepend',
 });
-export type RangeOperation = $Values<typeof RangeOperations>;
+export type RangeOperation = Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {
   [name: string]: $FlowFixMe,
@@ -145,13 +145,13 @@ function convert<TMutation: MutationParameters>(
 function nodeDelete(
   config: NodeDeleteConfig,
   request: ConcreteRequest,
-): ?SelectorStoreUpdater<mixed> {
+): ?SelectorStoreUpdater<unknown> {
   const {deletedIDFieldName} = config;
   const rootField = getRootField(request);
   if (!rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
+  return (store: RecordSourceSelectorProxy, data: ?unknown) => {
     const payload = store.getRootField(rootField);
     if (!payload) {
       return;
@@ -169,7 +169,7 @@ function nodeDelete(
 function rangeAdd(
   config: RangeAddConfig,
   request: ConcreteRequest,
-): ?SelectorStoreUpdater<mixed> {
+): ?SelectorStoreUpdater<unknown> {
   const {parentID, connectionInfo, edgeName} = config;
   if (!parentID) {
     warning(
@@ -183,7 +183,7 @@ function rangeAdd(
   if (!connectionInfo || !rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
+  return (store: RecordSourceSelectorProxy, data: ?unknown) => {
     const parent = store.get(parentID);
     if (!parent) {
       return;
@@ -237,7 +237,7 @@ function rangeAdd(
 function rangeDelete(
   config: RangeDeleteConfig,
   request: ConcreteRequest,
-): ?SelectorStoreUpdater<mixed> {
+): ?SelectorStoreUpdater<unknown> {
   const {parentID, connectionKeys, pathToConnection, deletedIDFieldName} =
     config;
   if (!parentID) {
@@ -252,7 +252,7 @@ function rangeDelete(
   if (!rootField) {
     return null;
   }
-  return (store: RecordSourceSelectorProxy, data: ?mixed) => {
+  return (store: RecordSourceSelectorProxy, data: ?unknown) => {
     if (!data) {
       return;
     }

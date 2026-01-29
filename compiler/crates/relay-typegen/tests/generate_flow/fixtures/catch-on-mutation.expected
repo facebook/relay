@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+mutation MutationFoo @catch(to: RESULT) {
+  unfriend(input: {friendId: "1"}) {
+    formerFriend {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+import type { Result } from "relay-runtime";
+export type MutationFoo$variables = {||};
+export type MutationFoo$data = Result<{|
+  +unfriend: ?{|
+    +formerFriend: ?{|
+      +name: ?string,
+    |},
+  |},
+|}, unknown>;
+export type MutationFoo = {|
+  response: MutationFoo$data,
+  variables: MutationFoo$variables,
+|};

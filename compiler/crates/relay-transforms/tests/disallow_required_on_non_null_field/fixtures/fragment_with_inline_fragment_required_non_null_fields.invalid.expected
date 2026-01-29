@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+fragment MyFragment on User @throwOnFieldError {
+  ... on User {
+    some_field @required(action: THROW)
+  }
+}
+
+# %extensions%
+extend type User {
+  some_field: Int!
+}
+==================================== OUTPUT ===================================
+OK; warnings: ℹ Unexpected `@required` directive on a non-null field. This field is already non-null and does not need the `@required` directive.
+
+  fragment_with_inline_fragment_required_non_null_fields.invalid.graphql:3:16
+    2 │   ... on User {
+    3 │     some_field @required(action: THROW)
+      │                ^^^^^^^^^^^^^^^^^^^^^^^^
+    4 │   }

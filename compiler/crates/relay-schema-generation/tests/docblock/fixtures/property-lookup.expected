@@ -1,0 +1,387 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+//- module.js
+
+/**
+ * @RelayResolver
+ */
+export type Cat = {
+  /**
+   * @gqlField
+   *
+   * This is the full name of the cat
+   */
+  name: string,
+  /**
+   * @gqlField
+   */
+  color: string,
+  /**
+   * @gqlField
+   * @deprecated Just use name instead
+   */
+  first_name: number,
+  /**
+   * @gqlField other_name
+   */
+  alias: number,
+};
+==================================== OUTPUT ===================================
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 17:27,
+                    token: Token {
+                        span: 17:27,
+                        kind: Identifier,
+                    },
+                    value: "other_name",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 504:510,
+                            token: Token {
+                                span: 504:510,
+                                kind: Identifier,
+                            },
+                            value: "Float",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 17:27,
+            },
+            type_: WithLocation {
+                location: module.js:231:234,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 17:27,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 17:27,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: module.js:17:27,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "6f05c358daee6821384cbf6c03fcb703",
+            ),
+            type_confirmed: true,
+            property_lookup_name: Some(
+                WithLocation {
+                    location: module.js:497:502,
+                    item: "alias",
+                },
+            ),
+        },
+    ),
+)
+extend type Cat {
+  other_name: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "other_name", import_path: "module.js", property_lookup_name: "alias") @resolver_source_hash(value: "6f05c358daee6821384cbf6c03fcb703") @semanticNonNull
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 311:315,
+                    token: Token {
+                        span: 311:315,
+                        kind: Identifier,
+                    },
+                    value: "name",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 317:323,
+                            token: Token {
+                                span: 317:323,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 241:308,
+                            kind: Empty,
+                        },
+                        value: "\nThis is the full name of the cat",
+                    },
+                ),
+                hack_source: None,
+                span: 311:315,
+            },
+            type_: WithLocation {
+                location: module.js:231:234,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 311:315,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 311:315,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: module.js:311:315,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "6f05c358daee6821384cbf6c03fcb703",
+            ),
+            type_confirmed: true,
+            property_lookup_name: Some(
+                WithLocation {
+                    location: module.js:311:315,
+                    item: "name",
+                },
+            ),
+        },
+    ),
+)
+extend type Cat {
+  name: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "name", import_path: "module.js", property_lookup_name: "name") @resolver_source_hash(value: "6f05c358daee6821384cbf6c03fcb703") @semanticNonNull
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 354:359,
+                    token: Token {
+                        span: 354:359,
+                        kind: Identifier,
+                    },
+                    value: "color",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 361:367,
+                            token: Token {
+                                span: 361:367,
+                                kind: Identifier,
+                            },
+                            value: "String",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 354:359,
+            },
+            type_: WithLocation {
+                location: module.js:231:234,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: None,
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 354:359,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 354:359,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: module.js:354:359,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "6f05c358daee6821384cbf6c03fcb703",
+            ),
+            type_confirmed: true,
+            property_lookup_name: Some(
+                WithLocation {
+                    location: module.js:354:359,
+                    item: "color",
+                },
+            ),
+        },
+    ),
+)
+extend type Cat {
+  color: String @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "color", import_path: "module.js", property_lookup_name: "color") @resolver_source_hash(value: "6f05c358daee6821384cbf6c03fcb703") @semanticNonNull
+}
+
+
+Field(
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
+                name: Identifier {
+                    span: 437:447,
+                    token: Token {
+                        span: 437:447,
+                        kind: Identifier,
+                    },
+                    value: "first_name",
+                },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 449:455,
+                            token: Token {
+                                span: 449:455,
+                                kind: Identifier,
+                            },
+                            value: "Float",
+                        },
+                    },
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 437:447,
+            },
+            type_: WithLocation {
+                location: module.js:231:234,
+                item: "Cat",
+            },
+            root_fragment: None,
+            return_fragment: None,
+            deprecated: Some(
+                PopulatedIrField(
+                    PopulatedIrField {
+                        key_location: module.js:23:33,
+                        value: WithLocation {
+                            location: module.js:34:55,
+                            item: "Just use name instead",
+                        },
+                    },
+                ),
+            ),
+            semantic_non_null: Some(
+                ConstantDirective {
+                    span: 437:447,
+                    at: Token {
+                        span: 0:0,
+                        kind: Empty,
+                    },
+                    name: Identifier {
+                        span: 437:447,
+                        token: Token {
+                            span: 0:0,
+                            kind: Empty,
+                        },
+                        value: "semanticNonNull",
+                    },
+                    arguments: None,
+                },
+            ),
+            live: None,
+            location: module.js:437:447,
+            fragment_arguments: None,
+            source_hash: ResolverSourceHash(
+                "6f05c358daee6821384cbf6c03fcb703",
+            ),
+            type_confirmed: true,
+            property_lookup_name: Some(
+                WithLocation {
+                    location: module.js:437:447,
+                    item: "first_name",
+                },
+            ),
+        },
+    ),
+)
+extend type Cat {
+  first_name: Float @relay_resolver(fragment_name: "Cat____relay_model_instance", generated_fragment: true, inject_fragment_data: "__relay_model_instance", type_confirmed: true, has_output_type: true, import_name: "first_name", import_path: "module.js", property_lookup_name: "first_name") @resolver_source_hash(value: "6f05c358daee6821384cbf6c03fcb703") @deprecated(reason: "Just use name instead") @semanticNonNull
+}
+
+
+Type(
+    WeakObjectType(
+        WeakObjectIr {
+            type_name: Identifier {
+                span: 231:234,
+                token: Token {
+                    span: 231:234,
+                    kind: Identifier,
+                },
+                value: "Cat",
+            },
+            rhs_location: module.js:231:234,
+            description: None,
+            hack_source: None,
+            deprecated: None,
+            location: module.js:231:234,
+            implements_interfaces: [],
+            source_hash: ResolverSourceHash(
+                "6f05c358daee6821384cbf6c03fcb703",
+            ),
+            type_confirmed: true,
+        },
+    ),
+)
+scalar CatModel @__RelayCustomScalar(path: "module.js", export_name: "Cat")
+
+
+type Cat @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: CatModel! @resolver_source_hash(value: "6f05c358daee6821384cbf6c03fcb703") @unselectable(reason: "This field is intended only for Relay's internal use")
+}

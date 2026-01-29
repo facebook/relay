@@ -19,23 +19,26 @@
     "docusaurus": "docusaurus"
   },
   "dependencies": {
-    "@docusaurus/core": "2.1.0",
-    "@docusaurus/plugin-client-redirects": "2.1.0",
-    "@docusaurus/preset-classic": "2.1.0",
+    "@docusaurus/core": "^3.6.3",
+    "@docusaurus/faster": "^3.6.3",
+    "@docusaurus/plugin-client-redirects": "^3.6.3",
+    "@docusaurus/preset-classic": "^3.6.3",
+    "@mdx-js/react": "^3.0.0",
     "classnames": "^2.2.6",
     "clsx": "^1.1.1",
-    "docusaurus-plugin-internaldocs-fb": "1.4.0",
+    "docusaurus-plugin-internaldocs-fb": "^1.19.1",
     "lz-string": "^1.4.4",
     "monaco-editor": "^0.24.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "react-syntax-highlighter": "15.3.1",
     "relay-compiler-playground": "0.0.3",
     "spec-md": "^3.0.2"
   },
   "resolutions": {
     "highlight.js": "^10.4.1",
-    "shelljs": "^0.8.5"
+    "**/react-dev-utils/loader-utils": "3.2.1",
+    "@babel/traverse": "^7.23.2"
   },
   "prettier": {
     "arrowParens": "avoid",

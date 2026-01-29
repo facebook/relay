@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02b2dfa1f085d1188ef788ef55708a1b>>
+ * @generated SignedSource<<4f4055e60386c1e395bc49e7dcacab07>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,8 +59,7 @@ return {
               {
                 "kind": "RequiredField",
                 "field": (v0/*: any*/),
-                "action": "LOG",
-                "path": "me.client_nickname"
+                "action": "LOG"
               }
             ]
           }

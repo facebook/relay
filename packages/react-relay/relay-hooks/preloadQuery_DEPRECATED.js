@@ -24,6 +24,7 @@ import type {
   GraphQLResponse,
   GraphQLTaggedNode,
   IEnvironment,
+  OperationAvailability,
   OperationType,
   Subscription,
 } from 'relay-runtime';
@@ -48,7 +49,7 @@ const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
   : new Map<IEnvironment, Map<string, PendingQueryEntry>>();
 
 type PendingQueryEntry =
-  | $ReadOnly<{
+  | Readonly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -59,7 +60,7 @@ type PendingQueryEntry =
       subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
     }>
-  | $ReadOnly<{
+  | Readonly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -123,17 +124,17 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
         })
       : null;
   return {
-    kind: 'PreloadedQuery_DEPRECATED',
     environment,
     environmentProviderOptions,
     fetchKey: queryEntry.fetchKey,
     fetchPolicy: queryEntry.fetchPolicy,
-    networkCacheConfig: options?.networkCacheConfig,
     id: queryEntry.id,
+    kind: 'PreloadedQuery_DEPRECATED',
     name: queryEntry.name,
+    networkCacheConfig: options?.networkCacheConfig,
     source,
-    variables,
     status: queryEntry.status,
+    variables,
   };
 }
 
@@ -148,11 +149,11 @@ function preloadQueryDeduped<TQuery: OperationType>(
   let query: ?ConcreteRequest;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
-      (preloadableRequest: $FlowFixMe);
+      preloadableRequest as $FlowFixMe;
     params = preloadableConcreteRequest.params;
     query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {
-    query = getRequest((preloadableRequest: $FlowFixMe));
+    query = getRequest(preloadableRequest as $FlowFixMe);
     params = query.params;
   }
   const network = environment.getNetwork();
@@ -167,11 +168,16 @@ function preloadQueryDeduped<TQuery: OperationType>(
   }`;
   const prevQueryEntry = pendingQueries.get(cacheKey);
 
-  const availability =
-    fetchPolicy === STORE_OR_NETWORK_DEFAULT && query != null && query != null
+  function checkOperation(): OperationAvailability {
+    return query != null
       ? environment.check(
           createOperationDescriptor(query, variables, networkCacheConfig),
         )
+      : {status: 'missing'};
+  }
+  const availability =
+    fetchPolicy === STORE_OR_NETWORK_DEFAULT
+      ? checkOperation()
       : {status: 'missing'};
 
   let nextQueryEntry: ?PendingQueryEntry;
@@ -183,13 +189,13 @@ function preloadQueryDeduped<TQuery: OperationType>(
             cacheKey,
             fetchKey,
             fetchPolicy,
-            kind: 'cache',
             id: params.id,
+            kind: 'cache',
             name: params.name,
             status: {
               cacheConfig: networkCacheConfig,
-              source: 'cache',
               fetchTime: availability?.fetchTime ?? null,
+              source: 'cache',
             },
           };
     if (!environment.isServer() && prevQueryEntry == null) {
@@ -203,19 +209,28 @@ function preloadQueryDeduped<TQuery: OperationType>(
     }
   } else if (prevQueryEntry == null || prevQueryEntry.kind !== 'network') {
     // Should fetch but we're not already fetching: fetch!
-    const source = network.execute(params, variables, networkCacheConfig, null);
+    const source = network.execute(
+      params,
+      variables,
+      networkCacheConfig,
+      null,
+      undefined,
+      undefined,
+      undefined,
+      checkOperation,
+    );
     const subject = new ReplaySubject<GraphQLResponse>();
     nextQueryEntry = {
       cacheKey,
       fetchKey,
       fetchPolicy,
-      kind: 'network',
       id: params.id,
+      kind: 'network',
       name: params.name,
       status: {
         cacheConfig: networkCacheConfig,
-        source: 'network',
         fetchTime: null,
+        source: 'network',
       },
       subject,
       subscription: source

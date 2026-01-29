@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<cb67e192fc8cfdc5b4414cf6f76a14f4>>
+ * @generated SignedSource<<ce7f34eedf48b3af5e4f5abba0901b24>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,14 +21,17 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { ErrorModel__id$data } from "./ErrorModel__id.graphql";
 import type { FragmentType } from "relay-runtime";
 import {ErrorModel as errorModelRelayModelInstanceResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `errorModelRelayModelInstanceResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (errorModelRelayModelInstanceResolverType: (
   id: ErrorModel__id$data['id'],
-) => mixed);
+  args: void,
+  context: TestResolverContextType,
+) => unknown);
 declare export opaque type ErrorModel____relay_model_instance$fragmentType: FragmentType;
 export type ErrorModel____relay_model_instance$data = {|
-  +__relay_model_instance: $NonMaybeType<ReturnType<typeof errorModelRelayModelInstanceResolverType>>,
+  +__relay_model_instance: NonNullable<ReturnType<typeof errorModelRelayModelInstanceResolverType>>,
   +$fragmentType: ErrorModel____relay_model_instance$fragmentType,
 |};
 export type ErrorModel____relay_model_instance$key = {
@@ -54,7 +57,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('./../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
+      "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./ErrorModel__id.graphql'), require('../RelayResolverNullableModelClientEdge-test').ErrorModel, 'id', true),
       "path": "__relay_model_instance"
     }
   ],

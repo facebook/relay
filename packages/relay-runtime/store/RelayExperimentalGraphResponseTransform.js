@@ -183,7 +183,7 @@ export class GraphModeNormalizer {
   }
 
   _getObjectType(data: PayloadData): string {
-    const typeName = (data: any)[TYPENAME_KEY];
+    const typeName = (data as any)[TYPENAME_KEY];
     invariant(
       typeName != null,
       'Expected a typename for record `%s`.',
@@ -198,7 +198,7 @@ export class GraphModeNormalizer {
     return getStorageKey(selection, this._variables);
   }
 
-  _getVariableValue(name: string): mixed {
+  _getVariableValue(name: string): unknown {
     invariant(
       this._variables.hasOwnProperty(name),
       'Unexpected undefined variable `%s`.',
@@ -218,14 +218,14 @@ export class GraphModeNormalizer {
     const $streamID = this._getStreamID();
     yield {
       ...rootFields,
-      $kind: 'Record',
-      $streamID,
       __id: dataID,
       __typename: ROOT_TYPE,
-    };
+      $kind: 'Record',
+      $streamID,
+    } as RecordChunk;
     yield {
       $kind: 'Complete',
-    };
+    } as CompleteChunk;
   }
 
   *_flushFields(
@@ -243,13 +243,13 @@ export class GraphModeNormalizer {
       // experimental transform
       yield {
         ...fields,
-        $kind: 'Record',
-        __typename: typename,
         __id: cacheKey,
+        __typename: typename,
+        $kind: 'Record',
         $streamID,
-      };
+      } as RecordChunk;
     } else if (Object.keys(fields).length > 0) {
-      yield {...fields, $kind: 'Extend', $streamID};
+      yield {...fields, $kind: 'Extend', $streamID} as ExtendChunk;
     }
     return $streamID;
   }
@@ -267,7 +267,7 @@ export class GraphModeNormalizer {
       switch (selection.kind) {
         case LINKED_FIELD: {
           const responseKey = selection.alias ?? selection.name;
-          const fieldData: PayloadData = (data[responseKey]: any);
+          const fieldData: PayloadData = data[responseKey] as any;
 
           const storageKey = this._getStorageKey(selection);
 
@@ -305,7 +305,7 @@ export class GraphModeNormalizer {
             this.duplicateFieldsAvoided++;
             break;
           }
-          const fieldData: ChunkField = (data[responseKey]: any);
+          const fieldData: ChunkField = data[responseKey] as any;
 
           parentFields[storageKey] = fieldData;
           sentFields.add(storageKey);
@@ -378,8 +378,9 @@ export class GraphModeNormalizer {
             // Otherwise data *for this selection* should not be present: enqueue
             // metadata to process the subsequent response chunk.
             this._incrementalPlaceholders.push({
-              kind: 'defer',
+              actorIdentifier: this._actorIdentifier,
               data,
+              kind: 'defer',
               label: selection.label,
               path: [...this._path],
               selector: createNormalizationSelector(
@@ -388,7 +389,6 @@ export class GraphModeNormalizer {
                 this._variables,
               ),
               typeName: this._getObjectType(data),
-              actorIdentifier: this._actorIdentifier,
             });
           }
           break;

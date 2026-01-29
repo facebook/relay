@@ -7,14 +7,12 @@
 
 use std::sync::Arc;
 
-use common::sync::*;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
 use common::PointerAddress;
+use common::sync::*;
 use fnv::FnvHashMap;
-use graphql_ir::node_identifier::LocationAgnosticPartialEq;
-use graphql_ir::node_identifier::NodeIdentifier;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -25,19 +23,21 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::TransformedValue;
+use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+use graphql_ir::node_identifier::NodeIdentifier;
 use parking_lot::Mutex;
 use parking_lot::RwLock;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
-use crate::handle_fields::HANDLER_ARG_NAME;
-use crate::handle_fields::KEY_ARG_NAME;
-use crate::util::is_relay_custom_inline_fragment_directive;
-use crate::util::CustomMetadataDirectives;
 use crate::ModuleMetadata;
 use crate::RelayLocationAgnosticBehavior;
 use crate::ValidationMessage;
+use crate::handle_fields::HANDLER_ARG_NAME;
+use crate::handle_fields::KEY_ARG_NAME;
+use crate::util::CustomMetadataDirectives;
+use crate::util::is_relay_custom_inline_fragment_directive;
 
 type SeenLinkedFields = Arc<RwLock<FnvHashMap<PointerAddress, TransformedValue<Arc<LinkedField>>>>>;
 type SeenInlineFragments =
@@ -301,17 +301,16 @@ impl FlattenTransform {
     ) -> bool {
         let mut has_changes = false;
         for selection in selections {
-            if let Selection::InlineFragment(inline_fragment) = selection {
-                if should_flatten_inline_fragment(inline_fragment, parent_type, self.is_for_codegen)
-                {
-                    has_changes = true;
-                    self.flatten_selections(
-                        flattened_selections,
-                        &inline_fragment.selections,
-                        parent_type,
-                    );
-                    continue;
-                }
+            if let Selection::InlineFragment(inline_fragment) = selection
+                && should_flatten_inline_fragment(inline_fragment, parent_type, self.is_for_codegen)
+            {
+                has_changes = true;
+                self.flatten_selections(
+                    flattened_selections,
+                    &inline_fragment.selections,
+                    parent_type,
+                );
+                continue;
             }
 
             let flattened_selection = flattened_selections.iter_mut().find(|sel| {
@@ -421,24 +420,24 @@ impl FlattenTransform {
         parent_type: Type,
     ) -> DiagnosticsResult<()> {
         for selection in selections {
-            if self.should_validate_fragment_spreads {
-                if let Selection::FragmentSpread(spread) = selection {
-                    let fragment_definition =
-                        self.fragments
-                            .get(&spread.fragment.item)
-                            .ok_or(Diagnostic::error(
-                                ValidationMessage::UndefinedFragment(spread.fragment.item),
-                                spread.fragment.location,
-                            ))?;
-                    if fragment_definition.type_condition == parent_type {
-                        self.can_flatten_selections(
-                            flattened_selections,
-                            &fragment_definition.selections,
-                            fragment_definition.type_condition,
-                        )?;
-                    }
-                    continue;
+            if self.should_validate_fragment_spreads
+                && let Selection::FragmentSpread(spread) = selection
+            {
+                let fragment_definition =
+                    self.fragments
+                        .get(&spread.fragment.item)
+                        .ok_or(Diagnostic::error(
+                            ValidationMessage::UndefinedFragment(spread.fragment.item),
+                            spread.fragment.location,
+                        ))?;
+                if fragment_definition.type_condition == parent_type {
+                    self.can_flatten_selections(
+                        flattened_selections,
+                        &fragment_definition.selections,
+                        fragment_definition.type_condition,
+                    )?;
                 }
+                continue;
             }
 
             if let Selection::InlineFragment(inline_fragment) = selection {
@@ -488,26 +487,27 @@ impl FlattenTransform {
                             };
                             if let Some(flattened_module_metadata) =
                                 ModuleMetadata::find(&flattened_node.directives)
-                            {
-                                if let Some(module_metadata) =
+                                && let Some(module_metadata) =
                                     ModuleMetadata::find(&node.directives)
+                            {
+                                let modules_differ = flattened_module_metadata.key
+                                    != module_metadata.key
+                                    || flattened_module_metadata.module_name
+                                        != module_metadata.module_name
+                                    || flattened_module_metadata.fragment_name
+                                        != module_metadata.fragment_name;
+
+                                // If the modules have different keys they will materialize as different
+                                // field names and thus willnot conflict.
+                                if flattened_module_metadata.key == module_metadata.key
+                                    && modules_differ
                                 {
-                                    if flattened_module_metadata.key != module_metadata.key
-                                        || flattened_module_metadata.module_name
-                                            != module_metadata.module_name
-                                        || flattened_module_metadata.fragment_name
-                                            != module_metadata.fragment_name
-                                    {
-                                        let error = Diagnostic::error(
-                                            ValidationMessage::ConflictingModuleSelections,
-                                            module_metadata.location,
-                                        )
-                                        .annotate(
-                                            "conflicts with",
-                                            flattened_module_metadata.location,
-                                        );
-                                        return Err(vec![error]);
-                                    }
+                                    let error = Diagnostic::error(
+                                        ValidationMessage::ConflictingModuleSelections,
+                                        module_metadata.location,
+                                    )
+                                    .annotate("conflicts with", flattened_module_metadata.location);
+                                    return Err(vec![error]);
                                 }
                             }
                             let type_condition =
@@ -565,10 +565,10 @@ fn should_flatten_inline_fragment(
     parent_type: Type,
     is_for_codegen: bool,
 ) -> bool {
-    if let Some(type_condition) = inline_fragment.type_condition {
-        if type_condition != parent_type {
-            return false;
-        }
+    if let Some(type_condition) = inline_fragment.type_condition
+        && type_condition != parent_type
+    {
+        return false;
     }
     if is_for_codegen {
         !inline_fragment

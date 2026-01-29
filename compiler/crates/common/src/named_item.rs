@@ -8,10 +8,11 @@
 use std::fmt;
 use std::str::FromStr;
 
+use intern::Lookup;
 use intern::impl_lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -45,7 +46,8 @@ pub trait Named {
     Ord,
     PartialEq,
     PartialOrd,
-    Serialize
+    Serialize,
+    JsonSchema
 )]
 pub struct DirectiveName(pub StringKey);
 
@@ -73,7 +75,8 @@ impl_lookup!(DirectiveName);
     Ord,
     PartialOrd,
     Hash,
-    Serialize
+    Serialize,
+    JsonSchema
 )]
 pub struct ArgumentName(pub StringKey);
 
@@ -93,7 +96,8 @@ impl fmt::Display for ArgumentName {
     PartialOrd,
     Hash,
     Serialize,
-    Deserialize
+    Deserialize,
+    JsonSchema
 )]
 pub struct ScalarName(pub StringKey);
 

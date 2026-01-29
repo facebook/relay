@@ -82,13 +82,6 @@ fragment refetchableFragmentOnNodeAndFetchableArg_RefetchableFragment on Fetchab
             "kind": "ScalarField",
             "name": "fetch_id",
             "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__token",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -119,7 +112,6 @@ query RefetchableFragmentQuery(
 fragment refetchableFragmentOnNodeAndFetchableArg_RefetchableFragment on FetchableType {
   id
   fetch_id
-  __token
 }
 
 
@@ -153,13 +145,6 @@ fragment refetchableFragmentOnNodeAndFetchableArg_RefetchableFragment on Fetchab
       "args": null,
       "kind": "ScalarField",
       "name": "fetch_id",
-      "storageKey": null
-    },
-    {
-      "alias": null,
-      "args": null,
-      "kind": "ScalarField",
-      "name": "__token",
       "storageKey": null
     }
   ],

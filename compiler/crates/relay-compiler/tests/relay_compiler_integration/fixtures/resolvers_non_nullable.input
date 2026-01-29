@@ -18,7 +18,6 @@ graphql`fragment UserFooFragment on User {
   "jsModuleFormat": "haste",
   "schema": "schema.graphql",
   "featureFlags": {
-    "enable_relay_resolver_transform": true,
     "enable_resolver_normalization_ast": true,
     "allow_resolver_non_nullable_return_type": { "kind": "enabled" }
   },

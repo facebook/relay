@@ -14,13 +14,7 @@
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from '../useLoadMoreFunction';
 import type {Options} from './useRefetchableFragmentNode';
 import type {RefetchableFragment} from 'relay-runtime';
-import type {
-  Disposable,
-  FragmentType,
-  GraphQLResponse,
-  Observer,
-  Variables,
-} from 'relay-runtime';
+import type {Disposable, FragmentType, Variables} from 'relay-runtime';
 
 const useLoadMoreFunction = require('../useLoadMoreFunction');
 const useStaticFragmentNodeWarning = require('../useStaticFragmentNodeWarning');
@@ -37,7 +31,7 @@ type RefetchVariables<TVariables, TKey> =
   // NOTE: This type ensures that the type of the variables is either:
   //   - nullable if the provided ref type is non-nullable
   //   - non-nullable if the provided ref type is nullable, and the caller need to provide the full set of variables
-  [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? Partial<TVariables>
     : TVariables;
 
@@ -55,7 +49,7 @@ type ReturnType<TVariables, TData, TKey> = {
   // NOTE: This rtpw ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
-  data: [+key: TKey] extends [+key: {+$fragmentSpreads: mixed, ...}]
+  data: [+key: TKey] extends [+key: {+$fragmentSpreads: unknown, ...}]
     ? TData
     : ?TData,
   loadNext: LoadMoreFn<TVariables>,
@@ -105,7 +99,7 @@ hook useBlockingPaginationFragment<
       variables: TVariables,
     },
     {
-      +$data: mixed,
+      +$data: unknown,
       ...
     },
   >(fragmentNode, parentFragmentRef, componentDisplayName);
@@ -149,19 +143,20 @@ hook useBlockingPaginationFragment<
       disposeFetchNext();
       disposeFetchPrevious();
       // $FlowFixMe[incompatible-variance]
+      // $FlowFixMe[incompatible-type]
       return refetch(variables, {...options, __environment: undefined});
     },
     [disposeFetchNext, disposeFetchPrevious, refetch],
   );
 
   return {
-    // $FlowFixMe[incompatible-cast]
-    // $FlowFixMe[incompatible-return]
-    data: (fragmentData: TData),
-    loadNext,
-    loadPrevious,
+    // $FlowFixMe[incompatible-type]
+    // $FlowFixMe[incompatible-type]
+    data: fragmentData as TData,
     hasNext,
     hasPrevious,
+    loadNext,
+    loadPrevious,
     refetch: refetchPagination,
   };
 }
@@ -169,22 +164,13 @@ hook useBlockingPaginationFragment<
 hook useLoadMore<TVariables: Variables>(args: {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
-  ...$Exact<
-    $Diff<
-      UseLoadMoreFunctionArgs,
-      {
-        observer: Observer<GraphQLResponse>,
-        onReset: () => void,
-        ...
-      },
-    >,
-  >,
+  ...$Exact<Omit<UseLoadMoreFunctionArgs, 'observer' | 'onReset'>>,
 }): [LoadMoreFn<TVariables>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
-  const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
+  const [requestPromise, setRequestPromise] = useState<null | Promise<unknown>>(
     null,
   );
-  const requestPromiseRef = useRef<null | Promise<mixed>>(null);
+  const requestPromiseRef = useRef<null | Promise<unknown>>(null);
   const promiseResolveRef = useRef<null | (() => void)>(null);
 
   const promiseResolve = () => {
@@ -200,6 +186,15 @@ hook useLoadMore<TVariables: Variables>(args: {
 
   const observer = {
     complete: promiseResolve,
+    // TODO: Handle error; we probably don't want to throw an error
+    // and blow away the whole list of items.
+    error: promiseResolve,
+    // NOTE: Since streaming is disallowed with this hook, this means that the
+    // first payload will always contain the entire next page of items,
+    // while subsequent paylaods will contain @defer'd payloads.
+    // This allows us to unsuspend here, on the first payload, and allow
+    // descendant components to suspend on their respective @defer payloads
+    next: promiseResolve,
     // NOTE: loadMore is a no-op if a request is already in flight, so we
     // can safely assume that `start` will only be called once while a
     // request is in flight.
@@ -218,17 +213,6 @@ hook useLoadMore<TVariables: Variables>(args: {
       requestPromiseRef.current = promise;
       setRequestPromise(promise);
     },
-
-    // NOTE: Since streaming is disallowed with this hook, this means that the
-    // first payload will always contain the entire next page of items,
-    // while subsequent paylaods will contain @defer'd payloads.
-    // This allows us to unsuspend here, on the first payload, and allow
-    // descendant components to suspend on their respective @defer payloads
-    next: promiseResolve,
-
-    // TODO: Handle error; we probably don't want to throw an error
-    // and blow away the whole list of items.
-    error: promiseResolve,
   };
   const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TVariables>({
     ...loadMoreArgs,

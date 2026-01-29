@@ -98,7 +98,9 @@ describe('RelayModernFragmentSpecResolver with fragment ownership', () => {
       ) {
         node(id: $id) {
           ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment
+            @dangerously_unaliased_fixme
           ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

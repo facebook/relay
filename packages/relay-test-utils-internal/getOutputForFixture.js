@@ -11,17 +11,17 @@
 
 'use strict';
 
-function getOutputForFixture(
+async function getOutputForFixture(
   input: string,
-  operation: (input: string) => string,
+  operation: (input: string) => Promise<string> | string,
   file: string,
-): string {
+): Promise<string> {
   const shouldThrow =
     /^# *expected-to-throw/.test(input) || /\.error\.\w+$/.test(file);
   if (shouldThrow) {
     let result;
     try {
-      result = operation(input);
+      result = await operation(input);
     } catch (e) {
       return `THROWN EXCEPTION:\n\n${e.toString()}`;
     }

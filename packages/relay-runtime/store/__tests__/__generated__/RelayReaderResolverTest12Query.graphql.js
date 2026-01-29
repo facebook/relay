@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<869fcdd6d7df80060874622ffc7e5dd3>>
+ * @generated SignedSource<<b0355339b277f6934cc710dd63bdf0ad>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAlwaysThrowsResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsResolver.graphql";
 import {always_throws as userAlwaysThrowsResolverType} from "../resolvers/UserAlwaysThrowsResolver.js";
+import type { TestResolverContextType } from "../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userAlwaysThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsResolverType: (
   rootKey: UserAlwaysThrowsResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 export type RelayReaderResolverTest12Query$variables = {||};
 export type RelayReaderResolverTest12Query$data = {|
@@ -62,7 +65,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws",
-            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver').always_throws,
+            "resolverModule": require('../resolvers/UserAlwaysThrowsResolver').always_throws,
             "path": "me.always_throws"
           }
         ],

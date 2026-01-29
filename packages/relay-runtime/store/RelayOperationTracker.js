@@ -23,7 +23,7 @@ class RelayOperationTracker {
     {
       promise: Promise<void>,
       resolve: () => void,
-      pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+      pendingOperations: ReadonlyArray<RequestDescriptor>,
     },
   >;
 
@@ -150,7 +150,7 @@ class RelayOperationTracker {
 
   getPendingOperationsAffectingOwner(owner: RequestDescriptor): {
     promise: Promise<void>,
-    pendingOperations: $ReadOnlyArray<RequestDescriptor>,
+    pendingOperations: ReadonlyArray<RequestDescriptor>,
   } | null {
     const ownerIdentifier = owner.identifier;
     const pendingOperationsForOwner =

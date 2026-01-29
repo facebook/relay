@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f68851e648c44ef506e6456f5d1d0f26>>
+ * @generated SignedSource<<022971ea757430cf7299f748894aeb0b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayReferenceMarkerTest2Query$variables = {|
 export type RelayReferenceMarkerTest2Query$data = {|
   +node: ?{|
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +id: string,

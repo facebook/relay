@@ -52,11 +52,12 @@ Type(
             source_hash: ResolverSourceHash(
                 "dbaa81766321d75c0da7fa6c70895562",
             ),
+            type_confirmed: true,
         },
     ),
 )
 type Cat @__RelayResolverModel {
-  id: ID!
+  id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(generated_fragment: true, fragment_name: "Cat__id", import_name: "Cat", import_path: "module.js", inject_fragment_data: "id") @resolver_source_hash(value: "dbaa81766321d75c0da7fa6c70895562") @unselectable(reason: "This field is intended only for Relay's internal use")
 }
 

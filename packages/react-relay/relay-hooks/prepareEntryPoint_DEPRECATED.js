@@ -16,13 +16,15 @@ import type {
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
+  PreloadedQuery,
 } from './EntryPointTypes.flow';
 
 const preloadQuery = require('./preloadQuery_DEPRECATED');
 
 function prepareEntryPoint<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,
@@ -59,7 +61,8 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
-      preloadedQueries[queryPropName] = preloadQuery<OperationType, mixed>(
+      // $FlowFixMe[incompatible-type]
+      preloadedQueries[queryPropName] = preloadQuery<OperationType, unknown>(
         environment,
         parameters,
         variables,

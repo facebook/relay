@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<854adab7d4107de9ea7820c842e3868b>>
+ * @generated SignedSource<<9451681e094b93c699f497dc592cf35f>>
  */
 
 mod required_directive;
@@ -24,6 +24,48 @@ async fn conflicting_required_status_across_aliased_inline_fragments() {
     let input = include_str!("required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.graphql");
     let expected = include_str!("required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.expected");
     test_fixture(transform_fixture, file!(), "conflicting-required-status-across-aliased-inline-fragments.graphql", "required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerous_throw_can_nest_in_throw() {
+    let input = include_str!("required_directive/fixtures/dangerous-throw-can-nest-in-throw.graphql");
+    let expected = include_str!("required_directive/fixtures/dangerous-throw-can-nest-in-throw.expected");
+    test_fixture(transform_fixture, file!(), "dangerous-throw-can-nest-in-throw.graphql", "required_directive/fixtures/dangerous-throw-can-nest-in-throw.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerously_throw_on_non_nullable_field_invalid() {
+    let input = include_str!("required_directive/fixtures/dangerously-throw-on-non-nullable-field.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/dangerously-throw-on-non-nullable-field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "dangerously-throw-on-non-nullable-field.invalid.graphql", "required_directive/fixtures/dangerously-throw-on-non-nullable-field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerously_throw_on_nullable_field_valid() {
+    let input = include_str!("required_directive/fixtures/dangerously-throw-on-nullable-field-valid.graphql");
+    let expected = include_str!("required_directive/fixtures/dangerously-throw-on-nullable-field-valid.expected");
+    test_fixture(transform_fixture, file!(), "dangerously-throw-on-nullable-field-valid.graphql", "required_directive/fixtures/dangerously-throw-on-nullable-field-valid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerously_throw_on_schema_non_null_field_invalid() {
+    let input = include_str!("required_directive/fixtures/dangerously-throw-on-schema-non-null-field.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/dangerously-throw-on-schema-non-null-field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "dangerously-throw-on-schema-non-null-field.invalid.graphql", "required_directive/fixtures/dangerously-throw-on-schema-non-null-field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerously_throw_on_semantic_non_null_field_invalid() {
+    let input = include_str!("required_directive/fixtures/dangerously-throw-on-semantic-non-null-field.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/dangerously-throw-on-semantic-non-null-field.invalid.expected");
+    test_fixture(transform_fixture, file!(), "dangerously-throw-on-semantic-non-null-field.invalid.graphql", "required_directive/fixtures/dangerously-throw-on-semantic-non-null-field.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn dangerously_throw_on_semantic_nullable_field() {
+    let input = include_str!("required_directive/fixtures/dangerously-throw-on-semantic-nullable-field.graphql");
+    let expected = include_str!("required_directive/fixtures/dangerously-throw-on-semantic-nullable-field.expected");
+    test_fixture(transform_fixture, file!(), "dangerously-throw-on-semantic-nullable-field.graphql", "required_directive/fixtures/dangerously-throw-on-semantic-nullable-field.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -227,4 +269,25 @@ async fn scalar_field_throw() {
     let input = include_str!("required_directive/fixtures/scalar-field-throw.graphql");
     let expected = include_str!("required_directive/fixtures/scalar-field-throw.expected");
     test_fixture(transform_fixture, file!(), "scalar-field-throw.graphql", "required_directive/fixtures/scalar-field-throw.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn throw_on_semantic_non_null_field_enabled() {
+    let input = include_str!("required_directive/fixtures/throw-on-semantic-non-null-field-enabled.graphql");
+    let expected = include_str!("required_directive/fixtures/throw-on-semantic-non-null-field-enabled.expected");
+    test_fixture(transform_fixture, file!(), "throw-on-semantic-non-null-field-enabled.graphql", "required_directive/fixtures/throw-on-semantic-non-null-field-enabled.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn throw_on_semantic_nullable_field_enabled_invalid() {
+    let input = include_str!("required_directive/fixtures/throw-on-semantic-nullable-field-enabled.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/throw-on-semantic-nullable-field-enabled.invalid.expected");
+    test_fixture(transform_fixture, file!(), "throw-on-semantic-nullable-field-enabled.invalid.graphql", "required_directive/fixtures/throw-on-semantic-nullable-field-enabled.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn throw_with_autofix_invalid() {
+    let input = include_str!("required_directive/fixtures/throw-with-autofix.invalid.graphql");
+    let expected = include_str!("required_directive/fixtures/throw-with-autofix.invalid.expected");
+    test_fixture(transform_fixture, file!(), "throw-with-autofix.invalid.graphql", "required_directive/fixtures/throw-with-autofix.invalid.expected", input, expected).await;
 }

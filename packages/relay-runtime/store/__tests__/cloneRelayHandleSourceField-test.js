@@ -39,8 +39,8 @@ describe('cloneRelayHandleSourceField()', () => {
     // $FlowFixMe[incompatible-use]
     const sourceField = selections.find(node => node.kind === LINKED_FIELD);
     const clone = cloneRelayHandleSourceField(
-      (handleField: $FlowFixMe),
-      // $FlowFixMe[incompatible-call]
+      handleField as $FlowFixMe,
+      // $FlowFixMe[incompatible-type]
       selections,
       {},
     );
@@ -58,8 +58,8 @@ describe('cloneRelayHandleSourceField()', () => {
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
     expect(() =>
-      // $FlowFixMe[incompatible-call]
-      cloneRelayHandleSourceField((handleField: $FlowFixMe), selections, {}),
+      // $FlowFixMe[incompatible-type]
+      cloneRelayHandleSourceField(handleField as $FlowFixMe, selections, {}),
     ).toThrowError(
       'cloneRelayHandleSourceField: Expected a corresponding source field ' +
         'for handle `test`.',

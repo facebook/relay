@@ -1,0 +1,12 @@
+fragment MyFragment on ClientUser {
+  ... @alias(as: "hello") @catch 
+  {
+    name
+  }
+}
+
+%extensions%
+
+type ClientUser {
+  name: String @semanticNonNull
+}

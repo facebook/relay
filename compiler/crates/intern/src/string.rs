@@ -103,7 +103,7 @@ impl StringId {
     }
 
     pub unsafe fn from_index(index: u32) -> Self {
-        Self(BytesId::from_index(index))
+        unsafe { Self(BytesId::from_index(index)) }
     }
 
     /// 0-cost conversion to interned bytes.
@@ -376,14 +376,13 @@ mod tests {
 
     #[test]
     fn multithreaded() {
+        use std::sync::Arc;
         use std::sync::atomic::AtomicU32;
         use std::sync::atomic::Ordering;
-        use std::sync::Arc;
         use std::thread;
-        use std::u32;
 
-        use rand::thread_rng;
         use rand::Rng;
+        use rand::rng;
 
         // Load test lots of threads creating strings, with load
         // gradually getting heavier on later (popular) strings.
@@ -399,9 +398,9 @@ mod tests {
         for k in 0..WRITERS {
             let avail = avail.clone();
             workers.push(thread::spawn(move || {
-                let mut rng = thread_rng();
+                let mut rng = rng();
                 for i in 0..MAX {
-                    let r = if k == 0 { i } else { rng.gen_range(i..MAX) };
+                    let r = if k == 0 { i } else { rng.random_range(i..MAX) };
                     let id = intern(r.to_string());
                     let ix = id.0.index();
                     let av = avail[r].load(Ordering::Relaxed);

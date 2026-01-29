@@ -16,9 +16,9 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Visitor;
 
+use crate::PrinterOptions;
 use crate::print_fragment;
 use crate::print_operation;
-use crate::PrinterOptions;
 
 pub fn print_full_operation(
     program: &Program,
@@ -72,7 +72,7 @@ impl<'s> OperationPrinter<'s> {
     }
 }
 
-impl<'s> Visitor for OperationPrinter<'s> {
+impl Visitor for OperationPrinter<'_> {
     const NAME: &'static str = "OperationPrinter";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

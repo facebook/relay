@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type {
   node(id: $id) {
-    ...FriendFragment
+    ...FriendFragment @alias
   }
 }
 
@@ -23,19 +23,21 @@ export type ExampleQuery$variables = {|
 |};
 export type ExampleQuery$data = {|
   +node: ?{|
-    +$fragmentSpreads: FriendFragment$fragmentType,
+    +FriendFragment: ?{|
+      +$fragmentSpreads: FriendFragment$fragmentType,
+    |},
   |},
 |};
 export type ExampleQuery$rawResponse = {|
   +node: ?({|
     +__typename: "User",
-    +feedback: ?{|
+    +feedback?: ?{|
       +id: string,
       +name: ?string,
     |},
     +id: string,
-    +lastName: ?string,
-    +name: ?string,
+    +lastName?: ?string,
+    +name?: ?string,
   |} | {|
     +__typename: string,
     +id: string,

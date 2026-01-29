@@ -22,10 +22,7 @@ const {graphql} = require('relay-runtime');
  * type-checked correctly on Relay components.
  */
 
-/* $FlowFixMe(>=0.53.0) This comment suppresses an error
- * when upgrading Flow's support for React. Common errors found when upgrading
- * Flow's React support are documented at https://fburl.com/eq7bs81w */
-class FooComponent extends React.Component {
+class FooComponent extends React.Component<$FlowFixMe> {
   props: {
     optionalProp?: {foo: number, ...},
     defaultProp: string,
@@ -42,10 +39,10 @@ class FooComponent extends React.Component {
     const reqLen = this.props.requiredProp.length;
     const optionalProp = this.props.optionalProp;
 
-    /** $FlowExpectedError: `optionalProp` might be null **/
+    /** $FlowExpectedError[incompatible-use] : `optionalProp` might be null **/
     const optionalFoo = this.props.optionalProp.foo;
 
-    /** $FlowExpectedError: there is no prop `missingProp` **/
+    /** $FlowExpectedError[prop-missing] : there is no prop `missingProp` **/
     const missing = this.props.missingProp;
 
     const defLen = this.props.defaultProp.length; // always a valid string, so no error
@@ -56,7 +53,7 @@ class FooComponent extends React.Component {
 }
 // Note that we must reassign to a new identifier to make sure flow doesn't propogate types without
 // the relay type definition doing the work.
-const Foo = createPaginationContainer(
+const Foo = createPaginationContainer<$FlowFixMe, _>(
   FooComponent,
   {
     viewer: graphql`
@@ -143,7 +140,7 @@ module.exports = {
     return <Foo {...props} />;
   },
   checkStaticsAndMethodsProxying(): React.Node {
-    /* $FlowFixMe(>=0.53.0) This comment suppresses an
+    /* $FlowFixMe[missing-type-arg](>=0.53.0) This comment suppresses an
      * error when upgrading Flow's support for React. Common errors found when
      * upgrading Flow's React support are documented at
      * https://fburl.com/eq7bs81w */
@@ -152,10 +149,10 @@ module.exports = {
       getString(): string {
         const ok = this._fooRef ? this._fooRef.getNum() : 'default'; // legit
 
-        /** $FlowExpectedError: Foo does not have `missingMethod` **/
+        /** $FlowExpectedError[prop-missing] : Foo does not have `missingMethod` **/
         const bad = this._fooRef ? this._fooRef.missingMethod() : 'default';
 
-        /** $FlowExpectedError: Foo `getNum` gives number, but `getString` assumes string  **/
+        /** $FlowExpectedError[incompatible-type] : Foo `getNum` gives number, but `getString` assumes string  **/
         return bad ? 'not good' : ok;
       }
       render(): React.Node {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<157ead33394671c4571b24fad8112407>>
+ * @generated SignedSource<<4d0c48c1712a5e0c8a0662becaea11ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,9 +22,13 @@ import type { DataID } from "relay-runtime";
 import type { TodoDescription____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql";
 import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import {edge_to_live_object_does_not_exist as queryEdgeToLiveObjectDoesNotExistResolverType} from "../RelayResolverNullableModelClientEdge-test.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryEdgeToLiveObjectDoesNotExistResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryEdgeToLiveObjectDoesNotExistResolverType: () => ?{|
+(queryEdgeToLiveObjectDoesNotExistResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
@@ -32,12 +36,16 @@ import {text as todoDescriptionTextResolverType} from "../../../relay-runtime/st
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoDescriptionTextResolverType: (
   __relay_model_instance: TodoDescription____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {fancy_description as todoModelFancyDescriptionResolverType} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
 // Type assertion validating that `todoModelFancyDescriptionResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoModelFancyDescriptionResolverType: (
   __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?TodoDescription);
 import type { TodoDescription } from "../../../relay-runtime/store/__tests__/resolvers/TodoDescription.js";
 export type RelayResolverNullableModelClientEdgeTest_LiveModel_Query$variables = {||};
@@ -85,8 +93,8 @@ return {
               "name": "TodoModel__id"
             },
             "kind": "RelayLiveResolver",
-            "name": "edge_to_live_object_does_not_exist",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id', true),
             "path": "edge_to_live_object_does_not_exist.__relay_model_instance"
           }
         },
@@ -96,7 +104,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "edge_to_live_object_does_not_exist",
-          "resolverModule": require('./../RelayResolverNullableModelClientEdge-test').edge_to_live_object_does_not_exist,
+          "resolverModule": require('../RelayResolverNullableModelClientEdge-test').edge_to_live_object_does_not_exist,
           "path": "edge_to_live_object_does_not_exist"
         },
         "linkedField": {
@@ -122,7 +130,7 @@ return {
                 },
                 "kind": "RelayResolver",
                 "name": "fancy_description",
-                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
+                "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', true),
                 "path": "edge_to_live_object_does_not_exist.fancy_description",
                 "normalizationInfo": {
                   "kind": "WeakModel",
@@ -148,7 +156,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "text",
-                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', true),
+                    "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', true),
                     "path": "edge_to_live_object_does_not_exist.fancy_description.text"
                   }
                 ],

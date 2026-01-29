@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<65000cc0a4b69bdffd1ff81454a9ea5e>>
+ * @generated SignedSource<<46c82d1a963162cda03157ec67d447fa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,11 +22,6 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type UserAlwaysThrowsResolver$fragmentType: FragmentType;
 export type UserAlwaysThrowsResolver$data = {|
   +__typename: "User",
-  +$fragmentType: UserAlwaysThrowsResolver$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +$fragmentType: UserAlwaysThrowsResolver$fragmentType,
 |};
 export type UserAlwaysThrowsResolver$key = {

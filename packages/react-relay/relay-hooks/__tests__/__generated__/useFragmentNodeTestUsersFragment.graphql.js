@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c502957203f5a0a8eb88fd805244bbc3>>
+ * @generated SignedSource<<d4e5c0cfe0cb70d154f2dbee4f437362>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { useFragmentNodeTestNestedUserFragment$fragmentType } from "./useFragmentNodeTestNestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type useFragmentNodeTestUsersFragment$fragmentType: FragmentType;
-export type useFragmentNodeTestUsersFragment$data = $ReadOnlyArray<{|
+export type useFragmentNodeTestUsersFragment$data = ReadonlyArray<{|
   +id: string,
   +name: ?string,
   +profile_picture: ?{|
@@ -30,7 +30,7 @@ export type useFragmentNodeTestUsersFragment$data = $ReadOnlyArray<{|
   +$fragmentSpreads: useFragmentNodeTestNestedUserFragment$fragmentType,
   +$fragmentType: useFragmentNodeTestUsersFragment$fragmentType,
 |}>;
-export type useFragmentNodeTestUsersFragment$key = $ReadOnlyArray<{
+export type useFragmentNodeTestUsersFragment$key = ReadonlyArray<{
   +$data?: useFragmentNodeTestUsersFragment$data,
   +$fragmentSpreads: useFragmentNodeTestUsersFragment$fragmentType,
   ...

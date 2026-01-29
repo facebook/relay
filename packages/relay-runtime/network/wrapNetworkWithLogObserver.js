@@ -12,12 +12,17 @@
 'use strict';
 import type ActorSpecificEnvironment from '../multi-actor-environment/ActorSpecificEnvironment';
 import type RelayModernEnvironment from '../store/RelayModernEnvironment';
+import type {
+  LogRequestInfoFunction,
+  OperationAvailability,
+} from '../store/RelayStoreTypes';
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   GraphQLResponse,
   INetwork,
   UploadableMap,
+  preprocessResponseFunction,
 } from './RelayNetworkTypes';
 import type RelayObservable from './RelayObservable';
 import type {Subscription} from './RelayObservable';
@@ -42,6 +47,10 @@ function wrapNetworkWithLogObserver(
       variables: Variables,
       cacheConfig: CacheConfig,
       uploadables?: ?UploadableMap,
+      _?: ?LogRequestInfoFunction,
+      encryptedVariables?: ?string,
+      preprocessResponse?: ?preprocessResponseFunction,
+      checkOperation?: () => OperationAvailability,
     ): RelayObservable<GraphQLResponse> {
       const networkRequestId = generateID();
       const logObserver = {
@@ -81,7 +90,7 @@ function wrapNetworkWithLogObserver(
           });
         },
       };
-      const logRequestInfo = (info: mixed) => {
+      const logRequestInfo = (info: unknown) => {
         env.__log({
           name: 'network.info',
           networkRequestId,
@@ -89,7 +98,16 @@ function wrapNetworkWithLogObserver(
         });
       };
       return network
-        .execute(params, variables, cacheConfig, uploadables, logRequestInfo)
+        .execute(
+          params,
+          variables,
+          cacheConfig,
+          uploadables,
+          logRequestInfo,
+          encryptedVariables,
+          preprocessResponse,
+          checkOperation,
+        )
         .do(logObserver);
     },
   };

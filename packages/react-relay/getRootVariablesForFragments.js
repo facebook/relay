@@ -30,8 +30,10 @@ function getRootVariablesForFragments<TProps: {...}>(
     const selector = getSelector(fragmentNode, fragmentRef);
     const fragmentOwnerVariables =
       selector != null && selector.kind === 'PluralReaderSelector'
-        ? selector.selectors[0]?.owner.variables ?? {}
-        : selector?.owner.variables ?? {};
+        ? (selector.selectors[0]?.owner.variables ?? {})
+        : (selector?.owner.variables ?? {});
+    /* $FlowFixMe[incompatible-indexer] Natural Inference rollout. See
+     * https://fburl.com/gdoc/y8dn025u */
     rootVariables = {
       ...rootVariables,
       ...fragmentOwnerVariables,

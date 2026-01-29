@@ -20,12 +20,12 @@ const {
 } = require('../store/RelayModernSelector');
 const isEmptyObject = require('./isEmptyObject');
 const RelayFeatureFlags = require('./RelayFeatureFlags');
-const stableCopy = require('./stableCopy');
+const {stableCopy} = require('./stableCopy');
 const {intern} = require('./StringInterner');
 
 function getFragmentIdentifier(
   fragmentNode: ReaderFragment,
-  fragmentRef: mixed,
+  fragmentRef: unknown,
 ): string {
   const selector = getSelector(fragmentNode, fragmentRef);
   const fragmentOwnerIdentifier =

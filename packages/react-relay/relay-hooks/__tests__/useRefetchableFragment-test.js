@@ -12,6 +12,7 @@
 'use strict';
 import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
 import type {RefetchFn} from '../useRefetchableFragment';
+import type {RelayContext} from 'relay-runtime';
 
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
 const React = require('react');
@@ -54,7 +55,7 @@ describe('useRefetchableFragment', () => {
   }
 
   function assertFragmentResults(
-    expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
+    expectedCalls: ReadonlyArray<{data: $FlowFixMe}>,
   ) {
     // This ensures that useEffect runs
     TestRenderer.act(() => jest.runAllImmediates());
@@ -82,7 +83,7 @@ describe('useRefetchableFragment', () => {
     jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
-    renderSpy = jest.fn<[any, RefetchFn<any, any>], mixed>();
+    renderSpy = jest.fn<[any, RefetchFn<any, any>], unknown>();
 
     // Set up environment and base data
     environment = createMockEnvironment();
@@ -96,7 +97,7 @@ describe('useRefetchableFragment', () => {
     gqlQuery = graphql`
       query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
-          ...useRefetchableFragmentTestUserFragment
+          ...useRefetchableFragmentTestUserFragment @dangerously_unaliased_fixme
         }
       }
     `;
@@ -126,7 +127,7 @@ describe('useRefetchableFragment', () => {
     });
 
     // Set up renderers
-    Renderer = (props: {user: mixed}) => null;
+    Renderer = (props: {user: unknown}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -151,7 +152,7 @@ describe('useRefetchableFragment', () => {
     };
 
     const ContextProvider = ({children}: {children: React.Node}) => {
-      const relayContext = useMemo(() => ({environment}), []);
+      const relayContext = useMemo((): RelayContext => ({environment}), []);
 
       return (
         <ReactRelayContext.Provider value={relayContext}>
@@ -174,7 +175,7 @@ describe('useRefetchableFragment', () => {
             <Container owner={query} {...props} />
           </ContextProvider>
         </React.Suspense>,
-        // $FlowFixMe[prop-missing] - error revealed when flow-typing ReactTestRenderer
+        // $FlowFixMe[incompatible-type] - error revealed when flow-typing ReactTestRenderer
         {unstable_isConcurrent: isConcurrent},
       );
     };

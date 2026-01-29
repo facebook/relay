@@ -169,14 +169,17 @@ Text Schema:Schema {
             EnumValue {
                 value: "NONE",
                 directives: [],
+                description: None,
             },
             EnumValue {
                 value: "LOG",
                 directives: [],
+                description: None,
             },
             EnumValue {
                 value: "THROW",
                 directives: [],
+                description: None,
             },
         ],
         directives: [],
@@ -527,14 +530,17 @@ enums: [
             EnumValue {
                 value: "NONE",
                 directives: [],
+                description: None,
             },
             EnumValue {
                 value: "LOG",
                 directives: [],
+                description: None,
             },
             EnumValue {
                 value: "THROW",
                 directives: [],
+                description: None,
             },
         ],
         directives: [],

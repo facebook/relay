@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<07373ffe396325694b75d4819686d994>>
+ * @generated SignedSource<<f77c3f23c9e10531b2eeaf50efce1ceb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -53,7 +53,7 @@ var node/*: ReaderFragment*/ = {
               },
               "kind": "RelayResolver",
               "name": "color",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/PurpleOctopusResolvers').color, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/PurpleOctopusResolvers').color, '__relay_model_instance', true),
               "path": "color"
             }
           ],
@@ -73,7 +73,7 @@ var node/*: ReaderFragment*/ = {
               },
               "kind": "RelayResolver",
               "name": "color",
-              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers').color, '__relay_model_instance', true),
+              "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/RedOctopusResolvers').color, '__relay_model_instance', true),
               "path": "color"
             }
           ],

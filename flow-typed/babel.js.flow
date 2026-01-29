@@ -4934,1596 +4934,1545 @@ declare module '@babel/types' {
   declare export function isArrayExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ArrayExpression');
+  ): node is ArrayExpression;
   declare export function isAssignmentExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'AssignmentExpression');
+  ): node is AssignmentExpression;
   declare export function isBinaryExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'BinaryExpression');
+  ): node is BinaryExpression;
   declare export function isInterpreterDirective(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'InterpreterDirective');
+  ): node is InterpreterDirective;
   declare export function isDirective(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Directive');
+  ): node is Directive;
   declare export function isDirectiveLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DirectiveLiteral');
+  ): node is DirectiveLiteral;
   declare export function isBlockStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'BlockStatement');
+  ): node is BlockStatement;
   declare export function isBreakStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'BreakStatement');
+  ): node is BreakStatement;
   declare export function isCallExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'CallExpression');
+  ): node is CallExpression;
   declare export function isCatchClause(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'CatchClause');
+  ): node is CatchClause;
   declare export function isConditionalExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ConditionalExpression');
+  ): node is ConditionalExpression;
   declare export function isContinueStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ContinueStatement');
+  ): node is ContinueStatement;
   declare export function isDebuggerStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DebuggerStatement');
+  ): node is DebuggerStatement;
   declare export function isDoWhileStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DoWhileStatement');
+  ): node is DoWhileStatement;
   declare export function isEmptyStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EmptyStatement');
+  ): node is EmptyStatement;
   declare export function isExpressionStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExpressionStatement');
-  declare export function isFile(
-    node: ?Object,
-    opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'File');
+  ): node is ExpressionStatement;
+  declare export function isFile(node: ?Object, opts?: ?Object): node is File;
   declare export function isForInStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ForInStatement');
+  ): node is ForInStatement;
   declare export function isForStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ForStatement');
+  ): node is ForStatement;
   declare export function isFunctionDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'FunctionDeclaration');
+  ): node is FunctionDeclaration;
   declare export function isFunctionExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'FunctionExpression');
+  ): node is FunctionExpression;
   declare export function isIdentifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Identifier');
+  ): node is Identifier;
   declare export function isIfStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'IfStatement');
+  ): node is IfStatement;
   declare export function isLabeledStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'LabeledStatement');
+  ): node is LabeledStatement;
   declare export function isStringLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'StringLiteral');
+  ): node is StringLiteral;
   declare export function isNumericLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'NumericLiteral');
+  ): node is NumericLiteral;
   declare export function isNullLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'NullLiteral');
+  ): node is NullLiteral;
   declare export function isBooleanLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'BooleanLiteral');
+  ): node is BooleanLiteral;
   declare export function isRegExpLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'RegExpLiteral');
+  ): node is RegExpLiteral;
   declare export function isLogicalExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'LogicalExpression');
+  ): node is LogicalExpression;
   declare export function isMemberExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'MemberExpression');
+  ): node is MemberExpression;
   declare export function isNewExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'NewExpression');
+  ): node is NewExpression;
   declare export function isProgram(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Program');
+  ): node is Program;
   declare export function isObjectExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectExpression');
+  ): node is ObjectExpression;
   declare export function isObjectMethod(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectMethod');
+  ): node is ObjectMethod;
   declare export function isObjectProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectProperty');
+  ): node is ObjectProperty;
   declare export function isRestElement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'RestElement');
+  ): node is RestElement;
   declare export function isReturnStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ReturnStatement');
+  ): node is ReturnStatement;
   declare export function isSequenceExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'SequenceExpression');
+  ): node is SequenceExpression;
   declare export function isParenthesizedExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ParenthesizedExpression');
+  ): node is ParenthesizedExpression;
   declare export function isSwitchCase(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'SwitchCase');
+  ): node is SwitchCase;
   declare export function isSwitchStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'SwitchStatement');
+  ): node is SwitchStatement;
   declare export function isThisExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ThisExpression');
+  ): node is ThisExpression;
   declare export function isThrowStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ThrowStatement');
+  ): node is ThrowStatement;
   declare export function isTryStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TryStatement');
+  ): node is TryStatement;
   declare export function isUnaryExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'UnaryExpression');
+  ): node is UnaryExpression;
   declare export function isUpdateExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'UpdateExpression');
+  ): node is UpdateExpression;
   declare export function isVariableDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'VariableDeclaration');
+  ): node is VariableDeclaration;
   declare export function isVariableDeclarator(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'VariableDeclarator');
+  ): node is VariableDeclarator;
   declare export function isWhileStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'WhileStatement');
+  ): node is WhileStatement;
   declare export function isWithStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'WithStatement');
+  ): node is WithStatement;
   declare export function isAssignmentPattern(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'AssignmentPattern');
+  ): node is AssignmentPattern;
   declare export function isArrayPattern(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ArrayPattern');
+  ): node is ArrayPattern;
   declare export function isArrowFunctionExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ArrowFunctionExpression');
+  ): node is ArrowFunctionExpression;
   declare export function isClassBody(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassBody');
+  ): node is ClassBody;
   declare export function isClassExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassExpression');
+  ): node is ClassExpression;
   declare export function isClassDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassDeclaration');
+  ): node is ClassDeclaration;
   declare export function isExportAllDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExportAllDeclaration');
+  ): node is ExportAllDeclaration;
   declare export function isExportDefaultDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExportDefaultDeclaration');
+  ): node is ExportDefaultDeclaration;
   declare export function isExportNamedDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExportNamedDeclaration');
+  ): node is ExportNamedDeclaration;
   declare export function isExportSpecifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExportSpecifier');
+  ): node is ExportSpecifier;
   declare export function isForOfStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ForOfStatement');
+  ): node is ForOfStatement;
   declare export function isImportDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ImportDeclaration');
+  ): node is ImportDeclaration;
   declare export function isImportDefaultSpecifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ImportDefaultSpecifier');
+  ): node is ImportDefaultSpecifier;
   declare export function isImportNamespaceSpecifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ImportNamespaceSpecifier');
+  ): node is ImportNamespaceSpecifier;
   declare export function isImportSpecifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ImportSpecifier');
+  ): node is ImportSpecifier;
   declare export function isMetaProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'MetaProperty');
+  ): node is MetaProperty;
   declare export function isClassMethod(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassMethod');
+  ): node is ClassMethod;
   declare export function isObjectPattern(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectPattern');
+  ): node is ObjectPattern;
   declare export function isSpreadElement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'SpreadElement');
-  declare export function isSuper(
-    node: ?Object,
-    opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Super');
+  ): node is SpreadElement;
+  declare export function isSuper(node: ?Object, opts?: ?Object): node is Super;
   declare export function isTaggedTemplateExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TaggedTemplateExpression');
+  ): node is TaggedTemplateExpression;
   declare export function isTemplateElement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TemplateElement');
+  ): node is TemplateElement;
   declare export function isTemplateLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TemplateLiteral');
+  ): node is TemplateLiteral;
   declare export function isYieldExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'YieldExpression');
+  ): node is YieldExpression;
   declare export function isAnyTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'AnyTypeAnnotation');
+  ): node is AnyTypeAnnotation;
   declare export function isArrayTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ArrayTypeAnnotation');
+  ): node is ArrayTypeAnnotation;
   declare export function isBooleanTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'BooleanTypeAnnotation');
+  ): node is BooleanTypeAnnotation;
   declare export function isBooleanLiteralTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'BooleanLiteralTypeAnnotation');
+  ): node is BooleanLiteralTypeAnnotation;
   declare export function isNullLiteralTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'NullLiteralTypeAnnotation');
+  ): node is NullLiteralTypeAnnotation;
   declare export function isClassImplements(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassImplements');
+  ): node is ClassImplements;
   declare export function isDeclareClass(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareClass');
+  ): node is DeclareClass;
   declare export function isDeclareFunction(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareFunction');
+  ): node is DeclareFunction;
   declare export function isDeclareInterface(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareInterface');
+  ): node is DeclareInterface;
   declare export function isDeclareModule(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareModule');
+  ): node is DeclareModule;
   declare export function isDeclareModuleExports(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareModuleExports');
+  ): node is DeclareModuleExports;
   declare export function isDeclareTypeAlias(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareTypeAlias');
+  ): node is DeclareTypeAlias;
   declare export function isDeclareOpaqueType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareOpaqueType');
+  ): node is DeclareOpaqueType;
   declare export function isDeclareVariable(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareVariable');
+  ): node is DeclareVariable;
   declare export function isDeclareExportDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclareExportDeclaration');
+  ): node is DeclareExportDeclaration;
   declare export function isDeclareExportAllDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'DeclareExportAllDeclaration');
+  ): node is DeclareExportAllDeclaration;
   declare export function isDeclaredPredicate(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DeclaredPredicate');
+  ): node is DeclaredPredicate;
   declare export function isExistsTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExistsTypeAnnotation');
+  ): node is ExistsTypeAnnotation;
   declare export function isFunctionTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'FunctionTypeAnnotation');
+  ): node is FunctionTypeAnnotation;
   declare export function isFunctionTypeParam(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'FunctionTypeParam');
+  ): node is FunctionTypeParam;
   declare export function isGenericTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'GenericTypeAnnotation');
+  ): node is GenericTypeAnnotation;
   declare export function isInferredPredicate(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'InferredPredicate');
+  ): node is InferredPredicate;
   declare export function isInterfaceExtends(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'InterfaceExtends');
+  ): node is InterfaceExtends;
   declare export function isInterfaceDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'InterfaceDeclaration');
+  ): node is InterfaceDeclaration;
   declare export function isInterfaceTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'InterfaceTypeAnnotation');
+  ): node is InterfaceTypeAnnotation;
   declare export function isIntersectionTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'IntersectionTypeAnnotation');
+  ): node is IntersectionTypeAnnotation;
   declare export function isMixedTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'MixedTypeAnnotation');
+  ): node is MixedTypeAnnotation;
   declare export function isEmptyTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EmptyTypeAnnotation');
+  ): node is EmptyTypeAnnotation;
   declare export function isNullableTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'NullableTypeAnnotation');
+  ): node is NullableTypeAnnotation;
   declare export function isNumberLiteralTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'NumberLiteralTypeAnnotation');
+  ): node is NumberLiteralTypeAnnotation;
   declare export function isNumberTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'NumberTypeAnnotation');
+  ): node is NumberTypeAnnotation;
   declare export function isObjectTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectTypeAnnotation');
+  ): node is ObjectTypeAnnotation;
   declare export function isObjectTypeInternalSlot(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectTypeInternalSlot');
+  ): node is ObjectTypeInternalSlot;
   declare export function isObjectTypeCallProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectTypeCallProperty');
+  ): node is ObjectTypeCallProperty;
   declare export function isObjectTypeIndexer(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectTypeIndexer');
+  ): node is ObjectTypeIndexer;
   declare export function isObjectTypeProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectTypeProperty');
+  ): node is ObjectTypeProperty;
   declare export function isObjectTypeSpreadProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ObjectTypeSpreadProperty');
+  ): node is ObjectTypeSpreadProperty;
   declare export function isOpaqueType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'OpaqueType');
+  ): node is OpaqueType;
   declare export function isQualifiedTypeIdentifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'QualifiedTypeIdentifier');
+  ): node is QualifiedTypeIdentifier;
   declare export function isStringLiteralTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'StringLiteralTypeAnnotation');
+  ): node is StringLiteralTypeAnnotation;
   declare export function isStringTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'StringTypeAnnotation');
+  ): node is StringTypeAnnotation;
   declare export function isSymbolTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'SymbolTypeAnnotation');
+  ): node is SymbolTypeAnnotation;
   declare export function isThisTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ThisTypeAnnotation');
+  ): node is ThisTypeAnnotation;
   declare export function isTupleTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TupleTypeAnnotation');
+  ): node is TupleTypeAnnotation;
   declare export function isTypeofTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TypeofTypeAnnotation');
+  ): node is TypeofTypeAnnotation;
   declare export function isTypeAlias(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TypeAlias');
+  ): node is TypeAlias;
   declare export function isTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TypeAnnotation');
+  ): node is TypeAnnotation;
   declare export function isTypeCastExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TypeCastExpression');
+  ): node is TypeCastExpression;
   declare export function isTypeParameter(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TypeParameter');
+  ): node is TypeParameter;
   declare export function isTypeParameterDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TypeParameterDeclaration');
+  ): node is TypeParameterDeclaration;
   declare export function isTypeParameterInstantiation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'TypeParameterInstantiation');
+  ): node is TypeParameterInstantiation;
   declare export function isUnionTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'UnionTypeAnnotation');
+  ): node is UnionTypeAnnotation;
   declare export function isVariance(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Variance');
+  ): node is Variance;
   declare export function isVoidTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'VoidTypeAnnotation');
+  ): node is VoidTypeAnnotation;
   declare export function isEnumDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumDeclaration');
+  ): node is EnumDeclaration;
   declare export function isEnumBooleanBody(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumBooleanBody');
+  ): node is EnumBooleanBody;
   declare export function isEnumNumberBody(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumNumberBody');
+  ): node is EnumNumberBody;
   declare export function isEnumStringBody(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumStringBody');
+  ): node is EnumStringBody;
   declare export function isEnumSymbolBody(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumSymbolBody');
+  ): node is EnumSymbolBody;
   declare export function isEnumBooleanMember(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumBooleanMember');
+  ): node is EnumBooleanMember;
   declare export function isEnumNumberMember(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumNumberMember');
+  ): node is EnumNumberMember;
   declare export function isEnumStringMember(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumStringMember');
+  ): node is EnumStringMember;
   declare export function isEnumDefaultedMember(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'EnumDefaultedMember');
+  ): node is EnumDefaultedMember;
   declare export function isJSXAttribute(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXAttribute');
+  ): node is JSXAttribute;
   declare export function isJSXClosingElement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXClosingElement');
+  ): node is JSXClosingElement;
   declare export function isJSXElement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXElement');
+  ): node is JSXElement;
   declare export function isJSXEmptyExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXEmptyExpression');
+  ): node is JSXEmptyExpression;
   declare export function isJSXExpressionContainer(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXExpressionContainer');
+  ): node is JSXExpressionContainer;
   declare export function isJSXSpreadChild(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXSpreadChild');
+  ): node is JSXSpreadChild;
   declare export function isJSXIdentifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXIdentifier');
+  ): node is JSXIdentifier;
   declare export function isJSXMemberExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXMemberExpression');
+  ): node is JSXMemberExpression;
   declare export function isJSXNamespacedName(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXNamespacedName');
+  ): node is JSXNamespacedName;
   declare export function isJSXOpeningElement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXOpeningElement');
+  ): node is JSXOpeningElement;
   declare export function isJSXSpreadAttribute(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXSpreadAttribute');
+  ): node is JSXSpreadAttribute;
   declare export function isJSXText(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXText');
+  ): node is JSXText;
   declare export function isJSXFragment(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXFragment');
+  ): node is JSXFragment;
   declare export function isJSXOpeningFragment(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXOpeningFragment');
+  ): node is JSXOpeningFragment;
   declare export function isJSXClosingFragment(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'JSXClosingFragment');
-  declare export function isNoop(
-    node: ?Object,
-    opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Noop');
+  ): node is JSXClosingFragment;
+  declare export function isNoop(node: ?Object, opts?: ?Object): node is Noop;
   declare export function isPlaceholder(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Placeholder');
+  ): node is Placeholder;
   declare export function isV8IntrinsicIdentifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'V8IntrinsicIdentifier');
+  ): node is V8IntrinsicIdentifier;
   declare export function isArgumentPlaceholder(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ArgumentPlaceholder');
+  ): node is ArgumentPlaceholder;
   declare export function isAwaitExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'AwaitExpression');
+  ): node is AwaitExpression;
   declare export function isBindExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'BindExpression');
+  ): node is BindExpression;
   declare export function isClassProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassProperty');
+  ): node is ClassProperty;
   declare export function isOptionalMemberExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'OptionalMemberExpression');
+  ): node is OptionalMemberExpression;
   declare export function isPipelineTopicExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'PipelineTopicExpression');
+  ): node is PipelineTopicExpression;
   declare export function isPipelineBareFunction(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'PipelineBareFunction');
+  ): node is PipelineBareFunction;
   declare export function isPipelinePrimaryTopicReference(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'PipelinePrimaryTopicReference');
+  ): node is PipelinePrimaryTopicReference;
   declare export function isOptionalCallExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'OptionalCallExpression');
+  ): node is OptionalCallExpression;
   declare export function isClassPrivateProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassPrivateProperty');
+  ): node is ClassPrivateProperty;
   declare export function isClassPrivateMethod(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ClassPrivateMethod');
+  ): node is ClassPrivateMethod;
   declare export function isImport(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Import');
+  ): node is Import;
   declare export function isImportAttribute(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ImportAttribute');
+  ): node is ImportAttribute;
   declare export function isDecorator(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'Decorator');
+  ): node is Decorator;
   declare export function isDoExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'DoExpression');
+  ): node is DoExpression;
   declare export function isExportDefaultSpecifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExportDefaultSpecifier');
+  ): node is ExportDefaultSpecifier;
   declare export function isExportNamespaceSpecifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'ExportNamespaceSpecifier');
+  ): node is ExportNamespaceSpecifier;
   declare export function isPrivateName(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'PrivateName');
+  ): node is PrivateName;
   declare export function isBigIntLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'BigIntLiteral');
+  ): node is BigIntLiteral;
   declare export function isRecordExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'RecordExpression');
+  ): node is RecordExpression;
   declare export function isTupleExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TupleExpression');
+  ): node is TupleExpression;
   declare export function isTSParameterProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSParameterProperty');
+  ): node is TSParameterProperty;
   declare export function isTSDeclareFunction(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSDeclareFunction');
+  ): node is TSDeclareFunction;
   declare export function isTSDeclareMethod(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSDeclareMethod');
+  ): node is TSDeclareMethod;
   declare export function isTSQualifiedName(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSQualifiedName');
+  ): node is TSQualifiedName;
   declare export function isTSCallSignatureDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'TSCallSignatureDeclaration');
+  ): node is TSCallSignatureDeclaration;
   declare export function isTSConstructSignatureDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'TSConstructSignatureDeclaration');
+  ): node is TSConstructSignatureDeclaration;
   declare export function isTSPropertySignature(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSPropertySignature');
+  ): node is TSPropertySignature;
   declare export function isTSMethodSignature(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSMethodSignature');
+  ): node is TSMethodSignature;
   declare export function isTSIndexSignature(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSIndexSignature');
+  ): node is TSIndexSignature;
   declare export function isTSAnyKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSAnyKeyword');
+  ): node is TSAnyKeyword;
   declare export function isTSBooleanKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSBooleanKeyword');
+  ): node is TSBooleanKeyword;
   declare export function isTSBigIntKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSBigIntKeyword');
+  ): node is TSBigIntKeyword;
   declare export function isTSNeverKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSNeverKeyword');
+  ): node is TSNeverKeyword;
   declare export function isTSNullKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSNullKeyword');
+  ): node is TSNullKeyword;
   declare export function isTSNumberKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSNumberKeyword');
+  ): node is TSNumberKeyword;
   declare export function isTSObjectKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSObjectKeyword');
+  ): node is TSObjectKeyword;
   declare export function isTSStringKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSStringKeyword');
+  ): node is TSStringKeyword;
   declare export function isTSSymbolKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSSymbolKeyword');
+  ): node is TSSymbolKeyword;
   declare export function isTSUndefinedKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSUndefinedKeyword');
+  ): node is TSUndefinedKeyword;
   declare export function isTSUnknownKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSUnknownKeyword');
+  ): node is TSUnknownKeyword;
   declare export function isTSVoidKeyword(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSVoidKeyword');
+  ): node is TSVoidKeyword;
   declare export function isTSThisType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSThisType');
+  ): node is TSThisType;
   declare export function isTSFunctionType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSFunctionType');
+  ): node is TSFunctionType;
   declare export function isTSConstructorType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSConstructorType');
+  ): node is TSConstructorType;
   declare export function isTSTypeReference(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeReference');
+  ): node is TSTypeReference;
   declare export function isTSTypePredicate(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypePredicate');
+  ): node is TSTypePredicate;
   declare export function isTSTypeQuery(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeQuery');
+  ): node is TSTypeQuery;
   declare export function isTSTypeLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeLiteral');
+  ): node is TSTypeLiteral;
   declare export function isTSArrayType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSArrayType');
+  ): node is TSArrayType;
   declare export function isTSTupleType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTupleType');
+  ): node is TSTupleType;
   declare export function isTSOptionalType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSOptionalType');
+  ): node is TSOptionalType;
   declare export function isTSRestType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSRestType');
+  ): node is TSRestType;
   declare export function isTSUnionType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSUnionType');
+  ): node is TSUnionType;
   declare export function isTSIntersectionType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSIntersectionType');
+  ): node is TSIntersectionType;
   declare export function isTSConditionalType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSConditionalType');
+  ): node is TSConditionalType;
   declare export function isTSInferType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSInferType');
+  ): node is TSInferType;
   declare export function isTSParenthesizedType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSParenthesizedType');
+  ): node is TSParenthesizedType;
   declare export function isTSTypeOperator(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeOperator');
+  ): node is TSTypeOperator;
   declare export function isTSIndexedAccessType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSIndexedAccessType');
+  ): node is TSIndexedAccessType;
   declare export function isTSMappedType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSMappedType');
+  ): node is TSMappedType;
   declare export function isTSLiteralType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSLiteralType');
+  ): node is TSLiteralType;
   declare export function isTSExpressionWithTypeArguments(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'TSExpressionWithTypeArguments');
+  ): node is TSExpressionWithTypeArguments;
   declare export function isTSInterfaceDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSInterfaceDeclaration');
+  ): node is TSInterfaceDeclaration;
   declare export function isTSInterfaceBody(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSInterfaceBody');
+  ): node is TSInterfaceBody;
   declare export function isTSTypeAliasDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeAliasDeclaration');
+  ): node is TSTypeAliasDeclaration;
   declare export function isTSAsExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSAsExpression');
+  ): node is TSAsExpression;
   declare export function isTSTypeAssertion(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeAssertion');
+  ): node is TSTypeAssertion;
   declare export function isTSEnumDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSEnumDeclaration');
+  ): node is TSEnumDeclaration;
   declare export function isTSEnumMember(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSEnumMember');
+  ): node is TSEnumMember;
   declare export function isTSModuleDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSModuleDeclaration');
+  ): node is TSModuleDeclaration;
   declare export function isTSModuleBlock(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSModuleBlock');
+  ): node is TSModuleBlock;
   declare export function isTSImportType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSImportType');
+  ): node is TSImportType;
   declare export function isTSImportEqualsDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSImportEqualsDeclaration');
+  ): node is TSImportEqualsDeclaration;
   declare export function isTSExternalModuleReference(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSExternalModuleReference');
+  ): node is TSExternalModuleReference;
   declare export function isTSNonNullExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSNonNullExpression');
+  ): node is TSNonNullExpression;
   declare export function isTSExportAssignment(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSExportAssignment');
+  ): node is TSExportAssignment;
   declare export function isTSNamespaceExportDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'TSNamespaceExportDeclaration');
+  ): node is TSNamespaceExportDeclaration;
   declare export function isTSTypeAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeAnnotation');
+  ): node is TSTypeAnnotation;
   declare export function isTSTypeParameterInstantiation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'TSTypeParameterInstantiation');
+  ): node is TSTypeParameterInstantiation;
   declare export function isTSTypeParameterDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    node.type === 'TSTypeParameterDeclaration');
+  ): node is TSTypeParameterDeclaration;
   declare export function isTSTypeParameter(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null && node.type === 'TSTypeParameter');
+  ): node is TSTypeParameter;
   declare export function isExpression(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ArrayExpression' ||
-      node.type === 'AssignmentExpression' ||
-      node.type === 'BinaryExpression' ||
-      node.type === 'CallExpression' ||
-      node.type === 'ConditionalExpression' ||
-      node.type === 'FunctionExpression' ||
-      node.type === 'Identifier' ||
-      node.type === 'StringLiteral' ||
-      node.type === 'NumericLiteral' ||
-      node.type === 'NullLiteral' ||
-      node.type === 'BooleanLiteral' ||
-      node.type === 'RegExpLiteral' ||
-      node.type === 'LogicalExpression' ||
-      node.type === 'MemberExpression' ||
-      node.type === 'NewExpression' ||
-      node.type === 'ObjectExpression' ||
-      node.type === 'SequenceExpression' ||
-      node.type === 'ParenthesizedExpression' ||
-      node.type === 'ThisExpression' ||
-      node.type === 'UnaryExpression' ||
-      node.type === 'UpdateExpression' ||
-      node.type === 'ArrowFunctionExpression' ||
-      node.type === 'ClassExpression' ||
-      node.type === 'MetaProperty' ||
-      node.type === 'Super' ||
-      node.type === 'TaggedTemplateExpression' ||
-      node.type === 'TemplateLiteral' ||
-      node.type === 'YieldExpression' ||
-      node.type === 'TypeCastExpression' ||
-      node.type === 'JSXElement' ||
-      node.type === 'JSXFragment' ||
-      node.type === 'AwaitExpression' ||
-      node.type === 'BindExpression' ||
-      node.type === 'OptionalMemberExpression' ||
-      node.type === 'PipelinePrimaryTopicReference' ||
-      node.type === 'OptionalCallExpression' ||
-      node.type === 'Import' ||
-      node.type === 'DoExpression' ||
-      node.type === 'BigIntLiteral' ||
-      node.type === 'RecordExpression' ||
-      node.type === 'TupleExpression' ||
-      node.type === 'TSAsExpression' ||
-      node.type === 'TSTypeAssertion' ||
-      node.type === 'TSNonNullExpression'));
+  ): node is
+    | ArrayExpression
+    | AssignmentExpression
+    | BinaryExpression
+    | CallExpression
+    | ConditionalExpression
+    | FunctionExpression
+    | Identifier
+    | StringLiteral
+    | NumericLiteral
+    | NullLiteral
+    | BooleanLiteral
+    | RegExpLiteral
+    | LogicalExpression
+    | MemberExpression
+    | NewExpression
+    | ObjectExpression
+    | SequenceExpression
+    | ParenthesizedExpression
+    | ThisExpression
+    | UnaryExpression
+    | UpdateExpression
+    | ArrowFunctionExpression
+    | ClassExpression
+    | MetaProperty
+    | Super
+    | TaggedTemplateExpression
+    | TemplateLiteral
+    | YieldExpression
+    | AwaitExpression
+    | Import
+    | BigIntLiteral
+    | OptionalMemberExpression
+    | OptionalCallExpression
+    | TypeCastExpression
+    | JSXElement
+    | JSXFragment
+    | BindExpression
+    | DoExpression
+    | RecordExpression
+    | TupleExpression
+    | PipelineTopicExpression
+    | PipelineBareFunction
+    | PipelinePrimaryTopicReference
+    | TSAsExpression
+    | TSTypeAssertion
+    | TSNonNullExpression;
   declare export function isBinary(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'BinaryExpression' || node.type === 'LogicalExpression'));
+  ): node is BinaryExpression | LogicalExpression;
   declare export function isScopable(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'BlockStatement' ||
-      node.type === 'CatchClause' ||
-      node.type === 'DoWhileStatement' ||
-      node.type === 'ForInStatement' ||
-      node.type === 'ForStatement' ||
-      node.type === 'FunctionDeclaration' ||
-      node.type === 'FunctionExpression' ||
-      node.type === 'Program' ||
-      node.type === 'ObjectMethod' ||
-      node.type === 'SwitchStatement' ||
-      node.type === 'WhileStatement' ||
-      node.type === 'ArrowFunctionExpression' ||
-      node.type === 'ClassExpression' ||
-      node.type === 'ClassDeclaration' ||
-      node.type === 'ForOfStatement' ||
-      node.type === 'ClassMethod' ||
-      node.type === 'ClassPrivateMethod' ||
-      node.type === 'TSModuleBlock'));
+  ): node is
+    | BlockStatement
+    | CatchClause
+    | DoWhileStatement
+    | ForInStatement
+    | ForStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | Program
+    | ObjectMethod
+    | SwitchStatement
+    | WhileStatement
+    | ArrowFunctionExpression
+    | ClassExpression
+    | ClassDeclaration
+    | ForOfStatement
+    | ClassMethod
+    | ClassPrivateMethod
+    | TSModuleBlock;
   declare export function isBlockParent(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'BlockStatement' ||
-      node.type === 'CatchClause' ||
-      node.type === 'DoWhileStatement' ||
-      node.type === 'ForInStatement' ||
-      node.type === 'ForStatement' ||
-      node.type === 'FunctionDeclaration' ||
-      node.type === 'FunctionExpression' ||
-      node.type === 'Program' ||
-      node.type === 'ObjectMethod' ||
-      node.type === 'SwitchStatement' ||
-      node.type === 'WhileStatement' ||
-      node.type === 'ArrowFunctionExpression' ||
-      node.type === 'ForOfStatement' ||
-      node.type === 'ClassMethod' ||
-      node.type === 'ClassPrivateMethod' ||
-      node.type === 'TSModuleBlock'));
+  ): node is
+    | BlockStatement
+    | CatchClause
+    | DoWhileStatement
+    | ForInStatement
+    | ForStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | Program
+    | ObjectMethod
+    | SwitchStatement
+    | WhileStatement
+    | ArrowFunctionExpression
+    | ForOfStatement
+    | ClassMethod
+    | ClassPrivateMethod
+    | TSModuleBlock;
   declare export function isBlock(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'BlockStatement' ||
-      node.type === 'Program' ||
-      node.type === 'TSModuleBlock'));
+  ): node is BlockStatement | Program | TSModuleBlock;
   declare export function isStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'BlockStatement' ||
-      node.type === 'BreakStatement' ||
-      node.type === 'ContinueStatement' ||
-      node.type === 'DebuggerStatement' ||
-      node.type === 'DoWhileStatement' ||
-      node.type === 'EmptyStatement' ||
-      node.type === 'ExpressionStatement' ||
-      node.type === 'ForInStatement' ||
-      node.type === 'ForStatement' ||
-      node.type === 'FunctionDeclaration' ||
-      node.type === 'IfStatement' ||
-      node.type === 'LabeledStatement' ||
-      node.type === 'ReturnStatement' ||
-      node.type === 'SwitchStatement' ||
-      node.type === 'ThrowStatement' ||
-      node.type === 'TryStatement' ||
-      node.type === 'VariableDeclaration' ||
-      node.type === 'WhileStatement' ||
-      node.type === 'WithStatement' ||
-      node.type === 'ClassDeclaration' ||
-      node.type === 'ExportAllDeclaration' ||
-      node.type === 'ExportDefaultDeclaration' ||
-      node.type === 'ExportNamedDeclaration' ||
-      node.type === 'ForOfStatement' ||
-      node.type === 'ImportDeclaration' ||
-      node.type === 'DeclareClass' ||
-      node.type === 'DeclareFunction' ||
-      node.type === 'DeclareInterface' ||
-      node.type === 'DeclareModule' ||
-      node.type === 'DeclareModuleExports' ||
-      node.type === 'DeclareTypeAlias' ||
-      node.type === 'DeclareOpaqueType' ||
-      node.type === 'DeclareVariable' ||
-      node.type === 'DeclareExportDeclaration' ||
-      node.type === 'DeclareExportAllDeclaration' ||
-      node.type === 'InterfaceDeclaration' ||
-      node.type === 'OpaqueType' ||
-      node.type === 'TypeAlias' ||
-      node.type === 'EnumDeclaration' ||
-      node.type === 'TSDeclareFunction' ||
-      node.type === 'TSInterfaceDeclaration' ||
-      node.type === 'TSTypeAliasDeclaration' ||
-      node.type === 'TSEnumDeclaration' ||
-      node.type === 'TSModuleDeclaration' ||
-      node.type === 'TSImportEqualsDeclaration' ||
-      node.type === 'TSExportAssignment' ||
-      node.type === 'TSNamespaceExportDeclaration'));
+  ): node is
+    | BlockStatement
+    | BreakStatement
+    | ContinueStatement
+    | DebuggerStatement
+    | DoWhileStatement
+    | EmptyStatement
+    | ExpressionStatement
+    | ForInStatement
+    | ForStatement
+    | FunctionDeclaration
+    | IfStatement
+    | LabeledStatement
+    | ReturnStatement
+    | SwitchStatement
+    | ThrowStatement
+    | TryStatement
+    | VariableDeclaration
+    | WhileStatement
+    | WithStatement
+    | ClassDeclaration
+    | ExportAllDeclaration
+    | ExportDefaultDeclaration
+    | ExportNamedDeclaration
+    | ForOfStatement
+    | ImportDeclaration
+    | DeclareClass
+    | DeclareFunction
+    | DeclareInterface
+    | DeclareModule
+    | DeclareModuleExports
+    | DeclareTypeAlias
+    | DeclareOpaqueType
+    | DeclareVariable
+    | DeclareExportDeclaration
+    | DeclareExportAllDeclaration
+    | InterfaceDeclaration
+    | OpaqueType
+    | TypeAlias
+    | EnumDeclaration
+    | TSDeclareFunction
+    | TSInterfaceDeclaration
+    | TSTypeAliasDeclaration
+    | TSEnumDeclaration
+    | TSModuleDeclaration
+    | TSImportEqualsDeclaration
+    | TSExportAssignment
+    | TSNamespaceExportDeclaration;
   declare export function isTerminatorless(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'BreakStatement' ||
-      node.type === 'ContinueStatement' ||
-      node.type === 'ReturnStatement' ||
-      node.type === 'ThrowStatement' ||
-      node.type === 'YieldExpression' ||
-      node.type === 'AwaitExpression'));
+  ): node is
+    | BreakStatement
+    | ContinueStatement
+    | ReturnStatement
+    | ThrowStatement
+    | YieldExpression
+    | AwaitExpression;
   declare export function isCompletionStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'BreakStatement' ||
-      node.type === 'ContinueStatement' ||
-      node.type === 'ReturnStatement' ||
-      node.type === 'ThrowStatement'));
+  ): node is
+    | BreakStatement
+    | ContinueStatement
+    | ReturnStatement
+    | ThrowStatement;
   declare export function isConditional(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ConditionalExpression' || node.type === 'IfStatement'));
+  ): node is ConditionalExpression | IfStatement;
   declare export function isLoop(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'DoWhileStatement' ||
-      node.type === 'ForInStatement' ||
-      node.type === 'ForStatement' ||
-      node.type === 'WhileStatement' ||
-      node.type === 'ForOfStatement'));
+  ): node is
+    | DoWhileStatement
+    | ForInStatement
+    | ForStatement
+    | WhileStatement
+    | ForOfStatement;
   declare export function isWhile(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'DoWhileStatement' || node.type === 'WhileStatement'));
+  ): node is DoWhileStatement | WhileStatement;
   declare export function isExpressionWrapper(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ExpressionStatement' ||
-      node.type === 'ParenthesizedExpression' ||
-      node.type === 'TypeCastExpression'));
+  ): node is ExpressionStatement | ParenthesizedExpression | TypeCastExpression;
   declare export function isFor(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ForInStatement' ||
-      node.type === 'ForStatement' ||
-      node.type === 'ForOfStatement'));
+  ): node is ForInStatement | ForStatement | ForOfStatement;
   declare export function isForXStatement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ForInStatement' || node.type === 'ForOfStatement'));
+  ): node is ForInStatement | ForOfStatement;
   declare export function isFunction(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'FunctionDeclaration' ||
-      node.type === 'FunctionExpression' ||
-      node.type === 'ObjectMethod' ||
-      node.type === 'ArrowFunctionExpression' ||
-      node.type === 'ClassMethod' ||
-      node.type === 'ClassPrivateMethod'));
+  ): node is
+    | FunctionDeclaration
+    | FunctionExpression
+    | ObjectMethod
+    | ArrowFunctionExpression
+    | ClassMethod
+    | ClassPrivateMethod;
   declare export function isFunctionParent(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'FunctionDeclaration' ||
-      node.type === 'FunctionExpression' ||
-      node.type === 'ObjectMethod' ||
-      node.type === 'ArrowFunctionExpression' ||
-      node.type === 'ClassMethod' ||
-      node.type === 'ClassPrivateMethod'));
+  ): node is
+    | FunctionDeclaration
+    | FunctionExpression
+    | ObjectMethod
+    | ArrowFunctionExpression
+    | ClassMethod
+    | ClassPrivateMethod;
   declare export function isPureish(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'FunctionDeclaration' ||
-      node.type === 'FunctionExpression' ||
-      node.type === 'StringLiteral' ||
-      node.type === 'NumericLiteral' ||
-      node.type === 'NullLiteral' ||
-      node.type === 'BooleanLiteral' ||
-      node.type === 'RegExpLiteral' ||
-      node.type === 'ArrowFunctionExpression' ||
-      node.type === 'BigIntLiteral'));
+  ): node is
+    | FunctionDeclaration
+    | FunctionExpression
+    | StringLiteral
+    | NumericLiteral
+    | NullLiteral
+    | BooleanLiteral
+    | RegExpLiteral
+    | ArrowFunctionExpression
+    | BigIntLiteral;
   declare export function isDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'FunctionDeclaration' ||
-      node.type === 'VariableDeclaration' ||
-      node.type === 'ClassDeclaration' ||
-      node.type === 'ExportAllDeclaration' ||
-      node.type === 'ExportDefaultDeclaration' ||
-      node.type === 'ExportNamedDeclaration' ||
-      node.type === 'ImportDeclaration' ||
-      node.type === 'DeclareClass' ||
-      node.type === 'DeclareFunction' ||
-      node.type === 'DeclareInterface' ||
-      node.type === 'DeclareModule' ||
-      node.type === 'DeclareModuleExports' ||
-      node.type === 'DeclareTypeAlias' ||
-      node.type === 'DeclareOpaqueType' ||
-      node.type === 'DeclareVariable' ||
-      node.type === 'DeclareExportDeclaration' ||
-      node.type === 'DeclareExportAllDeclaration' ||
-      node.type === 'InterfaceDeclaration' ||
-      node.type === 'OpaqueType' ||
-      node.type === 'TypeAlias' ||
-      node.type === 'EnumDeclaration' ||
-      node.type === 'TSDeclareFunction' ||
-      node.type === 'TSInterfaceDeclaration' ||
-      node.type === 'TSTypeAliasDeclaration' ||
-      node.type === 'TSEnumDeclaration' ||
-      node.type === 'TSModuleDeclaration'));
+  ): node is
+    | FunctionDeclaration
+    | VariableDeclaration
+    | ClassDeclaration
+    | ExportAllDeclaration
+    | ExportDefaultDeclaration
+    | ExportNamedDeclaration
+    | ImportDeclaration
+    | DeclareClass
+    | DeclareFunction
+    | DeclareInterface
+    | DeclareModule
+    | DeclareModuleExports
+    | DeclareTypeAlias
+    | DeclareOpaqueType
+    | DeclareVariable
+    | DeclareExportDeclaration
+    | DeclareExportAllDeclaration
+    | InterfaceDeclaration
+    | OpaqueType
+    | TypeAlias
+    | EnumDeclaration
+    | TSDeclareFunction
+    | TSInterfaceDeclaration
+    | TSTypeAliasDeclaration
+    | TSEnumDeclaration
+    | TSModuleDeclaration;
   declare export function isPatternLike(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'Identifier' ||
-      node.type === 'RestElement' ||
-      node.type === 'AssignmentPattern' ||
-      node.type === 'ArrayPattern' ||
-      node.type === 'ObjectPattern'));
+  ): node is
+    | Identifier
+    | RestElement
+    | AssignmentPattern
+    | ArrayPattern
+    | ObjectPattern
+    | TSAsExpression
+    | TSTypeAssertion
+    | TSNonNullExpression;
   declare export function isLVal(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'Identifier' ||
-      node.type === 'MemberExpression' ||
-      node.type === 'RestElement' ||
-      node.type === 'AssignmentPattern' ||
-      node.type === 'ArrayPattern' ||
-      node.type === 'ObjectPattern' ||
-      node.type === 'TSParameterProperty'));
+  ): node is
+    | Identifier
+    | MemberExpression
+    | RestElement
+    | AssignmentPattern
+    | ArrayPattern
+    | ObjectPattern
+    | TSParameterProperty
+    | TSAsExpression
+    | TSTypeAssertion
+    | TSNonNullExpression;
   declare export function isTSEntityName(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'Identifier' || node.type === 'TSQualifiedName'));
+  ): node is Identifier | TSQualifiedName;
   declare export function isLiteral(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'StringLiteral' ||
-      node.type === 'NumericLiteral' ||
-      node.type === 'NullLiteral' ||
-      node.type === 'BooleanLiteral' ||
-      node.type === 'RegExpLiteral' ||
-      node.type === 'TemplateLiteral' ||
-      node.type === 'BigIntLiteral'));
+  ): node is
+    | StringLiteral
+    | NumericLiteral
+    | NullLiteral
+    | BooleanLiteral
+    | RegExpLiteral
+    | TemplateLiteral
+    | BigIntLiteral;
   declare export function isImmutable(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'StringLiteral' ||
-      node.type === 'NumericLiteral' ||
-      node.type === 'NullLiteral' ||
-      node.type === 'BooleanLiteral' ||
-      node.type === 'JSXAttribute' ||
-      node.type === 'JSXClosingElement' ||
-      node.type === 'JSXElement' ||
-      node.type === 'JSXExpressionContainer' ||
-      node.type === 'JSXSpreadChild' ||
-      node.type === 'JSXOpeningElement' ||
-      node.type === 'JSXText' ||
-      node.type === 'JSXFragment' ||
-      node.type === 'JSXOpeningFragment' ||
-      node.type === 'JSXClosingFragment' ||
-      node.type === 'BigIntLiteral'));
+  ): node is
+    | StringLiteral
+    | NumericLiteral
+    | NullLiteral
+    | BooleanLiteral
+    | BigIntLiteral
+    | JSXAttribute
+    | JSXClosingElement
+    | JSXElement
+    | JSXExpressionContainer
+    | JSXSpreadChild
+    | JSXOpeningElement
+    | JSXText
+    | JSXFragment
+    | JSXOpeningFragment
+    | JSXClosingFragment;
   declare export function isUserWhitespacable(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ObjectMethod' ||
-      node.type === 'ObjectProperty' ||
-      node.type === 'ObjectTypeInternalSlot' ||
-      node.type === 'ObjectTypeCallProperty' ||
-      node.type === 'ObjectTypeIndexer' ||
-      node.type === 'ObjectTypeProperty' ||
-      node.type === 'ObjectTypeSpreadProperty'));
+  ): node is
+    | ObjectMethod
+    | ObjectProperty
+    | ObjectTypeInternalSlot
+    | ObjectTypeCallProperty
+    | ObjectTypeIndexer
+    | ObjectTypeProperty
+    | ObjectTypeSpreadProperty;
   declare export function isMethod(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ObjectMethod' ||
-      node.type === 'ClassMethod' ||
-      node.type === 'ClassPrivateMethod'));
+  ): node is ObjectMethod | ClassMethod | ClassPrivateMethod;
   declare export function isObjectMember(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ObjectMethod' || node.type === 'ObjectProperty'));
+  ): node is ObjectMethod | ObjectProperty;
   declare export function isProperty(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ObjectProperty' ||
-      node.type === 'ClassProperty' ||
-      node.type === 'ClassPrivateProperty'));
+  ): node is ObjectProperty | ClassProperty | ClassPrivateProperty;
   declare export function isUnaryLike(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'UnaryExpression' || node.type === 'SpreadElement'));
+  ): node is UnaryExpression | SpreadElement;
   declare export function isPattern(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'AssignmentPattern' ||
-      node.type === 'ArrayPattern' ||
-      node.type === 'ObjectPattern'));
+  ): node is AssignmentPattern | ArrayPattern | ObjectPattern;
   declare export function isClass(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ClassExpression' || node.type === 'ClassDeclaration'));
+  ): node is ClassExpression | ClassDeclaration;
   declare export function isModuleDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ExportAllDeclaration' ||
-      node.type === 'ExportDefaultDeclaration' ||
-      node.type === 'ExportNamedDeclaration' ||
-      node.type === 'ImportDeclaration'));
+  ): node is
+    | ExportAllDeclaration
+    | ExportDefaultDeclaration
+    | ExportNamedDeclaration
+    | ImportDeclaration;
   declare export function isExportDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ExportAllDeclaration' ||
-      node.type === 'ExportDefaultDeclaration' ||
-      node.type === 'ExportNamedDeclaration'));
+  ): node is
+    | ExportAllDeclaration
+    | ExportDefaultDeclaration
+    | ExportNamedDeclaration;
   declare export function isModuleSpecifier(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ExportSpecifier' ||
-      node.type === 'ImportDefaultSpecifier' ||
-      node.type === 'ImportNamespaceSpecifier' ||
-      node.type === 'ImportSpecifier' ||
-      node.type === 'ExportDefaultSpecifier' ||
-      node.type === 'ExportNamespaceSpecifier'));
+  ): node is
+    | ExportSpecifier
+    | ImportDefaultSpecifier
+    | ImportNamespaceSpecifier
+    | ImportSpecifier
+    | ExportNamespaceSpecifier
+    | ExportDefaultSpecifier;
   declare export function isFlow(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'AnyTypeAnnotation' ||
-      node.type === 'ArrayTypeAnnotation' ||
-      node.type === 'BooleanTypeAnnotation' ||
-      node.type === 'BooleanLiteralTypeAnnotation' ||
-      node.type === 'NullLiteralTypeAnnotation' ||
-      node.type === 'ClassImplements' ||
-      node.type === 'DeclareClass' ||
-      node.type === 'DeclareFunction' ||
-      node.type === 'DeclareInterface' ||
-      node.type === 'DeclareModule' ||
-      node.type === 'DeclareModuleExports' ||
-      node.type === 'DeclareTypeAlias' ||
-      node.type === 'DeclareOpaqueType' ||
-      node.type === 'DeclareVariable' ||
-      node.type === 'DeclareExportDeclaration' ||
-      node.type === 'DeclareExportAllDeclaration' ||
-      node.type === 'DeclaredPredicate' ||
-      node.type === 'ExistsTypeAnnotation' ||
-      node.type === 'FunctionTypeAnnotation' ||
-      node.type === 'FunctionTypeParam' ||
-      node.type === 'GenericTypeAnnotation' ||
-      node.type === 'InferredPredicate' ||
-      node.type === 'InterfaceExtends' ||
-      node.type === 'InterfaceDeclaration' ||
-      node.type === 'InterfaceTypeAnnotation' ||
-      node.type === 'IntersectionTypeAnnotation' ||
-      node.type === 'MixedTypeAnnotation' ||
-      node.type === 'EmptyTypeAnnotation' ||
-      node.type === 'NullableTypeAnnotation' ||
-      node.type === 'NumberLiteralTypeAnnotation' ||
-      node.type === 'NumberTypeAnnotation' ||
-      node.type === 'ObjectTypeAnnotation' ||
-      node.type === 'ObjectTypeInternalSlot' ||
-      node.type === 'ObjectTypeCallProperty' ||
-      node.type === 'ObjectTypeIndexer' ||
-      node.type === 'ObjectTypeProperty' ||
-      node.type === 'ObjectTypeSpreadProperty' ||
-      node.type === 'OpaqueType' ||
-      node.type === 'QualifiedTypeIdentifier' ||
-      node.type === 'StringLiteralTypeAnnotation' ||
-      node.type === 'StringTypeAnnotation' ||
-      node.type === 'SymbolTypeAnnotation' ||
-      node.type === 'ThisTypeAnnotation' ||
-      node.type === 'TupleTypeAnnotation' ||
-      node.type === 'TypeofTypeAnnotation' ||
-      node.type === 'TypeAlias' ||
-      node.type === 'TypeAnnotation' ||
-      node.type === 'TypeCastExpression' ||
-      node.type === 'TypeParameter' ||
-      node.type === 'TypeParameterDeclaration' ||
-      node.type === 'TypeParameterInstantiation' ||
-      node.type === 'UnionTypeAnnotation' ||
-      node.type === 'Variance' ||
-      node.type === 'VoidTypeAnnotation'));
+  ): node is
+    | AnyTypeAnnotation
+    | ArrayTypeAnnotation
+    | BooleanTypeAnnotation
+    | BooleanLiteralTypeAnnotation
+    | NullLiteralTypeAnnotation
+    | ClassImplements
+    | DeclareClass
+    | DeclareFunction
+    | DeclareInterface
+    | DeclareModule
+    | DeclareModuleExports
+    | DeclareTypeAlias
+    | DeclareOpaqueType
+    | DeclareVariable
+    | DeclareExportDeclaration
+    | DeclareExportAllDeclaration
+    | DeclaredPredicate
+    | ExistsTypeAnnotation
+    | FunctionTypeAnnotation
+    | FunctionTypeParam
+    | GenericTypeAnnotation
+    | InferredPredicate
+    | InterfaceExtends
+    | InterfaceDeclaration
+    | InterfaceTypeAnnotation
+    | IntersectionTypeAnnotation
+    | MixedTypeAnnotation
+    | EmptyTypeAnnotation
+    | NullableTypeAnnotation
+    | NumberLiteralTypeAnnotation
+    | NumberTypeAnnotation
+    | ObjectTypeAnnotation
+    | ObjectTypeInternalSlot
+    | ObjectTypeCallProperty
+    | ObjectTypeIndexer
+    | ObjectTypeProperty
+    | ObjectTypeSpreadProperty
+    | OpaqueType
+    | QualifiedTypeIdentifier
+    | StringLiteralTypeAnnotation
+    | StringTypeAnnotation
+    | SymbolTypeAnnotation
+    | ThisTypeAnnotation
+    | TupleTypeAnnotation
+    | TypeofTypeAnnotation
+    | TypeAlias
+    | TypeAnnotation
+    | TypeCastExpression
+    | TypeParameter
+    | TypeParameterDeclaration
+    | TypeParameterInstantiation;
   declare export function isFlowType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'AnyTypeAnnotation' ||
-      node.type === 'ArrayTypeAnnotation' ||
-      node.type === 'BooleanTypeAnnotation' ||
-      node.type === 'BooleanLiteralTypeAnnotation' ||
-      node.type === 'NullLiteralTypeAnnotation' ||
-      node.type === 'ExistsTypeAnnotation' ||
-      node.type === 'FunctionTypeAnnotation' ||
-      node.type === 'GenericTypeAnnotation' ||
-      node.type === 'InterfaceTypeAnnotation' ||
-      node.type === 'IntersectionTypeAnnotation' ||
-      node.type === 'MixedTypeAnnotation' ||
-      node.type === 'EmptyTypeAnnotation' ||
-      node.type === 'NullableTypeAnnotation' ||
-      node.type === 'NumberLiteralTypeAnnotation' ||
-      node.type === 'NumberTypeAnnotation' ||
-      node.type === 'ObjectTypeAnnotation' ||
-      node.type === 'StringLiteralTypeAnnotation' ||
-      node.type === 'StringTypeAnnotation' ||
-      node.type === 'SymbolTypeAnnotation' ||
-      node.type === 'ThisTypeAnnotation' ||
-      node.type === 'TupleTypeAnnotation' ||
-      node.type === 'TypeofTypeAnnotation' ||
-      node.type === 'UnionTypeAnnotation' ||
-      node.type === 'VoidTypeAnnotation'));
+  ): node is
+    | AnyTypeAnnotation
+    | ArrayTypeAnnotation
+    | BooleanTypeAnnotation
+    | BooleanLiteralTypeAnnotation
+    | NullLiteralTypeAnnotation
+    | ExistsTypeAnnotation
+    | FunctionTypeAnnotation
+    | GenericTypeAnnotation
+    | InterfaceTypeAnnotation
+    | IntersectionTypeAnnotation
+    | MixedTypeAnnotation
+    | EmptyTypeAnnotation
+    | NullableTypeAnnotation
+    | NumberLiteralTypeAnnotation
+    | NumberTypeAnnotation
+    | ObjectTypeAnnotation
+    | StringLiteralTypeAnnotation
+    | StringTypeAnnotation
+    | SymbolTypeAnnotation
+    | ThisTypeAnnotation
+    | TupleTypeAnnotation
+    | TypeofTypeAnnotation
+    | UnionTypeAnnotation
+    | VoidTypeAnnotation;
   declare export function isFlowBaseAnnotation(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'AnyTypeAnnotation' ||
-      node.type === 'BooleanTypeAnnotation' ||
-      node.type === 'NullLiteralTypeAnnotation' ||
-      node.type === 'MixedTypeAnnotation' ||
-      node.type === 'EmptyTypeAnnotation' ||
-      node.type === 'NumberTypeAnnotation' ||
-      node.type === 'StringTypeAnnotation' ||
-      node.type === 'SymbolTypeAnnotation' ||
-      node.type === 'ThisTypeAnnotation' ||
-      node.type === 'VoidTypeAnnotation'));
+  ): node is
+    | AnyTypeAnnotation
+    | BooleanTypeAnnotation
+    | NullLiteralTypeAnnotation
+    | MixedTypeAnnotation
+    | EmptyTypeAnnotation
+    | NumberTypeAnnotation
+    | StringTypeAnnotation
+    | SymbolTypeAnnotation
+    | ThisTypeAnnotation
+    | VoidTypeAnnotation;
   declare export function isFlowDeclaration(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'DeclareClass' ||
-      node.type === 'DeclareFunction' ||
-      node.type === 'DeclareInterface' ||
-      node.type === 'DeclareModule' ||
-      node.type === 'DeclareModuleExports' ||
-      node.type === 'DeclareTypeAlias' ||
-      node.type === 'DeclareOpaqueType' ||
-      node.type === 'DeclareVariable' ||
-      node.type === 'DeclareExportDeclaration' ||
-      node.type === 'DeclareExportAllDeclaration' ||
-      node.type === 'InterfaceDeclaration' ||
-      node.type === 'OpaqueType' ||
-      node.type === 'TypeAlias'));
+  ): node is
+    | DeclareClass
+    | DeclareFunction
+    | DeclareInterface
+    | DeclareModule
+    | DeclareModuleExports
+    | DeclareTypeAlias
+    | DeclareOpaqueType
+    | DeclareVariable
+    | DeclareExportDeclaration
+    | DeclareExportAllDeclaration
+    | InterfaceDeclaration
+    | OpaqueType
+    | TypeAlias;
   declare export function isFlowPredicate(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'DeclaredPredicate' || node.type === 'InferredPredicate'));
+  ): node is DeclaredPredicate | InferredPredicate;
   declare export function isEnumBody(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'EnumBooleanBody' ||
-      node.type === 'EnumNumberBody' ||
-      node.type === 'EnumStringBody' ||
-      node.type === 'EnumSymbolBody'));
+  ): node is EnumBooleanBody | EnumNumberBody | EnumStringBody | EnumSymbolBody;
   declare export function isEnumMember(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'EnumBooleanMember' ||
-      node.type === 'EnumNumberMember' ||
-      node.type === 'EnumStringMember' ||
-      node.type === 'EnumDefaultedMember'));
+  ): node is
+    | EnumBooleanMember
+    | EnumNumberMember
+    | EnumStringMember
+    | EnumDefaultedMember;
   declare export function isJSX(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'JSXAttribute' ||
-      node.type === 'JSXClosingElement' ||
-      node.type === 'JSXElement' ||
-      node.type === 'JSXEmptyExpression' ||
-      node.type === 'JSXExpressionContainer' ||
-      node.type === 'JSXSpreadChild' ||
-      node.type === 'JSXIdentifier' ||
-      node.type === 'JSXMemberExpression' ||
-      node.type === 'JSXNamespacedName' ||
-      node.type === 'JSXOpeningElement' ||
-      node.type === 'JSXSpreadAttribute' ||
-      node.type === 'JSXText' ||
-      node.type === 'JSXFragment' ||
-      node.type === 'JSXOpeningFragment' ||
-      node.type === 'JSXClosingFragment'));
+  ): node is
+    | JSXAttribute
+    | JSXClosingElement
+    | JSXElement
+    | JSXEmptyExpression
+    | JSXExpressionContainer
+    | JSXSpreadChild
+    | JSXIdentifier
+    | JSXMemberExpression
+    | JSXNamespacedName
+    | JSXOpeningElement
+    | JSXSpreadAttribute
+    | JSXText
+    | JSXFragment
+    | JSXOpeningFragment
+    | JSXClosingFragment;
   declare export function isPrivate(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'ClassPrivateProperty' ||
-      node.type === 'ClassPrivateMethod' ||
-      node.type === 'PrivateName'));
+  ): node is ClassPrivateProperty | ClassPrivateMethod | PrivateName;
   declare export function isTSTypeElement(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'TSCallSignatureDeclaration' ||
-      node.type === 'TSConstructSignatureDeclaration' ||
-      node.type === 'TSPropertySignature' ||
-      node.type === 'TSMethodSignature' ||
-      node.type === 'TSIndexSignature'));
+  ): node is
+    | TSCallSignatureDeclaration
+    | TSConstructSignatureDeclaration
+    | TSPropertySignature
+    | TSMethodSignature
+    | TSIndexSignature;
   declare export function isTSType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'TSAnyKeyword' ||
-      node.type === 'TSBooleanKeyword' ||
-      node.type === 'TSBigIntKeyword' ||
-      node.type === 'TSNeverKeyword' ||
-      node.type === 'TSNullKeyword' ||
-      node.type === 'TSNumberKeyword' ||
-      node.type === 'TSObjectKeyword' ||
-      node.type === 'TSStringKeyword' ||
-      node.type === 'TSSymbolKeyword' ||
-      node.type === 'TSUndefinedKeyword' ||
-      node.type === 'TSUnknownKeyword' ||
-      node.type === 'TSVoidKeyword' ||
-      node.type === 'TSThisType' ||
-      node.type === 'TSFunctionType' ||
-      node.type === 'TSConstructorType' ||
-      node.type === 'TSTypeReference' ||
-      node.type === 'TSTypePredicate' ||
-      node.type === 'TSTypeQuery' ||
-      node.type === 'TSTypeLiteral' ||
-      node.type === 'TSArrayType' ||
-      node.type === 'TSTupleType' ||
-      node.type === 'TSOptionalType' ||
-      node.type === 'TSRestType' ||
-      node.type === 'TSUnionType' ||
-      node.type === 'TSIntersectionType' ||
-      node.type === 'TSConditionalType' ||
-      node.type === 'TSInferType' ||
-      node.type === 'TSParenthesizedType' ||
-      node.type === 'TSTypeOperator' ||
-      node.type === 'TSIndexedAccessType' ||
-      node.type === 'TSMappedType' ||
-      node.type === 'TSLiteralType' ||
-      node.type === 'TSExpressionWithTypeArguments' ||
-      node.type === 'TSImportType'));
+  ): node is
+    | TSAnyKeyword
+    | TSBooleanKeyword
+    | TSBigIntKeyword
+    | TSNeverKeyword
+    | TSNullKeyword
+    | TSNumberKeyword
+    | TSObjectKeyword
+    | TSStringKeyword
+    | TSSymbolKeyword
+    | TSUndefinedKeyword
+    | TSUnknownKeyword
+    | TSVoidKeyword
+    | TSThisType
+    | TSFunctionType
+    | TSConstructorType
+    | TSTypeReference
+    | TSTypePredicate
+    | TSTypeQuery
+    | TSTypeLiteral
+    | TSArrayType
+    | TSTupleType
+    | TSOptionalType
+    | TSRestType
+    | TSUnionType
+    | TSIntersectionType
+    | TSConditionalType
+    | TSInferType
+    | TSParenthesizedType
+    | TSTypeOperator
+    | TSIndexedAccessType
+    | TSMappedType
+    | TSLiteralType
+    | TSExpressionWithTypeArguments
+    | TSImportType;
   declare export function isTSBaseType(
     node: ?Object,
     opts?: ?Object,
-  ): boolean %checks(node != null &&
-    (node.type === 'TSAnyKeyword' ||
-      node.type === 'TSBooleanKeyword' ||
-      node.type === 'TSBigIntKeyword' ||
-      node.type === 'TSNeverKeyword' ||
-      node.type === 'TSNullKeyword' ||
-      node.type === 'TSNumberKeyword' ||
-      node.type === 'TSObjectKeyword' ||
-      node.type === 'TSStringKeyword' ||
-      node.type === 'TSSymbolKeyword' ||
-      node.type === 'TSUndefinedKeyword' ||
-      node.type === 'TSUnknownKeyword' ||
-      node.type === 'TSVoidKeyword' ||
-      node.type === 'TSThisType' ||
-      node.type === 'TSLiteralType'));
+  ): node is
+    | TSAnyKeyword
+    | TSBooleanKeyword
+    | TSBigIntKeyword
+    | TSNeverKeyword
+    | TSNullKeyword
+    | TSNumberKeyword
+    | TSObjectKeyword
+    | TSStringKeyword
+    | TSSymbolKeyword
+    | TSUndefinedKeyword
+    | TSUnknownKeyword
+    | TSVoidKeyword
+    | TSThisType
+    | TSLiteralType;
   declare export function isNumberLiteral(
     node: ?Object,
     opts?: ?Object,
@@ -6707,8 +6656,7 @@ declare module '@babel/types' {
     grandparent?: BabelNode,
   ): boolean;
   declare export function isBlockScoped(node: BabelNode): boolean;
-  declare export function isLet(node: BabelNode): boolean %checks(node.type ===
-    'VariableDeclaration');
+  declare export function isLet(node: BabelNode): node is VariableDeclaration;
   declare export function isNode(node: ?Object): boolean;
   declare export function isNodesEquivalent(a: any, b: any): boolean;
   declare export function isPlaceholderType(
@@ -6723,24 +6671,25 @@ declare module '@babel/types' {
   declare export function isScope(
     node: BabelNode,
     parent: BabelNode,
-  ): boolean %checks(node.type === 'BlockStatement' ||
-    node.type === 'CatchClause' ||
-    node.type === 'DoWhileStatement' ||
-    node.type === 'ForInStatement' ||
-    node.type === 'ForStatement' ||
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'FunctionExpression' ||
-    node.type === 'Program' ||
-    node.type === 'ObjectMethod' ||
-    node.type === 'SwitchStatement' ||
-    node.type === 'WhileStatement' ||
-    node.type === 'ArrowFunctionExpression' ||
-    node.type === 'ClassExpression' ||
-    node.type === 'ClassDeclaration' ||
-    node.type === 'ForOfStatement' ||
-    node.type === 'ClassMethod' ||
-    node.type === 'ClassPrivateMethod' ||
-    node.type === 'TSModuleBlock');
+  ): node is
+    | BlockStatement
+    | CatchClause
+    | DoWhileStatement
+    | ForInStatement
+    | ForStatement
+    | FunctionDeclaration
+    | FunctionExpression
+    | Program
+    | ObjectMethod
+    | SwitchStatement
+    | WhileStatement
+    | ArrowFunctionExpression
+    | ClassExpression
+    | ClassDeclaration
+    | ForOfStatement
+    | ClassMethod
+    | ClassPrivateMethod
+    | TSModuleBlock;
   declare export function isSpecifierDefault(
     specifier: BabelNodeModuleSpecifier,
   ): boolean;
@@ -6751,8 +6700,7 @@ declare module '@babel/types' {
   declare export function isValidES3Identifier(name: string): boolean;
   declare export function isValidES3Identifier(name: string): boolean;
   declare export function isValidIdentifier(name: string): boolean;
-  declare export function isVar(node: BabelNode): boolean %checks(node.type ===
-    'VariableDeclaration');
+  declare export function isVar(node: BabelNode): node is VariableDeclaration;
   declare export function matchesPattern(
     node: ?BabelNode,
     match: string | Array<string>,
@@ -6761,7 +6709,7 @@ declare module '@babel/types' {
   declare export function validate(
     n: BabelNode,
     key: string,
-    value: mixed,
+    value: unknown,
   ): void;
   declare export type Node = BabelNode;
   declare export type CommentBlock = BabelNodeCommentBlock;

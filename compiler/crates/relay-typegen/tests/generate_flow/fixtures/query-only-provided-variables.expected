@@ -1,34 +1,34 @@
 ==================================== INPUT ====================================
 query queryOnlyProvidedVar_OneFragment {
   node(id: 4) {
-    ...FragmentOneProvidedVar
+    ...FragmentOneProvidedVar @alias
   }
 }
 
 query queryOnlyProvidedVar_MultiFragment {
   node(id: 4) {
-    ...FragmentOneProvidedVar,
-    ...FragmentMultiProvidedVar,
+    ...FragmentOneProvidedVar @alias
+    ...FragmentMultiProvidedVar @alias
   }
 }
 
 fragment FragmentOneProvidedVar on User
-  @argumentDefinitions(
-    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+@argumentDefinitions(
+  includeName: {type: "Boolean!", provider: "includeNameProvider"}
 ) {
   name @include(if: $includeName)
 }
 
 fragment FragmentMultiProvidedVar on User
-  @argumentDefinitions(
-    numberOfFriends: {type: "Int!", provider: "numberOfFriendsProvider"},
-    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+@argumentDefinitions(
+  numberOfFriends: {type: "Int!", provider: "numberOfFriendsProvider"}
+  includeName: {type: "Boolean!", provider: "includeNameProvider"}
 ) {
   friends(first: $numberOfFriends) {
     count
     edges {
       node {
-        name @include(if: $includeName),
+        name @include(if: $includeName)
       }
     }
   }
@@ -39,7 +39,12 @@ import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar
 export type queryOnlyProvidedVar_MultiFragment$variables = {||};
 export type queryOnlyProvidedVar_MultiFragment$data = {|
   +node: ?{|
-    +$fragmentSpreads: FragmentMultiProvidedVar$fragmentType & FragmentOneProvidedVar$fragmentType,
+    +FragmentMultiProvidedVar: ?{|
+      +$fragmentSpreads: FragmentMultiProvidedVar$fragmentType,
+    |},
+    +FragmentOneProvidedVar: ?{|
+      +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+    |},
   |},
 |};
 export type queryOnlyProvidedVar_MultiFragment = {|
@@ -62,7 +67,9 @@ import type { FragmentOneProvidedVar$fragmentType } from "FragmentOneProvidedVar
 export type queryOnlyProvidedVar_OneFragment$variables = {||};
 export type queryOnlyProvidedVar_OneFragment$data = {|
   +node: ?{|
-    +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+    +FragmentOneProvidedVar: ?{|
+      +$fragmentSpreads: FragmentOneProvidedVar$fragmentType,
+    |},
   |},
 |};
 export type queryOnlyProvidedVar_OneFragment = {|
@@ -82,7 +89,7 @@ declare export opaque type FragmentMultiProvidedVar$fragmentType: FragmentType;
 export type FragmentMultiProvidedVar$data = {|
   +friends: ?{|
     +count: ?number,
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +node: ?{|
         +name?: ?string,
       |},

@@ -14,12 +14,12 @@ use crossbeam::channel::Sender;
 use lsp_server::Message;
 use lsp_server::Notification as ServerNotification;
 use lsp_server::Request as ServerRequest;
-use lsp_types::notification::Notification;
-use lsp_types::notification::ShowMessage;
-use lsp_types::request::Request;
 use lsp_types::MessageActionItem;
 use lsp_types::MessageType;
 use lsp_types::ShowMessageParams;
+use lsp_types::notification::Notification;
+use lsp_types::notification::ShowMessage;
+use lsp_types::request::Request;
 use serde::Deserialize;
 use serde::Serialize;
 
@@ -68,8 +68,7 @@ pub(crate) fn set_error_status(sender: &Sender<Message>, error: impl std::fmt::D
     update_status(
         "Relay: error",
         Some(format!(
-            "The Relay extension has errors: {}. Try reloading the IDE. If the error persists, report the issue via appropriate channels.",
-            error
+            "The Relay extension has errors: {error}. Try reloading the IDE. If the error persists, report the issue via appropriate channels."
         )),
         MessageType::ERROR,
         sender,

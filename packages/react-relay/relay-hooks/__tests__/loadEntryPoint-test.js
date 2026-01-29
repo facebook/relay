@@ -22,7 +22,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 class FakeJSResource<T> {
-  _resolve: (T => mixed) | null;
+  _resolve: (T => unknown) | null;
   _resource: T | null;
   getModuleId: () => string;
   getModuleIfRequired: () => T | null;
@@ -35,7 +35,7 @@ class FakeJSResource<T> {
 
     this.getModuleId = jest.fn(() => 'TheModuleID');
     this.getModuleIfRequired = jest.fn(() => this._resource);
-    // $FlowFixMe[incompatible-type-arg]
+    // $FlowFixMe[incompatible-type]
     this.load = jest.fn(() => {
       return new Promise(resolve => {
         this._resolve = resolve;
@@ -63,11 +63,11 @@ test('it should preload entry point with queries', () => {
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
                 id: 'my-persisted-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -77,14 +77,14 @@ test('it should preload entry point with queries', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
+    {},
     {...},
     {...},
-    {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -104,6 +104,42 @@ test('it should preload entry point with queries', () => {
   expect(preloadedEntryPoint.entryPoints).toEqual({});
 });
 
+test('it should ignore handle null/undefined queries', () => {
+  const env = createMockEnvironment();
+  const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
+  const entryPoint = {
+    getPreloadProps(params: {id: string}) {
+      return {
+        queries: {
+          myNullTestQuery: null,
+          myUndefinedTestQuery: undefined,
+        },
+      };
+    },
+    root: new FakeJSResource(null) as $FlowFixMe,
+  };
+  const preloadedEntryPoint = loadEntryPoint<
+    _,
+    {},
+    {...},
+    {...},
+    unknown,
+    $FlowFixMe,
+    _,
+  >(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  expect(entryPoint.root.load).toBeCalledTimes(1);
+  expect(networkSpy).toBeCalledTimes(0);
+  expect(preloadedEntryPoint.queries).toEqual({});
+  expect(preloadedEntryPoint.entryPoints).toEqual({});
+});
+
 test('it should unwrap an entry point wrapping a module with default exports', () => {
   const env = createMockEnvironment();
   const fakeModule = {
@@ -117,11 +153,11 @@ test('it should unwrap an entry point wrapping a module with default exports', (
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
                 id: 'my-persisted-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -131,16 +167,16 @@ test('it should unwrap an entry point wrapping a module with default exports', (
         },
       };
     },
-    root: (new FakeJSResource({
+    root: new FakeJSResource({
       default: fakeModule,
-    }): $FlowFixMe),
+    }) as $FlowFixMe,
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
+    {},
     {...},
     {...},
-    {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -166,11 +202,11 @@ test('it should return the module from an entry point that just returns the modu
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
                 id: 'my-persisted-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -180,14 +216,14 @@ test('it should return the module from an entry point that just returns the modu
         },
       };
     },
-    root: (new FakeJSResource(fakeModule): $FlowFixMe),
+    root: new FakeJSResource(fakeModule) as $FlowFixMe,
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
+    {},
     {...},
     {...},
-    {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -205,14 +241,14 @@ describe('with respect to loadQuery', () => {
   const loadQuery = jest
     /* $FlowFixMe[underconstrained-implicit-instantiation] error found when
      * enabling Flow LTI mode */
-    .fn<_, {dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>}>()
+    .fn<_, {dispose: JestMockFn<ReadonlyArray<unknown>, unknown>}>()
     .mockImplementation(() => {
       return mockLoadedQuery;
     });
   beforeEach(() => {
     jest.mock('../loadQuery', () => ({loadQuery}));
     mockLoadedQuery = {
-      dispose: jest.fn<$ReadOnlyArray<mixed>, mixed>(),
+      dispose: jest.fn<ReadonlyArray<unknown>, unknown>(),
     };
   });
   afterEach(() => {
@@ -223,11 +259,11 @@ describe('with respect to loadQuery', () => {
       parameters: {
         kind: 'PreloadableConcreteRequest',
         params: {
-          operationKind: 'query',
-          name: 'MyPreloadedQuery',
           id: 'my-persisted-query-id',
-          text: null,
           metadata: {},
+          name: 'MyPreloadedQuery',
+          operationKind: 'query',
+          text: null,
         },
       },
       variables: {},
@@ -236,18 +272,18 @@ describe('with respect to loadQuery', () => {
       parameters: {
         kind: 'PreloadableConcreteRequest',
         params: {
-          operationKind: 'query',
-          name: 'MyPreloadedQuery',
           id: 'my-persisted-query-id',
-          text: null,
           metadata: {},
+          name: 'MyPreloadedQuery',
+          operationKind: 'query',
+          text: null,
         },
       },
       variables: {},
     };
     const env = createMockEnvironment();
     const entryPoint = {
-      getPreloadProps(params: $TEMPORARY$object<{...}>) {
+      getPreloadProps(params: Readonly<{...}>) {
         return {
           queries: {
             myTestQuery,
@@ -255,10 +291,10 @@ describe('with respect to loadQuery', () => {
           },
         };
       },
-      root: (new FakeJSResource(null): $FlowFixMe),
+      root: new FakeJSResource(null) as $FlowFixMe,
     };
 
-    loadEntryPoint<_, {...}, {...}, {...}, mixed, $FlowFixMe, _>(
+    loadEntryPoint<_, {}, {...}, {...}, unknown, $FlowFixMe, _>(
       {
         getEnvironment: () => env,
       },
@@ -278,18 +314,18 @@ describe('with respect to loadQuery', () => {
   it('it should return a dispose callback that calls loadQuery(...).dispose', () => {
     const env = createMockEnvironment();
     const entryPoint = {
-      getPreloadProps(params: $TEMPORARY$object<{...}>) {
+      getPreloadProps(params: Readonly<{...}>) {
         return {
           queries: {
             myTestQuery: {
               parameters: {
                 kind: 'PreloadableConcreteRequest',
                 params: {
-                  operationKind: 'query',
-                  name: 'MyPreloadedQuery',
                   id: 'my-persisted-query-id',
-                  text: null,
                   metadata: {},
+                  name: 'MyPreloadedQuery',
+                  operationKind: 'query',
+                  text: null,
                 },
               },
               variables: {},
@@ -297,15 +333,15 @@ describe('with respect to loadQuery', () => {
           },
         };
       },
-      root: (new FakeJSResource(null): $FlowFixMe),
+      root: new FakeJSResource(null) as $FlowFixMe,
     };
 
     const preloadedEntryPoint = loadEntryPoint<
       _,
+      {},
       {...},
       {...},
-      {...},
-      mixed,
+      unknown,
       $FlowFixMe,
       _,
     >(
@@ -336,11 +372,11 @@ test('it should preload entry point with nested entry points', () => {
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyNestedQuery',
                 id: 'my-persisted-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyNestedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -350,7 +386,7 @@ test('it should preload entry point with nested entry points', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const entryPoint = {
     getPreloadProps(params: {id: string}) {
@@ -365,14 +401,14 @@ test('it should preload entry point with nested entry points', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
+    {},
     {...},
     {...},
-    {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -411,11 +447,11 @@ test('it should preload entry point with both queries and nested entry points', 
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyNestedQuery',
                 id: 'nested-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyNestedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -425,28 +461,11 @@ test('it should preload entry point with both queries and nested entry points', 
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const entryPoint = {
     getPreloadProps(params: {id: string}) {
       return {
-        queries: {
-          myTestQuery: {
-            parameters: {
-              kind: 'PreloadableConcreteRequest',
-              params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
-                id: 'root-query-id',
-                text: null,
-                metadata: {},
-              },
-            },
-            variables: {
-              id: params.id,
-            },
-          },
-        },
         entryPoints: {
           myNestedEntryPoint: {
             entryPoint: nestedEntryPoint,
@@ -455,16 +474,33 @@ test('it should preload entry point with both queries and nested entry points', 
             },
           },
         },
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                id: 'root-query-id',
+                metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
+    {},
     {...},
     {...},
-    {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
@@ -505,11 +541,11 @@ test('it should dispose nested entry points', () => {
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyNestedQuery',
                 id: 'nested-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyNestedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -519,28 +555,11 @@ test('it should dispose nested entry points', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const entryPoint = {
     getPreloadProps(params: {id: string}) {
       return {
-        queries: {
-          myTestQuery: {
-            parameters: {
-              kind: 'PreloadableConcreteRequest',
-              params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
-                id: 'root-query-id',
-                text: null,
-                metadata: {},
-              },
-            },
-            variables: {
-              id: params.id,
-            },
-          },
-        },
         entryPoints: {
           myNestedEntryPoint: {
             entryPoint: nestedEntryPoint,
@@ -549,23 +568,40 @@ test('it should dispose nested entry points', () => {
             },
           },
         },
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                id: 'root-query-id',
+                metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const preloadedEntryPoint = loadEntryPoint<
     _,
+    {},
     {...},
     {...},
-    {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(
     {
       getEnvironment: () => env,
     },
-    // $FlowFixMe[prop-missing] Error found while enabling LTI on this file
+    // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
     entryPoint,
     {},
   );
@@ -595,11 +631,11 @@ test('with `getEnvironment` function', () => {
             parameters: {
               kind: 'PreloadableConcreteRequest',
               params: {
-                operationKind: 'query',
-                name: 'MyPreloadedQuery',
                 id: 'root-query-id',
-                text: null,
                 metadata: {},
+                name: 'MyPreloadedQuery',
+                operationKind: 'query',
+                text: null,
               },
             },
             variables: {
@@ -609,15 +645,15 @@ test('with `getEnvironment` function', () => {
         },
       };
     },
-    root: (new FakeJSResource(null): $FlowFixMe),
+    root: new FakeJSResource(null) as $FlowFixMe,
   };
   const getEnvironment = jest.fn(() => env);
   const preloadedEntryPoint = loadEntryPoint<
     _,
+    {},
     {...},
     {...},
-    {...},
-    mixed,
+    unknown,
     $FlowFixMe,
     _,
   >(

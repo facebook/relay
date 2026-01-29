@@ -5,15 +5,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+//! The errors module provides functionality for handling and reporting errors in the Relay compiler.
+//!
+//! This module contains a set of error types used throughout the Relay compiler to represent different types of
+//! errors that can occur during the compilation process:
+//! * `Error`: A general-purpose error type that represents any error that can occur during compilation.
+//! * `BuildProjectError`: An error type that represents an error that occurred while building a project.
+//! * `PersistError`: An error type that represents an error that occurred while persisting data.
 use std::io;
+use std::path::Path;
 use std::path::PathBuf;
 
 use common::Diagnostic;
 use glob::PatternError;
+use graphql_cli::DiagnosticPrinter;
 use persist_query::PersistError;
 use relay_config::ProjectName;
 use serde::Serialize;
 use thiserror::Error;
+
+use crate::FsSourceReader;
+use crate::SourceReader;
+use crate::source_for_location;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -27,7 +40,7 @@ pub enum Error {
         "Config `{config_path}` is invalid:{}",
         validation_errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {err}"))
             .collect::<Vec<_>>()
             .join("")
     )]
@@ -51,7 +64,7 @@ pub enum Error {
         "Failed to build:{}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {err}"))
             .collect::<Vec<_>>()
             .join("")
     )]
@@ -195,35 +208,11 @@ pub enum ConfigValidationError {
     },
 
     #[error(
-        "The `schema` configured for project `{project_name}` to be `{schema_file}` is not a file."
+        "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_path}`."
     )]
-    SchemaFileNotFile {
+    ExtensionPathNotExistent {
         project_name: ProjectName,
-        schema_file: PathBuf,
-    },
-
-    #[error(
-        "The `schema_dir` configured for project `{project_name}` does not exist at `{schema_dir}`."
-    )]
-    SchemaDirNotExistent {
-        project_name: ProjectName,
-        schema_dir: PathBuf,
-    },
-
-    #[error(
-        "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_dir}`."
-    )]
-    ExtensionDirNotExistent {
-        project_name: ProjectName,
-        extension_dir: PathBuf,
-    },
-
-    #[error(
-        "The `schema_dir` configured for project `{project_name}` to be `{schema_dir}` is not a directory."
-    )]
-    SchemaDirNotDirectory {
-        project_name: ProjectName,
-        schema_dir: PathBuf,
+        extension_path: PathBuf,
     },
 
     #[error("The regex in `{key}` for project `{project_name}` is invalid.\n {error}.")]
@@ -244,6 +233,36 @@ pub enum ConfigValidationError {
         name: &'static str,
         action: &'static str,
     },
+
+    #[error("The `{file_type}` at `{path}` is not within the project root `{project_root}`.")]
+    FileNotInRoot {
+        file_type: String,
+        path: PathBuf,
+        project_root: PathBuf,
+    },
+
+    #[error("The `{file_type}` at `{path}` matches an exclude pattern `{pattern}`.")]
+    FileMatchesExclude {
+        file_type: String,
+        path: PathBuf,
+        pattern: String,
+    },
+
+    #[error("The `{file_type}` at `{path}` does not exist.")]
+    FileNotExistent { file_type: String, path: PathBuf },
+
+    #[error("The `{file_type}` at `{path}` is not a directory.")]
+    FileNotDirectory { file_type: String, path: PathBuf },
+
+    #[error("The `{file_type}` at `{path}` is not a file.")]
+    FileNotFile { file_type: String, path: PathBuf },
+
+    #[error("Invalid glob pattern `{pattern}` in `{field}`: {reason}")]
+    InvalidGlobPattern {
+        field: String,
+        pattern: String,
+        reason: String,
+    },
 }
 
 #[derive(Debug, Error, serde::Serialize)]
@@ -262,7 +281,7 @@ pub enum BuildProjectError {
     #[error("Persisting operation(s) failed:{0}",
         errors
             .iter()
-            .map(|err| format!("\n - {}", err))
+            .map(|err| format!("\n - {err}"))
             .collect::<Vec<_>>()
             .join("")
     )]
@@ -278,4 +297,79 @@ pub enum BuildProjectError {
         #[serde(skip_serializing)]
         source: io::Error,
     },
+}
+
+/// Utility for printing compiler errors with source context.
+///
+/// This is primarily intended for use in tests to format error output
+/// in a human-readable way with source code context.
+pub fn print_compiler_error(root_dir: &Path, error: Error) -> String {
+    let mut error_printer = CompilerErrorPrinter::new(root_dir);
+    error_printer.print_error(error);
+    error_printer.into_string()
+}
+
+/// Struct for printing compiler errors with source context.
+///
+/// This is primarily intended for use in tests to format error output
+/// in a human-readable way with source code context.
+pub struct CompilerErrorPrinter<'a> {
+    chunks: Vec<String>,
+    root_dir: &'a Path,
+    source_reader: Box<dyn SourceReader + Send + Sync>,
+}
+
+impl<'a> CompilerErrorPrinter<'a> {
+    /// Create a new error printer for the given root directory.
+    pub fn new(root_dir: &'a Path) -> Self {
+        Self {
+            chunks: vec![],
+            root_dir,
+            source_reader: Box::new(FsSourceReader {}),
+        }
+    }
+
+    /// Print the error and return the formatted string.
+    pub fn print_error(&mut self, compiler_error: Error) {
+        match compiler_error {
+            Error::DiagnosticsError { errors } => {
+                for diagnostic in errors {
+                    self.append_diagnostic(diagnostic)
+                }
+            }
+            Error::BuildProjectsErrors { errors } => {
+                for err in errors {
+                    self.print_build_error(err);
+                }
+            }
+            err => self.chunks.push(format!("{}", err)),
+        }
+    }
+
+    fn print_build_error(&mut self, build_error: BuildProjectError) {
+        match build_error {
+            BuildProjectError::ValidationErrors {
+                errors,
+                project_name: _,
+            } => {
+                for diagnostic in errors {
+                    self.append_diagnostic(diagnostic)
+                }
+            }
+            e => self.chunks.push(format!("{}", e)),
+        }
+    }
+
+    fn append_diagnostic(&mut self, diagnostic: Diagnostic) {
+        let printer = DiagnosticPrinter::new(|source_location| {
+            source_for_location(self.root_dir, source_location, self.source_reader.as_ref())
+                .map(|source| source.to_text_source())
+        });
+        self.chunks.push(printer.diagnostic_to_string(&diagnostic))
+    }
+
+    /// Get the formatted error output as a string.
+    pub fn into_string(self) -> String {
+        self.chunks.join("\n")
+    }
 }

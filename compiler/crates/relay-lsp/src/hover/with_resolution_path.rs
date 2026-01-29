@@ -15,10 +15,10 @@ use graphql_syntax::FragmentDefinition;
 use graphql_syntax::Identifier;
 use graphql_syntax::OperationDefinition;
 use graphql_syntax::VariableDefinition;
-use graphql_text_printer::print_value;
 use graphql_text_printer::PrinterOptions;
-use intern::string_key::StringKey;
+use graphql_text_printer::print_value;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use lsp_types::Hover;
 use lsp_types::HoverContents;
 use lsp_types::MarkedString;
@@ -68,9 +68,9 @@ use schema::Schema;
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 
-use crate::hover::get_open_schema_explorer_command_link;
-use crate::hover::GraphQLSchemaExplorerParams;
 use crate::LSPExtraDataProvider;
+use crate::hover::GraphQLSchemaExplorerParams;
+use crate::hover::get_open_schema_explorer_command_link;
 
 /// Enum, that allows us to adjust content of the hover
 /// tooltip based on the consumer type (Relay, GraphQL)
@@ -715,7 +715,7 @@ fn on_hover_argument_path(
     let argument_name = argument.name.value.lookup();
     let argument_value = argument.value.to_string();
     let argument_info =
-        MarkedString::String(format!("Argument `{}: {}`", argument_name, argument_value));
+        MarkedString::String(format!("Argument `{argument_name}: {argument_value}`"));
 
     let field_hover_info = match parent.find_argument_root() {
         ArgumentRoot::LinkedField(linked_field_path) => get_scalar_or_linked_field_hover_content(
@@ -831,7 +831,7 @@ fn get_scalar_or_linked_field_hover_content(
             codex_url_for_symbol(field_type_hack_source),
         )));
     } else {
-        hover_contents.push(MarkedString::String(format!("Type: **{}**", type_name,)));
+        hover_contents.push(MarkedString::String(format!("Type: **{type_name}**",)));
     }
 
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
@@ -857,7 +857,7 @@ fn get_scalar_or_linked_field_hover_content(
                     }
                 ),
                 if let Some(default_value) = &arg.default_value {
-                    format!(" = {}", default_value)
+                    format!(" = {default_value}")
                 } else {
                     "".to_string()
                 },
@@ -875,7 +875,7 @@ fn get_scalar_or_linked_field_hover_content(
     }
 
     if is_resolver {
-        let msg = "**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/next/guides/relay-resolvers/).";
+        let msg = "**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/guides/relay-resolvers/introduction/).";
         hover_contents.push(MarkedString::String(msg.to_string()))
     } else if field.is_extension {
         let msg = match content_consumer_type {
@@ -1095,8 +1095,7 @@ For example:
             )));
         } else {
             hover_contents.push(MarkedString::String(format!(
-                "Type Condition: on **{}**",
-                rendered_fragment_type_name,
+                "Type Condition: on **{rendered_fragment_type_name}**",
             )));
         }
 
@@ -1166,8 +1165,7 @@ fn on_hover_fragment_definition(
     );
 
     let title = MarkedString::from_markdown(format!(
-        "fragment {} on {}",
-        fragment_name, rendered_parent_type_name
+        "fragment {fragment_name} on {rendered_parent_type_name}"
     ));
 
     let mut hover_contents: Vec<MarkedString> = vec![title];
@@ -1193,8 +1191,7 @@ fn on_hover_fragment_definition(
             )));
         } else {
             hover_contents.push(MarkedString::String(format!(
-                "Type Condition: on **{}**",
-                rendered_parent_type_name
+                "Type Condition: on **{rendered_parent_type_name}**"
             )));
         }
 

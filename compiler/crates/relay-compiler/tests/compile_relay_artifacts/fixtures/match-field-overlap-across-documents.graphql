@@ -1,8 +1,7 @@
-# expected-to-throw
 query matchFieldOverlapAcrossDocuments_MultipleNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment
-    ...matchFieldOverlapAcrossDocuments_BarNameRendererFragment
+    ...matchFieldOverlapAcrossDocuments_FooNameRendererFragment @alias
+    ...matchFieldOverlapAcrossDocuments_BarNameRendererFragment @alias
   }
 }
 

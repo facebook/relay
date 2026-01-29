@@ -1,0 +1,15 @@
+//- foo.js
+graphql`
+  fragment foo on User {
+     name @required(action: THROW) @skip(if: $condition)
+  }`;
+
+//- relay.config.json
+{
+   "language": "flow",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

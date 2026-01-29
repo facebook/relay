@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0dda61bd5d4cfe5e4bfd63029690812c>>
+ * @generated SignedSource<<1385c82c4f7d308f7fb1db2b10d94c70>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { PurpleOctopus____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql";
 import type { RedOctopus____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql";
 import {greeting as iWeakAnimalGreetingResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `iWeakAnimalGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (iWeakAnimalGreetingResolverType: (
   model: PurpleOctopus____relay_model_instance$data['__relay_model_instance'] | RedOctopus____relay_model_instance$data['__relay_model_instance'],
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers.js";
 // Type assertion validating that `queryWeakAnimalResolverType` resolver is correctly implemented.
@@ -33,6 +36,7 @@ import {weak_animal as queryWeakAnimalResolverType} from "../../../relay-runtime
   args: {|
     request: WeakAnimalRequest,
   |},
+  context: TestResolverContextType,
 ) => ?Query__weak_animal$normalization);
 import type { Query__weak_animal$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__weak_animal$normalization.graphql";
 export type WeakAnimalRequest = {|
@@ -95,7 +99,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "weak_animal",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').weak_animal,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').weak_animal,
           "path": "weak_animal",
           "normalizationInfo": {
             "kind": "OutputType",
@@ -125,7 +129,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/PurpleOctopus____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "weak_animal.greeting"
                 }
               ],
@@ -145,7 +149,7 @@ return {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
+                  "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/RedOctopus____relay_model_instance.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/WeakAnimalQueryResolvers').greeting, '__relay_model_instance', true),
                   "path": "weak_animal.greeting"
                 }
               ],

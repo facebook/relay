@@ -12,22 +12,23 @@
 'use strict';
 
 import type {RelayContext} from './RelayStoreTypes.js';
+import type {Context} from 'react';
 import typeof {createContext} from 'react';
 
 const invariant = require('invariant');
 
 // Ideally, we'd just import the type of the react module, but this causes Flow
 // problems.
-type React = $ReadOnly<{
+type React = Readonly<{
   createContext: createContext<RelayContext | null>,
   version: string,
   ...
 }>;
 
-let relayContext: ?React$Context<RelayContext | null>;
+let relayContext: ?Context<RelayContext | null>;
 let firstReact: ?React;
 
-function createRelayContext(react: React): React$Context<RelayContext | null> {
+function createRelayContext(react: React): Context<RelayContext | null> {
   if (!relayContext) {
     relayContext = react.createContext(null);
     if (__DEV__) {

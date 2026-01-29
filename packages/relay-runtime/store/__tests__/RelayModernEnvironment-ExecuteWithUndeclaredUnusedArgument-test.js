@@ -46,6 +46,7 @@ describe('query with undeclared, unused fragment argument', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -77,11 +78,7 @@ describe('query with undeclared, unused fragment argument', () => {
     `;
     operation = createOperationDescriptor(query, {id: '4'});
     fetch = jest.fn(
-      (
-        _query: $FlowExpectedError,
-        _variables: $FlowExpectedError,
-        _cacheConfig: $FlowExpectedError,
-      ) =>
+      (_query: $FlowFixMe, _variables: $FlowFixMe, _cacheConfig: $FlowFixMe) =>
         RelayObservable.create(
           (
             sink: Sink<{
@@ -102,7 +99,7 @@ describe('query with undeclared, unused fragment argument', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create((fetch: $FlowFixMe)),
+      network: RelayNetwork.create(fetch as $FlowFixMe),
       store,
     });
   });
@@ -138,43 +135,39 @@ describe('query with undeclared, unused fragment argument', () => {
     });
     const fragmentSelector = RelayModernSelector.getSingularSelector(
       fragment,
-      (snapshot.data: $FlowFixMe).node,
+      (snapshot.data as $FlowFixMe).node,
     );
     invariant(fragmentSelector != null, 'Expected a singular selector.');
     const fragmentSnapshot = environment.lookup(fragmentSelector);
     expect(fragmentSnapshot.isMissingData).toBe(false);
     expect(fragmentSnapshot.data).toEqual({
-      __id: '4',
       __fragmentOwner: operation.request,
-
       __fragments: {
         RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper:
           {
             size: undefined,
           },
       },
-
+      __id: '4',
       id: '4',
       name: 'Zuck',
     });
     const innerSelector = RelayModernSelector.getSingularSelector(
       innerFragment,
-      (fragmentSnapshot.data: $FlowFixMe),
+      fragmentSnapshot.data as $FlowFixMe,
     );
     invariant(innerSelector != null, 'Expected a singular selector.');
     const innerSnapshot = environment.lookup(innerSelector);
     expect(innerSnapshot.isMissingData).toBe(false);
     expect(innerSnapshot.data).toEqual({
-      __id: '4',
       __fragmentOwner: operation.request,
-
       __fragments: {
         RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto:
           {
             size: undefined,
           },
       },
-
+      __id: '4',
       __typename: 'User',
     });
   });

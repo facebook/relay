@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<98280a3ab84e4e03b31bbd484423c775>>
+ * @generated SignedSource<<a38fba3d81114c6708ecab5cfdb3c230>>
  */
 
 mod relay_test_operation;
@@ -17,6 +17,20 @@ async fn prod_query_invalid() {
     let input = include_str!("relay_test_operation/fixtures/prod_query.invalid.graphql");
     let expected = include_str!("relay_test_operation/fixtures/prod_query.invalid.expected");
     test_fixture(transform_fixture, file!(), "prod_query.invalid.graphql", "relay_test_operation/fixtures/prod_query.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prod_query_with_argument() {
+    let input = include_str!("relay_test_operation/fixtures/prod_query_with_argument.graphql");
+    let expected = include_str!("relay_test_operation/fixtures/prod_query_with_argument.expected");
+    test_fixture(transform_fixture, file!(), "prod_query_with_argument.graphql", "relay_test_operation/fixtures/prod_query_with_argument.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn prod_query_with_argument_invalid() {
+    let input = include_str!("relay_test_operation/fixtures/prod_query_with_argument.invalid.graphql");
+    let expected = include_str!("relay_test_operation/fixtures/prod_query_with_argument.invalid.expected");
+    test_fixture(transform_fixture, file!(), "prod_query_with_argument.invalid.graphql", "relay_test_operation/fixtures/prod_query_with_argument.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

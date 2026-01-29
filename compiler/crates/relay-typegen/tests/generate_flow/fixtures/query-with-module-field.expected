@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query Test @raw_response_type {
   node(id: "1") {
-    ...Test_user
+    ...Test_user @alias
   }
 }
 
@@ -23,7 +23,9 @@ import type { Test_userRenderer$normalization } from "Test_userRenderer$normaliz
 export type Test$variables = {||};
 export type Test$data = {|
   +node: ?{|
-    +$fragmentSpreads: Test_user$fragmentType,
+    +Test_user: ?{|
+      +$fragmentSpreads: Test_user$fragmentType,
+    |},
   |},
 |};
 export type Test_userRenderer = {|

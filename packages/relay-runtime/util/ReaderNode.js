@@ -14,27 +14,20 @@
 import type {ConnectionMetadata} from '../handlers/connection/ConnectionHandler';
 import type {NormalizationSelectableNode} from './NormalizationNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
+import type {JSResourceReference} from 'JSResourceReference';
 
 export type ReaderFragmentSpread = {
   +kind: 'FragmentSpread',
   +name: string,
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
-};
-
-export type ReaderAliasedFragmentSpread = {
-  +kind: 'AliasedFragmentSpread',
-  +name: string,
-  +type: string,
-  +abstractKey?: ?string,
-  +fragment: ReaderFragmentSpread,
+  +args?: ?ReadonlyArray<ReaderArgument>,
 };
 
 export type ReaderInlineDataFragmentSpread = {
   +kind: 'InlineDataFragmentSpread',
   +name: string,
-  +selections: $ReadOnlyArray<ReaderSelection>,
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
-  +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
+  +selections: ReadonlyArray<ReaderSelection>,
+  +args?: ?ReadonlyArray<ReaderArgument>,
+  +argumentDefinitions: ReadonlyArray<ReaderArgumentDefinition>,
 };
 
 export type ReaderFragment = {
@@ -43,15 +36,19 @@ export type ReaderFragment = {
   +type: string,
   +abstractKey?: ?string,
   +metadata?: ?{
-    +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    +connection?: ReadonlyArray<ConnectionMetadata>,
+    // Indicates if the fragment has been annotated with `@throwOnFieldError`
     +throwOnFieldError?: boolean,
+    // Indicates if the fragment has been annotated with `@catch`
+    +catchTo?: CatchFieldTo,
     +hasClientEdges?: boolean,
     +mask?: boolean,
     +plural?: boolean,
     +refetch?: ReaderRefetchMetadata,
+    +vultureHash?: string,
   },
-  +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +argumentDefinitions: ReadonlyArray<ReaderArgumentDefinition>,
+  +selections: ReadonlyArray<ReaderSelection>,
 };
 
 // Marker type for a @refetchable fragment
@@ -87,6 +84,7 @@ export type ReaderRefetchMetadata = {
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
   +identifierInfo?: ?RefetchableIdentifierInfo,
+  +edgesFragment?: ReaderFragment,
 };
 
 // Stricter form of ConnectionMetadata
@@ -99,7 +97,7 @@ export type ReaderPaginationMetadata = {
     +count: string,
     +cursor: string,
   } | null,
-  +path: $ReadOnlyArray<string>,
+  +path: ReadonlyArray<string>,
 };
 
 export type ReaderInlineDataFragment = {
@@ -119,12 +117,12 @@ export type ReaderCondition = {
   +kind: 'Condition',
   +passingValue: boolean,
   +condition: string,
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +selections: ReadonlyArray<ReaderSelection>,
 };
 
 export type ReaderClientExtension = {
   +kind: 'ClientExtension',
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +selections: ReadonlyArray<ReaderSelection>,
 };
 
 export type ReaderField =
@@ -140,7 +138,7 @@ export type ReaderRootArgument = {
 
 export type ReaderInlineFragment = {
   +kind: 'InlineFragment',
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +selections: ReadonlyArray<ReaderSelection>,
   +type: ?string,
   +abstractKey?: ?string,
 };
@@ -156,10 +154,10 @@ export type ReaderLinkedField = {
   +alias?: ?string,
   +name: string,
   +storageKey?: ?string,
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?ReadonlyArray<ReaderArgument>,
   +concreteType?: ?string,
   +plural: boolean,
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +selections: ReadonlyArray<ReaderSelection>,
 };
 
 export type ReaderActorChange = {
@@ -167,41 +165,45 @@ export type ReaderActorChange = {
   +alias?: ?string,
   +name: string,
   +storageKey?: ?string,
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?ReadonlyArray<ReaderArgument>,
   +fragmentSpread: ReaderFragmentSpread,
 };
 
 export type ReaderModuleImport = {
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?ReadonlyArray<ReaderArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,
   +fragmentName: string,
+  +componentModuleProvider?: () =>
+    | unknown
+    | Promise<unknown>
+    | JSResourceReference<unknown>,
 };
 
 export type ReaderListValueArgument = {
   +kind: 'ListValue',
   +name: string,
-  +items: $ReadOnlyArray<ReaderArgument | null>,
+  +items: ReadonlyArray<ReaderArgument | null>,
 };
 
 export type ReaderLiteralArgument = {
   +kind: 'Literal',
   +name: string,
   +type?: ?string,
-  +value: mixed,
+  +value: unknown,
 };
 
 export type ReaderLocalArgument = {
   +kind: 'LocalArgument',
   +name: string,
-  +defaultValue: mixed,
+  +defaultValue: unknown,
 };
 
 export type ReaderObjectValueArgument = {
   +kind: 'ObjectValue',
   +name: string,
-  +fields: $ReadOnlyArray<ReaderArgument>,
+  +fields: ReadonlyArray<ReaderArgument>,
 };
 
 export type ReaderNode =
@@ -214,18 +216,18 @@ export type ReaderScalarField = {
   +kind: 'ScalarField',
   +alias?: ?string,
   +name: string,
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?ReadonlyArray<ReaderArgument>,
   +storageKey?: ?string,
 };
 
 export type ReaderDefer = {
   +kind: 'Defer',
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +selections: ReadonlyArray<ReaderSelection>,
 };
 
 export type ReaderStream = {
   +kind: 'Stream',
-  +selections: $ReadOnlyArray<ReaderSelection>,
+  +selections: ReadonlyArray<ReaderSelection>,
 };
 
 export type RequiredFieldAction = 'NONE' | 'LOG' | 'THROW';
@@ -234,19 +236,21 @@ export type ReaderRequiredField = {
   +kind: 'RequiredField',
   +field: ReaderField | ReaderClientEdge,
   +action: RequiredFieldAction,
-  +path: string,
+  // TODO: This field is not used any more, we should be able to remove it.
+  +path?: unknown,
 };
 
 export type CatchFieldTo = 'RESULT' | 'NULL';
 
 export type ReaderCatchField = {
   +kind: 'CatchField',
-  +field: ReaderField | ReaderClientEdge,
+  +field: ReaderField | ReaderClientEdge | ReaderAliasedInlineFragmentSpread,
   +to: CatchFieldTo,
-  +path: string,
+  // TODO: This field is not used any more, we should be able to remove it.
+  +path?: unknown,
 };
 
-export type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
+export type ResolverFunction = (...args: Array<any>) => unknown; // flowlint-line unclear-type:off
 // With ES6 imports, a resolver function might be exported under the `default` key.
 export type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
@@ -271,7 +275,7 @@ export type ReaderRelayResolver = {
   +kind: 'RelayResolver',
   +alias?: ?string,
   +name: string,
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?ReadonlyArray<ReaderArgument>,
   +fragment?: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
@@ -282,7 +286,7 @@ export type ReaderRelayLiveResolver = {
   +kind: 'RelayLiveResolver',
   +alias?: ?string,
   +name: string,
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?ReadonlyArray<ReaderArgument>,
   +fragment?: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
@@ -324,7 +328,6 @@ export type ReaderSelection =
   | ReaderField
   | ReaderActorChange
   | ReaderFragmentSpread
-  | ReaderAliasedFragmentSpread
   | ReaderInlineDataFragmentSpread
   | ReaderAliasedInlineFragmentSpread
   | ReaderInlineFragment

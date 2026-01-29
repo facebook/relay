@@ -1,24 +1,24 @@
 {
-  "version-experimental/docs": [
+  "docs": [
     {
       "type": "category",
       "label": "Relay Hooks",
       "items": [
         {
           "type": "doc",
-          "id": "version-experimental/introduction-to-relay"
+          "id": "introduction-to-relay"
         },
         {
           "type": "doc",
-          "id": "version-experimental/step-by-step"
+          "id": "step-by-step"
         },
         {
           "type": "doc",
-          "id": "version-experimental/a-guided-tour-of-relay"
+          "id": "a-guided-tour-of-relay"
         },
         {
           "type": "doc",
-          "id": "version-experimental/api-reference"
+          "id": "api-reference"
         }
       ]
     }

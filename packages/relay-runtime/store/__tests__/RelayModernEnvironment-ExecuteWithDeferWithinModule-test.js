@@ -36,13 +36,18 @@ const {
 const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
-const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  expectToWarn,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 function createOperationLoader() {
   const cache = new Map<
-    mixed,
+    unknown,
     | {kind: 'value', operation: NormalizationSplitOperation}
     | {
         kind: 'promise',
@@ -76,7 +81,7 @@ function createOperationLoader() {
         });
         // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         entry = {kind: 'promise', promise, resolve: resolveFn};
-        // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+        // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         cache.set(moduleName, entry);
         return promise;
       } else if (entry.kind === 'value') {
@@ -104,8 +109,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let next;
     let operation;
     let operationLoader: {
-      get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
-      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+      get: JestMockFn<ReadonlyArray<unknown>, ?NormalizationRootNode>,
+      load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
     };
     let query;
     let resolveFragment;
@@ -167,9 +172,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -184,12 +189,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
 
-        // $FlowFixMe[incompatible-type-arg] Error found while enabling LTI on this file
+        // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
         [resolveFragment, operationLoader] = createOperationLoader();
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
-          // $FlowFixMe[incompatible-call] Error found while enabling LTI on this file
+          // $FlowFixMe[incompatible-type] Error found while enabling LTI on this file
           operationLoader,
         });
         environment =

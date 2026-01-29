@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fc01b78edf091a7e75b03c3eb47e5460>>
+ * @generated SignedSource<<adabbae532fcfefed489c7262591cbc1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,16 +23,21 @@ import type { AstrologicalSignNameResolver$key } from "./AstrologicalSignNameRes
 import type { AstrologicalSignOppositeResolver$key } from "./AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./UserAstrologicalSignResolver.graphql";
 import {name as astrologicalSignNameResolverType} from "../AstrologicalSignNameResolver.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `astrologicalSignNameResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolverType: (
   rootKey: AstrologicalSignNameResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 import {opposite as astrologicalSignOppositeResolverType} from "../AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolverType: (
   rootKey: AstrologicalSignOppositeResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -41,6 +46,8 @@ import {astrological_sign as userAstrologicalSignResolverType} from "../UserAstr
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolverType: (
   rootKey: UserAstrologicalSignResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?{|
   +id: DataID,
 |});
@@ -135,7 +142,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../UserAstrologicalSignResolver').astrological_sign,
+              "resolverModule": require('../UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -152,7 +159,7 @@ return {
                   "fragment": (v0/*: any*/),
                   "kind": "RelayResolver",
                   "name": "name",
-                  "resolverModule": require('./../AstrologicalSignNameResolver').name,
+                  "resolverModule": require('../AstrologicalSignNameResolver').name,
                   "path": "me.astrological_sign.name"
                 },
                 {
@@ -169,7 +176,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "opposite",
-                    "resolverModule": require('./../AstrologicalSignOppositeResolver').opposite,
+                    "resolverModule": require('../AstrologicalSignOppositeResolver').opposite,
                     "path": "me.astrological_sign.opposite"
                   },
                   "linkedField": {
@@ -186,7 +193,7 @@ return {
                         "fragment": (v0/*: any*/),
                         "kind": "RelayResolver",
                         "name": "name",
-                        "resolverModule": require('./../AstrologicalSignNameResolver').name,
+                        "resolverModule": require('../AstrologicalSignNameResolver').name,
                         "path": "me.astrological_sign.opposite.name"
                       }
                     ],

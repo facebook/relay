@@ -9,10 +9,10 @@ use std::collections::HashSet;
 use std::fmt::Result as FmtResult;
 use std::path::PathBuf;
 
+use ::intern::Lookup;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
-use ::intern::Lookup;
 use common::DirectiveName;
 use common::InputObjectName;
 use common::NamedItem;
@@ -24,15 +24,31 @@ use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
 use lazy_static::lazy_static;
+use relay_config::CustomTypeImport;
 use relay_config::JsModuleFormat;
 use relay_config::TypegenLanguage;
+use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::CATCH_DIRECTIVE_NAME;
+use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
-use relay_transforms::ASSIGNABLE_DIRECTIVE;
-use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use schema::Schema;
 
+use crate::ACTOR_CHANGE_POINT;
+use crate::FUTURE_ENUM_VALUE;
+use crate::KEY_CLIENTID;
+use crate::KEY_DATA;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_RAW_RESPONSE;
+use crate::KEY_TYPENAME;
+use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
+use crate::MaskStatus;
+use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
+use crate::REACT_RELAY_MULTI_ACTOR;
+use crate::TypegenContext;
+use crate::VALIDATOR_EXPORT_NAME;
 use crate::typegen_state::ActorChangeStatus;
 use crate::typegen_state::EncounteredEnums;
 use crate::typegen_state::EncounteredFragment;
@@ -46,10 +62,15 @@ use crate::typegen_state::RuntimeImports;
 use crate::visit::get_data_type;
 use crate::visit::get_input_variables_type;
 use crate::visit::get_operation_type_export;
+use crate::visit::has_explicit_catch_to_null;
+use crate::visit::is_result_type_directive;
+use crate::visit::make_custom_error_import;
+use crate::visit::make_result_type;
 use crate::visit::raw_response_selections_to_babel;
 use crate::visit::raw_response_visit_selections;
 use crate::visit::transform_input_type;
 use crate::visit::visit_selections;
+use crate::writer::AST;
 use crate::writer::ExactObject;
 use crate::writer::InexactObject;
 use crate::writer::KeyValuePairProp;
@@ -58,21 +79,6 @@ use crate::writer::SortedASTList;
 use crate::writer::SortedStringKeyList;
 use crate::writer::StringLiteral;
 use crate::writer::Writer;
-use crate::writer::AST;
-use crate::MaskStatus;
-use crate::TypegenContext;
-use crate::ACTOR_CHANGE_POINT;
-use crate::FUTURE_ENUM_VALUE;
-use crate::KEY_CLIENTID;
-use crate::KEY_DATA;
-use crate::KEY_FRAGMENT_SPREADS;
-use crate::KEY_FRAGMENT_TYPE;
-use crate::KEY_RAW_RESPONSE;
-use crate::KEY_TYPENAME;
-use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
-use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
-use crate::REACT_RELAY_MULTI_ACTOR;
-use crate::VALIDATOR_EXPORT_NAME;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 
@@ -93,6 +99,7 @@ pub(crate) fn write_operation_type_exports_section(
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = RuntimeImports::default();
+    let mut custom_error_import = None;
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
     let mut imported_raw_response_types = Default::default();
@@ -100,6 +107,11 @@ pub(crate) fn write_operation_type_exports_section(
     let is_throw_on_field_error = typegen_operation
         .directives
         .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
+        .is_some();
+
+    let is_catch = typegen_operation
+        .directives
+        .named(*CATCH_DIRECTIVE_NAME)
         .is_some();
 
     let type_selections = visit_selections(
@@ -113,24 +125,43 @@ pub(crate) fn write_operation_type_exports_section(
         &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
+        &mut custom_error_import,
         None,
-        is_throw_on_field_error,
+        is_throw_on_field_error || is_catch,
     );
 
-    let data_type = get_data_type(
+    let emit_optional_type = typegen_operation
+        .directives
+        .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        .is_some();
+
+    let coerce_to_nullable = has_explicit_catch_to_null(&typegen_operation.directives);
+
+    let mut data_type = get_data_type(
         typegen_context,
+        &typegen_operation.type_,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
-        typegen_operation
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-            .is_some(),
+        emit_optional_type || coerce_to_nullable,
         false, // Query types can never be plural
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut custom_scalars,
+        &mut runtime_imports,
+        &mut custom_error_import,
     );
+
+    if is_result_type_directive(&typegen_operation.directives) {
+        data_type = make_result_type(typegen_context, data_type);
+        runtime_imports.result_type = true;
+        match make_custom_error_import(typegen_context, &mut custom_error_import) {
+            Ok(_) => {}
+            Err(e) => {
+                panic!("Error while generating custom error type: {e}");
+            }
+        }
+    }
 
     let raw_response_type_and_match_fields =
         if has_raw_response_type_directive(normalization_operation) {
@@ -178,7 +209,12 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
+    if custom_error_import.is_some() {
+        write_import_custom_type(custom_error_import, writer)?;
+    }
+
     write_relay_resolver_imports(imported_resolvers, writer)?;
+
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
@@ -338,6 +374,10 @@ pub(crate) fn write_fragment_type_exports_section(
         .directives
         .named(*THROW_ON_FIELD_ERROR_DIRECTIVE)
         .is_some();
+    let is_catch = fragment_definition
+        .directives
+        .named(*CATCH_DIRECTIVE_NAME)
+        .is_some();
 
     let mut encountered_enums = Default::default();
     let mut encountered_fragments = Default::default();
@@ -349,6 +389,7 @@ pub(crate) fn write_fragment_type_exports_section(
         generic_fragment_type: true,
         ..Default::default()
     };
+    let mut custom_error_import: Option<CustomTypeImport> = None;
     let mut imported_raw_response_types = Default::default();
 
     let mut type_selections = visit_selections(
@@ -362,8 +403,9 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut actor_change_status,
         &mut custom_scalars,
         &mut runtime_imports,
+        &mut custom_error_import,
         None,
-        is_throw_on_field_error,
+        is_throw_on_field_error || is_catch,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
         let num_concrete_selections = type_selections
@@ -378,7 +420,7 @@ pub(crate) fn write_fragment_type_exports_section(
     }
 
     let data_type = fragment_definition.name.item;
-    let data_type_name = format!("{}$data", data_type);
+    let data_type_name = format!("{data_type}$data");
 
     let ref_type_data_property = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_DATA,
@@ -412,8 +454,15 @@ pub(crate) fn write_fragment_type_exports_section(
         MaskStatus::Masked
     };
 
-    let data_type = get_data_type(
+    let coerce_to_nullable = has_explicit_catch_to_null(&fragment_definition.directives);
+    let required_can_bubble = fragment_definition
+        .directives
+        .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+        .is_some();
+
+    let mut data_type = get_data_type(
         typegen_context,
+        &fragment_definition.type_condition,
         type_selections.into_iter(),
         mask_status,
         if mask_status == MaskStatus::Unmasked {
@@ -421,15 +470,25 @@ pub(crate) fn write_fragment_type_exports_section(
         } else {
             Some(fragment_name)
         },
-        fragment_definition
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-            .is_some(),
+        required_can_bubble || coerce_to_nullable,
         is_plural_fragment,
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut custom_scalars,
+        &mut runtime_imports,
+        &mut custom_error_import,
     );
+
+    if is_result_type_directive(&fragment_definition.directives) {
+        data_type = make_result_type(typegen_context, data_type);
+        runtime_imports.result_type = true;
+        match make_custom_error_import(typegen_context, &mut custom_error_import) {
+            Ok(_) => {}
+            Err(e) => {
+                panic!("Error while generating custom error type: {e}");
+            }
+        }
+    }
 
     write_import_actor_change_point(actor_change_status, writer)?;
     let input_object_types = input_object_types
@@ -449,10 +508,11 @@ pub(crate) fn write_fragment_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
+
     write_relay_resolver_imports(imported_resolvers, writer)?;
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
-    let fragment_type_name = format!("{}$fragmentType", fragment_name);
+    let fragment_type_name = format!("{fragment_name}$fragmentType");
     writer.write_export_fragment_type(&fragment_type_name)?;
     if let Some(refetchable_metadata) = refetchable_metadata {
         let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
@@ -474,6 +534,27 @@ pub(crate) fn write_fragment_type_exports_section(
                 )?;
             }
         }
+        let edges_name = format!("{fragment_name}__edges$data");
+        if refetchable_metadata.is_prefetchable_pagination {
+            match typegen_context.project_config.js_module_format {
+                JsModuleFormat::CommonJS => {
+                    if typegen_context.has_unified_output {
+                        writer.write_import_fragment_type(
+                            &[&edges_name],
+                            &format!("./{fragment_name}__edges.graphql"),
+                        )?;
+                    } else {
+                        writer.write_any_type_definition(&edges_name)?;
+                    }
+                }
+                JsModuleFormat::Haste => {
+                    writer.write_import_fragment_type(
+                        &[&edges_name],
+                        &format!("{fragment_name}__edges.graphql"),
+                    )?;
+                }
+            }
+        }
     }
 
     if !is_assignable_fragment {
@@ -489,6 +570,23 @@ pub(crate) fn write_fragment_type_exports_section(
     Ok(())
 }
 
+fn write_import_custom_type(
+    custom_type_import: Option<CustomTypeImport>,
+    writer: &mut Box<dyn Writer>,
+) -> FmtResult {
+    match custom_type_import {
+        Some(custom_type_import) => {
+            let names = &[custom_type_import.name.lookup()];
+            let path = &custom_type_import.path.to_str();
+            match path {
+                Some(path) => writer.write_import_type(names, path),
+                _ => Ok(()),
+            }
+        }
+        _ => Ok(()),
+    }
+}
+
 fn write_fragment_imports(
     typegen_context: &'_ TypegenContext<'_>,
     fragment_name_to_skip: Option<FragmentDefinitionName>,
@@ -499,24 +597,21 @@ fn write_fragment_imports(
         let (current_referenced_fragment, fragment_type_name) = match current_referenced_fragment {
             EncounteredFragment::Key(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$key", current_referenced_fragment),
+                format!("{current_referenced_fragment}$key"),
             ),
             EncounteredFragment::Spread(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$fragmentType", current_referenced_fragment),
+                format!("{current_referenced_fragment}$fragmentType"),
             ),
             EncounteredFragment::Data(current_referenced_fragment) => (
                 current_referenced_fragment,
-                format!("{}$data", current_referenced_fragment),
+                format!("{current_referenced_fragment}$data"),
             ),
         };
 
-        let should_write_current_referenced_fragment = fragment_name_to_skip
-            .map_or(true, |fragment_name_to_skip| {
-                fragment_name_to_skip != current_referenced_fragment
-            });
-
-        if !should_write_current_referenced_fragment {
+        let should_skip_writing_current_referenced_fragment =
+            fragment_name_to_skip == Some(current_referenced_fragment);
+        if should_skip_writing_current_referenced_fragment {
             continue;
         }
 
@@ -525,7 +620,7 @@ fn write_fragment_imports(
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[&fragment_type_name],
-                        &format!("./{}.graphql", current_referenced_fragment),
+                        &format!("./{current_referenced_fragment}.graphql"),
                     )?;
                 } else {
                     let fragment_location = typegen_context
@@ -553,14 +648,14 @@ fn write_fragment_imports(
 
                     writer.write_import_fragment_type(
                         &[&fragment_type_name],
-                        &format!("./{}.graphql", fragment_import_path),
+                        &format!("./{fragment_import_path}.graphql"),
                     )?;
                 }
             }
             JsModuleFormat::Haste => {
                 writer.write_import_fragment_type(
                     &[&fragment_type_name],
-                    &format!("{}.graphql", current_referenced_fragment),
+                    &format!("{current_referenced_fragment}.graphql"),
                 )?;
             }
         }
@@ -584,6 +679,10 @@ fn write_relay_resolver_imports(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     imported_resolvers.0.sort_keys();
+
+    // Context import will be the same for each resolver, so this flag is used to ensure it is only written once
+    let mut live_resolver_context_import_written = false;
+
     for resolver in imported_resolvers.0.values() {
         match resolver.resolver_name {
             ImportedResolverName::Default(name) => {
@@ -597,8 +696,21 @@ fn write_relay_resolver_imports(
                 )?;
             }
         }
-        if let AST::AssertFunctionType(_) = &resolver.resolver_type {
-            writer.write(&resolver.resolver_type)?;
+
+        if let Some(ref live_resolver_context_import) = resolver.context_import
+            && !live_resolver_context_import_written
+        {
+            writer.write_import_type(
+                &[live_resolver_context_import.name.lookup()],
+                live_resolver_context_import.import_path.lookup(),
+            )?;
+            live_resolver_context_import_written = true;
+        }
+
+        if let Some(resolver_type) = &resolver.resolver_type
+            && let AST::AssertFunctionType(_) = resolver_type
+        {
+            writer.write(resolver_type)?;
         }
     }
     Ok(())
@@ -622,7 +734,7 @@ fn write_split_raw_response_type_imports(
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
-                        &format!("./{}.graphql", imported_raw_response_type),
+                        &format!("./{imported_raw_response_type}.graphql"),
                     )?;
                 } else if let Some(imported_raw_response_document_location) =
                     imported_raw_response_document_location
@@ -640,7 +752,7 @@ fn write_split_raw_response_type_imports(
 
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
-                        &format!("./{}.graphql", artifact_import_path),
+                        &format!("./{artifact_import_path}.graphql"),
                     )?;
                 } else {
                     writer.write_any_type_definition(imported_raw_response_type.lookup())?;
@@ -649,7 +761,7 @@ fn write_split_raw_response_type_imports(
             JsModuleFormat::Haste => {
                 writer.write_import_fragment_type(
                     &[imported_raw_response_type.lookup()],
-                    &format!("{}.graphql", imported_raw_response_type),
+                    &format!("{imported_raw_response_type}.graphql"),
                 )?;
             }
         }
@@ -772,14 +884,14 @@ fn write_input_object_types(
 /// The types of the validator:
 ///
 /// - For fragments whose type condition is abstract:
-/// ({ __id: string, __isFragmentName: ?string, $fragmentSpreads: FragmentRefType }) =>
-///   ({ __id: string, __isFragmentName: string, $fragmentSpreads: FragmentRefType })
-///   | false
+///   ({ __id: string, __isFragmentName: ?string, $fragmentSpreads: FragmentRefType }) =>
+///     ({ __id: string, __isFragmentName: string, $fragmentSpreads: FragmentRefType })
+///     | false
 ///
 /// - For fragments whose type condition is concrete:
-/// ({ __id: string, __typename: string, $fragmentSpreads: FragmentRefType }) =>
-///   ({ __id: string, __typename: FragmentType, $fragmentSpreads: FragmentRefType })
-///   | false
+///   ({ __id: string, __typename: string, $fragmentSpreads: FragmentRefType }) =>
+///     ({ __id: string, __typename: FragmentType, $fragmentSpreads: FragmentRefType })
+///     | false
 ///
 /// Validators' runtime behavior checks for the presence of the __isFragmentName marker
 /// (for abstract fragment types) or a matching concrete type (for concrete fragment
@@ -822,7 +934,7 @@ fn write_abstract_validator_function(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let fragment_name = fragment_definition.name.item.0.lookup();
-    let abstract_fragment_spread_marker = format!("__is{}", fragment_name).intern();
+    let abstract_fragment_spread_marker = format!("__is{fragment_name}").intern();
     let id_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_CLIENTID,
         value: AST::String,
@@ -1000,7 +1112,7 @@ fn write_concrete_validator_function(
 }
 
 fn is_plural(node: &FragmentDefinition) -> bool {
-    RelayDirective::find(&node.directives).map_or(false, |relay_directive| relay_directive.plural)
+    RelayDirective::find(&node.directives).is_some_and(|relay_directive| relay_directive.plural)
 }
 
 fn has_fragment_spread(selections: &[Selection]) -> bool {

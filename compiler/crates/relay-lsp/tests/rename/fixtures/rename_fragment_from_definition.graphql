@@ -1,0 +1,15 @@
+query MeQuery {
+  me {
+    ...UserFragment
+  }
+}
+
+fragment UserFr|agment on User {
+  name
+}
+
+fragment CommentFragment on Comment {
+  author {
+    ...UserFragment
+  }
+}

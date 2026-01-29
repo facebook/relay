@@ -1,0 +1,22 @@
+query multipleModuleWithAliasQuery($id: ID!) {
+  node(id: $id) {
+    ... on User {
+      nameRenderer {
+        # Same fragment with different modules on different aliases
+        ...multipleModuleWithAliasFragment_propName
+          @module(name: "FooMarkdownUserNameRenderer.react")
+          @alias(as: "a")
+        ...multipleModuleWithAliasFragment_propName
+          @module(name: "BarMarkdownUserNameRenderer.react")
+          @alias(as: "b")
+      }
+    }
+  }
+}
+
+fragment multipleModuleWithAliasFragment_propName on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<544fcfa0216d4b56ae8b550b0b13a6d9>>
+ * @generated SignedSource<<ae653ed8dbff84fa87b3be40363b174e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayReaderRequiredFieldsTest11Query$variables = {||};
 export type RelayReaderRequiredFieldsTest11Query$data = {|
   +viewer: ?{|
-    +allTimezones: $ReadOnlyArray<?{|
+    +allTimezones: ReadonlyArray<?{|
       +timezone: ?string,
     |}>,
   |},
@@ -69,8 +69,7 @@ return {
           {
             "kind": "RequiredField",
             "field": (v0/*: any*/),
-            "action": "NONE",
-            "path": "viewer.allTimezones"
+            "action": "NONE"
           }
         ],
         "storageKey": null

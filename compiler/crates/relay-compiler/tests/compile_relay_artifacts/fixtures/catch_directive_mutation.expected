@@ -1,0 +1,131 @@
+==================================== INPUT ====================================
+mutation catchDirectiveMutationMutation @catch(to: RESULT) {
+  unfriend(input: {friendId: "1"}) {
+    formerFriend {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": {
+      "catchTo": "RESULT"
+    },
+    "name": "catchDirectiveMutationMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "input",
+            "value": {
+              "friendId": "1"
+            }
+          }
+        ],
+        "concreteType": "UnfriendResponsePayload",
+        "kind": "LinkedField",
+        "name": "unfriend",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "formerFriend",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": "unfriend(input:{\"friendId\":\"1\"})"
+      }
+    ],
+    "type": "Mutation",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "catchDirectiveMutationMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "input",
+            "value": {
+              "friendId": "1"
+            }
+          }
+        ],
+        "concreteType": "UnfriendResponsePayload",
+        "kind": "LinkedField",
+        "name": "unfriend",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "User",
+            "kind": "LinkedField",
+            "name": "formerFriend",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": "unfriend(input:{\"friendId\":\"1\"})"
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "24776df123abe5a39f692c9f0cdaf2a3",
+    "id": null,
+    "metadata": {},
+    "name": "catchDirectiveMutationMutation",
+    "operationKind": "mutation",
+    "text": null
+  }
+}
+
+QUERY:
+
+mutation catchDirectiveMutationMutation {
+  unfriend(input: {friendId: "1"}) {
+    formerFriend {
+      name
+      id
+    }
+  }
+}

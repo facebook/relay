@@ -1,0 +1,6 @@
+fragment MyFragment on Node  {
+  id
+  ... @catch(to: RESULT) @alias(as: "myAlias") {
+    name
+  }
+}

@@ -10,9 +10,9 @@ use common::TextSource;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::build_ir_with_extra_features;
 use graphql_syntax::parse_executable;
 use relay_test_schema::get_test_schema_with_extensions;
 
@@ -35,6 +35,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             &ast.definitions,
             &BuilderOptions {
                 allow_undefined_fragment_spreads: false,
+                allow_non_overlapping_abstract_spreads: false,
                 fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
                 relay_mode: None,
                 default_anonymous_operation_name: None,

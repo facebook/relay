@@ -30,14 +30,12 @@ fragment MyFragment on User {
               "name": "street",
               "storageKey": null
             },
-            "to": "RESULT",
-            "path": "address.street"
+            "to": "RESULT"
           }
         ],
         "storageKey": null
       },
-      "to": "RESULT",
-      "path": "address"
+      "to": "RESULT"
     }
   ],
   "type": "User",

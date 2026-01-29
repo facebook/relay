@@ -19,17 +19,26 @@ function name(user: User): User.Name {
 function name(user: User): Genric<boolean, string> {
 }
 ==================================== OUTPUT ===================================
-✖︎ Expected to have at least one function parameter
-
-  <generated>:10:1
-    8 │ 
-    9 │ //extract
-   10 │ function name(): string {
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^
-   11 │ }
-      │ ^
-   12 │ 
-
+Strong(
+    FieldData {
+        field_name: WithLocation {
+            location: <generated>:212:216,
+            item: "name",
+        },
+        return_type: StringTypeAnnotation(
+            StringTypeAnnotation {
+                loc: None,
+                range: SourceRange {
+                    start: 220,
+                    end: 226,
+                },
+            },
+        ),
+        entity_type: None,
+        arguments: None,
+        is_live: None,
+    },
+)
 
 ✖︎ Unsupported type
 

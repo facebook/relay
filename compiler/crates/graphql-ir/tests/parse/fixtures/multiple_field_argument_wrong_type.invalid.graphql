@@ -1,0 +1,9 @@
+# expected-to-throw
+
+query TestQuery($if: Boolean, $unless: Boolean) {
+  node(id: "4") {
+    ... on Comment {
+      firstName(if: $globalIf, unless: $unless)
+    }
+  }
+}

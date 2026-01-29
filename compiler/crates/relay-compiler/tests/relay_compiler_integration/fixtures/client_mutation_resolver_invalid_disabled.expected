@@ -13,9 +13,10 @@ graphql`mutation barMutation {
 {
    "language": "flow",
    "schema": "./schema.graphql",
-   "eagerEsModules": true,
    "featureFlags": {
-      "enable_relay_resolver_transform": true
+       "allow_output_type_resolvers": {
+         "kind": "enabled"
+      }
    }
 }
 

@@ -11,11 +11,7 @@ graphql`fragment barFragment on User {
 //- relay.config.json
 {
    "language": "typescript",
-   "schema": "./schema.graphql",
-   "eagerEsModules": true,
-   "featureFlags": {
-      "enable_relay_resolver_transform": true
-   }
+   "schema": "./schema.graphql"
 }
 
 //- schema.graphql

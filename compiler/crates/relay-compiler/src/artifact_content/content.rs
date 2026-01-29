@@ -14,19 +14,19 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
-use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
-use relay_transforms::is_operation_preloadable;
-use relay_transforms::RelayDataDrivenDependencyMetadata;
+use relay_codegen::build_request_params;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::RelayDataDrivenDependencyMetadata;
+use relay_transforms::is_operation_preloadable;
+use relay_typegen::FragmentLocations;
+use relay_typegen::TypegenConfig;
+use relay_typegen::TypegenLanguage;
 use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_named_validator_export;
 use relay_typegen::generate_operation_type_exports_section;
 use relay_typegen::generate_split_operation_type_exports_section;
-use relay_typegen::FragmentLocations;
-use relay_typegen::TypegenConfig;
-use relay_typegen::TypegenLanguage;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
 
@@ -80,7 +80,7 @@ pub fn generate_preloadable_query_parameters(
     // -- Begin Metadata Annotations Section --
     let mut section = CommentAnnotationsSection::default();
     if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
-        writeln!(section, "@relayRequestID {}", id)?;
+        writeln!(section, "@relayRequestID {id}")?;
     }
     content_sections.push(ContentSection::CommentAnnotations(section));
     // -- End Metadata Annotations Section --
@@ -202,8 +202,11 @@ pub fn generate_updatable_query(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types =
-        ArtifactGeneratedTypes::from_updatable_query(typegen_operation, skip_types);
+    let generated_types = ArtifactGeneratedTypes::from_updatable_query(
+        typegen_operation,
+        skip_types,
+        project_config.typegen_config.language,
+    );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -298,12 +301,12 @@ pub fn generate_operation(
         if project_config
             .persist
             .as_ref()
-            .map_or(false, |config| config.include_query_text())
+            .is_some_and(|config| config.include_query_text())
         {
-            request_parameters.text = text.clone();
+            request_parameters.text.clone_from(text);
         }
     } else {
-        request_parameters.text = text.clone();
+        request_parameters.text.clone_from(text);
     }
 
     let operation_fragment = FragmentDefinition {
@@ -344,14 +347,20 @@ pub fn generate_operation(
     // -- Begin Metadata Annotations Section --
     let mut section = CommentAnnotationsSection::default();
     if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
-        writeln!(section, "@relayRequestID {}", id)?;
+        writeln!(section, "@relayRequestID {id}")?;
     }
     if project_config.variable_names_comment {
-        write!(section, "@relayVariables")?;
+        let mut variables = String::new();
+        let mut non_null_variables = String::new();
+
         for variable_definition in &normalization_operation.variable_definitions {
-            write!(section, " {}", variable_definition.name.item)?;
+            variables.push_str(&format!(" {}", variable_definition.name.item));
+            if variable_definition.type_.is_non_null() {
+                non_null_variables.push_str(&format!(" {}", variable_definition.name.item));
+            }
         }
-        writeln!(section)?;
+        writeln!(section, "@relayVariables{variables}")?;
+        writeln!(section, "@relayRequiredVariables{non_null_variables}")?;
     }
     let data_driven_dependency_metadata =
         RelayDataDrivenDependencyMetadata::find(&operation_fragment.directives);
@@ -367,6 +376,7 @@ pub fn generate_operation(
         typegen_operation,
         skip_types,
         request_parameters.is_client_request(),
+        project_config.typegen_config.language,
     );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -696,7 +706,11 @@ fn generate_read_only_fragment(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types = ArtifactGeneratedTypes::from_fragment(typegen_fragment, skip_types);
+    let generated_types = ArtifactGeneratedTypes::from_fragment(
+        typegen_fragment,
+        skip_types,
+        project_config.typegen_config.language,
+    );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;
@@ -872,7 +886,7 @@ fn generate_assignable_fragment(
         project_config,
         fragment_locations,
     );
-    writeln!(section, "{}", named_validator_export).unwrap();
+    writeln!(section, "{named_validator_export}").unwrap();
     content_sections.push(ContentSection::Generic(section));
     // -- End Export Section --
 
@@ -887,12 +901,12 @@ fn write_variable_value_with_type(
     value: &str,
 ) -> FmtResult {
     match language {
-        TypegenLanguage::JavaScript => writeln!(section, "var {} = {};", variable_name, value),
+        TypegenLanguage::JavaScript => writeln!(section, "var {variable_name} = {value};"),
         TypegenLanguage::Flow => {
-            writeln!(section, "var {}/*: {}*/ = {};", variable_name, type_, value)
+            writeln!(section, "var {variable_name}/*: {type_}*/ = {value};")
         }
         TypegenLanguage::TypeScript => {
-            writeln!(section, "const {}: {} = {};", variable_name, type_, value)
+            writeln!(section, "const {variable_name}: {type_} = {value};")
         }
     }
 }
@@ -932,7 +946,7 @@ fn write_import_type_from(
     let language = &project_config.typegen_config.language;
     match language {
         TypegenLanguage::JavaScript => Ok(()),
-        TypegenLanguage::Flow => writeln!(section, "import type {{ {} }} from '{}';", type_, from),
+        TypegenLanguage::Flow => writeln!(section, "import type {{ {type_} }} from '{from}';"),
         TypegenLanguage::TypeScript => writeln!(
             section,
             "import {}{{ {} }} from '{}';",
@@ -962,13 +976,13 @@ pub fn write_export_generated_node(
             variable_node.to_string()
         }
         (TypegenLanguage::Flow, Some(forced_type)) => {
-            format!("(({}/*: any*/)/*: {}*/)", variable_node, forced_type)
+            format!("(({variable_node}/*: any*/)/*: {forced_type}*/)")
         }
     };
     if typegen_config.eager_es_modules || typegen_config.language == TypegenLanguage::TypeScript {
-        writeln!(section, "export default {};", export_value)
+        writeln!(section, "export default {export_value};")
     } else {
-        writeln!(section, "module.exports = {};", export_value)
+        writeln!(section, "module.exports = {export_value};")
     }
 }
 
@@ -980,13 +994,13 @@ pub fn generate_docblock_section(
     let mut section = DocblockSection::default();
     if !config.header.is_empty() {
         for header_line in &config.header {
-            writeln!(section, "{}", header_line)?;
+            writeln!(section, "{header_line}")?;
         }
         writeln!(section)?;
     }
-    writeln!(section, "{}", SIGNING_TOKEN)?;
+    writeln!(section, "{SIGNING_TOKEN}")?;
     for annotation in extra_annotations {
-        writeln!(section, "{}", annotation)?;
+        writeln!(section, "{annotation}")?;
     }
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "@flow")?;
@@ -999,7 +1013,7 @@ pub fn generate_docblock_section(
         .as_ref()
         .or(config.codegen_command.as_ref())
     {
-        writeln!(section, "@codegen-command: {}", codegen_command)?;
+        writeln!(section, "@codegen-command: {codegen_command}")?;
     }
     Ok(section)
 }
@@ -1011,25 +1025,25 @@ fn write_source_hash(
     source_hash: &str,
 ) -> FmtResult {
     if let Some(is_dev_variable_name) = &config.is_dev_variable_name {
-        writeln!(section, "if ({}) {{", is_dev_variable_name)?;
+        writeln!(section, "if ({is_dev_variable_name}) {{")?;
         match language {
             TypegenLanguage::Flow => {
-                writeln!(section, "  (node/*: any*/).hash = \"{}\";", source_hash)?
+                writeln!(section, "  (node/*: any*/).hash = \"{source_hash}\";")?
             }
-            TypegenLanguage::JavaScript => writeln!(section, "  node.hash = \"{}\";", source_hash)?,
+            TypegenLanguage::JavaScript => writeln!(section, "  node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {
-                writeln!(section, "  (node as any).hash = \"{}\";", source_hash)?
+                writeln!(section, "  (node as any).hash = \"{source_hash}\";")?
             }
         };
         writeln!(section, "}}")?;
     } else {
         match language {
             TypegenLanguage::Flow => {
-                writeln!(section, "(node/*: any*/).hash = \"{}\";", source_hash)?
+                writeln!(section, "(node/*: any*/).hash = \"{source_hash}\";")?
             }
-            TypegenLanguage::JavaScript => writeln!(section, "node.hash = \"{}\";", source_hash)?,
+            TypegenLanguage::JavaScript => writeln!(section, "node.hash = \"{source_hash}\";")?,
             TypegenLanguage::TypeScript => {
-                writeln!(section, "(node as any).hash = \"{}\";", source_hash)?
+                writeln!(section, "(node as any).hash = \"{source_hash}\";")?
             }
         };
     }
@@ -1046,14 +1060,14 @@ fn write_data_driven_dependency_annotation(
         .iter()
         .flatten()
     {
-        writeln!(section, "@dataDrivenDependency {} {}", key, value)?;
+        writeln!(section, "@dataDrivenDependency {key} {value}")?;
     }
     for (key, value) in data_driven_dependency_metadata
         .indirect_dependencies
         .iter()
         .flatten()
     {
-        writeln!(section, "@indirectDataDrivenDependency {} {}", key, value)?;
+        writeln!(section, "@indirectDataDrivenDependency {key} {value}")?;
     }
     Ok(())
 }

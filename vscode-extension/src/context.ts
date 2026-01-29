@@ -30,5 +30,6 @@ export type RelayExtensionContext = {
   relayBinaryExecutionOptions: {
     rootPath: string;
     binaryPath: string;
+    binaryVersion?: string;
   };
 };

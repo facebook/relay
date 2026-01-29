@@ -11,6 +11,8 @@
 
 'use strict';
 
+import type {RecordSourceJSON} from '../../store/RelayStoreTypes';
+
 const defaultGetDataID = require('../../store/defaultGetDataID');
 const RelayModernRecord = require('../../store/RelayModernRecord');
 const RelayRecordSource = require('../../store/RelayRecordSource');
@@ -28,7 +30,7 @@ describe('RelayRecordSourceProxy', () => {
   let mutator;
   let store;
   let sinkSource;
-  const initialData = {
+  const initialData: RecordSourceJSON = {
     '4': {
       [ID_KEY]: '4',
       [TYPENAME_KEY]: 'User',
@@ -80,6 +82,7 @@ describe('RelayRecordSourceProxy', () => {
       defaultGetDataID,
       undefined,
       [],
+      null,
     );
   });
 

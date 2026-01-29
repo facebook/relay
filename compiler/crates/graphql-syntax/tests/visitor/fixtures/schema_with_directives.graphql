@@ -1,0 +1,40 @@
+directive @cached(ttl: Int = 300) on FIELD_DEFINITION | OBJECT
+
+directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
+
+type User @cached(ttl: 600) {
+  id: ID!
+  name: String! @deprecated(reason: "Use displayName instead")
+  displayName: String!
+  email: String @cached
+  profile: Profile
+}
+
+type Profile {
+  bio: String
+  avatar: String @cached(ttl: 3600)
+  preferences: UserPreferences
+}
+
+type UserPreferences {
+  theme: Theme
+  notifications: Boolean
+}
+
+enum Theme @deprecated {
+  LIGHT @deprecated(reason: "Use LIGHT_MODE")
+  DARK @deprecated(reason: "Use DARK_MODE")
+  LIGHT_MODE
+  DARK_MODE
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  preferences: UserPreferencesInput
+}
+
+input UserPreferencesInput {
+  theme: Theme
+  notifications: Boolean
+}

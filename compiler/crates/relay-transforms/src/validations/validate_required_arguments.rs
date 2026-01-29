@@ -13,6 +13,7 @@ use common::WithLocation;
 use errors::validate;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
+use graphql_ir::FIXME_FAT_INTERFACE;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::LinkedField;
@@ -21,7 +22,6 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
-use graphql_ir::FIXME_FAT_INTERFACE;
 use intern::string_key::StringKey;
 use schema::ArgumentDefinitions;
 use schema::Schema;
@@ -106,7 +106,7 @@ impl Validator for ValidateRequiredArguments<'_> {
                 &definition.arguments,
                 &directive.arguments,
                 directive.name.item.0,
-                directive.name.location,
+                directive.location,
                 self.root_name_with_location.unwrap(),
             )
         } else {

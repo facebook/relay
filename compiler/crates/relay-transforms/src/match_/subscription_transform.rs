@@ -25,16 +25,16 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
-use intern::string_key::Intern;
 use intern::Lookup;
+use intern::string_key::Intern;
 use schema::FieldID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
+use crate::ModuleMetadata;
 use crate::match_::MATCH_CONSTANTS;
 use crate::util::get_normalization_operation_name;
-use crate::ModuleMetadata;
 
 pub fn transform_subscriptions(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = SubscriptionTransform::new(program);
@@ -57,7 +57,7 @@ impl<'program> SubscriptionTransform<'program> {
     /// - is a linked field, whose type
     /// - is an object with a js: JSDependency field; and
     /// - the linked field has a single selection, which is a fragment spread
-    /// These restrictions may be loosened over time.
+    ///   These restrictions may be loosened over time.
     ///
     /// Return Some(Vec<ValidFieldResult>) if the operation is valid
     /// (i.e. if each field is valid), or None otherwise.
@@ -162,7 +162,7 @@ impl<'program> SubscriptionTransform<'program> {
         selections.push(Selection::ScalarField(Arc::new(ScalarField {
             alias: Some(WithLocation::new(
                 location,
-                format!("__module_operation_{}", operation_name_with_suffix).intern(),
+                format!("__module_operation_{operation_name_with_suffix}").intern(),
             )),
             definition: WithLocation::new(location, js_field_id),
             arguments: vec![Argument {
@@ -200,6 +200,7 @@ impl<'program> SubscriptionTransform<'program> {
                         .intern(),
                         module_name: normalization_operation_name,
                         source_document_name: operation.name.item.into(),
+                        read_time_resolvers: false,
                         fragment_name: fragment_spread.fragment.item,
                         fragment_source_location: self
                             .program
@@ -241,7 +242,7 @@ struct ValidFieldResult<'operation> {
     fragment_spread: &'operation FragmentSpread,
 }
 
-impl Transformer for SubscriptionTransform<'_> {
+impl Transformer<'_> for SubscriptionTransform<'_> {
     const NAME: &'static str = "SubscriptionTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

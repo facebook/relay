@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7a366b4a4985f927604634f996b06567>>
+ * @generated SignedSource<<f7fa774d748cce9143993308d7770450>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -87,8 +87,7 @@ return {
                 {
                   "kind": "RequiredField",
                   "field": (v3/*: any*/),
-                  "action": "NONE",
-                  "path": "node.aliased_fragment.tracking"
+                  "action": "NONE"
                 }
               ],
               "type": "Comment",

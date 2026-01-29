@@ -144,11 +144,15 @@ A directive which declares that a field implements the [connection](#connection)
 ## Connection
 
 <FbInternalOnly>
-A field implementing the connection spec. See <a href="https://www.internalfb.com/intern/wiki/Graphql-connections-for-hack-developers/Connection-spec/">here</a> for more details on the spec, and the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+
+A field implementing the [connection spec](https://relay.dev/graphql/connections.htm). See <a href="https://www.internalfb.com/intern/wiki/Graphql-connections-for-hack-developers/Connection-spec/">here</a> for more details on the spec, and the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+
 </FbInternalOnly>
 
 <OssOnly>
-A field implementing the connection spec. See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+
+A field implementing the [connection spec](https://relay.dev/graphql/connections.htm). See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+
 </OssOnly>
 
 See also [`usePaginationFragment`](../api-reference/use-pagination-fragment).
@@ -183,10 +187,12 @@ See the [Thinking in Relay guide](../principles-and-architecture/thinking-in-rel
 
 ## @defer
 
-A directive which can be added to a fragment spread or inline fragment to avoid blocking on that fragment's data.
+A directive which can be added to a fragment spread or inline fragment to avoid blocking on that fragment's data. For more detail refer to GraphQL's [documentation on the @defer directive](https://github.com/graphql/graphql-wg/blob/main/rfcs/DeferStream.md#defer).
 
 <FbInternalOnly>
-See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Web/incremental-data-delivery-defer-stream/#defer).
+
+See [Incremental Data Delivery](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/incremental-data-delivery/).
+
 </FbInternalOnly>
 
 ## Definition
@@ -420,6 +426,7 @@ A lightweight API for specifying a that a React component should be loaded on de
 This API is safe to use in entrypoint files.
 
 <OssOnly>
+
 See [the npm module](https://www.npmjs.com/package/jsresource).
 </OssOnly>
 
@@ -446,6 +453,20 @@ graphql`...`
 ```
 
 in your code. These are pre-processed, and replaced at build time with a [GraphlQLTaggedNode](#graphqltaggednode) containing an [AST](#ast) representation of the contents of the literal.
+
+## @live
+
+A docblock tag that can be added to mark a Relay resolver as live. To learn more, refer to the [live fields section](https://relay.dev/docs/guides/relay-resolvers/live-fields/) of the Relay resolver documentation.
+
+<FbInternalOnly>
+
+## @live_query
+A directive used on GraphQL queries that enables data updates to be delivered over time without any custom server-side code. This directive provides a more efficient and maintainable alternative to polling (running the same query over and over again).
+
+Live queries are a feature of GraphQL within Meta and supported by the [Real-Time GraphQL team](https://www.internalfb.com/omh/view/real_time_graphql/oncall_profile). To learn more about GraphQL live queries, refer to the [GraphQL Live Queries wiki](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Overview/).
+
+You can learn more about how to use @live_query with Relay on Web with server-polling [here](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Live_Queries_for_Relay/) and client-polling [here](https://www.internalfb.com/intern/wiki/GraphQL_Live_Queries/Live_Queries_for_Relay_(Client_Polling)/).
+</FbInternalOnly>
 
 ## Lookup
 
@@ -482,10 +503,13 @@ TODO
 A mutation is a combination of two things: a mutation on the backend, followed by query against updated data.
 
 <FbInternalOnly>
+
 See the [guide on mutations](../guided-tour/updating-data/graphql-mutations), and [this article](https://www.internalfb.com/intern/wiki/Graphql-for-hack-developers/mutation-root-fields/) on defining mutations in your hack code.
+
 </FbInternalOnly>
 
 <OssOnly>
+
 See the [guide on mutations](../guided-tour/updating-data/graphql-mutations).
 </OssOnly>
 
@@ -622,7 +646,9 @@ Required because of current limitations on dynamically loading components in Rea
 For Relay to process a file with a GraphQL literal, it must be included in a project. A project specifies the folders to which it applies and the schema against which to evaluate GraphQL literals, and includes other information needed by the Relay compiler.
 
 <FbInternalOnly>
+
 Projects are defined in a single [config](#config) file, found [here](https://www.internalfb.com/intern/diffusion/WWW/browse/master/scripts/relay/compiler-rs/config.www.json) and [here](https://www.internalfb.com/intern/diffusion/FBS/browse/master/xplat/relay/compiler-rs/config.xplat.json).
+
 </FbInternalOnly>
 
 ## Profiler
@@ -778,7 +804,7 @@ An object associating a [concrete request](#concrete-request) and [variables](#v
 
 ## Resolver
 
-An overloaded term, mostly referring to virtual fields, but also occassionally referring to other things.
+An overloaded term, mostly referring to virtual fields, but also occasionally referring to other things.
 
 ### When describing a field
 
@@ -841,6 +867,7 @@ TODO
 A collection of all of the GraphQL types that are known to Relay, for a given [project](#project).
 
 <FbInternalOnly>
+
 ## Schema Sync
 
 The GraphQL [schema](#schema) is derived from annotations on Hack classes in the www repository.
@@ -882,11 +909,12 @@ TODO
 
 ## @stream
 
-TODO
+A directive which can be added to a field of `List` type that enables the individual items in the list to be delivered incrementally. The client can render the initial
+set of items while waiting for the server to deliver the rest of the items. For more detail refer to GraphQL's [documentation on the @stream directive](https://github.com/graphql/graphql-wg/blob/main/rfcs/DeferStream.md#stream).
 
 ## @stream_connection
 
-TODO
+A directive that is like the @connection directive for pagination, except modified to enable items in the pagination queue to be delivered incrementally. It has the additional parameter `initial_count` to specify how many items to deliver in the initial payload. To learn more about how to use this directive refer to the [Streaming Pagination page](https://relay.dev/docs/guided-tour/list-data/streaming-pagination/).
 
 ## Subscribe
 

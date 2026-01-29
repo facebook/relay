@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<03d53b3c0a224c4747a0cd4cc369b6a6>>
+ * @generated SignedSource<<e3afb410e5f17a1acc73b1cb17c30a2c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest14Fragment$fragmentType: FragmentType;
 export type DataCheckerTest14Fragment$data = {|
   +best_friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
+    +edges: ?ReadonlyArray<?{|
       +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|

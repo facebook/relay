@@ -12,7 +12,12 @@
 'use strict';
 
 import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
-import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
+import type {
+  GraphQLTaggedNode,
+  IEnvironment,
+  RelayContext,
+  Variables,
+} from 'relay-runtime';
 import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 
 const ReactRelayContext = require('./ReactRelayContext');
@@ -62,7 +67,10 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
     return createOperationDescriptor(request, latestVariables);
   }, [query, latestVariables]);
 
-  const relayContext = useMemo(() => ({environment}), [environment]);
+  const relayContext = useMemo(
+    (): RelayContext => ({environment}),
+    [environment],
+  );
 
   // Use a ref to prevent rendering twice when data changes
   // because of props change

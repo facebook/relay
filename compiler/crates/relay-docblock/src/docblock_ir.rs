@@ -14,19 +14,14 @@ use common::NamedItem;
 use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
-use docblock_shared::ResolverSourceHash;
 use docblock_shared::ARGUMENT_DEFINITIONS;
 use docblock_shared::ARGUMENT_TYPE;
 use docblock_shared::DEFAULT_VALUE;
 use docblock_shared::KEY_RESOLVER_ID_FIELD;
 use docblock_shared::PROVIDER_ARG_NAME;
-use graphql_ir::reexport::StringKey;
+use docblock_shared::ResolverSourceHash;
 use graphql_ir::FragmentDefinitionName;
-use graphql_syntax::parse_field_definition;
-use graphql_syntax::parse_field_definition_stub;
-use graphql_syntax::parse_identifier;
-use graphql_syntax::parse_identifier_and_implements_interfaces;
-use graphql_syntax::parse_type;
+use graphql_ir::reexport::StringKey;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinition;
@@ -38,10 +33,21 @@ use graphql_syntax::StringNode;
 use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use graphql_syntax::TypeAnnotation;
-use intern::string_key::Intern;
+use graphql_syntax::parse_field_definition;
+use graphql_syntax::parse_field_definition_stub;
+use graphql_syntax::parse_identifier;
+use graphql_syntax::parse_identifier_and_implements_interfaces;
+use graphql_syntax::parse_type;
 use intern::Lookup;
+use intern::string_key::Intern;
 use relay_config::ProjectName;
 
+use crate::DocblockIr;
+use crate::LegacyVerboseResolverIr;
+use crate::On;
+use crate::ParseOptions;
+use crate::ResolverFieldDocblockIr;
+use crate::ResolverTypeDocblockIr;
 use crate::errors::ErrorMessagesWithData;
 use crate::errors::IrParsingErrorMessages;
 use crate::ir::Argument;
@@ -54,12 +60,6 @@ use crate::ir::UnpopulatedIrField;
 use crate::ir::WeakObjectIr;
 use crate::untyped_representation::AllowedFieldName;
 use crate::untyped_representation::UntypedDocblockRepresentation;
-use crate::DocblockIr;
-use crate::LegacyVerboseResolverIr;
-use crate::On;
-use crate::ParseOptions;
-use crate::ResolverFieldDocblockIr;
-use crate::ResolverTypeDocblockIr;
 
 pub(crate) fn parse_docblock_ir(
     project_name: &ProjectName,
@@ -99,6 +99,17 @@ pub(crate) fn parse_docblock_ir(
     };
     let parsed_docblock_ir = match resolver_field {
         IrField::UnpopulatedIrField(unpopulated_ir_field) => {
+            // Check if legacy verbose syntax is enabled
+            if !parse_options
+                .enable_legacy_verbose_resolver_syntax
+                .is_fully_enabled()
+            {
+                return Err(vec![Diagnostic::error(
+                    IrParsingErrorMessages::LegacyVerboseSyntaxDeprecated,
+                    unpopulated_ir_field.key_location,
+                )]);
+            }
+
             let legacy_verbose_resolver = parse_relay_resolver_ir(
                 &mut fields,
                 definitions_in_file,
@@ -178,6 +189,8 @@ fn parse_relay_resolver_ir(
 ) -> DiagnosticsResult<LegacyVerboseResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
+    let return_fragment =
+        get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
     let field_name =
         get_required_populated_field_named(fields, AllowedFieldName::FieldNameField, location)?;
     let field_string = field_name.value;
@@ -225,6 +238,8 @@ fn parse_relay_resolver_ir(
         on,
         root_fragment: root_fragment
             .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
+        return_fragment: return_fragment
+            .map(|return_fragment| return_fragment.value.map(FragmentDefinitionName)),
         description,
         hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
@@ -268,6 +283,7 @@ fn parse_strong_object_ir(
         implements_interfaces,
         source_hash,
         semantic_non_null: None,
+        type_confirmed: false,
     })
 }
 
@@ -305,6 +321,7 @@ fn parse_weak_object_ir(
         location,
         implements_interfaces,
         source_hash,
+        type_confirmed: false,
     })
 }
 
@@ -319,6 +336,8 @@ fn parse_terse_relay_resolver_ir(
 ) -> DiagnosticsResult<TerseRelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
+    let return_fragment =
+        get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
     let type_str: WithLocation<StringKey> = relay_resolver_field.value;
 
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
@@ -395,12 +414,16 @@ fn parse_terse_relay_resolver_ir(
         type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
         root_fragment: root_fragment
             .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
+        return_fragment: return_fragment
+            .map(|return_fragment| return_fragment.value.map(FragmentDefinitionName)),
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,
         semantic_non_null,
         fragment_arguments,
         source_hash,
+        type_confirmed: false,
+        property_lookup_name: None,
     })
 }
 
@@ -626,26 +649,15 @@ fn parse_fragment_definition(
         .and_then(extract_fragment_arguments)
         .transpose()?;
 
-    // Validate that the field arguments don't collide with the fragment arguments.
     if let (Some(field_arguments), Some(fragment_definition), Some(fragment_arguments)) =
         (&field_arguments, &fragment_definition, &fragment_arguments)
     {
-        for field_arg in &field_arguments.items {
-            if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
-                return Err(vec![
-                    Diagnostic::error(
-                        IrParsingErrorMessages::ConflictingArguments,
-                        Location::new(source_location, field_arg.name.span),
-                    )
-                    .annotate(
-                        "conflicts with this fragment argument",
-                        fragment_definition
-                            .location
-                            .with_span(fragment_arg.name.span),
-                    ),
-                ]);
-            }
-        }
+        validate_fragment_arguments(
+            source_location,
+            field_arguments,
+            fragment_definition.location.source_location(),
+            fragment_arguments,
+        )?;
     }
     let fragment_type_condition = fragment_definition.as_ref().map(|fragment_definition| {
         WithLocation::from_span(
@@ -655,6 +667,30 @@ fn parse_fragment_definition(
         )
     });
     Ok((fragment_type_condition, fragment_arguments))
+}
+
+// Validate that the field arguments don't collide with the fragment arguments.
+pub fn validate_fragment_arguments(
+    field_source_location: SourceLocationKey,
+    field_arguments: &List<InputValueDefinition>,
+    fragment_source_location: SourceLocationKey,
+    fragment_arguments: &[Argument],
+) -> DiagnosticsResult<()> {
+    for field_arg in &field_arguments.items {
+        if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
+            return Err(vec![
+                Diagnostic::error(
+                    IrParsingErrorMessages::ConflictingArguments,
+                    Location::new(field_source_location, field_arg.name.span),
+                )
+                .annotate(
+                    "conflicts with this fragment argument",
+                    Location::new(fragment_source_location, fragment_arg.name.span),
+                ),
+            ]);
+        }
+    }
+    Ok(())
 }
 
 pub fn assert_fragment_definition(
@@ -688,7 +724,7 @@ pub fn assert_fragment_definition(
     }
 }
 
-fn extract_fragment_arguments(
+pub fn extract_fragment_arguments(
     fragment_definition: &FragmentDefinition,
 ) -> Option<DiagnosticsResult<Vec<Argument>>> {
     fragment_definition

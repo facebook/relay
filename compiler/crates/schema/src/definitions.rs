@@ -234,7 +234,7 @@ impl<T: Copy> TypeReference<T> {
                 if level == 0 {
                     self.non_null()
                 } else {
-                    panic!("Invalid level {} for Named type", level)
+                    panic!("Invalid level {level} for Named type")
                 }
             }
             TypeReference::List(of) => {
@@ -246,7 +246,7 @@ impl<T: Copy> TypeReference<T> {
             }
             TypeReference::NonNull(of) => {
                 if level == 0 {
-                    panic!("Invalid level {} for NonNull type", level)
+                    panic!("Invalid level {level} for NonNull type")
                 } else {
                     TypeReference::NonNull(Box::new(of.with_non_null_level(level)))
                 }
@@ -551,7 +551,7 @@ impl ArgumentValue {
     /// Panics if the value is not a constant string literal.
     pub fn expect_string_literal(&self) -> StringKey {
         self.get_string_literal().unwrap_or_else(|| {
-            panic!("expected a string literal, got {:?}", self);
+            panic!("expected a string literal, got {self:?}");
         })
     }
     /// Return the constant string literal of this value.
@@ -564,12 +564,12 @@ impl ArgumentValue {
                     if let ConstantValue::Int(int) = item {
                         int.value
                     } else {
-                        panic!("expected a int literal, got {:?}", item);
+                        panic!("expected a int literal, got {item:?}");
                     }
                 })
                 .collect()
         } else {
-            panic!("expected a list, got {:?}", self);
+            panic!("expected a list, got {self:?}");
         }
     }
 }
@@ -584,6 +584,7 @@ pub struct DirectiveValue {
 pub struct EnumValue {
     pub value: StringKey,
     pub directives: Vec<DirectiveValue>,
+    pub description: Option<StringKey>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -667,6 +668,28 @@ impl TypeWithFields for Object {
         &self.name.location
     }
 }
+
+pub trait TypeWithDirectives {
+    fn directives(&self) -> &Vec<DirectiveValue>;
+}
+
+macro_rules! impl_type_with_directives {
+    ($type_name:ident) => {
+        impl TypeWithDirectives for $type_name {
+            fn directives(&self) -> &Vec<DirectiveValue> {
+                &self.directives
+            }
+        }
+    };
+}
+
+impl_type_with_directives!(Object);
+impl_type_with_directives!(Field);
+impl_type_with_directives!(InputObject);
+impl_type_with_directives!(Interface);
+impl_type_with_directives!(Union);
+impl_type_with_directives!(Scalar);
+impl_type_with_directives!(Enum);
 
 #[allow(unused_macros)]
 macro_rules! impl_named {

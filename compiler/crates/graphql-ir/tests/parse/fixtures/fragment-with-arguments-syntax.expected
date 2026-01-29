@@ -222,6 +222,35 @@ fragment Foo($localId: ID!) on User {
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment-with-arguments-syntax.graphql:215:218,
+                                item: FragmentDefinitionName(
+                                    "Foo",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment-with-arguments-syntax.graphql:219:227,
+                                        item: VariableName(
+                                            "localId",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(4),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(70),
+                            directives: [],
+                        },
+                    ),
                     directives: [],
                 },
             ],

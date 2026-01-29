@@ -16,6 +16,7 @@ import type {
   EntryPointComponent,
   EnvironmentProviderOptions,
   IEnvironmentProvider,
+  PreloadedQuery,
 } from './EntryPointTypes.flow';
 
 const preloadQuery_DEPRECATED = require('./preloadQuery_DEPRECATED');
@@ -25,7 +26,7 @@ const React = require('react');
 const {useContext, useEffect, useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
 
-type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
+type PreloadedEntryPoint<TEntryPointComponent> = Readonly<{
   entryPoints: React.ElementConfig<TEntryPointComponent>['entryPoints'],
   extraProps: React.ElementConfig<TEntryPointComponent>['extraProps'],
   getComponent: () => TEntryPointComponent,
@@ -39,8 +40,8 @@ type EntryPointContainerProps<
   TPreloadedEntryPoints,
   TRuntimeProps,
   TExtraProps,
-> = $ReadOnly<
-  $ReadOnly<{
+> = Readonly<
+  Readonly<{
     entryPoint: EntryPoint<
       TEntryPointParams,
       EntryPointComponent<
@@ -56,13 +57,14 @@ type EntryPointContainerProps<
   }>,
 >;
 
-function stableStringify(value: mixed): string {
+function stableStringify(value: unknown): string {
   return JSON.stringify(stableCopy(value)) ?? 'null';
 }
 
 function prepareEntryPoint<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,
@@ -99,9 +101,10 @@ function prepareEntryPoint<
         environmentProviderOptions,
       );
 
+      // $FlowFixMe[incompatible-type]
       preloadedQueries[queryPropName] = preloadQuery_DEPRECATED<
         OperationType,
-        mixed,
+        unknown,
       >(
         environment,
         parameters,
@@ -123,17 +126,18 @@ function prepareEntryPoint<
         entryPointDescription;
       preloadedEntryPoints[entryPointPropName] = prepareEntryPoint<
         _,
+        {},
         {...},
         {...},
-        {...},
-        mixed,
-        EntryPointComponent<{...}, {...}, {...}, mixed>,
+        unknown,
+        EntryPointComponent<{}, {...}, {...}, unknown>,
         _,
       >(environmentProvider, nestedEntryPoint, nestedParams);
     });
   }
   return {
-    entryPoints: (preloadedEntryPoints: TPreloadedEntryPoints),
+    // $FlowFixMe[incompatible-type]
+    entryPoints: preloadedEntryPoints as TPreloadedEntryPoints,
     extraProps: extraProps ?? null,
     getComponent: () => {
       const component = entryPoint.root.getModuleIfRequired();
@@ -141,17 +145,19 @@ function prepareEntryPoint<
         loadingPromise = loadingPromise ?? entryPoint.root.load();
         throw loadingPromise;
       }
-      // $FlowFixMe[incompatible-cast] - trust me Flow, its entryPoint component
-      return (component: TEntryPointComponent);
+      // $FlowFixMe[incompatible-type] - trust me Flow, its entryPoint component
+      return component as TEntryPointComponent;
     },
-    queries: (preloadedQueries: TPreloadedQueries),
+    // $FlowFixMe[incompatible-type]
+    queries: preloadedQueries as TPreloadedQueries,
     rootModuleID: entryPoint.root.getModuleId(),
   };
 }
 
 function LazyLoadEntryPointContainer_DEPRECATED<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<1f6387b6c380c0346d62c5e930c07fc7>>
+ * @generated SignedSource<<bd1b9d3f7e8fa03407042331198d1a35>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {live_resolver_throws as queryLiveResolverThrowsResolverType} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryLiveResolverThrowsResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryLiveResolverThrowsResolverType: () => LiveState<?mixed>);
+(queryLiveResolverThrowsResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?unknown>);
 export type LiveResolversTest18Query$variables = {||};
 export type LiveResolversTest18Query$data = {|
   +live_resolver_throws: ?ReturnType<ReturnType<typeof queryLiveResolverThrowsResolverType>["read"]>,
@@ -49,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "live_resolver_throws",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows').live_resolver_throws,
+            "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows').live_resolver_throws,
             "path": "live_resolver_throws"
           }
         ]

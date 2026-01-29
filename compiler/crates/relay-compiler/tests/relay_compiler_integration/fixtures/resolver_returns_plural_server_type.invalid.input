@@ -1,0 +1,33 @@
+//- PersonComponent.js
+graphql`query PersonComponentQuery {
+  plural_server @waterfall {
+    name
+  }
+}`
+
+//- QueryResolvers.js
+/**
+ * @RelayResolver Query.plural_server: [User]
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql"
+}
+
+//- schema.graphql
+type Query {
+  greeting: String
+  node(id: ID!): Node
+}
+
+interface Node {
+  id: ID!
+}
+
+type User implements Node {
+  id: ID!
+  name: String
+}

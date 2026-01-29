@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "2.3.0",
+  "version": "2.5.1",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -39,6 +39,10 @@
       {
         "command": "relay.stopCompiler",
         "title": "Relay: Stop Compiler"
+      },
+      {
+        "command": "relay.copyOperation",
+        "title": "Relay: Copy Operation"
       }
     ],
     "configuration": {
@@ -112,7 +116,17 @@
           "description": "Whether or not we should automatically start the Relay Compiler in watch mode when you open a project."
         }
       }
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "relay.config.json",
+        "url": "relay://relay-config-schema"
+      },
+      {
+        "fileMatch": "package.json",
+        "url": "relay://package-json-relay-config-schema"
+      }
+    ]
   },
   "prettier": {
     "arrowParens": "avoid",
@@ -124,6 +138,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c .",
+    "prettier-write": "prettier --write .",
     "lint": "eslint --max-warnings 0 .",
     "vscode:prepublish": "rm -f tsconfig.tsbuildinfo && rm -rf out && yarn run esbuild-base -- --minify",
     "build-local": "vsce package",
@@ -144,7 +159,7 @@
     "@types/vscode": "^1.60.0",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "@vscode/vsce": "^2.18.0",
+    "@vscode/vsce": "^3.6.0",
     "esbuild": "^0.17.12",
     "eslint": "^8.19.0",
     "eslint-config-airbnb-base": "^15.0.0",

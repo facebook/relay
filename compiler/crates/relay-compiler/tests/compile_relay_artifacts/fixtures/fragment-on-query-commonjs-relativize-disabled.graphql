@@ -1,0 +1,23 @@
+fragment fragmentOnQueryCommonjsRelativizeDisabled_RefetchableFragment on Query
+  @refetchable(queryName: "RefetchableFragmentQuery")
+  @argumentDefinitions(id: {type: "ID!"}) {
+  node(id: $id) {
+    ... on User {
+      id
+      name
+      ...fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture @alias
+    }
+  }
+}
+
+fragment fragmentOnQueryCommonjsRelativizeDisabled_ProfilePicture on User {
+  profilePicture(size: $size) {
+    uri
+  }
+}
+
+%project_config%
+{
+  "jsModuleFormat": "commonjs",
+  "language": "flow"
+}

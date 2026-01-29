@@ -24,6 +24,7 @@ use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
 use schema::Schema;
 
+use crate::generate_relay_resolvers_root_fragment_split_operation::IsResolverRootFragment;
 use crate::relay_directive::MASK_ARG_NAME;
 use crate::relay_directive::PLURAL_ARG_NAME;
 use crate::relay_directive::RELAY_DIRECTIVE_NAME;
@@ -65,17 +66,27 @@ impl<'program> RelayDirectiveValidation<'program> {
     ) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
-        if !(fragment.directives.is_empty()
-            || fragment.directives.len() == 1
-                && fragment.directives[0].name.item == *RELAY_DIRECTIVE_NAME)
-        {
-            errs.push(
-                Diagnostic::error(
-                    ValidationMessage::InvalidUnmaskOnFragmentWithDirectives,
-                    spread.fragment.location,
-                )
-                .annotate("related location", fragment.name.location),
-            )
+        let incompatible_directives = fragment
+            .directives
+            .iter()
+            .filter(|directive| {
+                directive.name.item != *RELAY_DIRECTIVE_NAME
+                    && directive.name.item != IsResolverRootFragment::directive_name()
+            })
+            .collect::<Vec<_>>();
+
+        if !incompatible_directives.is_empty() {
+            let mut error = Diagnostic::error(
+                ValidationMessage::InvalidUnmaskOnFragmentWithDirectives,
+                spread.fragment.location,
+            );
+            for directive in incompatible_directives {
+                error = error.annotate(
+                    format!("related '{}' directive", directive.name.item),
+                    directive.name.location,
+                );
+            }
+            errs.push(error)
         }
 
         self.current_reachable_arguments

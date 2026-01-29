@@ -47,6 +47,8 @@ fragment Foo_user on User {
       #     live: false,
       #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
       # }
        @waterfall
       best_friend @waterfall {
@@ -74,6 +76,8 @@ fragment Foo_user on User {
       #     live: false,
       #     output_type_info: EdgeTo,
       #     fragment_data_injection_mode: None,
+      #     type_confirmed: false,
+      #     resolver_type: ResolverModule,
       # }
        @waterfall
       best_friend @waterfall {
@@ -108,6 +112,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   doesViewerLike
@@ -139,6 +144,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__ClientEdge
 #             identifier_query_variable_name: "id",
 #         },
 #     ),
+#     is_prefetchable_pagination: false,
 # }
  {
   name

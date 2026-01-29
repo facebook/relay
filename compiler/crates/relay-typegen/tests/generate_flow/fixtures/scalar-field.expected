@@ -22,12 +22,12 @@ export type ScalarField$data = {|
   |},
   +id: string,
   +name: ?string,
-  +screennames: ?$ReadOnlyArray<?{|
+  +screennames: ?ReadonlyArray<?{|
     +name: ?string,
     +service: ?string,
   |}>,
-  +traits: ?$ReadOnlyArray<?PersonalityTraits>,
-  +websites: ?$ReadOnlyArray<?string>,
+  +traits: ?ReadonlyArray<?PersonalityTraits>,
+  +websites: ?ReadonlyArray<?string>,
   +$fragmentType: ScalarField$fragmentType,
 |};
 export type ScalarField$key = {

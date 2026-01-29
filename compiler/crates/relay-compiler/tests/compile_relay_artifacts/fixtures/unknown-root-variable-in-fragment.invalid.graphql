@@ -2,7 +2,7 @@
 query unknownRootVariableInFragmentQuery($id: ID!) {
   node(id: $id) {
     id
-    ...unknownRootVariableInFragmentProfile @relay(mask: false)
+    ...unknownRootVariableInFragmentProfile @relay(mask: false) @alias
   }
 }
 

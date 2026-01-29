@@ -54,6 +54,7 @@ query QueryWithDirectModuleDep @__RelayDataDrivenDependencyMetadata
           #             "QueryWithDirectModuleDep",
           #         ),
           #     ),
+          #     read_time_resolvers: false,
           #     fragment_name: FragmentDefinitionName(
           #         "PlainUserNameRenderer_name",
           #     ),
@@ -78,6 +79,7 @@ query QueryWithDirectModuleDep @__RelayDataDrivenDependencyMetadata
           #             "QueryWithDirectModuleDep",
           #         ),
           #     ),
+          #     read_time_resolvers: false,
           #     fragment_name: FragmentDefinitionName(
           #         "MarkdownUserNameRenderer_name",
           #     ),

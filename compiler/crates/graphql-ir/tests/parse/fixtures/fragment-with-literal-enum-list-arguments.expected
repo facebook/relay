@@ -102,6 +102,51 @@ fragment ChildFragment on User
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment-with-literal-enum-list-arguments.graphql:165:178,
+                                item: FragmentDefinitionName(
+                                    "ChildFragment",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment-with-literal-enum-list-arguments.graphql:210:222,
+                                        item: VariableName(
+                                            "environments",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        List(
+                                            NonNull(
+                                                Named(
+                                                    Enum(1),
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment-with-literal-enum-list-arguments.graphql:190:209,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment-with-literal-enum-list-arguments.graphql:189:250,
+                                },
+                            ],
+                        },
+                    ),
                     directives: [],
                 },
             ],
@@ -148,6 +193,7 @@ fragment ChildFragment on User
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-literal-enum-list-arguments.graphql:189:250,
                 },
             ],
             selections: [

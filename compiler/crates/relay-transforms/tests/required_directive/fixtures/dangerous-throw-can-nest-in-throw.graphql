@@ -1,0 +1,5 @@
+fragment EnabledFoo on User {
+  address @required(action: THROW) {
+    city @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+  }
+}

@@ -9,9 +9,8 @@ graphql`
 {
   "language": "flow",
   "schema": "./schema.graphql",
-  "eagerEsModules": true,
-  "persistConfig": { 
-    "file": "./operations.json" 
+  "persistConfig": {
+    "file": "./operations.json"
   }
 }
 
@@ -127,3 +126,13 @@ export default ((node/*: any*/)/*: Query<
   fooQuery$variables,
   fooQuery$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: fooQuery
+    Path: __generated__/fooQuery$parameters.js
+    Path: __generated__/fooQuery.graphql.js
+    Persisted ID: ae6874c86ce5db2df8d6b253a6a0ec13

@@ -41,7 +41,7 @@ impl UnwrapCustomDirectiveSelection {
     }
 }
 
-impl Transformer for UnwrapCustomDirectiveSelection {
+impl Transformer<'_> for UnwrapCustomDirectiveSelection {
     const NAME: &'static str = "UnwrapCustomDirectiveSelection";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -52,21 +52,18 @@ impl Transformer for UnwrapCustomDirectiveSelection {
             let defer = fragment
                 .directives
                 .named(self.defer_stream_interface.defer_name);
-            if let Some(defer) = defer {
-                if let Selection::FragmentSpread(frag_spread) = &fragment.selections[0] {
-                    return Transformed::Replace(Selection::FragmentSpread(Arc::new(
-                        FragmentSpread {
-                            directives: frag_spread
-                                .directives
-                                .iter()
-                                .chain(iter::once(defer))
-                                .cloned()
-                                .collect(),
-                            fragment: frag_spread.fragment,
-                            arguments: frag_spread.arguments.clone(),
-                        },
-                    )));
-                }
+            if let Some(defer) = defer
+                && let Selection::FragmentSpread(frag_spread) = &fragment.selections[0]
+            {
+                return Transformed::Replace(Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    directives: frag_spread
+                        .directives
+                        .iter()
+                        .chain(iter::once(defer))
+                        .cloned()
+                        .collect(),
+                    ..frag_spread.as_ref().clone()
+                })));
             }
         }
         self.default_transform_inline_fragment(fragment)

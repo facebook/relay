@@ -31,10 +31,7 @@ describe('subscribe()', () => {
   let environment;
   let operation;
 
-  function setName(
-    id: $TEMPORARY$string<'4'>,
-    name: $TEMPORARY$string<'Mark'>,
-  ) {
+  function setName(id: string, name: string) {
     environment.applyUpdate({
       storeUpdater: proxyStore => {
         const user = proxyStore.get(id);

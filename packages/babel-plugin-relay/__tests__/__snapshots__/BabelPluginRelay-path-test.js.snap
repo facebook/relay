@@ -1,15 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`\`development\` option tests the handling of file path 1`] = `
-"var _TestFrag;
-_TestFrag !== void 0
-  ? _TestFrag
-  : ((_TestFrag = require('./test/artifacts/TestFrag.graphql')),
-    _TestFrag.hash &&
-      _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
-      console.error(
-        \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
-      ),
-    _TestFrag);
+"import _TestFrag from './test/artifacts/TestFrag.graphql';
+(_TestFrag.hash &&
+  _TestFrag.hash !== '0bb6b7b29bc3e910921551c4ff5b6757' &&
+  console.error(
+    \\"The definition of 'TestFrag' appears to have changed. Run \`relay-compiler\` to update the generated files to receive the expected data.\\",
+  ),
+  _TestFrag);
 "
 `;

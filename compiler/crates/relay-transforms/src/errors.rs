@@ -62,6 +62,11 @@ pub enum ValidationMessage {
     },
 
     #[error(
+        "Expected fragment spread into Relay Resolver root fragment to be annotated with `@inline` or `@relay(mask: false)`. Relay Resolvers only support reading `@inline` fragments and unmasked fragments."
+    )]
+    UnsupportedFragmentSpreadInResolverFragment,
+
+    #[error(
         "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
     )]
     ActorChangeInvalidSelection,
@@ -76,11 +81,6 @@ pub enum ValidationMessage {
 
     #[error("Actor change does not support plural fields, yet.")]
     ActorChangePluralFieldsNotSupported,
-
-    #[error(
-        "Unexpected Relay Resolver field. The Relay Resolvers feature flag is not currently enabled for this project."
-    )]
-    RelayResolversDisabled,
 
     #[error(
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
@@ -120,7 +120,7 @@ pub enum ValidationMessage {
     UndefinedFragment(FragmentDefinitionName),
 
     #[error(
-        "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
+        "Each selection can have only a single @module directive, but here there is more than one (perhaps within different inline fragments). To fix it, add an @alias to one of the @module fragments or put each @module fragment into its own aliased copy of the parent field."
     )]
     ConflictingModuleSelections,
 
@@ -136,14 +136,14 @@ pub enum ValidationMessage {
         name: StringKey,
         type_name: ObjectName,
     },
+
+    #[error(
+        "Unexpected Relay Resolver returning plual edge to type defined on the server. Relay Resolvers do not curretly support returning plural edges to server types. As a work around, consider defining a plural edge to a client type which has a singular edge to the server type."
+    )]
+    ClientEdgeToServerObjectList,
+
     #[error("Invalid directive combination. @alias may not be combined with other directives.")]
     FragmentAliasIncompatibleDirective,
-
-    #[error("Unexpected directive @catch. @catch is not yet implemented.")]
-    CatchDirectiveNotImplemented,
-
-    #[error("Unexpected directive `@alias`. `@alias` is not currently enabled in this location.")]
-    FragmentAliasDirectiveDisabled,
 
     #[error(
         "Unexpected `@alias` on spread of plural fragment. @alias may not be used on fragments marked as `@relay(plural: true)`."
@@ -162,6 +162,16 @@ pub enum ValidationMessage {
         "Unexpected directive on Client Edge field. The `@{directive_name}` directive is not currently supported on fields backed by Client Edges."
     )]
     ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
+
+    #[error(
+        "Client to server edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using client to server edges."
+    )]
+    ClientEdgeToServerWithExecTimeResolvers,
+
+    #[error(
+        "Server to client edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using server to client edges."
+    )]
+    ServerEdgeToClientWithExecTimeResolvers,
 
     #[error(
         "Invalid @RelayResolver output type for field `{field_name}`. Got input object `{type_name}`."
@@ -218,14 +228,19 @@ pub enum ValidationMessage {
 
     #[error(
         "Disallowed selection of field `{}{field_name}`.{}",
-        parent_name.map_or("".to_string(), |name| format!("{}.", name)),
-        reason.map_or("".to_string(), |reason| format!(" Reason: \"{}\"", reason)),
+        parent_name.map_or("".to_string(), |name| format!("{name}.")),
+        reason.map_or("".to_string(), |reason| format!(" Reason: \"{reason}\"")),
     )]
     UnselectableField {
         field_name: StringKey,
         parent_name: Option<StringKey>,
         reason: Option<StringKey>,
     },
+
+    #[error(
+        "The @returnFragment docblock tag requires the 'enable_shadow_resolvers' feature flag to be enabled."
+    )]
+    ReturnFragmentRequiresFeatureFlag,
 }
 
 #[derive(
@@ -257,7 +272,7 @@ pub enum ValidationMessageWithData {
     RequiredOnNonNull,
 
     #[error(
-        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` fragment or operation. Such fields are already non-null and do not need the `@required` directive."
+        "Unexpected `@required` directive on a `@semanticNonNull` field within a `@throwOnFieldError` or `@catch` selection. Such fields are already non-null and do not need the `@required` directive."
     )]
     RequiredOnSemanticNonNull,
 
@@ -280,16 +295,25 @@ pub enum ValidationMessageWithData {
     },
 
     #[error(
-        "Expected `@alias` directive. Fragment spreads with `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
+        "Expected `@alias` directive. Fragment spreads with (or within an inline fragment with) `@{condition_name}` are conditionally fetched. Add `@alias` to this spread to expose the fragment reference as a nullable property."
     )]
-    ExpectedAliasOnConditionalFragmentSpread { condition_name: String },
+    ExpectedAliasOnConditionalFragmentSpread {
+        fragment_name: FragmentDefinitionName,
+        condition_name: String,
+    },
+
+    #[error("The Codemod '{codemod_name}' wants to update the query at this location to '{fix}.")]
+    CodemodCustomErrorWithFix {
+        codemod_name: StringKey,
+        fix: String,
+    },
 }
 
 impl WithDiagnosticData for ValidationMessageWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
             ValidationMessageWithData::RelayResolversMissingWaterfall { field_name } => {
-                vec![Box::new(format!("{} @waterfall", field_name,))]
+                vec![Box::new(format!("{field_name} @waterfall",))]
             }
             ValidationMessageWithData::RelayResolversUnexpectedWaterfall => {
                 vec![Box::new("")]
@@ -303,27 +327,32 @@ impl WithDiagnosticData for ValidationMessageWithData {
             ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpread {
                 fragment_name, ..
             } => {
+                // When used as a codemod, the first suggestion is used as the codemod's replacement text.
+                // For that reason, the `@dangerously_unaliased_fixme` is first, since it requires no other changes.
                 vec![
-                    Box::new(format!("{fragment_name} @alias")),
                     Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
                 ]
             }
             ValidationMessageWithData::ExpectedAliasOnNonSubtypeSpreadWithinTypedInlineFragment {
                 fragment_name, ..
             } => {
                 vec![
-                    Box::new(format!("{fragment_name} @alias")),
                     Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
                 ]
             }
             ValidationMessageWithData::ExpectedAliasOnConditionalFragmentSpread {
-                condition_name,
+                fragment_name,
                 ..
             } => {
                 vec![
-                    Box::new(format!("@alias @{condition_name}")),
-                    Box::new(format!("@dangerously_unaliased_fixme @{condition_name}")),
+                    Box::new(format!("{fragment_name} @dangerously_unaliased_fixme")),
+                    Box::new(format!("{fragment_name} @alias")),
                 ]
+            }
+            ValidationMessageWithData::CodemodCustomErrorWithFix { fix, .. } => {
+                vec![Box::new(fix.to_owned())]
             }
         }
     }

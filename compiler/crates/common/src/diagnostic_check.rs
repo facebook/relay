@@ -22,10 +22,10 @@ fn check(critical_severity: DiagnosticSeverity, diagnostics: Diagnostics) -> Dia
         .map(|diagnostic| diagnostic.severity())
         .min(); // DiagnosticSeverity's lowest value is the highest severity, so we use min()
 
-    if let Some(most_critical_severity) = most_critical_severity {
-        if most_critical_severity <= critical_severity {
-            return Err(CriticalDiagnostics(diagnostics));
-        }
+    if let Some(most_critical_severity) = most_critical_severity
+        && most_critical_severity <= critical_severity
+    {
+        return Err(CriticalDiagnostics(diagnostics));
     }
 
     Ok(StableDiagnostics(diagnostics))

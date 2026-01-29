@@ -4,13 +4,13 @@ query abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_AbstractType
     # After inlining even though `id` will be skipped:
     #  - Printed query should still select __isNode and __isActor
     #  - Normalization ast should include inline fragments with abstractKeys for Node and Actor
-    ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment
+    ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment @alias
   }
 }
 
 fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment on Actor {
   username
-  ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment
+  ...abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment @alias
 }
 
 fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment on Node {
@@ -39,8 +39,19 @@ fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragm
         "plural": false,
         "selections": [
           {
-            "args": null,
-            "kind": "FragmentSpread",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment"
+                }
+              ],
+              "type": "Actor",
+              "abstractKey": "__isActor"
+            },
+            "kind": "AliasedInlineFragmentSpread",
             "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_ActorFragment"
           }
         ],
@@ -153,8 +164,19 @@ fragment abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragm
       "storageKey": null
     },
     {
-      "args": null,
-      "kind": "FragmentSpread",
+      "fragment": {
+        "kind": "InlineFragment",
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment"
+          }
+        ],
+        "type": "Node",
+        "abstractKey": "__isNode"
+      },
+      "kind": "AliasedInlineFragmentSpread",
       "name": "abstractTypeRefinementDontSkipTypeDiscriminatorFragmentSpread_NodeFragment"
     }
   ],

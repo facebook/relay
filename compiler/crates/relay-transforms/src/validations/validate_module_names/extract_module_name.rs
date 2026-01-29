@@ -31,7 +31,7 @@ pub fn extract_module_name(path: &str) -> Option<String> {
 
 fn get_final_non_index_js_segment(path: &Path) -> Option<&str> {
     let file_stem = path.file_stem()?.to_str();
-    if file_stem.map_or(false, |f| f == "index" || f.starts_with("index.")) {
+    if file_stem.is_some_and(|f| f == "index" || f.starts_with("index.")) {
         let mut iter = path.iter();
         iter.next_back()?;
         iter.next_back().and_then(|os_str| os_str.to_str())

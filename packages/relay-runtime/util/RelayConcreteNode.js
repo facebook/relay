@@ -39,7 +39,9 @@ export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
-export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
+export type ProvidedVariableType = {get(): unknown};
+
+export type ProvidedVariablesType = {+[key: string]: {get(): unknown}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
@@ -55,7 +57,7 @@ export type RequestParameters =
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
       +providedVariables?: ProvidedVariablesType,
-      +metadata: {[key: string]: mixed, ...},
+      +metadata: {[key: string]: unknown, ...},
     }
   | {
       +cacheID: string,
@@ -65,7 +67,7 @@ export type RequestParameters =
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
       +providedVariables?: ProvidedVariablesType,
-      +metadata: {[key: string]: mixed, ...},
+      +metadata: {[key: string]: unknown, ...},
     };
 
 export type ClientRequestParameters = {
@@ -76,7 +78,7 @@ export type ClientRequestParameters = {
   +name: string,
   +operationKind: 'query' | 'mutation',
   +providedVariables?: ProvidedVariablesType,
-  +metadata: {[key: string]: mixed, ...},
+  +metadata: {[key: string]: unknown, ...},
 };
 
 export type ClientRequest = {
@@ -130,6 +132,6 @@ const RelayConcreteNode = {
   TYPE_DISCRIMINATOR: 'TypeDiscriminator',
   UPDATABLE_QUERY: 'UpdatableQuery',
   VARIABLE: 'Variable',
-};
+} as const;
 
 module.exports = RelayConcreteNode;

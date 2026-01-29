@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
+use std::collections::hash_map::Entry;
 use std::fmt;
 
 use common::PerfLogEvent;
 use graphql_ir::*;
-use relay_transforms::get_resolver_fragment_dependency_name;
+use relay_transforms::get_all_resolver_fragment_dependency_names;
 use rustc_hash::FxHashMap;
 use rustc_hash::FxHashSet;
 use schema::SDLSchema;
@@ -201,8 +201,9 @@ fn visit_selections(
                 );
             }
             Selection::LinkedField(linked_field) => {
-                if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                for fragment_name in get_all_resolver_fragment_dependency_names(
                     schema.field(linked_field.definition.item),
+                    schema,
                 ) {
                     update_dependency_graph(
                         fragment_name.into(),
@@ -211,6 +212,7 @@ fn visit_selections(
                         children,
                     );
                 }
+
                 visit_selections(
                     schema,
                     dependency_graph,
@@ -220,8 +222,9 @@ fn visit_selections(
                 );
             }
             Selection::ScalarField(scalar_field) => {
-                if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                for fragment_name in get_all_resolver_fragment_dependency_names(
                     schema.field(scalar_field.definition.item),
+                    schema,
                 ) {
                     update_dependency_graph(
                         fragment_name.into(),
@@ -259,7 +262,7 @@ fn add_related_nodes(
 
     let parents = match dependency_graph.get(&key) {
         None => {
-            panic!("Fragment {:?} not found in IR.", key);
+            panic!("Fragment {key:?} not found in IR.");
         }
         Some(node) => &node.parents,
     };
@@ -301,7 +304,7 @@ fn add_descendants(
             }
         }
         _ => {
-            panic!("Fragment {:?} not found in IR.", key);
+            panic!("Fragment {key:?} not found in IR.");
         }
     }
 }
@@ -331,11 +334,13 @@ pub fn get_ir_definition_references<'a>(
                     references.insert(selection.fragment.item.into());
                 }
                 Selection::LinkedField(selection) => {
-                    if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                    for fragment_name in get_all_resolver_fragment_dependency_names(
                         schema.field(selection.definition.item),
+                        schema,
                     ) {
                         references.insert(fragment_name.into());
                     }
+
                     selections.extend(&selection.selections);
                 }
                 Selection::InlineFragment(selection) => {
@@ -345,8 +350,9 @@ pub fn get_ir_definition_references<'a>(
                     selections.extend(&selection.selections);
                 }
                 Selection::ScalarField(selection) => {
-                    if let Some(fragment_name) = get_resolver_fragment_dependency_name(
+                    for fragment_name in get_all_resolver_fragment_dependency_names(
                         schema.field(selection.definition.item),
+                        schema,
                     ) {
                         references.insert(fragment_name.into());
                     }

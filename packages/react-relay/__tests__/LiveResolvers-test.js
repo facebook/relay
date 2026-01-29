@@ -23,7 +23,7 @@ const {
   useLazyLoadQuery,
 } = require('react-relay');
 const TestRenderer = require('react-test-renderer');
-const {RelayFeatureFlags, getRequest} = require('relay-runtime');
+const {Observable, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
@@ -33,40 +33,41 @@ const {
 const {
   counter_no_fragment: counterNoFragmentResolver,
 } = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
+const {
+  RELAY_READ_TIME_RESOLVER_KEY_PREFIX,
+} = require('relay-runtime/store/RelayStoreUtils');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+  skipIf,
 } = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 disallowConsoleErrors();
 
 beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
   resetStore();
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
 });
 
 test('Can read an external state resolver directly', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -76,7 +77,7 @@ test('Can read an external state resolver directly', () => {
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -93,15 +94,15 @@ test('Can read an external state resolver directly', () => {
 
 test('Environment subscribers see updates pushed from external data source', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -111,7 +112,7 @@ test('Environment subscribers see updates pushed from external data source', () 
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -124,12 +125,12 @@ test('Environment subscribers see updates pushed from external data source', () 
 
   const snapshot = environment.lookup(operation.fragment);
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  observedCounter = (snapshot.data: any).counter;
+  observedCounter = (snapshot.data as any).counter;
 
   const environmentUpdateHandler = jest.fn(() => {
     const s = environment.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    observedCounter = (s.data: any).counter;
+    observedCounter = (s.data as any).counter;
   });
   const disposable = environment.subscribe(
     snapshot,
@@ -165,15 +166,15 @@ test('Environment subscribers see updates pushed from external data source', () 
 
 test('Relay Resolvers that read Live Resolvers see updates pushed from external data source', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -183,7 +184,7 @@ test('Relay Resolvers that read Live Resolvers see updates pushed from external 
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -196,12 +197,12 @@ test('Relay Resolvers that read Live Resolvers see updates pushed from external 
 
   const snapshot = environment.lookup(operation.fragment);
   // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  observedCounterPlusOne = (snapshot.data: any).counter_plus_one;
+  observedCounterPlusOne = (snapshot.data as any).counter_plus_one;
 
   const environmentUpdateHandler = jest.fn(() => {
     const s = environment.lookup(operation.fragment);
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-    observedCounterPlusOne = (s.data: any).counter_plus_one;
+    observedCounterPlusOne = (s.data as any).counter_plus_one;
   });
   const disposable = environment.subscribe(
     snapshot,
@@ -238,15 +239,15 @@ test('Relay Resolvers that read Live Resolvers see updates pushed from external 
 // we create the record where we store the value.
 test('Can handle a Live Resolver that triggers an update immediately on subscribe', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -256,7 +257,7 @@ test('Can handle a Live Resolver that triggers an update immediately on subscrib
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -273,18 +274,18 @@ test('Can handle a Live Resolver that triggers an update immediately on subscrib
 
 test('Subscriptions created while in an optimistic state is in place get cleaned up correctly', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
       name: 'Alice',
     },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
   });
-  const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+  const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
 
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
@@ -334,16 +335,16 @@ test('Subscriptions created while in an optimistic state is in place get cleaned
 
 test('Outer resolvers do not overwrite subscriptions made by inner resolvers (regression)', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
       name: 'Alice',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
 
@@ -358,7 +359,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     }
   `;
 
-  const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+  const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
 
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
@@ -378,13 +379,16 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     return queryData.outer ?? null;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
 
-  expect(renderer.toJSON()).toEqual('0');
+  expect(renderer?.toJSON()).toEqual('0');
 
   let update;
   // Delete data putting `inner`'s fragment into a state where it's missing
@@ -402,6 +406,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
   });
 
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
   // Calling increment here should be ignored by Relay. However, if there are
@@ -410,12 +415,14 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual(null);
 
   // Revering optimistic update puts inner back into a state where its
   // fragment is valid. HOWEVER, if a dangling subscription has marked inner
   // as dirty, we will try to read from a LiveValue that does not exist.
   TestRenderer.act(() => update.dispose());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('1');
 
   // Not part of the repro, but just to confirm: We should now be resubscribed...
@@ -423,6 +430,7 @@ test('Outer resolvers do not overwrite subscriptions made by inner resolvers (re
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
 });
 
@@ -445,13 +453,13 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
     }
   `;
 
-  const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+  const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
 
   const mockPayload = Promise.resolve({
     data: {
       me: {
-        id: '1',
         __typename: 'User',
+        id: '1',
       },
     },
   });
@@ -476,15 +484,18 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
 
   const initialCallCount = counterNoFragmentResolver.callCount;
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
 
   expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
   // Initial render evaluates (and caches) the `counter_no_fragment` resolver.
-  expect(renderer.toJSON()).toEqual('Loading...');
+  expect(renderer?.toJSON()).toEqual('Loading...');
 
   // When the network response returns, it updates the query root, which would
   // invalidate a resolver with a fragment on Query. However,
@@ -492,6 +503,7 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
   TestRenderer.act(() => jest.runAllImmediates());
 
   expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('0');
 });
 
@@ -514,7 +526,7 @@ test('Can suspend', () => {
     }
   `;
 
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -543,36 +555,41 @@ test('Can suspend', () => {
     return fragmentData.counter_suspends_when_odd;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
-  expect(renderer.toJSON()).toEqual('0');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('0');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   // If do not trigger `act` here, the renderer is still `0`. Probably, a React thing...
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('2');
 });
 
 test('Can suspend with resolver that uses live resolver', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
       name: 'Alice',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
 
@@ -582,7 +599,7 @@ test('Can suspend with resolver that uses live resolver', () => {
     }
   `;
 
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -612,21 +629,26 @@ test('Can suspend with resolver that uses live resolver', () => {
     return fragmentData.user_name_and_counter_suspends_when_odd;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
-  expect(renderer.toJSON()).toEqual('Alice 0');
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
+  expect(renderer?.toJSON()).toEqual('Alice 0');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   // If do not trigger `act` here, the renderer is still `0`. Probably, a React thing...
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Loading...');
   TestRenderer.act(() => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Alice 2');
   TestRenderer.act(() => {
     const operationDescriptor = createOperationDescriptor(
@@ -634,9 +656,10 @@ test('Can suspend with resolver that uses live resolver', () => {
       {},
     );
     environment.commitPayload(operationDescriptor, {
-      me: {id: '1', name: 'Bob', __typename: 'User'},
+      me: {__typename: 'User', id: '1', name: 'Bob'},
     });
   });
+  // $FlowFixMe[incompatible-use]
   expect(renderer.toJSON()).toEqual('Bob 2');
 });
 
@@ -684,22 +707,17 @@ describe('Live Resolver with Suspense and Missing Data', () => {
   function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
+      store: new RelayModernStore(source),
     });
   }
 
   it('should renderer the data from the store, after global state resolves the value', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        'node(id:"1")': {__ref: '1'},
-      },
       '1': {
         __id: '1',
         __typename: 'User',
-        name: 'Alice',
         id: '1',
+        name: 'Alice',
         'profile_picture(scale:1.5)': {
           __ref: 'client:1:profile_picture(scale:1.5)',
         },
@@ -707,6 +725,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       'client:1:profile_picture(scale:1.5)': {
         __id: 'client:1:profile_picture(scale:1.5)',
         uri: 'scale 1.5',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
       },
     });
     const environment = createEnvironment(source);
@@ -728,16 +751,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 
   it('should render undefined value for missing data in live resolver field', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        'node(id:"1")': {__ref: '1'},
-      },
       '1': {
         __id: '1',
         __typename: 'User',
-        name: 'Alice',
         id: '1',
+        name: 'Alice',
         'profile_picture(scale:1.5)': {
           __ref: 'client:1:profile_picture(scale:1.5)',
         },
@@ -752,6 +770,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       'client:1:profile_picture(scale:2)': {
         __id: 'client:1:profile_picture(scale:2)',
         // missing data for uri
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
       },
     });
     const environment = createEnvironment(source);
@@ -776,16 +799,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 
   it('should render undefined value for missing data in live resolver field and trigger different states of suspense ', () => {
     const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        'node(id:"1")': {__ref: '1'},
-      },
       '1': {
         __id: '1',
         __typename: 'User',
-        name: 'Alice',
         id: '1',
+        name: 'Alice',
         'profile_picture(scale:1.5)': {
           __ref: 'client:1:profile_picture(scale:1.5)',
         },
@@ -807,6 +825,11 @@ describe('Live Resolver with Suspense and Missing Data', () => {
       'client:1:profile_picture(scale:3)': {
         __id: 'client:1:profile_picture(scale:3)',
         uri: 'scale 3',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
       },
     });
     const environment = createEnvironment(source);
@@ -866,124 +889,137 @@ describe('Live Resolver with Suspense and Missing Data', () => {
   });
 });
 
-test('Live Resolver with Missing Data and @required', async () => {
-  function InnerTestComponent({id}: {id: string}) {
-    const data = useLazyLoadQuery(
-      graphql`
-        query LiveResolversTest8Query($id: ID!) {
-          node(id: $id) {
-            ... on User {
-              name
-              resolver_that_throws
+skipIf(
+  // $FlowFixMe[cannot-resolve-name]
+  process.env.OSS,
+  'Live Resolver with Missing Data and @required',
+  async () => {
+    function InnerTestComponent({id}: {id: string}) {
+      const data = useLazyLoadQuery(
+        graphql`
+          query LiveResolversTest8Query($id: ID!) {
+            node(id: $id) {
+              ... on User {
+                name
+                resolver_that_throws
+              }
             }
           }
-        }
-      `,
-      {id},
-      {fetchPolicy: 'store-only'},
-    );
-    return `${data.node?.name ?? 'Unknown name'}: ${
-      data.node?.resolver_that_throws ?? 'Unknown resolver_that_throws value'
-    }`;
-  }
+        `,
+        {id},
+        {fetchPolicy: 'store-only'},
+      );
+      return `${data.node?.name ?? 'Unknown name'}: ${
+        data.node?.resolver_that_throws ?? 'Unknown resolver_that_throws value'
+      }`;
+    }
 
-  function TestComponent({
-    environment,
-    ...rest
-  }: {
-    environment: RelayModernEnvironment,
-    id: string,
-  }) {
-    return (
-      <RelayEnvironmentProvider environment={environment}>
-        <React.Suspense fallback="Loading...">
-          <InnerTestComponent {...rest} />
-        </React.Suspense>
-      </RelayEnvironmentProvider>
-    );
-  }
-  const relayFieldLogger = jest.fn<
-    $FlowFixMe | [RelayFieldLoggerEvent],
-    void,
-  >();
-  function createEnvironment(source: MutableRecordSource) {
-    return new RelayModernEnvironment({
-      network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
-      relayFieldLogger,
+    function TestComponent({
+      environment,
+      ...rest
+    }: {
+      environment: RelayModernEnvironment,
+      id: string,
+    }) {
+      return (
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Loading...">
+            <InnerTestComponent {...rest} />
+          </React.Suspense>
+        </RelayEnvironmentProvider>
+      );
+    }
+    const relayFieldLogger = jest.fn<
+      $FlowFixMe | [RelayFieldLoggerEvent],
+      void,
+    >();
+    function createEnvironment(source: MutableRecordSource) {
+      return new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        relayFieldLogger,
+        store: new RelayModernStore(source),
+      });
+    }
+
+    const source = RelayRecordSource.create({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        // username is missing
+        id: '1',
+        name: 'Alice',
+      },
+      '2': {
+        __id: '2',
+        __typename: 'User',
+        id: '2',
+        name: 'Bob',
+        username: 'bob',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"1")': {__ref: '1'},
+        'node(id:"2")': {__ref: '2'},
+      },
     });
-  }
+    const environment = createEnvironment(source);
 
-  const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      'node(id:"1")': {__ref: '1'},
-      'node(id:"2")': {__ref: '2'},
-    },
-    '1': {
-      __id: '1',
-      __typename: 'User',
-      name: 'Alice',
-      // username is missing
-      id: '1',
-    },
-    '2': {
-      __id: '2',
-      __typename: 'User',
-      name: 'Bob',
-      username: 'bob',
-      id: '2',
-    },
-  });
-  const environment = createEnvironment(source);
-
-  // First, render with missing data
-  await expect(async () => {
+    // First, render with missing data
     await TestRenderer.act(() => {
       TestRenderer.create(<TestComponent environment={environment} id="1" />);
     });
-  }).rejects.toThrow(
-    "Relay: Missing @required value at path 'username' in 'ResolverThatThrows'.",
-  );
-  expect(relayFieldLogger.mock.calls).toEqual([
-    [
-      {
-        kind: 'missing_field.throw',
-        owner: 'ResolverThatThrows',
-        fieldPath: 'username',
-      },
-    ],
-  ]);
-  relayFieldLogger.mockReset();
+    expect(relayFieldLogger.mock.calls).toEqual([
+      [
+        {
+          fieldPath: 'username',
+          kind: 'missing_expected_data.log',
+          owner: 'ResolverThatThrows',
+        },
+      ],
+      [
+        {
+          fieldPath: 'username',
+          handled: true,
+          kind: 'missing_required_field.throw',
+          owner: 'ResolverThatThrows',
+        },
+      ],
+    ]);
+    relayFieldLogger.mockReset();
 
-  // Render with complete data
-  let renderer;
-  TestRenderer.act(() => {
-    renderer = TestRenderer.create(
-      <TestComponent environment={environment} id="2" />,
+    // Render with complete data
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <TestComponent environment={environment} id="2" />,
+      );
+    });
+
+    if (renderer == null) {
+      throw new Error('Renderer is expected to be defined.');
+    }
+
+    expect(relayFieldLogger.mock.calls).toEqual([
+      [
+        {
+          error: new Error(
+            'The resolver should throw earlier. It should have missing data.',
+          ),
+          fieldPath: 'node.resolver_that_throws',
+          handled: false,
+          kind: 'relay_resolver.error',
+          owner: 'LiveResolversTest8Query',
+          shouldThrow: false,
+        },
+      ],
+    ]);
+
+    expect(renderer.toJSON()).toEqual(
+      'Bob: Unknown resolver_that_throws value',
     );
-  });
-
-  if (renderer == null) {
-    throw new Error('Renderer is expected to be defined.');
-  }
-
-  expect(relayFieldLogger.mock.calls).toEqual([
-    [
-      {
-        error: new Error(
-          'The resolver should throw earlier. It should have missing data.',
-        ),
-        fieldPath: 'node.resolver_that_throws',
-        kind: 'relay_resolver.error',
-        owner: 'LiveResolversTest8Query',
-      },
-    ],
-  ]);
-
-  expect(renderer.toJSON()).toEqual('Bob: Unknown resolver_that_throws value');
-});
+  },
+);
 
 test('apply optimistic updates to live resolver field', () => {
   let renderer;
@@ -1026,21 +1062,16 @@ test('apply optimistic updates to live resolver field', () => {
   function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
+      store: new RelayModernStore(source),
     });
   }
 
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      'node(id:"1")': {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
-      name: 'Alice',
       id: '1',
+      name: 'Alice',
       'profile_picture(scale:1.5)': {
         __ref: 'client:1:profile_picture(scale:1.5)',
       },
@@ -1048,6 +1079,11 @@ test('apply optimistic updates to live resolver field', () => {
     'client:1:profile_picture(scale:1.5)': {
       __id: 'client:1:profile_picture(scale:1.5)',
       uri: 'scale 1.5',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      'node(id:"1")': {__ref: '1'},
     },
   });
   const environment = createEnvironment(source);
@@ -1106,15 +1142,15 @@ test('apply optimistic updates to live resolver field', () => {
 // `isMissingData` to false when reading a live resolver field.
 test('Missing data is not clobbered by non-null empty missingLiveResolverFields on snapshot', () => {
   const source = RelayRecordSource.create({
-    'client:root': {
-      __id: 'client:root',
-      __typename: '__Root',
-      me: {__ref: '1'},
-    },
     '1': {
       __id: '1',
       __typename: 'User',
       id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
     },
   });
   const FooQuery = graphql`
@@ -1128,7 +1164,7 @@ test('Missing data is not clobbered by non-null empty missingLiveResolverFields 
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -1170,7 +1206,7 @@ test('with client-only field', () => {
   function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
+      store: new RelayModernStore(source),
     });
   }
 
@@ -1235,7 +1271,7 @@ test('with client-only field and args', () => {
   function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
+      store: new RelayModernStore(source),
     });
   }
 
@@ -1270,15 +1306,15 @@ test('with client-only field and args', () => {
 
 test('Can read a live client edge without a fragment', () => {
   const source = RelayRecordSource.create({
+    '1338': {
+      __id: '1338',
+      __typename: 'User',
+      id: '1338',
+      name: 'Elizabeth',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
-    },
-    '1338': {
-      __id: '1338',
-      id: '1338',
-      __typename: 'User',
-      name: 'Elizabeth',
     },
   });
 
@@ -1291,7 +1327,7 @@ test('Can read a live client edge without a fragment', () => {
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -1311,7 +1347,7 @@ test('Can read a live client edge without a fragment', () => {
 test('live resolver with the edge that always suspend', () => {
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
-    store: new LiveResolverStore(
+    store: new RelayModernStore(
       RelayRecordSource.create({
         'client:root': {
           __id: 'client:root',
@@ -1343,13 +1379,16 @@ test('live resolver with the edge that always suspend', () => {
     return data.live_user_resolver_always_suspend?.name;
   }
 
-  const renderer = TestRenderer.create(
-    <Environment>
-      <TestComponent />
-    </Environment>,
-  );
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
 
-  expect(renderer.toJSON()).toBe('Loading...');
+  expect(renderer?.toJSON()).toBe('Loading...');
 });
 
 describe('client-only fragments', () => {
@@ -1362,7 +1401,7 @@ describe('client-only fragments', () => {
   const LiveResolversTestLiveResolverSuspenseQuery = graphql`
     query LiveResolversTestLiveResolverSuspenseQuery($id: ID!) {
       node(id: $id) {
-        ...LiveResolversTestCounterUserFragment
+        ...LiveResolversTestCounterUserFragment @dangerously_unaliased_fixme
       }
     }
   `;
@@ -1396,60 +1435,71 @@ describe('client-only fragments', () => {
   test('correctly suspend on fragments with client-only data', () => {
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(RelayRecordSource.create()),
+      store: new RelayModernStore(RelayRecordSource.create()),
     });
     environment.commitPayload(
       createOperationDescriptor(LiveResolversTestLiveResolverSuspenseQuery, {
         id: '1',
       }),
       {
-        node: {id: '1', __typename: 'User'},
+        node: {__typename: 'User', id: '1'},
       },
     );
-    const renderer = TestRenderer.create(
-      <Environment environment={environment}>
-        <TestComponent id="1" />
-      </Environment>,
-    );
-    expect(renderer.toJSON()).toEqual('0');
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+    });
+    expect(renderer?.toJSON()).toEqual('0');
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
     TestRenderer.act(() => jest.runAllImmediates());
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('2');
   });
 
   test('invariant for invalid liveState value in the Relay store.', () => {
     const environment = new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(RelayRecordSource.create()),
+      store: new RelayModernStore(RelayRecordSource.create()),
     });
     environment.commitPayload(
       createOperationDescriptor(LiveResolversTestLiveResolverSuspenseQuery, {
         id: '1',
       }),
       {
-        node: {id: '1', __typename: 'User'},
+        node: {__typename: 'User', id: '1'},
       },
     );
-    const renderer = TestRenderer.create(
-      <Environment environment={environment}>
-        <TestComponent id="1" />
-      </Environment>,
-    );
-    expect(renderer.toJSON()).toEqual('0');
+    let renderer;
+    TestRenderer.act(() => {
+      renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+    });
+    expect(renderer?.toJSON()).toEqual('0');
     TestRenderer.act(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     });
     TestRenderer.act(() => jest.runAllImmediates());
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
     environment.applyUpdate({
       storeUpdater: store => {
-        const record = store.get('client:1:counter_suspends_when_odd');
+        const record = store.get(
+          `client:1:${RELAY_READ_TIME_RESOLVER_KEY_PREFIX}counter_suspends_when_odd`,
+        );
         // this will force the invalid `liveState` value` in the resolver record
         record?.setValue(undefined, '__resolverLiveStateValue');
       },
@@ -1457,14 +1507,15 @@ describe('client-only fragments', () => {
     expect(() => {
       GLOBAL_STORE.dispatch({type: 'INCREMENT'});
     }).toThrowError(
-      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverError":null,"__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true}`.',
+      'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{\"__id\":\"client:1:$r:counter_suspends_when_odd\",\"__typename\":\"__RELAY_RESOLVER__\",\"__resolverError\":null,\"__resolverValue\":{\"__LIVE_RESOLVER_SUSPENSE_SENTINEL\":true},\"__resolverOutputTypeRecordIDs\":{},\"__resolverLiveStateDirty\":true}`.',
     );
+    // $FlowFixMe[incompatible-use]
     expect(renderer.toJSON()).toEqual('Loading...');
   });
 });
 
 test('Subscriptions cleaned up correctly after GC', () => {
-  const store = new LiveResolverStore(RelayRecordSource.create(), {
+  const store = new RelayModernStore(RelayRecordSource.create(), {
     gcReleaseBufferSize: 0,
   });
   const environment = new RelayModernEnvironment({
@@ -1583,7 +1634,7 @@ test('Errors when reading a @live resolver that does not return a LiveState obje
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -1613,7 +1664,7 @@ test('Errors when reading a non-@live resolver that returns a LiveState object',
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -1645,19 +1696,20 @@ test('Errors when reading a @live resolver that does not return a LiveState obje
   const operation = createOperationDescriptor(FooQuery, {});
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
-    store: new LiveResolverStore(source, {
+    store: new RelayModernStore(source, {
       gcReleaseBufferSize: 0,
     }),
   });
 
   const data = environment.lookup(operation.fragment);
-  expect(data.relayResolverErrors).toEqual([
+  expect(data.fieldErrors).toEqual([
     {
-      field: {
-        owner: 'LiveResolversTest18Query',
-        path: 'live_resolver_throws',
-      },
       error: new Error('What?'),
+      fieldPath: 'live_resolver_throws',
+      handled: false,
+      kind: 'relay_resolver.error',
+      owner: 'LiveResolversTest18Query',
+      shouldThrow: false,
     },
   ]);
 });
@@ -1678,7 +1730,7 @@ test('Errors when reading a @live resolver that does not return a LiveState obje
   const operation = createOperationDescriptor(FooQuery, {});
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
-    store: new LiveResolverStore(source, {
+    store: new RelayModernStore(source, {
       gcReleaseBufferSize: 0,
     }),
   });
@@ -1700,14 +1752,300 @@ test('provided variables and resolvers', () => {
   const operation = createOperationDescriptor(FooQuery, {});
   const environment = new RelayModernEnvironment({
     network: RelayNetwork.create(jest.fn()),
-    store: new LiveResolverStore(RelayRecordSource.create(), {
+    store: new RelayModernStore(RelayRecordSource.create(), {
       gcReleaseBufferSize: 0,
     }),
   });
 
   const snapshot = environment.lookup(operation.fragment);
-  expect(snapshot.relayResolverErrors).toEqual([]);
+  expect(snapshot.fieldErrors).toEqual(null);
   expect(snapshot.data).toEqual({
     hello_world_with_provided_variable: 'Hello, Hello, World!!',
   });
+});
+
+test('allows dependencies to be provided through the store', () => {
+  const FooQuery = graphql`
+    query LiveResolversTestWithContextQuery {
+      hello_world_with_context
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new RelayModernStore(RelayRecordSource.create(), {
+      gcReleaseBufferSize: 0,
+      resolverContext: {
+        greeting: {myHello: 'Hello Allemaal!'},
+      },
+    }),
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.fieldErrors).toEqual(null);
+  expect(snapshot.data).toEqual({
+    hello_world_with_context: 'Hello Hello Allemaal!!',
+  });
+});
+
+test('allows objects to be provided to be provided through the store', () => {
+  const FooQuery = graphql`
+    query LiveResolversTestWithContextObjectQuery {
+      hello_world_with_context_object
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new RelayModernStore(RelayRecordSource.create(), {
+      gcReleaseBufferSize: 0,
+      resolverContext: {
+        greeting: {
+          myHello: 'Hello Allemaal!',
+        },
+      },
+    }),
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.fieldErrors).toEqual(null);
+  expect(snapshot.data).toEqual({
+    hello_world_with_context_object: 'Hello Hello Allemaal!!',
+  });
+});
+
+test('ResolverContext can contain observable values', async () => {
+  const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTestCounterContextQuery {
+      counter_context
+    }
+  `;
+
+  let next: (v: number) => void = () => {
+    throw new Error('next() not initialized');
+  };
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+    resolverContext: {
+      counter: Observable.create<number>(observer => {
+        next = (value: number) => observer.next(value);
+      }),
+    },
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  let observedCounter = null;
+
+  const snapshot = environment.lookup(operation.fragment);
+  // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+  observedCounter = (snapshot.data as any).counter_context;
+
+  const environmentUpdateHandler = jest.fn(() => {
+    const s = environment.lookup(operation.fragment);
+    // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+    observedCounter = (s.data as any).counter_context;
+  });
+  const disposable = environment.subscribe(
+    snapshot,
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+    environmentUpdateHandler,
+  );
+
+  // SETUP COMPLETE
+
+  // Read the initial value
+  expect(observedCounter).toBe(0);
+  expect(environmentUpdateHandler).not.toHaveBeenCalled();
+
+  // Increment and assert we get notified of the new value
+  next(43);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(43);
+
+  // Unsubscribe then increment and assert don't get notified.
+  disposable.dispose();
+  next(1);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(43);
+
+  // Explicitly read and assert we see the incremented value
+  // missed before due to unsubscribing.
+  const nextSnapshot = environment.lookup(operation.fragment);
+
+  expect(nextSnapshot.data).toEqual({
+    counter_context: 1,
+  });
+});
+
+test('ResolverContext as passed through nested resolver counters', async () => {
+  const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTestCounterContextBaseQuery {
+      base_counter_context {
+        count_plus_one
+      }
+    }
+  `;
+
+  let next: (v: number) => void = () => {
+    throw new Error('next() not initialized');
+  };
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+    resolverContext: {
+      counter: Observable.create<number>(observer => {
+        next = (value: number) => observer.next(value);
+      }),
+    },
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  let observedCounter = null;
+
+  const snapshot = environment.lookup(operation.fragment);
+  // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+  observedCounter = (snapshot.data as any).base_counter_context.count_plus_one;
+
+  const environmentUpdateHandler = jest.fn(() => {
+    const s = environment.lookup(operation.fragment);
+    // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
+    observedCounter = (s.data as any).base_counter_context.count_plus_one;
+  });
+  const disposable = environment.subscribe(
+    snapshot,
+    // $FlowFixMe[invalid-tuple-arity] Error found while enabling LTI on this file
+    environmentUpdateHandler,
+  );
+
+  // SETUP COMPLETE
+
+  // Read the initial value
+  expect(observedCounter).toBe(0);
+  expect(environmentUpdateHandler).not.toHaveBeenCalled();
+
+  // Increment and assert we get notified of the new value
+  next(43);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(44);
+
+  // Unsubscribe then increment and assert don't get notified.
+  disposable.dispose();
+  next(1);
+  expect(environmentUpdateHandler).toHaveBeenCalledTimes(1);
+  expect(observedCounter).toBe(44);
+
+  // Explicitly read and assert we see the incremented value
+  // missed before due to unsubscribing.
+  const nextSnapshot = environment.lookup(operation.fragment);
+
+  expect(nextSnapshot.data).toEqual({
+    base_counter_context: {
+      count_plus_one: 2,
+    },
+  });
+});
+
+test('Defer does not prevent suspense from a deferred fragment', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+
+  const Fragment = graphql`
+    fragment LiveResolversTestDeferFragment on Query {
+      counter_suspends_when_odd
+    }
+  `;
+  const FooQuery = graphql`
+    query LiveResolversTestDeferQuery {
+      ...LiveResolversTestDeferFragment @defer
+    }
+  `;
+
+  const store = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  // Make the value odd for `counter_suspends_when_odd`
+  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+  environment.commitPayload(
+    createOperationDescriptor(getRequest(FooQuery), {}),
+    {
+      me: {id: '1'},
+    },
+  );
+
+  function Environment({children}: {children: React.Node}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">{children}</React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function TestComponent() {
+    const queryData = useLazyLoadQuery(FooQuery, {});
+    const fragmentData = useFragment(Fragment, queryData);
+    return fragmentData.counter_suspends_when_odd;
+  }
+
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+  });
+  // @defer does not prevent suspense from a resolve field
+  expect(renderer?.toJSON()).toEqual('Loading...');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  TestRenderer.act(() => jest.runAllImmediates());
+  expect(renderer?.toJSON()).toEqual('2');
 });

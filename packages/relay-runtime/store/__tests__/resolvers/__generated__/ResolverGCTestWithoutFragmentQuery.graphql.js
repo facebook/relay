@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<697bfeb0df888401d7799167008091f4>>
+ * @generated SignedSource<<8f4a4e255a6a0611ccc1a4c1a0282d8a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,9 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime";
 import {counter_no_fragment as queryCounterNoFragmentResolverType} from "../LiveCounterNoFragment.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCounterNoFragmentResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCounterNoFragmentResolverType: () => LiveState<?number>);
+(queryCounterNoFragmentResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => LiveState<?number>);
 export type ResolverGCTestWithoutFragmentQuery$variables = {||};
 export type ResolverGCTestWithoutFragmentQuery$data = {|
   +counter_no_fragment: ?number,
@@ -49,7 +53,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment",
-            "resolverModule": require('./../LiveCounterNoFragment').counter_no_fragment,
+            "resolverModule": require('../LiveCounterNoFragment').counter_no_fragment,
             "path": "counter_no_fragment"
           }
         ]

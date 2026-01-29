@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query TestQuery @exec_time_resolvers {
+  me {
+    ...UserFragment
+  }
+}
+
+fragment UserFragment on User {
+  client_recommendation {
+    id
+  }
+}
+
+fragment ClientRecommendationResolverFragment on User {
+  __typename
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+extend type User {
+  client_recommendation: ClientOnlyType @relay_resolver(fragment_name: "ClientRecommendationResolverFragment", import_path: "ClientRecommendationResolver")
+}
+==================================== ERROR ====================================
+✖︎ Server to client edges are not supported in exec time resolvers. Please consider disable exec time resolver on the query for now, or not using server to client edges.
+
+  server-edge-to-client-in-fragment-with-exec-time-resolvers.invalid.graphql:9:3
+    8 │ fragment UserFragment on User {
+    9 │   client_recommendation {
+      │   ^^^^^^^^^^^^^^^^^^^^^
+   10 │     id

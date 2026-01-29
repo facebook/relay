@@ -1,0 +1,56 @@
+//- ModuleName.js
+graphql`
+fragment ModuleName_node on Node {
+   ... on UserSearchResult {
+      alias
+   }
+}
+`;
+
+graphql`
+fragment ModuleName_user on User {
+   id
+   ...ModuleName_node
+}
+`;
+
+graphql`
+query ModuleNameQuery {
+   node(node_id: "4") {
+      ... on User {
+         # Removing this seems to make it so there is no change
+         alias
+      }
+      # Moving this into the User inline fragment makes this cause no change
+      ...ModuleName_user @dangerously_unaliased_fixme
+   }
+}
+`;
+
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql",
+   "featureFlags": {
+      "disable_deduping_common_structures_in_artifacts": {
+         "kind": "enabled"
+      }
+   }
+}
+
+//- schema.graphql
+interface Node {
+  id: ID!
+}
+type Query {
+  node(node_id: ID!): Node
+}
+type User implements Node {
+  id: ID!
+  alias: String
+}
+type UserSearchResult implements Node {
+  id: ID!
+  alias: String
+}

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9999601a445e2154561da251e0ca30b4>>
+ * @generated SignedSource<<999ec9e0fabce04175790ccc86aa1f29>>
  */
 
 mod fragment_alias_directive;
@@ -45,6 +45,13 @@ async fn alias_on_named_fragment() {
     let input = include_str!("fragment_alias_directive/fixtures/alias_on_named_fragment.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/alias_on_named_fragment.expected");
     test_fixture(transform_fixture, file!(), "alias_on_named_fragment.graphql", "fragment_alias_directive/fixtures/alias_on_named_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn alias_on_spread_of_plural_fragment_into_singular_selection() {
+    let input = include_str!("fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment_into_singular_selection.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment_into_singular_selection.expected");
+    test_fixture(transform_fixture, file!(), "alias_on_spread_of_plural_fragment_into_singular_selection.graphql", "fragment_alias_directive/fixtures/alias_on_spread_of_plural_fragment_into_singular_selection.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -111,6 +118,13 @@ async fn fragment_spread_into_supertype_without_alias_suppressed() {
 }
 
 #[tokio::test]
+async fn fragment_spread_within_skip_inline_fragment_without_alias_invalid() {
+    let input = include_str!("fragment_alias_directive/fixtures/fragment_spread_within_skip_inline_fragment_without_alias.invalid.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/fragment_spread_within_skip_inline_fragment_without_alias.invalid.expected");
+    test_fixture(transform_fixture, file!(), "fragment_spread_within_skip_inline_fragment_without_alias.invalid.graphql", "fragment_alias_directive/fixtures/fragment_spread_within_skip_inline_fragment_without_alias.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn inline_fragment_spread_into_supertype_without_alias() {
     let input = include_str!("fragment_alias_directive/fixtures/inline_fragment_spread_into_supertype_without_alias.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/inline_fragment_spread_into_supertype_without_alias.expected");
@@ -136,4 +150,18 @@ async fn skip_inline_fragment_without_alias() {
     let input = include_str!("fragment_alias_directive/fixtures/skip_inline_fragment_without_alias.graphql");
     let expected = include_str!("fragment_alias_directive/fixtures/skip_inline_fragment_without_alias.expected");
     test_fixture(transform_fixture, file!(), "skip_inline_fragment_without_alias.graphql", "fragment_alias_directive/fixtures/skip_inline_fragment_without_alias.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn spread_of_plural_fragment_into_singular_selection_without_alias_invalid() {
+    let input = include_str!("fragment_alias_directive/fixtures/spread_of_plural_fragment_into_singular_selection_without_alias.invalid.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/spread_of_plural_fragment_into_singular_selection_without_alias.invalid.expected");
+    test_fixture(transform_fixture, file!(), "spread_of_plural_fragment_into_singular_selection_without_alias.invalid.graphql", "fragment_alias_directive/fixtures/spread_of_plural_fragment_into_singular_selection_without_alias.invalid.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn unaliased_spread_of_plural_fragment_that_might_not_match() {
+    let input = include_str!("fragment_alias_directive/fixtures/unaliased_spread_of_plural_fragment_that_might_not_match.graphql");
+    let expected = include_str!("fragment_alias_directive/fixtures/unaliased_spread_of_plural_fragment_that_might_not_match.expected");
+    test_fixture(transform_fixture, file!(), "unaliased_spread_of_plural_fragment_that_might_not_match.graphql", "fragment_alias_directive/fixtures/unaliased_spread_of_plural_fragment_that_might_not_match.expected", input, expected).await;
 }

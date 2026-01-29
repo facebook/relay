@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::StringKey;
 use intern::Lookup;
+use intern::string_key::StringKey;
 use schema::DirectiveValue;
 use schema::EnumID;
 use schema::FieldID;
@@ -374,15 +374,15 @@ fn get_schema_explorer_field(
         .get_field_description(parent_type_name.lookup(), &field_name)
         .map(|field_description| field_description.to_string());
 
-    if let Some(filter) = filter {
-        if !field_passes_filter(
+    if let Some(filter) = filter
+        && !field_passes_filter(
             filter,
             field_name.to_lowercase(),
             field_type_name.to_lowercase(),
             field_type_description.as_ref().map(|s| s.to_lowercase()),
-        ) {
-            return None;
-        }
+        )
+    {
+        return None;
     }
 
     let type_reference =

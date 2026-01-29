@@ -11,13 +11,13 @@ use std::sync::Arc;
 use intern::BuildIdHasher;
 use schema::SDLSchema;
 
+use crate::ExecutableDefinitionName;
 use crate::ir::ExecutableDefinition;
 use crate::ir::FragmentDefinition;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::OperationDefinition;
 use crate::ir::OperationDefinitionName;
-use crate::ExecutableDefinitionName;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]
@@ -50,8 +50,7 @@ impl Program {
                     let name = operation.name.item;
                     if let Some(another) = seen_operation_loc.insert(name, loc) {
                         panic!(
-                            "\nDuplicate operation definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
-                            name, loc, another
+                            "\nDuplicate operation definitions named {name}: \nfirst one: {loc:?}\nsecond one: {another:?}\n"
                         );
                     }
                     operations.push(Arc::new(operation)); // Keep the order the operations same as inputs.

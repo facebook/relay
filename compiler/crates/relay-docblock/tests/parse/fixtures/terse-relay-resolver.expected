@@ -71,6 +71,7 @@ Field(
                     ),
                 },
             ),
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,
@@ -79,6 +80,8 @@ Field(
             source_hash: ResolverSourceHash(
                 "0a9950ad1f952f5777b27604738fcf91",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

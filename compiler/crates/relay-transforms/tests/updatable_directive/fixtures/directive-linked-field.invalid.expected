@@ -11,5 +11,5 @@ query TestQuery @updatable {
   directive-linked-field.invalid.graphql:3:15
     2 │ query TestQuery @updatable {
     3 │   node(id: 4) @customDirective(level: 1) {
-      │               ^^^^^^^^^^^^^^^^
+      │               ^^^^^^^^^^^^^^^^^^^^^^^^^^
     4 │     id

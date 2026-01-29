@@ -1,12 +1,12 @@
 ==================================== INPUT ====================================
 fragment fragmentOnQuery_RefetchableFragment on Query
-  @refetchable(queryName: "RefetchableFragmentQuery")
-  @argumentDefinitions(id: {type: "ID!"}) {
+@refetchable(queryName: "RefetchableFragmentQuery")
+@argumentDefinitions(id: {type: "ID!"}) {
   node(global_id: $id) {
     ... on User {
       global_id
       name
-      ...fragmentOnQuery_ProfilePicture
+      ...fragmentOnQuery_ProfilePicture @alias
     }
   }
 }
@@ -270,8 +270,19 @@ fragment fragmentOnQuery_RefetchableFragment_1Bmzm5 on Query {
               "storageKey": null
             },
             {
-              "args": null,
-              "kind": "FragmentSpread",
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "fragmentOnQuery_ProfilePicture"
+                  }
+                ],
+                "type": "User",
+                "abstractKey": null
+              },
+              "kind": "AliasedInlineFragmentSpread",
               "name": "fragmentOnQuery_ProfilePicture"
             }
           ],

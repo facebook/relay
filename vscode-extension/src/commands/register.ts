@@ -11,6 +11,7 @@ import {handleRestartLanguageServerCommand} from './restart';
 import {handleShowOutputCommand} from './showOutput';
 import {handleStartCompilerCommand} from './startCompiler';
 import {handleStopCompilerCommand} from './stopCompiler';
+import {handleCopyOperation} from './copyOperation';
 
 export function registerCommands(context: RelayExtensionContext) {
   context.extensionContext.subscriptions.push(
@@ -29,6 +30,10 @@ export function registerCommands(context: RelayExtensionContext) {
     commands.registerCommand(
       'relay.showOutput',
       handleShowOutputCommand.bind(null, context),
+    ),
+    commands.registerCommand(
+      'relay.copyOperation',
+      handleCopyOperation.bind(null, context),
     ),
   );
 }

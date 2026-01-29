@@ -3,10 +3,14 @@ query actorChangeSimpleQuery {
     id
     ... on User {
       actor @fb_actor_change {
-        ...actorChangeSimpleQueryUserFragment
+        ...actorChangeSimpleQuery_ActorFragment
       }
     }
   }
+}
+
+fragment actorChangeSimpleQuery_ActorFragment on Actor {
+  ...actorChangeSimpleQueryUserFragment @alias
 }
 
 fragment actorChangeSimpleQueryUserFragment on User {

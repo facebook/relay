@@ -122,11 +122,11 @@ pub fn source_control_for_root(root_dir: &PathBuf) -> Option<Box<dyn SourceContr
         .current_dir(root_dir)
         .output();
 
-    if let Ok(check_git) = check_git {
-        if check_git.status.success() {
-            debug!("Enabling git source control integration");
-            return Some(Box::new(Git));
-        }
+    if let Ok(check_git) = check_git
+        && check_git.status.success()
+    {
+        debug!("Enabling git source control integration");
+        return Some(Box::new(Git));
     }
 
     // Warning: `sl` can support git repos, so it's important that we
@@ -137,24 +137,24 @@ pub fn source_control_for_root(root_dir: &PathBuf) -> Option<Box<dyn SourceContr
         .current_dir(root_dir)
         .output();
 
-    if let Ok(check_sapling) = check_sapling {
-        if check_sapling.status.success() {
-            let possible_steam_locomotive_check = Command::new("sl").arg("--version").output();
+    if let Ok(check_sapling) = check_sapling
+        && check_sapling.status.success()
+    {
+        let possible_steam_locomotive_check = Command::new("sl").arg("--version").output();
 
-            // The "Steam Locomotive" command also uses `sl` and doesn't have an easy way to detect
-            // if it is actually the `sl` command (it exits with code 0 if run as `sl root`), so we
-            // need to do some additional checking to make sure we can enable Sapling integration:
-            if let Ok(output) = possible_steam_locomotive_check {
-                if output.status.success()
-                    && String::from_utf8_lossy(&output.stdout).contains("Sapling")
-                {
-                    debug!("Enabling Sapling source control integration");
-                    return Some(Box::new(Sapling));
-                } else {
-                    debug!(
-                        "The `sl` command is not Sapling, so Sapling source control integration is disabled"
-                    );
-                }
+        // The "Steam Locomotive" command also uses `sl` and doesn't have an easy way to detect
+        // if it is actually the `sl` command (it exits with code 0 if run as `sl root`), so we
+        // need to do some additional checking to make sure we can enable Sapling integration:
+        if let Ok(output) = possible_steam_locomotive_check {
+            if output.status.success()
+                && String::from_utf8_lossy(&output.stdout).contains("Sapling")
+            {
+                debug!("Enabling Sapling source control integration");
+                return Some(Box::new(Sapling));
+            } else {
+                debug!(
+                    "The `sl` command is not Sapling, so Sapling source control integration is disabled"
+                );
             }
         }
     }

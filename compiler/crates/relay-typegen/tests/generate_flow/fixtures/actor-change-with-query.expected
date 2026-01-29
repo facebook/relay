@@ -1,11 +1,15 @@
 ==================================== INPUT ====================================
-fragment ActorFragment on User {
+fragment ActorUserFragment on User {
   name
   profilePicture {
     uri
     width
     height
   }
+}
+
+fragment ActorFragment on Actor {
+  ...ActorUserFragment @alias
 }
 
 query Viewer {
@@ -32,19 +36,34 @@ export type Viewer = {|
   variables: Viewer$variables,
 |};
 -------------------------------------------------------------------------------
+import type { ActorUserFragment$fragmentType } from "ActorUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type ActorFragment$fragmentType: FragmentType;
 export type ActorFragment$data = {|
-  +name: ?string,
-  +profilePicture: ?{|
-    +height: ?number,
-    +uri: ?string,
-    +width: ?number,
+  +ActorUserFragment: ?{|
+    +$fragmentSpreads: ActorUserFragment$fragmentType,
   |},
   +$fragmentType: ActorFragment$fragmentType,
 |};
 export type ActorFragment$key = {
   +$data?: ActorFragment$data,
   +$fragmentSpreads: ActorFragment$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ActorUserFragment$fragmentType: FragmentType;
+export type ActorUserFragment$data = {|
+  +name: ?string,
+  +profilePicture: ?{|
+    +height: ?number,
+    +uri: ?string,
+    +width: ?number,
+  |},
+  +$fragmentType: ActorUserFragment$fragmentType,
+|};
+export type ActorUserFragment$key = {
+  +$data?: ActorUserFragment$data,
+  +$fragmentSpreads: ActorUserFragment$fragmentType,
   ...
 };

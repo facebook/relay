@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<531e86a638a45fb324ad7d662c7f9d14>>
+ * @generated SignedSource<<1806f9be2f6e0040035bd8d4dd940842>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$variables = {||};
 export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery$data = {|
   +me: ?{|
-    +emailAddresses: ?$ReadOnlyArray<?string>,
+    +emailAddresses: ?ReadonlyArray<?string>,
   |},
 |};
 export type RelayExperimentalGraphResponseHandlerTestPluralScalarQuery = {|

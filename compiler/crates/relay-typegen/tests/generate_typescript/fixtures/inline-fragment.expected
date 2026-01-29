@@ -46,7 +46,7 @@ fragment InlineFragmentKitchenSink on Story {
     ... on User {
       id
       name
-      ...SomeFragment
+      ...SomeFragment @alias
       profilePicture {
         width
       }
@@ -92,6 +92,9 @@ export type InlineFragmentConditionalID$key = {
 import { FragmentRefs } from "relay-runtime";
 export type InlineFragmentKitchenSink$data = {
   readonly actor: {
+    readonly SomeFragment?: {
+      readonly " $fragmentSpreads": FragmentRefs<"SomeFragment">;
+    } | null | undefined;
     readonly id: string;
     readonly name?: string | null | undefined;
     readonly profilePicture: {
@@ -99,7 +102,6 @@ export type InlineFragmentKitchenSink$data = {
       readonly uri: string | null | undefined;
       readonly width?: number | null | undefined;
     } | null | undefined;
-    readonly " $fragmentSpreads": FragmentRefs<"SomeFragment">;
   } | null | undefined;
   readonly " $fragmentType": "InlineFragmentKitchenSink";
 };
@@ -128,11 +130,6 @@ export type InlineFragmentWithOverlappingFields$key = {
 import { FragmentRefs } from "relay-runtime";
 export type SomeFragment$data = {
   readonly __typename: "User";
-  readonly " $fragmentType": "SomeFragment";
-} | {
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  readonly __typename: "%other";
   readonly " $fragmentType": "SomeFragment";
 };
 export type SomeFragment$key = {

@@ -13,15 +13,34 @@ use common::DirectiveName;
 use common::ScalarName;
 use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
-use intern::string_key::StringKey;
 use intern::Lookup;
-use schema::suggestion_list::did_you_mean;
+use intern::string_key::StringKey;
 use schema::Type;
 use schema::TypeReference;
+use schema::suggestion_list::did_you_mean;
+use serde::Deserialize;
 use thiserror::Error;
 
-use crate::ir::FragmentDefinitionName;
 use crate::VariableName;
+use crate::ir::FragmentDefinitionName;
+
+#[derive(
+    Debug,
+    Deserialize,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    strum::AsRefStr,
+    strum::Display,
+    strum::EnumString
+)]
+pub enum MachineMetadataKey {
+    UnknownType,
+    UnknownField,
+    ParentType,
+}
 
 struct ErrorLink(&'static str);
 
@@ -133,9 +152,7 @@ pub enum ValidationMessage {
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
     NonNullableVariableHasDefaultValue { variable_name: VariableName },
 
-    #[error(
-        "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
-    )]
+    #[error("Variable of type '{defined_type}' cannot be used where '{used_type}' is expected.")]
     InvalidVariableUsage {
         defined_type: String,
         used_type: String,
@@ -150,7 +167,10 @@ pub enum ValidationMessage {
     },
 
     #[error("Expected variable `${0}` to be defined on the operation")]
-    ExpectedOperationVariableToBeDefined(VariableName),
+    ExpectedOperationVariableToBeDefinedOnUnnamedQuery(VariableName),
+
+    #[error("Expected variable `${0}` to be defined on the operation '{1}'")]
+    ExpectedOperationVariableToBeDefined(VariableName, StringKey),
 
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"
@@ -179,8 +199,13 @@ pub enum ValidationMessage {
         type_condition: StringKey,
     },
 
-    #[error("Directive '{0}' not supported in this location")]
-    InvalidDirectiveUsageUnsupportedLocation(DirectiveName),
+    #[error(
+        "Directive '{directive_name}' not supported in this location. Supported location(s): {valid_locations}"
+    )]
+    InvalidDirectiveUsageUnsupportedLocation {
+        directive_name: DirectiveName,
+        valid_locations: String,
+    },
 
     #[error(
         "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"
@@ -329,7 +354,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "Expected the {key_arg_name} argument to @{connection_directive_name} to be of form '<SomeName>_{postfix}', got '{key_arg_value}'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection"
+        "Expected the {key_arg_name} argument to @{connection_directive_name} to be of form '<SomeName>_{postfix}', got '{key_arg_value}'. For a detailed explanation, check out https://relay.dev/docs/tutorial/connections-pagination/"
     )]
     InvalidConnectionKeyArgPostfix {
         connection_directive_name: DirectiveName,
@@ -440,7 +465,7 @@ pub enum ValidationMessage {
 
     #[error("The field `{parent_name}.{field_name}` is deprecated.{}",
         match deprecation_reason {
-            Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+            Some(reason) => format!(" Deprecation reason: \"{reason}\""),
             None => "".to_string()
         }
     )]
@@ -452,7 +477,7 @@ pub enum ValidationMessage {
 
     #[error("The argument `{argument_name}` of the field `{parent_name}.{field_name}` is deprecated.{}",
     match deprecation_reason {
-        Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+        Some(reason) => format!(" Deprecation reason: \"{reason}\""),
         None => "".to_string()
     })]
     DeprecatedFieldArgument {
@@ -464,7 +489,7 @@ pub enum ValidationMessage {
 
     #[error("The argument `{argument_name}` of the directive `@{directive_name}` is deprecated.{}",
     match deprecation_reason {
-        Some(reason) => format!(" Deprecation reason: \"{}\"", reason),
+        Some(reason) => format!(" Deprecation reason: \"{reason}\""),
         None => "".to_string()
     })]
     DeprecatedDirectiveArgument {
@@ -532,11 +557,6 @@ pub enum ValidationMessage {
         "Unexpected `@required(action: THROW)` directive in mutation response. The use of `@required(action: THROW)` is not supported in mutations."
     )]
     RequiredInMutation,
-
-    #[error(
-        "Unexpected `@throwOnFieldError` directive. The `@throwOnFieldError` directive is not supported unless experimental_emit_semantic_nullability_types is enabled."
-    )]
-    ThrowOnFieldErrorNotEnabled,
 
     #[error(
         "Unexpected `@RelayResolver` field referenced in mutation response. Relay Resolver fields may not be read as part of a mutation response."
@@ -620,7 +640,7 @@ impl WithDiagnosticData for ValidationMessageWithData {
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),
             ValidationMessageWithData::ExpectedSelectionsOnObjectField { field_name, .. } => {
-                vec![Box::new(format!("{} {{ }}", field_name))]
+                vec![Box::new(format!("{field_name} {{ }}"))]
             }
             ValidationMessageWithData::DeprecatedDangerouslyUnaliasedDirective => {
                 vec![Box::new("@alias".to_string())]

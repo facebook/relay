@@ -16,4 +16,5 @@
 module.exports.rules = {
   'no-mixed-import-and-require': require('./rules/no-mixed-import-and-require'),
   'sort-imports': require('./rules/sort-imports'), // Synced from WWW
+  'no-for-of-loops': require('./rules/no-for-of-loops'),
 };

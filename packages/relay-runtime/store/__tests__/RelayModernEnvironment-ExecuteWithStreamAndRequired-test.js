@@ -50,6 +50,7 @@ describe('execute() a query with @stream and @required', () => {
       ) {
         node(id: $id) {
           ...RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;
@@ -66,9 +67,9 @@ describe('execute() a query with @stream and @required', () => {
     `;
     const variables = {id: '1', enableStream: true};
 
-    const complete = jest.fn<[], mixed>();
-    const error = jest.fn<[Error], mixed>();
-    const next = jest.fn<[GraphQLResponse], mixed>();
+    const complete = jest.fn<[], unknown>();
+    const error = jest.fn<[Error], unknown>();
+    const next = jest.fn<[GraphQLResponse], unknown>();
 
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
@@ -111,16 +112,14 @@ describe('execute() a query with @stream and @required', () => {
     jest.runAllTimers();
 
     const snapshot = callback.mock.calls[0][0];
-    expect(snapshot.missingRequiredFields).toEqual({
-      action: 'LOG',
-      fields: [
-        {
-          owner:
-            'RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment',
-          path: 'actors',
-        },
-      ],
-    });
+    expect(snapshot.fieldErrors).toEqual([
+      {
+        kind: 'missing_required_field.log',
+        owner:
+          'RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment',
+        fieldPath: 'actors',
+      },
+    ]);
     expect(snapshot.data).toEqual(null);
   });
 });

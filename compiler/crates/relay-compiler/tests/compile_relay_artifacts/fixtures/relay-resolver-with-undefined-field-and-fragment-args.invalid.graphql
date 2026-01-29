@@ -2,16 +2,19 @@
 
 query relayResolverWithUndefinedFieldAndFragmentArgsQuery {
   node(id: "SOME_ID") {
-    ...relayResolverWithUndefinedFieldAndFragmentArgs_user
+    ...relayResolverWithUndefinedFieldAndFragmentArgs_user @alias
   }
 }
 
 fragment relayResolverWithUndefinedFieldAndFragmentArgs_user on User {
-  pop_star_name(field_arg: $undefined_field_arg, includeName: $undefined_fragment_arg)
+  pop_star_name(
+    field_arg: $undefined_field_arg
+    includeName: $undefined_fragment_arg
+  )
 }
 
 fragment relayResolverWithUndefinedFieldAndFragmentArgsFragment_name on User
-  @argumentDefinitions(includeName: {type: "Boolean!"}) {
+@argumentDefinitions(includeName: {type: "Boolean!"}) {
   __typename
   name @include(if: $includeName)
 }
@@ -19,5 +22,9 @@ fragment relayResolverWithUndefinedFieldAndFragmentArgsFragment_name on User
 # %extensions%
 
 extend type User {
-  pop_star_name(field_arg: Int, includeName: Boolean!): String @relay_resolver(fragment_name: "relayResolverWithUndefinedFieldAndFragmentArgsFragment_name", import_path: "PopStarNameResolver")
+  pop_star_name(field_arg: Int, includeName: Boolean!): String
+    @relay_resolver(
+      fragment_name: "relayResolverWithUndefinedFieldAndFragmentArgsFragment_name"
+      import_path: "PopStarNameResolver"
+    )
 }

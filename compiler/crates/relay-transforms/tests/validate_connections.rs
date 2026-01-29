@@ -9,13 +9,13 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::TEST_SCHEMA;
-use relay_transforms::validate_connections;
 use relay_transforms::ConnectionInterface;
+use relay_transforms::validate_connections;
 
 pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);

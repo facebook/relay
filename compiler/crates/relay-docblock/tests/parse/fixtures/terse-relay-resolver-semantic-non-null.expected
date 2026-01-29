@@ -88,6 +88,7 @@ Field(
                     ),
                 },
             ),
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: Some(
                 ConstantDirective {
@@ -113,6 +114,8 @@ Field(
             source_hash: ResolverSourceHash(
                 "ba2a3b6d7c4294fef33f921df3b20065",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

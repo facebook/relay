@@ -1,0 +1,22 @@
+#expected-to-throw
+query TestQuery @exec_time_resolvers {
+  me {
+    client_recommendation {
+      id
+    }
+  }
+}
+
+fragment ClientRecommendationResolverFragment on User {
+  __typename
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+extend type User {
+  client_recommendation: ClientOnlyType @relay_resolver(fragment_name: "ClientRecommendationResolverFragment", import_path: "ClientRecommendationResolver")
+}

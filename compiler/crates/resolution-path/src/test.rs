@@ -7,10 +7,10 @@
 
 use common::SourceLocationKey;
 use common::Span;
-use graphql_syntax::parse_executable_with_features;
-use graphql_syntax::parse_schema_document;
 use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
+use graphql_syntax::parse_executable_with_features;
+use graphql_syntax::parse_schema_document;
 
 use super::*;
 
@@ -21,6 +21,7 @@ pub(super) fn test_resolution(source: &str, sub_str: &str, cb: impl Fn(&Resoluti
         ParserFeatures {
             fragment_argument_capability:
                 FragmentArgumentSyntaxKind::SpreadArgumentsAndFragmentVariableDefinitions,
+            allow_string_literal_alias: false,
         },
     )
     .unwrap();

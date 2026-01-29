@@ -11,8 +11,8 @@ use std::sync::Arc;
 
 use common::SourceLocationKey;
 use common::Span;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_syntax::parse_executable_with_error_recovery;
 use intern::string_key::Intern;
@@ -73,8 +73,7 @@ fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
     for label in labels {
         assert!(
             completion_labels.remove(label),
-            "Expected to have {} in the set",
-            label
+            "Expected to have {label} in the set"
         );
     }
     assert!(completion_labels.is_empty());
@@ -429,6 +428,7 @@ fn directive() {
             "skip",
             "fb_actor_change",
             "waterfall",
+            "live",
         ],
     );
 }
@@ -468,6 +468,7 @@ fn directive_on_scalar_field() {
             "skip",
             "fb_actor_change",
             "waterfall",
+            "live",
         ],
     );
 }
@@ -756,6 +757,7 @@ fn empty_directive() {
             "skip",
             "fb_actor_change",
             "waterfall",
+            "live",
         ],
     );
 }

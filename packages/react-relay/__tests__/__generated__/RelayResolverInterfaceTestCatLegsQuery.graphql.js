@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a25d16447be608f67d40ca4e224344f6>>
+ * @generated SignedSource<<0293a0c9a7d6f43f6ee18d498db221ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,13 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { DataID } from "relay-runtime";
 import type { RelayResolverInterfaceTestAnimalLegsFragment$fragmentType } from "./RelayResolverInterfaceTestAnimalLegsFragment.graphql";
 import {cat as queryCatResolverType} from "../../../relay-runtime/store/__tests__/resolvers/CatResolvers.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryCatResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(queryCatResolverType: () => ?{|
+(queryCatResolverType: (
+  args: void,
+  context: TestResolverContextType,
+) => ?{|
   +id: DataID,
 |});
 export type RelayResolverInterfaceTestCatLegsQuery$variables = {||};
@@ -71,8 +75,8 @@ return {
               "name": "Cat__id"
             },
             "kind": "RelayResolver",
-            "name": "cat",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
+            "name": "__relay_model_instance",
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Cat__id.graphql'), require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').Cat, 'id', true),
             "path": "cat.__relay_model_instance"
           }
         },
@@ -82,7 +86,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "cat",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CatResolvers').cat,
+          "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/CatResolvers').cat,
           "path": "cat"
         },
         "linkedField": {

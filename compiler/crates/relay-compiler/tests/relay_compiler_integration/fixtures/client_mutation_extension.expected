@@ -8,10 +8,6 @@ graphql`mutation barMutation {
 {
    "language": "flow",
    "schema": "./schema.graphql",
-   "eagerEsModules": true,
-   "featureFlags": {
-      "enable_relay_resolver_transform": true
-   },
    "schemaExtensions": [
       "./extensions.graphql"
    ]
@@ -106,3 +102,11 @@ export default ((node/*: any*/)/*: Mutation<
   barMutation$variables,
   barMutation$data,
 >*/);
+
+
+
+Artifact Map:
+Project: default
+  Type: Mapping
+  - Source: ExecutableDefinition: barMutation
+    Path: __generated__/barMutation.graphql.js

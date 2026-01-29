@@ -6,9 +6,9 @@
  */
 
 use common::Diagnostic;
-use dependency_analyzer::get_reachable_ast;
 use dependency_analyzer::ExecutableDefinitionNameSet;
 use dependency_analyzer::ReachableAst;
+use dependency_analyzer::get_reachable_ast;
 use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentDefinitionNameSet;
@@ -20,8 +20,8 @@ use relay_transforms::get_resolver_fragment_dependency_name;
 use schema::SDLSchema;
 use schema::Schema;
 
-use crate::errors::BuildProjectError;
 use crate::GraphQLAsts;
+use crate::errors::BuildProjectError;
 
 pub struct ProjectAsts {
     pub changed_names: ExecutableDefinitionNameSet,
@@ -122,21 +122,21 @@ pub fn find_duplicates(
 
     let mut errors = Vec::new();
     for def in asts.iter().chain(base_asts) {
-        if let Some(name) = def.name_identifier() {
-            if let Some(prev_def) = definitions.insert(name.value, def) {
-                errors.push(
-                    Diagnostic::error(
-                        graphql_ir::ValidationMessage::DuplicateDefinition(name.value),
-                        def.location().with_span(name.span),
-                    )
-                    .annotate(
-                        "previously defined here",
-                        prev_def
-                            .name_location()
-                            .unwrap_or_else(|| prev_def.location()),
-                    ),
-                );
-            }
+        if let Some(name) = def.name_identifier()
+            && let Some(prev_def) = definitions.insert(name.value, def)
+        {
+            errors.push(
+                Diagnostic::error(
+                    graphql_ir::ValidationMessage::DuplicateDefinition(name.value),
+                    def.location().with_span(name.span),
+                )
+                .annotate(
+                    "previously defined here",
+                    prev_def
+                        .name_location()
+                        .unwrap_or_else(|| prev_def.location()),
+                ),
+            );
         }
     }
 
@@ -156,10 +156,10 @@ fn find_base_resolver_fragment_asts(
 ) -> Vec<ExecutableDefinition> {
     let mut base_resolver_fragments = ExecutableDefinitionNameSet::default();
     for field in schema.fields() {
-        if let Some(fragment_name) = get_resolver_fragment_dependency_name(field) {
-            if base_definition_asts.contains(&fragment_name.into()) {
-                base_resolver_fragments.insert(fragment_name.into());
-            }
+        if let Some(fragment_name) = get_resolver_fragment_dependency_name(field)
+            && base_definition_asts.contains(&fragment_name.into())
+        {
+            base_resolver_fragments.insert(fragment_name.into());
         }
     }
 

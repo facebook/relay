@@ -1,0 +1,78 @@
+==================================== INPUT ====================================
+directive @cached(ttl: Int = 300) on FIELD_DEFINITION | OBJECT
+
+directive @deprecated(reason: String = "No longer supported") on FIELD_DEFINITION | ENUM_VALUE
+
+type User @cached(ttl: 600) {
+  id: ID!
+  name: String! @deprecated(reason: "Use displayName instead")
+  displayName: String!
+  email: String @cached
+  profile: Profile
+}
+
+type Profile {
+  bio: String
+  avatar: String @cached(ttl: 3600)
+  preferences: UserPreferences
+}
+
+type UserPreferences {
+  theme: Theme
+  notifications: Boolean
+}
+
+enum Theme @deprecated {
+  LIGHT @deprecated(reason: "Use LIGHT_MODE")
+  DARK @deprecated(reason: "Use DARK_MODE")
+  LIGHT_MODE
+  DARK_MODE
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  preferences: UserPreferencesInput
+}
+
+input UserPreferencesInput {
+  theme: Theme
+  notifications: Boolean
+}
+==================================== OUTPUT ===================================
+visit_type_system_definition: directive @cached
+visit_input_value_definition: ttl
+visit_type_system_definition: directive @deprecated
+visit_input_value_definition: reason
+visit_type_system_definition: type User
+visit_constant_directive: @cached
+visit_field_definition: id
+visit_field_definition: name
+visit_constant_directive: @deprecated
+visit_field_definition: displayName
+visit_field_definition: email
+visit_constant_directive: @cached
+visit_field_definition: profile
+visit_type_system_definition: type Profile
+visit_field_definition: bio
+visit_field_definition: avatar
+visit_constant_directive: @cached
+visit_field_definition: preferences
+visit_type_system_definition: type UserPreferences
+visit_field_definition: theme
+visit_field_definition: notifications
+visit_type_system_definition: enum Theme
+visit_constant_directive: @deprecated
+visit_enum_value_definition: LIGHT
+visit_constant_directive: @deprecated
+visit_enum_value_definition: DARK
+visit_constant_directive: @deprecated
+visit_enum_value_definition: LIGHT_MODE
+visit_enum_value_definition: DARK_MODE
+visit_type_system_definition: input UpdateUserInput
+visit_input_value_definition: name
+visit_input_value_definition: email
+visit_input_value_definition: preferences
+visit_type_system_definition: input UserPreferencesInput
+visit_input_value_definition: theme
+visit_input_value_definition: notifications

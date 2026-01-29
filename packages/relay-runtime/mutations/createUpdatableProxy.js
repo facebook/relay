@@ -24,36 +24,15 @@ import type {
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 const {getArgumentValues} = require('../store/RelayStoreUtils');
-const {
-  ACTOR_CHANGE,
-  ALIASED_FRAGMENT_SPREAD,
-  ALIASED_INLINE_FRAGMENT_SPREAD,
-  CATCH_FIELD,
-  CLIENT_EDGE_TO_CLIENT_OBJECT,
-  CLIENT_EDGE_TO_SERVER_OBJECT,
-  CLIENT_EXTENSION,
-  CONDITION,
-  DEFER,
-  FRAGMENT_SPREAD,
-  INLINE_DATA_FRAGMENT_SPREAD,
-  INLINE_FRAGMENT,
-  LINKED_FIELD,
-  MODULE_IMPORT,
-  RELAY_LIVE_RESOLVER,
-  RELAY_RESOLVER,
-  REQUIRED_FIELD,
-  SCALAR_FIELD,
-  STREAM,
-} = require('../util/RelayConcreteNode');
 
 const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
 function createUpdatableProxy<TData: {...}>(
   updatableProxyRootRecord: RecordProxy,
   variables: Variables,
-  selections: $ReadOnlyArray<ReaderSelection>,
+  selections: ReadonlyArray<ReaderSelection>,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): TData {
   const mutableUpdatableProxy = {};
   updateProxyFromSelections(
@@ -70,20 +49,20 @@ function createUpdatableProxy<TData: {...}>(
   // unless ReaderSelection carries more type information, we will never be able
   // to flowtype mutableUpdatableProxy without a type assertion.
   // $FlowFixMe[unclear-type]
-  return ((mutableUpdatableProxy: any): TData);
+  return mutableUpdatableProxy as any as TData;
 }
 
 function updateProxyFromSelections<TData>(
   mutableUpdatableProxy: TData,
   updatableProxyRootRecord: RecordProxy,
   variables: Variables,
-  selections: $ReadOnlyArray<ReaderSelection>,
+  selections: ReadonlyArray<ReaderSelection>,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): void {
   for (const selection of selections) {
     switch (selection.kind) {
-      case LINKED_FIELD:
+      case 'LinkedField':
         if (selection.plural) {
           Object.defineProperty(
             mutableUpdatableProxy,
@@ -126,10 +105,10 @@ function updateProxyFromSelections<TData>(
           );
         }
         break;
-      case SCALAR_FIELD:
+      case 'ScalarField':
         const scalarFieldName = selection.alias ?? selection.name;
         Object.defineProperty(mutableUpdatableProxy, scalarFieldName, {
-          get: function () {
+          get() {
             const newVariables = getArgumentValues(
               selection.args ?? [],
               variables,
@@ -169,7 +148,7 @@ function updateProxyFromSelections<TData>(
               },
         });
         break;
-      case INLINE_FRAGMENT:
+      case 'InlineFragment':
         if (updatableProxyRootRecord.getType() === selection.type) {
           updateProxyFromSelections(
             mutableUpdatableProxy,
@@ -181,7 +160,7 @@ function updateProxyFromSelections<TData>(
           );
         }
         break;
-      case CLIENT_EXTENSION:
+      case 'ClientExtension':
         updateProxyFromSelections(
           mutableUpdatableProxy,
           updatableProxyRootRecord,
@@ -191,29 +170,28 @@ function updateProxyFromSelections<TData>(
           missingFieldHandlers,
         );
         break;
-      case FRAGMENT_SPREAD:
+      case 'FragmentSpread':
         // Explicitly ignore
         break;
-      case CONDITION:
-      case ACTOR_CHANGE:
-      case ALIASED_FRAGMENT_SPREAD:
-      case INLINE_DATA_FRAGMENT_SPREAD:
-      case ALIASED_INLINE_FRAGMENT_SPREAD:
-      case CLIENT_EDGE_TO_CLIENT_OBJECT:
-      case CLIENT_EDGE_TO_SERVER_OBJECT:
-      case DEFER:
-      case MODULE_IMPORT:
-      case RELAY_LIVE_RESOLVER:
-      case REQUIRED_FIELD:
-      case CATCH_FIELD:
-      case STREAM:
-      case RELAY_RESOLVER:
+      case 'Condition':
+      case 'ActorChange':
+      case 'InlineDataFragmentSpread':
+      case 'AliasedInlineFragmentSpread':
+      case 'ClientEdgeToClientObject':
+      case 'ClientEdgeToServerObject':
+      case 'Defer':
+      case 'ModuleImport':
+      case 'RequiredField':
+      case 'CatchField':
+      case 'Stream':
+      case 'RelayResolver':
+      case 'RelayLiveResolver':
         // These types of reader nodes are not currently handled.
         throw new Error(
           'Encountered an unexpected ReaderSelection variant in RelayRecordSourceProxy. This indicates a bug in Relay.',
         );
       default:
-        (selection.kind: empty);
+        selection.kind as empty;
         throw new Error(
           'Encountered an unexpected ReaderSelection variant in RelayRecordSourceProxy. This indicates a bug in Relay.',
         );
@@ -227,7 +205,7 @@ function createSetterForPluralLinkedField(
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
 ) {
-  return function set(newValue: $ReadOnlyArray<{__id: string, ...}>) {
+  return function set(newValue: ReadonlyArray<{__id: string, ...}>) {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
     if (newValue == null) {
       throw new Error(
@@ -298,7 +276,7 @@ function createGetterForPluralLinkedField(
   variables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): () => $FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
@@ -318,7 +296,7 @@ function createGetterForPluralLinkedField(
     }
 
     if (linkedRecords != null) {
-      return (linkedRecords.map(linkedRecord => {
+      return linkedRecords.map(linkedRecord => {
         if (linkedRecord != null) {
           const updatableProxy = {};
           updateProxyFromSelections(
@@ -340,7 +318,7 @@ function createGetterForPluralLinkedField(
           return linkedRecord;
         }
         // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-      }): any);
+      }) as any;
     } else {
       return linkedRecords;
     }
@@ -352,7 +330,7 @@ function createGetterForSingularLinkedField(
   variables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): () => ?$FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
@@ -386,7 +364,7 @@ function createGetterForSingularLinkedField(
       // Flow incorrect assumes that the return value for the get method must match
       // the set parameter.
       // $FlowFixMe[unclear-type] Typed by the generated updatable query flow type
-      return (updatableProxy: any);
+      return updatableProxy as any;
     } else {
       return linkedRecord;
     }
@@ -398,7 +376,7 @@ function getLinkedRecordUsingMissingFieldHandlers(
   newVariables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): ?RecordProxy {
   for (const handler of missingFieldHandlers) {
     if (handler.kind === 'linked') {
@@ -420,7 +398,7 @@ function getPluralLinkedRecordUsingMissingFieldHandlers(
   newVariables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
 ): ?Array<?RecordProxy> {
   for (const handler of missingFieldHandlers) {
     if (handler.kind === 'pluralLinked') {
@@ -446,8 +424,8 @@ function getScalarUsingMissingFieldHandlers(
   newVariables: Variables,
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
-  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
-): mixed {
+  missingFieldHandlers: ReadonlyArray<MissingFieldHandler>,
+): unknown {
   for (const handler of missingFieldHandlers) {
     if (handler.kind === 'scalar') {
       const value = handler.handle(

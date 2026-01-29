@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<15998457fc663de32a7f93c6a8f510e2>>
+ * @generated SignedSource<<294590aede42b30342d8c0d2ca299310>>
  */
 
 mod parse;
@@ -220,6 +220,13 @@ async fn relay_resolver_with_field_and_fragment_args() {
     let input = include_str!("parse/fixtures/relay-resolver-with-field-and-fragment-args.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-field-and-fragment-args.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-with-field-and-fragment-args.js", "parse/fixtures/relay-resolver-with-field-and-fragment-args.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn relay_resolver_with_field_and_fragment_args_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-field-and-fragment-args.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-field-and-fragment-args.invalid.expected");
+    test_fixture(transform_fixture, file!(), "relay-resolver-with-field-and-fragment-args.invalid.js", "parse/fixtures/relay-resolver-with-field-and-fragment-args.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

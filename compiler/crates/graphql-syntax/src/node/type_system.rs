@@ -212,6 +212,7 @@ pub trait ExtensionIntoDefinition: Sized {
 pub struct SchemaDefinition {
     pub directives: Vec<ConstantDirective>,
     pub operation_types: List<OperationTypeDefinition>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -237,6 +238,8 @@ impl From<SchemaExtension> for SchemaDefinition {
                     kind: TokenKind::CloseBrace,
                 },
             }),
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -281,6 +284,7 @@ pub struct ObjectTypeDefinition {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -299,6 +303,8 @@ impl From<ObjectTypeExtension> for ObjectTypeDefinition {
             interfaces: ext.interfaces,
             directives: ext.directives,
             fields: ext.fields,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -313,6 +319,7 @@ pub struct InterfaceTypeDefinition {
     pub interfaces: Vec<Identifier>,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<FieldDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -331,6 +338,8 @@ impl From<InterfaceTypeExtension> for InterfaceTypeDefinition {
             interfaces: ext.interfaces,
             directives: ext.directives,
             fields: ext.fields,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -344,6 +353,7 @@ pub struct UnionTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub members: Vec<Identifier>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -360,6 +370,8 @@ impl From<UnionTypeExtension> for UnionTypeDefinition {
             name: ext.name,
             directives: ext.directives,
             members: ext.members,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -372,6 +384,7 @@ impl ExtensionIntoDefinition for UnionTypeExtension {
 pub struct ScalarTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -386,6 +399,8 @@ impl From<ScalarTypeExtension> for ScalarTypeDefinition {
         Self {
             name: ext.name,
             directives: ext.directives,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -399,6 +414,7 @@ pub struct EnumTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub values: Option<List<EnumValueDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -415,6 +431,8 @@ impl From<EnumTypeExtension> for EnumTypeDefinition {
             name: ext.name,
             directives: ext.directives,
             values: ext.values,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -428,6 +446,7 @@ pub struct InputObjectTypeDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
     pub fields: Option<List<InputValueDefinition>>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -444,6 +463,8 @@ impl From<InputObjectTypeExtension> for InputObjectTypeDefinition {
             name: ext.name,
             directives: ext.directives,
             fields: ext.fields,
+            // Extensions cannot have descriptions
+            description: None,
             span: ext.span,
         }
     }
@@ -456,6 +477,7 @@ impl ExtensionIntoDefinition for InputObjectTypeExtension {
 pub struct EnumValueDefinition {
     pub name: Identifier,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -542,6 +564,7 @@ pub struct InputValueDefinition {
     pub type_: TypeAnnotation,
     pub default_value: Option<DefaultValue>,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
     pub span: Span,
 }
 
@@ -549,7 +572,7 @@ impl fmt::Display for InputValueDefinition {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}: {}", self.name, self.type_)?;
         if let Some(v) = &self.default_value {
-            write!(f, " = {}", v)?;
+            write!(f, " = {v}")?;
         }
 
         if !self.directives.is_empty() {
@@ -601,7 +624,7 @@ fn write_list(
         .map(|elem| elem.to_string())
         .collect::<Vec<String>>()
         .join(separator);
-    write!(f, "{}", v)
+    write!(f, "{v}")
 }
 
 fn write_arguments(f: &mut fmt::Formatter<'_>, arguments: &[impl fmt::Display]) -> fmt::Result {
@@ -669,7 +692,7 @@ fn write_object_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "type {}", name)?;
+    write!(f, "type {name}")?;
     if !interfaces.is_empty() {
         write!(f, " implements ")?;
         write_list(f, interfaces, " & ")?;
@@ -693,7 +716,7 @@ fn write_interface_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "interface {}", name)?;
+    write!(f, "interface {name}")?;
     if !interfaces.is_empty() {
         write!(f, " implements ")?;
         write_list(f, interfaces, " & ")?;
@@ -716,7 +739,7 @@ fn write_union_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "union {}", name)?;
+    write!(f, "union {name}")?;
     write_directives(f, directives)?;
     if !members.is_empty() {
         write!(f, " = ")?;
@@ -729,14 +752,17 @@ fn write_directive_definition_helper(
     f: &mut fmt::Formatter<'_>,
     name: &StringKey,
     arguments: &Option<List<InputValueDefinition>>,
-    _repeatable: &bool,
+    repeatable: &bool,
     locations: &[DirectiveLocation],
     _description: &Option<StringNode>,
     _hack_source: &Option<StringNode>,
 ) -> fmt::Result {
-    write!(f, "directive @{}", name)?;
+    write!(f, "directive @{name}")?;
     if let Some(arguments) = arguments.as_ref() {
         write_arguments(f, &arguments.items)?;
+    }
+    if *repeatable {
+        write!(f, " repeatable")?;
     }
     write!(f, " on ")?;
     write_list(f, locations, " | ")?;
@@ -754,7 +780,7 @@ fn write_input_object_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "input {}", name)?;
+    write!(f, "input {name}")?;
     write_directives(f, directives)?;
     if let Some(fields) = fields.as_ref() {
         write_fields(f, &fields.items)?;
@@ -773,7 +799,7 @@ fn write_enum_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "enum {}", name)?;
+    write!(f, "enum {name}")?;
     write_directives(f, directives)?;
     if let Some(values) = values.as_ref() {
         write_fields(f, &values.items)?;
@@ -792,7 +818,7 @@ fn write_scalar_type_definition_helper(
         write!(f, "extend ")?;
     }
 
-    write!(f, "scalar {}", name)?;
+    write!(f, "scalar {name}")?;
     write_directives(f, directives)?;
     writeln!(f)
 }

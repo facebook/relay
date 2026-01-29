@@ -14,5 +14,5 @@ mutation CommentDeleteMutation(
   delete-edge-from-connection-on-unsupported-type.invalid.graphql:7:16
     6 │   commentDelete(input: $input) {
     7 │     __typename @deleteEdge(connections: $connections)
-      │                ^^^^^^^^^^^
+      │                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     8 │   }

@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<256a993c631a9ebc61e38ac8a97f397a>>
+ * @generated SignedSource<<39dd352e5adf4e9487dc822994bb7306>>
  */
 
 mod skip_unreachable_nodes;
 
 use skip_unreachable_nodes::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[tokio::test]
+async fn empty_selection_skip_true() {
+    let input = include_str!("skip_unreachable_nodes/fixtures/empty-selection-skip-true.graphql");
+    let expected = include_str!("skip_unreachable_nodes/fixtures/empty-selection-skip-true.expected");
+    test_fixture(transform_fixture, file!(), "empty-selection-skip-true.graphql", "skip_unreachable_nodes/fixtures/empty-selection-skip-true.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn empty_selectoin_include_false() {
+    let input = include_str!("skip_unreachable_nodes/fixtures/empty-selectoin-include-false.graphql");
+    let expected = include_str!("skip_unreachable_nodes/fixtures/empty-selectoin-include-false.expected");
+    test_fixture(transform_fixture, file!(), "empty-selectoin-include-false.graphql", "skip_unreachable_nodes/fixtures/empty-selectoin-include-false.expected", input, expected).await;
+}
 
 #[tokio::test]
 async fn keeps_other_fields() {

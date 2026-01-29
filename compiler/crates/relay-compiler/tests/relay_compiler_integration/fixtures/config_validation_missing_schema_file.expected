@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+//- src/component.js
+
+graphql`query componentQuery {
+  node(id: "123") {
+    ... on User {
+      name
+    }
+  }
+}`
+
+//- relay.config.json
+{
+   "sources": {
+      "src": "test_project"
+   },
+   "projects": {
+      "test_project": {
+         "schema": "./nonexistent_schema.graphql",
+         "language": "javascript"
+      }
+   }
+}
+==================================== OUTPUT ===================================
+Config `<TEST_DIR>/relay.config.json` is invalid:
+ - The `schema file` at `<TEST_DIR>/nonexistent_schema.graphql` does not exist.

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9af76fa2cc8b4009ca1a3937a6f65434>>
+ * @generated SignedSource<<439f5cbf8cfb9a6d33c45bee7ea7ba5b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,10 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { HelloWorldResolverWithProvidedVariable$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/HelloWorldResolverWithProvidedVariable.graphql";
 import {hello_world_with_provided_variable as queryHelloWorldWithProvidedVariableResolverType} from "../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithProvidedVariable.js";
+import type { TestResolverContextType } from "../../../relay-runtime/mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `queryHelloWorldWithProvidedVariableResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloWorldWithProvidedVariableResolverType: (
   rootKey: HelloWorldResolverWithProvidedVariable$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 export type LiveResolversTestWithProvidedVariablesQuery$variables = {||};
 export type LiveResolversTestWithProvidedVariablesQuery$data = {|
@@ -59,7 +62,7 @@ var node/*: ClientRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "hello_world_with_provided_variable",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithProvidedVariable').hello_world_with_provided_variable,
+        "resolverModule": require('../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolverWithProvidedVariable').hello_world_with_provided_variable,
         "path": "hello_world_with_provided_variable"
       }
     ],

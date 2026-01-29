@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+{
+  "type_name": "MassiveType",
+  "string_filter": "10"
+}
+==================================== OUTPUT ===================================
+type MassiveType {
+  field10: String
+  field100: String
+  field101: String
+  field102: String
+  field103: String
+  field104: String
+  field105: String
+  field106: String
+  field107: String
+  field108: String
+  field109: String
+  field110: String
+  field210: String
+  field310: String
+  field410: String
+  field510: String
+  field610: String
+  field710: String
+  field810: String
+  field910: String
+  # 980 fields not matching filter
+}

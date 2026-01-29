@@ -13,7 +13,6 @@
 
 import type {Fragment, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
-const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useFragmentInternal = require('./useFragmentInternal');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
@@ -39,26 +38,23 @@ declare hook useFragment<TFragmentType: FragmentType, TData>(
 // if the key is a non-nullable array of keys, return non-nullable array
 declare hook useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
-  key: $ReadOnlyArray<HasSpread<TFragmentType>>,
+  key: ReadonlyArray<HasSpread<TFragmentType>>,
 ): TData;
 
 // if the key is a nullable array of keys, return nullable array
 declare hook useFragment<TFragmentType: FragmentType, TData>(
   fragment: Fragment<TFragmentType, TData>,
-  key: ?$ReadOnlyArray<HasSpread<TFragmentType>>,
+  key: ?ReadonlyArray<HasSpread<TFragmentType>>,
 ): ?TData;
 
-hook useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
-  // We need to use this hook in order to be able to track if
-  // loadQuery was called during render
-  useTrackLoadQueryInRender();
-
+hook useFragment(fragment: GraphQLTaggedNode, key: unknown): unknown {
   const fragmentNode = getFragment(fragment);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
   const data = useFragmentInternal(fragmentNode, key, 'useFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     // $FlowFixMe[react-rule-hook]
+    // $FlowFixMe[react-rule-hook-conditional]
     useDebugValue({fragment: fragmentNode.name, data});
   }
   return data;

@@ -11,13 +11,13 @@ use common::FeatureFlag;
 use common::FeatureFlags;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::build;
 use graphql_ir::Program;
+use graphql_ir::build;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
+use graphql_text_printer::PrinterOptions;
 use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
-use graphql_text_printer::PrinterOptions;
 use relay_config::ProjectConfig;
 use relay_config::ProjectName;
 use relay_test_schema::get_test_schema_with_extensions;
@@ -48,10 +48,12 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
             feature_flags,
             ..Default::default()
         };
-        let mut next_program = client_edges(&program, &project_config, &Default::default())
-            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+        let mut next_program = client_edges(&program, &project_config, &Default::default(), true)
+            .map_err(|diagnostics| {
+            diagnostics_to_sorted_string(fixture.content, &diagnostics)
+        })?;
 
-        next_program = relay_resolvers(ProjectName::default(), &next_program, true)
+        next_program = relay_resolvers(ProjectName::default(), &next_program)
             .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         let printer_options = PrinterOptions {

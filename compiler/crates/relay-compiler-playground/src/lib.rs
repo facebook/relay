@@ -21,12 +21,12 @@ use relay_codegen::print_operation;
 use relay_codegen::print_provided_variables;
 use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
-use relay_transforms::apply_transforms;
 use relay_transforms::Programs;
-use relay_typegen::generate_fragment_type_exports_section;
-use relay_typegen::generate_operation_type_exports_section;
+use relay_transforms::apply_transforms;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
+use relay_typegen::generate_fragment_type_exports_section;
+use relay_typegen::generate_operation_type_exports_section;
 use schema::SDLSchema;
 use serde::Serialize;
 use wasm_bindgen::prelude::*;
@@ -353,6 +353,7 @@ fn get_programs(
         Arc::new(NoopPerfLogger),
         None,
         None,
+        vec![],
     )
     .map_err(|diagnostics: Vec<Diagnostic>| {
         map_diagnostics(diagnostics, &InputType::Document(document_text))

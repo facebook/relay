@@ -5,7 +5,7 @@ fragment relayResolver_BestFriendResolverFragment_name on User {
 
 query relayResolver_Query {
   me {
-    best_friends @waterfall {
+    best_friends {
       name
     }
   }
@@ -13,24 +13,18 @@ query relayResolver_Query {
 
 # %extensions%
 
+type ClientUser {
+  name: String
+}
+
 extend type User {
-  best_friends: [User]! @relay_resolver(fragment_name: "relayResolver_BestFriendResolverFragment_name", import_path: "./foo/bar/baz/BestFriendResolver.js")
+  best_friends: [ClientUser]!
+    @relay_resolver(
+      fragment_name: "relayResolver_BestFriendResolverFragment_name"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
 }
 ==================================== OUTPUT ===================================
-import type { RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$fragmentType } from "RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends.graphql";
-export type ClientEdgeQuery_relayResolver_Query_me__best_friends$variables = {|
-  id: string,
-|};
-export type ClientEdgeQuery_relayResolver_Query_me__best_friends$data = {|
-  +node: ?{|
-    +$fragmentSpreads: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$fragmentType,
-  |},
-|};
-export type ClientEdgeQuery_relayResolver_Query_me__best_friends = {|
-  response: ClientEdgeQuery_relayResolver_Query_me__best_friends$data,
-  variables: ClientEdgeQuery_relayResolver_Query_me__best_friends$variables,
-|};
--------------------------------------------------------------------------------
 import type { DataID } from "relay-runtime";
 import type { relayResolver_BestFriendResolverFragment_name$key } from "relayResolver_BestFriendResolverFragment_name.graphql";
 import userBestFriendsResolverType from "BestFriendResolver";
@@ -38,13 +32,13 @@ import userBestFriendsResolverType from "BestFriendResolver";
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendsResolverType: (
   rootKey: relayResolver_BestFriendResolverFragment_name$key,
-) => $ReadOnlyArray<?{|
+) => ReadonlyArray<?{|
   +id: DataID,
 |}>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|
-    +best_friends: $ReadOnlyArray<?{|
+    +best_friends: ReadonlyArray<?{|
       +name: ?string,
     |}>,
   |},
@@ -53,20 +47,6 @@ export type relayResolver_Query = {|
   response: relayResolver_Query$data,
   variables: relayResolver_Query$variables,
 |};
--------------------------------------------------------------------------------
-import type { FragmentType } from "relay-runtime";
-declare export opaque type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$fragmentType: FragmentType;
-import type { ClientEdgeQuery_relayResolver_Query_me__best_friends$variables } from "ClientEdgeQuery_relayResolver_Query_me__best_friends.graphql";
-export type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$data = {|
-  +id: string,
-  +name: ?string,
-  +$fragmentType: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$fragmentType,
-|};
-export type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$key = {
-  +$data?: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$data,
-  +$fragmentSpreads: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friends$fragmentType,
-  ...
-};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
 declare export opaque type relayResolver_BestFriendResolverFragment_name$fragmentType: FragmentType;

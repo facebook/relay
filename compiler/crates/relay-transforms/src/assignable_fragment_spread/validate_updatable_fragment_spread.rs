@@ -19,9 +19,10 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 
-use super::ensure_discriminated_union_is_created;
 use super::ValidationMessage;
+use super::ensure_discriminated_union_is_created;
 use crate::UPDATABLE_DIRECTIVE;
+use crate::fragment_alias_directive::FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME;
 
 pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResult<()> {
     UpdatableFragmentSpread {
@@ -56,7 +57,7 @@ struct UpdatableFragmentSpread<'a> {
     path: Vec<PathItem>,
 }
 
-impl<'a> UpdatableFragmentSpread<'a> {
+impl UpdatableFragmentSpread<'_> {
     /// Validate many conditions for spreads of updatable fragments:
     /// * the fragment spread contains no directives
     /// * there is no @if or @skip between the linked field and the fragment spread
@@ -88,10 +89,15 @@ impl<'a> UpdatableFragmentSpread<'a> {
     ) -> DiagnosticsResult<()> {
         let mut errors = vec![];
 
-        if !fragment_spread.directives.is_empty() {
+        let invalid_directive = fragment_spread
+            .directives
+            .iter()
+            .find(|directive| directive.name.item != *FRAGMENT_DANGEROUSLY_UNALIAS_DIRECTIVE_NAME);
+
+        if let Some(directive) = invalid_directive {
             errors.push(Diagnostic::error(
                 ValidationMessage::UpdatableFragmentSpreadNoDirectives,
-                fragment_spread.fragment.location,
+                directive.location,
             ));
         }
 
@@ -108,7 +114,7 @@ impl<'a> UpdatableFragmentSpread<'a> {
                     }
                     encountered_inline_fragment = true;
                 }
-                PathItem::LinkedField(ref mut linked_field_path_item) => {
+                PathItem::LinkedField(linked_field_path_item) => {
                     encountered_linked_field = true;
 
                     if !encountered_inline_fragment {
@@ -183,7 +189,7 @@ impl<'a> UpdatableFragmentSpread<'a> {
     }
 }
 
-impl<'a> Validator for UpdatableFragmentSpread<'a> {
+impl Validator for UpdatableFragmentSpread<'_> {
     const NAME: &'static str = "UpdatableFragmentSpread";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = false;
@@ -208,14 +214,14 @@ impl<'a> Validator for UpdatableFragmentSpread<'a> {
             _ => panic!("Unexpected path item"),
         };
 
-        if linked_field_item.should_ensure_discriminated_union_is_created {
-            if let Err(e) = ensure_discriminated_union_is_created(
+        if linked_field_item.should_ensure_discriminated_union_is_created
+            && let Err(e) = ensure_discriminated_union_is_created(
                 &self.program.schema,
                 linked_field,
                 "an updatable fragment was spread in an inline fragment in this linked field",
-            ) {
-                errors.extend(e)
-            }
+            )
+        {
+            errors.extend(e)
         }
 
         if !errors.is_empty() {

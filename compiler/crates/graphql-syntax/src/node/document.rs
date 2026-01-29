@@ -52,6 +52,6 @@ impl fmt::Display for SchemaDocument {
             .map(|definition| definition.to_string())
             .collect::<Vec<String>>()
             .join("\n");
-        writeln!(f, "{}", v)
+        writeln!(f, "{v}")
     }
 }

@@ -1,0 +1,18 @@
+fragment MyFragment on Query {
+  me @catch(to: NULL) {
+    clientUser {
+      # Should be non-nullable since it's semanticNonNull within a catch
+      name
+    }
+  }
+}
+
+%extensions%
+
+extend type User {
+  clientUser: ClientUser
+}
+
+type ClientUser {
+  name: String @semanticNonNull
+}

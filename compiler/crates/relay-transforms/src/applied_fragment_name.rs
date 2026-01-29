@@ -17,7 +17,7 @@ pub fn get_applied_fragment_name(
 ) -> FragmentDefinitionName {
     let arguments_hash = hash_arguments(args);
     match arguments_hash {
-        Some(hash) => FragmentDefinitionName(format!("{}_{}", spread_name, hash).intern()),
+        Some(hash) => FragmentDefinitionName(format!("{spread_name}_{hash}").intern()),
         None => spread_name,
     }
 }

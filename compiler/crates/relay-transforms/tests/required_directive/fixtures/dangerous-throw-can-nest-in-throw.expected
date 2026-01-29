@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+fragment EnabledFoo on User {
+  address @required(action: THROW) {
+    city @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+  }
+}
+==================================== OUTPUT ===================================
+fragment EnabledFoo on User {
+  address @required(action: THROW) @__RequiredMetadataDirective
+  # RequiredMetadataDirective {
+  #     action: Throw,
+  #     path: "address",
+  # }
+   {
+    city @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD) @__RequiredMetadataDirective
+    # RequiredMetadataDirective {
+    #     action: Throw,
+    #     path: "address.city",
+    # }
+    
+  }
+}

@@ -22,7 +22,7 @@ import type {
 
 export type GeneratedNodeMap = {[key: string]: GraphQLTaggedNode, ...};
 
-export type ObserverOrCallback = Observer<void> | ((error: ?Error) => mixed);
+export type ObserverOrCallback = Observer<void> | ((error: ?Error) => unknown);
 
 // NOTE: This is an inexact type in order to allow a RelayPaginationProp or
 // RelayRefetchProp to flow into a RelayProp.
@@ -57,7 +57,7 @@ export type RelayRefetchProp = {
 export type RefetchOptions = {
   +force?: boolean,
   +fetchPolicy?: 'store-or-network' | 'network-only',
-  +metadata?: {[key: string]: mixed, ...},
+  +metadata?: {[key: string]: unknown, ...},
 };
 
 /**
@@ -97,34 +97,68 @@ export type $FragmentRef<T> = {
   ...
 };
 
+/* $FlowExpectedError[unclear-type]: Intentional so that it won't fail,
+ * even if the type we want to exclude doesn't exist in Props */
+type LooseOmitRelayProps<Props, K: keyof any> = Pick<
+  Props,
+  Exclude<keyof Props, K>,
+>;
 /**
  * A utility type that takes the Props of a component and the type of
  * `props.relay` and returns the props of the container.
  */
 // prettier-ignore
 // $FlowFixMe[extra-type-arg] xplat redux flow type error
-// $FlowFixMe[deprecated-type]
-export type $RelayProps<Props, RelayPropT = RelayProp> = $ObjMap<
-  $Diff<Props, { relay: RelayPropT | void, ... }>,
-  & (<T: { +$fragmentType: empty, ... }>( T) =>  T)
-  & (<T: { +$fragmentType: empty, ... }>(?T) => ?T)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(                 T ) =>                  $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?                T ) => ?                $FragmentRef<T> )
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray< T>) =>  $ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray< T>) => ?$ReadOnlyArray< $FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>( $ReadOnlyArray<?T>) =>  $ReadOnlyArray<?$FragmentRef<T>>)
-  & (<TFragmentType: FragmentType, T: { +$fragmentType: TFragmentType, ... }>(?$ReadOnlyArray<?T>) => ?$ReadOnlyArray<?$FragmentRef<T>>)
-  & (<T>(T) => T),
+export type $RelayProps<Props, _RelayPropT = RelayProp> = MapRelayProps<
+  LooseOmitRelayProps<Props, 'relay'>,
 >;
 
-export type RelayFragmentContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayProp>,
->;
+type MapRelayProps<Props> = {[K in keyof Props]: MapRelayProp<Props[K]>};
+type MapRelayProp<T> = [+t: T] extends [+t: {+$fragmentType: empty, ...}]
+  ? T
+  : [+t: T] extends [+t: ?{+$fragmentType: empty, ...}]
+    ? ?T
+    : [+t: T] extends [+t: {+$fragmentType: FragmentType, ...}]
+      ? $FragmentRef<T>
+      : [+t: T] extends [+t: ?{+$fragmentType: FragmentType, ...}]
+        ? ?$FragmentRef<NonNullable<T>>
+        : [+t: T] extends [
+              +t: ReadonlyArray<
+                infer V extends {+$fragmentType: FragmentType, ...},
+              >,
+            ]
+          ? ReadonlyArray<$FragmentRef<V>>
+          : [+t: T] extends [
+                +t: ?ReadonlyArray<
+                  infer V extends {+$fragmentType: FragmentType, ...},
+                >,
+              ]
+            ? ?ReadonlyArray<$FragmentRef<V>>
+            : [+t: T] extends [
+                  +t: ReadonlyArray<?infer V extends {
+                    +$fragmentType: FragmentType,
+                    ...
+                  }>,
+                ]
+              ? ReadonlyArray<?$FragmentRef<NonNullable<V>>>
+              : [+t: T] extends [
+                    +t: ?ReadonlyArray<?infer V extends {
+                      +$fragmentType: FragmentType,
+                      ...
+                    }>,
+                  ]
+                ? ?ReadonlyArray<?$FragmentRef<NonNullable<V>>>
+                : T;
 
-export type RelayPaginationContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayPaginationProp>,
->;
+export type RelayFragmentContainer<TComponent: component(...empty)> = component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayProp>
+);
 
-export type RelayRefetchContainer<TComponent> = React$ComponentType<
-  $RelayProps<React$ElementConfig<TComponent>, RelayRefetchProp>,
->;
+export type RelayPaginationContainer<TComponent: component(...empty)> =
+  component(
+    ...$RelayProps<React.ElementConfig<TComponent>, RelayPaginationProp>
+  );
+
+export type RelayRefetchContainer<TComponent: component(...empty)> = component(
+  ...$RelayProps<React.ElementConfig<TComponent>, RelayRefetchProp>
+);

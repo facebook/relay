@@ -87,6 +87,7 @@ describe('executeMutation() with global invalidation', () => {
           node(id: $id) {
             id
             ...RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment
+              @dangerously_unaliased_fixme
           }
         }
       `,
@@ -113,8 +114,8 @@ describe('executeMutation() with global invalidation', () => {
       network: RelayNetwork.create(fetch),
       store,
     });
-    complete = jest.fn<[], mixed>();
-    error = jest.fn<[Error], mixed>();
+    complete = jest.fn<[], unknown>();
+    error = jest.fn<[Error], unknown>();
     callbacks = {complete, error};
   });
 
@@ -149,8 +150,8 @@ describe('executeMutation() with global invalidation', () => {
     // Assert that store invalidation during optimistic update
     // was a no-op
     expect(environment.check(queryOperation)).toEqual({
-      status: 'available',
       fetchTime: null,
+      status: 'available',
     });
   });
 
@@ -180,7 +181,7 @@ describe('executeMutation() with global invalidation', () => {
             if (!body) {
               throw new Error('Expected comment to have a body');
             }
-            const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+            const bodyValue: string = body.getValue('text') as $FlowFixMe;
             if (bodyValue == null) {
               throw new Error('Expected comment body to have text');
             }
@@ -194,10 +195,10 @@ describe('executeMutation() with global invalidation', () => {
         data: {
           commentCreate: {
             comment: {
-              id: commentID,
               body: {
                 text: 'Gave Relay', // server data is lowercase
               },
+              id: commentID,
             },
           },
         },
@@ -219,10 +220,10 @@ describe('executeMutation() with global invalidation', () => {
       environment.commitPayload(queryOperation, {
         node: {
           __typename: 'Comment',
-          id: commentID,
           body: {
             text: 'Foo',
           },
+          id: commentID,
         },
       });
       jest.runAllTimers();
@@ -252,7 +253,7 @@ describe('executeMutation() with global invalidation', () => {
             if (!body) {
               throw new Error('Expected comment to have a body');
             }
-            const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+            const bodyValue: string = body.getValue('text') as $FlowFixMe;
             if (bodyValue == null) {
               throw new Error('Expected comment body to have text');
             }
@@ -266,10 +267,10 @@ describe('executeMutation() with global invalidation', () => {
         data: {
           commentCreate: {
             comment: {
-              id: commentID,
               body: {
                 text: 'Gave Relay', // server data is lowercase
               },
+              id: commentID,
             },
           },
         },
@@ -310,7 +311,7 @@ describe('executeMutation() with global invalidation', () => {
             if (!body) {
               throw new Error('Expected comment to have a body');
             }
-            const bodyValue: string = (body.getValue('text'): $FlowFixMe);
+            const bodyValue: string = body.getValue('text') as $FlowFixMe;
             if (bodyValue == null) {
               throw new Error('Expected comment body to have text');
             }
@@ -324,10 +325,10 @@ describe('executeMutation() with global invalidation', () => {
         data: {
           commentCreate: {
             comment: {
-              id: commentID,
               body: {
                 text: 'Gave Relay', // server data is lowercase
               },
+              id: commentID,
             },
           },
         },
@@ -348,17 +349,17 @@ describe('executeMutation() with global invalidation', () => {
       environment.commitPayload(queryOperation, {
         node: {
           __typename: 'Comment',
-          id: commentID,
           body: {
             text: 'Foo',
           },
+          id: commentID,
         },
       });
       jest.runAllTimers();
       // Assert that query is currently stale
       expect(environment.check(queryOperation)).toEqual({
-        status: 'available',
         fetchTime,
+        status: 'available',
       });
       // Assert that operation that was written during the same update as invalidation
       // is still stale

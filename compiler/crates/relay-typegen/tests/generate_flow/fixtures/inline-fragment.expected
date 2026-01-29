@@ -46,7 +46,7 @@ fragment InlineFragmentKitchenSink on Story {
     ... on User {
       id
       name
-      ...SomeFragment
+      ...SomeFragment @alias
       profilePicture {
         width
       }
@@ -98,6 +98,9 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type InlineFragmentKitchenSink$fragmentType: FragmentType;
 export type InlineFragmentKitchenSink$data = {|
   +actor: ?{|
+    +SomeFragment?: ?{|
+      +$fragmentSpreads: SomeFragment$fragmentType,
+    |},
     +id: string,
     +name?: ?string,
     +profilePicture: ?{|
@@ -105,7 +108,6 @@ export type InlineFragmentKitchenSink$data = {|
       +uri: ?string,
       +width?: ?number,
     |},
-    +$fragmentSpreads: SomeFragment$fragmentType,
   |},
   +$fragmentType: InlineFragmentKitchenSink$fragmentType,
 |};
@@ -138,11 +140,6 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type SomeFragment$fragmentType: FragmentType;
 export type SomeFragment$data = {|
   +__typename: "User",
-  +$fragmentType: SomeFragment$fragmentType,
-|} | {|
-  // This will never be '%other', but we need some
-  // value in case none of the concrete values match.
-  +__typename: "%other",
   +$fragmentType: SomeFragment$fragmentType,
 |};
 export type SomeFragment$key = {

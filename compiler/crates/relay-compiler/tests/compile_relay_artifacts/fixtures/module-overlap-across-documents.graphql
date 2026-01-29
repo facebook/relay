@@ -1,6 +1,6 @@
 query moduleOverlapAcrossDocuments_FooNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...moduleOverlapAcrossDocuments_FooNameRendererFragment
+    ...moduleOverlapAcrossDocuments_FooNameRendererFragment @alias
   }
 }
 
@@ -15,7 +15,7 @@ fragment moduleOverlapAcrossDocuments_FooNameRendererFragment on User {
 
 query moduleOverlapAcrossDocuments_BarNameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...moduleOverlapAcrossDocuments_BarNameRendererFragment
+    ...moduleOverlapAcrossDocuments_BarNameRendererFragment @alias
   }
 }
 

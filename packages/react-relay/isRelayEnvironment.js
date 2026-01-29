@@ -15,7 +15,7 @@
  * Determine if a given value is an object that implements the `Environment`
  * interface defined in `RelayEnvironmentTypes`.
  */
-function isRelayEnvironment(environment: mixed): boolean {
+function isRelayEnvironment(environment: unknown): boolean {
   return (
     typeof environment === 'object' &&
     environment !== null &&

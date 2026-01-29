@@ -17,10 +17,10 @@ import type {
   EnvironmentProviderOptions,
   IEnvironmentProvider,
   PreloadedEntryPoint,
+  PreloadedQuery,
 } from './EntryPointTypes.flow';
 
 const loadEntryPoint = require('./loadEntryPoint');
-const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useIsMountedRef = require('./useIsMountedRef');
 const {useCallback, useEffect, useRef, useState} = require('react');
 
@@ -48,11 +48,14 @@ type UseEntryPointLoaderHookReturnType<
 type NullEntryPointReference = {
   kind: 'NullEntryPointReference',
 };
-const initialNullEntryPointReferenceState = {kind: 'NullEntryPointReference'};
+const initialNullEntryPointReferenceState: NullEntryPointReference = {
+  kind: 'NullEntryPointReference',
+};
 
 hook useLoadEntryPoint<
   TEntryPointParams: {...},
-  TPreloadedQueries: {...},
+  // $FlowExpectedError[unclear-type] Need any to make it supertype of all PreloadedQuery
+  TPreloadedQueries: {+[string]: PreloadedQuery<any>},
   TPreloadedEntryPoints: {...},
   TRuntimeProps: {...},
   TExtraProps,
@@ -102,8 +105,6 @@ hook useLoadEntryPoint<
    * entry point references.
    */
 
-  useTrackLoadQueryInRender();
-
   const initialEntryPointReferenceInternal =
     options?.TEST_ONLY__initialEntryPointData?.entryPointReference ??
     initialNullEntryPointReferenceState;
@@ -123,7 +124,7 @@ hook useLoadEntryPoint<
 
   const disposeEntryPoint = useCallback(() => {
     if (isMountedRef.current) {
-      const nullEntryPointReference = {
+      const nullEntryPointReference: NullEntryPointReference = {
         kind: 'NullEntryPointReference',
       };
       undisposedEntryPointReferencesRef.current.add(nullEntryPointReference);
@@ -157,7 +158,7 @@ hook useLoadEntryPoint<
   useEffect(() => {
     return () => {
       // Attempt to detect if the component was
-      // hidden (by Offscreen API), or fast refresh occured;
+      // hidden (by Offscreen API), or fast refresh occurred;
       // Only in these situations would the effect cleanup
       // for "unmounting" run multiple times, so if
       // we are ever able to read this ref with a value

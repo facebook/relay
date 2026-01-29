@@ -9,9 +9,9 @@ use core::cmp::Ordering;
 use std::fmt;
 use std::path::PathBuf;
 
+use intern::Lookup;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::Lookup;
 
 use crate::span::Span;
 

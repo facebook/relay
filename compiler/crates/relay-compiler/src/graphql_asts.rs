@@ -5,15 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::collections::hash_map::Entry;
 use std::collections::HashSet;
+use std::collections::hash_map::Entry;
 use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use common::sync::ParallelIterator;
 use common::Diagnostic;
 use common::SourceLocationKey;
+use common::sync::ParallelIterator;
 use dependency_analyzer::ExecutableDefinitionNameSet;
 use fnv::FnvHashMap;
 use graphql_ir::ExecutableDefinitionName;
@@ -33,12 +33,17 @@ use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;
 use crate::utils::get_parser_features;
 
+/// A collection of GraphQL abstract syntax trees (ASTs) for a set of files.
+///
+/// This struct contains a map of file paths to their corresponding GraphQL ASTs,
+/// as well as sets of pending and removed definition names.
 #[derive(Debug)]
 pub struct GraphQLAsts {
+    /// A map of file paths to their corresponding GraphQL ASTs.
     asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>>,
-    /// Names of fragments and operations that are updated or created
+    /// Names of fragments and operations that are updated or created.
     pub pending_definition_names: ExecutableDefinitionNameSet,
-    /// Names of fragments and operations that are deleted
+    /// Names of fragments and operations that are deleted.
     pub removed_definition_names: Vec<ArtifactSourceKey>,
 }
 
@@ -281,16 +286,15 @@ fn parse_pending_graphql_source_and_collect_removed_definitions<'a>(
                                 } else {
                                     false
                                 }
-                            })) {
-                                if let Some(operation_name) = operation.name {
-                                    local_removed_definition_names.push(
-                                        ArtifactSourceKey::ExecutableDefinition(
-                                            ExecutableDefinitionName::OperationDefinitionName(
-                                                OperationDefinitionName(operation_name.value),
-                                            ),
+                            })) && let Some(operation_name) = operation.name
+                            {
+                                local_removed_definition_names.push(
+                                    ArtifactSourceKey::ExecutableDefinition(
+                                        ExecutableDefinitionName::OperationDefinitionName(
+                                            OperationDefinitionName(operation_name.value),
                                         ),
-                                    );
-                                }
+                                    ),
+                                );
                             }
                         }
                         ExecutableDefinition::Fragment(fragment) => {

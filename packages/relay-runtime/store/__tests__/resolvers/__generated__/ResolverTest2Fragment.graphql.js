@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4e8978f900bfe569ce4768ceeb469c48>>
+ * @generated SignedSource<<a130679b5e328f4e39739326c1648689>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,13 @@ import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
 import type { FragmentType } from "relay-runtime";
 import {greeting as userGreetingResolverType} from "../UserGreetingResolver.js";
+import type { TestResolverContextType } from "../../../../mutations/__tests__/TestResolverContextType";
 // Type assertion validating that `userGreetingResolverType` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolverType: (
   rootKey: UserGreetingResolver$key,
+  args: void,
+  context: TestResolverContextType,
 ) => ?string);
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
@@ -68,7 +71,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../UserGreetingResolver').greeting,
+      "resolverModule": require('../UserGreetingResolver').greeting,
       "path": "greeting"
     },
     {

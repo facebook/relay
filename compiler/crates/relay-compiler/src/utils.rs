@@ -9,6 +9,13 @@ use graphql_syntax::FragmentArgumentSyntaxKind;
 use graphql_syntax::ParserFeatures;
 use relay_config::ProjectConfig;
 
+/// The get_parser_features function determines the parser features based on the project's
+/// configuration.
+///
+/// It checks the feature flags within the provided `ProjectConfig` to determine the
+/// `ParserFeatures` for the project. `ParserFeatures` is a struct that represents the
+/// features and capabilities of a GraphQL parser. It is used to configure the behavior
+/// of the parser and determine which syntax features are supported.
 pub fn get_parser_features(project_config: &ProjectConfig) -> ParserFeatures {
     ParserFeatures {
         fragment_argument_capability: if project_config
@@ -19,5 +26,6 @@ pub fn get_parser_features(project_config: &ProjectConfig) -> ParserFeatures {
         } else {
             FragmentArgumentSyntaxKind::None
         },
+        allow_string_literal_alias: false,
     }
 }

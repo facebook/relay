@@ -1,0 +1,9 @@
+# Test: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD can be used on nullable fields
+# Property: Nullable fields (e.g., name: String) should allow DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD action
+# Expected: Valid transformation that converts the action to THROW in the output
+
+query MyQuery {
+  me {
+    name @required(action: DANGEROUSLY_THROW_ON_SEMANTICALLY_NULLABLE_FIELD)
+  }
+}

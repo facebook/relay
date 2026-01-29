@@ -1,0 +1,30 @@
+//- PersonComponent.js
+graphql`query PersonComponentQuery {
+  some_resolver_field {
+    __typename
+  }
+}`
+
+//- Resolvers.js
+/**
+ * @RelayResolver Query.some_resolver_field: SomeType
+ */
+
+//- relay.config.json
+{
+  "language": "typescript",
+  "schema": "schema.graphql",
+  "schemaExtensions": [
+    "schema-extensions"
+  ]
+}
+
+//- schema.graphql
+type Query {
+  some_field: Boolean
+}
+
+//- schema-extensions/extension.graphql
+type SomeType {
+  name: String
+}

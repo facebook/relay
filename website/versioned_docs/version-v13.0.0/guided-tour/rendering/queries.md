@@ -14,8 +14,6 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
-import FbEntrypointsExtraInfo from './fb/FbEntrypointsExtraInfo.md';
-
 A [GraphQL Query](https://graphql.org/learn/queries/) is a description of data you want to query from a GraphQL server. It consists of a set of fields (and potentially [fragments](../fragments/)) that we want to request from the GraphQL server. What we can query for will depend on the [GraphQL Schema](https://graphql.org/learn/schema/) exposed on the server, which describes the data that is available for querying.
 
 A query can be sent as a request over the network, along with an optional collection of [variables](../variables/) that the query uses, in order to fetch the data. The server response will be a JSON object that matches the shape of the query we sent:
@@ -39,12 +37,6 @@ fragment UserFragment on User {
 }
 ```
 
-<FbInternalOnly>
-
-[Sample response](https://fburl.com/graphiql/v5hs717f):
-
-</FbInternalOnly>
-
 <OssOnly>
 
 Sample response:
@@ -67,8 +59,6 @@ Sample response:
   }
 }
 ```
-
-
 
 ## Rendering Queries
 
@@ -114,7 +104,6 @@ Lets see what's going on here:
     * Note that the `data` is already properly Flow-typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{ user: ?{ name: ?string } }`.
 * Make sure you're providing a Relay environment using a [Relay Environment Provider](../environment/) at the root of your app before trying to render a query.
 
-
 ## Fetching Queries for Render
 
 Apart from *rendering* a query, we also need to fetch it from the server. Usually we want to fetch queries somewhere at the root of our app, and only have **one or a few queries that [*accumulate*](../fragments/#composing-fragments-into-queries) all the data required to render the screen**. Ideally, we'd fetch them as early as possible, before we even start rendering our app.
@@ -127,7 +116,6 @@ import type {PreloadedQuery} from 'react-relay';
 
 const HomeTabQuery = require('HomeTabQuery.graphql')
 const {useQueryLoader} = require('react-relay');
-
 
 type Props = {
   initialQueryRef: PreloadedQuery<HomeTabQueryType>,
@@ -179,7 +167,6 @@ The example above is somewhat contrived, but let's distill what is happening:
 * Our `AppTabs` component renders the `HomeTab` component from the previous example, and passes it the corresponding query reference. Note that this parent component owns the lifetime of the data for that query, meaning that when it unmounts, it will of dispose of that query, as mentioned above.
 * Finally, make sure you're providing a Relay environment using a [Relay Environment Provider](../environment/) at the root of your app before trying to use `useQueryLoader`.
 
-
 Sometimes, you want to start a fetch outside of the context of a parent component, for example to fetch the data required for the initial load of the application. For these cases, you can use the `loadQuery` API directly, without using `useQueryLoader`:
 
 ```js
@@ -187,7 +174,6 @@ import type {HomeTabQuery as HomeTabQueryType} from 'HomeTabQuery.graphql';
 
 const HomeTabQuery = require('HomeTabQuery.graphql')
 const {loadQuery} = require('react-relay');
-
 
 const environment = createEnvironment(...);
 
@@ -208,15 +194,11 @@ render(<AppTabs initialQueryRef={initialQueryRef} initialTab={...} />)
 * In this case, we would expect the root `AppTabs` component to manage the lifetime of the query reference, and dispose of it at the appropriate time, if at all.
 * We've left the details of "app initialization" vague in this example, since that will vary from application to application. The important thing to note here is that we should obtain a query reference before we start rendering the root component. Specifically, `loadQuery` can NOT be called during render; it must be called outside of a Component's render function, otherwise it will produce an error.
 
-
 ### Render as you Fetch
 
 The examples above illustrate how to separate fetching the data from rendering it, in order to start the fetch as early as possible (as opposed to waiting until the component is rendered to start the fetch), and allow us to show content to our users a lot sooner. It also helps prevent waterfalling round trips, and gives us more control and predictability over when the fetch occurs, whereas if we fetch during render, it becomes harder to determine when the fetch will (or should) occur. This fits nicely with the [*"render-as-you-fetch"*](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-3-render-as-you-fetch-using-suspense) pattern with [React Suspense](../loading-states/).
 
 This is the preferred pattern for fetching data with Relay, and it applies in several circumstances, such as the initial load of an application, during subsequent navigations, or generally when using UI elements which are initially hidden and later revealed upon an interaction (such as menus, popovers, dialogs, etc), and which also require fetching additional data.
-
-<FbEntrypointsExtraInfo />
-
 
 ## Lazily Fetching Queries during Render
 
@@ -258,6 +240,5 @@ Lets see what's going on here:
 * By default, when the component renders, Relay will *fetch* the data for this query (if it isn't already cached), and return it as a the result of the `useLazyLoadQuery` call. We'll go into more detail about how to show loading states in the [Loading States with Suspense](../loading-states/) section, and how Relay uses cached data in the [Reusing Cached Data For Rendering](../../reusing-cached-data/) section.
 * Note that if you re-render your component and pass *different query variables* than the ones originally used, it will cause the query to be fetched again with the new variables, and potentially re-render with different data.
 * Finally, make sure you're providing a Relay environment using a [Relay Environment Provider](../../../api-reference/relay-environment-provider/) at the root of your app before trying to render a query.
-
 
 <DocsRating />

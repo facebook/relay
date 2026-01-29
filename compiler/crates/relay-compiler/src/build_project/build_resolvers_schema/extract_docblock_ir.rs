@@ -13,18 +13,18 @@ use docblock_syntax::DocblockAST;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use relay_config::ProjectName;
-use relay_docblock::parse_docblock_ast;
 use relay_docblock::DocblockIr;
 use relay_docblock::ParseOptions;
 use relay_docblock::ResolverFieldDocblockIr;
 use relay_docblock::ResolverTypeDocblockIr;
+use relay_docblock::parse_docblock_ast;
 use rustc_hash::FxHashMap;
 
+use crate::GraphQLAsts;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::ProjectConfig;
 use crate::docblocks::parse_docblock_asts_from_sources;
-use crate::GraphQLAsts;
 
 #[derive(Default)]
 pub struct ExtractedDocblockIr {
@@ -82,6 +82,9 @@ fn extract_docblock_ir_for_project(
         allow_resolver_non_nullable_return_type: &project_config
             .feature_flags
             .allow_resolver_non_nullable_return_type,
+        enable_legacy_verbose_resolver_syntax: &project_config
+            .feature_flags
+            .enable_legacy_verbose_resolver_syntax,
     };
 
     let mut type_irs = vec![];
@@ -94,10 +97,12 @@ fn extract_docblock_ir_for_project(
     )?;
 
     if let Some(custom_extract_resolver) = &config.custom_extract_relay_resolvers {
+        let graphql_asts = graphql_asts_map.get(&project_config.name);
         let (extracted_types, extracted_fields) = custom_extract_resolver(
             project_config.name,
+            &project_config.typegen_config.custom_scalar_types,
             compiler_state,
-            &project_schema_docs.field_asts_and_definitions.0,
+            graphql_asts,
         )?;
         type_irs.extend(extracted_types);
         field_irs.extend(extracted_fields);

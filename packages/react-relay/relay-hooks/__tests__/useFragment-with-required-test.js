@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -17,12 +18,13 @@ import type {RelayFieldLoggerEvent} from 'relay-runtime/store/RelayStoreTypes';
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const useLazyLoadQuery = require('../useLazyLoadQuery');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const TestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {graphql} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -32,7 +34,7 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-test('@required(action: LOG) gets logged even if no data is "missing"', () => {
+test('@required(action: LOG) gets logged even if no data is "missing"', async () => {
   function InnerTestComponent({id}: {id: string}) {
     const data = useLazyLoadQuery(
       graphql`
@@ -40,6 +42,7 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
           node(id: $id) {
             ... on User {
               ...useFragmentWithRequiredTestUserFragment
+                @dangerously_unaliased_fixme
             }
           }
         }
@@ -80,7 +83,7 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
   function createEnvironment(source: MutableRecordSource) {
     return new RelayModernEnvironment({
       network: RelayNetwork.create(jest.fn()),
-      store: new LiveResolverStore(source),
+      store: new RelayModernStore(source),
       relayFieldLogger,
     });
   }
@@ -99,19 +102,22 @@ test('@required(action: LOG) gets logged even if no data is "missing"', () => {
   });
   const environment = createEnvironment(source);
 
-  const renderer = TestRenderer.create(
-    <TestComponent environment={environment} id="1" />,
-  );
+  let renderer;
+  await act(() => {
+    renderer = ReactTestingLibrary.render(
+      <TestComponent environment={environment} id="1" />,
+    );
+  });
 
   // Validate that the missing required field was logged.
   expect(relayFieldLogger.mock.calls).toEqual([
     [
       {
         fieldPath: 'name',
-        kind: 'missing_field.log',
+        kind: 'missing_required_field.log',
         owner: 'useFragmentWithRequiredTestUserFragment',
       },
     ],
   ]);
-  expect(renderer.toJSON()).toEqual('Unknown name');
+  expect(renderer?.container.textContent).toEqual('Unknown name');
 });

@@ -26,6 +26,6 @@ interface IBar {
 `
 ==================================== OUTPUT ===================================
 type ClientUser implements IFoo & IBar @__RelayResolverModel {
-  id: ID!
+  id: ID! @__RelayResolverModelGeneratedIDField
   __relay_model_instance: RelayResolverValue! @relay_resolver(fragment_name: "ClientUser__id", generated_fragment: true, inject_fragment_data: "id", import_name: "ClientUser", import_path: "/path/to/test/fixture/relay-resolver-strong-object-with-multiple-implements.js") @resolver_source_hash(value: "1b7346b6155a43514be2946721ff59fb") @unselectable(reason: "This field is intended only for Relay's internal use")
 }

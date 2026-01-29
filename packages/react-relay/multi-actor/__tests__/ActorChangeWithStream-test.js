@@ -37,10 +37,15 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
+
+injectPromisePolyfill__DEPRECATED();
 
 function ComponentWrapper(
-  props: $ReadOnly<{
+  props: Readonly<{
     children: React.Node,
     environment: IActorEnvironment,
     multiActorEnvironment: IMultiActorEnvironment,
@@ -94,7 +99,7 @@ function MainComponent() {
 }
 
 function ActorChangeComponent(
-  props: $ReadOnly<{
+  props: Readonly<{
     fragmentRef: ActorChangeWithStreamTestFragment$key,
   }>,
 ) {
@@ -148,7 +153,7 @@ describe('ActorChange with @stream', () => {
     );
   });
 
-  it('should render a fragment for actor', () => {
+  test('should render a fragment for actor', () => {
     fetchFnForActor = (
       ...args: Array<?(
         | LogRequestInfoFunction
@@ -164,13 +169,16 @@ describe('ActorChange with @stream', () => {
       });
     };
 
-    const testRenderer = ReactTestRenderer.create(
-      <ComponentWrapper
-        environment={environment}
-        multiActorEnvironment={multiActorEnvironment}>
-        <MainComponent />
-      </ComponentWrapper>,
-    );
+    let testRenderer;
+    ReactTestRenderer.act(() => {
+      testRenderer = ReactTestRenderer.create(
+        <ComponentWrapper
+          environment={environment}
+          multiActorEnvironment={multiActorEnvironment}>
+          <MainComponent />
+        </ComponentWrapper>,
+      );
+    });
 
     dataSource.next({
       data: {
@@ -222,11 +230,11 @@ describe('ActorChange with @stream', () => {
         },
       },
     });
-    expect(testRenderer.toJSON()).toEqual('Loading...');
+    expect(testRenderer?.toJSON()).toEqual('Loading...');
 
     ReactTestRenderer.act(jest.runAllImmediates);
 
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester.',
     );
 
@@ -250,7 +258,7 @@ describe('ActorChange with @stream', () => {
         ],
       });
     });
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'Julianne should join Antonio in the first list.',
     );
 
@@ -274,7 +282,7 @@ describe('ActorChange with @stream', () => {
         ],
       });
     });
-    expect(testRenderer.toJSON()).toMatchSnapshot(
+    expect(testRenderer?.toJSON()).toMatchSnapshot(
       'Finally, Anatoli is joining the second scene.',
     );
   });

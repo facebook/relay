@@ -26,8 +26,12 @@ const {
 const RelayOperationTracker = require('relay-runtime/store/RelayOperationTracker');
 const RelayFeatureFlags = require('relay-runtime/util/RelayFeatureFlags');
 const {createMockEnvironment} = require('relay-test-utils');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 describe.each([true, false])(
@@ -52,8 +56,8 @@ describe.each([true, false])(
       RelayFeatureFlags.ENABLE_LOOSE_SUBSCRIPTION_ATTRIBUTION =
         looseAttribution;
       operationLoader = {
-        load: jest.fn<[mixed], Promise<NormalizationSplitOperation>>(),
-        get: jest.fn<[mixed], ?NormalizationRootNode>(),
+        load: jest.fn<[unknown], Promise<NormalizationSplitOperation>>(),
+        get: jest.fn<[unknown], ?NormalizationRootNode>(),
       };
       operationTracker = new RelayOperationTracker();
       logger = jest.fn<[LogEvent], void>();
@@ -66,6 +70,7 @@ describe.each([true, false])(
         query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!) {
           node(id: $id) {
             ...FragmentResourceWithOperationTrackerTestUserFragment
+              @dangerously_unaliased_fixme
           }
         }
       `;

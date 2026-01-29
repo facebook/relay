@@ -118,6 +118,19 @@ type Foo {
                                 ),
                             },
                             arguments: [],
+                            signature: Some(
+                                FragmentSignature {
+                                    name: WithLocation {
+                                        location: client-fields.graphql:88:99,
+                                        item: FragmentDefinitionName(
+                                            "BestFriends",
+                                        ),
+                                    },
+                                    variable_definitions: [],
+                                    type_condition: Object(70),
+                                    directives: [],
+                                },
+                            ),
                             directives: [],
                         },
                     ],
@@ -241,6 +254,19 @@ type Foo {
                                         ),
                                     },
                                     arguments: [],
+                                    signature: Some(
+                                        FragmentSignature {
+                                            name: WithLocation {
+                                                location: client-fields.graphql:503:514,
+                                                item: FragmentDefinitionName(
+                                                    "FooFragment",
+                                                ),
+                                            },
+                                            variable_definitions: [],
+                                            type_condition: Object(82),
+                                            directives: [],
+                                        },
+                                    ),
                                     directives: [],
                                 },
                                 InlineFragment {

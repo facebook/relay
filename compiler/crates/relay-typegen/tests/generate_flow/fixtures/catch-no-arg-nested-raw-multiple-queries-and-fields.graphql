@@ -1,0 +1,17 @@
+query MyQuery @raw_response_type {
+  me {
+    id @catch
+    name
+    profilePicture(preset: LARGE) {
+      uri
+    }
+  }
+}
+
+
+query AnotherQuery {
+  me {
+    id @catch
+    name
+  }
+}

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e8f94cdac8c3672137896171466a07b1>>
+ * @generated SignedSource<<293f719f7b0b405976e29cb3c5a9743c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,12 +21,12 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayConcreteVariablesTest2Query$variables = {|
   count?: ?number,
   id?: ?string,
-  order?: ?$ReadOnlyArray<?string>,
+  order?: ?ReadonlyArray<?string>,
 |};
 export type RelayConcreteVariablesTest2Query$data = {|
   +node: ?{|
     +friends?: ?{|
-      +edges: ?$ReadOnlyArray<?{|
+      +edges: ?ReadonlyArray<?{|
         +node: ?{|
           +id: string,
         |},

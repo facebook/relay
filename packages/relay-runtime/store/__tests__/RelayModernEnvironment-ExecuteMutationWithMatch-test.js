@@ -41,8 +41,12 @@ const {
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {disallowWarnings} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  injectPromisePolyfill__DEPRECATED,
+} = require('relay-test-utils-internal');
 
+injectPromisePolyfill__DEPRECATED();
 disallowWarnings();
 
 const commentID = '1';
@@ -67,8 +71,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let queryOperation;
     let operationCallback;
     let operationLoader: {
-      get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
-      load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
+      get: JestMockFn<ReadonlyArray<unknown>, ?NormalizationRootNode>,
+      load: JestMockFn<ReadonlyArray<unknown>, Promise<?NormalizationRootNode>>,
     };
     let resolveFragment;
     let source;
@@ -141,6 +145,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             node(id: $id) {
               id
               ...RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;
@@ -172,9 +177,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         fetch = (
           _query: RequestParameters,
@@ -187,12 +192,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           });
         };
         operationLoader = {
+          get: jest.fn(),
           load: jest.fn(moduleName => {
             return new Promise(resolve => {
               resolveFragment = resolve;
             });
           }),
-          get: jest.fn(),
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
@@ -200,27 +205,27 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const multiActorEnvironment = new MultiActorEnvironment({
           createNetworkForActor: _actorID => RelayNetwork.create(fetch),
           createStoreForActor: _actorID => store,
-          operationLoader,
           handlerProvider: name => {
             switch (name) {
               case 'markup_handler':
                 return MarkupHandler;
             }
           },
+          operationLoader,
         });
         environment =
           environmentType === 'MultiActorEnvironment'
             ? multiActorEnvironment.forActor(getActorIdentifier('actor:1234'))
             : new RelayModernEnvironment({
-                network: RelayNetwork.create(fetch),
-                store,
-                operationLoader,
                 handlerProvider: name => {
                   switch (name) {
                     case 'markup_handler':
                       return MarkupHandler;
                   }
                 },
+                network: RelayNetwork.create(fetch),
+                operationLoader,
+                store,
               });
 
         const selector = createReaderSelector(
@@ -254,11 +259,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(error).not.toBeCalled();
         expect(fragmentCallback.mock.calls.length).toBe(1);
         expect(fragmentCallback.mock.calls[0][0].data).toEqual({
-          id: commentID,
           actor: {
             name: 'optimistic-name',
             nameRenderer: undefined,
           },
+          id: commentID,
         });
 
         // The mutation affecting the query should not be marked as in flight yet
@@ -275,23 +280,23 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           data: {
             commentCreate: {
               comment: {
-                id: commentID,
                 actor: {
+                  __typename: 'User',
                   id: '4',
                   name: 'actor-name',
-                  __typename: 'User',
                   nameRenderer: {
-                    __typename: 'MarkdownUserNameRenderer',
                     __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'MarkdownUserNameRenderer.react',
                     __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-                    markdown: 'markdown payload',
+                    __typename: 'MarkdownUserNameRenderer',
                     data: {
                       markup: '<markup/>', // server data is lowercase
                     },
+                    markdown: 'markdown payload',
                   },
                 },
+                id: commentID,
               },
             },
           },
@@ -312,13 +317,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               actor: {
                 name: 'actor-name',
                 nameRenderer: {
-                  __id: 'client:4:nameRenderer(supported:"34hjiS")',
+                  __fragmentOwner: operation.request,
                   __fragmentPropName: 'name',
                   __fragments: {
                     RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                       {},
                   },
-                  __fragmentOwner: operation.request,
+                  __id: 'client:4:nameRenderer(supported:"34hjiS")',
                   __module_component: 'MarkdownUserNameRenderer.react',
                 },
               },
@@ -331,17 +336,17 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         // data is missing since match field data hasn't been processed yet
         expect(fragmentSnapshot.isMissingData).toBe(true);
         expect(fragmentSnapshot.data).toEqual({
-          id: commentID,
           actor: {
             name: 'actor-name',
             nameRenderer: {},
           },
+          id: commentID,
         });
 
         const matchSelector = nullthrows(
           getSingularSelector(
             markdownRendererFragment,
-            (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+            (operationSnapshot.data as any)?.commentCreate?.comment?.actor
               ?.nameRenderer,
           ),
         );
@@ -368,24 +373,24 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           data: {
             commentCreate: {
               comment: {
-                id: commentID,
                 actor: {
+                  __typename: 'User',
                   id: '4',
                   name: 'actor-name',
-                  __typename: 'User',
                   nameRenderer: {
-                    __typename: 'MarkdownUserNameRenderer',
                     __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'MarkdownUserNameRenderer.react',
                     __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-                    markdown: 'markdown payload',
+                    __typename: 'MarkdownUserNameRenderer',
                     data: {
                       id: 'data-1',
                       markup: '<markup/>', // server data is lowercase
                     },
+                    markdown: 'markdown payload',
                   },
                 },
+                id: commentID,
               },
             },
           },
@@ -407,7 +412,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const matchSelector = nullthrows(
           getSingularSelector(
             markdownRendererFragment,
-            (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+            (operationSnapshot.data as any)?.commentCreate?.comment?.actor
               ?.nameRenderer,
           ),
         );
@@ -449,24 +454,24 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           data: {
             commentCreate: {
               comment: {
-                id: commentID,
                 actor: {
+                  __typename: 'User',
                   id: '4',
                   name: 'actor-name',
-                  __typename: 'User',
                   nameRenderer: {
-                    __typename: 'MarkdownUserNameRenderer',
                     __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'MarkdownUserNameRenderer.react',
                     __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-                    markdown: 'markdown payload',
+                    __typename: 'MarkdownUserNameRenderer',
                     data: {
                       id: 'data-1',
                       markup: '<markup/>', // server data is lowercase
                     },
+                    markdown: 'markdown payload',
                   },
                 },
+                id: commentID,
               },
             },
           },
@@ -511,24 +516,24 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           data: {
             commentCreate: {
               comment: {
-                id: commentID,
                 actor: {
+                  __typename: 'User',
                   id: '4',
                   name: 'actor-name',
-                  __typename: 'User',
                   nameRenderer: {
-                    __typename: 'MarkdownUserNameRenderer',
                     __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'MarkdownUserNameRenderer.react',
                     __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                       'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-                    markdown: 'markdown payload',
+                    __typename: 'MarkdownUserNameRenderer',
                     data: {
                       id: 'data-1',
                       markup: '<markup/>', // server data is lowercase
                     },
+                    markdown: 'markdown payload',
                   },
                 },
+                id: commentID,
               },
             },
           },
@@ -572,24 +577,24 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         const optimisticResponse = {
           commentCreate: {
             comment: {
-              id: commentID,
               actor: {
+                __typename: 'User',
                 id: '4',
                 name: 'optimistic-actor-name',
-                __typename: 'User',
                 nameRenderer: {
-                  __typename: 'MarkdownUserNameRenderer',
                   __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                     'MarkdownUserNameRenderer.react',
                   __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                     'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-                  markdown: 'markdown payload',
+                  __typename: 'MarkdownUserNameRenderer',
                   data: {
                     id: 'data-1',
                     markup: '<optimistic_markup/>', // server data is lowercase
                   },
+                  markdown: 'markdown payload',
                 },
               },
+              id: commentID,
             },
           },
         };
@@ -615,13 +620,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
+                    __fragmentOwner: operation.request,
                     __fragmentPropName: 'name',
                     __fragments: {
                       RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                         {},
                     },
-                    __fragmentOwner: operation.request,
+                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },
@@ -633,7 +638,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const matchSelector = nullthrows(
             getSingularSelector(
               markdownRendererFragment,
-              (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+              (operationSnapshot.data as any)?.commentCreate?.comment?.actor
                 ?.nameRenderer,
             ),
           );
@@ -674,13 +679,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'optimistic-actor-name',
                   nameRenderer: {
-                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
+                    __fragmentOwner: operation.request,
                     __fragmentPropName: 'name',
                     __fragments: {
                       RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                         {},
                     },
-                    __fragmentOwner: operation.request,
+                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },
@@ -692,7 +697,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const matchSelector = nullthrows(
             getSingularSelector(
               markdownRendererFragment,
-              (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+              (operationSnapshot.data as any)?.commentCreate?.comment?.actor
                 ?.nameRenderer,
             ),
           );
@@ -725,23 +730,23 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             data: {
               commentCreate: {
                 comment: {
-                  id: commentID,
                   actor: {
+                    __typename: 'User',
                     id: '4',
                     name: 'actor-name',
-                    __typename: 'User',
                     nameRenderer: {
-                      __typename: 'MarkdownUserNameRenderer',
                       __module_component_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                         'MarkdownUserNameRenderer.react',
                       __module_operation_RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation:
                         'RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
-                      markdown: 'markdown payload',
+                      __typename: 'MarkdownUserNameRenderer',
                       data: {
                         markup: '<markup/>', // server data is lowercase
                       },
+                      markdown: 'markdown payload',
                     },
                   },
+                  id: commentID,
                 },
               },
             },
@@ -762,13 +767,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 actor: {
                   name: 'actor-name',
                   nameRenderer: {
-                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
+                    __fragmentOwner: operation.request,
                     __fragmentPropName: 'name',
                     __fragments: {
                       RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name:
                         {},
                     },
-                    __fragmentOwner: operation.request,
+                    __id: 'client:4:nameRenderer(supported:"34hjiS")',
                     __module_component: 'MarkdownUserNameRenderer.react',
                   },
                 },
@@ -779,7 +784,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const matchSelector = nullthrows(
             getSingularSelector(
               markdownRendererFragment,
-              (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+              (operationSnapshot.data as any)?.commentCreate?.comment?.actor
                 ?.nameRenderer,
             ),
           );
@@ -819,7 +824,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           const matchSelector = nullthrows(
             getSingularSelector(
               markdownRendererFragment,
-              (operationSnapshot.data: any)?.commentCreate?.comment?.actor
+              (operationSnapshot.data as any)?.commentCreate?.comment?.actor
                 ?.nameRenderer,
             ),
           );

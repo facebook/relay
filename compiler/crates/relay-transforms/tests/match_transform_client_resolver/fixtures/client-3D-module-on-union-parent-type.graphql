@@ -1,0 +1,44 @@
+fragment NameRendererFragment on Persona {
+  id
+  basicUser {
+    ...ClientUser_Fragment @module(name: "ClientUser.react")
+    ...SpecialUser_Fragment @module(name: "SpecialUser.react")
+  }
+}
+
+fragment ClientUser_Fragment on ClientUser {
+  id
+  userInfo {
+    data
+  }
+}
+
+fragment SpecialUser_Fragment on SpecialUser {
+  id
+  userInfo {
+    data
+  }
+}
+
+%extensions%
+union BasicUser = ClientUser | SpecialUser
+
+interface UserInfo {
+    data: String
+}
+
+type Persona implements Named {
+  id: ID!
+  name: String
+  basicUser: BasicUser
+}
+
+type ClientUser @__RelayResolverModel {
+  id: ID!
+  userInfo: UserInfo @relay_resolver(fragment_name: "ClientUser_Fragment", import_path: "ClientUserInfoResolver")
+}
+
+type SpecialUser @__RelayResolverModel {
+  id: ID!
+  userInfo: UserInfo @relay_resolver(fragment_name: "SpecialUser_Fragment", import_path: "SpecialUserInfoResolver")
+}

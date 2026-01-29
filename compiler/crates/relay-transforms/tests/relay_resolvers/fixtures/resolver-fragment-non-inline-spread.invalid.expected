@@ -1,0 +1,42 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment Foo_user on User {
+  pop_star_name
+  # it should be fine to use this fragment spread here
+  ...NonInlineFragment
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  # This should fail since NonInlineFragment is not marked @inline
+  ...NonInlineFragment
+}
+
+fragment NonInlineFragment on User {
+  address {
+    street
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== ERROR ====================================
+✖︎ Expected fragment spread into Relay Resolver root fragment to be annotated with `@inline` or `@relay(mask: false)`. Relay Resolvers only support reading `@inline` fragments and unmasked fragments.
+
+  resolver-fragment-non-inline-spread.invalid.graphql:12:6
+   11 │   # This should fail since NonInlineFragment is not marked @inline
+   12 │   ...NonInlineFragment
+      │      ^^^^^^^^^^^^^^^^^
+   13 │ }
+
+  ℹ︎ Fragment is defined
+
+  resolver-fragment-non-inline-spread.invalid.graphql:15:10
+   14 │ 
+   15 │ fragment NonInlineFragment on User {
+      │          ^^^^^^^^^^^^^^^^^
+   16 │   address {

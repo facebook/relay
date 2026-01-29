@@ -20,6 +20,7 @@ query RelayReaderNamedFragmentsTest2Query {
     #     type_condition: None,
     #     non_nullable: true,
     #     selection_type: Object(70),
+    #     wraps_spread: false,
     # }
      {
       name

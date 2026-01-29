@@ -144,11 +144,14 @@ A directive which declares that a field implements the [connection](#connection)
 ## Connection
 
 <FbInternalOnly>
+
 A field implementing the connection spec. See <a href="https://www.internalfb.com/intern/wiki/Graphql-connections-for-hack-developers/Connection-spec/">here</a> for more details on the spec, and the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+
 </FbInternalOnly>
 
 <OssOnly>
-A field implementing the connection spec. See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
+
+(\S+) field implementing the connection spec. See the section of the guided tour on <a href="../guided-tour/list-data/pagination/">rendering list data and pagination</a>.
 </OssOnly>
 
 See also [`usePaginationFragment`](../api-reference/use-pagination-fragment).
@@ -186,7 +189,9 @@ See the [Thinking in Relay guide](../principles-and-architecture/thinking-in-rel
 A directive which can be added to a fragment spread or inline fragment to avoid blocking on that fragment's data.
 
 <FbInternalOnly>
+
 See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Web/incremental-data-delivery-defer-stream/#defer).
+
 </FbInternalOnly>
 
 ## Definition
@@ -420,7 +425,8 @@ A lightweight API for specifying a that a React component should be loaded on de
 This API is safe to use in entrypoint files.
 
 <OssOnly>
-See [the npm module](https://www.npmjs.com/package/jsresource).
+
+(\S+) [the npm module](https://www.npmjs.com/package/jsresource).
 </OssOnly>
 
 ## Lazy Loading
@@ -482,11 +488,14 @@ TODO
 A mutation is a combination of two things: a mutation on the backend, followed by query against updated data.
 
 <FbInternalOnly>
+
 See the [guide on mutations](../guided-tour/updating-data/graphql-mutations), and [this article](https://www.internalfb.com/intern/wiki/Graphql-for-hack-developers/mutation-root-fields/) on defining mutations in your hack code.
+
 </FbInternalOnly>
 
 <OssOnly>
-See the [guide on mutations](../guided-tour/updating-data/graphql-mutations).
+
+(\S+) the [guide on mutations](../guided-tour/updating-data/graphql-mutations).
 </OssOnly>
 
 ## Mutation Root Query
@@ -622,7 +631,9 @@ Required because of current limitations on dynamically loading components in Rea
 For Relay to process a file with a GraphQL literal, it must be included in a project. A project specifies the folders to which it applies and the schema against which to evaluate GraphQL literals, and includes other information needed by the Relay compiler.
 
 <FbInternalOnly>
+
 Projects are defined in a single [config](#config) file, found [here](https://www.internalfb.com/intern/diffusion/WWW/browse/master/scripts/relay/compiler-rs/config.www.json) and [here](https://www.internalfb.com/intern/diffusion/FBS/browse/master/xplat/relay/compiler-rs/config.xplat.json).
+
 </FbInternalOnly>
 
 ## Profiler
@@ -779,7 +790,7 @@ An object associating a [concrete request](#concrete-request) and [variables](#v
 
 ## Resolver
 
-An overloaded term, mostly referring to virtual fields, but also occassionally referring to other things.
+An overloaded term, mostly referring to virtual fields, but also occasionally referring to other things.
 
 ### When describing a field
 
@@ -842,6 +853,7 @@ TODO
 A collection of all of the GraphQL types that are known to Relay, for a given [project](#project).
 
 <FbInternalOnly>
+
 ## Schema Sync
 
 The GraphQL [schema](#schema) is derived from annotations on Hack classes in the www repository.

@@ -50,7 +50,7 @@ struct Printer {
 impl Printer {
     fn print_operation(&mut self, operation: &OperationDefinition) -> FmtResult {
         if let Some((_, operation_kind)) = operation.operation {
-            write!(self.output, "{}", operation_kind)?;
+            write!(self.output, "{operation_kind}")?;
         };
         if let Some(name) = &operation.name {
             write!(self.output, " {}", name.value)?;
@@ -88,10 +88,10 @@ impl Printer {
         let last = variable_definitions.items.last();
         for variable_definition in &variable_definitions.items {
             self.print_variable_definition(variable_definition)?;
-            if let Some(last) = last {
-                if last != variable_definition {
-                    write!(self.output, ", ")?;
-                }
+            if let Some(last) = last
+                && last != variable_definition
+            {
+                write!(self.output, ", ")?;
             }
         }
         write!(self.output, ")")?;
@@ -106,7 +106,7 @@ impl Printer {
             variable_definition.name, variable_definition.type_
         )?;
         if let Some(default_value) = &variable_definition.default_value {
-            write!(self.output, " = {}", default_value)?;
+            write!(self.output, " = {default_value}")?;
         }
         self.print_directives(&variable_definition.directives)?;
 
@@ -135,11 +135,11 @@ impl Printer {
         write!(self.output, "(")?;
         let last_arg = arguments.items.last();
         for argument in &arguments.items {
-            write!(self.output, "{}", argument)?;
-            if let Some(last_arg) = last_arg {
-                if last_arg != argument {
-                    write!(self.output, ", ")?;
-                }
+            write!(self.output, "{argument}")?;
+            if let Some(last_arg) = last_arg
+                && last_arg != argument
+            {
+                write!(self.output, ", ")?;
             }
         }
         write!(self.output, ")")?;
@@ -156,7 +156,7 @@ impl Printer {
     }
 
     fn print_selection(&mut self, selection: &Selection, indent: &str) -> FmtResult {
-        write!(self.output, "{}", indent)?;
+        write!(self.output, "{indent}")?;
         match selection {
             Selection::FragmentSpread(node) => self.print_fragment_spread(node),
             Selection::InlineFragment(node) => self.print_inline_fragment(node, indent),
@@ -178,18 +178,18 @@ impl Printer {
     fn print_inline_fragment(&mut self, node: &InlineFragment, indent: &str) -> FmtResult {
         write!(self.output, "...")?;
         if let Some(type_condition) = &node.type_condition {
-            write!(self.output, " {}", type_condition)?;
+            write!(self.output, " {type_condition}")?;
         }
         self.print_directives(&node.directives)?;
         writeln!(self.output, " {{")?;
-        self.print_selections(&node.selections, &format!("  {}", indent))?;
-        write!(self.output, "{}}}", indent)?;
+        self.print_selections(&node.selections, &format!("  {indent}"))?;
+        write!(self.output, "{indent}}}")?;
         Ok(())
     }
 
     fn print_linked_field(&mut self, node: &LinkedField, indent: &str) -> FmtResult {
         if let Some(alias) = &node.alias {
-            write!(self.output, "{}: ", alias)?;
+            write!(self.output, "{alias}: ")?;
         }
 
         write!(self.output, "{}", node.name)?;
@@ -198,14 +198,14 @@ impl Printer {
         }
         self.print_directives(&node.directives)?;
         writeln!(self.output, " {{")?;
-        self.print_selections(&node.selections, &format!("  {}", indent))?;
-        write!(self.output, "{}}}", indent)?;
+        self.print_selections(&node.selections, &format!("  {indent}"))?;
+        write!(self.output, "{indent}}}")?;
         Ok(())
     }
 
     fn print_scalar_field(&mut self, node: &ScalarField) -> FmtResult {
         if let Some(alias) = &node.alias {
-            write!(self.output, "{}: ", alias)?;
+            write!(self.output, "{alias}: ")?;
         }
 
         write!(self.output, "{}", node.name)?;

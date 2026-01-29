@@ -88,6 +88,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             node(id: $id) {
               id
               ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
+                @dangerously_unaliased_fixme
             }
           }
         `;
@@ -118,9 +119,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           },
         };
 
-        complete = jest.fn<[], mixed>();
-        error = jest.fn<[Error], mixed>();
-        next = jest.fn<[GraphQLResponse], mixed>();
+        complete = jest.fn<[], unknown>();
+        error = jest.fn<[Error], unknown>();
+        next = jest.fn<[GraphQLResponse], unknown>();
         callbacks = {complete, error, next};
         // $FlowFixMe[missing-local-annot] error found when enabling Flow LTI mode
         fetchFn = jest.fn((_query, _variables, _cacheConfig) =>
@@ -136,9 +137,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        const handlerProvider = (
-          name: string | $TEMPORARY$string<'name_handler'>,
-        ) => {
+        const handlerProvider = (name: string) => {
           switch (name) {
             case 'name_handler':
               return NameHandler;

@@ -58,7 +58,7 @@ class GraphModeHandler {
           this._streamIdToCacheKey.clear();
           break;
         default:
-          (chunk.$kind: empty);
+          chunk.$kind as empty;
       }
     }
     return this._recordSource;
@@ -93,12 +93,12 @@ class GraphModeHandler {
           } else {
             if (value.hasOwnProperty('__id')) {
               // Singular
-              const streamID: number = (value.__id: any);
+              const streamID: number = value.__id as any;
               const id = this._lookupCacheKey(streamID);
               RelayModernRecord.setLinkedRecordID(parentRecord, key, id);
             } else if (value.hasOwnProperty('__ids')) {
               // Plural
-              const streamIDs: Array<number | null> = (value.__ids: any);
+              const streamIDs: Array<number | null> = value.__ids as any;
               const ids = streamIDs.map((sID): ?DataID => {
                 return sID == null ? null : this._lookupCacheKey(sID);
               });

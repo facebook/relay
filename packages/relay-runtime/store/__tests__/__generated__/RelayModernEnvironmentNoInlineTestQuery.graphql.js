@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<be170ac2e92517ba5112a26b59e59625>>
+ * @generated SignedSource<<787778e774f70f3225583de8c7efe124>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ import type { RelayModernEnvironmentNoInlineTest_noInline$fragmentType } from ".
 export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
 export type RelayModernEnvironmentNoInlineTestQuery$variables = {|
   preset?: ?PhotoSize,
-  size?: ?$ReadOnlyArray<?number>,
+  size?: ?ReadonlyArray<?number>,
 |};
 export type RelayModernEnvironmentNoInlineTestQuery$data = {|
   +me: ?{|

@@ -23,19 +23,19 @@ const invariant = require('invariant');
 /**
  * Returns original component class wrapped by e.g. createFragmentContainer
  */
-function unwrapContainer<Props>(
-  ComponentClass: React$ComponentType<
-    $RelayProps<Props, RelayProp | RelayPaginationProp | RelayRefetchProp>,
-  >,
-): React$ComponentType<Props> {
-  // $FlowExpectedError
+function unwrapContainer<Props: {...}>(
+  ComponentClass: component(
+    ...$RelayProps<Props, RelayProp | RelayPaginationProp | RelayRefetchProp>
+  ),
+): component(...Props) {
+  // $FlowExpectedError[prop-missing]
   const unwrapped = ComponentClass.__ComponentClass;
   invariant(
     unwrapped != null,
     'Could not find component for %s, is it a Relay container?',
     ComponentClass.displayName || ComponentClass.name,
   );
-  return (unwrapped: any);
+  return unwrapped as any;
 }
 
 module.exports = unwrapContainer;

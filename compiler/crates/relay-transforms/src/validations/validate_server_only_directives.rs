@@ -131,7 +131,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
     }
 }
 
-impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
+impl Validator for ServerOnlyDirectivesValidation<'_> {
     const NAME: &'static str = "ServerOnlyDirectivesValidation";
     const VALIDATE_ARGUMENTS: bool = false;
     const VALIDATE_DIRECTIVES: bool = true;
@@ -229,7 +229,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
                         ValidationMessage::InvalidServerOnlyDirectiveInClientFields(
                             directive.name.item,
                         ),
-                        directive.name.location,
+                        directive.location,
                     )
                     .annotate("related location", location),
                 ])

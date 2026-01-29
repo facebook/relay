@@ -12,22 +12,40 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 use indexmap::IndexMap;
+use schemars::JsonSchema;
+use schemars::Schema;
+use schemars::SchemaGenerator;
+use schemars::json_schema;
 use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
 use serde::Serializer;
 
+pub use crate::Lookup;
 use crate::idhasher::BuildIdHasher;
 use crate::string;
 use crate::string::IntoUtf8Bytes;
 use crate::string::StringId;
-pub use crate::Lookup;
 
 // StringKey is a small impedence matcher around StringId.
 // NOTE in particular that it does NOT do de-duplicating serde.
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 #[repr(transparent)]
 pub struct StringKey(StringId);
+
+impl JsonSchema for StringKey {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        String::from("StringKey").into()
+    }
+
+    fn json_schema(_gen: &mut SchemaGenerator) -> Schema {
+        json_schema!({
+                "type": "string",
+                "format": null,
+                }
+        )
+    }
+}
 
 pub type StringKeyMap<V> = HashMap<StringKey, V, BuildIdHasher<u32>>;
 pub type StringKeySet = HashSet<StringKey, BuildIdHasher<u32>>;
@@ -51,7 +69,7 @@ impl StringKey {
     }
 
     pub unsafe fn from_index(index: u32) -> Self {
-        Self(StringId::from_index(index))
+        unsafe { Self(StringId::from_index(index)) }
     }
 }
 

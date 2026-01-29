@@ -19,7 +19,7 @@ const deepFreeze = require('../util/deepFreeze');
 const {generateClientObjectClientID, isClientID} = require('./ClientID');
 const {
   isSuspenseSentinel,
-} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
+} = require('./live-resolvers/LiveResolverSuspenseSentinel');
 const {
   ACTOR_IDENTIFIER_KEY,
   ERRORS_KEY,
@@ -35,9 +35,9 @@ const areEqual = require('areEqual');
 const invariant = require('invariant');
 const warning = require('warning');
 
-type StorageKey = Exclude<string, typeof ERRORS_KEY>;
+export type StorageKey = Exclude<string, typeof ERRORS_KEY>;
 
-type RelayFieldErrors = {[StorageKey]: $ReadOnlyArray<TRelayFieldError>};
+type RelayFieldErrors = {[StorageKey]: ReadonlyArray<TRelayFieldError>};
 
 export type RecordJSON = {
   /**
@@ -45,7 +45,7 @@ export type RecordJSON = {
    * not support types with multiple indexers.
    */
   __errors?: RelayFieldErrors,
-  [StorageKey]: mixed,
+  [StorageKey]: unknown,
   ...
 };
 
@@ -159,7 +159,7 @@ function fromObject<TMaybe: ?empty = empty>(
  * Get the record's `id` if available or the client-generated identifier.
  */
 function getDataID(record: Record): DataID {
-  return (record[ID_KEY]: any);
+  return record[ID_KEY] as any;
 }
 
 /**
@@ -180,7 +180,7 @@ function getFields(record: Record): Array<StorageKey> {
  * Get the concrete type of the record.
  */
 function getType(record: Record): string {
-  return (record[TYPENAME_KEY]: any);
+  return record[TYPENAME_KEY] as any;
 }
 
 /**
@@ -191,7 +191,7 @@ function getType(record: Record): string {
 function getErrors(
   record: Record,
   storageKey: StorageKey,
-): $ReadOnlyArray<TRelayFieldError> | void {
+): ReadonlyArray<TRelayFieldError> | void {
   return record[ERRORS_KEY]?.[storageKey];
 }
 
@@ -200,7 +200,7 @@ function getErrors(
  *
  * Get a scalar (non-link) field value.
  */
-function getValue(record: Record, storageKey: StorageKey): mixed {
+function getValue(record: Record, storageKey: StorageKey): unknown {
   const value = record[storageKey];
   if (value && typeof value === 'object') {
     invariant(
@@ -252,7 +252,7 @@ function getLinkedRecordID(record: Record, storageKey: StorageKey): ?DataID {
           'getLinkedRecords() instead of getLinkedRecord()?'
       : '',
   );
-  // $FlowFixMe[incompatible-return]
+  // $FlowFixMe[incompatible-type]
   return link[REF_KEY];
 }
 
@@ -297,7 +297,7 @@ function getLinkedRecordIDs(
       : '',
   );
   // assume items of the array are ids
-  return (links[REFS_KEY]: any);
+  return links[REFS_KEY] as any;
 }
 
 /**
@@ -443,7 +443,7 @@ function merge(record1: Record, record2: Record): Record {
   if (ERRORS_KEY in record1 || ERRORS_KEY in record2) {
     const {[ERRORS_KEY]: errors1, ...fields1} = record1;
     const {[ERRORS_KEY]: errors2, ...fields2} = record2;
-    // $FlowIssue[cannot-spread-indexer]
+    // $FlowFixMe[cannot-spread-indexer]
     const updated: Record = {...fields1, ...fields2};
     if (errors1 == null && errors2 == null) {
       return updated;
@@ -465,7 +465,7 @@ function merge(record1: Record, record2: Record): Record {
     }
     return updated;
   } else {
-    // $FlowIssue[cannot-spread-indexer]
+    // $FlowFixMe[cannot-spread-indexer]
     return {...record1, ...record2};
   }
 }
@@ -488,7 +488,7 @@ function freeze(record: Record): void {
 function setErrors(
   record: Record,
   storageKey: StorageKey,
-  errors?: $ReadOnlyArray<TRelayFieldError>,
+  errors?: ReadonlyArray<TRelayFieldError>,
 ): void {
   if (__DEV__) {
     warning(
@@ -523,7 +523,11 @@ function setErrors(
  *
  * Set the value of a storageKey to a scalar.
  */
-function setValue(record: Record, storageKey: StorageKey, value: mixed): void {
+function setValue(
+  record: Record,
+  storageKey: StorageKey,
+  value: unknown,
+): void {
   if (__DEV__) {
     const prevID = getDataID(record);
     if (storageKey === ID_KEY) {
@@ -629,7 +633,7 @@ function getActorLinkedRecordID(
     JSON.stringify(link),
   );
 
-  return [(link[ACTOR_IDENTIFIER_KEY]: any), (link[REF_KEY]: any)];
+  return [link[ACTOR_IDENTIFIER_KEY] as any, link[REF_KEY] as any];
 }
 
 function getResolverLinkedRecordID(record: Record, typeName: string): ?DataID {
@@ -699,26 +703,26 @@ module.exports = {
   create,
   freeze,
   fromObject,
+  getActorLinkedRecordID,
   getDataID,
   getErrors,
   getFields,
   getInvalidationEpoch,
   getLinkedRecordID,
   getLinkedRecordIDs,
-  getType,
-  getValue,
-  hasValue,
-  hasLinkedRecordID,
-  hasLinkedRecordIDs,
-  merge,
-  setErrors,
-  setValue,
-  setLinkedRecordID,
-  setLinkedRecordIDs,
-  update,
-  getActorLinkedRecordID,
-  setActorLinkedRecordID,
   getResolverLinkedRecordID,
   getResolverLinkedRecordIDs,
+  getType,
+  getValue,
+  hasLinkedRecordID,
+  hasLinkedRecordIDs,
+  hasValue,
+  merge,
+  setActorLinkedRecordID,
+  setErrors,
+  setLinkedRecordID,
+  setLinkedRecordIDs,
+  setValue,
   toJSON,
+  update,
 };

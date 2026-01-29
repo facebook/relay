@@ -2,7 +2,7 @@
 
 query relayResolverWithUndefinedFragmentArgsLinkedFieldQuery {
   node(id: "SOME_ID") {
-    ...relayResolverWithUndefinedFragmentArgsLinkedField_PopStarName
+    ...relayResolverWithUndefinedFragmentArgsLinkedField_PopStarName @alias
   }
 }
 
@@ -12,9 +12,8 @@ fragment relayResolverWithUndefinedFragmentArgsLinkedField_PopStarName on User {
   }
 }
 
-fragment relayResolverWithUndefinedFragmentArgsLinkedField_PopStarNameResolverFragment_name on User @argumentDefinitions(
-    includeName: {type: "Boolean!"}
-  ) {
+fragment relayResolverWithUndefinedFragmentArgsLinkedField_PopStarNameResolverFragment_name on User
+@argumentDefinitions(includeName: {type: "Boolean!"}) {
   name @include(if: $includeName)
   id
 }
@@ -22,5 +21,9 @@ fragment relayResolverWithUndefinedFragmentArgsLinkedField_PopStarNameResolverFr
 # %extensions%
 
 extend type User {
-  pop_star(includeName: Boolean!): User @relay_resolver(fragment_name: "relayResolverWithUndefinedFragmentArgsLinkedField_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+  pop_star(includeName: Boolean!): User
+    @relay_resolver(
+      fragment_name: "relayResolverWithUndefinedFragmentArgsLinkedField_PopStarNameResolverFragment_name"
+      import_path: "./path/to/PopStarNameResolver.js"
+    )
 }

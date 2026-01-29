@@ -2,7 +2,7 @@
 # expected-to-throw
 query queryWithMatchDirectiveNoModules_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithMatchDirectiveNoModules_NameRendererFragment
+    ...queryWithMatchDirectiveNoModules_NameRendererFragment @alias
   }
 }
 

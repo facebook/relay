@@ -201,8 +201,7 @@ fragment RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me_
                 "storageKey": null
               }
             },
-            "action": "THROW",
-            "path": "me.best_friend"
+            "action": "THROW"
           }
         ],
         "storageKey": null

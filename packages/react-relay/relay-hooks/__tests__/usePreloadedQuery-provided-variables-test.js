@@ -7,6 +7,7 @@
  * @flow
  * @format
  * @oncall relay
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -24,8 +25,9 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const RelayProvider_impure = require('./RelayProvider_impure');
+const ReactTestingLibrary = require('@testing-library/react');
 const React = require('react');
-const TestRenderer = require('react-test-renderer');
+const {act} = require('react');
 const {
   Environment,
   Network,
@@ -72,27 +74,28 @@ const queryPV = graphql`
     node(id: $id) {
       id
       ...usePreloadedQueryProvidedVariablesTest_Fragment
+        @dangerously_unaliased_fixme
     }
   }
 `;
 
 const preloadableConcreteRequestPV = {
-  kind: 'PreloadableConcreteRequest',
+  kind: 'PreloadableConcreteRequest' as const,
   params: queryPV.params,
 };
 
 // Only queries with an ID are preloadable
 const IdPV = 'providedVariables12346';
-(queryPV.params: $FlowFixMe).id = IdPV;
+(queryPV.params as $FlowFixMe).id = IdPV;
 
-const responsePV = {
+const responsePV: GraphQLResponse = {
   data: {
     node: {
       __typename: 'User',
-      id: '4',
-      name: 'testName',
       firstName: 'testLastName',
+      id: '4',
       lastName: 'testLastName',
+      name: 'testName',
       username: 'testUsername',
     },
   },
@@ -140,7 +143,7 @@ describe('usePreloadedQuery provided variables (%s)', () => {
   });
 
   describe('using preloadQuery_DEPRECATED', () => {
-    it('renders synchronously with provided variables', () => {
+    it('renders synchronously with provided variables', async () => {
       const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequestPV,
@@ -154,25 +157,28 @@ describe('usePreloadedQuery provided variables (%s)', () => {
         dataSource.next(responsePV);
       }
 
-      const renderer = TestRenderer.create(
-        <RelayEnvironmentProvider environment={environment}>
-          <React.Suspense fallback="Fallback">
-            <Component prefetched={prefetched} />
-          </React.Suspense>
-        </RelayEnvironmentProvider>,
-      );
-      TestRenderer.act(() => jest.runAllImmediates());
-      expect(renderer.toJSON()).toEqual(
+      let renderer;
+      await act(() => {
+        renderer = ReactTestingLibrary.render(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={prefetched} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+      });
+      await act(() => jest.runAllImmediates());
+      expect(renderer?.container.textContent).toEqual(
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
-        name: 'testName',
         lastName: 'testLastName',
+        name: 'testName',
       });
     });
   });
   describe('using loadQuery', () => {
-    it('renders synchronously when passed a preloadableConcreteRequest', () => {
+    it('renders synchronously when passed a preloadableConcreteRequest', async () => {
       const prefetched = loadQuery<any, _>(
         environment,
         preloadableConcreteRequestPV,
@@ -187,27 +193,30 @@ describe('usePreloadedQuery provided variables (%s)', () => {
       if (dataSource) {
         dataSource.next(responsePV);
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await act(() => jest.runAllImmediates());
 
-      const renderer = TestRenderer.create(
-        <RelayEnvironmentProvider environment={environment}>
-          <React.Suspense fallback="Fallback">
-            <Component prefetched={prefetched} />
-          </React.Suspense>
-        </RelayEnvironmentProvider>,
-      );
-      TestRenderer.act(() => jest.runAllImmediates());
+      let renderer;
+      await act(() => {
+        renderer = ReactTestingLibrary.render(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={prefetched} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+      });
+      await act(() => jest.runAllImmediates());
 
-      expect(renderer.toJSON()).toEqual(
+      expect(renderer?.container.textContent).toEqual(
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
-        name: 'testName',
         lastName: 'testLastName',
+        name: 'testName',
       });
     });
 
-    it('renders synchronously when passed a query AST', () => {
+    it('renders synchronously when passed a query AST', async () => {
       const prefetched = loadQuery<any, _>(environment, queryPV, {
         id: '4',
       });
@@ -215,27 +224,30 @@ describe('usePreloadedQuery provided variables (%s)', () => {
       if (dataSource) {
         dataSource.next(responsePV);
       }
-      TestRenderer.act(() => jest.runAllImmediates());
+      await act(() => jest.runAllImmediates());
 
-      const renderer = TestRenderer.create(
-        <RelayEnvironmentProvider environment={environment}>
-          <React.Suspense fallback="Fallback">
-            <Component prefetched={prefetched} />
-          </React.Suspense>
-        </RelayEnvironmentProvider>,
-      );
+      let renderer;
+      await act(() => {
+        renderer = ReactTestingLibrary.render(
+          <RelayEnvironmentProvider environment={environment}>
+            <React.Suspense fallback="Fallback">
+              <Component prefetched={prefetched} />
+            </React.Suspense>
+          </RelayEnvironmentProvider>,
+        );
+      });
 
-      expect(renderer.toJSON()).toEqual(
+      expect(renderer?.container.textContent).toEqual(
         'testName, skipped firstName, testLastName, skipped username',
       );
       expect(data).toEqual({
-        name: 'testName',
         lastName: 'testLastName',
+        name: 'testName',
       });
     });
   });
 
-  it('warns when variable provider is an impure function', () => {
+  it('warns when variable provider is an impure function', async () => {
     graphql`
       fragment usePreloadedQueryProvidedVariablesTest_badFragment on User
       @argumentDefinitions(
@@ -253,6 +265,7 @@ describe('usePreloadedQuery provided variables (%s)', () => {
       query usePreloadedQueryProvidedVariablesTest_badQuery($id: ID!) {
         node(id: $id) {
           ...usePreloadedQueryProvidedVariablesTest_badFragment
+            @dangerously_unaliased_fixme
         }
       }
     `;

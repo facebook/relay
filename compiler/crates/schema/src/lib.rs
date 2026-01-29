@@ -21,10 +21,10 @@ mod schema;
 pub mod suggestion_list;
 use std::borrow::Cow;
 
-use common::sync::IntoParallelIterator;
-use common::sync::ParallelIterator;
 use common::DiagnosticsResult;
 use common::SourceLocationKey;
+use common::sync::IntoParallelIterator;
+use common::sync::ParallelIterator;
 pub use definitions::Argument;
 pub use definitions::ArgumentDefinitions;
 pub use definitions::ArgumentValue;
@@ -122,7 +122,9 @@ pub fn parse_schema_with_extensions<
                     buffer.push('\n');
                 }
             }
-            assert!(buffer.is_empty());
+            if !buffer.is_empty() {
+                eprintln!("Incomplete schema document:  {buffer}")
+            }
             chunks
         }
     };

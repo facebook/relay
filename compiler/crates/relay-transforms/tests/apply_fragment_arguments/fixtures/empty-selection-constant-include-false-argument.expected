@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query EmptyQuery($id: ID!) {
+  node(id: $id) {
+    ...Fragment @arguments(cond: false)
+  }
+}
+
+fragment Fragment on User
+  @argumentDefinitions(cond: {type: "Boolean!"}) {
+  lastName @include(if: $cond)
+}
+==================================== ERROR ====================================
+✖︎ After applying transforms to the query `EmptyQuery` selections of the `EmptyQuery` that would be sent to the server are empty. This is likely due to the use of `@skip`/`@include` directives with constant values that remove all selections in the query. 
+
+  empty-selection-constant-include-false-argument.graphql:2:7
+    1 │ # expected-to-throw
+    2 │ query EmptyQuery($id: ID!) {
+      │       ^^^^^^^^^^
+    3 │   node(id: $id) {

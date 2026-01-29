@@ -1111,6 +1111,69 @@ fn test_enums_safe_with_incremental_build_changes() {
 
 #[test]
 fn test_unions_safe_with_incremental_build_changes() {
+    // Remove object in union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+         }
+         #",
+            r"
+            union U = A | B | C
+            type A {
+               A1: String
+            }
+            type B {
+               B1: String
+            }
+            type C {
+               C1: String
+            }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Union("U".intern()),
+        ]))
+    );
+
+    // Add object to union
+    assert_eq!(
+        get_safety(
+            r"
+         union U = A | B | C
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         type C {
+            C1: String
+         }
+         #",
+            r"
+         union U = A | B
+         type A {
+            A1: String
+         }
+         type B {
+            B1: String
+         }
+         #",
+        ),
+        SchemaChangeSafety::SafeWithIncrementalBuild(FxHashSet::from_iter([
+            IncrementalBuildSchemaChange::Union("U".intern()),
+        ]))
+    );
+
     // Change object in union
     assert_eq!(
         get_safety(
@@ -1382,36 +1445,24 @@ fn sort_change(change: &mut SchemaChange) {
         changes.sort();
         for c in changes {
             match c {
-                DefinitionChange::UnionChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
+                DefinitionChange::UnionChanged { added, removed, .. } => {
                     added.sort();
                     removed.sort();
                 }
-                DefinitionChange::InputObjectChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
+                DefinitionChange::InputObjectChanged { added, removed, .. } => {
                     added.sort_by_key(|item| item.name);
                     removed.sort_by_key(|item| item.name);
                 }
-                DefinitionChange::InterfaceChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
+                DefinitionChange::InterfaceChanged { added, removed, .. } => {
                     added.sort_by_key(|item| item.name);
                     removed.sort_by_key(|item| item.name);
                 }
                 DefinitionChange::ObjectChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ref mut changed,
-                    ref mut interfaces_added,
-                    ref mut interfaces_removed,
+                    added,
+                    removed,
+                    changed,
+                    interfaces_added,
+                    interfaces_removed,
                     ..
                 } => {
                     added.sort_by_key(|item| item.name);

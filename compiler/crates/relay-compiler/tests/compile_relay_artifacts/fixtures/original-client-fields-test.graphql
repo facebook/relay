@@ -1,11 +1,11 @@
 query originalClientFieldsTest_BestFriendsQuery($id: ID!) {
   node(id: $id) {
-    ...originalClientFieldsTest_BestFriends
-    ...originalClientFieldsTest_OnlyClientFields
+    ...originalClientFieldsTest_BestFriends @alias
+    ...originalClientFieldsTest_OnlyClientFields @alias
   }
   named {
     # fragments on extension types are skipped
-    ...originalClientFieldsTest_FooFragment
+    ...originalClientFieldsTest_FooFragment @alias
     ... on Foo {
       name
     }

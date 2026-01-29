@@ -10,7 +10,6 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
-import FbUsePaginationFragmentReturnValue from './fb/FbUsePaginationFragmentReturnValue.md';
 
 ## `usePaginationFragment`
 
@@ -94,10 +93,6 @@ module.exports = FriendsList;
 
 ### Return Value
 
-<FbInternalOnly>
-  <FbUsePaginationFragmentReturnValue />
-</FbInternalOnly>
-
 <OssOnly>
 
 Object containing the following properties:
@@ -162,6 +157,5 @@ Object containing the following properties:
 * This api no longer takes additional configuration like `direction` or `getConnectionFromProps` function (like Pagination Container does). These values will be automatically determined by Relay.
 * Refetching no longer has a distinction between `variables` and `fragmentVariables`, which were previously vaguely defined concepts. Refetching will always correctly refetch and render the fragment with the variables you provide (any variables omitted in the input will fallback to using the original values in the parent query).
 * Refetching will unequivocally update the component, which was not always true when calling `refetchConnection` from `PaginationContainer` (it would depend on what you were querying for in the refetch query and if your fragment was defined on the right object type).
-
 
 <DocsRating />

@@ -10,19 +10,19 @@ use std::sync::Arc;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
 use common::SourceLocationKey;
-use docblock_syntax::parse_docblock;
 use docblock_syntax::DocblockSource;
+use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
 use fixture_tests::Fixture;
-use graphql_syntax::parse_executable;
 use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::Intern;
 use relay_config::ProjectName;
+use relay_docblock::ParseOptions;
 use relay_docblock::extend_schema_with_resolver_type_system_definition;
 use relay_docblock::parse_docblock_ast;
 use relay_docblock::validate_resolver_schema;
-use relay_docblock::ParseOptions;
 use relay_test_schema::get_test_schema_with_extensions;
 use schema::SDLSchema;
 
@@ -39,8 +39,7 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
 
     let executable_documents = js_features
         .iter()
-        .enumerate()
-        .filter_map(|(_, source)| match source {
+        .filter_map(|source| match source {
             JavaScriptSourceFeature::GraphQL(source) => Some(
                 parse_executable(&source.text_source().text, SourceLocationKey::Generated)
                     .map_err(|diagnostics| {
@@ -80,6 +79,14 @@ pub async fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> 
                 allow_resolver_non_nullable_return_type: if fixture
                     .content
                     .contains("// relay:allow_resolver_non_nullable_return_type")
+                {
+                    &FeatureFlag::Enabled
+                } else {
+                    &FeatureFlag::Disabled
+                },
+                enable_legacy_verbose_resolver_syntax: if fixture
+                    .content
+                    .contains("// relay:allow_legacy_verbose_syntax")
                 {
                     &FeatureFlag::Enabled
                 } else {

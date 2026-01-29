@@ -1,0 +1,3 @@
+query EnquotedAlias {
+  "1$alias": simple_alias,
+}

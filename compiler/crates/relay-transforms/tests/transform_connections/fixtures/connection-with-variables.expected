@@ -31,6 +31,7 @@ fragment Example on User @__ConnectionMetadataDirective
 #                 "friendsAfter",
 #             ),
 #             is_stream_connection: false,
+#             is_prefetchable_pagination: false,
 #         },
 #     ],
 # )

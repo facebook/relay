@@ -22,15 +22,17 @@ const React = require('react');
 
 const {useMemo} = React;
 
-type Props = $ReadOnly<{
-  children: React.Node,
+type Props<TChildren> = Readonly<{
+  children: TChildren,
   environment: IEnvironment,
   getEnvironmentForActor?: ?(
     actorIdentifier: ActorIdentifier,
   ) => IActorEnvironment,
 }>;
 
-function RelayEnvironmentProvider(props: Props): React.Node {
+component RelayEnvironmentProvider<TChildren: React.Node>(
+  ...props: Props<TChildren>
+) renders TChildren {
   const {children, environment, getEnvironmentForActor} = props;
   const context = useMemo(
     () => ({environment, getEnvironmentForActor}),

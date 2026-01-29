@@ -1,6 +1,6 @@
 query queryWithModuleDirective_NameRendererQuery($id: ID!) {
   node(id: $id) {
-    ...queryWithModuleDirective_NameRendererFragment
+    ...queryWithModuleDirective_NameRendererFragment @alias
   }
 }
 

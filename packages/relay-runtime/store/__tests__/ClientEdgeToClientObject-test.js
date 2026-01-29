@@ -12,15 +12,18 @@
 'use strict';
 
 import type {ClientEdgeToClientObjectTest3Query$data} from './__generated__/ClientEdgeToClientObjectTest3Query.graphql';
+import type {ClientEdgeToClientObjectTestClientRootFragment$key} from './__generated__/ClientEdgeToClientObjectTestClientRootFragment.graphql';
+import type {ClientEdgeToClientObjectTestClientRootNameFragment$key} from './__generated__/ClientEdgeToClientObjectTestClientRootNameFragment.graphql';
 
-const {RelayFeatureFlags, commitLocalUpdate} = require('relay-runtime');
+const {readFragment} = require('../ResolverFragments');
+const {commitLocalUpdate} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
+const RelayModernStore = require('relay-runtime/store/RelayModernStore.js');
 const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
@@ -30,33 +33,25 @@ const {
 disallowConsoleErrors();
 disallowWarnings();
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
-});
-
 test('Can read a deep portion of the schema that is backed by client edges to client objects.', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      birthdate: {__ref: '2'},
+      id: '1',
+    },
+    '2': {
+      __id: '2',
+      __typename: 'Date',
+      day: 11,
+      id: '2',
+      month: 3,
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      birthdate: {__ref: '2'},
-    },
-    '2': {
-      __id: '2',
-      id: '2',
-      __typename: 'Date',
-      day: 11,
-      month: 3,
     },
   });
   const FooQuery = graphql`
@@ -81,7 +76,7 @@ test('Can read a deep portion of the schema that is backed by client edges to cl
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -115,15 +110,15 @@ test('Can read a deep portion of the schema that is backed by client edges to cl
 
 test('Can read a plural client edge to list of client defined types', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
     },
   });
   const FooQuery = graphql`
@@ -135,7 +130,7 @@ test('Can read a plural client edge to list of client defined types', () => {
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const store = new LiveResolverStore(source, {
+  const store = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -192,23 +187,23 @@ test('Can read a plural client edge to list of client defined types', () => {
 
 test('Uses an existing client record if it already exists', () => {
   const source = RelayRecordSource.create({
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      birthdate: {__ref: '2'},
+      id: '1',
+    },
+    '2': {
+      __id: '2',
+      __typename: 'Date',
+      day: 11,
+      id: '2',
+      month: 3,
+    },
     'client:root': {
       __id: 'client:root',
       __typename: '__Root',
       me: {__ref: '1'},
-    },
-    '1': {
-      __id: '1',
-      id: '1',
-      __typename: 'User',
-      birthdate: {__ref: '2'},
-    },
-    '2': {
-      __id: '2',
-      id: '2',
-      __typename: 'Date',
-      day: 11,
-      month: 3,
     },
   });
 
@@ -225,7 +220,7 @@ test('Uses an existing client record if it already exists', () => {
   `;
 
   const operation = createOperationDescriptor(FooQuery, {});
-  const liveStore = new LiveResolverStore(source, {
+  const liveStore = new RelayModernStore(source, {
     gcReleaseBufferSize: 0,
   });
 
@@ -234,10 +229,10 @@ test('Uses an existing client record if it already exists', () => {
     store: liveStore,
   });
 
-  const data: ClientEdgeToClientObjectTest3Query$data = (environment.lookup(
+  const data: ClientEdgeToClientObjectTest3Query$data = environment.lookup(
     operation.fragment,
     // $FlowFixMe[unclear-type] - lookup() doesn't have the nice types of reading a fragment through the actual APIs:
-  ).data: any);
+  ).data as any;
 
   expect(data).toEqual({
     me: {
@@ -273,3 +268,89 @@ test('Uses an existing client record if it already exists', () => {
     },
   });
 });
+
+type Account = {
+  account_name: string,
+};
+/**
+ * @RelayResolver Query.account: ClientAccount
+ */
+function account(): {id: string} {
+  return {id: '1'};
+}
+
+/**
+ * @RelayResolver ClientAccount.self: RelayResolverValue
+ * @rootFragment ClientEdgeToClientObjectTestClientRootFragment
+ */
+function self(
+  fragmentKey: ClientEdgeToClientObjectTestClientRootFragment$key,
+): Account {
+  const data = readFragment(
+    graphql`
+      fragment ClientEdgeToClientObjectTestClientRootFragment on ClientAccount {
+        id @required(action: THROW)
+      }
+    `,
+    fragmentKey,
+  );
+  return {account_name: JSON.stringify(data)};
+}
+
+/**
+ * @RelayResolver ClientAccount.account_name: String
+ * @rootFragment ClientEdgeToClientObjectTestClientRootNameFragment
+ */
+function account_name(
+  fragmentKey: ClientEdgeToClientObjectTestClientRootNameFragment$key,
+): ?string {
+  const acct = readFragment(
+    graphql`
+      fragment ClientEdgeToClientObjectTestClientRootNameFragment on ClientAccount {
+        self
+      }
+    `,
+    fragmentKey,
+  );
+  return acct.self?.account_name;
+}
+
+test('it can read a rootFragment on a client type defined on client schema', () => {
+  const AccountQuery = graphql`
+    query ClientEdgeToClientObjectTestClientRootFragmentQuery {
+      account {
+        __id
+        id
+        account_name
+      }
+    }
+  `;
+
+  const source = RelayRecordSource.create();
+
+  const operation = createOperationDescriptor(AccountQuery, {});
+  const liveStore = new RelayModernStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: liveStore,
+  });
+
+  const data = environment.lookup(operation.fragment).data;
+
+  expect(data).toEqual({
+    account: {
+      __id: 'client:ClientAccount:1',
+      account_name: '{"id":"1"}',
+      id: '1',
+    },
+  });
+});
+
+module.exports = {
+  account,
+  account_name,
+  self,
+};

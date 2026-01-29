@@ -97,6 +97,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-arguments.graphql:32:126,
                 },
             ],
             selections: [
@@ -234,6 +235,47 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                             },
                         },
                     ],
+                    signature: Some(
+                        FragmentSignature {
+                            name: WithLocation {
+                                location: fragment-with-arguments.graphql:286:289,
+                                item: FragmentDefinitionName(
+                                    "Foo",
+                                ),
+                            },
+                            variable_definitions: [
+                                VariableDefinition {
+                                    name: WithLocation {
+                                        location: fragment-with-arguments.graphql:319:326,
+                                        item: VariableName(
+                                            "localId",
+                                        ),
+                                    },
+                                    type_: NonNull(
+                                        Named(
+                                            Scalar(4),
+                                        ),
+                                    ),
+                                    default_value: None,
+                                    directives: [],
+                                },
+                            ],
+                            type_condition: Object(70),
+                            directives: [
+                                Directive {
+                                    name: WithLocation {
+                                        location: fragment-with-arguments.graphql:299:318,
+                                        item: DirectiveName(
+                                            "argumentDefinitions",
+                                        ),
+                                    },
+                                    arguments: [],
+                                    data: None,
+                                    location: fragment-with-arguments.graphql:298:342,
+                                },
+                            ],
+                        },
+                    ),
                     directives: [],
                 },
             ],
@@ -276,6 +318,7 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                     },
                     arguments: [],
                     data: None,
+                    location: fragment-with-arguments.graphql:298:342,
                 },
             ],
             selections: [

@@ -46,7 +46,7 @@ Specify the output level of the Relay language server. The available options are
 - verbose
 - debug
 
-#### `relay.pathToBinary` (default: `null`)
+#### `relay.pathToRelay` (default: `null`)
 
 A path to the Relay binary relative to the root of your project. If this is not specified, we will try to find one in your `node_modules` folder.
 

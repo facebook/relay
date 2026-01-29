@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query ExampleQuery($id: ID!, $condition: Boolean!) @raw_response_type {
   node(id: $id) {
-    ...FriendFragment
+    ...FriendFragment @alias
   }
 }
 
@@ -23,19 +23,21 @@ export type ExampleQuery$variables = {
 };
 export type ExampleQuery$data = {
   readonly node: {
-    readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
+    readonly FriendFragment: {
+      readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
+    } | null | undefined;
   } | null | undefined;
 };
 export type ExampleQuery$rawResponse = {
   readonly node: {
     readonly __typename: "User";
-    readonly feedback: {
+    readonly feedback?: {
       readonly id: string;
       readonly name: string | null | undefined;
     } | null | undefined;
     readonly id: string;
-    readonly lastName: string | null | undefined;
-    readonly name: string | null | undefined;
+    readonly lastName?: string | null | undefined;
+    readonly name?: string | null | undefined;
   } | {
     readonly __typename: string;
     readonly id: string;

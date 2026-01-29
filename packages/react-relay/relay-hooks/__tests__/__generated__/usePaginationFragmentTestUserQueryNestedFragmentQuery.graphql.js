@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<87125350c025233be8cc40c45714e271>>
+ * @generated SignedSource<<d684c1d6dc906ba866b260fd83a79735>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,7 @@ export type usePaginationFragmentTestUserQueryNestedFragmentQuery$variables = {|
   id: string,
   isViewerFriend?: ?boolean,
   last?: ?number,
-  orderby?: ?$ReadOnlyArray<?string>,
+  orderby?: ?ReadonlyArray<?string>,
 |};
 export type usePaginationFragmentTestUserQueryNestedFragmentQuery$data = {|
   +node: ?{|
@@ -354,7 +354,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0fda8f3b3b888c596ad22c11ba6ecf03";
+  (node/*: any*/).hash = "458b4f5da9c3a7ab5f8a37261fa8b23f";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

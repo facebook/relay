@@ -27,6 +27,7 @@ subscription CommentCreateSubscription(
       #             "CommentCreateSubscription",
       #         ),
       #     ),
+      #     read_time_resolvers: false,
       #     fragment_name: FragmentDefinitionName(
       #         "CommentCreate_CommentCreateResponsePayload",
       #     ),

@@ -32,8 +32,8 @@ pub enum SchemaValidationError {
     #[error("Duplicate argument '{0}' found on field/directive '{1}'.")]
     DuplicateArgument(ArgumentName, StringKey),
 
-    #[error("Type must define one or more fields.")]
-    TypeWithNoFields,
+    #[error("The type '{0}' must define one or more fields.")]
+    TypeWithNoFields(StringKey),
 
     #[error("The type of '{0}.{1}' must be Output Type but got {2}.")]
     InvalidFieldType(StringKey, StringKey, String),
@@ -50,9 +50,7 @@ pub enum SchemaValidationError {
     #[error("Interface field '{0}.{1}' expects type '{2}' but '{3}.{1}' is of type '{4}'.")]
     NotASubType(InterfaceName, StringKey, String, StringKey, String),
 
-    #[error(
-        "Interface field argument '{0}.{1}({2}:)' expected but '{3}.{1}' does not provide it."
-    )]
+    #[error("Interface field argument '{0}.{1}({2}:)' expected but '{3}.{1}' does not provide it.")]
     InterfaceFieldArgumentNotProvided(InterfaceName, StringKey, ArgumentName, StringKey),
 
     #[error(

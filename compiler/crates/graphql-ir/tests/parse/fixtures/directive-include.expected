@@ -120,6 +120,19 @@ fragment Foo on User {
                                 ),
                             },
                             arguments: [],
+                            signature: Some(
+                                FragmentSignature {
+                                    name: WithLocation {
+                                        location: directive-include.graphql:152:155,
+                                        item: FragmentDefinitionName(
+                                            "Foo",
+                                        ),
+                                    },
+                                    variable_definitions: [],
+                                    type_condition: Object(70),
+                                    directives: [],
+                                },
+                            ),
                             directives: [],
                         },
                     ],

@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {TestResolverContextType} from '../../../mutations/__tests__/TestResolverContextType';
 import type {TodoModelCapitalizedID$key} from './__generated__/TodoModelCapitalizedID.graphql';
 import type {TodoModelCapitalizedIDLegacy$key} from './__generated__/TodoModelCapitalizedIDLegacy.graphql';
 import type {TodoDescription} from './TodoDescription';
@@ -48,6 +49,17 @@ function TodoModel(id: string): LiveState<TodoModelType> {
  */
 function description(model: TodoModelType): ?string {
   return model?.description;
+}
+
+/**
+ * @RelayResolver TodoModel.another_value_from_context: String
+ */
+function another_value_from_context(
+  model: TodoModelType,
+  _: unknown,
+  context: TestResolverContextType,
+): ?string {
+  return context?.greeting.myHello;
 }
 
 /**
@@ -125,7 +137,7 @@ function fancy_description_suspends(
  */
 function many_fancy_descriptions(
   model: TodoModelType,
-): $ReadOnlyArray<TodoDescription> {
+): ReadonlyArray<TodoDescription> {
   if (model == null) {
     return [];
   }
@@ -138,7 +150,7 @@ function many_fancy_descriptions(
  */
 function many_fancy_descriptions_but_some_are_null(
   model: TodoModelType,
-): $ReadOnlyArray<TodoDescription | null> {
+): ReadonlyArray<TodoDescription | null> {
   if (model == null) {
     return [];
   }
@@ -180,6 +192,7 @@ module.exports = {
   todo_model_null,
   TodoModel,
   description,
+  another_value_from_context,
   fancy_description,
   fancy_description_null,
   fancy_description_suspends,

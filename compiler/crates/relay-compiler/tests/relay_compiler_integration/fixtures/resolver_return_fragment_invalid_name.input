@@ -1,0 +1,20 @@
+//- User_foo.js
+// Test that @returnFragment rejects invalid GraphQL identifiers.
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ * @returnFragment 123InvalidName
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

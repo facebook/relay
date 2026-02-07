@@ -6,13 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName favorite_page
+ * @RelayResolver User.favorite_page: RelayResolverValue
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -28,5 +23,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  favorite_page: RelayResolverValue @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-named-export.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "0a13488b7b321b8d7770f691a668ba44")
+  favorite_page: RelayResolverValue @relay_resolver(has_output_type: true, import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-named-export.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "2ac6804aa7353fa776266120ca62e01a")
 }

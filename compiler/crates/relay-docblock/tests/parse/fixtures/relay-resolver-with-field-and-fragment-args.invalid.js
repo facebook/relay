@@ -7,13 +7,8 @@
 
 // expected-to-throw
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName greeting(salutation: String!, first: Int!)
+ * @RelayResolver User.greeting(salutation: String!, first: Int!): RelayResolverValue
  * @rootFragment myRootFragment
  *
  */

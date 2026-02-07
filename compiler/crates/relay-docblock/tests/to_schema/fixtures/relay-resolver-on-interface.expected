@@ -6,13 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onInterface UserNameRenderable
- * @fieldName favorite_page
+ * @RelayResolver UserNameRenderable.favorite_page: RelayResolverValue
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -29,30 +24,30 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend interface UserNameRenderable {
-  favorite_page: RelayResolverValue @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "a70ac21f287c26454cea41d6b9c1feee")
+  favorite_page: RelayResolverValue @relay_resolver(has_output_type: true, import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "9e15a52d8d549e5cd472fdce136d51b7")
 }
 
 
 extend type PlainUserNameRenderer {
-  favorite_page: RelayResolverValue @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "a70ac21f287c26454cea41d6b9c1feee")
+  favorite_page: RelayResolverValue @relay_resolver(has_output_type: true, import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "9e15a52d8d549e5cd472fdce136d51b7")
 }
 
 
 extend type MarkdownUserNameRenderer {
-  favorite_page: RelayResolverValue @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "a70ac21f287c26454cea41d6b9c1feee")
+  favorite_page: RelayResolverValue @relay_resolver(has_output_type: true, import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "9e15a52d8d549e5cd472fdce136d51b7")
 }
 
 
 extend type ImplementsImplementsUserNameRenderableAndUserNameRenderable {
-  favorite_page: RelayResolverValue @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "a70ac21f287c26454cea41d6b9c1feee")
+  favorite_page: RelayResolverValue @relay_resolver(has_output_type: true, import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "9e15a52d8d549e5cd472fdce136d51b7")
 }
 
 
 extend interface ImplementsUserNameRenderable {
-  favorite_page: RelayResolverValue @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "a70ac21f287c26454cea41d6b9c1feee")
+  favorite_page: RelayResolverValue @relay_resolver(has_output_type: true, import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "9e15a52d8d549e5cd472fdce136d51b7")
 }
 
 
 extend type ImplementsImplementsUserNameRenderable {
-  favorite_page: RelayResolverValue @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "a70ac21f287c26454cea41d6b9c1feee")
+  favorite_page: RelayResolverValue @relay_resolver(has_output_type: true, import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "9e15a52d8d549e5cd472fdce136d51b7")
 }

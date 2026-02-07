@@ -7,18 +7,15 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
- * @RelayResolver
- * @onType User
- * @fieldName hello(world: String = "World")
+ * @RelayResolver User.hello(world: String = "World"): RelayResolverValue
  */
 ==================================== ERROR ====================================
 ✖︎ Defining arguments with default values for resolver fields is not supported, yet.
 
-  /path/to/test/fixture/relay-resolver-with-args-default-value.invalid.js:14:37
-   13 │  * @onType User
-   14 │  * @fieldName hello(world: String = "World")
-      │                                     ^^^^^^^
-   15 │
+  /path/to/test/fixture/relay-resolver-with-args-default-value.invalid.js:11:46
+   10 │ *
+   11 │  * @RelayResolver User.hello(world: String = "World"): RelayResolverValue
+      │                                              ^^^^^^^
+   12 │

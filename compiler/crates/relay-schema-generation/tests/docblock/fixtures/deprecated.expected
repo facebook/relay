@@ -78,6 +78,7 @@ Field(
                 item: "Cat",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: Some(
                 PopulatedIrField(
                     PopulatedIrField {
@@ -141,6 +142,7 @@ Field(
                 item: "Cat",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: Some(
                 UnpopulatedIrField(
                     UnpopulatedIrField {

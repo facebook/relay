@@ -7,7 +7,14 @@
 
 use std::collections::HashSet;
 
+use common::ArgumentName;
+use common::DirectiveName;
+use common::SourceLocationKey;
 use graphql_ir::*;
+use intern::Lookup;
+use intern::string_key::Intern;
+use lazy_static::lazy_static;
+use relay_transforms::REFETCHABLE_NAME;
 use rustc_hash::FxHashSet;
 use schema::InputObjectID;
 use schema::SDLSchema;
@@ -16,6 +23,10 @@ use schema::definitions::Type;
 use schema_diff::check::IncrementalBuildSchemaChange;
 
 use crate::ExecutableDefinitionNameSet;
+
+lazy_static! {
+    static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
+}
 
 pub fn get_affected_definitions(
     schema: &SDLSchema,
@@ -165,12 +176,56 @@ impl SchemaChangeDefinitionFinder<'_, '_> {
             Type::Scalar(_) => (),
         }
     }
+
+    /// Parse and visit the `directives` argument of @refetchable to track
+    /// enum usage in string-encoded directives like "@fetchPolicy(policy: STORE_AND_NETWORK)"
+    fn visit_refetchable_directives_arg(&mut self, refetchable_directive: &Directive) {
+        let Some(directives_arg) = refetchable_directive
+            .arguments
+            .iter()
+            .find(|arg| arg.name.item == *DIRECTIVES_ARG)
+        else {
+            return;
+        };
+
+        let Value::Constant(ConstantValue::List(items)) = &directives_arg.value.item else {
+            return;
+        };
+
+        for item in items {
+            let ConstantValue::String(directive_string) = item else {
+                continue;
+            };
+
+            // Parse the directive string to get its name
+            let Ok(ast_directive) = graphql_syntax::parse_directive(
+                directive_string.lookup(),
+                SourceLocationKey::generated(),
+                0,
+            ) else {
+                continue;
+            };
+
+            // Look up the directive definition in the schema and check its argument types.
+            // We check the schema definition rather than trying to build the IR directive,
+            // because building will fail if an enum value was removed from the schema.
+            let directive_name = DirectiveName(ast_directive.name.value);
+            let Some(directive_def) = self.schema.get_directive(directive_name) else {
+                continue;
+            };
+
+            // Check if any of the directive's arguments use enum types that have changed
+            for arg in directive_def.arguments.iter() {
+                self.add_type_changes(arg.type_.inner());
+            }
+        }
+    }
 }
 
 impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
     const NAME: &'static str = "DependencyAnalyzerSchemaChangeDefinitionFinder";
     const VISIT_ARGUMENTS: bool = true;
-    const VISIT_DIRECTIVES: bool = false;
+    const VISIT_DIRECTIVES: bool = true;
 
     fn visit_linked_field(&mut self, field: &LinkedField) {
         let id = field.definition.item;
@@ -201,5 +256,16 @@ impl Visitor for SchemaChangeDefinitionFinder<'_, '_> {
         let type_ = self.schema.field(id).type_.inner();
         self.add_type_changes(type_);
         self.default_visit_scalar_field(field);
+    }
+
+    // Handle @refetchable directive specially to track enum usage in its
+    // directives argument, which contains string-encoded directives like
+    // "@fetchPolicy(policy: STORE_AND_NETWORK)"
+    fn visit_directive(&mut self, directive: &Directive) {
+        self.default_visit_directive(directive);
+
+        if directive.name.item == *REFETCHABLE_NAME {
+            self.visit_refetchable_directives_arg(directive);
+        }
     }
 }

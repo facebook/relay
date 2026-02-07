@@ -160,11 +160,7 @@ fn generate_fragment_type_exports_section_impl(
             is_extra_artifact_branch_module,
         },
     );
-    let use_readonly_array = project_config
-        .feature_flags
-        .readonly_array_for_flow
-        .is_enabled_for(fragment_definition.name.item.0);
-    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
         .unwrap();
     writer.into_string()
@@ -190,11 +186,7 @@ pub fn generate_named_validator_export(
             is_extra_artifact_branch_module: false,
         },
     );
-    let use_readonly_array = project_config
-        .feature_flags
-        .readonly_array_for_flow
-        .is_enabled_for(fragment_definition.name.item.0);
-    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
 
@@ -230,11 +222,7 @@ pub fn generate_operation_type_exports_section(
             is_extra_artifact_branch_module: false,
         },
     );
-    let use_readonly_array = project_config
-        .feature_flags
-        .readonly_array_for_flow
-        .is_enabled_for(typegen_operation.name.item.0);
-    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_operation_type_exports_section(
         &typegen_context,
         typegen_operation,
@@ -271,11 +259,7 @@ pub fn generate_split_operation_type_exports_section(
             is_extra_artifact_branch_module: false,
         },
     );
-    let use_readonly_array = project_config
-        .feature_flags
-        .readonly_array_for_flow
-        .is_enabled_for(typegen_operation.name.item.0);
-    let mut writer = new_writer_from_config(&project_config.typegen_config, use_readonly_array);
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
 
     write_split_operation_type_exports_section(
         &typegen_context,

@@ -1,0 +1,25 @@
+//- UserFoo.js
+// Test that @returnFragment docblock tag is parsed on a resolver.
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ * @returnFragment UserFooExternalFragment
+ */
+
+//- UserFragment.js
+graphql`fragment UserFragment on User {
+  foo
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

@@ -78,6 +78,7 @@ use crate::errors::Error;
 use crate::errors::Result;
 use crate::path_validator::PathValidator;
 use crate::source_control_for_root;
+use crate::status_reporter::BuildStatus;
 use crate::status_reporter::ConsoleStatusReporter;
 use crate::status_reporter::StatusReporter;
 
@@ -169,6 +170,11 @@ pub struct Config {
     pub additional_validations: Option<AdditionalValidations>,
 
     pub status_reporter: Box<dyn StatusReporter + Send + Sync>,
+
+    /// Optional build status for coordinating between daemon and clients.
+    /// When set, the compiler will notify this status object of file changes
+    /// and build completion, allowing the client to wait for builds.
+    pub build_status: Option<Arc<BuildStatus>>,
 
     /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
     /// This config option is here to define the name of that special variable
@@ -486,6 +492,7 @@ impl Config {
                 root_dir.clone(),
                 is_multi_project,
             )),
+            build_status: None,
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,

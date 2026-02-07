@@ -34,6 +34,7 @@ use docblock_shared::RELAY_RESOLVER_SOURCE_HASH_VALUE;
 use docblock_shared::RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE;
 use docblock_shared::RESOLVER_PROPERTY_LOOKUP_NAME;
 use docblock_shared::RESOLVER_VALUE_SCALAR_NAME;
+use docblock_shared::RETURN_FRAGMENT_ARGUMENT_NAME;
 use docblock_shared::ResolverSourceHash;
 use docblock_shared::TYPE_CONFIRMED_ARGUMENT_NAME;
 use graphql_ir::FragmentDefinitionName;
@@ -376,6 +377,7 @@ trait ResolverIr: Sized {
     fn semantic_non_null(&self) -> Option<ConstantDirective>;
     fn type_confirmed(&self) -> bool;
     fn property_lookup_name(&self) -> Option<WithLocation<StringKey>>;
+    fn return_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>>;
 
     fn to_graphql_schema_ast(
         self,
@@ -522,6 +524,12 @@ trait ResolverIr: Sized {
             arguments.push(string_argument(
                 RESOLVER_PROPERTY_LOOKUP_NAME.0,
                 property_lookup,
+            ));
+        }
+        if let Some(return_fragment) = self.return_fragment() {
+            arguments.push(string_argument(
+                RETURN_FRAGMENT_ARGUMENT_NAME.0,
+                return_fragment.map(|x| x.0),
             ));
         }
         let schema = project_config.schema;
@@ -822,6 +830,7 @@ pub struct TerseRelayResolverIr {
     pub field: FieldDefinition,
     pub type_: WithLocation<StringKey>,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
+    pub return_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub deprecated: Option<IrField>,
     pub semantic_non_null: Option<ConstantDirective>,
     pub live: Option<UnpopulatedIrField>,
@@ -941,6 +950,10 @@ impl ResolverIr for TerseRelayResolverIr {
     fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
         self.property_lookup_name
     }
+
+    fn return_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        self.return_fragment
+    }
 }
 
 impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
@@ -970,6 +983,7 @@ pub struct LegacyVerboseResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
+    pub return_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub output_type: Option<OutputType>,
     pub description: Option<WithLocation<StringKey>>,
     pub hack_source: Option<WithLocation<StringKey>>,
@@ -1137,6 +1151,10 @@ impl ResolverIr for LegacyVerboseResolverIr {
     fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
         None
     }
+
+    fn return_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        self.return_fragment
+    }
 }
 
 impl ResolverTypeDefinitionIr for LegacyVerboseResolverIr {
@@ -1296,6 +1314,10 @@ impl ResolverIr for StrongObjectIr {
     }
 
     fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
+    }
+
+    fn return_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
         None
     }
 }
@@ -1491,6 +1513,10 @@ impl ResolverIr for WeakObjectIr {
     }
 
     fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
+        None
+    }
+
+    fn return_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
         None
     }
 }

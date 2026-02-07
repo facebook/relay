@@ -187,16 +187,18 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub disallow_required_action_throw_on_semantically_nullable_fields: FeatureFlag,
 
-    /// Use ReadonlyArray<T> instead of $ReadOnlyArray<T> for Flow typegen.
-    /// This enables gradual rollout of the new array type across files.
-    #[serde(default)]
-    pub readonly_array_for_flow: FeatureFlag,
-
     /// Allow the legacy verbose resolver syntax (@onType, @onInterface, @fieldName, @edgeTo).
     /// This syntax is deprecated in favor of the terse @RelayResolver Type.field: ReturnType syntax.
     /// When disabled (default), using the legacy syntax will result in a compiler error.
     #[serde(default)]
     pub enable_legacy_verbose_resolver_syntax: FeatureFlag,
+
+    /// Enable experimental support for shadow resolvers. Shadow resolvers allow
+    /// defining a Relay Resolver that "shadows" an existing server field,
+    /// providing an alternative implementation that can be used during
+    /// migration or for client-side overrides.
+    #[serde(default)]
+    pub enable_shadow_resolvers: FeatureFlag,
 }
 
 impl Default for FeatureFlags {
@@ -229,8 +231,8 @@ impl Default for FeatureFlags {
             disable_deduping_common_structures_in_artifacts: Default::default(),
             legacy_include_path_in_required_reader_nodes: Default::default(),
             disallow_required_action_throw_on_semantically_nullable_fields: Default::default(),
-            readonly_array_for_flow: Default::default(),
             enable_legacy_verbose_resolver_syntax: Default::default(),
+            enable_shadow_resolvers: Default::default(),
 
             // enabled-by-default
             enforce_fragment_alias_where_ambiguous: FeatureFlag::Enabled,

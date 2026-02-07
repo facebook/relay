@@ -189,6 +189,8 @@ fn parse_relay_resolver_ir(
 ) -> DiagnosticsResult<LegacyVerboseResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
+    let return_fragment =
+        get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
     let field_name =
         get_required_populated_field_named(fields, AllowedFieldName::FieldNameField, location)?;
     let field_string = field_name.value;
@@ -236,6 +238,8 @@ fn parse_relay_resolver_ir(
         on,
         root_fragment: root_fragment
             .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
+        return_fragment: return_fragment
+            .map(|return_fragment| return_fragment.value.map(FragmentDefinitionName)),
         description,
         hack_source,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
@@ -332,6 +336,8 @@ fn parse_terse_relay_resolver_ir(
 ) -> DiagnosticsResult<TerseRelayResolverIr> {
     let root_fragment =
         get_optional_populated_field_named(fields, AllowedFieldName::RootFragmentField)?;
+    let return_fragment =
+        get_optional_populated_field_named(fields, AllowedFieldName::ReturnFragmentField)?;
     let type_str: WithLocation<StringKey> = relay_resolver_field.value;
 
     // Validate that the right hand side of the @RelayResolver field is a valid identifier
@@ -408,6 +414,8 @@ fn parse_terse_relay_resolver_ir(
         type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
         root_fragment: root_fragment
             .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
+        return_fragment: return_fragment
+            .map(|return_fragment| return_fragment.value.map(FragmentDefinitionName)),
         location,
         deprecated: fields.remove(&AllowedFieldName::DeprecatedField),
         live: get_optional_unpopulated_field_named(fields, AllowedFieldName::LiveField)?,

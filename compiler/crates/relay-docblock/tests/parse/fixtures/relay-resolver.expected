@@ -6,14 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName favorite_page
- * @edgeTo Page
+ * @RelayResolver User.favorite_page: Page
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -29,70 +23,66 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 Field(
-    LegacyVerboseResolver(
-        LegacyVerboseResolverIr {
-            field: FieldDefinitionStub {
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
                 name: Identifier {
-                    span: 53:66,
+                    span: 25:38,
                     token: Token {
-                        span: 53:66,
+                        span: 25:38,
                         kind: Identifier,
                     },
                     value: "favorite_page",
                 },
-                arguments: None,
-            },
-            on: Type(
-                PopulatedIrField {
-                    key_location: /path/to/test/fixture/relay-resolver.js:27:33,
-                    value: WithLocation {
-                        location: /path/to/test/fixture/relay-resolver.js:34:38,
-                        item: "User",
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 40:44,
+                            token: Token {
+                                span: 40:44,
+                                kind: Identifier,
+                            },
+                            value: "Page",
+                        },
                     },
-                },
-            ),
+                ),
+                arguments: None,
+                directives: [],
+                description: Some(
+                    StringNode {
+                        token: Token {
+                            span: 79:370,
+                            kind: Empty,
+                        },
+                        value: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+                    },
+                ),
+                hack_source: None,
+                span: 25:44,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/relay-resolver.js:20:24,
+                item: "User",
+            },
             root_fragment: Some(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver.js:100:114,
+                    location: /path/to/test/fixture/relay-resolver.js:62:76,
                     item: FragmentDefinitionName(
                         "myRootFragment",
                     ),
                 },
             ),
-            output_type: Some(
-                EdgeTo(
-                    WithLocation {
-                        location: /path/to/test/fixture/relay-resolver.js:78:82,
-                        item: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 78:82,
-                                    token: Token {
-                                        span: 78:82,
-                                        kind: Identifier,
-                                    },
-                                    value: "Page",
-                                },
-                            },
-                        ),
-                    },
-                ),
-            ),
-            description: Some(
-                WithLocation {
-                    location: /path/to/test/fixture/relay-resolver.js:117:408,
-                    item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
-                },
-            ),
-            hack_source: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: /path/to/test/fixture/relay-resolver.js:0:409,
+            location: /path/to/test/fixture/relay-resolver.js:0:371,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "eeac1664eff365a817d8a2446abe76ce",
+                "0a9950ad1f952f5777b27604738fcf91",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

@@ -5,14 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName favorite_page
- * @edgeTo Page
+ * @RelayResolver User.favorite_page: Page
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI

@@ -6,14 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName favorite_page
- * @edgeTo Page
+ * @RelayResolver User.favorite_page: Page
  * @rootFragment myRootFragment
  * @deprecated
  */
@@ -25,5 +19,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  favorite_page: Page @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-deprecated-no-description.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "eb46fd9d0828f318bc5613bca9e67e42") @deprecated
+  favorite_page: Page @relay_resolver(import_name: "favorite_page", import_path: "/path/to/test/fixture/relay-resolver-deprecated-no-description.js", fragment_name: "myRootFragment") @resolver_source_hash(value: "c42ef8ef0f905553acaa1291d1eb9ba3") @deprecated
 }

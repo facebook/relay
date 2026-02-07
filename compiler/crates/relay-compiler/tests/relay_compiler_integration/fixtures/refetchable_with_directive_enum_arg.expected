@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+# Regression test: Dependency analyzer tracks enum usage in @refetchable directive strings.
+#
+# When an enum variant is removed from the schema, the incremental build should
+# detect that fragments using that variant need to be rebuilt and report an error.
+# The dependency analyzer now correctly tracks enum usage in directive string
+# arguments from @refetchable(directives: [...]).
+
+//- foo.js
+graphql`
+  fragment foo on User
+  @refetchable(
+    queryName: "FooRefetchQuery"
+    directives: ["@fetchPolicy(policy: STORE_AND_NETWORK)"]
+  ) {
+    id
+  }
+`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+enum FetchPolicy { STORE_AND_NETWORK, NETWORK_ONLY }
+directive @fetchPolicy(policy: FetchPolicy!) on QUERY
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID! }
+
+//-++ schema.graphql
+# Remove the STORE_AND_NETWORK variant from the enum. This should cause the
+# incremental build to fail.
+enum FetchPolicy { NETWORK_ONLY }
+directive @fetchPolicy(policy: FetchPolicy!) on QUERY
+type Query { node(id: ID!): Node }
+interface Node { id: ID! }
+type User implements Node { id: ID! }
+==================================== OUTPUT ===================================
+✖︎ Expected a value of type 'FetchPolicy'
+
+  foo.js:12:17
+   11 │     queryName: "FooRefetchQuery"
+   12 │     directives: ["@fetchPolicy(policy: STORE_AND_NETWORK)"]
+      │                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │   ) {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<884f289d16217b8cae932ebeb6a182f2>>
+ * @generated SignedSource<<b13f9b7fe5d103f8c455b2cef4e67170>>
  */
 
 mod to_schema;
@@ -17,20 +17,6 @@ async fn client_edge_relay_resolver() {
     let input = include_str!("to_schema/fixtures/client-edge-relay-resolver.js");
     let expected = include_str!("to_schema/fixtures/client-edge-relay-resolver.expected");
     test_fixture(transform_fixture, file!(), "client-edge-relay-resolver.js", "to_schema/fixtures/client-edge-relay-resolver.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn client_edge_to_non_null_plural_server_object_relay_resolver_invalid() {
-    let input = include_str!("to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js");
-    let expected = include_str!("to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.expected");
-    test_fixture(transform_fixture, file!(), "client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js", "to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn client_edge_to_plural_server_object_relay_resolver_invalid() {
-    let input = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.js");
-    let expected = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected");
-    test_fixture(transform_fixture, file!(), "client-edge-to-plural-server-object-relay-resolver.invalid.js", "to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -69,20 +55,6 @@ async fn relay_resolver_id_invalid() {
 }
 
 #[tokio::test]
-async fn relay_resolver_implementing_a_field_defined_by_grandparent_interface() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-grandparent-interface.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-grandparent-interface.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-implementing-a-field-defined-by-grandparent-interface.js", "to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-grandparent-interface.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_implementing_a_field_defined_by_parent_interface() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-implementing-a-field-defined-by-parent-interface.js", "to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn relay_resolver_named_export() {
     let input = include_str!("to_schema/fixtures/relay-resolver-named-export.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-named-export.expected");
@@ -94,13 +66,6 @@ async fn relay_resolver_on_interface() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-interface.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-on-interface.js", "to_schema/fixtures/relay-resolver-on-interface.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_interface_implementing_a_field_defined_by_parent_interface() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.js", "to_schema/fixtures/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.expected", input, expected).await;
 }
 
 #[tokio::test]

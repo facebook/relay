@@ -75,6 +75,7 @@ Field(
                 item: "Cat",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: Some(
                 ConstantDirective {
@@ -145,6 +146,7 @@ Field(
                 item: "Cat",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,
@@ -198,6 +200,7 @@ Field(
                 item: "Cat",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,

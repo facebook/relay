@@ -225,7 +225,8 @@ function createMockEnvironment(
     const opParams = operation.request.node.params;
     const opRequestId = opParams.cacheID ?? opParams.id ?? opParams.text;
     return (
-      requestId === opRequestId && areEqual(variables, operation.request.variables)
+      requestId === opRequestId &&
+      areEqual(variables, operation.request.variables)
     );
   };
 

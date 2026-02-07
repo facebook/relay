@@ -171,7 +171,10 @@ describe('persistent resolvers', () => {
   const renderQuery = (
     environment: RelayMockEnvironment,
     variables: {id: string},
-  ): {renderer: typeof TestRenderer, getData: () => ?RelayMockEnvironmentTestQuery$data} => {
+  ): ({
+    renderer: typeof TestRenderer,
+    getData: () => ?RelayMockEnvironmentTestQuery$data,
+  }) => {
     let data: ?RelayMockEnvironmentTestQuery$data;
     function Component(props: {prefetched: PreloadedQuery<empty>}) {
       data = usePreloadedQuery(query, props.prefetched);
@@ -247,7 +250,9 @@ describe('persistent resolvers', () => {
     expect(renderer1.toJSON()).toEqual('Name for alice');
 
     // Second query suspends because resolver was consumed
-    const {renderer: renderer2, getData} = renderQuery(environment, {id: 'bob'});
+    const {renderer: renderer2, getData} = renderQuery(environment, {
+      id: 'bob',
+    });
     expect(renderer2.toJSON()).toEqual('Fallback');
     expect(getData()).toBeUndefined();
   });

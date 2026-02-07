@@ -50,7 +50,7 @@ pub use self::extract_graphql::SourceReader;
 pub use self::extract_graphql::extract_javascript_features_from_file;
 pub use self::extract_graphql::source_for_location;
 use self::walk_dir_file_source::WalkDirFileSource;
-use self::walk_dir_file_source::WalkDirFileSourceResult;
+pub use self::walk_dir_file_source::WalkDirFileSourceResult;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::config::FileSourceKind;

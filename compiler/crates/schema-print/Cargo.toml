@@ -28,6 +28,6 @@ rayon = "1.11.0"
 schema = { path = "../schema" }
 
 [dev-dependencies]
-diff = "0.1"
+diff = "0.1.13"
 fixture-tests = { path = "../fixture-tests" }
 tokio = { version = "1.47.1", features = ["full", "test-util", "tracing"] }

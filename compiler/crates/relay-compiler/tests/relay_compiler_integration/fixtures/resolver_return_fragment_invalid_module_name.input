@@ -1,14 +1,9 @@
-//- UserFoo.js
-// Test that @returnFragment docblock tag is parsed on a resolver.
+//- User_foo.js
+// Test that @returnFragment requires fragment names to start with the module name.
 /**
  * @RelayResolver User.foo: RelayResolverValue
- * @returnFragment UserFooExternalFragment
+ * @returnFragment WrongPrefix_fragment
  */
-
-//- UserFragment.js
-graphql`fragment UserFragment on User {
-  foo
-}`
 
 //- relay.config.json
 {

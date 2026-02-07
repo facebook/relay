@@ -1,13 +1,14 @@
-//- UserFoo.js
-// Test that @returnFragment docblock tag is parsed on a resolver.
+//- UserResolver.js
+// Test that @returnFragment rejects fragment names that conflict with existing fragments.
 /**
  * @RelayResolver User.foo: RelayResolverValue
- * @returnFragment UserFooExternalFragment
+ * @returnFragment UserResolverConflicting
  */
 
-//- UserFragment.js
-graphql`fragment UserFragment on User {
-  foo
+//- UserResolverConflicting.js
+// This fragment exists in the project and should conflict.
+graphql`fragment UserResolverConflicting on User {
+  name
 }`
 
 //- relay.config.json

@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+//- User_foo.js
+// Test that @returnFragment rejects invalid GraphQL identifiers.
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ * @returnFragment 123InvalidName
+ */
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+==================================== OUTPUT ===================================
+✖︎ '123InvalidName' is not a valid fragment name. Fragment names must match /[_A-Za-z][_0-9A-Za-z]*/.
+
+  User_foo.js:4:20
+    3 │  * @RelayResolver User.foo: RelayResolverValue
+    4 │  * @returnFragment 123InvalidName
+      │                    ^^^^^^^^^^^^^^
+    5 │

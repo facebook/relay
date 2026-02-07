@@ -7,13 +7,9 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName greeting(salutation: String!)
+ * @RelayResolver User.greeting(salutation: String!): RelayResolverValue
  * @rootFragment myRootFragment
  *
  */
@@ -26,16 +22,16 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Unexpected conflicting argument name. This field argument
 
-  /path/to/test/fixture/relay-resolver-with-conflicting-args.invalid.js:15:24
-   14 │  * @onType User
-   15 │  * @fieldName greeting(salutation: String!)
-      │                        ^^^^^^^^^^
-   16 │  * @rootFragment myRootFragment
+  /path/to/test/fixture/relay-resolver-with-conflicting-args.invalid.js:11:33
+   10 │ *
+   11 │  * @RelayResolver User.greeting(salutation: String!): RelayResolverValue
+      │                                 ^^^^^^^^^^
+   12 │  * @rootFragment myRootFragment
 
   ℹ︎ conflicts with this fragment argument
 
-  /path/to/test/fixture/relay-resolver-with-conflicting-args.invalid.js:21:56
-   20 │ 
-   21 │   fragment myRootFragment on User @argumentDefinitions(salutation: {type: "String!"}) {
+  /path/to/test/fixture/relay-resolver-with-conflicting-args.invalid.js:17:56
+   16 │ 
+   17 │   fragment myRootFragment on User @argumentDefinitions(salutation: {type: "String!"}) {
       │                                                        ^^^^^^^^^^
-   22 │     name
+   18 │     name

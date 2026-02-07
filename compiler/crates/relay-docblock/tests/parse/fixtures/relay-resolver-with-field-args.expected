@@ -6,13 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName greeting(salutation: String!)
+ * @RelayResolver User.greeting(salutation: String!): RelayResolverValue
  * @rootFragment myRootFragment
  *
  */
@@ -24,43 +19,55 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 Field(
-    LegacyVerboseResolver(
-        LegacyVerboseResolverIr {
-            field: FieldDefinitionStub {
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
                 name: Identifier {
-                    span: 53:61,
+                    span: 25:33,
                     token: Token {
-                        span: 53:61,
+                        span: 25:33,
                         kind: Identifier,
                     },
                     value: "greeting",
                 },
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 56:74,
+                            token: Token {
+                                span: 56:74,
+                                kind: Identifier,
+                            },
+                            value: "RelayResolverValue",
+                        },
+                    },
+                ),
                 arguments: Some(
                     List {
-                        span: 61:82,
+                        span: 33:54,
                         start: Token {
-                            span: 61:62,
+                            span: 33:34,
                             kind: OpenParen,
                         },
                         items: [
                             InputValueDefinition {
                                 name: Identifier {
-                                    span: 62:72,
+                                    span: 34:44,
                                     token: Token {
-                                        span: 62:72,
+                                        span: 34:44,
                                         kind: Identifier,
                                     },
                                     value: "salutation",
                                 },
                                 type_: NonNull(
                                     NonNullTypeAnnotation {
-                                        span: 74:81,
+                                        span: 46:53,
                                         type_: Named(
                                             NamedTypeAnnotation {
                                                 name: Identifier {
-                                                    span: 74:80,
+                                                    span: 46:52,
                                                     token: Token {
-                                                        span: 74:80,
+                                                        span: 46:52,
                                                         kind: Identifier,
                                                     },
                                                     value: "String",
@@ -68,7 +75,7 @@ Field(
                                             },
                                         ),
                                         exclamation: Token {
-                                            span: 80:81,
+                                            span: 52:53,
                                             kind: Exclamation,
                                         },
                                     },
@@ -76,45 +83,43 @@ Field(
                                 default_value: None,
                                 directives: [],
                                 description: None,
-                                span: 62:81,
+                                span: 34:53,
                             },
                         ],
                         end: Token {
-                            span: 81:82,
+                            span: 53:54,
                             kind: CloseParen,
                         },
                     },
                 ),
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 25:74,
             },
-            on: Type(
-                PopulatedIrField {
-                    key_location: /path/to/test/fixture/relay-resolver-with-field-args.js:27:33,
-                    value: WithLocation {
-                        location: /path/to/test/fixture/relay-resolver-with-field-args.js:34:38,
-                        item: "User",
-                    },
-                },
-            ),
+            type_: WithLocation {
+                location: /path/to/test/fixture/relay-resolver-with-field-args.js:20:24,
+                item: "User",
+            },
             root_fragment: Some(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-with-field-args.js:100:114,
+                    location: /path/to/test/fixture/relay-resolver-with-field-args.js:92:106,
                     item: FragmentDefinitionName(
                         "myRootFragment",
                     ),
                 },
             ),
             return_fragment: None,
-            output_type: None,
-            description: None,
-            hack_source: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: /path/to/test/fixture/relay-resolver-with-field-args.js:0:118,
+            location: /path/to/test/fixture/relay-resolver-with-field-args.js:0:110,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "74022d4ca184b7d99e312af76420f20f",
+                "ea04e58b6b18feb9c61322cab7dab228",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

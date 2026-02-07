@@ -4,48 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<294590aede42b30342d8c0d2ca299310>>
+ * @generated SignedSource<<5a2558181a91e7858b393e457c2da97a>>
  */
 
 mod parse;
 
 use parse::transform_fixture;
 use fixture_tests::test_fixture;
-
-#[tokio::test]
-async fn edge_to_non_null_invalid() {
-    let input = include_str!("parse/fixtures/edge-to-non-null.invalid.js");
-    let expected = include_str!("parse/fixtures/edge-to-non-null.invalid.expected");
-    test_fixture(transform_fixture, file!(), "edge-to-non-null.invalid.js", "parse/fixtures/edge-to-non-null.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn edge_to_non_null_plural_item_invalid() {
-    let input = include_str!("parse/fixtures/edge-to-non-null-plural-item.invalid.js");
-    let expected = include_str!("parse/fixtures/edge-to-non-null-plural-item.invalid.expected");
-    test_fixture(transform_fixture, file!(), "edge-to-non-null-plural-item.invalid.js", "parse/fixtures/edge-to-non-null-plural-item.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn edge_to_not_identifier_invalid() {
-    let input = include_str!("parse/fixtures/edge-to-not-identifier.invalid.js");
-    let expected = include_str!("parse/fixtures/edge-to-not-identifier.invalid.expected");
-    test_fixture(transform_fixture, file!(), "edge-to-not-identifier.invalid.js", "parse/fixtures/edge-to-not-identifier.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn output_type_edge_to_invalid() {
-    let input = include_str!("parse/fixtures/output-type-edge-to-invalid.js");
-    let expected = include_str!("parse/fixtures/output-type-edge-to-invalid.expected");
-    test_fixture(transform_fixture, file!(), "output-type-edge-to-invalid.js", "parse/fixtures/output-type-edge-to-invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn output_type_invalid_type() {
-    let input = include_str!("parse/fixtures/output-type-invalid-type.js");
-    let expected = include_str!("parse/fixtures/output-type-invalid-type.expected");
-    test_fixture(transform_fixture, file!(), "output-type-invalid-type.js", "parse/fixtures/output-type-invalid-type.expected", input, expected).await;
-}
 
 #[tokio::test]
 async fn relay_resolver() {

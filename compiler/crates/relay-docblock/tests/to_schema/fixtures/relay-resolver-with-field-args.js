@@ -5,13 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName greeting(salutation: String!)
+ * @RelayResolver User.greeting(salutation: String!): RelayResolverValue
  * @rootFragment myRootFragment
  *
  */

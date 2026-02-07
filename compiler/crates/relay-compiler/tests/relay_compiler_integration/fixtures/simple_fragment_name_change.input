@@ -1,0 +1,21 @@
+//- foo.js
+graphql`
+  fragment foo on User {
+     name
+  }`;
+
+//- relay.config.json
+{
+   "language": "typescript",
+   "schema": "./schema.graphql"
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }
+
+//-++ foo.js
+graphql`
+  fragment fooNew on User {
+     name
+  }`;

@@ -1,14 +1,9 @@
-//- UserFoo.js
-// Test that @returnFragment docblock tag is parsed on a resolver.
+//- User_foo.js
+// Test that @returnFragment rejects invalid GraphQL identifiers.
 /**
  * @RelayResolver User.foo: RelayResolverValue
- * @returnFragment UserFooExternalFragment
+ * @returnFragment 123InvalidName
  */
-
-//- UserFragment.js
-graphql`fragment UserFragment on User {
-  foo
-}`
 
 //- relay.config.json
 {

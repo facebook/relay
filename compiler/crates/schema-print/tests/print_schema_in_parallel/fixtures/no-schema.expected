@@ -69,21 +69,21 @@ interface Image implements Resource & Node {
   thumbnail: String
 }
 ==================================== OUTPUT ===================================
-directive @extern_type(schema: String, name: String) on INTERFACE
+directive @extern_type(name: String, schema: String) on INTERFACE
 
 directive @fetchable(field_name: String) on OBJECT
 
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-directive @ref_type(schema: String, name: String) on FIELD_DEFINITION
+directive @ref_type(name: String, schema: String) on FIELD_DEFINITION
 
 directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
-directive @source(schema: String, name: String) on OBJECT | INTERFACE | ENUM
+directive @source(name: String, schema: String) on OBJECT | INTERFACE | ENUM
 
-union Actor @source(schema: "instagram", name: "Story") = User | Page
+union Actor @source(name: "Story", schema: "instagram") = User | Page
 
-enum AppStoreSectionContentTypeEnum @source(schema: "instagram", name: "Story") {
+enum AppStoreSectionContentTypeEnum @source(name: "Story", schema: "instagram") {
   DEFAULT @deprecated(reason: "test")
   CONCEPTS
   EARLY_ACCESS
@@ -121,7 +121,7 @@ interface Resource implements Node {
   url: String
 }
 
-type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "Story") {
+type XIGStory @fetchable(field_name: "id") @source(name: "Story", schema: "instagram") {
   id: ID
   name: String
 }
@@ -129,7 +129,7 @@ type XIGStory @fetchable(field_name: "id") @source(schema: "instagram", name: "S
 
 =======Shard=======
 
-input AppVersions @source(schema: "instagram", name: "Story") {
+input AppVersions @source(name: "Story", schema: "instagram") {
   app_id: ID!
   version_code: Int
 }
@@ -140,19 +140,19 @@ interface BaseNode {
 
 type User implements XIGHuman @fetchable(field_name: "id") {
   id: ID
-  story(id: ID = 1): XIGStory @ref_type(schema: "instagram", name: "Story")
+  story(id: ID = 1): XIGStory @ref_type(name: "Story", schema: "instagram")
   content_type(type: AppStoreSectionContentTypeEnum = [CONCEPTS, EARLY_ACCESS]): [AppStoreSectionContentTypeEnum]
   story(story: XIGStoryInput = {id: 123, name: "instagram_story"}): XIGStory
 }
 
-interface XIGHuman @source(schema: "instagram", name: "Human") {
+interface XIGHuman @source(name: "Human", schema: "instagram") {
   name: String
 }
 
 
 =======Shard=======
 
-scalar ID @source(schema: "instagram", name: "Story")
+scalar ID @source(name: "Story", schema: "instagram")
 
 interface Node implements BaseNode {
   name: String!

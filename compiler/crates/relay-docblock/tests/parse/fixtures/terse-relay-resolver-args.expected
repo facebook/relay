@@ -120,6 +120,7 @@ Field(
                     ),
                 },
             ),
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,

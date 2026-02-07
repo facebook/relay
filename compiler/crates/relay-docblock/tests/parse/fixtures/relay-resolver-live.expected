@@ -6,14 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName favorite_page
- * @edgeTo Page
+ * @RelayResolver User.favorite_page: Page
  * @rootFragment myRootFragment
  * @live
  */
@@ -25,69 +19,62 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 Field(
-    LegacyVerboseResolver(
-        LegacyVerboseResolverIr {
-            field: FieldDefinitionStub {
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
                 name: Identifier {
-                    span: 53:66,
+                    span: 25:38,
                     token: Token {
-                        span: 53:66,
+                        span: 25:38,
                         kind: Identifier,
                     },
                     value: "favorite_page",
                 },
-                arguments: None,
-            },
-            on: Type(
-                PopulatedIrField {
-                    key_location: /path/to/test/fixture/relay-resolver-live.js:27:33,
-                    value: WithLocation {
-                        location: /path/to/test/fixture/relay-resolver-live.js:34:38,
-                        item: "User",
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 40:44,
+                            token: Token {
+                                span: 40:44,
+                                kind: Identifier,
+                            },
+                            value: "Page",
+                        },
                     },
-                },
-            ),
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 25:44,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/relay-resolver-live.js:20:24,
+                item: "User",
+            },
             root_fragment: Some(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-live.js:100:114,
+                    location: /path/to/test/fixture/relay-resolver-live.js:62:76,
                     item: FragmentDefinitionName(
                         "myRootFragment",
                     ),
                 },
             ),
-            output_type: Some(
-                EdgeTo(
-                    WithLocation {
-                        location: /path/to/test/fixture/relay-resolver-live.js:78:82,
-                        item: Named(
-                            NamedTypeAnnotation {
-                                name: Identifier {
-                                    span: 78:82,
-                                    token: Token {
-                                        span: 78:82,
-                                        kind: Identifier,
-                                    },
-                                    value: "Page",
-                                },
-                            },
-                        ),
-                    },
-                ),
-            ),
-            description: None,
-            hack_source: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: Some(
                 UnpopulatedIrField {
-                    key_location: /path/to/test/fixture/relay-resolver-live.js:119:123,
+                    key_location: /path/to/test/fixture/relay-resolver-live.js:81:85,
                 },
             ),
-            location: /path/to/test/fixture/relay-resolver-live.js:0:124,
+            location: /path/to/test/fixture/relay-resolver-live.js:0:86,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "e77e16ef96fd749a5894db7bcb685060",
+                "18c51bb72fa4c647685c2b784f5584c9",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

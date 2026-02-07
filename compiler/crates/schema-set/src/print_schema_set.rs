@@ -308,9 +308,10 @@ impl PrintableExtendDefinition for SetEnum {}
 
 fn print_enum_value(value: &schema::EnumValue) -> String {
     format!(
-        "{}{}",
+        "{}{}{}",
         format_description_string(value.description, FIELD_INDENT),
-        value.value.lookup()
+        value.value.lookup(),
+        print_directive_value_items(&value.directives),
     )
 }
 
@@ -348,7 +349,7 @@ fn print_input_field_with_description(field: &SetArgument) -> String {
     format!(
         "{}{}",
         format_description_string(field.description(), FIELD_INDENT),
-        field.print_definition()
+        field.print_definition(),
     )
 }
 
@@ -606,19 +607,24 @@ fn print_arguments_with_indent(
 
 fn print_argument_with_description(arg: &SetArgument, indent: &str) -> String {
     format!(
-        "{}{}",
+        "{}{}{}",
         format_description_string(arg.description(), indent),
-        arg.print_definition()
+        arg.print_definition(),
+        print_directive_value_items(&arg.directives),
     )
 }
 
 fn print_directive_values(item: &dyn CanHaveDirectives) -> String {
-    if item.directives().is_empty() {
+    print_directive_value_items(item.directives())
+}
+
+fn print_directive_value_items(directives: &[DirectiveValue]) -> String {
+    if directives.is_empty() {
         String::new()
     } else {
         format!(
             " {}",
-            item.directives()
+            directives
                 .iter()
                 .map(print_directive_value)
                 .collect::<Vec<_>>()

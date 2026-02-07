@@ -646,6 +646,13 @@
           "type": "boolean",
           "default": false
         },
+        "enable_legacy_verbose_resolver_syntax": {
+          "description": "Allow the legacy verbose resolver syntax (@onType, @onInterface, @fieldName, @edgeTo).\nThis syntax is deprecated in favor of the terse @RelayResolver Type.field: ReturnType syntax.\nWhen disabled (default), using the legacy syntax will result in a compiler error.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
+        },
         "enable_relay_resolver_mutations": {
           "description": "Allow relay resolvers to extend the Mutation type",
           "type": "boolean",
@@ -655,6 +662,13 @@
           "description": "Fully build the normalization AST for Resolvers",
           "type": "boolean",
           "default": false
+        },
+        "enable_shadow_resolvers": {
+          "description": "Enable experimental support for shadow resolvers. Shadow resolvers allow\ndefining a Relay Resolver that \"shadows\" an existing server field,\nproviding an alternative implementation that can be used during\nmigration or for client-side overrides.",
+          "$ref": "#/$defs/FeatureFlag",
+          "default": {
+            "kind": "disabled"
+          }
         },
         "enable_strict_custom_scalars": {
           "description": "Perform strict validations when custom scalar types are used",
@@ -693,13 +707,6 @@
           "description": "Feature flag to prefer `fetch_MyType()` generatior over `node()` query generator\nin @refetchable transform",
           "type": "boolean",
           "default": false
-        },
-        "readonly_array_for_flow": {
-          "description": "Use ReadonlyArray<T> instead of $ReadOnlyArray<T> for Flow typegen.\nThis enables gradual rollout of the new array type across files.",
-          "$ref": "#/$defs/FeatureFlag",
-          "default": {
-            "kind": "disabled"
-          }
         },
         "relay_resolver_enable_interface_output_type": {
           "description": "Enable returning interfaces from Relay Resolvers without @outputType",
@@ -921,8 +928,14 @@
             "enable_3d_branch_arg_generation": false,
             "enable_exec_time_resolvers_directive": false,
             "enable_fragment_argument_transform": false,
+            "enable_legacy_verbose_resolver_syntax": {
+              "kind": "disabled"
+            },
             "enable_relay_resolver_mutations": false,
             "enable_resolver_normalization_ast": false,
+            "enable_shadow_resolvers": {
+              "kind": "disabled"
+            },
             "enable_strict_custom_scalars": false,
             "enforce_fragment_alias_where_ambiguous": {
               "kind": "enabled"
@@ -937,9 +950,6 @@
               "kind": "disabled"
             },
             "prefer_fetchable_in_refetch_queries": false,
-            "readonly_array_for_flow": {
-              "kind": "disabled"
-            },
             "relay_resolver_enable_interface_output_type": {
               "kind": "disabled"
             },

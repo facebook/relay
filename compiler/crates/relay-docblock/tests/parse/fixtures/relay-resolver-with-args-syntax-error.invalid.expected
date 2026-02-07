@@ -7,13 +7,9 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName greeting(salutation)
+ * @RelayResolver User.greeting(salutation): RelayResolverValue
  * @rootFragment myRootFragment
  *
  */
@@ -26,8 +22,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Expected a colon (':')
 
-  /path/to/test/fixture/relay-resolver-with-args-syntax-error.invalid.js:15:34
-   14 │  * @onType User
-   15 │  * @fieldName greeting(salutation)
-      │                                  ^
-   16 │  * @rootFragment myRootFragment
+  /path/to/test/fixture/relay-resolver-with-args-syntax-error.invalid.js:11:43
+   10 │ *
+   11 │  * @RelayResolver User.greeting(salutation): RelayResolverValue
+      │                                           ^
+   12 │  * @rootFragment myRootFragment

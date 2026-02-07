@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<47b9aec72d8e5a8fc0175b9b8965c89c>>
+ * @generated SignedSource<<6bb37b0783faddb3ea91a7a748b16b4d>>
  */
 
 mod relay_compiler_integration;
@@ -237,6 +237,13 @@ async fn preloadable_query_typescript() {
 }
 
 #[tokio::test]
+async fn refetchable_with_directive_enum_arg() {
+    let input = include_str!("relay_compiler_integration/fixtures/refetchable_with_directive_enum_arg.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/refetchable_with_directive_enum_arg.expected");
+    test_fixture(transform_fixture, file!(), "refetchable_with_directive_enum_arg.input", "relay_compiler_integration/fixtures/refetchable_with_directive_enum_arg.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn relay_resolvers_in_throw_on_field_error() {
     let input = include_str!("relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.input");
     let expected = include_str!("relay_compiler_integration/fixtures/relay_resolvers_in_throw_on_field_error.expected");
@@ -311,6 +318,34 @@ async fn resolver_on_interface_returns_custom_scalar() {
     let input = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected");
     test_fixture(transform_fixture, file!(), "resolver_on_interface_returns_custom_scalar.input", "relay_compiler_integration/fixtures/resolver_on_interface_returns_custom_scalar.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_return_fragment_conflicts_with_existing() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_conflicts_with_existing.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_conflicts_with_existing.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_conflicts_with_existing.input", "relay_compiler_integration/fixtures/resolver_return_fragment_conflicts_with_existing.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_return_fragment_invalid_module_name() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_invalid_module_name.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_invalid_module_name.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_invalid_module_name.input", "relay_compiler_integration/fixtures/resolver_return_fragment_invalid_module_name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_return_fragment_invalid_name() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_invalid_name.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_invalid_name.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_invalid_name.input", "relay_compiler_integration/fixtures/resolver_return_fragment_invalid_name.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn resolver_return_fragment_requires_feature_flag() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.expected");
+    test_fixture(transform_fixture, file!(), "resolver_return_fragment_requires_feature_flag.input", "relay_compiler_integration/fixtures/resolver_return_fragment_requires_feature_flag.expected", input, expected).await;
 }
 
 #[tokio::test]
@@ -454,6 +489,13 @@ async fn resolver_semantic_non_null_scalar() {
 }
 
 #[tokio::test]
+async fn resolver_with_return_fragment() {
+    let input = include_str!("relay_compiler_integration/fixtures/resolver_with_return_fragment.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/resolver_with_return_fragment.expected");
+    test_fixture(transform_fixture, file!(), "resolver_with_return_fragment.input", "relay_compiler_integration/fixtures/resolver_with_return_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
 async fn resolvers_mask_false() {
     let input = include_str!("relay_compiler_integration/fixtures/resolvers_mask_false.input");
     let expected = include_str!("relay_compiler_integration/fixtures/resolvers_mask_false.expected");
@@ -542,6 +584,13 @@ async fn simple_fragment() {
     let input = include_str!("relay_compiler_integration/fixtures/simple_fragment.input");
     let expected = include_str!("relay_compiler_integration/fixtures/simple_fragment.expected");
     test_fixture(transform_fixture, file!(), "simple_fragment.input", "relay_compiler_integration/fixtures/simple_fragment.expected", input, expected).await;
+}
+
+#[tokio::test]
+async fn simple_fragment_name_change() {
+    let input = include_str!("relay_compiler_integration/fixtures/simple_fragment_name_change.input");
+    let expected = include_str!("relay_compiler_integration/fixtures/simple_fragment_name_change.expected");
+    test_fixture(transform_fixture, file!(), "simple_fragment_name_change.input", "relay_compiler_integration/fixtures/simple_fragment_name_change.expected", input, expected).await;
 }
 
 #[tokio::test]

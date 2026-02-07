@@ -6,7 +6,6 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 graphql`
   fragment myRootFragment on User {
@@ -15,9 +14,6 @@ graphql`
 `
 
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName my_field
+ * @RelayResolver User.my_field: RelayResolverValue
  * @rootFragment missingFragment
  */

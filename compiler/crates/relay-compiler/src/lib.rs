@@ -71,6 +71,7 @@ pub use file_source::FileSourceSubscriptionNextChange;
 pub use file_source::FsSourceReader;
 pub use file_source::SourceControlUpdateStatus;
 pub use file_source::SourceReader;
+pub use file_source::WalkDirFileSourceResult;
 pub use file_source::source_for_location;
 pub use get_programs::assert_programs;
 pub use get_programs::get_programs;

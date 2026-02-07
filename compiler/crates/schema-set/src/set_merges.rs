@@ -254,7 +254,7 @@ impl MergesFromAbstractDefinition<Self> for SetField {
         // defined by a client definition, then
         if let Some(original) = original {
             merge_directive_values(self, original.directives.clone());
-            merge_arguments(self, original.arguments.clone());
+            merge_arguments(self, abstract_field.arguments);
         } else {
             merge_directive_values(self, abstract_field.directives);
             merge_arguments(self, abstract_field.arguments);

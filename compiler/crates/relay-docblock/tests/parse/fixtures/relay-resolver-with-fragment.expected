@@ -6,13 +6,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// relay:allow_legacy_verbose_syntax
-
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName my_field
+ * @RelayResolver User.my_field: RelayResolverValue
  * @rootFragment myRootFragment
  */
 
@@ -23,47 +18,58 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 Field(
-    LegacyVerboseResolver(
-        LegacyVerboseResolverIr {
-            field: FieldDefinitionStub {
+    TerseRelayResolver(
+        TerseRelayResolverIr {
+            field: FieldDefinition {
                 name: Identifier {
-                    span: 53:61,
+                    span: 25:33,
                     token: Token {
-                        span: 53:61,
+                        span: 25:33,
                         kind: Identifier,
                     },
                     value: "my_field",
                 },
-                arguments: None,
-            },
-            on: Type(
-                PopulatedIrField {
-                    key_location: /path/to/test/fixture/relay-resolver-with-fragment.js:27:33,
-                    value: WithLocation {
-                        location: /path/to/test/fixture/relay-resolver-with-fragment.js:34:38,
-                        item: "User",
+                type_: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 35:53,
+                            token: Token {
+                                span: 35:53,
+                                kind: Identifier,
+                            },
+                            value: "RelayResolverValue",
+                        },
                     },
-                },
-            ),
+                ),
+                arguments: None,
+                directives: [],
+                description: None,
+                hack_source: None,
+                span: 25:53,
+            },
+            type_: WithLocation {
+                location: /path/to/test/fixture/relay-resolver-with-fragment.js:20:24,
+                item: "User",
+            },
             root_fragment: Some(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-with-fragment.js:79:93,
+                    location: /path/to/test/fixture/relay-resolver-with-fragment.js:71:85,
                     item: FragmentDefinitionName(
                         "myRootFragment",
                     ),
                 },
             ),
-            output_type: None,
-            description: None,
-            hack_source: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,
-            location: /path/to/test/fixture/relay-resolver-with-fragment.js:0:94,
+            location: /path/to/test/fixture/relay-resolver-with-fragment.js:0:86,
             fragment_arguments: None,
             source_hash: ResolverSourceHash(
-                "04fa2c09e68fca302832f1acfb74e2d3",
+                "56fdc916b4b56384160f49926170f36c",
             ),
+            type_confirmed: false,
+            property_lookup_name: None,
         },
     ),
 )

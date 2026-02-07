@@ -3880,10 +3880,10 @@ flatted@^3.1.0:
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.2.6.tgz#022e9218c637f9f3fc9c35ab9c9193f05add60b2"
   integrity sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==
 
-flow-bin@^0.297.0:
-  version "0.297.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.297.0.tgz#69fa6510d1311083a4c9fd7d3294d481e895c804"
-  integrity sha512-WN9MrYZss1dGs+MzMqz6DjqErRQyyRfcm+8IsQFaKrtfLZrWSCBil0rP/ukv+DLL0jbNxhdlp14ks15TyznL+A==
+flow-bin@^0.299.0:
+  version "0.299.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.299.0.tgz#4e402a68e3b2f613fdffba22a2c77920813e11ae"
+  integrity sha512-NrVVBCn1d171hNEL6DwdByalpYOi+Kr+BeNuHcdS4xVU88PrVmRNM+Ut74TvXSGz77JRdPqkqJoB0Wu+rGPkxw==
 
 flush-write-stream@^1.0.2:
   version "1.1.1"
@@ -6448,10 +6448,10 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prettier-plugin-hermes-parser@0.33.2:
-  version "0.33.2"
-  resolved "https://registry.yarnpkg.com/prettier-plugin-hermes-parser/-/prettier-plugin-hermes-parser-0.33.2.tgz#abc853c0907fdce5f42457a09221c464c9e3e59e"
-  integrity sha512-YS9F5VhgDIJ+FyIMrwOSQjg5lYkMt4/csljG5E74FbhHAg4u9G0RHx7FImSd77qXDpxQMNW2QhZiWSUzWvegbQ==
+prettier-plugin-hermes-parser@0.34.1:
+  version "0.34.1"
+  resolved "https://registry.yarnpkg.com/prettier-plugin-hermes-parser/-/prettier-plugin-hermes-parser-0.34.1.tgz#75fc7abe0435ab45ee4431b1b1ce1a7baba6903c"
+  integrity sha512-cdA3tlvvFZkr8CuzaRJ28EVl7ep2zbfxKBBiS1t1w2Kud+Gsv/aQeU2a6rmMBnMJn510xPrIy0aZ9AG0uQHcRQ==
 
 prettier@3.6.2:
   version "3.6.2"

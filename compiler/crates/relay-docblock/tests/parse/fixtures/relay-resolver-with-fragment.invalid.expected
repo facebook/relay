@@ -7,7 +7,6 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 graphql`
   fragment myRootFragment on User {
@@ -16,17 +15,14 @@ graphql`
 `
 
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName my_field
+ * @RelayResolver User.my_field: RelayResolverValue
  * @rootFragment missingFragment
  */
 ==================================== ERROR ====================================
 ✖︎ Fragment `missingFragment` not found. Did you mean `myRootFragment`?
 
-  /path/to/test/fixture/relay-resolver-with-fragment.invalid.js:22:18
-   21 │  * @fieldName my_field
-   22 │  * @rootFragment missingFragment
+  /path/to/test/fixture/relay-resolver-with-fragment.invalid.js:18:18
+   17 │  * @RelayResolver User.my_field: RelayResolverValue
+   18 │  * @rootFragment missingFragment
       │                  ^^^^^^^^^^^^^^^
-   23 │
+   19 │

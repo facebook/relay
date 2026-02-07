@@ -152,8 +152,7 @@ impl Writer for FlowPrinter {
 }
 
 impl FlowPrinter {
-    pub fn new(use_readonly_array: impl Into<Option<bool>>) -> Self {
-        let _ = use_readonly_array.into();
+    pub fn new() -> Self {
         Self {
             result: String::new(),
             indentation: 0,
@@ -393,7 +392,7 @@ mod tests {
     use crate::writer::SortedASTList;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new(false));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -596,7 +595,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new(false));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -606,7 +605,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new(false));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

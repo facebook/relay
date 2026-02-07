@@ -59,6 +59,7 @@ Field(
                 item: "Cat",
             },
             root_fragment: None,
+            return_fragment: None,
             deprecated: None,
             semantic_non_null: None,
             live: None,

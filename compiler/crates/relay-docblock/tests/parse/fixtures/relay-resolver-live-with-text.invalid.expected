@@ -7,14 +7,9 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
- * @RelayResolver
- *
- * @onType User
- * @fieldName favorite_page
- * @edgeTo Page
+ * @RelayResolver User.favorite_page: Page
  * @rootFragment myRootFragment
  * @live in the moment
  */
@@ -27,8 +22,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ The `@RelayResolver` field `@live` does not accept data. Remove everything after `@live`.
 
-  /path/to/test/fixture/relay-resolver-live-with-text.invalid.js:18:5
-   17 │  * @rootFragment myRootFragment
-   18 │  * @live in the moment
+  /path/to/test/fixture/relay-resolver-live-with-text.invalid.js:13:5
+   12 │  * @rootFragment myRootFragment
+   13 │  * @live in the moment
       │     ^^^^
-   19 │
+   14 │

@@ -28,6 +28,7 @@ use docblock_shared::ON_INTERFACE_FIELD;
 use docblock_shared::ON_TYPE_FIELD;
 use docblock_shared::OUTPUT_TYPE_FIELD;
 use docblock_shared::RELAY_RESOLVER_FIELD;
+use docblock_shared::RETURN_FRAGMENT_FIELD;
 use docblock_shared::ROOT_FRAGMENT_FIELD;
 use docblock_shared::SEMANTIC_NON_NULL_FIELD;
 use docblock_shared::WEAK_FIELD;
@@ -44,6 +45,7 @@ pub use validate_resolver_schema::validate_resolver_schema;
 pub struct ParseOptions<'a> {
     pub enable_interface_output_type: &'a FeatureFlag,
     pub allow_resolver_non_nullable_return_type: &'a FeatureFlag,
+    pub enable_legacy_verbose_resolver_syntax: &'a FeatureFlag,
 }
 
 pub fn parse_docblock_ast(

@@ -9,7 +9,7 @@ use std::collections::HashSet;
 use std::fmt;
 
 use graphql_syntax::OperationKind;
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 use relay_transforms::extract_module_name;
 
 #[derive(Clone, Copy, Debug)]
@@ -193,9 +193,9 @@ fn create_impactful_part() -> String {
         "Solution",
     ];
     let adjective: &str = adjectives
-        .choose(&mut rand::thread_rng())
+        .choose(&mut rand::rng())
         .unwrap_or(&adjectives[0]);
-    let noun: &str = nouns.choose(&mut rand::thread_rng()).unwrap_or(&nouns[0]);
+    let noun: &str = nouns.choose(&mut rand::rng()).unwrap_or(&nouns[0]);
 
     format!("{adjective}{noun}")
 }

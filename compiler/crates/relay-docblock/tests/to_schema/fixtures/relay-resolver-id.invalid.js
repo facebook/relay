@@ -6,13 +6,9 @@
  */
 
 // expected-to-throw
-// relay:allow_legacy_verbose_syntax
 
 /**
- * @RelayResolver
- *
- * @onType PlainCommentBody
- * @fieldName id
+ * @RelayResolver PlainCommentBody.id: ID
  *
  * Relay expects id fields to be readable directly. They can't be implemented via resolvers.
  */

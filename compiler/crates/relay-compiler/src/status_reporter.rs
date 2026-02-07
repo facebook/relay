@@ -13,6 +13,8 @@
 use std::fs::OpenOptions;
 use std::io::Write;
 use std::path::PathBuf;
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering::SeqCst;
 
 use common::Diagnostic;
 use common::DiagnosticSeverity;
@@ -20,6 +22,7 @@ use graphql_cli::DiagnosticPrinter;
 use log::error;
 use log::info;
 use log::warn;
+use tokio::sync::Notify;
 
 use crate::FsSourceReader;
 use crate::SourceReader;
@@ -31,6 +34,61 @@ pub trait StatusReporter {
     fn build_starts(&self);
     fn build_completes(&self, diagnostics: &[Diagnostic]);
     fn build_errors(&self, error: &Error);
+}
+
+/// Tracks build status to coordinate between the compiler daemon and clients.
+///
+/// This allows the client calling flush_to_disk to wait until
+/// any ongoing build completes, ensuring artifacts are consistent.
+///
+/// The `is_building` flag starts as `true` to ensure the initial build is
+/// waited for. It is cleared when the build completes or when no build is
+/// needed, and set back to `true` when file changes are detected.
+pub struct BuildStatus {
+    is_building: AtomicBool,
+    build_complete_notify: Notify,
+}
+
+impl BuildStatus {
+    pub fn new() -> Self {
+        Self {
+            // Start with is_building=true to wait for the initial build
+            is_building: AtomicBool::new(true),
+            build_complete_notify: Notify::new(),
+        }
+    }
+
+    /// Called when file changes are detected, before the build starts.
+    pub fn changes_pending(&self) {
+        self.is_building.store(true, SeqCst);
+    }
+
+    /// Called when pending changes were determined to not require a build.
+    pub fn no_pending_changes(&self) {
+        self.is_building.store(false, SeqCst);
+        self.build_complete_notify.notify_waiters();
+    }
+
+    /// Called when a build completes (successfully or with errors)
+    pub fn build_completed(&self) {
+        self.is_building.store(false, SeqCst);
+        self.build_complete_notify.notify_waiters();
+    }
+
+    /// Wait until no build is in progress
+    pub async fn wait_for_idle(&self) {
+        let notified = self.build_complete_notify.notified();
+        if self.is_building.load(SeqCst) {
+            info!("Build is currently in progress...");
+            notified.await;
+        }
+    }
+}
+
+impl Default for BuildStatus {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 pub struct ConsoleStatusReporter {

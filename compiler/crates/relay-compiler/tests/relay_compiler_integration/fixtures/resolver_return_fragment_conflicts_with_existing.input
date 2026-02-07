@@ -1,0 +1,26 @@
+//- UserResolver.js
+// Test that @returnFragment rejects fragment names that conflict with existing fragments.
+/**
+ * @RelayResolver User.foo: RelayResolverValue
+ * @returnFragment UserResolverConflicting
+ */
+
+//- UserResolverConflicting.js
+// This fragment exists in the project and should conflict.
+graphql`fragment UserResolverConflicting on User {
+  name
+}`
+
+//- relay.config.json
+{
+  "language": "flow",
+  "jsModuleFormat": "haste",
+  "schema": "schema.graphql",
+  "featureFlags": {
+    "enable_shadow_resolvers": { "kind": "enabled" }
+  }
+}
+
+//- schema.graphql
+type Query { me: User }
+type User { name: String }

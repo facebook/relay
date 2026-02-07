@@ -16,9 +16,6 @@ jobs:
   update-cargo-lock:
     name: Update Cargo.lock file
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
     steps:
       - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
@@ -26,13 +23,13 @@ jobs:
           # Should stay in sync with fbcode/buck2/rust-toolchain
           # And other similar references in this file and
           # ci.yml
-          toolchain: nightly-2025-08-01
+          toolchain: nightly-2025-10-25
           override: true
       - name: cargo check
         run: cargo check --features vendored --manifest-path=compiler/Cargo.toml
       - name: pull-request
         uses: peter-evans/create-pull-request@v8
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RELAY_BOT_GITHUB_PAT }}
           title: "Update Cargo.lock"
           delete-branch: true

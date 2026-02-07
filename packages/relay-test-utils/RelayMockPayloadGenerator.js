@@ -717,11 +717,7 @@ class RelayMockPayloadGenerator {
       // Get basic type information: type of the field (Int, Float, String, etc..)
       // And check if it's a plural type
       const defaultValue =
-        enumValues != null
-          ? plural
-            ? enumValues
-            : enumValues[0]
-          : undefined;
+        enumValues != null ? (plural ? enumValues : enumValues[0]) : undefined;
 
       value = this._resolveValue(
         // If we don't have schema let's assume that fields with name (id, __id)

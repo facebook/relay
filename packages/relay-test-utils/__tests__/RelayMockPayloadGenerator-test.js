@@ -1498,18 +1498,16 @@ describe('with @relay_test_operation', () => {
   });
 
   test('generate mock for enum in arrays with default values', () => {
-    testGeneratedData(
-      graphql`
-        query RelayMockPayloadGeneratorTest70Query @relay_test_operation {
-          node(id: "my-id") {
-            ... on User {
-              id
-              traits
-            }
+    testGeneratedData(graphql`
+      query RelayMockPayloadGeneratorTest70Query @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            traits
           }
         }
-      `,
-    );
+      }
+    `);
   });
 
   test('generate mock with invalid value for enum', () => {

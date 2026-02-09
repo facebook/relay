@@ -92,6 +92,11 @@ jobs:
             os: windows-latest
     runs-on: ${{ matrix.target.os }}
     steps:
+      - name: Free disk space
+        if: matrix.target.os == 'ubuntu-latest'
+        run: |
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /usr/share/dotnet
       - uses: actions/checkout@v6
       - uses: actions-rs/toolchain@v1
         with:
@@ -143,12 +148,17 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           # Should stay in sync with tools/third-party/rustfmt/.rustfmt-version
+          # and the RUSTUP_TOOLCHAIN env var in the rustfmt step below
           toolchain: nightly-2025-08-01
           override: true
           components: rustfmt
       - name: "rustfmt"
         run: grep -r --include "*.rs" --files-without-match $'\x40generated' crates | xargs rustfmt --check --config="skip_children=true"
         working-directory: ./compiler/
+        env:
+          # Must match the toolchain installed above. This overrides
+          # compiler/rust-toolchain.toml which would otherwise take precedence.
+          RUSTUP_TOOLCHAIN: nightly-2025-08-01
 
   build-compiler:
     name: Build Rust Compiler (${{ matrix.target.os }})

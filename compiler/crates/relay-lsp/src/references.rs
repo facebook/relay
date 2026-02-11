@@ -19,7 +19,6 @@ use lsp_types::Location as LSPLocation;
 use lsp_types::request::References;
 use lsp_types::request::Request;
 use relay_docblock::DocblockIr;
-use relay_docblock::On;
 use relay_docblock::ResolverFieldDocblockIr;
 use schema::Schema;
 
@@ -80,12 +79,6 @@ fn get_references_response(
         FeatureResolutionInfo::DocblockNode(docblock_node) => {
             if let DocblockResolutionInfo::FieldName(field_name) = docblock_node.resolution_info {
                 let type_name = match docblock_node.ir {
-                    DocblockIr::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(
-                        relay_resolver,
-                    )) => match relay_resolver.on {
-                        On::Type(type_) => type_.value.item,
-                        On::Interface(interface) => interface.value.item,
-                    },
                     DocblockIr::Field(ResolverFieldDocblockIr::TerseRelayResolver(
                         terse_resolver,
                     )) => terse_resolver.type_.item,

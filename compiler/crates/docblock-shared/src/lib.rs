@@ -100,18 +100,6 @@ lazy_static! {
     /// is used to hold the name of the generated fragment.
     pub static ref GENERATED_FRAGMENT_ARGUMENT_NAME: ArgumentName =
         ArgumentName("generated_fragment".intern());
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// the name of the resolver field.
-    pub static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// the type on which the resolver field is being defined.
-    pub static ref ON_TYPE_FIELD: StringKey = "onType".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// the interface on which the resolver field is being defined.
-    pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate
-    /// that a resolver returns an edge to another GraphQL type.
-    pub static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
     /// The name of the docblock tag used to indicate that a resolver is deprecated.
     /// If present, an equivalent `@deprecated` directive will be added to the
     /// resolver field. Note that GraphQL spec does not allow types to be marked
@@ -142,9 +130,6 @@ lazy_static! {
     /// Name of docblock tag used to indicate that a shadow resolver returns
     /// data conforming to a specific fragment's shape.
     pub static ref RETURN_FRAGMENT_FIELD: StringKey = "returnFragment".intern();
-    /// _Legacy resolver syntax_: The name of the docblock tag used to indicate that the resolver returns
-    /// a fully/deeply populated weak type. This feature is deprecated.
-    pub static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
     /// Docblock tag used to indicate that a docblock is defining a "weak" type.
     /// Such docblocks should be followed by a type export which will act as the
     /// Flow/TypeScript type of the backing model for this type.

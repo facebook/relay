@@ -44,7 +44,6 @@ use graphql_syntax::ConstantDirective;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DefaultValue;
 use graphql_syntax::FieldDefinition;
-use graphql_syntax::FieldDefinitionStub;
 use graphql_syntax::Identifier;
 use graphql_syntax::InputValueDefinition;
 use graphql_syntax::InterfaceTypeExtension;
@@ -122,7 +121,6 @@ impl ResolverTypeDocblockIr {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ResolverFieldDocblockIr {
-    LegacyVerboseResolver(LegacyVerboseResolverIr),
     TerseRelayResolver(TerseRelayResolverIr),
 }
 
@@ -140,9 +138,6 @@ impl ResolverFieldDocblockIr {
         };
 
         let schema_doc = match self {
-            ResolverFieldDocblockIr::LegacyVerboseResolver(relay_resolver) => {
-                relay_resolver.to_graphql_schema_ast(project_config)
-            }
             ResolverFieldDocblockIr::TerseRelayResolver(relay_resolver) => {
                 relay_resolver.to_graphql_schema_ast(project_config)
             }
@@ -151,7 +146,6 @@ impl ResolverFieldDocblockIr {
     }
     pub fn location(&self) -> Location {
         match self {
-            Self::LegacyVerboseResolver(strong_object) => strong_object.location(),
             Self::TerseRelayResolver(weak_object) => weak_object.location(),
         }
     }
@@ -166,9 +160,6 @@ pub enum DocblockIr {
 impl DocblockIr {
     pub(crate) fn get_variant_name(&self) -> &'static str {
         match self {
-            Self::Field(ResolverFieldDocblockIr::LegacyVerboseResolver(_)) => {
-                "legacy resolver declaration"
-            }
             Self::Field(ResolverFieldDocblockIr::TerseRelayResolver(_)) => {
                 "terse resolver declaration"
             }
@@ -292,21 +283,6 @@ impl TryFrom<IrField> for UnpopulatedIrField {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum On {
-    Type(PopulatedIrField),
-    Interface(PopulatedIrField),
-}
-
-impl On {
-    pub fn type_name(&self) -> StringKey {
-        match self {
-            On::Type(field) => field.value.item,
-            On::Interface(field) => field.value.item,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub struct Argument {
     pub name: Identifier,
     pub type_: TypeAnnotation,
@@ -323,16 +299,12 @@ impl Named for Argument {
 #[derive(Debug, PartialEq, Clone)]
 pub enum OutputType {
     Pending(WithLocation<TypeAnnotation>),
-    EdgeTo(WithLocation<TypeAnnotation>),
-    Output(WithLocation<TypeAnnotation>),
 }
 
 impl OutputType {
     pub fn inner(&self) -> &WithLocation<TypeAnnotation> {
         match self {
             Self::Pending(inner) => inner,
-            Self::EdgeTo(inner) => inner,
-            Self::Output(inner) => inner,
         }
     }
 }
@@ -574,11 +546,6 @@ trait ResolverIr: Sized {
                         ))
                     }
                 }
-                OutputType::EdgeTo(_) => {}
-                OutputType::Output(type_) => arguments.push(true_argument(
-                    HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
-                    type_.location,
-                )),
             }
         }
 
@@ -709,38 +676,6 @@ trait ResolverTypeDefinitionIr: ResolverIr {
         object
             .named_field(self.field_name().value, project_config.schema)
             .is_none()
-    }
-
-    // When defining a resolver on an object or interface, we must be sure that this
-    // field is not defined on any parent interface because this could lead to a case where
-    // someone tries to read the field in an fragment on that interface. In order to support
-    // that, our runtime would need to dynamically figure out which resolver it
-    // should read from, or if it should even read from a resolver at all.
-    //
-    // Until we decide to support that behavior we'll make it a compiler error.
-    fn validate_singular_implementation(
-        &self,
-        project_config: ResolverProjectConfig<'_, '_>,
-        interfaces: &[InterfaceID],
-    ) -> DiagnosticsResult<()> {
-        let schema = project_config.schema;
-
-        for interface_id in interfaces {
-            let interface = schema.interface(*interface_id);
-            for field_id in &interface.fields {
-                let field = schema.field(*field_id);
-                if field.name() == self.field_name().value {
-                    return Err(vec![Diagnostic::error(
-                        SchemaValidationErrorMessages::ResolverImplementingInterfaceField {
-                            field_name: self.field_name().value,
-                            interface_name: interface.name(),
-                        },
-                        self.location().with_span(self.field_name().span),
-                    )]);
-                }
-            }
-        }
-        Ok(())
     }
 
     fn object_definitions(
@@ -975,207 +910,6 @@ impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
 
     fn hack_source(&self) -> Option<StringNode> {
         self.field.hack_source.clone()
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct LegacyVerboseResolverIr {
-    pub field: FieldDefinitionStub,
-    pub on: On,
-    pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
-    pub return_fragment: Option<WithLocation<FragmentDefinitionName>>,
-    pub output_type: Option<OutputType>,
-    pub description: Option<WithLocation<StringKey>>,
-    pub hack_source: Option<WithLocation<StringKey>>,
-    pub deprecated: Option<IrField>,
-    pub semantic_non_null: Option<ConstantDirective>,
-    pub live: Option<UnpopulatedIrField>,
-    pub location: Location,
-    pub fragment_arguments: Option<Vec<Argument>>,
-    pub source_hash: ResolverSourceHash,
-}
-
-impl ResolverIr for LegacyVerboseResolverIr {
-    fn field_definitions(
-        self,
-        project_config: ResolverProjectConfig<'_, '_>,
-    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
-        let schema = project_config.schema;
-
-        let name = self
-            .field_name()
-            .name_with_location(self.location.source_location());
-        if name.item == project_config.schema_config.node_interface_id_field {
-            return Err(vec![Diagnostic::error(
-                SchemaValidationErrorMessages::ResolversCantImplementId {
-                    id_field_name: name.item,
-                },
-                name.location,
-            )]);
-        }
-
-        if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
-            if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
-                if let Some(false) = schema
-                    .get_type(edge_to_type.type_.inner().name.value)
-                    .map(|t| schema.is_extension_type(t))
-                {
-                    return Err(vec![Diagnostic::error(
-                        SchemaValidationErrorMessages::ClientEdgeToPluralServerType,
-                        edge_to_with_location.location,
-                    )]);
-                }
-            }
-        }
-        match self.on {
-            On::Type(PopulatedIrField {
-                key_location,
-                value,
-            }) => {
-                if let Some(type_) = schema.get_type(value.item) {
-                    match type_ {
-                        Type::Object(object_id) => {
-                            let object = schema.object(object_id);
-                            self.validate_singular_implementation(
-                                project_config,
-                                &object.interfaces,
-                            )?;
-                            return Ok(self.object_definitions(object, project_config));
-                        }
-                        Type::Interface(_) => {
-                            return Err(vec![Diagnostic::error_with_data(
-                                ErrorMessagesWithData::OnTypeForInterface,
-                                key_location,
-                            )]);
-                        }
-                        _ => {}
-                    }
-                }
-                let suggester = GraphQLSuggestions::new(schema);
-                Err(vec![Diagnostic::error_with_data(
-                    ErrorMessagesWithData::InvalidOnType {
-                        type_name: value.item,
-                        suggestions: suggester.object_type_suggestions(value.item),
-                    },
-                    value.location,
-                )])
-            }
-            On::Interface(PopulatedIrField {
-                key_location,
-                value,
-            }) => {
-                if let Some(_type) = schema.get_type(value.item) {
-                    if let Some(interface_type) = _type.get_interface_id() {
-                        self.validate_singular_implementation(
-                            project_config,
-                            &schema.interface(interface_type).interfaces,
-                        )?;
-                        return Ok(self.interface_definitions(
-                            value.map(InterfaceName),
-                            interface_type,
-                            project_config,
-                        ));
-                    } else if _type.is_object() {
-                        return Err(vec![Diagnostic::error_with_data(
-                            ErrorMessagesWithData::OnInterfaceForType,
-                            key_location,
-                        )]);
-                    }
-                }
-                let suggester = GraphQLSuggestions::new(schema);
-                Err(vec![Diagnostic::error_with_data(
-                    ErrorMessagesWithData::InvalidOnInterface {
-                        interface_name: value.item,
-                        suggestions: suggester.interface_type_suggestions(value.item),
-                    },
-                    value.location,
-                )])
-            }
-        }
-    }
-
-    fn location(&self) -> Location {
-        self.location
-    }
-
-    fn id_fragment(&self, _schema_config: &SchemaConfig) -> Option<RootFragment> {
-        None
-    }
-
-    fn root_fragment_name(&self) -> Option<WithLocation<FragmentDefinitionName>> {
-        self.root_fragment
-    }
-
-    fn root_fragment(
-        &self,
-        object: Option<&Object>,
-        project_config: ResolverProjectConfig<'_, '_>,
-    ) -> Option<RootFragment> {
-        self.root_fragment
-            .map(|fragment| RootFragment {
-                fragment,
-                generated: false,
-                inject_fragment_data: None,
-            })
-            .or_else(|| get_root_fragment_for_object(project_config.project_name, object))
-    }
-
-    fn output_type(&self) -> Option<OutputType> {
-        self.output_type.as_ref().cloned()
-    }
-
-    fn deprecated(&self) -> Option<IrField> {
-        self.deprecated
-    }
-
-    fn live(&self) -> Option<UnpopulatedIrField> {
-        self.live
-    }
-
-    fn semantic_non_null(&self) -> Option<ConstantDirective> {
-        self.semantic_non_null.clone()
-    }
-
-    fn named_import(&self) -> Option<StringKey> {
-        Some(self.field.name.value)
-    }
-
-    fn source_hash(&self) -> ResolverSourceHash {
-        self.source_hash
-    }
-
-    fn type_confirmed(&self) -> bool {
-        false
-    }
-
-    fn property_lookup_name(&self) -> Option<WithLocation<StringKey>> {
-        None
-    }
-
-    fn return_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
-        self.return_fragment
-    }
-}
-
-impl ResolverTypeDefinitionIr for LegacyVerboseResolverIr {
-    fn field_name(&self) -> &Identifier {
-        &self.field.name
-    }
-
-    fn field_arguments(&self) -> Option<&List<InputValueDefinition>> {
-        self.field.arguments.as_ref()
-    }
-
-    fn description(&self) -> Option<StringNode> {
-        self.description.map(as_string_node)
-    }
-
-    fn fragment_arguments(&self) -> Option<&Vec<Argument>> {
-        self.fragment_arguments.as_ref()
-    }
-
-    fn hack_source(&self) -> Option<StringNode> {
-        self.hack_source.map(as_string_node)
     }
 }
 

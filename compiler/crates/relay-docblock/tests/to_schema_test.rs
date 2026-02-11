@@ -20,13 +20,6 @@ async fn client_edge_relay_resolver() {
 }
 
 #[tokio::test]
-async fn legacy_relay_resolver_with_root_fragment_on_model() {
-    let input = include_str!("to_schema/fixtures/legacy-relay-resolver-with-root-fragment-on-model.js");
-    let expected = include_str!("to_schema/fixtures/legacy-relay-resolver-with-root-fragment-on-model.expected");
-    test_fixture(transform_fixture, file!(), "legacy-relay-resolver-with-root-fragment-on-model.js", "to_schema/fixtures/legacy-relay-resolver-with-root-fragment-on-model.expected", input, expected).await;
-}
-
-#[tokio::test]
 async fn relay_resolver() {
     let input = include_str!("to_schema/fixtures/relay-resolver.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver.expected");
@@ -66,34 +59,6 @@ async fn relay_resolver_on_interface() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-interface.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface.expected");
     test_fixture(transform_fixture, file!(), "relay-resolver-on-interface.js", "to_schema/fixtures/relay-resolver-on-interface.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_interface_with_type_invalid() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-on-interface-with-type.invalid.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface-with-type.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-interface-with-type.invalid.js", "to_schema/fixtures/relay-resolver-on-interface-with-type.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_invalid_interface_invalid() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-on-invalid-interface.invalid.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-on-invalid-interface.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-invalid-interface.invalid.js", "to_schema/fixtures/relay-resolver-on-invalid-interface.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_invalid_type_invalid() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-on-invalid-type.invalid.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-on-invalid-type.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-invalid-type.invalid.js", "to_schema/fixtures/relay-resolver-on-invalid-type.invalid.expected", input, expected).await;
-}
-
-#[tokio::test]
-async fn relay_resolver_on_type_with_interface_invalid() {
-    let input = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.js");
-    let expected = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected");
-    test_fixture(transform_fixture, file!(), "relay-resolver-on-type-with-interface.invalid.js", "to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected", input, expected).await;
 }
 
 #[tokio::test]

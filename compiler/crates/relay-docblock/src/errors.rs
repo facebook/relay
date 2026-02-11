@@ -12,8 +12,6 @@ use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
-use crate::ON_INTERFACE_FIELD;
-use crate::ON_TYPE_FIELD;
 use crate::untyped_representation::AllowedFieldName;
 
 #[derive(
@@ -54,28 +52,6 @@ pub enum UntypedRepresentationErrorMessages {
 )]
 #[serde(tag = "type")]
 pub enum IrParsingErrorMessages {
-    #[error("Missing docblock field `@{field_name}`")]
-    MissingField { field_name: AllowedFieldName },
-
-    #[error("Expected docblock field `@{field_name}` to have specified a value.")]
-    MissingFieldValue { field_name: AllowedFieldName },
-
-    #[error(
-        "Unexpected `@{field_1}` and `@{field_2}`. Only one of these docblock fields should be defined on a given `@RelayResolver`."
-    )]
-    IncompatibleFields {
-        field_1: AllowedFieldName,
-        field_2: AllowedFieldName,
-    },
-
-    #[error(
-        "Expected either `@{field_1}` or `@{field_2}` to be defined in this `@RelayResolver` docblock."
-    )]
-    ExpectedOneOrTheOther {
-        field_1: AllowedFieldName,
-        field_2: AllowedFieldName,
-    },
-
     // The rest of this sentence is expected to be supplied by `.annotate`.
     #[error("Unexpected conflicting argument name. This field argument")]
     ConflictingArguments,
@@ -112,21 +88,6 @@ pub enum IrParsingErrorMessages {
     #[error("Defining arguments with default values for resolver fields is not supported, yet.")]
     ArgumentDefaultValuesNoSupported,
 
-    #[error("Unexpected non-nullable type given in `@edgeTo`.")]
-    UnexpectedNonNullableEdgeTo,
-
-    #[error("Unexpected non-nullable item in list type given in `@edgeTo`.")]
-    UnexpectedNonNullableItemInListEdgeTo,
-
-    #[error(
-        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in `@{on_field_name}` (`{on_field_value}`) are different. Please make sure these are exactly the same."
-    )]
-    MismatchRootFragmentTypeCondition {
-        fragment_type_condition: StringKey,
-        on_field_name: AllowedFieldName,
-        on_field_value: StringKey,
-    },
-
     #[error(
         "The type specified in the fragment (`{fragment_type_condition}`) and the parent type (`{type_name}`) are different. Please make sure these are exactly the same."
     )]
@@ -139,11 +100,6 @@ pub enum IrParsingErrorMessages {
         "Unexpected character \"{found}\". Expected `@RelayResolver` field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
     )]
     UnexpectedNonDot { found: char },
-
-    #[error(
-        "Unexpected `@outputType`. The deprecated `@outputType` option is not enabled for the field `{field_name}`."
-    )]
-    UnexpectedOutputType { field_name: StringKey },
 
     #[error(
         "Legacy verbose resolver syntax (@onType, @onInterface, @fieldName) is deprecated. Use the terse syntax instead: @RelayResolver ParentType.fieldName: ReturnType"
@@ -164,19 +120,6 @@ pub enum IrParsingErrorMessages {
 )]
 #[serde(tag = "type")]
 pub enum SchemaValidationErrorMessages {
-    #[error(
-        "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
-    )]
-    ClientEdgeToPluralServerType,
-
-    #[error(
-        "Unexpected Relay Resolver for a field which is defined in parent interface. The field `{field_name}` is defined by `{interface_name}`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concrete types."
-    )]
-    ResolverImplementingInterfaceField {
-        field_name: StringKey,
-        interface_name: InterfaceName,
-    },
-
     #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
     ResolversCantImplementId { id_field_name: StringKey },
 
@@ -228,29 +171,6 @@ pub enum SchemaValidationErrorMessages {
 )]
 #[serde(tag = "type")]
 pub enum ErrorMessagesWithData {
-    #[error(
-        "Invalid interface given for `@onInterface`. `{interface_name}` is not an existing GraphQL interface.{suggestions}", suggestions = did_you_mean(suggestions))]
-    InvalidOnInterface {
-        interface_name: StringKey,
-        suggestions: Vec<StringKey>,
-    },
-
-    #[error("Invalid type given for `@onType`. `{type_name}` is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
-    InvalidOnType {
-        type_name: StringKey,
-        suggestions: Vec<StringKey>,
-    },
-
-    #[error(
-        "Found `@onType` docblock field referring to an interface. Did you mean `@onInterface`?"
-    )]
-    OnTypeForInterface,
-
-    #[error(
-        "Found `@onInterface` docblock field referring to an object type. Did you mean `@onType`?"
-    )]
-    OnInterfaceForType,
-
     #[error("Fragment `{fragment_name}` not found.{suggestions}", suggestions = did_you_mean(suggestions))]
     FragmentNotFound {
         fragment_name: StringKey,
@@ -267,15 +187,8 @@ pub enum ErrorMessagesWithData {
 impl WithDiagnosticData for ErrorMessagesWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
-            ErrorMessagesWithData::InvalidOnInterface { suggestions, .. }
-            | ErrorMessagesWithData::FragmentNotFound { suggestions, .. }
-            | ErrorMessagesWithData::InvalidOnType { suggestions, .. } => suggestions
-                .iter()
-                .map(|suggestion| into_box(*suggestion))
-                .collect::<_>(),
-            ErrorMessagesWithData::OnTypeForInterface => vec![into_box(*ON_INTERFACE_FIELD)],
-            ErrorMessagesWithData::OnInterfaceForType => vec![into_box(*ON_TYPE_FIELD)],
-            ErrorMessagesWithData::TypeNotFound { suggestions, .. } => suggestions
+            ErrorMessagesWithData::FragmentNotFound { suggestions, .. }
+            | ErrorMessagesWithData::TypeNotFound { suggestions, .. } => suggestions
                 .iter()
                 .map(|suggestion| into_box(*suggestion))
                 .collect::<_>(),
